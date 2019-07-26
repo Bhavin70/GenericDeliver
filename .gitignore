@@ -1,0 +1,24 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/src/SalesTrackerAPI/bin/Debug/netcoreapp1.0
+/src/SalesTrackerAPI/obj/Debug/netcoreapp1.0
+/.vs/ODLMSWebAPI/v15/Server/sqlite3
+/src/logs
+/.vs/ODLMWebAPI/v15/Server/sqlite3/db.lock
+/ODLMWebAPI/obj/Release/netcoreapp2.0
+/logs
+/ODLMWebAPI/obj/Debug/netcoreapp2.0
+/ODLMWebAPI/bin/Debug/netcoreapp2.0
+
+.VS/
+/.vs/ODLMWebAPI/v15/Server/sqlite3/db.lock
+/.vs/ODLMWebAPI/v15/Server/sqlite3/storage.ide
+/.vs/ODLMWebAPI/v15/Server/sqlite3/storage.ide-shm
+/.vs/ODLMWebAPI/v15/Server/sqlite3/storage.ide-wal
+/.vs/ODLMWebAPI/v15/Server/sqlite3
+/.vs/ODLMWebAPI/v15/sqlite3
+/.vs/ODLMWebAPI/v15/
+/src/logs
+/src/ODLMWebAPI/obj/Debug/netcoreapp2.0
