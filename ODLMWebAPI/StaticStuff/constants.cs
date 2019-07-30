@@ -455,7 +455,7 @@ namespace ODLMWebAPI.StaticStuff
 
         #region Constants Or Static Strings
         public static String Local_URL = "http://localhost:4200";
-        public static Boolean Local_API = false;
+        public static Boolean Local_API = true;
         public static String CONNECTION_STRING = "ConnectionString";
         public static String AZURE_CONNECTION_STRING = "AzureConnectionStr";
         public static String REQUEST_ORIGIN_STRING = "RequestOriginString";

@@ -25,6 +25,8 @@ using ODLMWebAPI.BL;
 using ODLMWebAPI.DAL;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.Authentication;
+using ODLMWebAPI.IoT;
+using ODLMWebAPI.IoT.Interfaces;
 
 namespace ODLMWebAPI
 {
@@ -493,6 +495,11 @@ namespace ODLMWebAPI
             services.AddScoped<IDimConfigurePageBL, DimConfigurePageBL>();
             services.AddScoped<IDimConfigurePageDAO, DimConfigurePageDAO>();
             services.AddScoped<InotificationDAO, notificationDAO>();
+            services.AddScoped<IGateCommunication, GateCommunication>();
+            services.AddScoped<IIotCommunication, IotCommunication>();
+            services.AddScoped<IWeighingCommunication, WeighingCommunication>();
+
+
 
             services.AddMvc();
             ConnectionString = Configuration.GetSection("Data:DefaultConnection").Value.ToString();
