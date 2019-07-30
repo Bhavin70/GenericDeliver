@@ -3121,6 +3121,13 @@ namespace ODLMWebAPI.BL
                 existingTblBookingsTO.IsSez = tblBookingsTO.IsSez;
                 existingTblBookingsTO.UomQty = tblBookingsTO.UomQty;
                 existingTblBookingsTO.PendingUomQty = tblBookingsTO.PendingUomQty;
+
+                //Aniket [24-7-2019] added to check scheduled NoOfDeliveries against booking
+                if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
+                {
+                    var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleDate);
+                    existingTblBookingsTO.NoOfDeliveries = res.Count();
+                }
                 result = UpdateTblBookings(existingTblBookingsTO, conn, tran);
                 if (result != 1)
                 {
