@@ -48,10 +48,32 @@ namespace ODLMWebAPI.Models
         Int32 loadingType;
         Int32 currencyId; 
         Double currencyRate;
+        //Add For IoT
+        int modbusRefId;
+        List<int[]> dynamicItemList = new List<int[]>();
+        Dictionary<int, List<int[]>> dynamicItemListDCT = new Dictionary<int, List<int[]>>();
+        Int32 gateId;
+        string portNumber;
+        string ioTUrl;
+        string machineIP;
+        Int32 isDBup;
+        Int32 isBackup;
+        List<TblLoadingStatusHistoryTO> loadingStatusHistoryTOList;
 
         // Double orcAmt;
         //Saket [2018-02-21] Added.
         List<TblLoadingVehDocExtTO> loadingVehDocExtTOList = new List<TblLoadingVehDocExtTO>();
+
+        public int ModbusRefId { get => modbusRefId; set => modbusRefId = value; }
+        public List<int[]> DynamicItemList { get => dynamicItemList; set => dynamicItemList = value; }
+        public Dictionary<int, List<int[]>> DynamicItemListDCT { get => dynamicItemListDCT; set => dynamicItemListDCT = value; }
+        public int GateId { get => gateId; set => gateId = value; }
+        public string PortNumber { get => portNumber; set => portNumber = value; }
+        public string IoTUrl { get => ioTUrl; set => ioTUrl = value; }
+        public string MachineIP { get => machineIP; set => machineIP = value; }
+        public List<TblLoadingStatusHistoryTO> LoadingStatusHistoryTOList { get => loadingStatusHistoryTOList; set => loadingStatusHistoryTOList = value; }
+        public int IsBackup { get => isBackup; set => isBackup = value; }
+        public int IsDBup { get => isDBup; set => isDBup = value; }
 
         // Vaibhav [23-Feb-2018]
         Double maxWeighingOty;
