@@ -131,7 +131,8 @@ namespace ODLMWebAPI.DAL
                         tblAlertDefinitionTONew.IsTxnAlert = Convert.ToInt32(tblAlertDefinitionTODT["isTxnAlert"].ToString());
                     if (tblAlertDefinitionTODT["alertDescription"] != DBNull.Value)
                         tblAlertDefinitionTONew.AlertDescription = Convert.ToString(tblAlertDefinitionTODT["alertDescription"].ToString());
-
+                    if (tblAlertDefinitionTODT["defaultSmsTxt"] != DBNull.Value)
+                        tblAlertDefinitionTONew.DefaultSmsTxt = Convert.ToString(tblAlertDefinitionTODT["defaultSmsTxt"].ToString());
                     tblAlertDefinitionTOList.Add(tblAlertDefinitionTONew);
                 }
             }

@@ -49,7 +49,8 @@ namespace ODLMWebAPI.BL
         private readonly ITblQuotaDeclarationDAO _iTblQuotaDeclarationDAO;
         private readonly ITblMaterialDAO _iTblMaterialDAO;
         private readonly ITblLoadingSlipExtDAO _iTblLoadingSlipExtDAO;
-        public TblBookingsBL(ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblMaterialDAO iTblMaterialDAO, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, IDimensionDAO iDimensionDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblOrgOverdueHistoryDAO iTblOrgOverdueHistoryDAO, ITblUserDAO iTblUserDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblQuotaConsumHistoryDAO iTblQuotaConsumHistoryDAO, ITblBookingBeyondQuotaDAO iTblBookingBeyondQuotaDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblSysElementsBL iTblSysElementsBL, IDimBrandDAO iDimBrandDAO, ITblOrganizationDAO iTblOrganizationDAO, ITblGlobalRateDAO iTblGlobalRateDAO, ITblQuotaDeclarationBL iTblQuotaDeclarationBL, ITblBookingActionsDAO iTblBookingActionsDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblBookingOpngBalDAO iTblBookingOpngBalDAO, ITblUserAreaAllocationBL iTblUserAreaAllocationBL, ICircularDependencyBL iCircularDependencyBL, ITblConfigParamsDAO iTblConfigParamsDAO, ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingScheduleDAO iTblBookingScheduleDAO, ITblUserRoleBL iTblUserRoleBL, ITblEnquiryDtlDAO iTblEnquiryDtlDAO, ITblOverdueDtlDAO iTblOverdueDtlDAO, ITblBookingsDAO iTblBookingsDAO, ICommon iCommon, IConnectionString iConnectionString)
+        private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
+        public TblBookingsBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblMaterialDAO iTblMaterialDAO, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, IDimensionDAO iDimensionDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblOrgOverdueHistoryDAO iTblOrgOverdueHistoryDAO, ITblUserDAO iTblUserDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblQuotaConsumHistoryDAO iTblQuotaConsumHistoryDAO, ITblBookingBeyondQuotaDAO iTblBookingBeyondQuotaDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblSysElementsBL iTblSysElementsBL, IDimBrandDAO iDimBrandDAO, ITblOrganizationDAO iTblOrganizationDAO, ITblGlobalRateDAO iTblGlobalRateDAO, ITblQuotaDeclarationBL iTblQuotaDeclarationBL, ITblBookingActionsDAO iTblBookingActionsDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblBookingOpngBalDAO iTblBookingOpngBalDAO, ITblUserAreaAllocationBL iTblUserAreaAllocationBL, ICircularDependencyBL iCircularDependencyBL, ITblConfigParamsDAO iTblConfigParamsDAO, ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingScheduleDAO iTblBookingScheduleDAO, ITblUserRoleBL iTblUserRoleBL, ITblEnquiryDtlDAO iTblEnquiryDtlDAO, ITblOverdueDtlDAO iTblOverdueDtlDAO, ITblBookingsDAO iTblBookingsDAO, ICommon iCommon, IConnectionString iConnectionString)
         {
             _iTblBookingsDAO = iTblBookingsDAO;
             _iTblOverdueDtlDAO = iTblOverdueDtlDAO;
@@ -83,6 +84,7 @@ namespace ODLMWebAPI.BL
             _iTblQuotaDeclarationDAO = iTblQuotaDeclarationDAO;
             _iTblMaterialDAO = iTblMaterialDAO;
             _iTblLoadingSlipExtDAO = iTblLoadingSlipExtDAO;
+            _iTblAlertDefinitionDAO = iTblAlertDefinitionDAO;
         }
         #region Selection
         public List<TblBookingPendingRptTO> SelectBookingPendingQryRpt(DateTime fromDate, DateTime toDate, int reportType)
@@ -1785,22 +1787,37 @@ namespace ODLMWebAPI.BL
                     tblAlertInstanceTO.AlertComment = "Your Booking #" + tblBookingsTO.IdBooking + " is confirmed. Rate : " + tblBookingsTO.BookingRate + " AND Qty : " + tblBookingsTO.BookingQty;
                     tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
                     // SMS to Dealer
+                    TblSmsTO smsTO = new TblSmsTO();
                     Dictionary<Int32, String> orgMobileNoDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblBookingsTO.DealerOrgId.ToString(), conn, tran);
-                    if (orgMobileNoDCT != null && orgMobileNoDCT.Count == 1)
+                    //Aniket [31-7-2019] added to set sms text dynamically
+                   TblAlertDefinitionTO tblAlertDefinitionTO= _iTblAlertDefinitionDAO.SelectTblAlertDefinition((int)NotificationConstants.NotificationsE.BOOKING_CONFIRMED, conn, tran);
+                    if(tblAlertDefinitionTO==null || !String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
                     {
-                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
-                        TblSmsTO smsTO = new TblSmsTO();
-                        smsTO.MobileNo = orgMobileNoDCT[tblBookingsTO.DealerOrgId];
-                        smsTO.SourceTxnDesc = "New Booking";
-                        string confirmMsg = string.Empty;
-                        if (tblBookingsTO.IsConfirmed == 1)
-                            confirmMsg = "Confirmed";
-                        else
-                            confirmMsg = "Not Confirmed";
-
-                        smsTO.SmsTxt = "Your Order Of Qty " + tblBookingsTO.BookingQty.ToString().Trim() + " MT with Rate " + tblBookingsTO.BookingRate + " (Rs/MT) is " + confirmMsg.Trim() + " Your Ref No : " + tblBookingsTO.IdBooking + "";
-                        tblAlertInstanceTO.SmsTOList.Add(smsTO);
+                        string tempSmsString = tblAlertDefinitionTO.DefaultSmsTxt;
+                        tempSmsString= tempSmsString.Replace("@QtyStr", tblBookingsTO.BookingQty.ToString());
+                        tempSmsString= tempSmsString.Replace("@RateStr", tblBookingsTO.BookingRate.ToString());
+                        smsTO.SmsTxt = tempSmsString;
                     }
+                    else
+                    {
+                        if (orgMobileNoDCT != null && orgMobileNoDCT.Count == 1)
+                        {
+                            tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
+
+                            smsTO.MobileNo = orgMobileNoDCT[tblBookingsTO.DealerOrgId];
+                            smsTO.SourceTxnDesc = "New Booking";
+                            string confirmMsg = string.Empty;
+                            if (tblBookingsTO.IsConfirmed == 1)
+                                confirmMsg = "Confirmed";
+                            else
+                                confirmMsg = "Not Confirmed";
+
+                            smsTO.SmsTxt = "Your Order Of Qty " + tblBookingsTO.BookingQty.ToString().Trim() + " MT with Rate " + tblBookingsTO.BookingRate + " (Rs/MT) is " + confirmMsg.Trim() + " Your Ref No : " + tblBookingsTO.IdBooking + "";
+                            
+                        }
+                        
+                    }
+                    tblAlertInstanceTO.SmsTOList.Add(smsTO);
 
                 }
                 else

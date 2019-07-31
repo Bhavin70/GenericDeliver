@@ -26,7 +26,8 @@ namespace ODLMWebAPI.BL
         private readonly ITblUserBrandDAO _iTblUserBrandDAO;
         private readonly IConnectionString _iConnectionString;
         private readonly ICommon _iCommon;
-        public TblQuotaDeclarationBL(ICommon iCommon, IConnectionString iConnectionString, ITblUserBrandDAO iTblUserBrandDAO, ITblBookingActionsBL iTblBookingActionsBL, ITblAlertInstanceBL iTblAlertInstanceBL, ITblUserBL iTblUserBL, ITblPersonBL iTblPersonBL, ITblGlobalRateBL iTblGlobalRateBL, ITblUserBrandBL iTblUserBrandBL, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, ITblConfigParamsBL iTblConfigParamsBL)
+        private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
+        public TblQuotaDeclarationBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ICommon iCommon, IConnectionString iConnectionString, ITblUserBrandDAO iTblUserBrandDAO, ITblBookingActionsBL iTblBookingActionsBL, ITblAlertInstanceBL iTblAlertInstanceBL, ITblUserBL iTblUserBL, ITblPersonBL iTblPersonBL, ITblGlobalRateBL iTblGlobalRateBL, ITblUserBrandBL iTblUserBrandBL, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, ITblConfigParamsBL iTblConfigParamsBL)
         {
             _iTblQuotaDeclarationDAO = iTblQuotaDeclarationDAO;
             _iTblConfigParamsBL = iTblConfigParamsBL;
@@ -39,6 +40,7 @@ namespace ODLMWebAPI.BL
             _iTblUserBrandDAO = iTblUserBrandDAO;
             _iConnectionString = iConnectionString;
             _iCommon = iCommon;
+            _iTblAlertDefinitionDAO = iTblAlertDefinitionDAO;
         }
         #region Selection
 
@@ -572,7 +574,7 @@ namespace ODLMWebAPI.BL
                             TblOrganizationTO tblOrganizationTO = (TblOrganizationTO)tblQuotaDeclarationTO.Tag;
 
                             smsTO.MobileNo = ((TblOrganizationTO)tblQuotaDeclarationTO.Tag).RegisteredMobileNos;
-
+                           
                             List<TblUserBrandTO> tblUserBrandListCnf = tblUserBrandList.Where(W => W.CnfOrgId == tblOrganizationTO.IdOrganization).ToList();
                             if (tblUserBrandListCnf != null && tblUserBrandListCnf.Count > 0)
                             {
@@ -583,23 +585,36 @@ namespace ODLMWebAPI.BL
                                     var temp = tblUserBrandListCnf.Where(w => w.BrandId == tblGlobalRateTO.BrandId).FirstOrDefault();
                                     if (temp != null)
                                         brandRateStr += tblGlobalRateTO.BrandName + " " + tblGlobalRateTO.Rate + ", ";
+
+                                   
                                 }
                             }
                             else
                             {
                                 brandRateStr = rateString;
                             }
-
-
                             smsTO.SourceTxnDesc = "Quota & Rate Declaration";
-                            String reasonDesc = tblGlobalRateTOList[0].RateReasonDesc;
-                            if (tblGlobalRateTOList[0].RateReasonDesc == "Other")
-                                reasonDesc = tblGlobalRateTOList[0].Comments;
-                            if (isRateAlreadyDeclare)
-                                //[12/12/2017] Vijaymala :Commented the code because rate reason is not mandatory
-                                smsTO.SmsTxt = "New Rate is declared. Rate = " + brandRateStr + " Rs/MT ";//, Reason : " + reasonDesc;
+                            //Aniket [31-7-2019] added to create dynamic sms text
+                            TblAlertDefinitionTO tblAlertDefinitionTO = _iTblAlertDefinitionDAO.SelectTblAlertDefinition((int)NotificationConstants.NotificationsE.NEW_RATE_AND_QUOTA_DECLARED, conn, tran);
+                            if(tblAlertDefinitionTO == null || !String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
+                            {
+                                    string tempSmsString = tblAlertDefinitionTO.DefaultSmsTxt;
+                                    tempSmsString= tempSmsString.Replace("@DateStr", tblQuotaDeclarationTO.CreatedOn.ToString());
+                                    tempSmsString= tempSmsString.Replace("@RateStr", brandRateStr);
+                                    smsTO.SmsTxt = tempSmsString;
+                            }
                             else
-                                smsTO.SmsTxt = "Today's Rate is declared. Rate = " + brandRateStr + " Rs/MT ";//, Reason : " + reasonDesc;
+                            {
+                                String reasonDesc = tblGlobalRateTOList[0].RateReasonDesc;
+                                if (tblGlobalRateTOList[0].RateReasonDesc == "Other")
+                                    reasonDesc = tblGlobalRateTOList[0].Comments;
+                                if (isRateAlreadyDeclare)
+                                    //[12/12/2017] Vijaymala :Commented the code because rate reason is not mandatory
+                                    smsTO.SmsTxt = "New Rate is declared. Rate = " + brandRateStr + " Rs/MT ";//, Reason : " + reasonDesc;
+                                else
+                                    smsTO.SmsTxt = "Today's Rate is declared. Rate = " + brandRateStr + " Rs/MT ";//, Reason : " + reasonDesc;
+
+                            }
 
                             smsTOList.Add(smsTO);
                         }

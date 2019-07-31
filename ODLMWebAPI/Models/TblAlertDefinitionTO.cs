@@ -25,6 +25,7 @@ namespace ODLMWebAPI.Models
         String moduleDesc;
         Int32 isTxnAlert;   // added by aniket
         String alertDescription; // added by aniket
+        String defaultSmsTxt;  //Aniket [31-7-2019] 
         #endregion
 
         #region Constructor
@@ -109,6 +110,7 @@ namespace ODLMWebAPI.Models
         public int ModuleId { get => moduleId; set => moduleId = value; }
         public int IsActive { get => isActive; set => isActive = value; }
         public string ModuleDesc { get => moduleDesc; set => moduleDesc = value; }
+        public string DefaultSmsTxt { get => defaultSmsTxt; set => defaultSmsTxt = value; }
 
         #endregion
     }
