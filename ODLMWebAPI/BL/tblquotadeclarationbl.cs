@@ -596,7 +596,7 @@ namespace ODLMWebAPI.BL
                             smsTO.SourceTxnDesc = "Quota & Rate Declaration";
                             //Aniket [31-7-2019] added to create dynamic sms text
                             TblAlertDefinitionTO tblAlertDefinitionTO = _iTblAlertDefinitionDAO.SelectTblAlertDefinition((int)NotificationConstants.NotificationsE.NEW_RATE_AND_QUOTA_DECLARED, conn, tran);
-                            if(tblAlertDefinitionTO == null || !String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
+                            if(!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
                             {
                                     string tempSmsString = tblAlertDefinitionTO.DefaultSmsTxt;
                                     tempSmsString= tempSmsString.Replace("@DateStr", tblQuotaDeclarationTO.CreatedOn.ToString());

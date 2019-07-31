@@ -4522,7 +4522,7 @@ namespace ODLMWebAPI.BL
                                 TblSmsTO smsTO = new TblSmsTO();
                                 smsTO.MobileNo = dealerDCT[item];
                                 smsTO.SourceTxnDesc = "VEHICLE_OUT_FOR_DELIVERY";
-                                if(tblAlertDefinitionTO==null || !String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
+                                if(!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
                                 {
                                     string tempSmsString = tblAlertDefinitionTO.DefaultSmsTxt;
                                     tempSmsString= tempSmsString.Replace("@QtyStr",tblLoadingTO.TotalLoadingQty.ToString());

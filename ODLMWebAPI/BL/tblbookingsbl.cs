@@ -1791,7 +1791,7 @@ namespace ODLMWebAPI.BL
                     Dictionary<Int32, String> orgMobileNoDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblBookingsTO.DealerOrgId.ToString(), conn, tran);
                     //Aniket [31-7-2019] added to set sms text dynamically
                    TblAlertDefinitionTO tblAlertDefinitionTO= _iTblAlertDefinitionDAO.SelectTblAlertDefinition((int)NotificationConstants.NotificationsE.BOOKING_CONFIRMED, conn, tran);
-                    if(tblAlertDefinitionTO==null || !String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
+                    if(!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
                     {
                         string tempSmsString = tblAlertDefinitionTO.DefaultSmsTxt;
                         tempSmsString= tempSmsString.Replace("@QtyStr", tblBookingsTO.BookingQty.ToString());
