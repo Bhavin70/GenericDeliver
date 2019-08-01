@@ -2208,7 +2208,8 @@ namespace ODLMWebAPI.BL
                     TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
                     tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.LOADING_SLIP_CONFIRMATION_REQUIRED;
                     tblAlertInstanceTO.AlertAction = "LOADING_SLIP_CONFIRMATION_REQUIRED";
-                    tblAlertInstanceTO.AlertComment = "Not confirmed loading slip  " + tblLoadingTO.LoadingSlipNo + "  is awaiting for confirmation";
+
+                    tblAlertInstanceTO.AlertComment = "Loading slip  " + tblLoadingTO.LoadingSlipNo + "  is awaiting for confirmation";
                     if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                     {
                         tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
@@ -4417,7 +4418,7 @@ namespace ODLMWebAPI.BL
                     {
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.LOADING_SLIP_CONFIRMED;
                         tblAlertInstanceTO.AlertAction = "LOADING_SLIP_CONFIRMED";
-                        tblAlertInstanceTO.AlertComment = "Not confirmed loading slip  " + tblLoadingTO.LoadingSlipNo + "  For Vehicle No :" + tblLoadingTO.VehicleNo + "  is approved";
+                        tblAlertInstanceTO.AlertComment = "Loading slip  " + tblLoadingTO.LoadingSlipNo + "  For Vehicle No :" + tblLoadingTO.VehicleNo + "  is approved";
 
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
