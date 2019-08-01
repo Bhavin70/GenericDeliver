@@ -2688,7 +2688,11 @@ namespace ODLMWebAPI.BL
 
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_APPROVED_BY_DIRECTORS;
                         tblAlertInstanceTO.AlertAction = tblBookingsTO.TranStatusE.ToString();
-                        tblAlertInstanceTO.AlertComment = "Your Not Confirmed Booking #" + tblBookingsTO.IdBooking + " is accepted";
+                        if(tblBookingsTO.IsConfirmed==1)
+                            tblAlertInstanceTO.AlertComment = "Your  Confirmed Booking #" + tblBookingsTO.IdBooking + " is accepted";
+                        else
+                            tblAlertInstanceTO.AlertComment = "Your Not Confirmed Booking #" + tblBookingsTO.IdBooking + " is accepted";
+
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
                             tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
