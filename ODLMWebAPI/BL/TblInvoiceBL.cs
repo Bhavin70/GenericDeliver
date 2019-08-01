@@ -3486,6 +3486,8 @@ namespace ODLMWebAPI.BL
                         itemFooterDetailsDT.Columns.Add("totalQty",typeof(double));
                         itemFooterDetailsDT.Columns.Add("totalBundles");
                         itemFooterDetailsDT.Columns.Add("totalBasicAmt", typeof(double));
+                        itemFooterDetailsDT.Columns.Add("EWayBillNo");
+                        itemFooterDetailsDT.Rows[0]["EWayBillNo"] = tblInvoiceTO.ElectronicRefNo;
                         var totalQtyResTO = invoiceItemlist.Where(ele => ele.OtherTaxId == 0).ToList();
                         if (totalQtyResTO != null && totalQtyResTO.Count > 0)
                         {
