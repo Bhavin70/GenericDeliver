@@ -1,33 +1,33 @@
-﻿//{
-//  "marketingtrial": {
-//    "RequestOriginString": "https://marketingtrial.simpliworks.co.in",
-//    "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
-//    "ConnectionString": "Server=tcp:genericcentralserver.database.windows.net,1433;Initial Catalog= RecycleDBTesting;Persist Security Info=False;User ID=vega;Password=simple@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-//  },
-//  "shreebalaji": {
-//    "RequestOriginString": "https://shreebalaji.simpliworks.co.in",
-//    "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
-//    "ConnectionString": "Server=tcp:genericcentralserver.database.windows.net,1433;Initial Catalog= ShreeBalajiDB;Persist Security Info=False;User ID=vega;Password=simple@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-//  },
-//  "metaroll": {
-//    "RequestOriginString": "https://metaroll.simpliworks.co.in",
-//    "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
-//    "ConnectionString": "Server=tcp:genericcentralserver.database.windows.net,1433;Initial Catalog= MetarollDB;Persist Security Info=False;User ID=vega;Password=simple@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-//  },
-//  "a1ig": {
-//    "RequestOriginString": "https://a1ig.simpliworks.co.in",
-//    "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
-//    "ConnectionString": "Server=tcp:genericcentralserver.database.windows.net,1433;Initial Catalog= A1ispaatDB;Persist Security Info=False;User ID=vega;Password=simple@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-//  },
-//  "marketing": {
-//    "RequestOriginString": "https://marketing.simpliworks.co.in",
-//    "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
-//    "ConnectionString": "Server=tcp:genericcentralserver.database.windows.net,1433;Initial Catalog= MarketingDB;Persist Security Info=False;User ID=vega;Password=simple@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-//  },
-//  "http://localhost:4200": {
-//    "RequestOriginString": "http://localhost:4200",
-//    "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
-//    "ConnectionString": "Server=tcp:genericcentralserver.database.windows.net,1433;Initial Catalog= RecycleDBTesting;Persist Security Info=False;User ID=vega;Password=simple@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-//  }
+﻿{
+  "marketingtrial": {
+    "RequestOriginString": "https://marketingtrial.simpliworks.co.in",
+    "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
+    "ConnectionString": "Server=tcp:genericcentralserver.database.windows.net,1433;Initial Catalog= RecycleDBTesting;Persist Security Info=False;User ID=vega;Password=simple@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+  },
+  "shreebalaji": {
+    "RequestOriginString": "https://shreebalaji.simpliworks.co.in",
+    "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
+    "ConnectionString": "Server=tcp:genericcentralserver.database.windows.net,1433;Initial Catalog= ShreeBalajiDB;Persist Security Info=False;User ID=vega;Password=simple@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+  },
+  "metaroll": {
+    "RequestOriginString": "https://metaroll.simpliworks.co.in",
+    "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
+    "ConnectionString": "Server=tcp:genericcentralserver.database.windows.net,1433;Initial Catalog= MetarollDB;Persist Security Info=False;User ID=vega;Password=simple@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+  },
+  "a1ig": {
+    "RequestOriginString": "https://a1ig.simpliworks.co.in",
+    "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
+    "ConnectionString": "Server=tcp:genericcentralserver.database.windows.net,1433;Initial Catalog= A1ispaatDB;Persist Security Info=False;User ID=vega;Password=simple@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+  },
+  "marketing": {
+    "RequestOriginString": "https://marketing.simpliworks.co.in",
+    "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
+    "ConnectionString": "Server=tcp:genericcentralserver.database.windows.net,1433;Initial Catalog= MarketingDB;Persist Security Info=False;User ID=vega;Password=simple@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+  },
+  "http://localhost:4200": {
+    "RequestOriginString": "http://localhost:4200",
+    "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
+    "ConnectionString": "Server=tcp:genericcentralserver.database.windows.net,1433;Initial Catalog= RecycleDBTesting;Persist Security Info=False;User ID=vega;Password=simple@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+  }
 
-//}
+}
