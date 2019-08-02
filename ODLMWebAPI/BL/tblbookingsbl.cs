@@ -2809,7 +2809,9 @@ namespace ODLMWebAPI.BL
                     {
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_REJECTED_BY_DIRECTORS;
                         tblAlertInstanceTO.AlertAction = "BOOKING_REJECTED_BY_DIRECTORS";
-                        tblAlertInstanceTO.AlertComment = "Your Not Confirmed Booking #" + tblBookingsTO.IdBooking + " is rejected";
+                        //tblAlertInstanceTO.AlertComment = "Your Not Confirmed Booking #" + tblBookingsTO.IdBooking + " is rejected";
+                        tblAlertInstanceTO.AlertComment = "Your Booking #" + tblBookingsTO.IdBooking + " is rejected";
+
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
                             tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
@@ -2832,7 +2834,9 @@ namespace ODLMWebAPI.BL
                     {
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_APPROVED_BY_DIRECTORS;
                         tblAlertInstanceTO.AlertAction = "BOOKING_APPROVED_BY_DIRECTORS";
-                        tblAlertInstanceTO.AlertComment = "Not Confirmed Booking #" + tblBookingsTO.IdBooking + " is accepted by Director";
+                        //tblAlertInstanceTO.AlertComment = "Not Confirmed Booking #" + tblBookingsTO.IdBooking + " is accepted by Director";
+                        tblAlertInstanceTO.AlertComment = "Booking #" + tblBookingsTO.IdBooking + " is accepted by Director";
+
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
                             tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
@@ -2988,7 +2992,9 @@ namespace ODLMWebAPI.BL
                     {
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_REJECTED_BY_DIRECTORS;
                         tblAlertInstanceTO.AlertAction = "BOOKING_REJECTED_BY_DIRECTORS";
-                        tblAlertInstanceTO.AlertComment = "Not Confirmed Booking #" + tblBookingsTO.IdBooking + " is rejected by Admin/Director";
+                        //tblAlertInstanceTO.AlertComment = "Not Confirmed Booking #" + tblBookingsTO.IdBooking + " is rejected by Admin/Director";
+                        tblAlertInstanceTO.AlertComment = "Booking #" + tblBookingsTO.IdBooking + " is rejected by Admin/Director";
+
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
                             tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
