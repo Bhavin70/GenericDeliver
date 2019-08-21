@@ -28,12 +28,12 @@ namespace ODLMWebAPI.Models
         {
         }
 
-        public TblGateTO(TblLoadingTO tblLoadingTO)
+        public TblGateTO(Int32 GateId,String IoTUrl, String MachineIP, String PortNumber)
         {
-            this.IdGate = tblLoadingTO.GateId;
-            this.IoTUrl = tblLoadingTO.IoTUrl;
-            this.MachineIP = tblLoadingTO.MachineIP;
-            this.PortNumber = tblLoadingTO.PortNumber;
+            this.IdGate = GateId;
+            this.IoTUrl = IoTUrl;
+            this.MachineIP = MachineIP;
+            this.PortNumber = PortNumber;
         }
 
         #endregion

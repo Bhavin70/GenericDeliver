@@ -26,7 +26,8 @@ namespace ODLMWebAPI.BL
         private readonly ITblStockSummaryDAO _iTblStockSummaryDAO;
         private readonly IConnectionString _iConnectionString;
         private readonly ITblParityDetailsDAO _iTblParityDetailsDAO;
-        public CircularDependencyBL(ITblParityDetailsDAO iTblParityDetailsDAO,ITblLoadingSlipDAO iTblLoadingSlipDAO, IConnectionString iConnectionString, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceDAO iTblInvoiceDAO, ITblLoadingDAO iTblLoadingDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblBookingScheduleDAO iTblBookingScheduleDAO, ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblBookingExtDAO iTblBookingExtDAO)
+        private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
+        public CircularDependencyBL(ITblConfigParamsDAO iTblConfigParamsDAO,ITblParityDetailsDAO iTblParityDetailsDAO,ITblLoadingSlipDAO iTblLoadingSlipDAO, IConnectionString iConnectionString, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceDAO iTblInvoiceDAO, ITblLoadingDAO iTblLoadingDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblBookingScheduleDAO iTblBookingScheduleDAO, ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblBookingExtDAO iTblBookingExtDAO)
         {
             _iTblBookingScheduleDAO = iTblBookingScheduleDAO;
             _iTblBookingDelAddrDAO = iTblBookingDelAddrDAO;
@@ -42,6 +43,7 @@ namespace ODLMWebAPI.BL
             _iTblStockSummaryDAO = iTblStockSummaryDAO;
             _iConnectionString = iConnectionString;
             _iTblParityDetailsDAO = iTblParityDetailsDAO;
+            _iTblConfigParamsDAO = iTblConfigParamsDAO;
         }
         public List<TblBookingScheduleTO> SelectBookingScheduleByBookingId(Int32 bookingId)
         { 
@@ -89,16 +91,37 @@ namespace ODLMWebAPI.BL
             }
             return tblWeighingMeasuresTOList;
         }
-        public ResultMessage CheckInvoiceNoGeneratedByVehicleNo(string vehicleNo, SqlConnection conn, SqlTransaction tran, Boolean isForOutOnly = false)
+        public ResultMessage CheckInvoiceNoGeneratedByVehicleNo(string vehicleNo, SqlConnection conn, SqlTransaction tran,int loadingId, Boolean isForOutOnly = false)
         {
             ResultMessage resMessage = new StaticStuff.ResultMessage();
             try
             {
+                int weightSourceConfigId= _iTblConfigParamsDAO.IoTSetting();
                 List<TblLoadingTO> loadingList = new List<TblLoadingTO>();
                 if (isForOutOnly)
-                    loadingList = _iTblLoadingDAO.SelectAllLoadingListByVehicleNoForDelOut(vehicleNo, conn, tran);
+                {
+                    if (weightSourceConfigId != (Int32)Constants.WeighingDataSourceE.IoT)
+                    {
+                        loadingList = _iTblLoadingDAO.SelectAllLoadingListByVehicleNoForDelOut(vehicleNo, conn, tran);
+                    }
+                    else
+                    {
+                        loadingList = _iTblLoadingDAO.SelectAllLoadingListByVehicleNoForDelOut(loadingId, conn, tran);
+
+                    }
+                }
                 else
-                    loadingList = _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(vehicleNo, false, conn, tran);
+                {
+                    if (weightSourceConfigId != (Int32)Constants.WeighingDataSourceE.IoT)
+                    {
+                        loadingList = _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(vehicleNo, false, 0, conn, tran);
+                    }
+                    else
+                    {
+                        loadingList = _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(vehicleNo, false, loadingId, conn, tran);
+                    }
+
+                }
 
                 if (loadingList == null || loadingList.Count == 0)
                 {

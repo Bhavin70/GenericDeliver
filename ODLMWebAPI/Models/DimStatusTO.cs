@@ -15,7 +15,9 @@ namespace ODLMWebAPI.Models
         Int32 prevStatusId;
         String statusDesc;
         String colorCode;
-
+        //Aniket [30-7-2019] added for IOT
+        Int32 iotStatusId;
+        int dispSeqNo;
         #endregion
 
         #region Constructor
@@ -54,6 +56,8 @@ namespace ODLMWebAPI.Models
             set { statusDesc = value; }
         }
         public string ColorCode { get => colorCode; set => colorCode = value; }
+        public int IotStatusId { get => iotStatusId; set => iotStatusId = value; }
+        public int DispSeqNo { get => dispSeqNo; set => dispSeqNo = value; }
 
         #endregion
     }

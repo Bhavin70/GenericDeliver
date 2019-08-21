@@ -36,6 +36,8 @@ namespace ODLMWebAPI.DAL.Interfaces
        
         //Aniket [22-3-2019] added to get loadingSlipExt details against 
         List<TblLoadingSlipExtTO> GetAllLoadingExtByBookingId(int bookingId,string configval);
+        //Aniket [13-8-2019]
+        int UpdateLoadingSlipExtSeqNumber(TblLoadingSlipExtTO tblLoadingSlipExtTO, SqlConnection conn, SqlTransaction tran);
 
     }
 }

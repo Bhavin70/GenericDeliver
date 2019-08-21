@@ -38,6 +38,15 @@ namespace ODLMWebAPI
         public static string AzureConnectionStr { get; set; }
         public static string NewConnectionString { get; private set; }
         public static string DeliverUrl { get; private set; }
+
+        //Aniket [30-7-2019] added for IOT
+        public static Int32 WeighingSrcConfig { get; private set; }
+
+        public static string IoTBackUpConnectionString { get; private set; }
+        public static List<int> AvailableModbusRefList { get; set; }
+
+        public static string GateIotApiURL { get; set; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -498,6 +507,8 @@ namespace ODLMWebAPI
             services.AddScoped<IGateCommunication, GateCommunication>();
             services.AddScoped<IIotCommunication, IotCommunication>();
             services.AddScoped<IWeighingCommunication, WeighingCommunication>();
+            services.AddScoped<ITblGateBL, TblGateBL>();
+            services.AddScoped<ITblGateDAO, TblGateDAO>();
 
 
 

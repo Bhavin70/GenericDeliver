@@ -25,5 +25,6 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblLoginTO> GetCurrentActiveUsers();
         dimUserConfigrationTO GetUsersConfigration(int configdesc, SqlConnection conn, SqlTransaction tran);
         dimUserConfigrationTO GetUsersConfigration(int configdesc);
+       
     }
 }

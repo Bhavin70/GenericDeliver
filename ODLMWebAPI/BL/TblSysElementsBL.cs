@@ -27,7 +27,19 @@ namespace ODLMWebAPI.BL
           private readonly ITblUserRoleBL _iTblUserRoleBL;
           //private readonly ITblSysElementsBL _iTblSysElementBL;
         private readonly IConnectionString _iConnectionString;
-        public TblSysElementsBL(ITblUserBL _iTblUserBL,ITblUserRoleBL iTblUserRoleBL, IDimensionDAO iDimentionDAO,ITblUserRoleDAO iTblUserRoleDAO,ITblUserDAO iTblUserDAO, IConnectionString iConnectionString, ITblSysEleUserEntitlementsDAO iTblSysEleUserEntitlementsDAO, ITblSysEleUserEntitlementsBL iTblSysEleUserEntitlementsBL, ITblSysElementsDAO iTblSysElementsDAO, ITblSysEleRoleEntitlementsBL iTblSysEleRoleEntitlementsBL, ITblSysEleRoleEntitlementsDAO iTblSysEleRoleEntitlementsDAO)
+        public TblSysElementsBL(
+            ITblUserBL _iTblUserBL,
+            ITblUserRoleBL iTblUserRoleBL,
+            IDimensionDAO iDimentionDAO,
+            ITblUserRoleDAO iTblUserRoleDAO,
+            ITblUserDAO iTblUserDAO,
+            IConnectionString iConnectionString,
+            ITblSysEleUserEntitlementsDAO iTblSysEleUserEntitlementsDAO,
+            ITblSysEleUserEntitlementsBL iTblSysEleUserEntitlementsBL, 
+            ITblSysElementsDAO iTblSysElementsDAO,
+            ITblSysEleRoleEntitlementsBL iTblSysEleRoleEntitlementsBL, 
+            ITblSysEleRoleEntitlementsDAO iTblSysEleRoleEntitlementsDAO
+            )
         {
             _iTblSysElementsDAO = iTblSysElementsDAO;
             _iTblSysEleRoleEntitlementsBL = iTblSysEleRoleEntitlementsBL;
@@ -36,11 +48,11 @@ namespace ODLMWebAPI.BL
             _iTblSysEleUserEntitlementsDAO = iTblSysEleUserEntitlementsDAO;
             _iTblUserDAO = iTblUserDAO;
             _iConnectionString = iConnectionString;
-            _iTblUserRoleDAO=iTblUserRoleDAO;
-            _iDimentionDAO=iDimentionDAO;
-           //_iTblSysElementBL =iTblSysElementBL;
-            _iTblUserRoleBL=iTblUserRoleBL;
-            this._iTblUserBL=_iTblUserBL;
+            _iTblUserRoleDAO = iTblUserRoleDAO;
+            _iDimentionDAO = iDimentionDAO;
+            //_iTblSysElementBL =iTblSysElementBL;
+            _iTblUserRoleBL = iTblUserRoleBL;
+            // this._iTblUserBL=_iTblUserBL;
         }
         #region Selection
         //public List<TblSysElementsTO> SelectAllTblSysElementsList(int menuPgId)

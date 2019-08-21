@@ -20,10 +20,57 @@ namespace ODLMWebAPI.DAL
     public class Common : ICommon
     {
         private readonly IConnectionString _iConnectionString;
+       
         public Common(IConnectionString iConnectionString)
         {
             _iConnectionString = iConnectionString;
+            
         }
+
+     
+        #region GetNextAvailableModRefIdNew
+        //Aniket [30-7-2019]  added for IOT
+        public int GetNextAvailableModRefIdNew()
+        {
+            int modRefNumber = 0;
+            List<int> list = Startup.AvailableModbusRefList;
+            //if (list != null && list.Count > 0)
+            //{
+            //    int maxNumber = 1;
+            //    modRefNumber = GetAvailNumber(list, maxNumber);
+            //}
+            //else
+            //{
+            //    modRefNumber = 1;
+            //}
+            //bool isInList = list.Contains(modRefNumber);
+            //if (isInList)
+            //    return 0;
+            //else
+            //    Startup.AvailableModbusRefList.Add(modRefNumber);
+            Random num = new Random();
+           modRefNumber= num.Next(1, 255);
+            return modRefNumber;
+        }
+
+
+        public int GetAvailNumber(List<int> list, int maxNumber)
+        {
+            if (list.Contains(maxNumber))
+            {
+                if (maxNumber > 255)
+                {
+                    return 0;
+                }
+                maxNumber++;
+                return GetAvailNumber(list, maxNumber);
+            }
+            else
+            {
+                return maxNumber;
+            }
+        }
+        #endregion
 
         public System.DateTime SelectServerDateTime()
         {

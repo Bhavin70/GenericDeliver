@@ -23,6 +23,7 @@ namespace ODLMWebAPI.DAL
         {
             String sqlSelectQry = " SELECT tempLoadingSlip.* ,tempLoadSlipdtl.loadingQty, " +
                                   " cnfOrg.firmName as cnfOrgName ,dimStat.statusName ,tempLoadSlipdtl.bookingId,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
+                                  " ,loading.modbusRefId,loading.gateId,loading.isDBup,gate.portNumber,gate.IoTUrl,gate.machineIP "+
                                   " FROM tempLoadingSlip" +
                                   " LEFT JOIN tblOrganization " +
                                   " ON tblOrganization.idOrganization = tempLoadingSlip.dealerOrgId " +
@@ -32,13 +33,16 @@ namespace ODLMWebAPI.DAL
                                   " ON dimStat.idStatus = tempLoadingSlip.statusId " +
                                    " Left Join tempLoadingSlipDtl tempLoadSlipdtl ON tempLoadSlipdtl.loadingSlipId = tempLoadingSlip.idLoadingSlip " +
                                    "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = tblOrganization.addrId" +   //Aniket K [03-Jan-2019] Added to show village name against dealer
+                                   " LEFT JOIN temploading loading on loading.idloading = tempLoadingSlip.loadingId "+
+                                   " LEFT JOIN tblGate gate on gate.idGate=loading.gateId "+
 
                                    // Vaibhav [09-Jan-2018] Added to select from  finalLoadingSlip
 
-                                  " UNION ALL " +
+            " UNION ALL " +
 
                                   " SELECT finalLoadingSlip.* , tempLoadSlipdtl.loadingQty, " +
                                   " cnfOrg.firmName as cnfOrgName, dimStat.statusName, tempLoadSlipdtl.bookingId,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
+                                  " , loading.modbusRefId,loading.gateId,loading.isDBup,gate.portNumber,gate.IoTUrl,gate.machineIP "+
                                   " FROM finalLoadingSlip " +
                                   " LEFT JOIN tblOrganization " +
                                   " ON tblOrganization.idOrganization = finalLoadingSlip.dealerOrgId " +
@@ -47,7 +51,9 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN dimStatus dimStat " +
                                   " ON dimStat.idStatus = finalLoadingSlip.statusId " +
                                    " Left Join finalLoadingSlipDtl tempLoadSlipdtl ON tempLoadSlipdtl.loadingSlipId = finalLoadingSlip.idLoadingSlip " +
-                                   "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = tblOrganization.addrId";  //Aniket K [03-Jan-2019] Added to show village name against dealer
+                                   "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = tblOrganization.addrId " +  //Aniket K [03-Jan-2019] Added to show village name against dealer
+                                    " LEFT JOIN temploading loading on loading.idloading = finalLoadingSlip.loadingId " +
+                                   " LEFT JOIN tblGate gate on gate.idGate=loading.gateId ";
 
             return sqlSelectQry;
         }
@@ -570,6 +576,20 @@ namespace ODLMWebAPI.DAL
                     //Priyanka [05-09-2018]
                     if (tblLoadingSlipTODT["bookingId"] != DBNull.Value)
                         tblLoadingSlipTONew.BookingId = Convert.ToInt32(tblLoadingSlipTODT["bookingId"].ToString());
+
+                    if (tblLoadingSlipTODT["modbusRefId"] != DBNull.Value)
+                        tblLoadingSlipTONew.ModbusRefId = Convert.ToInt32(tblLoadingSlipTODT["modbusRefId"]);
+
+                    if (tblLoadingSlipTODT["gateId"] != DBNull.Value)
+                        tblLoadingSlipTONew.GateId = Convert.ToInt32(tblLoadingSlipTODT["gateId"]);
+                    if (tblLoadingSlipTODT["portNumber"] != DBNull.Value)
+                        tblLoadingSlipTONew.PortNumber = Convert.ToString(tblLoadingSlipTODT["portNumber"]);
+                    if (tblLoadingSlipTODT["ioTUrl"] != DBNull.Value)
+                        tblLoadingSlipTONew.IotUrl = Convert.ToString(tblLoadingSlipTODT["ioTUrl"]);
+                    if (tblLoadingSlipTODT["machineIP"] != DBNull.Value)
+                        tblLoadingSlipTONew.MachineIP = Convert.ToString(tblLoadingSlipTODT["machineIP"]);
+                    if (tblLoadingSlipTODT["isDBup"] != DBNull.Value)
+                        tblLoadingSlipTONew.IsDBup = Convert.ToInt32(tblLoadingSlipTODT["isDBup"]);
                     tblLoadingSlipTOList.Add(tblLoadingSlipTONew);
                 }
             }
@@ -810,6 +830,8 @@ namespace ODLMWebAPI.DAL
                                   " ELSE CASE WHEN address.districtName IS NOT NULL THEN address.districtName ELSE address.stateName" +
                                   " END END END END AS  dealerOrgName,transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName, tblLoadSlipdtl.bookingId " +
+                                   " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
+                                   " , loading.modbusRefId, loading.gateId,loading.isDBup "+
                                   " FROM  tempLoadingSlip tblLoadingSlip " +
                                   " Left Join tempLoadingSlipDtl tblLoadSlipdtl ON tblLoadSlipdtl.loadingSlipId = tblLoadingSlip.idLoadingSlip " +
                                   " LEFT JOIN tblOrganization ON tblOrganization.idOrganization = tblLoadingSlip.dealerOrgId " +
@@ -820,6 +842,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
                                   " LEFT JOIN tblUser ON idUser=loading.createdBy " +
+                                  " LEFT JOIN tblGate tblGate ON tblGate.idGate = loading.gateId " +
                                   " LEFT JOIN vAddressDetails address ON address.idAddr = tblOrganization.addrId  " + whereisConTemp1 +
 
                                   " UNION ALL " +
@@ -831,6 +854,8 @@ namespace ODLMWebAPI.DAL
                                   " END END END END AS  dealerOrgName , " +
                                   " transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName, tblLoadSlipdtl.bookingId " +
+                                  " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
+                                   " , loading.modbusRefId, loading.gateId,loading.isDBup " +
                                   " FROM finalLoadingSlip tblLoadingSlip  " +
                                   " Left Join finalLoadingSlipDtl tblLoadSlipdtl ON tblLoadSlipdtl.loadingSlipId = tblLoadingSlip.idLoadingSlip " +
                                   " LEFT JOIN tblOrganization ON tblOrganization.idOrganization = tblLoadingSlip.dealerOrgId " +
@@ -841,6 +866,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
                                   " LEFT JOIN tblUser ON idUser=loading.createdBy " +
+                                   " LEFT JOIN tblGate tblGate ON tblGate.idGate = loading.gateId " +
                                   " LEFT JOIN vAddressDetails address ON address.idAddr = tblOrganization.addrId " + whereisConFinal1;
 
 

@@ -12,12 +12,12 @@ namespace ODLMWebAPI.IoT.Interfaces
     {
         TblLoadingTO GetItemDataFromIotAndMerge(TblLoadingTO tblLoadingTO, Boolean loadingWithDtls, Boolean getStatusHistory = false, Int32 isWeighing = 0);
 
-        void GetItemDataFromIotForGivenLoadingSlip(TblLoadingSlipTO tblLoadingSlipTO);
+       // void GetItemDataFromIotForGivenLoadingSlip(TblLoadingSlipTO tblLoadingSlipTO);
 
         DateTime IoTDateTimeStringToDate(string statusDate);
         List<TblLoadingTO> GetLoadingData(List<TblLoadingTO> tblLoadingTOList);
 
-        void GetWeighingMeasuresFromIoT(string loadingId, bool isUnloading, List<TblWeighingMeasuresTO> tblWeighingMeasuresTOList, SqlConnection conn, SqlTransaction tran);
+        //void GetWeighingMeasuresFromIoT(string loadingId, bool isUnloading, List<TblWeighingMeasuresTO> tblWeighingMeasuresTOList, SqlConnection conn, SqlTransaction tran);
 
         int PostGateAPIDataToModbusTcpApi(TblLoadingTO tblLoadingTO, Object[] writeData);
 

@@ -450,7 +450,19 @@ namespace ODLMWebAPI.StaticStuff
             READ = 1,
             DELETE = 2
         }
-
+        //Aniket [30-7-2019] : Added enum for modBusTCP.
+        public enum WeighingDataSourceE
+        {
+            DB = 1,
+            IoT = 2,
+            BOTH = 3
+        }
+        public enum ActiveSelectionTypeE
+        {
+            Both = 1,
+            Active = 2,
+            NonActive = 3
+        }
         #endregion
 
         #region Constants Or Static Strings
@@ -725,6 +737,9 @@ namespace ODLMWebAPI.StaticStuff
 
         //Aniket [10-6-2019]
         public static string IS_BALAJI_CLIENT = "IS_BALAJI_CLIENT";
+        //Aniket [30-7-2019] added for IOT
+        public static string CP_WEIGHING_MEASURE_SOURCE_ID = "WEIGHING_MEASURE_SOURCE_ID";
+
         #endregion
 
         #region Common functions

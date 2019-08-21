@@ -10,6 +10,8 @@ using ODLMWebAPI.StaticStuff;
 using System.Linq;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
+using ODLMWebAPI.IoT.Interfaces;
+using ODLMWebAPI.IoT;
 
 namespace ODLMWebAPI.BL
 {   
@@ -33,7 +35,10 @@ namespace ODLMWebAPI.BL
         private readonly IConnectionString _iConnectionString;
         private readonly ITblPaymentTermOptionRelationDAO _iTblPaymentTermOptionRelationDAO;
         private readonly ICommon _iCommon;
-        public TblLoadingSlipBL(ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblLoadingDAO iTblLoadingDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblBookingsDAO iTblBookingsDAO, ITblLoadingStatusHistoryBL iTblLoadingStatusHistoryBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblLoadingSlipAddressBL iTblLoadingSlipAddressBL, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblConfigParamsBL iTblConfigParamsBL, ITblLoadingSlipDAO iTblLoadingSlipDAO, ICommon iCommon, IConnectionString iConnectionString)
+        private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
+        private readonly IIotCommunication _iIotCommunication;
+        private readonly IDimStatusDAO _iDimStatusDAO;
+        public TblLoadingSlipBL(IDimStatusDAO iDimStatusDAO,IIotCommunication iIotCommunication,ITblConfigParamsDAO iTblConfigParamsDAO,ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblLoadingDAO iTblLoadingDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblBookingsDAO iTblBookingsDAO, ITblLoadingStatusHistoryBL iTblLoadingStatusHistoryBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblLoadingSlipAddressBL iTblLoadingSlipAddressBL, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblConfigParamsBL iTblConfigParamsBL, ITblLoadingSlipDAO iTblLoadingSlipDAO, ICommon iCommon, IConnectionString iConnectionString)
         {
             _iTblLoadingSlipDAO = iTblLoadingSlipDAO;
             _iTblConfigParamsBL = iTblConfigParamsBL;
@@ -53,6 +58,9 @@ namespace ODLMWebAPI.BL
             _iConnectionString = iConnectionString;
             _iTblPaymentTermOptionRelationDAO = iTblPaymentTermOptionRelationDAO;
             _iCommon = iCommon;
+            _iTblConfigParamsDAO = iTblConfigParamsDAO;
+            _iIotCommunication = iIotCommunication;
+            _iDimStatusDAO = iDimStatusDAO;
         }
         #region Selection
 
@@ -189,15 +197,122 @@ namespace ODLMWebAPI.BL
         //Priyanka [01-06-2018] : Added to get loading slip list.
         public List<TblLoadingSlipTO> SelectAllLoadingSlipList(List<TblUserRoleTO> tblUserRoleTOList, Int32 cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, Int32 isConfirm, Int32 brandId,Int32 superwisorId)
         {
+            var checkIotFlag = loadingStatusId;
+            int configId = _iTblConfigParamsDAO.IoTSetting();
+            if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
+            {
+                checkIotFlag = 0;
+            }
+            List<TblLoadingSlipTO> list = new List<TblLoadingSlipTO>();
+            List<TblLoadingSlipTO> finalList = new List<TblLoadingSlipTO>();
+
             TblUserRoleTO tblUserRoleTO = new TblUserRoleTO();
             if (tblUserRoleTOList != null && tblUserRoleTOList.Count > 0)
             {
                 tblUserRoleTO = _iTblUserRoleBL.SelectUserRoleTOAccToPriority(tblUserRoleTOList);
             }
             List<TblLoadingSlipTO> tblLoadingTOSlipList = _iTblLoadingSlipDAO.SelectAllTblLoadingSlipList(tblUserRoleTO, cnfId, loadingStatusId, fromDate, toDate, loadingTypeId, dealerId, isConfirm, brandId, superwisorId);
-            return tblLoadingTOSlipList;
-        }
+            if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
+            {
+                if (tblLoadingTOSlipList != null && tblLoadingTOSlipList.Count > 0)
+                {
+                    var deliverList = tblLoadingTOSlipList.Where(s => s.TranStatusE == Constants.TranStatusE.LOADING_DELIVERED || s.TranStatusE == Constants.TranStatusE.LOADING_CANCEL || s.TranStatusE == Constants.TranStatusE.LOADING_NOT_CONFIRM).ToList();
+                    // var deliverList = tblLoadingTOList.Where(s => s.TranStatusE == Constants.TranStatusE.LOADING_DELIVERED || s.TranStatusE == Constants.TranStatusE.LOADING_CANCEL).ToList();
+                    string finalStatusId = _iIotCommunication.GetIotEncodedStatusIdsForGivenStatus(loadingStatusId.ToString());
+                    list = SetLoadingStatusData(finalStatusId.ToString(), true, configId, tblLoadingTOSlipList);
+                    if (deliverList != null)
+                        finalList.AddRange(deliverList);
+                    if (list != null)
+                        finalList.AddRange(list);
+                }
 
+                if (finalList != null && finalList.Count > 0)
+                {
+                    if (loadingStatusId > 0)
+                    {
+                        finalList = finalList.Where(w => w.StatusId == loadingStatusId).ToList();
+                    }
+                }
+                return finalList;
+            }
+            else
+            {
+                return tblLoadingTOSlipList;
+            }
+            //return tblLoadingTOSlipList;
+        }
+        //Aniket [9-8-2019] added for IOT
+        public  List<TblLoadingSlipTO> SetLoadingStatusData(String loadingStatusId, bool isEncoded, int configId, List<TblLoadingSlipTO> tblLoadingTOList)
+        {
+            if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
+            {
+                List<DimStatusTO> statusList = _iDimStatusDAO.SelectAllDimStatus();
+                //GateIoTResult gateIoTResult = IoT.IotCommunication.GetLoadingSlipsByStatusFromIoTByStatusId(loadingStatusId.ToString());
+
+                List<TblLoadingSlipTO> distGate = tblLoadingTOList.GroupBy(g => g.GateId).Select(s => s.FirstOrDefault()).ToList();
+
+                GateIoTResult gateIoTResult = new GateIoTResult();
+
+                for (int g = 0; g < distGate.Count; g++)
+                {
+                    TblLoadingSlipTO tblLoadingTOTemp = distGate[g];
+                    TblGateTO tblGateTO = new TblGateTO(tblLoadingTOTemp.GateId, tblLoadingTOTemp.IotUrl, tblLoadingTOTemp.MachineIP, tblLoadingTOTemp.PortNumber);
+                    GateIoTResult temp = _iIotCommunication.GetLoadingSlipsByStatusFromIoTByStatusId(loadingStatusId.ToString(), tblGateTO);
+
+                    if (temp != null && temp.Data != null)
+                    {
+                        gateIoTResult.Data.AddRange(temp.Data);
+                    }
+                }
+
+                if (gateIoTResult != null && gateIoTResult.Data != null)
+                {
+                    for (int d = 0; d < tblLoadingTOList.Count; d++)
+                    {
+                        var data = gateIoTResult.Data.Where(w => Convert.ToInt32(w[0]) == tblLoadingTOList[d].ModbusRefId).FirstOrDefault();
+                        if (data != null)
+                        {
+                            tblLoadingTOList[d].VehicleNo = Convert.ToString(data[(int)IoTConstants.GateIoTColE.VehicleNo]);
+                            if (data.Length > 3)
+                                tblLoadingTOList[d].TransporterOrgId = Convert.ToInt32(data[(int)IoTConstants.GateIoTColE.TransportorId]);
+                            DimStatusTO dimStatusTO = statusList.Where(w => w.IotStatusId == Convert.ToInt32(data[(int)IoTConstants.GateIoTColE.StatusId])).FirstOrDefault();
+                            if (dimStatusTO != null)
+                            {
+                                tblLoadingTOList[d].StatusId = dimStatusTO.IdStatus;
+                                tblLoadingTOList[d].StatusDesc = dimStatusTO.StatusName;
+                            }
+
+                        }
+                        else
+                        {
+                            tblLoadingTOList.RemoveAt(d);
+                            d--;
+                        }
+                    }
+                    if (!String.IsNullOrEmpty(loadingStatusId))
+                    {
+                        string statusIdList = string.Empty;
+                        if (isEncoded)
+                            statusIdList = _iIotCommunication.GetIotDecodedStatusIdsForGivenStatus(loadingStatusId);
+
+                        var statusIds = statusIdList.Split(',').ToList();
+
+                        if (statusIds.Count == 1 && statusIds[0] == "0")
+                            return tblLoadingTOList;
+
+                        tblLoadingTOList = tblLoadingTOList.Where(w => statusIds.Contains(Convert.ToString(w.StatusId))).ToList();
+
+                        //tblLoadingTOList = tblLoadingTOList.Where(w => w.StatusId == loadingStatusId).ToList();
+                    }
+                }
+                else
+                {
+                    tblLoadingTOList = new List<TblLoadingSlipTO>();
+                }
+            }
+
+            return tblLoadingTOList;
+        }
         public TblLoadingSlipTO SelectAllLoadingSlipWithDetailsByInvoice(Int32 invoiceId)
         {
 

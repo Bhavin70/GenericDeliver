@@ -65,6 +65,14 @@ namespace ODLMWebAPI.Models
         Int32 bookingId;            //Priyanka [05-09-2018]
         Int32 bookingType;         // Aniket [9-Jan-2019] added for to check booking type
         List<TblPaymentTermOptionRelationTO> paymentTermOptionRelationTOLst;
+        Int32 modbusRefId;
+        Int32 gateId;
+        String portNumber;
+        String iotUrl;
+        String machineIP;
+        Int32 isDBup;
+        Int32 transporterOrgId;
+        String statusDesc;
         #endregion
 
         #region Constructor
@@ -384,5 +392,13 @@ namespace ODLMWebAPI.Models
         public int BookingId { get => bookingId; set => bookingId = value; }
         public int BookingType { get => bookingType; set => bookingType = value; }
         public List<TblPaymentTermOptionRelationTO> PaymentTermOptionRelationTOLst { get => paymentTermOptionRelationTOLst; set => paymentTermOptionRelationTOLst = value; }
+        public int ModbusRefId { get => modbusRefId; set => modbusRefId = value; }
+        public int GateId { get => gateId; set => gateId = value; }
+        public string PortNumber { get => portNumber; set => portNumber = value; }
+        public string IotUrl { get => iotUrl; set => iotUrl = value; }
+        public string MachineIP { get => machineIP; set => machineIP = value; }
+        public int IsDBup { get => isDBup; set => isDBup = value; }
+        public int TransporterOrgId { get => transporterOrgId; set => transporterOrgId = value; }
+        public string StatusDesc { get => statusDesc; set => statusDesc = value; }
     }
 }

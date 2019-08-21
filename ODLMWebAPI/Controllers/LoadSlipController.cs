@@ -13,6 +13,7 @@ using System.Globalization;
 using System.Threading;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
+using ODLMWebAPI.IoT.Interfaces;
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ODLMWebAPI.Controllers
@@ -40,7 +41,9 @@ namespace ODLMWebAPI.Controllers
         private readonly ITblLoadingQuotaTransferBL _iTblLoadingQuotaTransferBL;
         private readonly IDimStatusBL _iDimStatusBL;
         private readonly ICommon _iCommon;
-        public LoadSlipController(ITblInvoiceBL iTblInvoiceBL, IDimStatusBL iDimStatusBL, ITblLoadingQuotaTransferBL iTblLoadingQuotaTransferBL, ITblGlobalRateBL iTblGlobalRateBL, ITblUnloadingStandDescBL iTblUnloadingStandDescBL, ITblUnLoadingBL iTblUnLoadingBL, ITblBookingDelAddrBL iTblBookingDelAddrBL, ITblConfigParamsBL iTblConfigParamsBL, ITblLoadingAllowedTimeBL iTblLoadingAllowedTimeBL, ITblLoadingSlipExtBL iTblLoadingSlipExtBL, ITblLoadingQuotaDeclarationBL iTblLoadingQuotaDeclarationBL, ITblLoadingQuotaConfigBL iTblLoadingQuotaConfigBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ICommon iCommon, ITblStatusReasonBL iTblStatusReasonBL, ITblUserBL iTblUserBL, ITblLoadingBL iTblLoadingBL, ITblTransportSlipBL iTblTransportSlipBL)
+        private readonly IIotCommunication _iIotCommunication;
+        private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
+        public LoadSlipController(ITblConfigParamsDAO iTblConfigParamsDAO,IIotCommunication iIotCommunication,ITblInvoiceBL iTblInvoiceBL, IDimStatusBL iDimStatusBL, ITblLoadingQuotaTransferBL iTblLoadingQuotaTransferBL, ITblGlobalRateBL iTblGlobalRateBL, ITblUnloadingStandDescBL iTblUnloadingStandDescBL, ITblUnLoadingBL iTblUnLoadingBL, ITblBookingDelAddrBL iTblBookingDelAddrBL, ITblConfigParamsBL iTblConfigParamsBL, ITblLoadingAllowedTimeBL iTblLoadingAllowedTimeBL, ITblLoadingSlipExtBL iTblLoadingSlipExtBL, ITblLoadingQuotaDeclarationBL iTblLoadingQuotaDeclarationBL, ITblLoadingQuotaConfigBL iTblLoadingQuotaConfigBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ICommon iCommon, ITblStatusReasonBL iTblStatusReasonBL, ITblUserBL iTblUserBL, ITblLoadingBL iTblLoadingBL, ITblTransportSlipBL iTblTransportSlipBL)
         {
             _iTblStatusReasonBL = iTblStatusReasonBL;
             _iTblUserBL = iTblUserBL;
@@ -61,6 +64,8 @@ namespace ODLMWebAPI.Controllers
             _iTblLoadingQuotaTransferBL = iTblLoadingQuotaTransferBL;
             _iDimStatusBL = iDimStatusBL;
             _iCommon = iCommon;
+            _iIotCommunication = iIotCommunication;
+            _iTblConfigParamsDAO = iTblConfigParamsDAO;
         }
         #region Get
         
@@ -389,12 +394,12 @@ namespace ODLMWebAPI.Controllers
         /// <returns></returns>
         [Route("GetAllInLoadingListByVehicleNo")]
         [HttpGet]
-        public List<TblLoadingTO> GetAllInLoadingListByVehicleNo(string vehicleNo)
+        public List<TblLoadingTO> GetAllInLoadingListByVehicleNo(string vehicleNo,int loadingId=0)//Aniket [13-6-2019] added loadingId paramater
         {
             try
             {
 
-                return _iTblLoadingBL.SelectAllLoadingListByVehicleNo(vehicleNo, false);
+                return _iTblLoadingBL.SelectAllLoadingListByVehicleNo(vehicleNo, false,loadingId);
             }
             catch (Exception ex)
             {
@@ -495,9 +500,20 @@ namespace ODLMWebAPI.Controllers
         [HttpGet]
         public List<TblLoadingTO> GetLoadingSlipsByStatus(String statusId)
         {
-            List<TblLoadingTO> list = _iTblLoadingBL.SelectAllLoadingListByStatus(statusId);
+            //Aniket [30-7-2019] added for IOT
+            int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+
+           
+            var tempStatusIds = statusId;
+            if (weightSourceConfigId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
+            {
+                tempStatusIds = Convert.ToString((int)Constants.TranStatusE.LOADING_CONFIRM);
+            }
+            List<TblLoadingTO> list = _iTblLoadingBL.SelectAllLoadingListByStatus(tempStatusIds);
             if (list != null)
             {
+                string finalStatusId = _iIotCommunication.GetIotEncodedStatusIdsForGivenStatus(statusId);
+                list = _iTblLoadingBL.SetLoadingStatusData(finalStatusId, true, weightSourceConfigId, list);
                 List<TblLoadingTO> finalList = new List<TblLoadingTO>();
 
                 string[] statusIds = statusId.Split(',');
@@ -669,7 +685,7 @@ namespace ODLMWebAPI.Controllers
         public ResultMessage IsThisVehicleDelivered(String vehicleNo)
         {
             ResultMessage resultMessage = new ResultMessage();
-            List<TblLoadingTO> list = _iTblLoadingBL.SelectAllLoadingListByVehicleNo(vehicleNo, true);
+            List<TblLoadingTO> list = _iTblLoadingBL.SelectAllLoadingListByVehicleNo(vehicleNo, true,0);
             if (list == null || list.Count == 0)
             {
                 resultMessage.MessageType = ResultMessageE.Information;

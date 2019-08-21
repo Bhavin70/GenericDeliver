@@ -18,7 +18,7 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblLoadingTO> SelectAllTblLoadingList(List<TblUserRoleTO> tblUserRoleTOList, Int32 cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, Int32 isConfirm, Int32 brandId, Int32 loadingNavigateId, Int32 superwisorId);
         List<TblLoadingTO> GetLoadingDetailsForReport(DateTime fromDate, DateTime toDate);
         List<TblLoadingTO> SelectAllTblLoadingLinkList(List<TblUserRoleTO> tblUserRoleTOList, Int32 dearlerOrgId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate);
-        List<TblLoadingTO> SelectAllLoadingListByStatus(string statusId);
+        List<TblLoadingTO> SelectAllLoadingListByStatus(string statusId,int gateId=0);
         TblLoadingTO SelectTblLoadingTO(Int32 idLoading, SqlConnection conn, SqlTransaction tran);
         TblLoadingTO SelectTblLoadingTO(Int32 idLoading);
         TblLoadingTO SelectTblLoadingTOByLoadingSlipId(Int32 loadingSlipId);
@@ -31,8 +31,8 @@ namespace ODLMWebAPI.BL.Interfaces
         List<DropDownTO> SelectAllVehiclesByStatus(int statusId);
         LoadingInfo SelectDashboardLoadingInfo(List<TblUserRoleTO> tblUserRoleTOList, Int32 orgId, DateTime sysDate, Int32 loadingType);
         List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, DateTime loadingDate);
-        List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading);
-        List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading, SqlConnection conn, SqlTransaction tran);
+        List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading,int loadingId);
+        List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading, int loadingId,  SqlConnection conn, SqlTransaction tran);
         List<TblLoadingTO> SelectAllLoadingListByVehicleNoForDelOut(string vehicleNo, SqlConnection conn, SqlTransaction tran);
         List<TblLoadingTO> SelectAllInLoadingListByVehicleNo(string vehicleNo);
         Dictionary<Int32, Int32> SelectCountOfLoadingsOfSuperwisorDCT(DateTime date);
@@ -80,5 +80,10 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage DeleteAllBookings(List<Int32> bookingsIdList);
         ResultMessage DeleteAllBookings(List<int> bookingsIdsList, SqlConnection conn, SqlTransaction tran);
         int DeleteDispatchBookingData(Int32 bookingId, SqlConnection conn, SqlTransaction tran);
+        ResultMessage UpdateLoadingStatusToGateIoT(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran);
+        ResultMessage PostChangeGateIOTAgainstLoading(TblLoadingTO tblLoadingTO);
+
+        List<TblLoadingTO> SetLoadingStatusData(String loadingStatusId, bool isEncoded, int configId, List<TblLoadingTO> tblLoadingTOList);
+
     }
 }

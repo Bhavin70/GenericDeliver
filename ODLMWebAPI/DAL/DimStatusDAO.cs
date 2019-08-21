@@ -28,6 +28,33 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Selection
+        //Aniket [30-7-2019] added for IOT
+        public DimStatusTO SelectDimStatusTOByIotStatusId(Int32 iotStatusId, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE iotStatusId = " + iotStatusId + " ";
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                SqlDataReader rdr = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DimStatusTO> list = ConvertDTToList(rdr);
+                rdr.Dispose();
+                if (list != null && list.Count == 1)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                cmdSelect.Dispose();
+            }
+        }
         public List<DimStatusTO> SelectAllDimStatus()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -137,7 +164,9 @@ namespace ODLMWebAPI.DAL
                         dimStatusTONew.StatusDesc = Convert.ToString(dimStatusTODT["statusDesc"]);
                     if (dimStatusTODT["colorCode"] != DBNull.Value)
                         dimStatusTONew.ColorCode = Convert.ToString(dimStatusTODT["colorCode"]);
-
+                    //Aniket [7-8-2019]
+                    if (dimStatusTODT["iotStatusId"] != DBNull.Value)
+                        dimStatusTONew.IotStatusId = Convert.ToInt32(dimStatusTODT["iotStatusId"]);
                     dimStatusTOList.Add(dimStatusTONew);
                 }
             }

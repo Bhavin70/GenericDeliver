@@ -39,16 +39,31 @@ namespace ODLMWebAPI.Controllers
         private readonly ITblModuleBL _iTblModuleBL;
         private readonly IDimRoleTypeBL _iDimRoleTypeBL;
         private readonly ICommon _iCommon;
-        public UserController(ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblModuleBL iTblModuleBL, IDimRoleTypeBL iDimRoleTypeBL, ITblUserBrandBL iTblUserBrandBL, ITblUserExtBL iTblUserExtBL, ITblSysElementsBL iTblSysElementsBL, ITblUserAreaAllocationBL iTblUserAreaAllocationBL, ITblLoginBL iTblLoginBL, ITblFeedbackBL iTblFeedbackBL, ITblUserBL iTblUserBL, ICommon iCommon, ITblUserRoleBL iTblUserRoleBL, ITblPersonBL iTblPersonBL)
+        public UserController(
+            ICommon iCommon,
+            IDimRoleTypeBL iDimRoleTypeBL,
+            ITblModuleBL iTblModuleBL,
+            ITblDocumentDetailsBL iTblDocumentDetailsBL,
+            ITblUserBrandBL iTblUserBrandBL,
+            ITblUserBL iTblUserBL,
+            ITblLoginBL iTblLoginBL,
+            ITblSysElementsBL iTblSysElementsBL,
+            ITblUserExtBL iTblUserExtBL,
+            ITblUserAreaAllocationBL iTblUserAreaAllocationBL,
+            ITblFeedbackBL iTblFeedbackBL,
+            ITblUserRoleBL iTblUserRoleBL,
+            ITblPersonBL iTblPersonBL
+            )
         {
-            _iTblUserBL = iTblUserBL;
+          
             _iTblUserRoleBL = iTblUserRoleBL;
             _iTblPersonBL = iTblPersonBL;
             _iTblFeedbackBL = iTblFeedbackBL;
-            _iTblLoginBL = iTblLoginBL;
             _iTblUserAreaAllocationBL = iTblUserAreaAllocationBL;
-            _iTblSysElementsBL = iTblSysElementsBL;
             _iTblUserExtBL = iTblUserExtBL;
+            _iTblSysElementsBL = iTblSysElementsBL;
+            _iTblLoginBL = iTblLoginBL;
+            _iTblUserBL = iTblUserBL;
             _iTblUserBrandBL = iTblUserBrandBL;
             _iTblDocumentDetailsBL = iTblDocumentDetailsBL;
             _iTblModuleBL = iTblModuleBL;

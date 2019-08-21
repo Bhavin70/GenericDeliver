@@ -26,13 +26,24 @@ namespace ODLMWebAPI.BL
             private readonly ITblModuleBL _iTblModuleBL;
         private readonly ICommon _iCommon;
         //
-        public TblUserBL(ITblModuleBL _iTblModuleBL,ITblLoginDAO iTblLoginDAO, ITblUserRoleBL iTblUserRoleBL, ITblOrgStructureBL iTblOrgStructureBL, ICommon iCommon, IConnectionString iConnectionString, ITblUserPwdHistoryDAO iTblUserPwdHistoryDAO, ITblUserExtDAO iTblUserExtDAO, ITblAddressDAO iTblAddressDAO, ITblPersonDAO iTblPersonDAO, ITblUserDAO iTblUserDAO)
+        public TblUserBL(
+            ITblModuleBL _iTblModuleBL,
+            ITblLoginDAO iTblLoginDAO, 
+            ITblUserRoleBL iTblUserRoleBL,
+           // ITblOrgStructureBL iTblOrgStructureBL,
+            ICommon iCommon,
+            IConnectionString iConnectionString, 
+            ITblUserPwdHistoryDAO iTblUserPwdHistoryDAO, 
+            ITblUserExtDAO iTblUserExtDAO, 
+            ITblAddressDAO iTblAddressDAO,
+            ITblPersonDAO iTblPersonDAO,
+            ITblUserDAO iTblUserDAO)
         {
             _iTblUserDAO = iTblUserDAO;
             _iTblPersonDAO = iTblPersonDAO;
             _iTblAddressDAO = iTblAddressDAO;
             _iTblUserExtDAO = iTblUserExtDAO;
-            _iTblOrgStructureBL = iTblOrgStructureBL;
+        //    _iTblOrgStructureBL = iTblOrgStructureBL;
             _iTblUserRoleBL = iTblUserRoleBL;
             _iTblUserPwdHistoryDAO = iTblUserPwdHistoryDAO;
             _iConnectionString = iConnectionString;

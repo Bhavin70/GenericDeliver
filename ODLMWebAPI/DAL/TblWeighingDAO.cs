@@ -27,6 +27,7 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Selection
+    
         public List<TblWeighingTO> SelectAllTblWeighing()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);

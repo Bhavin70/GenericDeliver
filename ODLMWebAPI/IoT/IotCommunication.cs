@@ -25,22 +25,21 @@ namespace ODLMWebAPI.IoT
         private readonly IGateCommunication _iGateCommunication;
         private readonly IDimStatusBL _iDimStatusBL;
         private readonly ITblOrganizationBL _iTblOrganizationBL;
-        private readonly ITblWeighingMachineBL _iTblWeighingMachineBL;
+        private readonly ITblWeighingMachineDAO _iTblWeighingMachineDAO;
         private readonly IWeighingCommunication _iWeighingCommunication;
         private readonly ICommon _iCommon;
-        private readonly ITblLoadingBL _iTblLoadingBL;
+        
 
-
-        public IotCommunication(ICommon iCommon, IGateCommunication iGateCommunication, IDimStatusBL iDimStatusBL, ITblOrganizationBL iTblOrganizationBL, ITblWeighingMachineBL iTblWeighingMachineBL,
-            IWeighingCommunication iWeighingCommunication, ITblLoadingBL iTblLoadingBL)
+        public IotCommunication(IWeighingCommunication iWeighingCommunication, ICommon iCommon, IGateCommunication iGateCommunication, IDimStatusBL iDimStatusBL, ITblOrganizationBL iTblOrganizationBL, ITblWeighingMachineDAO iTblWeighingMachineDAO
+             )
         {
             _iGateCommunication = iGateCommunication;
             _iDimStatusBL = iDimStatusBL;
             _iTblOrganizationBL = iTblOrganizationBL;
-            _iTblWeighingMachineBL = iTblWeighingMachineBL;
+            _iTblWeighingMachineDAO = iTblWeighingMachineDAO;
             _iWeighingCommunication = iWeighingCommunication;
             _iCommon = iCommon;
-            _iTblLoadingBL = iTblLoadingBL;
+          
         }
         public TblLoadingTO GetItemDataFromIotAndMerge(TblLoadingTO tblLoadingTO, Boolean loadingWithDtls, Boolean getStatusHistory = false, Int32 isWeighing = 0)
         {
@@ -106,7 +105,7 @@ namespace ODLMWebAPI.IoT
                 if (loadingWithDtls)
                 {
                     // List<TblWeighingMachineTO> tblWeighingMachineList = BL.TblWeighingMachineBL.SelectAllTblWeighingMachineList();
-                    List<TblWeighingMachineTO> tblWeighingMachineList = _iTblWeighingMachineBL.SelectAllTblWeighingMachineOfWeighingList(tblLoadingTO.IdLoading);
+                    List<TblWeighingMachineTO> tblWeighingMachineList = _iTblWeighingMachineDAO.SelectAllTblWeighingMachineOfWeighingList(tblLoadingTO.IdLoading);
                     if (tblLoadingTO.LoadingSlipList != null)
                     {
                         List<TblLoadingSlipExtTO> totalLoadingSlipExtList = new List<TblLoadingSlipExtTO>();
@@ -131,7 +130,7 @@ namespace ODLMWebAPI.IoT
                         var distinctWeighingMachineList = tblWeighingMachineList.GroupBy(test => test.IdWeighingMachine)
                                           .Select(grp => grp.First()).ToList();
                         //Addedd by kiran to avoid IoT calls 13/03/19
-                        if (tblLoadingTO.StatusId == Convert.ToInt16(StaticStuff.Constants.TranStatusE.LOADING_IN_PROGRESS) || tblLoadingTO.StatusId == Convert.ToInt16(Constants.TranStatusE.LOADING_COMPLETED) || tblLoadingTO.StatusId == Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH) || tblLoadingTO.ModbusRefId > 0)
+                        if (tblLoadingTO.StatusId == Convert.ToInt16(StaticStuff.Constants.TranStatusE.LOADING_GATE_IN) || tblLoadingTO.StatusId == Convert.ToInt16(StaticStuff.Constants.TranStatusE.LOADING_COMPLETED) || tblLoadingTO.StatusId == Convert.ToInt16(StaticStuff.Constants.TranStatusE.LOADING_COMPLETED) || tblLoadingTO.ModbusRefId > 0)
                         {
                             //Sanjay [03-June-2019] Now Layerwise call will not be required as data will be received from TCP/ip communication
                             //Now pass layerid=0. IoT Code will internally give data for all layers.
@@ -193,83 +192,7 @@ namespace ODLMWebAPI.IoT
             return tblLoadingTO;
         }
 
-        public void GetItemDataFromIotForGivenLoadingSlip(TblLoadingSlipTO tblLoadingSlipTO)
-        {
-            if (tblLoadingSlipTO != null)
-            {
-
-                if (tblLoadingSlipTO.TranStatusE == StaticStuff.Constants.TranStatusE.LOADING_DELIVERED)
-                    return;
-
-                if (true)
-                {
-                    //List<TblWeighingMachineTO> tblWeighingMachineList = BL.TblWeighingMachineBL.SelectAllTblWeighingMachineList();
-                    List<TblWeighingMachineTO> tblWeighingMachineList = _iWeighingCommunication.SelectAllTblWeighingMachineOfWeighingList(tblLoadingSlipTO.LoadingId);
-
-                    List<TblLoadingSlipExtTO> totalLoadingSlipExtList = tblLoadingSlipTO.LoadingSlipExtTOList;
-
-                    TblLoadingTO loadingTO = _iTblLoadingBL.SelectTblLoadingTO(tblLoadingSlipTO.LoadingId);
-
-                    GateIoTResult gateIoTResult = _iGateCommunication.GetLoadingStatusHistoryDataFromGateIoT(loadingTO);
-                    if (gateIoTResult != null && gateIoTResult.Data != null && gateIoTResult.Data.Count != 0)
-                    {
-                        tblLoadingSlipTO.VehicleNo = (string)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.VehicleNo];
-                    }
-
-                    //var layerList = totalLoadingSlipExtList.GroupBy(x => x.LoadingLayerid).ToList();
-                    //List<int> totalLayerList = new List<int>();
-                    //if (!totalLayerList.Contains(0))
-                    //    totalLayerList.Add(0);
-                    List<int> totalLayerList = new List<int>();
-                    //var tLayerList = tblWeighingMachineList.GroupBy(test => test.LayerId)
-                    //                   .Select(grp => grp.First()).ToList();
-                    var tLayerList = totalLoadingSlipExtList.GroupBy(x => x.LoadingLayerid).Select(grp => grp.First()).ToList();
-                    foreach (var item in tLayerList)
-                    {
-                        if (item.LoadingLayerid != 0)
-                            totalLayerList.Add(item.LoadingLayerid);
-                    }
-                    var distinctWeighingMachineList = tblWeighingMachineList.GroupBy(test => test.IdWeighingMachine)
-                                          .Select(grp => grp.First()).ToList();
-                    //foreach (var item in layerList)
-                    //{
-                    //    totalLayerList.Add(item.Key);
-                    //}
-
-                    //Sanjay [03-June-2019] Now Layerwise call will not be required as data will be received from TCP/ip communication
-                    //Now pass layerid=0. IoT Code will internally give data for all layers.
-                    //for (int i = 0; i < totalLayerList.Count; i++)
-                    //{
-                    //int layerid = totalLayerList[i];
-                    int layerid = 0;
-                    Int32 loadingId = loadingTO.ModbusRefId;
-                    for (int mc = 0; mc < distinctWeighingMachineList.Count; mc++)
-                    {
-                        //Call to Weight IoT
-                        NodeJsResult itemList = _iWeighingCommunication.GetLoadingLayerData(loadingId, layerid, distinctWeighingMachineList[mc]);
-                        if (itemList.Data != null)
-                        {
-
-                            if (itemList.Data != null && itemList.Data.Count > 0)
-                            {
-                                for (int f = 0; f < itemList.Data.Count; f++)
-                                {
-                                    var itemRefId = itemList.Data[f][(int)IoTConstants.WeightIotColE.ItemRefNo];
-                                    var itemTO = totalLoadingSlipExtList.Where(w => w.ModbusRefId == itemRefId).FirstOrDefault();
-                                    if (itemTO != null)
-                                    {
-                                        itemTO.LoadedWeight = itemList.Data[f][(int)IoTConstants.WeightIotColE.LoadedWt];
-                                        itemTO.CalcTareWeight = itemList.Data[f][(int)IoTConstants.WeightIotColE.CalcTareWt];
-                                        itemTO.LoadedBundles = itemList.Data[f][(int)IoTConstants.WeightIotColE.LoadedBundle];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    //}
-                }
-            }
-        }
+        
 
         public DateTime IoTDateTimeStringToDate(string statusDate)
         {
@@ -303,82 +226,7 @@ namespace ODLMWebAPI.IoT
             return tblLoadingTOList;
         }
 
-        public void GetWeighingMeasuresFromIoT(string loadingId, bool isUnloading, List<TblWeighingMeasuresTO> tblWeighingMeasuresTOList, SqlConnection conn, SqlTransaction tran)
-        {
-            try
-            {
-                string[] loadingIdsList = loadingId.Split(',');
-                if (loadingIdsList != null && loadingIdsList.Length > 0)
-                {
-                    //List<TblWeighingMachineTO> tblWeighingMachineList = BL.TblWeighingMachineBL.SelectAllTblWeighingMachineList();
-                    for (int i = 0; i < loadingIdsList.Length; i++)
-                    {
-                        TblLoadingTO tblLoadingTO = _iTblLoadingBL.SelectLoadingTOWithDetails(Convert.ToInt32(loadingIdsList[i]));
-                        //tblLoadingTO = TblLoadingBL.getDataFromIotAndMerge(tblLoadingTO);
-                        //NodeJsResult itemList = GetLoadingLayerData(tblLoadingTO.ModbusRefId, 0);
-                        // List<int[]> weighingDataList = new List<int[]>();
-                        //if (itemList != null)
-                        //{
-                        //    List<int[]> defaultResultList = new List<int[]>();
-                        //    if (itemList.Data != null && itemList.Data.Count > 0)
-                        //    {
-                        //        defaultResultList = itemList.Data.Where(w => w[(int)IoTConstants.WeightIotColE.WeighTypeId] == (Int32)Constants.TransMeasureTypeE.TARE_WEIGHT || w[(int)IoTConstants.WeightIotColE.WeighTypeId] == (Int32)Constants.TransMeasureTypeE.GROSS_WEIGHT).ToList();
-                        //    }
-                        //    weighingDataList.AddRange(defaultResultList);
-                        //}
-                        if (tblLoadingTO.DynamicItemListDCT != null && tblLoadingTO.DynamicItemListDCT.Count > 0)
-                        {
-                            foreach (KeyValuePair<int, List<int[]>> pair in tblLoadingTO.DynamicItemListDCT)
-                            {
-                                foreach (var item in pair.Value)
-                                {
-                                    TblWeighingMeasuresTO measuresTO = new TblWeighingMeasuresTO();
-                                    measuresTO.LoadingId = tblLoadingTO.IdLoading;
-                                    measuresTO.WeightMeasurTypeId = item[(int)IoTConstants.WeightIotColE.WeighTypeId];
-                                    measuresTO.WeightMT = item[(int)IoTConstants.WeightIotColE.Weight];
-                                    measuresTO.VehicleNo = tblLoadingTO.VehicleNo;
-                                    measuresTO.UnLoadingId = Convert.ToInt32(isUnloading);
-                                    measuresTO.WeighingMachineId = pair.Key;
-                                    int dateTimeVal = item[(int)IoTConstants.WeightIotColE.TimeStamp];
-                                    string dateTimeValTemp = dateTimeVal.ToString();
-                                    if (dateTimeValTemp.Length <= 5)
-                                    {
-                                        dateTimeValTemp = "0" + dateTimeVal;
-                                    }
-                                    string hrsMin = dateTimeValTemp.Substring(2, 4);
-                                    string hrs = hrsMin.Substring(0, 2).ToString();
-                                    string min = hrsMin.Substring(2, 2).ToString();
-                                    string date = dateTimeValTemp.Replace(hrsMin, "");
-
-                                    DateTime dateTime = new DateTime(_iCommon.ServerDateTime.Year, _iCommon.ServerDateTime.Month, Convert.ToInt32(date), Convert.ToInt32(hrs), Convert.ToInt32(min), 0);
-                                    measuresTO.CreatedOn = dateTime;
-                                    tblWeighingMeasuresTOList.Add(measuresTO);
-                                }
-                                //Console.WriteLine("{0}, {1}", pair.Key, pair.Value);
-                            }
-                        }
-                        //if (tblLoadingTO.DynamicItemList != null && tblLoadingTO.DynamicItemList.Count > 0)
-                        //    weighingDataList.AddRange(tblLoadingTO.DynamicItemList);
-                        //for (int wd = 0; wd < weighingDataList.Count; wd++)
-                        //{
-                        //    TblWeighingMeasuresTO measuresTO = new TblWeighingMeasuresTO();
-                        //    measuresTO.LoadingId = tblLoadingTO.IdLoading;
-                        //    measuresTO.WeightMeasurTypeId = weighingDataList[wd][(int)IoTConstants.WeightIotColE.WeighTypeId];
-                        //    measuresTO.WeightMT = weighingDataList[wd][(int)IoTConstants.WeightIotColE.Weight];
-                        //    measuresTO.VehicleNo = tblLoadingTO.VehicleNo;
-                        //    measuresTO.UnLoadingId = Convert.ToInt32(isUnloading);
-                        //    measuresTO.WeighingMachineId = tblLoadingTO.DynamicItemListDCT.Keys[];
-                        //    // measuresTO.CreatedBy = 1;
-                        //    tblWeighingMeasuresTOList.Add(measuresTO);
-                        //}
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return;
-            }
-        }
+       
 
         public int PostGateAPIDataToModbusTcpApi(TblLoadingTO tblLoadingTO, Object[] writeData)
         {
@@ -427,7 +275,7 @@ namespace ODLMWebAPI.IoT
 
                     //List<TblWeighingMachineTO> tblWeighingMachineList = BL.TblWeighingMachineBL.SelectAllTblWeighingMachineList();
 
-                    List<TblWeighingMachineTO> tblWeighingMachineList = _iTblWeighingMachineBL.SelectAllTblWeighingMachineOfWeighingList(tblLoadingTO.IdLoading);
+                    List<TblWeighingMachineTO> tblWeighingMachineList = _iTblWeighingMachineDAO.SelectAllTblWeighingMachineOfWeighingList(tblLoadingTO.IdLoading);
 
                     if (tblWeighingMachineList != null && tblWeighingMachineList.Count > 0)
                     {
@@ -570,7 +418,7 @@ namespace ODLMWebAPI.IoT
             return frameList;
         }
 
-        private void FormatIoTFrameToWrite(TblLoadingTO loadingTO, TblWeighingMeasuresTO weighingMeasureTo, List<TblLoadingSlipExtTO> wtTakentLoadingExtToList, List<int[]> frameList, int i)
+        public void FormatIoTFrameToWrite(TblLoadingTO loadingTO, TblWeighingMeasuresTO weighingMeasureTo, List<TblLoadingSlipExtTO> wtTakentLoadingExtToList, List<int[]> frameList, int i)
         {
             try
             {
@@ -607,7 +455,7 @@ namespace ODLMWebAPI.IoT
             return timeStamp = Convert.ToInt32(Day + "" + Hour + "" + Minute);
         }
 
-        private void FormatStdGateIoTFrameToWrite(TblLoadingTO loadingTO, string vehicleNo, Int32 statusId, Int32 transportorId, List<object[]> frameList)
+        public void FormatStdGateIoTFrameToWrite(TblLoadingTO loadingTO, string vehicleNo, Int32 statusId, Int32 transportorId, List<object[]> frameList)
         {
             try
             {
@@ -634,7 +482,7 @@ namespace ODLMWebAPI.IoT
             }
         }
 
-        private void FormatStatusUpdateGateIoTFrameToWrite(TblLoadingTO loadingTO, Int32 statusId, List<object[]> frameList)
+        public void FormatStatusUpdateGateIoTFrameToWrite(TblLoadingTO loadingTO, Int32 statusId, List<object[]> frameList)
         {
             try
             {
@@ -652,6 +500,8 @@ namespace ODLMWebAPI.IoT
             if (statusIds.Equals("7,14,20"))
                 return 101 + "";
             if (statusIds.Equals("15,16,25,24"))
+                return 102 + "";
+            if (statusIds.Equals("15,16"))
                 return 102 + "";
             if (statusIds.Equals("15,24"))
                 return 103 + "";

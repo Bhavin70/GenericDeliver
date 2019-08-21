@@ -12,6 +12,9 @@ using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.BL;
 using ODLMWebAPI.DashboardModels;
+using ODLMWebAPI.IoT.Interfaces;
+using ODLMWebAPI.IoT;
+using System.Threading;
 
 namespace ODLMWebAPI.BL
 {   
@@ -67,7 +70,12 @@ namespace ODLMWebAPI.BL
         private readonly IFinalEnquiryData _iFinalEnquiryData;
         private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
         private readonly ITblPaymentTermOptionRelationDAO _iTblPaymentTermOptionRelationDAO;
-        public TblLoadingBL(ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL)
+        private readonly ITblGateBL _iTblGateBL;
+        private readonly IIotCommunication _iIotCommunication;
+        private readonly IGateCommunication _iGateCommunication;
+        private readonly ITblWeighingMachineDAO _iTblWeighingMachineDAO;
+        private readonly IWeighingCommunication _iWeighingCommunication;
+        public TblLoadingBL(IWeighingCommunication iWeighingCommunication,ITblWeighingMachineDAO iTblWeighingMachineDAO, IGateCommunication iGateCommunication,IIotCommunication iIotCommunication,ITblGateBL iTblGateBL,ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL)
         {
             _iTblLoadingDAO = iTblLoadingDAO;
             _iTblUserRoleBL = iTblUserRoleBL;
@@ -119,9 +127,167 @@ namespace ODLMWebAPI.BL
             _iFinalEnquiryData = iFinalEnquiryData;
             _iTblConfigParamsDAO = iTblConfigParamsDAO;
             _iTblPaymentTermOptionRelationDAO = iTblPaymentTermOptionRelationDAO;
+            _iTblGateBL = iTblGateBL;
+            _iIotCommunication = iIotCommunication;
+            _iGateCommunication = iGateCommunication;
+            _iTblWeighingMachineDAO = iTblWeighingMachineDAO;
+            _iWeighingCommunication = iWeighingCommunication;
         }
         #region Selection
+        public void GetItemDataFromIotForGivenLoadingSlip(TblLoadingSlipTO tblLoadingSlipTO)
+        {
+            if (tblLoadingSlipTO != null)
+            {
 
+                if (tblLoadingSlipTO.TranStatusE == StaticStuff.Constants.TranStatusE.LOADING_DELIVERED)
+                    return;
+
+                if (true)
+                {
+                    //List<TblWeighingMachineTO> tblWeighingMachineList = BL.TblWeighingMachineBL.SelectAllTblWeighingMachineList();
+                    List<TblWeighingMachineTO> tblWeighingMachineList = _iTblWeighingMachineDAO.SelectAllTblWeighingMachineOfWeighingList(tblLoadingSlipTO.LoadingId);
+
+                    List<TblLoadingSlipExtTO> totalLoadingSlipExtList = tblLoadingSlipTO.LoadingSlipExtTOList;
+
+                    TblLoadingTO loadingTO =SelectTblLoadingTO(tblLoadingSlipTO.LoadingId);
+
+                    GateIoTResult gateIoTResult = _iGateCommunication.GetLoadingStatusHistoryDataFromGateIoT(loadingTO);
+                    if (gateIoTResult != null && gateIoTResult.Data != null && gateIoTResult.Data.Count != 0)
+                    {
+                        tblLoadingSlipTO.VehicleNo = (string)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.VehicleNo];
+                    }
+
+                    //var layerList = totalLoadingSlipExtList.GroupBy(x => x.LoadingLayerid).ToList();
+                    //List<int> totalLayerList = new List<int>();
+                    //if (!totalLayerList.Contains(0))
+                    //    totalLayerList.Add(0);
+                    List<int> totalLayerList = new List<int>();
+                    //var tLayerList = tblWeighingMachineList.GroupBy(test => test.LayerId)
+                    //                   .Select(grp => grp.First()).ToList();
+                    var tLayerList = totalLoadingSlipExtList.GroupBy(x => x.LoadingLayerid).Select(grp => grp.First()).ToList();
+                    foreach (var item in tLayerList)
+                    {
+                        if (item.LoadingLayerid != 0)
+                            totalLayerList.Add(item.LoadingLayerid);
+                    }
+                    var distinctWeighingMachineList = tblWeighingMachineList.GroupBy(test => test.IdWeighingMachine)
+                                          .Select(grp => grp.First()).ToList();
+                    //foreach (var item in layerList)
+                    //{
+                    //    totalLayerList.Add(item.Key);
+                    //}
+
+                    //Sanjay [03-June-2019] Now Layerwise call will not be required as data will be received from TCP/ip communication
+                    //Now pass layerid=0. IoT Code will internally give data for all layers.
+                    //for (int i = 0; i < totalLayerList.Count; i++)
+                    //{
+                    //int layerid = totalLayerList[i];
+                    int layerid = 0;
+                    Int32 loadingId = loadingTO.ModbusRefId;
+                    for (int mc = 0; mc < distinctWeighingMachineList.Count; mc++)
+                    {
+                        //Call to Weight IoT
+                        NodeJsResult itemList = _iWeighingCommunication.GetLoadingLayerData(loadingId, layerid, distinctWeighingMachineList[mc]);
+                        if (itemList.Data != null)
+                        {
+
+                            if (itemList.Data != null && itemList.Data.Count > 0)
+                            {
+                                for (int f = 0; f < itemList.Data.Count; f++)
+                                {
+                                    var itemRefId = itemList.Data[f][(int)IoTConstants.WeightIotColE.ItemRefNo];
+                                    var itemTO = totalLoadingSlipExtList.Where(w => w.ModbusRefId == itemRefId).FirstOrDefault();
+                                    if (itemTO != null)
+                                    {
+                                        itemTO.LoadedWeight = itemList.Data[f][(int)IoTConstants.WeightIotColE.LoadedWt];
+                                        itemTO.CalcTareWeight = itemList.Data[f][(int)IoTConstants.WeightIotColE.CalcTareWt];
+                                        itemTO.LoadedBundles = itemList.Data[f][(int)IoTConstants.WeightIotColE.LoadedBundle];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    //}
+                }
+            }
+        }
+
+        public void GetWeighingMeasuresFromIoT(string loadingId, bool isUnloading, List<TblWeighingMeasuresTO> tblWeighingMeasuresTOList, SqlConnection conn, SqlTransaction tran)
+        {
+            try
+            {
+                string[] loadingIdsList = loadingId.Split(',');
+                if (loadingIdsList != null && loadingIdsList.Length > 0)
+                {
+                    //List<TblWeighingMachineTO> tblWeighingMachineList = BL.TblWeighingMachineBL.SelectAllTblWeighingMachineList();
+                    for (int i = 0; i < loadingIdsList.Length; i++)
+                    {
+                        TblLoadingTO tblLoadingTO = SelectLoadingTOWithDetails(Convert.ToInt32(loadingIdsList[i]));
+                        //tblLoadingTO = TblLoadingBL.getDataFromIotAndMerge(tblLoadingTO);
+                        //NodeJsResult itemList = GetLoadingLayerData(tblLoadingTO.ModbusRefId, 0);
+                        // List<int[]> weighingDataList = new List<int[]>();
+                        //if (itemList != null)
+                        //{
+                        //    List<int[]> defaultResultList = new List<int[]>();
+                        //    if (itemList.Data != null && itemList.Data.Count > 0)
+                        //    {
+                        //        defaultResultList = itemList.Data.Where(w => w[(int)IoTConstants.WeightIotColE.WeighTypeId] == (Int32)Constants.TransMeasureTypeE.TARE_WEIGHT || w[(int)IoTConstants.WeightIotColE.WeighTypeId] == (Int32)Constants.TransMeasureTypeE.GROSS_WEIGHT).ToList();
+                        //    }
+                        //    weighingDataList.AddRange(defaultResultList);
+                        //}
+                        if (tblLoadingTO.DynamicItemListDCT != null && tblLoadingTO.DynamicItemListDCT.Count > 0)
+                        {
+                            foreach (KeyValuePair<int, List<int[]>> pair in tblLoadingTO.DynamicItemListDCT)
+                            {
+                                foreach (var item in pair.Value)
+                                {
+                                    TblWeighingMeasuresTO measuresTO = new TblWeighingMeasuresTO();
+                                    measuresTO.LoadingId = tblLoadingTO.IdLoading;
+                                    measuresTO.WeightMeasurTypeId = item[(int)IoTConstants.WeightIotColE.WeighTypeId];
+                                    measuresTO.WeightMT = item[(int)IoTConstants.WeightIotColE.Weight];
+                                    measuresTO.VehicleNo = tblLoadingTO.VehicleNo;
+                                    measuresTO.UnLoadingId = Convert.ToInt32(isUnloading);
+                                    measuresTO.WeighingMachineId = pair.Key;
+                                    int dateTimeVal = item[(int)IoTConstants.WeightIotColE.TimeStamp];
+                                    string dateTimeValTemp = dateTimeVal.ToString();
+                                    if (dateTimeValTemp.Length <= 5)
+                                    {
+                                        dateTimeValTemp = "0" + dateTimeVal;
+                                    }
+                                    string hrsMin = dateTimeValTemp.Substring(2, 4);
+                                    string hrs = hrsMin.Substring(0, 2).ToString();
+                                    string min = hrsMin.Substring(2, 2).ToString();
+                                    string date = dateTimeValTemp.Replace(hrsMin, "");
+
+                                    DateTime dateTime = new DateTime(_iCommon.ServerDateTime.Year, _iCommon.ServerDateTime.Month, Convert.ToInt32(date), Convert.ToInt32(hrs), Convert.ToInt32(min), 0);
+                                    measuresTO.CreatedOn = dateTime;
+                                    tblWeighingMeasuresTOList.Add(measuresTO);
+                                }
+                                //Console.WriteLine("{0}, {1}", pair.Key, pair.Value);
+                            }
+                        }
+                        //if (tblLoadingTO.DynamicItemList != null && tblLoadingTO.DynamicItemList.Count > 0)
+                        //    weighingDataList.AddRange(tblLoadingTO.DynamicItemList);
+                        //for (int wd = 0; wd < weighingDataList.Count; wd++)
+                        //{
+                        //    TblWeighingMeasuresTO measuresTO = new TblWeighingMeasuresTO();
+                        //    measuresTO.LoadingId = tblLoadingTO.IdLoading;
+                        //    measuresTO.WeightMeasurTypeId = weighingDataList[wd][(int)IoTConstants.WeightIotColE.WeighTypeId];
+                        //    measuresTO.WeightMT = weighingDataList[wd][(int)IoTConstants.WeightIotColE.Weight];
+                        //    measuresTO.VehicleNo = tblLoadingTO.VehicleNo;
+                        //    measuresTO.UnLoadingId = Convert.ToInt32(isUnloading);
+                        //    measuresTO.WeighingMachineId = tblLoadingTO.DynamicItemListDCT.Keys[];
+                        //    // measuresTO.CreatedBy = 1;
+                        //    tblWeighingMeasuresTOList.Add(measuresTO);
+                        //}
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return;
+            }
+        }
 
         public List<TblLoadingTO> SelectAllTblLoadingList()
         {
@@ -145,6 +311,15 @@ namespace ODLMWebAPI.BL
 
         public List<TblLoadingTO> SelectAllTblLoadingList(List<TblUserRoleTO> tblUserRoleTOList, Int32 cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, Int32 isConfirm, Int32 brandId, Int32 loadingNavigateId,Int32 superwisorId)
         {
+            //Aniket [30-7-2019] added for IOT
+
+            var checkIotFlag = loadingStatusId;
+            int configId = _iTblConfigParamsDAO.IoTSetting();
+            if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
+            {
+                checkIotFlag = 0;
+            }
+
             //Priyanka [12-12-2018]
             TblUserRoleTO tblUserRoleTO = new TblUserRoleTO();
             if (tblUserRoleTOList != null && tblUserRoleTOList.Count > 0)
@@ -165,10 +340,113 @@ namespace ODLMWebAPI.BL
                     }
                 }
             }
+            List<TblLoadingTO> list = new List<TblLoadingTO>();
+            List<TblLoadingTO> finalList = new List<TblLoadingTO>();
+            if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
+            {
+                if (tblLoadingTOList != null && tblLoadingTOList.Count > 0)
+                {
+                    var deliverList = tblLoadingTOList.Where(s => s.TranStatusE == Constants.TranStatusE.LOADING_DELIVERED || s.TranStatusE == Constants.TranStatusE.LOADING_CANCEL || s.TranStatusE == Constants.TranStatusE.LOADING_NOT_CONFIRM).ToList();
+                    // var deliverList = tblLoadingTOList.Where(s => s.TranStatusE == Constants.TranStatusE.LOADING_DELIVERED || s.TranStatusE == Constants.TranStatusE.LOADING_CANCEL).ToList();
+                    string finalStatusId = _iIotCommunication.GetIotEncodedStatusIdsForGivenStatus(loadingStatusId.ToString());
+                    list = SetLoadingStatusData(finalStatusId.ToString(), true, configId, tblLoadingTOList);
+                    if (deliverList != null)
+                        finalList.AddRange(deliverList);
+                    if (list != null)
+                        finalList.AddRange(list);
+                }
+
+                if (finalList != null && finalList.Count > 0)
+                {
+                    if (loadingStatusId > 0)
+                    {
+                        finalList = finalList.Where(w => w.StatusId == loadingStatusId).ToList();
+                    }
+                }
+                return finalList;
+            }
+            else
+            {
+                return tblLoadingTOList;
+            }
+           
+
+        }
+
+        //Aniket [30-7-2019] added for IOT
+        public List<TblLoadingTO> SetLoadingStatusData(String loadingStatusId, bool isEncoded, int configId, List<TblLoadingTO> tblLoadingTOList)
+        {
+            if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
+            {
+                List<DimStatusTO> statusList = _iDimStatusDAO.SelectAllDimStatus();
+                //GateIoTResult gateIoTResult = IoT.IotCommunication.GetLoadingSlipsByStatusFromIoTByStatusId(loadingStatusId.ToString());
+
+                List<TblLoadingTO> distGate = tblLoadingTOList.GroupBy(g => g.GateId).Select(s => s.FirstOrDefault()).ToList();
+
+                GateIoTResult gateIoTResult = new GateIoTResult();
+
+                for (int g = 0; g < distGate.Count; g++)
+                {
+                    TblLoadingTO tblLoadingTOTemp = distGate[g];
+                    TblGateTO tblGateTO = new TblGateTO(tblLoadingTOTemp.GateId, tblLoadingTOTemp.IoTUrl, tblLoadingTOTemp.MachineIP, tblLoadingTOTemp.PortNumber);
+                    GateIoTResult temp = _iIotCommunication.GetLoadingSlipsByStatusFromIoTByStatusId(loadingStatusId.ToString(), tblGateTO);
+
+                    if (temp != null && temp.Data != null)
+                    {
+                        gateIoTResult.Data.AddRange(temp.Data);
+                    }
+                }
+
+                if (gateIoTResult != null && gateIoTResult.Data != null)
+                {
+                    for (int d = 0; d < tblLoadingTOList.Count; d++)
+                    {
+                        var data = gateIoTResult.Data.Where(w => Convert.ToInt32(w[0]) == tblLoadingTOList[d].ModbusRefId).FirstOrDefault();
+                        if (data != null)
+                        {
+                            tblLoadingTOList[d].VehicleNo = Convert.ToString(data[(int)IoTConstants.GateIoTColE.VehicleNo]);
+                            if (data.Length > 3)
+                                tblLoadingTOList[d].TransporterOrgId = Convert.ToInt32(data[(int)IoTConstants.GateIoTColE.TransportorId]);
+                            DimStatusTO dimStatusTO = statusList.Where(w => w.IotStatusId == Convert.ToInt32(data[(int)IoTConstants.GateIoTColE.StatusId])).FirstOrDefault();
+                            if (dimStatusTO != null)
+                            {
+                                tblLoadingTOList[d].StatusId = dimStatusTO.IdStatus;
+                                tblLoadingTOList[d].StatusDesc = dimStatusTO.StatusName;
+                            }
+
+                        }
+                        else
+                        {
+                            tblLoadingTOList.RemoveAt(d);
+                            d--;
+                        }
+                    }
+                    if (!String.IsNullOrEmpty(loadingStatusId))
+                    {
+                        string statusIdList = string.Empty;
+                        if (isEncoded)
+                            statusIdList = _iIotCommunication.GetIotDecodedStatusIdsForGivenStatus(loadingStatusId);
+
+                        var statusIds = statusIdList.Split(',').ToList();
+
+                        if (statusIds.Count == 1 && statusIds[0] == "0")
+                            return tblLoadingTOList;
+
+                        tblLoadingTOList = tblLoadingTOList.Where(w => statusIds.Contains(Convert.ToString(w.StatusId))).ToList();
+
+                        //tblLoadingTOList = tblLoadingTOList.Where(w => w.StatusId == loadingStatusId).ToList();
+                    }
+                }
+                else
+                {
+                    tblLoadingTOList = new List<TblLoadingTO>();
+                }
+            }
 
             return tblLoadingTOList;
+        }
 
-        } 
+
         /// <summary>
         /// @Kiran 19-04-2018
         /// </summary>
@@ -298,7 +576,7 @@ namespace ODLMWebAPI.BL
             return _iTblLoadingDAO.SelectAllTblLoadingLinkList(tblUserRoleTO, dearlerOrgId, loadingStatusId, fromDate, toDate);
         }
 
-        public List<TblLoadingTO> SelectAllLoadingListByStatus(string statusId)
+        public List<TblLoadingTO> SelectAllLoadingListByStatus(string statusId,int gateId=0)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -306,7 +584,7 @@ namespace ODLMWebAPI.BL
             {
                 conn.Open();
                 tran = conn.BeginTransaction();
-                return _iTblLoadingDAO.SelectAllLoadingListByStatus(statusId, conn, tran);
+                return _iTblLoadingDAO.SelectAllLoadingListByStatus(statusId, conn, tran,gateId);
             }
             catch (Exception ex)
             {
@@ -369,6 +647,8 @@ namespace ODLMWebAPI.BL
             {
                 string[] arrLoadingIds = null;
                 List<TblLoadingTO> tblLoadingToList = new List<TblLoadingTO>();
+                //Aniket [30-7-2019] added for IOT
+                int confiqId = _iTblConfigParamsDAO.IoTSetting();
                 if (idLoadings.Contains(','))
                 {
                     arrLoadingIds = idLoadings.Split(',');
@@ -381,6 +661,13 @@ namespace ODLMWebAPI.BL
                 {
                     TblLoadingTO tblLoadingTO = SelectTblLoadingTO(Convert.ToInt32(loadingId));
                     tblLoadingTO.LoadingSlipList = _iTblLoadingSlipBL.SelectAllLoadingSlipListWithDetails(Convert.ToInt32(loadingId));
+
+                    //Aniket [30-7-2019] added for IOT
+                    if (confiqId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT) ||
+                       confiqId == Convert.ToInt32(Constants.WeighingDataSourceE.BOTH))
+                    {
+                        _iIotCommunication.GetItemDataFromIotAndMerge(tblLoadingTO, true);
+                    }
                     tblLoadingToList.Add(tblLoadingTO);
                 }
 
@@ -398,6 +685,16 @@ namespace ODLMWebAPI.BL
             {
                 TblLoadingTO tblLoadingTO = SelectTblLoadingTO(idLoading);
                 tblLoadingTO.LoadingSlipList = _iTblLoadingSlipBL.SelectAllLoadingSlipListWithDetails(idLoading);
+                //Aniket [30-7-2019] added for IOT
+                if (tblLoadingTO.TranStatusE != Constants.TranStatusE.LOADING_DELIVERED && tblLoadingTO.TranStatusE != Constants.TranStatusE.LOADING_NOT_CONFIRM)
+                {
+                    int confiqId = _iTblConfigParamsDAO.IoTSetting();
+                    if (confiqId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT) ||
+                            confiqId == Convert.ToInt32(Constants.WeighingDataSourceE.BOTH))
+                    {
+                        _iIotCommunication.GetItemDataFromIotAndMerge(tblLoadingTO, true);
+                    }
+                }
                 return tblLoadingTO;
             }
             catch (Exception ex)
@@ -481,6 +778,23 @@ namespace ODLMWebAPI.BL
             {
                 TblLoadingTO tblLoadingTO = SelectTblLoadingTOByLoadingSlipId(loadingSlipId);
                 tblLoadingTO.LoadingSlipList = _iTblLoadingSlipBL.SelectAllLoadingSlipListWithDetails(tblLoadingTO.IdLoading);
+
+                //Aniket [30-7-2019] added for IOT
+                if (tblLoadingTO.TranStatusE != Constants.TranStatusE.LOADING_DELIVERED)
+                {
+                    int confiqId = _iTblConfigParamsDAO.IoTSetting();
+                    if (confiqId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT) ||
+                        confiqId == Convert.ToInt32(Constants.WeighingDataSourceE.BOTH))
+                    {
+                        _iIotCommunication.GetItemDataFromIotAndMerge(tblLoadingTO, false);
+                        foreach (var item in tblLoadingTO.LoadingSlipList)
+                        {
+                            if (item.IdLoadingSlip == loadingSlipId)
+                                GetItemDataFromIotForGivenLoadingSlip(item);
+                        }
+                    }
+                }
+
                 return tblLoadingTO;
             }
             catch (Exception ex)
@@ -504,8 +818,112 @@ namespace ODLMWebAPI.BL
         }
         public List<DropDownTO> SelectAllVehiclesByStatus(int statusId)
         {
+            #region Get Vhical details from IoT 
+            //Added By Kiran 12-12-18
+            int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+            if (weightSourceConfigId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT) && statusId != (int)Constants.TranStatusE.UNLOADING_NEW)
+            {
+
+                String statusIds = statusId.ToString();
+                //Constants.writeLog("GetVehicleNumberListByStauts : For statusId - " + statusId + " Loading List From DB Start ");
+                int userId = 1; // temp set userId  NTD
+                tblUserMachineMappingTo tblUserMachineMappingTo = SelectUserMachineTo(userId);
+                int gateId = 0;
+                if (tblUserMachineMappingTo != null && tblUserMachineMappingTo.UserId != 0 && tblUserMachineMappingTo.GateId != 0)
+                {
+                    gateId = tblUserMachineMappingTo.GateId;
+                }
+                List<TblLoadingTO> list = SelectAllLoadingListByStatus(Convert.ToString((int)Constants.TranStatusE.LOADING_CONFIRM) + "," + Convert.ToString((int)Constants.TranStatusE.LOADING_GATE_IN), gateId); // LOADING_IN_PROGRESS commented by aniket
+                string finalStatusId = _iIotCommunication.GetIotEncodedStatusIdsForGivenStatus(statusIds);
+
+                //Constants.writeLog("GetVehicleNumberListByStauts : For statusId - " + statusId + " Loading List From DB END ");
+
+                //Constants.writeLog("GetVehicleNumberListByStauts : For statusId - " + finalStatusId + " From Gate IoT Start");
+
+                List<TblLoadingTO> distGate = list.GroupBy(g => g.GateId).Select(s => s.FirstOrDefault()).ToList();
+
+                GateIoTResult gateIoTResult = new GateIoTResult();
+
+                for (int g = 0; g < distGate.Count; g++)
+                {
+                    TblLoadingTO tblLoadingTOTemp = distGate[g];
+                    TblGateTO tblGateTO = new TblGateTO(tblLoadingTOTemp.GateId, tblLoadingTOTemp.IoTUrl, tblLoadingTOTemp.MachineIP, tblLoadingTOTemp.PortNumber);
+                    GateIoTResult temp = _iIotCommunication.GetLoadingSlipsByStatusFromIoTByStatusId(finalStatusId, tblGateTO);
+
+                    if (temp != null && temp.Data != null)
+                    {
+                        gateIoTResult.Data.AddRange(temp.Data);
+                    }
+                }
+                //GateIoTResult gateIoTResult = IoT.IotCommunication.GetLoadingSlipsByStatusFromIoTByStatusId(finalStatusId);
+
+                // Constants.writeLog("GetVehicleNumberListByStauts : For statusId - " + finalStatusId + " From Gate IoT END ");
+
+                //Constants.writeLog("GetVehicleNumberListByStauts : For statusId - " + statusId + " Mapping & Processing Start ");
+
+                if (gateIoTResult != null && gateIoTResult.Data != null)
+                {
+                    List<DropDownTO> dropDownList = new List<DropDownTO>();
+                    for (int j = 0; j < gateIoTResult.Data.Count; j++)
+                    {
+                        DropDownTO dropDownTo = new DropDownTO();
+                        var data = list.Where(w => w.ModbusRefId == Convert.ToInt32(gateIoTResult.Data[j][0])).FirstOrDefault();
+                        if (data != null)
+                        {
+                            dropDownTo.Value = data.IdLoading;
+                            dropDownTo.Text = Convert.ToString(gateIoTResult.Data[j][1]);
+                            dropDownList.Add(dropDownTo);
+                        }
+                    }
+                    return dropDownList;
+                }
+                //Constants.writeLog("GetVehicleNumberListByStauts : For statusId - " + statusId + " Mapping & Processing END ");
+
+            }
+            #endregion
             return _iTblLoadingDAO.SelectAllVehiclesListByStatus(statusId);
         }
+
+
+        public  tblUserMachineMappingTo SelectUserMachineTo(int userId)
+        {
+            SqlConnection conn = new SqlConnection(Startup.ConnectionString);
+            SqlTransaction tran = null;
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+                return _iTblLoadingDAO.SelectUserMachineTo(userId, conn, tran);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+        //Aniket [30-7-2019] added for IOT
+        //public  tblUserMachineMappingTo SelectUserMachineTo(int userId)
+        //{
+        //    SqlConnection conn = new SqlConnection(Startup.ConnectionString);
+        //    SqlTransaction tran = null;
+        //    try
+        //    {
+        //        conn.Open();
+        //        tran = conn.BeginTransaction();
+        //        return _iTblLoadingDAO.SelectUserMachineTo(userId, conn, tran);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return null;
+        //    }
+        //    finally
+        //    {
+        //        conn.Close();
+        //    }
+        //}
         public LoadingInfo SelectDashboardLoadingInfo(List<TblUserRoleTO> tblUserRoleTOList, Int32 orgId, DateTime sysDate, Int32 loadingType)
         {
             try
@@ -530,7 +948,7 @@ namespace ODLMWebAPI.BL
             return _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(vehicleNo, loadingDate);
         }
 
-        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading)
+        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading,int loadingId)//Aniket [13-6-2019] added loadingId paramater
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -538,7 +956,7 @@ namespace ODLMWebAPI.BL
             {
                 conn.Open();
                 tran = conn.BeginTransaction();
-                return _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(vehicleNo, isAllowNxtLoading, conn, tran);
+                return _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(vehicleNo, isAllowNxtLoading, loadingId, conn, tran);
             }
             catch (Exception ex)
             {
@@ -550,9 +968,9 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading, SqlConnection conn, SqlTransaction tran)
+        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading,int loadingId,  SqlConnection conn, SqlTransaction tran)
         {
-            return _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(vehicleNo, isAllowNxtLoading, conn, tran);
+            return _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(vehicleNo, isAllowNxtLoading, loadingId, conn, tran);
         }
 
 
@@ -1620,7 +2038,21 @@ namespace ODLMWebAPI.BL
                 }
 
                 String loadingSlipNo = tblLoadingTO.CreatedOn.Day + "" + tblLoadingTO.CreatedOn.Month + "" + tblLoadingTO.CreatedOn.Year + "/" + loadingEntityRangeTO.EntityPrevValue;
-
+                #region IOT related code added
+                //Aniket [30-7-2019] added code for IOT
+                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                if(weightSourceConfigId == (int)StaticStuff.Constants.WeighingDataSourceE.IoT)
+                {
+                    tblLoadingTO.ModbusRefId=_iCommon.GetNextAvailableModRefIdNew();
+                    if (tblLoadingTO.ModbusRefId == 0)
+                    {
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Text = "Error : ModbusRef List gretter than 255 or Number not found Or Dublicate number found";
+                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                        return resultMessage;
+                    }
+                }
+                #endregion
                 loadingEntityRangeTO.EntityPrevValue++;
                 result = _iTblEntityRangeDAO.UpdateTblEntityRange(loadingEntityRangeTO, conn, tran);
                 if (result != 1)
@@ -1660,6 +2092,31 @@ namespace ODLMWebAPI.BL
                 //Vijaymala added[22-06-2018]
                 tblLoadingTO.StatusDate = _iCommon.ServerDateTime;
                 tblLoadingTO.CreatedOn = _iCommon.ServerDateTime;
+
+                int transporterId = tblLoadingTO.TransporterOrgId;
+                string vehicleNumber = tblLoadingTO.VehicleNo;
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                {
+                    tblLoadingTO.TransporterOrgId = 0;
+                    tblLoadingTO.VehicleNo = string.Empty;
+                }
+
+                #region Assign default Gate
+
+                if (tblLoadingTO.GateId == 0)
+                {
+                    TblGateTO tblGateTO = _iTblGateBL.GetDefaultTblGateTO();
+                    if (tblGateTO != null)
+                    {
+                        tblLoadingTO.GateId = tblGateTO.IdGate;
+                        tblLoadingTO.PortNumber = tblGateTO.PortNumber;
+                        tblLoadingTO.IoTUrl = tblGateTO.IoTUrl;
+                        tblLoadingTO.MachineIP = tblGateTO.MachineIP;
+                    }
+                }
+
+                #endregion
+
                 result = InsertTblLoading(tblLoadingTO, conn, tran);
                 if (result != 1)
                 {
@@ -1760,11 +2217,21 @@ namespace ODLMWebAPI.BL
 
                 #endregion
 
+                //Aniket [30-7-2019] added for IOT
+
+                int modbusRefIdInc = 0;
                 for (int i = 0; i < tblLoadingTO.LoadingSlipList.Count; i++)
                 {
                     TblLoadingSlipTO tblLoadingSlipTO = tblLoadingTO.LoadingSlipList[i];
                     tblLoadingSlipTO.LoadingId = tblLoadingTO.IdLoading;
-                    tblLoadingSlipTO.VehicleNo = tblLoadingTO.VehicleNo;
+                    //Aniket [30-7-2019] added for IOT
+                    if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                    {
+                        tblLoadingSlipTO.VehicleNo = string.Empty;
+                    }
+                    else
+                        tblLoadingSlipTO.VehicleNo = tblLoadingTO.VehicleNo;
+                   
                     //Vijaymala added[22-06-2018]
                     if (isAutoGateInVehicle == 1)
                     {
@@ -2027,7 +2494,7 @@ namespace ODLMWebAPI.BL
                     #region LoadingSlip Layer Material Details.
 
 
-                    resultMessage = InsertLoadingExtDetails(tblLoadingTO, conn, tran, ref isBoyondLoadingQuota, ref finalLoadQty, tblLoadingSlipTO, tblBookingsTO, tblBookingExtTOList);
+                    resultMessage = InsertLoadingExtDetails(tblLoadingTO, conn, tran, ref isBoyondLoadingQuota, ref finalLoadQty, tblLoadingSlipTO, tblBookingsTO, tblBookingExtTOList, ref modbusRefIdInc);
                     if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
                     {
                         return resultMessage;
@@ -2155,6 +2622,8 @@ namespace ODLMWebAPI.BL
                 }
                 else
                 {
+                    tblLoadingTO.VehicleNo = vehicleNumber;
+                    tblLoadingTO.TransporterOrgId = transporterId;
                     tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_NOT_CONFIRM;
                     tblLoadingTO.StatusReason = "Apporval Needed";
                 }
@@ -2235,6 +2704,25 @@ namespace ODLMWebAPI.BL
 
                 }
                 #endregion
+                #region Sanjay [10-Dec-2018] Call To IoT To write the vehicle details
+
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT || weightSourceConfigId == (int)Constants.WeighingDataSourceE.BOTH)
+                {
+                    if (tblLoadingTO.StatusId== (Int32)Constants.TranStatusE.LOADING_CONFIRM)
+                    {
+                        int res=WriteDataOnIOT(tblLoadingTO, conn, tran, vehicleNumber, transporterId);
+                        if(res==0)
+                        {
+                            tran.Rollback();
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            resultMessage.Text = "Error While write data on IOT";
+                            
+                            return resultMessage;
+                        }
+                    }
+                }
+
+                #endregion
 
                 tran.Commit();
                 resultMessage.MessageType = ResultMessageE.Information;
@@ -2266,6 +2754,7 @@ namespace ODLMWebAPI.BL
                             tblLoadingTO.UpdatedOn = tblLoadingTO.StatusDate;
 
                             return UpdateDeliverySlipConfirmations(tblLoadingTO);
+
                         }
                     }
 
@@ -2301,13 +2790,274 @@ namespace ODLMWebAPI.BL
                 conn.Close();
             }
         }
+        //Aniket [7-8-2019] added to write data on IOT
+        public int WriteDataOnIOT(TblLoadingTO tblLoadingTO,SqlConnection conn,SqlTransaction tran,String vehicleNumber,  int transporterId)
+        {
+            int result = 1;
+            DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus(tblLoadingTO.StatusId, conn, tran);
+            if (statusTO == null || statusTO.IotStatusId == 0)
+            {
+                result = 0;
+               return result;
+            }
 
-        private ResultMessage InsertLoadingExtDetails(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran, ref bool isBoyondLoadingQuota, ref double finalLoadQty, TblLoadingSlipTO tblLoadingSlipTO, TblBookingsTO tblBookingsTO, List<TblBookingExtTO> tblBookingExtTOList)
+            // Call to post data to Gate IoT API
+            List<object[]> frameList = _iIotCommunication.GenerateGateIoTFrameData(tblLoadingTO, vehicleNumber, statusTO.IotStatusId, transporterId);
+            if (frameList != null && frameList.Count > 0)
+            {
+                for (int f = 0; f < frameList.Count; f++)
+                {
+                    //Saket [2019-04-11] Keep common call for write data too IOT i.e from approval
+                    //result = IoT.IotCommunication.PostGateAPIDataToModbusTcpApiForLoadingSlip(tblLoadingTO, frameList[f]);
+                    result = _iIotCommunication.PostGateAPIDataToModbusTcpApi(tblLoadingTO, frameList[f]);
+                    if (result != 1)
+                    {
+                        result = 0;
+                        return result;
+                    }
+                }
+            }
+            else
+            {
+                result = 0;
+            }
+            return result; 
+        }
+        //Aniket [30-7-2019] added for IOT
+        public  ResultMessage UpdateLoadingStatusToGateIoT(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            int result = 0;
+            DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus(tblLoadingTO.StatusId, conn, tran);
+            if (statusTO == null || statusTO.IotStatusId == 0)
+            {
+                resultMessage.DefaultBehaviour("iot status id not found for loading to pass at gate iot");
+                return resultMessage;
+            }
+
+            // Call to post data to Gate IoT API
+            List<object[]> frameList = _iIotCommunication.GenerateGateIoTStatusFrameData(tblLoadingTO, statusTO.IotStatusId);
+            if (frameList != null && frameList.Count > 0)
+            {
+                for (int f = 0; f < frameList.Count; f++)
+                {
+                    result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(tblLoadingTO, frameList[f]);
+                    if (result != 1)
+                    {
+                        resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
+                        return resultMessage;
+                    }
+                }
+            }
+            else
+            {
+                resultMessage.DefaultBehaviour("frameList Found Null Or Empty while PostGateAPIDataToModbusTcpApi");
+                return resultMessage;
+            }
+
+            resultMessage.DefaultSuccessBehaviour();
+            return resultMessage;
+        }
+
+        public  ResultMessage PostChangeGateIOTAgainstLoading(TblLoadingTO tblLoadingTO)
+        {
+
+            SqlConnection conn = new SqlConnection(Startup.ConnectionString);
+            SqlTransaction tran = null;
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+
+
+                if (tblLoadingTO == null)
+                {
+                    throw new Exception("LoadingTO==null");
+                }
+                if (tblLoadingTO.GateId == 0)
+                {
+                    throw new Exception("tblLoadingTO.GateId == 0");
+                }
+
+                TblLoadingTO existingTblLoadingTO = SelectTblLoadingTO(tblLoadingTO.IdLoading);
+                if (existingTblLoadingTO == null)
+                {
+                    throw new Exception("existingTblLoadingTO == null" + tblLoadingTO.IdLoading);
+                }
+
+                if (tblLoadingTO.GateId == existingTblLoadingTO.GateId)
+                {
+                    throw new Exception("GateId != existingGateId");
+                }
+                //previous gate Id
+                int previousGateId = existingTblLoadingTO.GateId;
+                existingTblLoadingTO.GateId = tblLoadingTO.GateId;
+                existingTblLoadingTO.UpdatedBy = tblLoadingTO.UpdatedBy;
+                existingTblLoadingTO.UpdatedOn = tblLoadingTO.UpdatedOn;
+                Int32 result = 0;
+                //Get Data from IOT
+                //start vipul[16/04/2019] read existing data from gate
+                List<DimStatusTO> dimStatusTOList = _iDimStatusDAO.SelectAllDimStatus();
+                TblLoadingSlipTO loadingslip = new TblLoadingSlipTO();
+                loadingslip.LoadingId = existingTblLoadingTO.IdLoading;
+                existingTblLoadingTO = _iIotCommunication.GetItemDataFromIotAndMerge(existingTblLoadingTO, false, true);//TblLoadingSlipBL.GetVehicalHistoryDataFromIoT(existingTblLoadingTO, loadingslip, dimStatusTOList);
+                //end
+                //Write Data to IOT
+                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                // if ((weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT || weightSourceConfigId == (int)Constants.WeighingDataSourceE.BOTH) && tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM)
+                if ((weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT || weightSourceConfigId == (int)Constants.WeighingDataSourceE.BOTH))
+                {
+                    TblGateTO tblGateTO = _iTblGateBL.SelectTblGateTO(tblLoadingTO.GateId);
+                    if (tblGateTO == null)
+                    {
+                        throw new Exception("tblGateTO == null for gateId - " + tblLoadingTO.GateId);
+                    }
+
+                    tblLoadingTO.PortNumber = tblGateTO.PortNumber;
+                    tblLoadingTO.MachineIP = tblGateTO.MachineIP;
+                    tblLoadingTO.IoTUrl = tblGateTO.IoTUrl;
+
+                    //start
+                    for (int i = 0; i < existingTblLoadingTO.LoadingStatusHistoryTOList.Count; i++)
+                    {
+
+                        DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus(existingTblLoadingTO.LoadingStatusHistoryTOList[i].StatusId, conn, tran);
+                        if (statusTO == null || statusTO.IotStatusId == 0)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("iot status id not found for loading to pass at gate iot");
+                            return resultMessage;
+                        }
+                        // int result = 0;
+                        // Call to post data to Gate IoT API
+                        if (i == 0)
+                        {
+                            List<object[]> frameList = _iIotCommunication.GenerateGateIoTFrameData(existingTblLoadingTO, existingTblLoadingTO.VehicleNo, statusTO.IotStatusId, existingTblLoadingTO.TransporterOrgId);
+                            if (frameList != null && frameList.Count > 0)
+                            {
+                                result = _iIotCommunication.PostGateAPIDataToModbusTcpApi(tblLoadingTO, frameList[i]);
+                                if (result != 1)
+                                {
+                                    tran.Rollback();
+                                    resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
+                                    return resultMessage;
+                                }
+                            }
+                            else
+                            {
+                                tran.Rollback();
+                                resultMessage.DefaultBehaviour("Error while Generate Gate IoT Frame Data ");
+                                return resultMessage;
+                            }
+                        }
+                        else
+                        {
+                            List<object[]> frameList = _iIotCommunication.GenerateGateIoTStatusFrameData(existingTblLoadingTO, statusTO.IotStatusId);
+                            if (frameList != null && frameList.Count > 0)
+                            {
+                                for (int f = 0; f < frameList.Count; f++)
+                                {
+                                    result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(tblLoadingTO, frameList[f]);
+                                    if (result != 1)
+                                    {
+                                        resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
+                                        return resultMessage;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                resultMessage.DefaultBehaviour("frameList Found Null Or Empty while PostGateAPIDataToModbusTcpApi");
+                                return resultMessage;
+                            }
+                        }
+                        Thread.Sleep(500);
+                    }
+                }
+
+                if (result != 1)
+                {
+                    resultMessage.DefaultBehaviour("Error while writing data on gate iot");
+                    return resultMessage;
+                }
+                var result1 = new GateIoTResult();
+                result1.Code = 0;
+                int cnt = 0;
+                while (cnt < 3)
+                {
+                    result1 = _iGateCommunication.DeleteSingleLoadingFromGateIoT(existingTblLoadingTO);
+                    if (result1.Code == 1)
+                    {
+                        break;
+                    }
+                    cnt++;
+                }
+                // result1 = IotCommunication.DeleteSingleLoadingFromGateIoT(existingTblLoadingTO);
+                if (result1 == null || result1.Code == 0)
+                {
+                    //Remove write data from another Gate IOT
+
+                    TblGateTO tblGateTO = _iTblGateBL.SelectTblGateTO(tblLoadingTO.GateId);
+                    if (tblGateTO == null)
+                    {
+                        throw new Exception("tblGateTO == null for gateId - " + tblLoadingTO.GateId);
+                    }
+
+                    existingTblLoadingTO.PortNumber = tblGateTO.PortNumber;
+                    existingTblLoadingTO.MachineIP = tblGateTO.MachineIP;
+                    existingTblLoadingTO.IoTUrl = tblGateTO.IoTUrl;
+                    var result2 = new GateIoTResult();
+                    result2.Code = 0;
+                    cnt = 0;
+                    while (cnt < 3)
+                    {
+                        result2 = _iGateCommunication.DeleteSingleLoadingFromGateIoT(existingTblLoadingTO);
+                        if (result2.Code == 1)
+                        {
+                            break;
+                        }
+                    }
+
+                    throw new Exception("Error while deleting gate IOT data");
+
+
+                }
+
+                existingTblLoadingTO.VehicleNo = "";
+                existingTblLoadingTO.TransporterOrgId = 0;
+                existingTblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.LOADING_CONFIRM);
+                existingTblLoadingTO.StatusReason = "Loading Scheduled & Confirmed";
+                result = UpdateTblLoading(existingTblLoadingTO, conn, tran);
+                if (result != 1)
+                {
+                    throw new Exception("Error while updating gateId for loading Id - " + tblLoadingTO.IdLoading);
+                }
+
+                tran.Commit();
+                resultMessage.DefaultSuccessBehaviour();
+
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                resultMessage.DefaultExceptionBehaviour(ex, "UpdateDeliverySlipConfirmations");
+                return resultMessage;
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+        }
+
+        private ResultMessage InsertLoadingExtDetails(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran, ref bool isBoyondLoadingQuota, ref double finalLoadQty, TblLoadingSlipTO tblLoadingSlipTO, TblBookingsTO tblBookingsTO, List<TblBookingExtTO> tblBookingExtTOList,ref int modbusRefIdInc)
         {
             string loadingSlipNo = tblLoadingTO.LoadingSlipNo;
             Int32 result = 0;
             ResultMessage resultMessage = new ResultMessage();
-
+            
             if (tblLoadingSlipTO.LoadingSlipExtTOList != null && tblLoadingSlipTO.LoadingSlipExtTOList.Count > 0)
             {
                 if (tblLoadingTO.LoadingType == (int)Constants.LoadingTypeE.OTHER)
@@ -2507,7 +3257,8 @@ namespace ODLMWebAPI.BL
                     for (int e = 0; e < tblLoadingSlipTO.LoadingSlipExtTOList.Count; e++)
                     {
                         TblLoadingQuotaDeclarationTO loadingQuotaTOLive = null;
-
+                        tblLoadingSlipTO.LoadingSlipExtTOList[e].ModbusRefId = modbusRefIdInc + 1;
+                        modbusRefIdInc++;
                         TblLoadingSlipExtTO tblLoadingSlipExtTO = tblLoadingSlipTO.LoadingSlipExtTOList[e];
                         if (tblLoadingSlipExtTO.LoadingQty > 0)
                         {
@@ -3917,11 +4668,16 @@ namespace ODLMWebAPI.BL
         public ResultMessage UpdateDeliverySlipConfirmations(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran)
         {
             int result = 0;
+            //For Cancel it is used.
+            Int32 modBusRefId = tblLoadingTO.ModbusRefId;
+
             ResultMessage resultMessage = new StaticStuff.ResultMessage();
             resultMessage.MessageType = ResultMessageE.None;
             resultMessage.Text = "Not Entered In The Loop";
             try
             {
+                //Sanjay [10-Dec-2018] For IoT Implementations
+                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
 
                 List<TblProductInfoTO> productConfgList = _iTblProductInfoDAO.SelectAllLatestProductInfo(conn, tran);
                 if (productConfgList == null)
@@ -3959,7 +4715,9 @@ namespace ODLMWebAPI.BL
 
                 if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_DELIVERED)
                 {
-                    resultMessage = _iCircularDependencyBL.CheckInvoiceNoGeneratedByVehicleNo(tblLoadingTO.VehicleNo, conn, tran, true);
+                    //Aniket [19-8-2019] commmnedted for IOT as we are passing loadingId to check invoice is generated against VehicleNo
+                    //resultMessage = _iCircularDependencyBL.CheckInvoiceNoGeneratedByVehicleNo(tblLoadingTO.VehicleNo, conn, tran, true);
+                    resultMessage = _iCircularDependencyBL.CheckInvoiceNoGeneratedByVehicleNo(tblLoadingTO.VehicleNo, conn, tran, tblLoadingTO.IdLoading, true);
                     if (resultMessage.MessageType != ResultMessageE.Information)
                     {
                         //tran.Rollback();
@@ -3973,6 +4731,7 @@ namespace ODLMWebAPI.BL
                         //tran.Rollback();
                         return resultMessage;
                     }
+                    
                 }
 
                 #endregion
@@ -4321,26 +5080,36 @@ namespace ODLMWebAPI.BL
 
                 #endregion
                 #region 2. Update Loading Slip Status
-                //Update LoadingTO Status First
-                result = UpdateTblLoading(tblLoadingTO, conn, tran);
-                if (result != 1)
+                if (weightSourceConfigId != (int)Constants.WeighingDataSourceE.IoT || tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_CANCEL || tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_CONFIRM)
                 {
-                    //tran.Rollback();
-                    resultMessage.MessageType = ResultMessageE.Error;
-                    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                    resultMessage.Text = "Error While UpdateTblLoading In Method UpdateDeliverySlipConfirmations";
-                    return resultMessage;
-                }
 
-                //Update Individual Loading Slip statuses
-                result = _iTblLoadingSlipBL.UpdateTblLoadingSlip(tblLoadingTO, conn, tran);
-                if (result <= 0)
-                {
-                    //tran.Rollback();
-                    resultMessage.MessageType = ResultMessageE.Error;
-                    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                    resultMessage.Text = "Error While UpdateTblLoadingSlip In Method UpdateDeliverySlipConfirmations";
-                    return resultMessage;
+
+                    //Update LoadingTO Status First
+                    if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_CANCEL)
+                    {
+                        tblLoadingTO.ModbusRefId = 0;
+                        tblLoadingTO.IsDBup = 0;
+                    }
+                    result = UpdateTblLoading(tblLoadingTO, conn, tran);
+                    if (result != 1)
+                    {
+                        //tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                        resultMessage.Text = "Error While UpdateTblLoading In Method UpdateDeliverySlipConfirmations";
+                        return resultMessage;
+                    }
+
+                    //Update Individual Loading Slip statuses
+                    result = _iTblLoadingSlipBL.UpdateTblLoadingSlip(tblLoadingTO, conn, tran);
+                    if (result <= 0)
+                    {
+                        //tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                        resultMessage.Text = "Error While UpdateTblLoadingSlip In Method UpdateDeliverySlipConfirmations";
+                        return resultMessage;
+                    }
                 }
                 #endregion
 
@@ -4602,6 +5371,78 @@ namespace ODLMWebAPI.BL
 
                 #endregion
 
+                #region Kiran [10-Dec-2018] Call To IoT To write the vehicle details 
+                if ((weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT || weightSourceConfigId == (int)Constants.WeighingDataSourceE.BOTH) && tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_CONFIRM)
+                {
+                    //string vehicleNumber = tblLoadingTO.VehicleNo;
+                    //int trasporterId = tblLoadingTO.TransporterOrgId;
+                    //tblLoadingTO.VehicleNo = string.Empty;
+                    //tblLoadingTO.TransporterOrgId = 0;
+                    int res=WriteDataOnIOT(tblLoadingTO, conn, tran, tblLoadingTO.VehicleNo, tblLoadingTO.TransporterOrgId);
+                    if(res==0)
+                    {
+                        tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        return resultMessage;
+                    }
+                    tblLoadingTO.TransporterOrgId = 0;
+                    tblLoadingTO.VehicleNo = string.Empty;
+                    result = UpdateTblLoading(tblLoadingTO, conn, tran);
+                    if (result != 1)
+                    {
+                        tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Text = "Error While UpdateTblLoading";
+                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                        return resultMessage;
+                    }
+                }
+                #endregion
+
+                #region 5. Status Update and history to Gate IoT
+
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT || weightSourceConfigId == (int)Constants.WeighingDataSourceE.BOTH)
+                {
+                    //if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_CONFIRM
+                    //    || tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_VEHICLE_CLERANCE_TO_SEND_IN
+                    //    || tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_IN_PROGRESS
+                    //    || tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_COMPLETED
+                    //    || tblLoadingTO.TranStatusE == Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH
+                    //    )
+                    //{
+
+                    if (tblLoadingTO.TranStatusE != Constants.TranStatusE.LOADING_CANCEL)
+                    {
+                        resultMessage = UpdateLoadingStatusToGateIoT(tblLoadingTO, conn, tran);
+                        if (resultMessage.MessageType != ResultMessageE.Information)
+                        {
+                            return resultMessage;
+                        }
+                    }
+                    //}
+
+
+                    if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_CANCEL)
+                    {
+
+                        if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
+                        {
+
+                            tblLoadingTO.ModbusRefId = modBusRefId;
+
+                            int deleteResult = RemoveDateFromGateAndWeightIOT(tblLoadingTO);
+                            if (deleteResult != 1)
+                            {
+                                throw new Exception("Error While RemoveDateFromGateAndWeightIOT ");
+                            }
+                            Startup.AvailableModbusRefList = _iTblLoadingDAO.GeModRefMaxData();
+
+                            tblLoadingTO.ModbusRefId = 0;
+                        }
+                    }
+                }
+
+                #endregion
 
                 #region 5.Insert Vehicle Ext Details
 
@@ -4638,6 +5479,44 @@ namespace ODLMWebAPI.BL
 
         }
 
+        //Aniket [30-7-2019] added for IOT
+        private  int RemoveDateFromGateAndWeightIOT(TblLoadingTO tblLoadingTO)
+        {
+            //Addes by kiran for retry 3 times to delete All Data
+            int cnt = 0;
+            GateIoTResult result = new GateIoTResult();
+            while (cnt < 3)
+            {
+                result = _iGateCommunication.DeleteSingleLoadingFromGateIoT(tblLoadingTO);
+                if (result.Code == 1)
+                {
+                    break;
+                }
+                Thread.Sleep(200);
+                cnt++;
+            }
+            if (result.Code != 1)
+            {
+                return 0;
+            }
+            int cnt2 = 0;
+            NodeJsResult nodeJsResult = new NodeJsResult();
+            while (cnt2 < 3)
+            {
+                nodeJsResult = _iIotCommunication.DeleteSingleLoadingFromWeightIoTByModBusRefId(tblLoadingTO);
+                if (nodeJsResult.Code == 1)
+                {
+                    break;
+                }
+                Thread.Sleep(200);
+                cnt2++;
+            }
+            if (nodeJsResult.Code != 1)
+            {
+                return 0;
+            }
+            return 1;
+        }
 
         public ResultMessage InsertLoadingVehDocExtDetailsAgainstLoading(TblLoadingTO tblLoadingTO)
         {
@@ -4828,7 +5707,7 @@ namespace ODLMWebAPI.BL
                 #region 1. Loading Slip Cancellation
 
                 TblConfigParamsTO cancelConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_LOADING_SLIPS_AUTO_CANCEL_STATUS_IDS, conn, tran);
-                List<TblLoadingTO> loadingTOListToCancel = _iTblLoadingDAO.SelectAllLoadingListByStatus(cancelConfigParamsTO.ConfigParamVal, conn, tran);
+                List<TblLoadingTO> loadingTOListToCancel = _iTblLoadingDAO.SelectAllLoadingListByStatus(cancelConfigParamsTO.ConfigParamVal, conn, tran,0);
 
                 if (loadingTOListToCancel != null)
                 {
@@ -5649,7 +6528,7 @@ namespace ODLMWebAPI.BL
             try
             {
 
-                loadingToList = _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(tblLoadingTO.VehicleNo, false, conn, tran);
+                loadingToList = _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(tblLoadingTO.VehicleNo, false,0, conn, tran);
                 if (loadingToList != null && loadingToList.Count > 0)
                 {
                     loadingToList.OrderByDescending(p => p.IdLoading);
@@ -6604,7 +7483,7 @@ namespace ODLMWebAPI.BL
 
                 if (!skipInvoiceProcess)
                 {
-                    resultMessage = _iTblInvoiceBL.PrepareAndSaveNewTaxInvoice(loadingTOFinal, conn, tran);
+                    resultMessage = _iTblInvoiceBL.PrepareAndSaveNewTaxInvoice(loadingTOFinal,null, conn, tran); //null parameter added by Aniket [19-8-2019] needs to change
                     if (resultMessage.MessageType != ResultMessageE.Information)
                     {
                         tran.Rollback();
@@ -6889,7 +7768,8 @@ namespace ODLMWebAPI.BL
 
                 Boolean isBoyondLoadingQuota = false;
                 Double finalLoadQty = 0;
-                resultMessage = InsertLoadingExtDetails(tblLoadingTO, conn, tran, ref isBoyondLoadingQuota, ref finalLoadQty, tblLoadingSlipTO, tblBookingsTO, new List<TblBookingExtTO>());
+                int modbusRefIdInc = 0;
+                resultMessage = InsertLoadingExtDetails(tblLoadingTO, conn, tran, ref isBoyondLoadingQuota, ref finalLoadQty, tblLoadingSlipTO, tblBookingsTO, new List<TblBookingExtTO>(),ref modbusRefIdInc);//added by Aniket last parameter modbusRefIdInc is modbusRefId needs to change logic 
                 if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
                 {
                     return resultMessage;
@@ -7121,7 +8001,7 @@ namespace ODLMWebAPI.BL
                     for (int i = 0; i < tblLoadingTOList.Count; i++)
                     {
                         tblLoadingTOList[i].CreatedBy = userId;
-                        resultMessage = _iTblInvoiceBL.PrepareAndSaveNewTaxInvoice(tblLoadingTOList[i], conn, tran);
+                        resultMessage = _iTblInvoiceBL.PrepareAndSaveNewTaxInvoice(tblLoadingTOList[i],null, conn, tran);//null parameter added by Aniket [19-8-2019] needs to change
                         if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
                         {
                             return resultMessage;

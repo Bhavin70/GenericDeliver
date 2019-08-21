@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ODLMWebAPI.IoT.Interfaces
 {
-    interface IWeighingCommunication
+    public interface IWeighingCommunication
     {
         int PostDataFrommodbusTcpApi(TblLoadingTO tblLoadingTO, int[] writeData, TblWeighingMachineTO machineTO);
 

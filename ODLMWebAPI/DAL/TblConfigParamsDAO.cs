@@ -29,6 +29,18 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Selection
+        //Aniket [30-7-2-019] added for IOT to check WEIGHING_MEASURE_SOURCE_ID settings
+
+        public int IoTSetting()
+        {
+            int WeighingSrcConfig = (int)StaticStuff.Constants.WeighingDataSourceE.DB;
+            TblConfigParamsTO tblConfigParamsTO = SelectTblConfigParamsValByName(StaticStuff.Constants.CP_WEIGHING_MEASURE_SOURCE_ID);
+            if (tblConfigParamsTO != null)
+            {
+                WeighingSrcConfig = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+            }
+            return WeighingSrcConfig;
+        }
         public List<TblConfigParamsTO> SelectAllTblConfigParams()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);

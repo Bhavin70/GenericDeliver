@@ -14,7 +14,8 @@ using System.IO;
 using Microsoft.AspNetCore.Http;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
- 
+using ODLMWebAPI.IoT.Interfaces;
+
 namespace ODLMWebAPI.BL
 {      
     public class TblInvoiceBL : ITblInvoiceBL
@@ -66,7 +67,8 @@ namespace ODLMWebAPI.BL
         private readonly ITblPaymentTermsForBookingBL _iTblPaymentTermsForBookingBL;
         private readonly ITblPaymentTermOptionRelationBL _iTblPaymentTermOptionRelationBL;
         private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
-        public TblInvoiceBL(ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL)
+        private readonly IIotCommunication _iIotCommunication;
+        public TblInvoiceBL(IIotCommunication iIotCommunication,ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL)
         {
             _iTblInvoiceDAO = iTblInvoiceDAO;
             _iTblUserRoleBL = iTblUserRoleBL;
@@ -115,6 +117,7 @@ namespace ODLMWebAPI.BL
             _iTblPaymentTermsForBookingBL = iTblPaymentTermsForBookingBL;
             _iTblPaymentTermOptionRelationBL = iTblPaymentTermOptionRelationBL;
             _iTblConfigParamsDAO = iTblConfigParamsDAO;
+            _iIotCommunication = iIotCommunication;
         }
         #region Selection
 
@@ -907,7 +910,7 @@ namespace ODLMWebAPI.BL
             return _iTblInvoiceDAO.InsertTblInvoice(tblInvoiceTO, conn, tran);
         }
 
-        public ResultMessage PrepareAndSaveNewTaxInvoice(TblLoadingTO loadingTO, SqlConnection conn, SqlTransaction tran)
+        public ResultMessage PrepareAndSaveNewTaxInvoice(TblLoadingTO loadingTO, List<TblLoadingSlipExtTO> lastItemList, SqlConnection conn, SqlTransaction tran)
         {
             ResultMessage resultMsg = new ResultMessage();
             string entityRangeName = string.Empty;
@@ -917,6 +920,37 @@ namespace ODLMWebAPI.BL
             try
             {
                 List<TblLoadingSlipTO> loadingSlipTOList = _iCircularDependencyBL.SelectAllLoadingSlipListWithDetails(loadingTO.IdLoading, conn, tran);
+                loadingTO.LoadingSlipList = loadingSlipTOList;
+                int configId = _iTblConfigParamsDAO.IoTSetting();
+                //Aniket [19-8-2019] added for IOT
+                if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
+                {
+                    _iIotCommunication.GetItemDataFromIotAndMerge(loadingTO, true);
+
+                    List<TblLoadingSlipExtTO> allItem = new List<TblLoadingSlipExtTO>();
+
+                    for (int j = 0; j < loadingSlipTOList.Count; j++)
+                    {
+                        allItem.AddRange(loadingSlipTOList[j].LoadingSlipExtTOList);
+                    }
+
+                    for (int j = 0; j < lastItemList.Count; j++)
+                    {
+                        TblLoadingSlipExtTO item = lastItemList[j];
+                        TblLoadingSlipExtTO var = allItem.Where(w => w.IdLoadingSlipExt == item.IdLoadingSlipExt).FirstOrDefault();
+
+                        var.LoadedBundles = item.LoadedBundles;
+                        var.LoadedWeight = item.LoadedWeight;
+                        var.CalcTareWeight = item.CalcTareWeight;
+                    }
+
+                    var emptyItem = lastItemList.Where(w => w.LoadedWeight <= 0).ToList();
+                    if (emptyItem != null && emptyItem.Count > 0)
+                    {
+                        resultMsg.DefaultBehaviour("Weight Not Found Against " + emptyItem.Count + " Item ");
+                        return resultMsg;
+                    }
+                }
                 resultMsg = CreateInvoiceAgainstLoadingSlips(loadingTO, conn, tran, loadingSlipTOList);
                 // resultMsg.DefaultSuccessBehaviour();
                 return resultMsg;
@@ -951,13 +985,27 @@ namespace ODLMWebAPI.BL
                 {
                     remove = true;
                 }
+
                 else
                 {
-                    List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = tblLoadingSlipTOTemp.LoadingSlipExtTOList.Where(w => w.WeightMeasureId == 0).ToList();
-                    if (tblLoadingSlipExtTOList != null && tblLoadingSlipExtTOList.Count > 0)
+                    int weighingSourceId = _iTblConfigParamsDAO.IoTSetting();
+                    if(weighingSourceId==2)
                     {
-                        remove = true;
+                        List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = tblLoadingSlipTOTemp.LoadingSlipExtTOList.Where(w => w.Bundles == 0).ToList();
+                        if (tblLoadingSlipExtTOList != null && tblLoadingSlipExtTOList.Count > 0)
+                        {
+                            remove = true;
+                        }
                     }
+                    else
+                    {
+                        List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = tblLoadingSlipTOTemp.LoadingSlipExtTOList.Where(w => w.WeightMeasureId == 0).ToList();
+                        if (tblLoadingSlipExtTOList != null && tblLoadingSlipExtTOList.Count > 0)
+                        {
+                            remove = true;
+                        }
+                    }
+                   
                 }
                 if (remove)
                 {
