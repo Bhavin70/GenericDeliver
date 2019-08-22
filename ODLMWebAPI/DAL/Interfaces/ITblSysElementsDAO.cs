@@ -23,6 +23,15 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblSysElements(Int32 idSysElement, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idSysElement, SqlCommand cmdDelete);
            int SelectIsImportantPerson(int userId,int sysEleID);
+           //Harshala
+           List<TblSysElementsTO> SelectgiveAllTblSysElements();
+           List<tblViewPermissionTO> selectPermissionswrtRole(int roleId,int userId);
+            List<tblViewMenuTO> SelectMenuPermission(int roleId,int userId, int moduleId);
+            List<tblViewMenuTO> SelectElementPermission(int roleId,int userId, int moduleId);
+            List<DropDownTO> SelectAllPermissionList();
+            List<tblRoleUserTO> SelectAllRolewrtPermission(int idSysElement);
+             List<tblRoleUserTO> SelectAllUserwrtPermission(int idSysElement);
+
 
     }
 }

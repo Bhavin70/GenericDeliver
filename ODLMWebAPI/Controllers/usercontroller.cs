@@ -125,6 +125,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetUsersFromRoleForDropDown")]
         [HttpGet]
+       
         public List<DropDownTO> GetUsersFromRoleForDropDown(Int32 roleId)
         {
             List<DropDownTO> userList = _iTblUserRoleBL.SelectUsersFromRoleForDropDown(roleId);
@@ -1020,6 +1021,101 @@ namespace ODLMWebAPI.Controllers
             }
             return _iTblPersonBL.SelectAllPersonBirthday(date, UpcomingDays, IsBirthday);
         }
+
+        /// <summary>
+        /// Harshala [20-07-2019] : Added to give all permissions to user or role.
+        /// </summary>
+        /// <returns></returns>
+        [Route("giveAllPermission")]
+        [HttpPost]
+         public ResultMessage giveAllPermission([FromBody] JObject data)
+         {
+             ResultMessage returnMsg = new StaticStuff.ResultMessage();
+             try
+             {
+                PermissionTO permissionTO = JsonConvert.DeserializeObject<PermissionTO>(data["permissionTO"].ToString());
+                var loginUserId = data["loginUserId"].ToString(); 
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    returnMsg.MessageType = ResultMessageE.Error;
+                    returnMsg.Result = 0;
+                    returnMsg.Text = "API : UserID Found Null";
+                    return returnMsg;
+                }
+
+                if (permissionTO == null)
+                {
+                    returnMsg.MessageType = ResultMessageE.Error;
+                    returnMsg.Result = 0;
+                    returnMsg.Text = "API : permissionTO Found Null";
+                    return returnMsg;
+                }
+
+                DateTime confirmedDate = _iCommon.ServerDateTime;
+                permissionTO.CreatedBy = Convert.ToInt32(loginUserId);
+                permissionTO.CreatedOn = confirmedDate;
+
+                ResultMessage resMsg = _iTblSysElementsBL.SavegiveAllPermission(permissionTO);
+                return resMsg;
+            }
+            catch (Exception ex)
+            {
+                returnMsg.MessageType = ResultMessageE.Error;
+                returnMsg.Result = -1;
+                returnMsg.Exception = ex;
+                returnMsg.Text = "API : Exception Error While PostUserOrRolePermission";
+                return returnMsg;
+            }
+        }
+
+        /// <summary>
+        /// Harshala [26-07-2019] : Added to check all permissions.
+        /// </summary>
+        /// <returns></returns>
+         [Route("CheckAllPermissionGiven")]
+        [HttpGet]
+        public int CheckAllPermissionGiven(int roleId, int userId)
+        {
+            return _iTblSysElementsBL.checkUserOrRolePermissions(roleId,userId);
+        }
+
+        /// <summary>
+        /// Harshala : [02/08/2019] added to get permissions with respect to user or role.
+        /// </summary>
+        /// <returns></returns>
+        [Route("GetPermissionswrtRole")]
+        [HttpGet]
+        public List<tblViewPermissionTO> GetPermissionswrtRole(int roleId,int userId)
+        {
+            return _iTblSysElementsBL.selectPermissionswrtRole(roleId,userId);
+              
+        }
+
+          /// <summary>
+        /// Harshala [08-08-2019] : Added to get all permissions for dropdown.
+        /// </summary>
+        /// <returns></returns>
+         [Route("GetAllPermissionDropdownList")]
+         [HttpGet]
+          public List<DropDownTO> GetAllPermissionDropdownList()
+          {
+              List<DropDownTO> permissionList= _iTblSysElementsBL.SelectAllPermissionDropdownList();
+              return permissionList;
+          }
+
+
+        /// <summary>
+        /// Harshala [08-08-2019] : Added to get user and role which have selected permission
+        /// </summary>
+        /// <returns></returns>
+         [Route("GetUserRolewrtPermission")]
+         [HttpGet]
+          public tblViewPermissionTO GetUserRolewrtPermission(int idSysElement)
+          {
+              tblViewPermissionTO UserRoleList= _iTblSysElementsBL.SelectAllUserRolewrtPermission(idSysElement);
+              return UserRoleList;
+          }
+
 
         #endregion
 
