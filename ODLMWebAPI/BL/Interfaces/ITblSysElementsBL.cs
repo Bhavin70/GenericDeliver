@@ -23,5 +23,12 @@ namespace ODLMWebAPI.BL.Interfaces
         int DeleteTblSysElements(Int32 idSysElement, SqlConnection conn, SqlTransaction tran);
         List<PermissionTO> getAllUsersWithModulePermission(int moduleId,int role_Id,int DeptId);
           ResultMessage SaveAllUserPermission(PermissionTO permissionTO);
+
+          //Harshala
+          ResultMessage SavegiveAllPermission(PermissionTO permissionTO);
+           int checkUserOrRolePermissions(int roleId, int userId);
+           List<tblViewPermissionTO> selectPermissionswrtRole(int roleId,int userId);
+           List<DropDownTO> SelectAllPermissionDropdownList();
+           tblViewPermissionTO SelectAllUserRolewrtPermission(int idSysElement);
     }
 }
