@@ -24,7 +24,8 @@ namespace ODLMWebAPI.BL
         private readonly ITblUserBL _iTblUserBL;
         private readonly ITblAlertInstanceBL _iTblAlertInstanceBL;
         private readonly IConnectionString _iConnectionString;
-        public TblBookingActionsBL(IConnectionString iConnectionString, ITblUserBL iTblUserBL, ITblAlertInstanceBL iTblAlertInstanceBL,ITblConfigParamsBL iTblConfigParamsBL,ITblPersonBL iTblPersonBL, ITblOrganizationBL iTblOrganizationBL, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, ITblBookingActionsDAO iTblBookingActionsDAO)
+        private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
+        public TblBookingActionsBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,IConnectionString iConnectionString, ITblUserBL iTblUserBL, ITblAlertInstanceBL iTblAlertInstanceBL,ITblConfigParamsBL iTblConfigParamsBL,ITblPersonBL iTblPersonBL, ITblOrganizationBL iTblOrganizationBL, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, ITblBookingActionsDAO iTblBookingActionsDAO)
         {
             _iTblBookingActionsDAO = iTblBookingActionsDAO;
             _iTblQuotaDeclarationDAO = iTblQuotaDeclarationDAO;
@@ -34,6 +35,8 @@ namespace ODLMWebAPI.BL
             _iTblAlertInstanceBL = iTblAlertInstanceBL;
             _iTblUserBL = iTblUserBL;
             _iConnectionString = iConnectionString;
+            _iTblAlertDefinitionDAO = iTblAlertDefinitionDAO;
+
         }
         #region Selection
 
@@ -131,7 +134,9 @@ namespace ODLMWebAPI.BL
                 #endregion
 
                 #region 3. Notify All C&F For Booking Status. ---Pending
-
+                //Aniket [6-8-2019] added to set alert and sms notifications dynamically
+                TblAlertDefinitionTO tblAlertDefinitionTO = _iTblAlertDefinitionDAO.SelectTblAlertDefinition((int)NotificationConstants.NotificationsE.BOOKINGS_CLOSED, conn, tran);
+                string tempTxt = "",tempSms="";
                 //Saket [2018-01-31] Commented.
                 //List<TblSmsTO> smsTOList = new List<TblSmsTO>();
                 //Dictionary<int, string> cnfDCT = BL.TblOrganizationBL.SelectRegisteredMobileNoDCTByOrgType(((int)Constants.OrgTypeE.C_AND_F_AGENT).ToString(), conn, tran);
@@ -161,6 +166,23 @@ namespace ODLMWebAPI.BL
                     TblPersonTO tblPersonTORegMobNo = new TblPersonTO();
                     tblPersonTORegMobNo.MobileNo = cnfDCT[item];
                     tblPersonTOList.Add(tblPersonTORegMobNo);
+                   
+                    if(!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                    {
+                        tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                    }
+                    else
+                    {
+                        tempTxt = "Booking Closed.";
+                    }
+                    if (!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
+                    {
+                        tempSms = tblAlertDefinitionTO.DefaultSmsTxt;
+                    }
+                    else
+                    {
+                        tempSms = "Booking Closed.";
+                    }
 
                     if (tblPersonTOList != null && tblPersonTOList.Count > 0)
                     {
@@ -171,8 +193,8 @@ namespace ODLMWebAPI.BL
 
                             if (!mobileNoList.Contains(smsTO.MobileNo))
                             {
-                                smsTO.SourceTxnDesc = "Booking Closed";
-                                smsTO.SmsTxt = "Bookings closed.";
+                                smsTO.SourceTxnDesc = tempTxt;
+                                smsTO.SmsTxt = tempSms;
                                 mobileNoList.Add(smsTO.MobileNo);
                                 smsTOList.Add(smsTO);
                             }
@@ -211,8 +233,8 @@ namespace ODLMWebAPI.BL
                                 {
                                     TblSmsTO smsTO = new TblSmsTO();
                                     smsTO.MobileNo = list[mn];
-                                    smsTO.SourceTxnDesc = "Booking Closed";
-                                    smsTO.SmsTxt = "Bookings closed.";
+                                    smsTO.SourceTxnDesc = tempTxt;
+                                    smsTO.SmsTxt = tempSms;
                                     smsTOList.Add(smsTO);
                                 }
                             }
@@ -225,7 +247,7 @@ namespace ODLMWebAPI.BL
                 TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
                 tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKINGS_CLOSED;
                 tblAlertInstanceTO.AlertAction = "BOOKINGS_CLOSED";
-                tblAlertInstanceTO.AlertComment = "Bookings closed.";
+                tblAlertInstanceTO.AlertComment = tempTxt;
                 tblAlertInstanceTO.EffectiveFromDate = tblBookingActionsTO.StatusDate;
                 tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(10);
                 tblAlertInstanceTO.IsActive = 1;

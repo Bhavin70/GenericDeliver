@@ -66,7 +66,8 @@ namespace ODLMWebAPI.BL
         private readonly ITblPaymentTermsForBookingBL _iTblPaymentTermsForBookingBL;
         private readonly ITblPaymentTermOptionRelationBL _iTblPaymentTermOptionRelationBL;
         private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
-        public TblInvoiceBL(ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL)
+        private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
+        public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL)
         {
             _iTblInvoiceDAO = iTblInvoiceDAO;
             _iTblUserRoleBL = iTblUserRoleBL;
@@ -115,6 +116,7 @@ namespace ODLMWebAPI.BL
             _iTblPaymentTermsForBookingBL = iTblPaymentTermsForBookingBL;
             _iTblPaymentTermOptionRelationBL = iTblPaymentTermOptionRelationBL;
             _iTblConfigParamsDAO = iTblConfigParamsDAO;
+            _iTblAlertDefinitionDAO = iTblAlertDefinitionDAO;
         }
         #region Selection
 
@@ -4722,6 +4724,9 @@ namespace ODLMWebAPI.BL
                 #endregion
 
                 #region Notifications & SMSs
+                //Aniket [6-8-2019] added to send alert and sms notifications dynamically
+                List<TblAlertDefinitionTO> tblAlertDefinitionTOList = _iTblAlertDefinitionDAO.SelectAllTblAlertDefinition();
+
                 //Vijaymala added[03-05-2018]to change  notification with party name
                 TblConfigParamsTO dealerNameConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_ADD_DEALER_IN_NOTIFICATION, conn, tran);
                 Int32 dealerNameActive = 0;
@@ -4755,14 +4760,28 @@ namespace ODLMWebAPI.BL
                         //[24-01-2018] Vijaymala:Added cd change condition to update invoice to invoice approval
                         if (isRateChange || isCdChanged)
                         {
+                            var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.INVOICE_APPROVAL_REQUIRED);
+                            string tempTxt = "";
+
                             tblInvoiceTO.InvoiceStatusE = Constants.InvoiceStatusE.PENDING_FOR_AUTHORIZATION;
                             tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_APPROVAL_REQUIRED;
                             tblAlertInstanceTO.AlertAction = "INVOICE_APPROVAL_REQUIRED";
+                            if(!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                            {
+                                tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                                tempTxt = tempTxt.Replace("@InvoiceIdStr",tblInvoiceTO.IdInvoice.ToString());
+                                tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                                tblAlertInstanceTO.AlertComment = tempTxt;
+                            }
+                            else
                             tblAlertInstanceTO.AlertComment = "Approval Required For Invoice #" + tblInvoiceTO.IdInvoice;
+
                             if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                             {
-                                tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                                tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
+                                tempTxt = tempTxt.Replace("@DealerNameStr", tblInvoiceTO.DealerName);
+                                tblAlertInstanceTO.SmsComment = tempTxt;
+                               // tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
                             }
                             resultMessage = InvoiceStatusUpdate(tblInvoiceTO, tblInvoiceTO.StatusId, conn, tran);
                             if (resultMessage.MessageType != ResultMessageE.Information)
@@ -4784,15 +4803,28 @@ namespace ODLMWebAPI.BL
                                     tblAlertUsersTOList.Add(tblAlertUsersTO);
                                 }
                             }
+                            var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.INVOICE_ACCEPTANCE_REQUIRED);
+                            string tempTxt = "";
 
                             tblInvoiceTO.InvoiceStatusE = Constants.InvoiceStatusE.PENDING_FOR_ACCEPTANCE;
                             tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_ACCEPTANCE_REQUIRED;
                             tblAlertInstanceTO.AlertAction = "INVOICE_ACCEPTANCE_REQUIRED";
-                            tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " is awaiting for acceptance";
+                            if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                            {
+                                tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                                tempTxt = tempTxt.Replace("@InvoiceIdStr", tblInvoiceTO.IdInvoice.ToString());
+                                tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                                tblAlertInstanceTO.AlertComment = tempTxt;
+                            }
+                            else
+                                tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " is awaiting for acceptance";
+
                             if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                             {
-                                tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                                tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
+                                tempTxt = tempTxt.Replace("@DealerNameStr", tblInvoiceTO.DealerName);
+                                tblAlertInstanceTO.SmsComment = tempTxt;
+                               // tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
                             }
                             resultMessage = InvoiceStatusUpdate(tblInvoiceTO, tblInvoiceTO.StatusId, conn, tran);
                             if (resultMessage.MessageType != ResultMessageE.Information)
@@ -4808,13 +4840,26 @@ namespace ODLMWebAPI.BL
                     }
                     else if (tblInvoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.AUTHORIZED_BY_DIRECTOR)
                     {
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.INVOICE_APPROVED_BY_DIRECTOR);
+                        string tempTxt = "";
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_APPROVED_BY_DIRECTOR;
                         tblAlertInstanceTO.AlertAction = "INVOICE_APPROVED_BY_DIRECTOR";
-                        tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Approved.";
+                        if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@InvoiceIdStr", tblInvoiceTO.IdInvoice.ToString());
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
+                            tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Approved.";
+
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblInvoiceTO.DealerName);
+                            tblAlertInstanceTO.SmsComment = tempTxt;
+                            //tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
                         }
                         resultMessage = CheckAndUpdateForInvoiceAcceptanceStatus(existingInvoiceTO, tblInvoiceTO, tblAlertInstanceTO, tblAlertUsersTOList, conn, tran);
                         if (resultMessage.MessageType != ResultMessageE.Information)
@@ -4822,13 +4867,27 @@ namespace ODLMWebAPI.BL
                     }
                     else if (tblInvoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.REJECTED_BY_DIRECTOR)
                     {
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DIRECTOR);
+                        string tempTxt = "";
+
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DIRECTOR;
                         tblAlertInstanceTO.AlertAction = "INVOICE_REJECTED_BY_DIRECTOR";
-                        tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Rejected by Director";
+                        if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@InvoiceIdStr", tblInvoiceTO.IdInvoice.ToString());
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
+                            tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Rejected by Director";
+
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblInvoiceTO.DealerName);
+                            tblAlertInstanceTO.SmsComment = tempTxt;
+                            //tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
                         }
                         resultMessage = InvoiceStatusUpdate(tblInvoiceTO, tblInvoiceTO.StatusId, conn, tran);
                         if (resultMessage.MessageType != ResultMessageE.Information)
@@ -4844,13 +4903,29 @@ namespace ODLMWebAPI.BL
                     }
                     else if (tblInvoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.REJECTED_BY_DISTRIBUTOR)
                     {
-                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DIRECTOR;
+                        //Aniket [6-8-2019] commented as NotificationsE should be INVOICE_REJECTED_BY_DISTRIBUTOR
+                        // tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DIRECTOR;
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DISTRIBUTOR);
+                        string tempTxt = "";
+
+                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DISTRIBUTOR;
                         tblAlertInstanceTO.AlertAction = "INVOICE_REJECTED_BY_DISTRIBUTOR";
-                        tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Rejected by Distributer";
+                        if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@InvoiceIdStr", tblInvoiceTO.IdInvoice.ToString());
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
+                            tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Rejected by Distributer";
+
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblInvoiceTO.DealerName);
+                            tblAlertInstanceTO.SmsComment = tempTxt;
+                           // tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
                         }
                         resultMessage = InvoiceStatusUpdate(tblInvoiceTO, tblInvoiceTO.StatusId, conn, tran);
                         if (resultMessage.MessageType != ResultMessageE.Information)
@@ -4866,13 +4941,26 @@ namespace ODLMWebAPI.BL
                     }
                     else if (tblInvoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.ACCEPTED_BY_DISTRIBUTOR)
                     {
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.INVOICE_ACCEPTED_BY_DISTRIBUTOR);
+                        string tempTxt = "";
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_ACCEPTED_BY_DISTRIBUTOR;
                         tblAlertInstanceTO.AlertAction = "INVOICE_ACCEPTED_BY_DISTRIBUTOR";
-                        tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is accecpted By Distributor.";
+                        if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@InvoiceIdStr", tblInvoiceTO.IdInvoice.ToString());
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
+                            tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is accecpted By Distributor.";
+
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblInvoiceTO.DealerName);
+                            tblAlertInstanceTO.SmsComment = tempTxt;
+                           // tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
                         }
                         resultMessage = InvoiceStatusUpdate(tblInvoiceTO, tblInvoiceTO.StatusId, conn, tran);
                         if (resultMessage.MessageType != ResultMessageE.Information)
@@ -4880,17 +4968,18 @@ namespace ODLMWebAPI.BL
                             return resultMessage;
                         }
                     }
-                    else if (tblInvoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.REJECTED_BY_DISTRIBUTOR)
-                    {
-                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DISTRIBUTOR;
-                        tblAlertInstanceTO.AlertAction = "INVOICE_REJECTED_BY_DISTRIBUTOR";
-                        tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Rejected by Distributor.";
-                        if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
-                        {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
-                        }
-                    }
+                    //Aniket [6-8-2019] commented as REJECTED_BY_DISTRIBUTOR is already written above
+                    //else if (tblInvoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.REJECTED_BY_DISTRIBUTOR)
+                    //{
+                    //    tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DISTRIBUTOR;
+                    //    tblAlertInstanceTO.AlertAction = "INVOICE_REJECTED_BY_DISTRIBUTOR";
+                    //    tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Rejected by Distributor.";
+                    //    if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
+                    //    {
+                    //        tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
+                    //        tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
+                    //    }
+                    //}
 
 
                     tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
