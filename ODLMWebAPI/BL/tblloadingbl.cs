@@ -6219,8 +6219,7 @@ namespace ODLMWebAPI.BL {
                 }
                 #endregion
 
-                #
-                region 6. Recalculate the total loading qty and update it in tempLoadingSlipDtl
+                #region 6. Recalculate the total loading qty and update it in tempLoadingSlipDtl
 
                 TblLoadingSlipDtlTO tblLoadingSlipDtlTO = new TblLoadingSlipDtlTO ();
                 tblLoadingSlipDtlTO = _iTblLoadingSlipDtlDAO.SelectLoadingSlipDtlTO (tblLoadingSlipExtTO.LoadingSlipId, conn, tran);
