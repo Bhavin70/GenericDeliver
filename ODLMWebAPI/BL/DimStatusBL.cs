@@ -60,7 +60,7 @@ namespace ODLMWebAPI.BL
         //Aniket [30-7-2019] added for IOT
         public  DimStatusTO SelectDimStatusTOByIotStatusId(Int32 iotStatusId)
         {
-            SqlConnection conn = new SqlConnection(Startup.ConnectionString);
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
             try
             {

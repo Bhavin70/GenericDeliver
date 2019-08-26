@@ -1,5 +1,7 @@
-﻿using ODLMWebAPI.DAL.Interfaces;
+﻿using ODLMWebAPI.BL.Interfaces;
+using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.Models;
+using ODLMWebAPI.StaticStuff;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,6 +13,12 @@ namespace ODLMWebAPI.DAL
 {
     public class TblGateDAO: ITblGateDAO
     {
+        private readonly IConnectionString _iConnectionString;
+        public TblGateDAO(IConnectionString iConnectionString)
+        {
+            _iConnectionString =iConnectionString;
+
+        }
         #region Methods
         public String SqlSelectQuery()
         {
@@ -22,7 +30,7 @@ namespace ODLMWebAPI.DAL
         #region Selection
         public  List<TblGateTO> SelectAllTblGate(StaticStuff.Constants.ActiveSelectionTypeE ActiveSelectionTypeE)
         {
-            String sqlConnStr = Startup.ConnectionString;
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader sqlReader = null;
@@ -61,7 +69,7 @@ namespace ODLMWebAPI.DAL
 
         public  TblGateTO SelectTblGate(Int32 idGate)
         {
-            String sqlConnStr = Startup.ConnectionString;
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader sqlReader = null;
@@ -173,7 +181,7 @@ namespace ODLMWebAPI.DAL
         #region Insertion
         public  int InsertTblGate(TblGateTO tblGateTO)
         {
-            String sqlConnStr = Startup.ConnectionString;
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
             SqlCommand cmdInsert = new SqlCommand();
             try
@@ -264,7 +272,7 @@ namespace ODLMWebAPI.DAL
         #region Updation
         public  int UpdateTblGate(TblGateTO tblGateTO)
         {
-            String sqlConnStr = Startup.ConnectionString;
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
             SqlCommand cmdUpdate = new SqlCommand();
             try
@@ -342,7 +350,7 @@ namespace ODLMWebAPI.DAL
         #region Deletion
         public  int DeleteTblGate(Int32 idGate)
         {
-            String sqlConnStr = Startup.ConnectionString;
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
             SqlCommand cmdDelete = new SqlCommand();
             try
@@ -390,6 +398,7 @@ namespace ODLMWebAPI.DAL
             //cmdDelete.Parameters.Add("@idGate", System.Data.SqlDbType.Int).Value = tblGateTO.IdGate;
             return cmdDelete.ExecuteNonQuery();
         }
+
         #endregion
 
     }

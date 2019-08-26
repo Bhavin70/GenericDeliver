@@ -30,7 +30,7 @@ namespace ODLMWebAPI.DAL
         //Aniket [30-7-2019] added for IOT
         public List<TblWeighingMachineTO> SelectAllTblWeighingMachineOfWeighingList(int loadingId)
         {
-            String sqlConnStr = Startup.ConnectionString;
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader reader = null;

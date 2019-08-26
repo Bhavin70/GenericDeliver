@@ -313,7 +313,7 @@ namespace ODLMWebAPI.DAL
         //Aniket [13-8-2019] added for IOT
         public int InsertTblWeghingMessureDtls(TblWeghingMessureDtlsTO tblWeghingMessureDtlsTO, SqlConnection conn, SqlTransaction tran)
         {
-            // String sqlConnStr = Startup.ConnectionString;
+            // String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             // SqlConnection conn = conn;//new SqlConnection(sqlConnStr);
             SqlCommand cmdInsert = new SqlCommand();
             try

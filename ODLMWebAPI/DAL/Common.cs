@@ -14,17 +14,19 @@ using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.StaticStuff;
 using System.Dynamic;
 using ODLMWebAPI.Models;
+using ODLMWebAPI.IoT;
 
 namespace ODLMWebAPI.DAL
 { 
     public class Common : ICommon
     {
         private readonly IConnectionString _iConnectionString;
-       
-        public Common(IConnectionString iConnectionString)
+        private readonly IModbusRefConfig _iModbusRefConfig;
+
+        public Common(IConnectionString iConnectionString, IModbusRefConfig iModbusRefConfig)
         {
             _iConnectionString = iConnectionString;
-            
+         _iModbusRefConfig =iModbusRefConfig;
         }
 
      
@@ -33,23 +35,23 @@ namespace ODLMWebAPI.DAL
         public int GetNextAvailableModRefIdNew()
         {
             int modRefNumber = 0;
-            List<int> list = Startup.AvailableModbusRefList;
-            //if (list != null && list.Count > 0)
-            //{
-            //    int maxNumber = 1;
-            //    modRefNumber = GetAvailNumber(list, maxNumber);
-            //}
-            //else
-            //{
-            //    modRefNumber = 1;
-            //}
-            //bool isInList = list.Contains(modRefNumber);
-            //if (isInList)
-            //    return 0;
-            //else
-            //    Startup.AvailableModbusRefList.Add(modRefNumber);
-            Random num = new Random();
-           modRefNumber= num.Next(1, 255);
+            List<int> list = _iModbusRefConfig.getModbusRefList();
+            if (list != null && list.Count > 0)
+            {
+               int maxNumber = 1;
+               modRefNumber = GetAvailNumber(list, maxNumber);
+            }
+            else
+            {
+               modRefNumber = 1;
+            }
+            bool isInList = list.Contains(modRefNumber);
+            if (isInList)
+               return 0;
+            else
+               list.Add(modRefNumber);
+        //     Random num = new Random();
+        //    modRefNumber= num.Next(1, 255);
             return modRefNumber;
         }
 
@@ -253,6 +255,9 @@ namespace ODLMWebAPI.DAL
                 throw exc;
             }
         }
+
+
+
         public void PostSnoozeAndroid(String RequestOriginString)
         {
             

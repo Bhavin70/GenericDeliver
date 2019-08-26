@@ -101,8 +101,10 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-        //Aniket [30-7-2019] added for IOT
-        public List<int> GeModRefMaxData()
+
+        //Hrushikesh Added for IOT for non multi tenancy Config
+        //this method is purposely kept static 
+         public static List<int> GeModRefMaxDataNonMulti()
         {
             SqlCommand cmdSelect = new SqlCommand();
             String sqlConnStr = Startup.ConnectionString;
@@ -140,7 +142,53 @@ namespace ODLMWebAPI.DAL
                 conn.Close();
                 cmdSelect.Dispose();
             }
+        } 
+
+
+        //Aniket [30-7-2019] added for IOT
+        public List<int> GeModRefMaxData()
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlDataReader sqlReader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = " SELECT TOP 255 modbusRefId FROM tempLoading WHERE modbusRefId IS NOT NULL ORDER BY modbusRefId DESC";
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Connection = conn;
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<int> list = new List<int>();
+                if (sqlReader != null)
+                {
+                    while (sqlReader.Read())
+                    {
+                        int modRefId = 0;
+                        if (sqlReader["modbusRefId"] != DBNull.Value)
+                            modRefId = Convert.ToInt32(sqlReader["modbusRefId"].ToString());
+                        if (modRefId > 0)
+                            list.Add(modRefId);
+                    }
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                sqlReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
         }
+
+
+
+        
         public List<TblLoadingTO> SelectAllTblLoading()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
