@@ -134,83 +134,8 @@ namespace ODLMWebAPI.BL
             _iWeighingCommunication = iWeighingCommunication;
         }
         #region Selection
-        public void GetItemDataFromIotForGivenLoadingSlip(TblLoadingSlipTO tblLoadingSlipTO)
-        {
-            if (tblLoadingSlipTO != null)
-            {
 
-                if (tblLoadingSlipTO.TranStatusE == StaticStuff.Constants.TranStatusE.LOADING_DELIVERED)
-                    return;
-
-                if (true)
-                {
-                    //List<TblWeighingMachineTO> tblWeighingMachineList = BL.TblWeighingMachineBL.SelectAllTblWeighingMachineList();
-                    List<TblWeighingMachineTO> tblWeighingMachineList = _iTblWeighingMachineDAO.SelectAllTblWeighingMachineOfWeighingList(tblLoadingSlipTO.LoadingId);
-
-                    List<TblLoadingSlipExtTO> totalLoadingSlipExtList = tblLoadingSlipTO.LoadingSlipExtTOList;
-
-                    TblLoadingTO loadingTO =SelectTblLoadingTO(tblLoadingSlipTO.LoadingId);
-
-                    GateIoTResult gateIoTResult = _iGateCommunication.GetLoadingStatusHistoryDataFromGateIoT(loadingTO);
-                    if (gateIoTResult != null && gateIoTResult.Data != null && gateIoTResult.Data.Count != 0)
-                    {
-                        tblLoadingSlipTO.VehicleNo = (string)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.VehicleNo];
-                    }
-
-                    //var layerList = totalLoadingSlipExtList.GroupBy(x => x.LoadingLayerid).ToList();
-                    //List<int> totalLayerList = new List<int>();
-                    //if (!totalLayerList.Contains(0))
-                    //    totalLayerList.Add(0);
-                    List<int> totalLayerList = new List<int>();
-                    //var tLayerList = tblWeighingMachineList.GroupBy(test => test.LayerId)
-                    //                   .Select(grp => grp.First()).ToList();
-                    var tLayerList = totalLoadingSlipExtList.GroupBy(x => x.LoadingLayerid).Select(grp => grp.First()).ToList();
-                    foreach (var item in tLayerList)
-                    {
-                        if (item.LoadingLayerid != 0)
-                            totalLayerList.Add(item.LoadingLayerid);
-                    }
-                    var distinctWeighingMachineList = tblWeighingMachineList.GroupBy(test => test.IdWeighingMachine)
-                                          .Select(grp => grp.First()).ToList();
-                    //foreach (var item in layerList)
-                    //{
-                    //    totalLayerList.Add(item.Key);
-                    //}
-
-                    //Sanjay [03-June-2019] Now Layerwise call will not be required as data will be received from TCP/ip communication
-                    //Now pass layerid=0. IoT Code will internally give data for all layers.
-                    //for (int i = 0; i < totalLayerList.Count; i++)
-                    //{
-                    //int layerid = totalLayerList[i];
-                    int layerid = 0;
-                    Int32 loadingId = loadingTO.ModbusRefId;
-                    for (int mc = 0; mc < distinctWeighingMachineList.Count; mc++)
-                    {
-                        //Call to Weight IoT
-                        NodeJsResult itemList = _iWeighingCommunication.GetLoadingLayerData(loadingId, layerid, distinctWeighingMachineList[mc]);
-                        if (itemList.Data != null)
-                        {
-
-                            if (itemList.Data != null && itemList.Data.Count > 0)
-                            {
-                                for (int f = 0; f < itemList.Data.Count; f++)
-                                {
-                                    var itemRefId = itemList.Data[f][(int)IoTConstants.WeightIotColE.ItemRefNo];
-                                    var itemTO = totalLoadingSlipExtList.Where(w => w.ModbusRefId == itemRefId).FirstOrDefault();
-                                    if (itemTO != null)
-                                    {
-                                        itemTO.LoadedWeight = itemList.Data[f][(int)IoTConstants.WeightIotColE.LoadedWt];
-                                        itemTO.CalcTareWeight = itemList.Data[f][(int)IoTConstants.WeightIotColE.CalcTareWt];
-                                        itemTO.LoadedBundles = itemList.Data[f][(int)IoTConstants.WeightIotColE.LoadedBundle];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    //}
-                }
-            }
-        }
+        
 
         public void GetWeighingMeasuresFromIoT(string loadingId, bool isUnloading, List<TblWeighingMeasuresTO> tblWeighingMeasuresTOList, SqlConnection conn, SqlTransaction tran)
         {
@@ -718,7 +643,7 @@ namespace ODLMWebAPI.BL
             {
                 conn.Open();
                 tran = conn.BeginTransaction();
-
+                int confiqId = _iTblConfigParamsDAO.IoTSetting();
                 TblLoadingTO tblLoadingTO = null;
 
                 //List<TblLoadingSlipTO> tblLoadingSlipTOList = new List<TblLoadingSlipTO>();
@@ -738,12 +663,22 @@ namespace ODLMWebAPI.BL
                         {
                             return new TblLoadingTO();
                         }
-
+                       
                         if (tblLoadingTO.LoadingSlipList == null)
                         {
                             tblLoadingTO.LoadingSlipList = new List<TblLoadingSlipTO>();
                         }
+
                         tblLoadingTO.LoadingSlipList.Add(tblLoadingSlipTOTemp);
+                        if (confiqId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT) ||
+                       confiqId == Convert.ToInt32(Constants.WeighingDataSourceE.BOTH))
+                        {
+                            _iIotCommunication.GetItemDataFromIotAndMerge(tblLoadingTO, false);
+
+                            if (tempLoadingSlipInvoiceTO.LoadingSlipId == tblLoadingSlipTOTemp.IdLoadingSlip)
+                          _iIotCommunication.GetItemDataFromIotForGivenLoadingSlip(tblLoadingSlipTOTemp);
+
+                        }
 
                     }
                     else
@@ -790,7 +725,7 @@ namespace ODLMWebAPI.BL
                         foreach (var item in tblLoadingTO.LoadingSlipList)
                         {
                             if (item.IdLoadingSlip == loadingSlipId)
-                                GetItemDataFromIotForGivenLoadingSlip(item);
+                               _iIotCommunication.GetItemDataFromIotForGivenLoadingSlip(item);
                         }
                     }
                 }
@@ -4717,12 +4652,16 @@ namespace ODLMWebAPI.BL
                 {
                     //Aniket [19-8-2019] commmnedted for IOT as we are passing loadingId to check invoice is generated against VehicleNo
                     //resultMessage = _iCircularDependencyBL.CheckInvoiceNoGeneratedByVehicleNo(tblLoadingTO.VehicleNo, conn, tran, true);
-                    resultMessage = _iCircularDependencyBL.CheckInvoiceNoGeneratedByVehicleNo(tblLoadingTO.VehicleNo, conn, tran, tblLoadingTO.IdLoading, true);
-                    if (resultMessage.MessageType != ResultMessageE.Information)
+                    if (weightSourceConfigId != (Int32)Constants.WeighingDataSourceE.IoT)
                     {
-                        //tran.Rollback();
-                        return resultMessage;
+                        resultMessage = _iCircularDependencyBL.CheckInvoiceNoGeneratedByVehicleNo(tblLoadingTO.VehicleNo, conn, tran, tblLoadingTO.IdLoading, true);
+                        if (resultMessage.MessageType != ResultMessageE.Information)
+                        {
+                            //tran.Rollback();
+                            return resultMessage;
+                        }
                     }
+                   
 
                     // Vijaymala [30-03-2018] added:to update invoice deliveredOn date after loading slip out
                     resultMessage = _iTblInvoiceBL.UpdateInvoiceAfterloadingSlipOut(tblLoadingTO.IdLoading, conn, tran);
@@ -5114,24 +5053,25 @@ namespace ODLMWebAPI.BL
                 #endregion
 
                 #region 3. Create History Record
-
-                TblLoadingStatusHistoryTO tblLoadingStatusHistoryTO = new TblLoadingStatusHistoryTO();
-                tblLoadingStatusHistoryTO.CreatedBy = tblLoadingTO.UpdatedBy;
-                tblLoadingStatusHistoryTO.CreatedOn = tblLoadingTO.UpdatedOn;
-                tblLoadingStatusHistoryTO.LoadingId = tblLoadingTO.IdLoading;
-                tblLoadingStatusHistoryTO.StatusDate = tblLoadingTO.StatusDate;
-                tblLoadingStatusHistoryTO.StatusId = tblLoadingTO.StatusId;
-                tblLoadingStatusHistoryTO.StatusRemark = tblLoadingTO.StatusReason;
-                result = _iTblLoadingStatusHistoryDAO.InsertTblLoadingStatusHistory(tblLoadingStatusHistoryTO, conn, tran);
-                if (result != 1)
+                if (weightSourceConfigId != (int)Constants.WeighingDataSourceE.IoT || tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_CANCEL)
                 {
-                    //tran.Rollback();
-                    resultMessage.MessageType = ResultMessageE.Error;
-                    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                    resultMessage.Text = "Error While InsertTblLoadingStatusHistory In Method UpdateDeliverySlipConfirmations";
-                    return resultMessage;
+                    TblLoadingStatusHistoryTO tblLoadingStatusHistoryTO = new TblLoadingStatusHistoryTO();
+                    tblLoadingStatusHistoryTO.CreatedBy = tblLoadingTO.UpdatedBy;
+                    tblLoadingStatusHistoryTO.CreatedOn = tblLoadingTO.UpdatedOn;
+                    tblLoadingStatusHistoryTO.LoadingId = tblLoadingTO.IdLoading;
+                    tblLoadingStatusHistoryTO.StatusDate = tblLoadingTO.StatusDate;
+                    tblLoadingStatusHistoryTO.StatusId = tblLoadingTO.StatusId;
+                    tblLoadingStatusHistoryTO.StatusRemark = tblLoadingTO.StatusReason;
+                    result = _iTblLoadingStatusHistoryDAO.InsertTblLoadingStatusHistory(tblLoadingStatusHistoryTO, conn, tran);
+                    if (result != 1)
+                    {
+                        //tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                        resultMessage.Text = "Error While InsertTblLoadingStatusHistory In Method UpdateDeliverySlipConfirmations";
+                        return resultMessage;
+                    }
                 }
-
                 #endregion
 
                 #region 4. Notifications For Approval Or Information

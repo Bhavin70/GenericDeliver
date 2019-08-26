@@ -23,5 +23,6 @@ namespace ODLMWebAPI.BL.Interfaces
         int DeleteTblConfigParams(Int32 idConfigParam);
         int DeleteTblConfigParams(Int32 idConfigParam, SqlConnection conn, SqlTransaction tran);
         ResultMessage UpdateConfigParamsWithHistory(TblConfigParamsTO configParamsTO, Int32 updatedByUserId);
+        int IotSetting();
     }
 }

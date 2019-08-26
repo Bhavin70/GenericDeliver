@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Http;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.IoT.Interfaces;
+using static ODLMWebAPI.StaticStuff.Constants;
+using ODLMWebAPI.IoT;
 
 namespace ODLMWebAPI.BL
 {      
@@ -68,7 +70,8 @@ namespace ODLMWebAPI.BL
         private readonly ITblPaymentTermOptionRelationBL _iTblPaymentTermOptionRelationBL;
         private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
         private readonly IIotCommunication _iIotCommunication;
-        public TblInvoiceBL(IIotCommunication iIotCommunication,ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL)
+        private readonly ITblLoadingSlipDAO _iTblLoadingSlipDAO;
+        public TblInvoiceBL(ITblLoadingSlipDAO iTblLoadingSlipDAO,IIotCommunication iIotCommunication,ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL)
         {
             _iTblInvoiceDAO = iTblInvoiceDAO;
             _iTblUserRoleBL = iTblUserRoleBL;
@@ -118,6 +121,7 @@ namespace ODLMWebAPI.BL
             _iTblPaymentTermOptionRelationBL = iTblPaymentTermOptionRelationBL;
             _iTblConfigParamsDAO = iTblConfigParamsDAO;
             _iIotCommunication = iIotCommunication;
+            _iTblLoadingSlipDAO = iTblLoadingSlipDAO;
         }
         #region Selection
 
@@ -142,9 +146,95 @@ namespace ODLMWebAPI.BL
             {
                 tblUserRoleTO = _iTblUserRoleBL.SelectUserRoleTOAccToPriority(tblUserRoleTOList);
             }
-            return _iTblInvoiceDAO.SelectAllTblInvoice(frmDt, toDt, isConfirm, cnfId, dealerID, tblUserRoleTO, brandId, invoiceId,statusId);
+            List<TblInvoiceTO> list= _iTblInvoiceDAO.SelectAllTblInvoice(frmDt, toDt, isConfirm, cnfId, dealerID, tblUserRoleTO, brandId, invoiceId,statusId);
+            if(isConfirm==1)
+            {     
+                var nonAuthList = list.Where(n => n.InvoiceStatusE != InvoiceStatusE.AUTHORIZED).ToList();
+                SetGateIotDataToInvoiceTOV2(nonAuthList);
+            }
+            else
+            {
+                var nonAuthList = list.Where(n => n.LoadingStatusId != (int)TranStatusE.LOADING_DELIVERED).ToList();
+                SetGateIotDataToInvoiceTOV2(nonAuthList);
+            }
+            list = list.Where(n => !String.IsNullOrEmpty(n.VehicleNo)).ToList();
+            return list;
         }
+        //Aniket [22-8-2019] added for IoT
+        public  void SetGateIotDataToInvoiceTOV2(List<TblInvoiceTO> list)
+        {
+            int configId = _iTblConfigParamsDAO.IoTSetting();
+            if (configId == (int)Constants.WeighingDataSourceE.IoT)
+            {
+                var nonAuthList = list;
+                if (nonAuthList != null && nonAuthList.Count > 0)
+                {
+                    string commSepSlipIds = string.Empty;
+                    for (int i = 0; i < nonAuthList.Count; i++)
+                    {
+                        commSepSlipIds += nonAuthList[i].LoadingSlipId + ",";
+                    }
+                    commSepSlipIds = commSepSlipIds.TrimEnd(',');
+                    //dict of loadingslipId and ModRefId
+                    //Dictionary<int, int> loadingSlipModBusRefDCT = DAL.TblLoadingSlipDAO.SelectModbusRefIdWrtLoadingSlipIdDCT(commSepSlipIds);
 
+                    Dictionary<Int32, TblLoadingTO> loadingSlipModBusRefDCT = _iTblLoadingSlipDAO.SelectModbusRefIdByLoadingSlipIdDCT(commSepSlipIds);
+
+                    if (loadingSlipModBusRefDCT != null)
+                    {
+                        List<TblLoadingTO> tblLoadingTOList = new List<TblLoadingTO>();
+                        foreach (var item in loadingSlipModBusRefDCT)
+                        {
+                            tblLoadingTOList.Add(item.Value);
+                        }
+
+                        List<TblLoadingTO> distGate = tblLoadingTOList.GroupBy(g => g.GateId).Select(s => s.FirstOrDefault()).ToList();
+
+                        GateIoTResult gateIoTResult = new GateIoTResult();
+
+                        for (int g = 0; g < distGate.Count; g++)
+                        {
+                            TblLoadingTO tblLoadingTOTemp = distGate[g];
+                            TblGateTO tblGateTO = new TblGateTO(tblLoadingTOTemp.GateId, tblLoadingTOTemp.IoTUrl, tblLoadingTOTemp.MachineIP, tblLoadingTOTemp.PortNumber);
+                            GateIoTResult temp = _iIotCommunication.GetLoadingSlipsByStatusFromIoTByStatusId("102", tblGateTO);
+
+                            if (temp != null && temp.Data != null && temp.Data.Count > 0)
+                            {
+                                gateIoTResult.Data.AddRange(temp.Data);
+                            }
+                        }
+
+
+                        //GateIoTResult gateIoTResult = IoT.IotCommunication.GetLoadingSlipsByStatusFromIoTByStatusId("102");
+
+                        if (gateIoTResult != null && gateIoTResult.Data != null && gateIoTResult.Data.Count > 0)
+                        {
+                            foreach (var item in loadingSlipModBusRefDCT.Keys)
+                            {
+                                //int modRefId = loadingSlipModBusRefDCT[item];
+
+                                TblLoadingTO tblLoadingTO = loadingSlipModBusRefDCT[item];
+                                int modRefId = tblLoadingTO.ModbusRefId;
+
+                                var data = gateIoTResult.Data.Where(w => Convert.ToInt32(w[0]) == modRefId).FirstOrDefault();
+                                if (data == null)
+                                    continue;
+                                string vehicleNo = (string)data[(int)IoTConstants.GateIoTColE.VehicleNo];
+                                //int transporterOrgId = Convert.ToInt32(data[(int)IoTConstants.GateIoTColE.TransportorId]);
+                                //String transporterName = TblOrganizationBL.GetFirmNameByOrgId(transporterOrgId);
+
+                                var invoiceList = nonAuthList.Where(inv => inv.LoadingSlipId == item).ToList();
+                                if (invoiceList != null)
+                                {
+                                    //invoiceList.ForEach(f => { f.VehicleNo = vehicleNo; f.TransportOrgId = transporterOrgId; f.TransporterName = transporterName; });
+                                    invoiceList.ForEach(f => { f.VehicleNo = vehicleNo; });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         public TblInvoiceTO SelectTblInvoiceTO(Int32 idInvoice)
         {
@@ -1800,10 +1890,44 @@ namespace ODLMWebAPI.BL
             tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);                      
             tblInvoiceTO.BasicAmt = basicTotal;
             tblInvoiceTO.InvoiceItemDetailsTOList = tblInvoiceItemDetailsTOList;
+            int configId = _iTblConfigParamsDAO.IoTSetting();
+            if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
+            {
+                RemoveIotFieldsFromDB(tblInvoiceTO);
+            }
             return tblInvoiceTO;
+            
             #endregion
         }
+        private  void RemoveIotFieldsFromDB(TblInvoiceTO tblInvoiceTO)
+        {
+            
+                if (tblInvoiceTO.InvoiceStatusE != InvoiceStatusE.AUTHORIZED && tblInvoiceTO.InvoiceModeE != InvoiceModeE.MANUAL_INVOICE)
+                {
+                    if (tblInvoiceTO.LoadingSlipId > 0)
+                    {
+                        tblInvoiceTO.VehicleNo = String.Empty;
+                        tblInvoiceTO.TransportOrgId = 0;
 
+                        tblInvoiceTO.GrossWeight = 0;
+                        tblInvoiceTO.NetWeight = 0;
+                        //tblInvoiceTO.TareWeight = 0;
+                        if (tblInvoiceTO.InvoiceItemDetailsTOList != null && tblInvoiceTO.InvoiceItemDetailsTOList.Count > 0)
+                        {
+                            for (int j = 0; j < tblInvoiceTO.InvoiceItemDetailsTOList.Count; j++)
+                            {
+                                TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = tblInvoiceTO.InvoiceItemDetailsTOList[j];
+                                if (tblInvoiceItemDetailsTO.LoadingSlipExtId > 0)
+                                {
+                                    tblInvoiceItemDetailsTO.InvoiceQty = 0;
+                                    tblInvoiceItemDetailsTO.Bundles = "";
+                                }
+                            }
+                        }
+                    }
+                }
+            
+        }
         public ResultMessage PrepareAndSaveInternalTaxInvoices(TblInvoiceTO invoiceTO, SqlConnection conn, SqlTransaction tran)
         {
             ResultMessage resultMsg = new ResultMessage();

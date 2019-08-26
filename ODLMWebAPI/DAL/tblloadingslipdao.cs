@@ -60,7 +60,75 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Selection
-       public List<TblLoadingSlipTO> SelectAllTblLoadingSlip()
+        //Aniket [22-8-2019] added for IoT, to get PortNumber and machine IP
+        public  Dictionary<Int32, TblLoadingTO> SelectModbusRefIdByLoadingSlipIdDCT(string loadingSlipNos)
+        {
+            String sqlConnStr = Startup.ConnectionString;
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlDataReader tblLoadingSlipTODT = null;
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                conn.Open();
+                String sqlSelectQry = " SELECT idLoadingSlip, modbusRefId,gateId, tblgate.iotUrl,tblgate.portnumber,tblgate.machineIP FROM temploadingslip " +
+                              " INNER JOIN tempLoading tempLoading ON idLoading = loadingId " +
+                              "  left join tblgate tblgate on tblgate.idGate = tempLoading.gateId " +
+                              "   WHERE idLoadingSlip IN(" + loadingSlipNos + ") AND modbusRefId IS NOT NULL";
+
+                cmdSelect.CommandText = sqlSelectQry;
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                tblLoadingSlipTODT = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                //   Dictionary<int, int> DCT = new Dictionary<int, int>();
+                //  List<TblLoadingSlipTO> tblLoadingSlipTOList = new List<TblLoadingSlipTO>();
+
+                Dictionary<Int32, TblLoadingTO> tblLoadingTODct = new Dictionary<int, TblLoadingTO>();
+
+                //TblLoadingTO tblLoadingTO = new TblLoadingTO();
+                if (tblLoadingSlipTODT != null)
+                {
+                    while (tblLoadingSlipTODT.Read())
+                    {
+                        TblLoadingTO tblLoadingTO = new TblLoadingTO();
+                        int loadingslipId = 0, modRefId = 0;
+                        if (tblLoadingSlipTODT["idLoadingSlip"] != DBNull.Value)
+                            loadingslipId = Convert.ToInt32(tblLoadingSlipTODT["idLoadingSlip"].ToString());
+                        if (tblLoadingSlipTODT["modbusRefId"] != DBNull.Value)
+                            tblLoadingTO.ModbusRefId = Convert.ToInt32(tblLoadingSlipTODT["modbusRefId"].ToString());
+                        if (tblLoadingSlipTODT["iotUrl"] != DBNull.Value)
+                            tblLoadingTO.IoTUrl = tblLoadingSlipTODT["iotUrl"].ToString();
+                        if (tblLoadingSlipTODT["portnumber"] != DBNull.Value)
+                            tblLoadingTO.PortNumber = tblLoadingSlipTODT["portnumber"].ToString();
+                        if (tblLoadingSlipTODT["machineIP"] != DBNull.Value)
+                            tblLoadingTO.MachineIP = tblLoadingSlipTODT["machineIP"].ToString();
+                        if (tblLoadingSlipTODT["gateId"] != DBNull.Value)
+                            tblLoadingTO.GateId = Convert.ToInt32(tblLoadingSlipTODT["gateId"].ToString());
+
+                        if (!tblLoadingTODct.ContainsKey(loadingslipId))
+                        {
+                            tblLoadingTODct.Add(loadingslipId, tblLoadingTO);
+                        }
+
+
+                    }
+                }
+                //return list;
+                return tblLoadingTODct;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (tblLoadingSlipTODT != null)
+                    tblLoadingSlipTODT.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+        public List<TblLoadingSlipTO> SelectAllTblLoadingSlip()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);

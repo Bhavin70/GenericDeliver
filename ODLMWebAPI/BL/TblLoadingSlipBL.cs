@@ -157,6 +157,8 @@ namespace ODLMWebAPI.BL
             }
         }
 
+ 
+       
         public TblLoadingSlipTO SelectTblLoadingSlipTO(Int32 idLoadingSlip)
         {
             return  _iTblLoadingSlipDAO.SelectTblLoadingSlip(idLoadingSlip);

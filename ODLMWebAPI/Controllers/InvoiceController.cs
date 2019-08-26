@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
+using ODLMWebAPI.IoT.Interfaces;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -34,8 +35,10 @@ namespace ODLMWebAPI.Controllers
         private readonly ITblConfigParamsBL _iTblConfigParamsBL;
         private readonly ITblLoadingBL _iTblLoadingBL;
         private readonly ICommon _iCommon;
-       
-        public InvoiceController(ITblLoadingBL iTblLoadingBL, ITblConfigParamsBL iTblConfigParamsBL, ITempInvoiceDocumentDetailsBL iTempInvoiceDocumentDetailsBL, IDimensionBL iDimensionBL, ITblUserBL iTblUserBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, ITblTaxRatesBL iTblTaxRatesBL, ITblGstCodeDtlsBL iTblGstCodeDtlsBL, ITblProdGstCodeDtlsBL iTblProdGstCodeDtlsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ICommon iCommon, ITblInvoiceBL iTblInvoiceBL)
+        private readonly ITblLoadingSlipBL _iTblLoadingSlipBL;
+        private readonly IIotCommunication _iIotCommunication;
+
+        public InvoiceController(IIotCommunication iIotCommunication,ITblLoadingSlipBL iTblLoadingSlipBL,ITblLoadingBL iTblLoadingBL, ITblConfigParamsBL iTblConfigParamsBL, ITempInvoiceDocumentDetailsBL iTempInvoiceDocumentDetailsBL, IDimensionBL iDimensionBL, ITblUserBL iTblUserBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, ITblTaxRatesBL iTblTaxRatesBL, ITblGstCodeDtlsBL iTblGstCodeDtlsBL, ITblProdGstCodeDtlsBL iTblProdGstCodeDtlsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ICommon iCommon, ITblInvoiceBL iTblInvoiceBL)
         {
             _iTblInvoiceBL = iTblInvoiceBL;
             _iTblInvoiceAddressBL = iTblInvoiceAddressBL;
@@ -51,7 +54,8 @@ namespace ODLMWebAPI.Controllers
             _iTblConfigParamsBL = iTblConfigParamsBL;
             _iTblLoadingBL = iTblLoadingBL;
             _iCommon = iCommon;
-           
+            _iTblLoadingSlipBL = iTblLoadingSlipBL;
+            _iIotCommunication = iIotCommunication;
         }
 
         // GET: api/values
@@ -116,6 +120,9 @@ namespace ODLMWebAPI.Controllers
             {
                 string historyDetails= string.Empty;
                 TblInvoiceTO invoiceTO = _iTblInvoiceBL.SelectTblInvoiceTO(invoiceId);
+                TblLoadingSlipTO tblLoadingSlipTO = _iTblLoadingSlipBL.SelectTblLoadingSlipTO(invoiceTO.LoadingSlipId);
+                tblLoadingSlipTO=_iTblLoadingSlipBL.SelectAllLoadingSlipWithDetails(tblLoadingSlipTO.IdLoadingSlip);
+                int configId = _iTblConfigParamsBL.IotSetting();
                 if (invoiceTO != null)
                 {
                     invoiceTO.InvoiceAddressTOList = _iTblInvoiceAddressBL.SelectAllTblInvoiceAddressList(invoiceId);
@@ -126,6 +133,24 @@ namespace ODLMWebAPI.Controllers
                         {
                             itemList[i].InvoiceItemTaxDtlsTOList = _iTblInvoiceItemTaxDtlsBL.SelectAllTblInvoiceItemTaxDtlsList(itemList[i].IdInvoiceItem);
 
+                        }
+                        //add Iot settings
+                        
+                        
+                        _iIotCommunication.GetItemDataFromIotForGivenLoadingSlip(tblLoadingSlipTO);
+                        invoiceTO.VehicleNo = tblLoadingSlipTO.VehicleNo;
+                        
+                        for (int i = 0; i < itemList.Count; i++)
+                        {
+                            for (int j = 0; j < tblLoadingSlipTO.LoadingSlipExtTOList.Count; j++)
+                            {
+                                if(itemList[i].LoadingSlipExtId== tblLoadingSlipTO.LoadingSlipExtTOList[j].IdLoadingSlipExt)
+                                {
+                                    itemList[i].Bundles = tblLoadingSlipTO.LoadingSlipExtTOList[j].Bundles.ToString();
+                                    itemList[i].InvoiceQty = tblLoadingSlipTO.LoadingSlipExtTOList[j].LoadingQty;
+                                    
+                                }
+                            }
                         }
                         invoiceTO.InvoiceItemDetailsTOList = itemList;
                         /*GJ@20170929 : To get the History Details for Approval and Acceptance*/

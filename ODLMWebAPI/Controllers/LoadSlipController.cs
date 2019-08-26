@@ -1040,7 +1040,13 @@ namespace ODLMWebAPI.Controllers
             
             return _iTblLoadingBL.SelectLoadingTOWithDetailsByBooking(bookingIdsList,scheduleIdsList);
         }
-
+        //Aniket [21-8-2019]
+        //[Route("RemoveVehOutDatFromIotDevice")]
+        //[HttpGet]
+        //public ResultMessage RemoveVehOutDatFromIotDevice()
+        //{
+        //    return _iTblLoadingBL.RemoveDatFromIotDevice();
+        //}
         #endregion
 
         #region Post

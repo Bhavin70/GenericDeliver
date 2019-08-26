@@ -547,7 +547,37 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-
+        //Aniket [22-8-2019] added for without connnection trans
+        //requirement for IoT
+        public TblLoadingTO SelectTblLoading(Int32 idLoading)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = " SELECT * FROM (" + SqlSelectQuery() + ")sq1 WHERE idLoading = " + idLoading + " ";
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Connection = conn;
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblLoadingTO> list = ConvertDTToList(reader);
+                if (list != null && list.Count == 1)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                reader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
         public TblLoadingTO SelectTblLoading(Int32 idLoading, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();

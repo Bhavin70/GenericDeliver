@@ -85,5 +85,6 @@ namespace ODLMWebAPI.BL.Interfaces
 
         List<TblLoadingTO> SetLoadingStatusData(String loadingStatusId, bool isEncoded, int configId, List<TblLoadingTO> tblLoadingTOList);
 
+
     }
 }

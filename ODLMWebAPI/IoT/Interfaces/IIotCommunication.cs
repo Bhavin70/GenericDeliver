@@ -12,7 +12,7 @@ namespace ODLMWebAPI.IoT.Interfaces
     {
         TblLoadingTO GetItemDataFromIotAndMerge(TblLoadingTO tblLoadingTO, Boolean loadingWithDtls, Boolean getStatusHistory = false, Int32 isWeighing = 0);
 
-       // void GetItemDataFromIotForGivenLoadingSlip(TblLoadingSlipTO tblLoadingSlipTO);
+        void GetItemDataFromIotForGivenLoadingSlip(TblLoadingSlipTO tblLoadingSlipTO);
 
         DateTime IoTDateTimeStringToDate(string statusDate);
         List<TblLoadingTO> GetLoadingData(List<TblLoadingTO> tblLoadingTOList);
@@ -49,5 +49,6 @@ namespace ODLMWebAPI.IoT.Interfaces
         string GetIotDecodedStatusIdsForGivenStatus(string statusIds);
 
         GateIoTResult GetDecryptedLoadingId(string dataFrame, string methodName, string URL);
+        
     }
 }

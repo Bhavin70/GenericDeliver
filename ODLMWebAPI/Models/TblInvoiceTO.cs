@@ -84,6 +84,8 @@ namespace ODLMWebAPI.Models
         int tranTableType;
         DateTime grossWtTakenDate; // Aniket [06-02-2019] to store gross weight taken date and time
         DateTime preparationDate; // Aniket [06-02-2019] to store invoice preparation date and time
+        Int32 isDBup;
+        Int32 loadingStatusId;
         #endregion
 
         #region Constructor
@@ -499,7 +501,6 @@ namespace ODLMWebAPI.Models
             get { return preparationDate; }
             set { preparationDate = value; }
         }
-        #endregion
         public string GrossWtDateStr
         {
             get { return grossWtTakenDate.ToString("dd-MM-yyyy HH:mm"); }
@@ -508,6 +509,12 @@ namespace ODLMWebAPI.Models
         {
             get { return preparationDate.ToString("dd-MM-yyyy HH:mm"); }
         }
+
+        public int IsDBup { get => isDBup; set => isDBup = value; }
+        public int LoadingStatusId { get => loadingStatusId; set => loadingStatusId = value; }
+        #endregion
+
+
         public TblInvoiceTO DeepCopy()
         {
             TblInvoiceTO other = (TblInvoiceTO)this.MemberwiseClone();

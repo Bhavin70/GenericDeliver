@@ -466,6 +466,9 @@ namespace ODLMWebAPI.BL
                 {
                     if (loadingTO != null)
                     {
+
+
+
                         resultMessage = _iTblInvoiceBL.PrepareAndSaveNewTaxInvoice(loadingTO,tblLoadingSlipExtTOList, conn, tran);
                         if (resultMessage.MessageType!= ResultMessageE.Information)
                         {
@@ -615,6 +618,39 @@ namespace ODLMWebAPI.BL
                                         resultMessage = _iTblLoadingBL.UpdateLoadingStatusToGateIoT(loadingTO, conn, tran);
                                         if (resultMessage.MessageType != ResultMessageE.Information)
                                         {
+                                            return resultMessage;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                //Aniket [21-8-2019]
+                if(tblWeighingMeasuresTO.IsLoadingCompleted==1)
+                {
+                    TblConfigParamsTO configParamsTO = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_DEFAULT_WEIGHING_SCALE, conn, tran);
+                    if (configId == (Int32)Constants.WeighingDataSourceE.IoT || configId == (Int32)Constants.WeighingDataSourceE.BOTH)
+                    {
+                        if (configParamsTO != null)
+                        {
+                            if (Convert.ToInt32(configParamsTO.ConfigParamVal) == 1)
+                            {
+                                // List<TblWeighingMeasuresTO> weighingMeasuresToList = new List<TblWeighingMeasuresTO>();
+                                List<TblWeighingMachineTO> weighingMeasuresList = _iTblWeighingMachineBL.SelectAllTblWeighingMachineOfWeighingList(loadingTO.IdLoading);
+                                if (weighingMeasuresToList.Count > 0)
+                                {
+                                    var vRes = weighingMeasuresList.Where(p => p.WeightMeasurTypeId == (int)Constants.TransMeasureTypeE.GROSS_WEIGHT).ToList();
+                                    if (vRes != null && vRes.Count == 1)
+                                    {
+                                        resultMessage = _iTblLoadingBL.UpdateLoadingStatusToGateIoT(loadingTO, conn, tran);
+                                        if (resultMessage.MessageType != ResultMessageE.Information)
+                                        {
+                                            tran.Rollback();
+                                            resultMessage.Text = "Error in UpdateLoadingStatusToGateIoT When update statusId";
+                                            resultMessage.MessageType = ResultMessageE.Error;
+                                            resultMessage.DisplayMessage = "Failed due to network error, Please try one more time";
+                                            resultMessage.Result = 0;
                                             return resultMessage;
                                         }
                                     }

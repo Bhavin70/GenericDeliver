@@ -28,9 +28,12 @@ namespace ODLMWebAPI.IoT
         private readonly ITblWeighingMachineDAO _iTblWeighingMachineDAO;
         private readonly IWeighingCommunication _iWeighingCommunication;
         private readonly ICommon _iCommon;
-        
+        private readonly ITblLoadingDAO _iTblLoadingDAO;
 
-        public IotCommunication(IWeighingCommunication iWeighingCommunication, ICommon iCommon, IGateCommunication iGateCommunication, IDimStatusBL iDimStatusBL, ITblOrganizationBL iTblOrganizationBL, ITblWeighingMachineDAO iTblWeighingMachineDAO
+
+
+
+        public IotCommunication(ITblLoadingDAO iTblLoadingDAO,IWeighingCommunication iWeighingCommunication, ICommon iCommon, IGateCommunication iGateCommunication, IDimStatusBL iDimStatusBL, ITblOrganizationBL iTblOrganizationBL, ITblWeighingMachineDAO iTblWeighingMachineDAO
              )
         {
             _iGateCommunication = iGateCommunication;
@@ -39,7 +42,9 @@ namespace ODLMWebAPI.IoT
             _iTblWeighingMachineDAO = iTblWeighingMachineDAO;
             _iWeighingCommunication = iWeighingCommunication;
             _iCommon = iCommon;
-          
+            _iTblLoadingDAO = iTblLoadingDAO;
+
+
         }
         public TblLoadingTO GetItemDataFromIotAndMerge(TblLoadingTO tblLoadingTO, Boolean loadingWithDtls, Boolean getStatusHistory = false, Int32 isWeighing = 0)
         {
@@ -569,6 +574,84 @@ namespace ODLMWebAPI.IoT
             {
                 gateIOTResult.DefaultErrorBehavior(0, "Error in GetDecryptedLoadingId");
                 return gateIOTResult;
+            }
+        }
+
+        public void GetItemDataFromIotForGivenLoadingSlip(TblLoadingSlipTO tblLoadingSlipTO)
+        {
+            if (tblLoadingSlipTO != null)
+            {
+
+                if (tblLoadingSlipTO.TranStatusE == StaticStuff.Constants.TranStatusE.LOADING_DELIVERED)
+                    return;
+
+                if (true)
+                {
+                    //List<TblWeighingMachineTO> tblWeighingMachineList = BL.TblWeighingMachineBL.SelectAllTblWeighingMachineList();
+                    List<TblWeighingMachineTO> tblWeighingMachineList = _iTblWeighingMachineDAO.SelectAllTblWeighingMachineOfWeighingList(tblLoadingSlipTO.LoadingId);
+
+                    List<TblLoadingSlipExtTO> totalLoadingSlipExtList = tblLoadingSlipTO.LoadingSlipExtTOList;
+
+                    TblLoadingTO loadingTO = _iTblLoadingDAO.SelectTblLoading(tblLoadingSlipTO.LoadingId);
+
+                    GateIoTResult gateIoTResult = _iGateCommunication.GetLoadingStatusHistoryDataFromGateIoT(loadingTO);
+                    if (gateIoTResult != null && gateIoTResult.Data != null && gateIoTResult.Data.Count != 0)
+                    {
+                        tblLoadingSlipTO.VehicleNo = (string)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.VehicleNo];
+                    }
+
+                    //var layerList = totalLoadingSlipExtList.GroupBy(x => x.LoadingLayerid).ToList();
+                    //List<int> totalLayerList = new List<int>();
+                    //if (!totalLayerList.Contains(0))
+                    //    totalLayerList.Add(0);
+                    List<int> totalLayerList = new List<int>();
+                    //var tLayerList = tblWeighingMachineList.GroupBy(test => test.LayerId)
+                    //                   .Select(grp => grp.First()).ToList();
+                    var tLayerList = totalLoadingSlipExtList.GroupBy(x => x.LoadingLayerid).Select(grp => grp.First()).ToList();
+                    foreach (var item in tLayerList)
+                    {
+                        if (item.LoadingLayerid != 0)
+                            totalLayerList.Add(item.LoadingLayerid);
+                    }
+                    var distinctWeighingMachineList = tblWeighingMachineList.GroupBy(test => test.IdWeighingMachine)
+                                          .Select(grp => grp.First()).ToList();
+                    //foreach (var item in layerList)
+                    //{
+                    //    totalLayerList.Add(item.Key);
+                    //}
+
+                    //Sanjay [03-June-2019] Now Layerwise call will not be required as data will be received from TCP/ip communication
+                    //Now pass layerid=0. IoT Code will internally give data for all layers.
+                    //for (int i = 0; i < totalLayerList.Count; i++)
+                    //{
+                    //int layerid = totalLayerList[i];
+                    int layerid = 0;
+                    Int32 loadingId = loadingTO.ModbusRefId;
+                    for (int mc = 0; mc < distinctWeighingMachineList.Count; mc++)
+                    {
+                        //Call to Weight IoT
+                        NodeJsResult itemList = _iWeighingCommunication.GetLoadingLayerData(loadingId, layerid, distinctWeighingMachineList[mc]);
+                        if (itemList.Data != null)
+                        {
+
+                            if (itemList.Data != null && itemList.Data.Count > 0)
+                            {
+                                for (int f = 0; f < itemList.Data.Count; f++)
+                                {
+                                    var itemRefId = itemList.Data[f][(int)IoTConstants.WeightIotColE.ItemRefNo];
+                                    var itemTO = totalLoadingSlipExtList.Where(w => w.ModbusRefId == itemRefId).FirstOrDefault();
+                                    if (itemTO != null)
+                                    {
+                                        itemTO.LoadedWeight = itemList.Data[f][(int)IoTConstants.WeightIotColE.LoadedWt];
+                                        itemTO.CalcTareWeight = itemList.Data[f][(int)IoTConstants.WeightIotColE.CalcTareWt];
+                                        itemTO.LoadedBundles = itemList.Data[f][(int)IoTConstants.WeightIotColE.LoadedBundle];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    //}
+                }
             }
         }
     }

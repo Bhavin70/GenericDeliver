@@ -49,6 +49,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         //Aniket[30-7-2019] added for IOT
         List<int> GeModRefMaxData();
         tblUserMachineMappingTo SelectUserMachineTo(int userId, SqlConnection conn, SqlTransaction tran);
+        TblLoadingTO SelectTblLoading(Int32 idLoading);
 
     }
 }

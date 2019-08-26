@@ -38,7 +38,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblLoadingSlip(Int32 idLoadingSlip, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idLoadingSlip, SqlCommand cmdDelete);
 
-        
+        //Aniket [22-8-2019] 
+        Dictionary<Int32, TblLoadingTO> SelectModbusRefIdByLoadingSlipIdDCT(string loadingSlipNos);
 
     }
 }
