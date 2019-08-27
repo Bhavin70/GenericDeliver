@@ -13,6 +13,7 @@ namespace ODLMWebAPI.Models
         DateTime createdOn;
         String configParamName;
         String configParamVal;
+         Int32 moduleId;
 
 		////Hrishikesh[27 - 03 - 2018] Added 
 		Int32 isActive;
@@ -77,8 +78,10 @@ namespace ODLMWebAPI.Models
 			set { slider = value; }
 		}
 
-		#endregion
-	}
+        public int ModuleId { get => moduleId; set => moduleId = value; }
+
+        #endregion
+    }
 
     public class realTimeDatabaseTO
     {

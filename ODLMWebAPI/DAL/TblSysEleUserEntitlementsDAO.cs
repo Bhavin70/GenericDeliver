@@ -357,6 +357,37 @@ namespace ODLMWebAPI.DAL
             //cmdDelete.Parameters.Add("@permission", System.Data.SqlDbType.Char).Value = tblSysEleUserEntitlementsTO.Permission;
             return cmdDelete.ExecuteNonQuery();
         }
+
+        //Harshala
+        public List<TblSysEleUserEntitlementsTO> SelectAllTblSysEleUserEntitlementsOnlyRW(int userId)
+        {
+            String sqlConnStr = Startup.ConnectionString;
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader rdr = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE userId=" + userId + " and permission ='RW'";
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                rdr = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblSysEleUserEntitlementsTO> list = ConvertDTToList(rdr);
+                return list;
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (rdr != null)
+                    rdr.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
         #endregion
         
     }

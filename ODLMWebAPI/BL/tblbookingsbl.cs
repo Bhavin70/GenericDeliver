@@ -1761,6 +1761,8 @@ namespace ODLMWebAPI.BL
                 #endregion
 
                 #region Notifications & SMS
+                //Aniket [31-7-2019] added to set sms text dynamically
+                List<TblAlertDefinitionTO> tblAlertDefinitionTOList = _iTblAlertDefinitionDAO.SelectAllTblAlertDefinition();
 
                 // if booking withing quota then send notification to dealer confirming order detail
                 // else send notification for approval of booking
@@ -1781,7 +1783,7 @@ namespace ODLMWebAPI.BL
                 if (tblBookingsTO.IsWithinQuotaLimit == 1)
                 {
 
-
+                    var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_CONFIRMED);
                     tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_CONFIRMED;
                     tblAlertInstanceTO.AlertAction = "BOOKING_CONFIRMED";
                     tblAlertInstanceTO.AlertComment = "Your Booking #" + tblBookingsTO.IdBooking + " is confirmed. Rate : " + tblBookingsTO.BookingRate + " AND Qty : " + tblBookingsTO.BookingQty;
@@ -1789,8 +1791,7 @@ namespace ODLMWebAPI.BL
                     // SMS to Dealer
                     TblSmsTO smsTO = new TblSmsTO();
                     Dictionary<Int32, String> orgMobileNoDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblBookingsTO.DealerOrgId.ToString(), conn, tran);
-                    //Aniket [31-7-2019] added to set sms text dynamically
-                   TblAlertDefinitionTO tblAlertDefinitionTO= _iTblAlertDefinitionDAO.SelectTblAlertDefinition((int)NotificationConstants.NotificationsE.BOOKING_CONFIRMED, conn, tran);
+                  
                     if(!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
                     {
                         string tempSmsString = tblAlertDefinitionTO.DefaultSmsTxt;
@@ -1845,8 +1846,18 @@ namespace ODLMWebAPI.BL
                     {
                         if (tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_NEW)
                         {
+                            var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_APPROVAL_REQUIRED);
                             tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_APPROVAL_REQUIRED;
                             tblAlertInstanceTO.AlertAction = "booking_approval_required";
+                            string tempTxt = "";
+                            if(!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                            {
+                                tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                                tempTxt = tempTxt.Replace("@BookingIdStr", tblBookingsTO.IdBooking.ToString());
+                                tempTxt = tempTxt.Replace("@DealerName", tblBookingsTO.DealerName);
+                                tblAlertInstanceTO.AlertComment = tempTxt;
+                            }
+                            else
                             tblAlertInstanceTO.AlertComment = "approval required for booking #" + tblBookingsTO.IdBooking;
                         }
 
@@ -2582,6 +2593,8 @@ namespace ODLMWebAPI.BL
             ResultMessage resultMessage = new ResultMessage();
             try
             {
+                //Aniket [5-8-2019] added to set Alert text dynamically
+               List<TblAlertDefinitionTO> tblAlertDefinitionTOList = _iTblAlertDefinitionDAO.SelectAllTblAlertDefinition();
                 #region Notifications & SMSs
                 Int32 dealerNameActive = 0;
                 Int32 result = 0;
@@ -2645,8 +2658,23 @@ namespace ODLMWebAPI.BL
                     //Vijaymala [06-09-2018] added to send new enquiry notification to role like Loading Person
                     if (tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_NEW)
                     {
+                        //Aniket [5-8-2019]
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.New_Booking);
+
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.New_Booking;
                         tblAlertInstanceTO.AlertAction = "New_Booking";
+                        if(tblAlertDefinitionTO!=null)
+                        {
+                            if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                            {
+                                string tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                                tempTxt = tempTxt.Replace("@BookingIdStr", tblBookingsTO.IdBooking.ToString());
+                                tempTxt = tempTxt.Replace("@DealerNameStr", tblBookingsTO.DealerName);
+                                tblAlertInstanceTO.AlertComment = tempTxt;
+                            }
+                        }
+                       
+                        else
                         tblAlertInstanceTO.AlertComment = "New Booking #" + tblBookingsTO.IdBooking + " Is Generated(" + tblBookingsTO.DealerName + ").";
 
                         ResultMessage rMsg = new ResultMessage();
@@ -2688,15 +2716,28 @@ namespace ODLMWebAPI.BL
 
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_APPROVED_BY_DIRECTORS;
                         tblAlertInstanceTO.AlertAction = tblBookingsTO.TranStatusE.ToString();
-                        if(tblBookingsTO.IsConfirmed==1)
-                            tblAlertInstanceTO.AlertComment = "Your  Confirmed Booking #" + tblBookingsTO.IdBooking + " is accepted";
+                       var tblAlertDefinitionTO= tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_APPROVED_BY_DIRECTORS);
+                        string tempTxt="";
+                        string cncStr = "";
+                        if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@BookingIdStr", tblBookingsTO.IdBooking.ToString());
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "-");
+                            tempTxt = tempTxt.Replace("@CNCStr", cncStr);
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
                         else
+                        {
                             tblAlertInstanceTO.AlertComment = "Your Not Confirmed Booking #" + tblBookingsTO.IdBooking + " is accepted";
+                        }
 
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
                             tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + tblBookingsTO.DealerName + ").";
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblBookingsTO.DealerName);
+                            // tblAlertInstanceTO.AlertComment += " (" + tblBookingsTO.DealerName + ").";
+                            tblAlertInstanceTO.AlertComment = tempTxt;
                         }
                         // SMS to Dealer
                         Dictionary<Int32, String> orgMobileNoDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblBookingsTO.DealerOrgId.ToString(), conn, tran);
@@ -2711,10 +2752,21 @@ namespace ODLMWebAPI.BL
                                 confirmMsg = "Confirmed";
                             else
                                 confirmMsg = "Not Confirmed";
+                            //Aniket [5-8-2019]
+                            if(!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
+                            {
+                                string tempSms = tblAlertDefinitionTO.DefaultSmsTxt;
+                                tempSms = tempSms.Replace("@QtyStr", tblBookingsTO.BookingQty.ToString());
+                                tempSms = tempSms.Replace("@RateStr", tblBookingsTO.BookingRate.ToString());
+                                tempSms = tempSms.Replace("@CNCStr", confirmMsg);
+                                tempSms = tempSms.Replace("@BookingIdStr", tblBookingsTO.IdBooking.ToString());
 
+                            }
                             //smsTO.SmsTxt = "Your Order Of Qty " + tblBookingsTO.BookingQty + " MT with Rate(Rs/MT) " + tblBookingsTO.BookingRate.ToString("N2") + " is " + confirmMsg;
                             //smsTO.SmsTxt = "Your Order Of Qty " + tblBookingsTO.BookingQty + " MT with Rate " + tblBookingsTO.BookingRate.ToString("N2") + " (Rs/MT) is " + confirmMsg + " Your Ref No :" + tblBookingsTO.IdBooking;
+                            else
                             smsTO.SmsTxt = "Your Order Of Qty " + tblBookingsTO.BookingQty.ToString().Trim() + " MT with Rate " + tblBookingsTO.BookingRate + " (Rs/MT) is " + confirmMsg.Trim() + " Your Ref No : " + tblBookingsTO.IdBooking + "";
+
                             tblAlertInstanceTO.SmsTOList.Add(smsTO);
                         }
 
@@ -2782,14 +2834,26 @@ namespace ODLMWebAPI.BL
                         || tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_PENDING_FOR_DIRECTOR_APPROVAL
                   )
                     {
-
+                        //Aniket [5-8-2019]
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_APPROVAL_REQUIRED);
+                        string tempTxt = "";
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_APPROVAL_REQUIRED;
                         tblAlertInstanceTO.AlertAction = "BOOKING_APPROVAL_REQUIRED";
+                        if(!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@BookingIdStr", tblBookingsTO.IdBooking.ToString());
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
                         tblAlertInstanceTO.AlertComment = "Booking #" + tblBookingsTO.IdBooking + " is awaiting for your confirmation";
+
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
                             tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + tblBookingsTO.DealerName + ").";
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblBookingsTO.DealerName);
+                            // tblAlertInstanceTO.AlertComment += " (" + tblBookingsTO.DealerName + ").";
+                            tblAlertInstanceTO.AlertComment = tempTxt;
                         }
 
                         tblAlertInstanceTO.SourceDisplayId = "Approved By Finance";
@@ -2807,15 +2871,27 @@ namespace ODLMWebAPI.BL
                     }
                     else if (tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_REJECTED_BY_FINANCE)
                     {
+                        //Aniket [5-8-2019]
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_REJECTED_BY_DIRECTORS);
+                        string tempTxt = "";
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_REJECTED_BY_DIRECTORS;
                         tblAlertInstanceTO.AlertAction = "BOOKING_REJECTED_BY_DIRECTORS";
+                        if(!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@BookingIdStr", tblBookingsTO.IdBooking.ToString());
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
                         //tblAlertInstanceTO.AlertComment = "Your Not Confirmed Booking #" + tblBookingsTO.IdBooking + " is rejected";
+                        else
                         tblAlertInstanceTO.AlertComment = "Your Booking #" + tblBookingsTO.IdBooking + " is rejected";
 
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
                             tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + tblBookingsTO.DealerName + ").";
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblBookingsTO.DealerName);
+                            // tblAlertInstanceTO.AlertComment += " (" + tblBookingsTO.DealerName + ").";
+                            tblAlertInstanceTO.AlertComment = tempTxt;
                         }
                         tblAlertInstanceTO.SourceDisplayId = "BOOKING_REJECTED_BY_DIRECTORS";
                         tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
@@ -2832,15 +2908,30 @@ namespace ODLMWebAPI.BL
                     }
                     else if (tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR)
                     {
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_APPROVED_BY_DIRECTORS);
+                        string tempTxt = "";
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_APPROVED_BY_DIRECTORS;
                         tblAlertInstanceTO.AlertAction = "BOOKING_APPROVED_BY_DIRECTORS";
                         //tblAlertInstanceTO.AlertComment = "Not Confirmed Booking #" + tblBookingsTO.IdBooking + " is accepted by Director";
+                        //Aniket [5-8-2019] added
+                        if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                             tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@BookingIdStr", tblBookingsTO.IdBooking.ToString());
+                            tempTxt = tempTxt.Replace("@CNCStr", "");
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
                         tblAlertInstanceTO.AlertComment = "Booking #" + tblBookingsTO.IdBooking + " is accepted by Director";
 
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
                             tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + tblBookingsTO.DealerName + ").";
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblBookingsTO.DealerName);
+                            // tblAlertInstanceTO.AlertComment += " (" + tblBookingsTO.DealerName + ").";
+                            tblAlertInstanceTO.AlertComment = tempTxt;
                         }
 
                         tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
@@ -2992,13 +3083,25 @@ namespace ODLMWebAPI.BL
                     {
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_REJECTED_BY_DIRECTORS;
                         tblAlertInstanceTO.AlertAction = "BOOKING_REJECTED_BY_DIRECTORS";
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_APPROVED_BY_DIRECTORS);
+                        string tempTxt = "";
+                        if(!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@BookingIdStr", tblBookingsTO.IdBooking.ToString());
+                            tempTxt = tempTxt.Replace("@DealerNameStr","");
+
+                        }
                         //tblAlertInstanceTO.AlertComment = "Not Confirmed Booking #" + tblBookingsTO.IdBooking + " is rejected by Admin/Director";
+                        else
                         tblAlertInstanceTO.AlertComment = "Booking #" + tblBookingsTO.IdBooking + " is rejected by Admin/Director";
 
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
                             tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + tblBookingsTO.DealerName + ").";
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblBookingsTO.DealerName);
+                            // tblAlertInstanceTO.AlertComment += " (" + tblBookingsTO.DealerName + ").";
+                            tblAlertInstanceTO.AlertComment = tempTxt;
                         }
                         tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
                         tblAlertInstanceTO.SourceDisplayId = "BOOKING_REJECTED_BY_DIRECTORS";
