@@ -2663,13 +2663,17 @@ namespace ODLMWebAPI.BL
 
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.New_Booking;
                         tblAlertInstanceTO.AlertAction = "New_Booking";
-                        if(!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        if(tblAlertDefinitionTO!=null)
                         {
-                            string tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
-                            tempTxt = tempTxt.Replace("@BookingIdStr", tblBookingsTO.IdBooking.ToString());
-                            tempTxt = tempTxt.Replace("@DealerNameStr", tblBookingsTO.DealerName);
-                            tblAlertInstanceTO.AlertComment = tempTxt;
+                            if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                            {
+                                string tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                                tempTxt = tempTxt.Replace("@BookingIdStr", tblBookingsTO.IdBooking.ToString());
+                                tempTxt = tempTxt.Replace("@DealerNameStr", tblBookingsTO.DealerName);
+                                tblAlertInstanceTO.AlertComment = tempTxt;
+                            }
                         }
+                       
                         else
                         tblAlertInstanceTO.AlertComment = "New Booking #" + tblBookingsTO.IdBooking + " Is Generated(" + tblBookingsTO.DealerName + ").";
 

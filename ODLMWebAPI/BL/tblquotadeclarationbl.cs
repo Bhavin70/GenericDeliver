@@ -507,7 +507,11 @@ namespace ODLMWebAPI.BL
                     for (int i = 0; i < tblGlobalRateTOList.Count; i++)
                     {
                         TblGlobalRateTO tblGlobalRateTO = tblGlobalRateTOList[i];
-                        rateString += tblGlobalRateTO.BrandName + " " + tblGlobalRateTO.Rate + ", ";
+                        if(i==0)
+                        rateString += tblGlobalRateTO.BrandName + " " + tblGlobalRateTO.Rate;
+                        else
+                          rateString += "," +tblGlobalRateTO.BrandName + " " + tblGlobalRateTO.Rate;
+
                         if (tblGlobalRateTO.RateReasonDesc != "Other")
                             tblGlobalRateTO.Comments = tblGlobalRateTO.RateReasonDesc;
 
@@ -558,6 +562,7 @@ namespace ODLMWebAPI.BL
 
                 #region 2. Prepare SMS List
                 //Aniket [31-7-2019] added to create dynamic sms text
+                string tempSmsString="";
                 TblAlertDefinitionTO tblAlertDefinitionTO = _iTblAlertDefinitionDAO.SelectTblAlertDefinition((int)NotificationConstants.NotificationsE.NEW_RATE_AND_QUOTA_DECLARED, conn, tran);
                 List<TblSmsTO> smsTOList = new List<TblSmsTO>();
                 rateString = rateString.TrimEnd(',');
@@ -598,10 +603,11 @@ namespace ODLMWebAPI.BL
                            
                             if(!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
                             {
-                                    string tempSmsString = tblAlertDefinitionTO.DefaultSmsTxt;
+                                    tempSmsString = tblAlertDefinitionTO.DefaultSmsTxt;
                                     tempSmsString= tempSmsString.Replace("@DateStr", tblQuotaDeclarationTO.CreatedOn.ToString());
                                     tempSmsString= tempSmsString.Replace("@RateStr", brandRateStr);
                                     smsTO.SmsTxt = tempSmsString;
+                                
                             }
                             else
                             {
@@ -639,11 +645,11 @@ namespace ODLMWebAPI.BL
                 else
                  tblAlertInstanceTO.AlertComment = "New Rate is Declared. Rate = " + rateString + " (Rs/MT)";
 
-                    //if (!isRateAlreadyDeclare)
-                    //    tblAlertInstanceTO.AlertComment = "Today's Rate is Declared. Rate = " + rateString + " (Rs/MT)";
-                    //else
-                    //    tblAlertInstanceTO.AlertComment = "New Rate is Declared. Rate = " + rateString + " (Rs/MT)";
-
+                //if (!isRateAlreadyDeclare)
+                //    tblAlertInstanceTO.AlertComment = "Today's Rate is Declared. Rate = " + rateString + " (Rs/MT)";
+                //else
+                //    tblAlertInstanceTO.AlertComment = "New Rate is Declared. Rate = " + rateString + " (Rs/MT)";
+                tblAlertInstanceTO.SmsComment = tempSmsString;
                     tblAlertInstanceTO.EffectiveFromDate = tblGlobalRateTOList[0].CreatedOn;
                 tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(10);
                 tblAlertInstanceTO.IsActive = 1;
