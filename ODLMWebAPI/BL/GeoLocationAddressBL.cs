@@ -62,12 +62,22 @@ namespace ODLMWebAPI.BL
             return "";
         }
 
-        public string myLocationAddress(string lat, string logn)
+        public ResultMessage myLocationAddress(string lat, string logn)
         {
+             
+            ResultMessage resultMessage = new ResultMessage();
+            TblConfigParamsTO mapApiUrl = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.MAP_API_URL);
+            if(mapApiUrl == null || mapApiUrl.ConfigParamVal == null)
+            {
+                resultMessage.DefaultBehaviour("MAP API URL not found");
+                return resultMessage;
+            }
             //String key = "AIzaSyA4k9_UHCaEiT58pomWx4AWBcD-SJ0B9Vg";
             //String key = "AIzaSyBLrwHzpQaNieX7CCXRkmx3Pf8UQzmlP50"; 
-            String key = "AIzaSyCkLbSDnkG5FxxMMTFwaBzs9JticPPMsRM";
-            String mapMyIndiaKey = "x6a9yupqaxh2ppibyu7847wwfdj8fn9p";
+            //String key = "AIzaSyCkLbSDnkG5FxxMMTFwaBzs9JticPPMsRM";
+            //String mapMyIndiaKey = "x6a9yupqaxh2ppibyu7847wwfdj8fn9p";
+            String key = mapApiUrl.ConfigParamVal;
+            String mapMyIndiaKey = mapApiUrl.ConfigParamVal;
             String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + logn + "&key=" + key;
             String mapMyIndiaUrl = "https://apis.mapmyindia.com/advancedmaps/v1/"+mapMyIndiaKey+"/rev_geocode?lat=" + lat + "&lng=" + logn;
             StreamWriter myWriter = null;
@@ -87,9 +97,10 @@ namespace ODLMWebAPI.BL
                 myWriter = new StreamWriter(aa);
                 myWriter.Write(aa);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return null;
+                resultMessage.DefaultExceptionBehaviour(ex, "MAP API URL not found");
+                return resultMessage;
             }
             finally
             {
@@ -101,8 +112,8 @@ namespace ODLMWebAPI.BL
             {
                 result = sr.ReadToEnd();
             }
-            return result;
-
+             resultMessage.Tag = result;
+            return resultMessage;
         }
 
         public string myLatLngByAddress(string address)

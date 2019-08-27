@@ -47,11 +47,17 @@ namespace ODLMWebAPI.Controllers
         [HttpGet]
         public IActionResult myLocationAddress(string lat, string logn)
         {
-
+            string addressResponse = null;
+            ResultMessage resultMessage = new ResultMessage();
            TblConfigParamsTO mapConfigTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_MAP_MY_INDIA);
-            string addressResponse = _iGeoLocationAddressBL.myLocationAddress(lat, logn);
-            //For map my India
-            GeoLocationAddressTo addressTo;
+            resultMessage = _iGeoLocationAddressBL.myLocationAddress(lat, logn);
+            if(resultMessage.Tag == null)
+            {
+                return Ok(resultMessage);
+            }
+            addressResponse = resultMessage.Tag.ToString();
+           //For map my India
+           GeoLocationAddressTo addressTo;
             if (mapConfigTO != null && Convert.ToInt32(mapConfigTO.ConfigParamVal) == 1)
             {
                 dynamic obj = JsonConvert.DeserializeObject<dynamic>(addressResponse);
@@ -102,7 +108,14 @@ namespace ODLMWebAPI.Controllers
         [HttpGet]
         public IActionResult getAllCustomer(string lat, string logn)
         {
-            string addressResponse = _iGeoLocationAddressBL.myLocationAddress(lat, logn);
+            string addressResponse = null;
+            ResultMessage resultMessage = new ResultMessage();
+            resultMessage = _iGeoLocationAddressBL.myLocationAddress(lat, logn);
+            if (resultMessage.Tag == null)
+            {
+                return Ok(resultMessage);
+            }
+            addressResponse = resultMessage.Tag.ToString();
             GoogleGeoCodeResponse addressObj = JsonConvert.DeserializeObject<GoogleGeoCodeResponse>(addressResponse);
             GeoLocationAddressTo addressTo = _iGeoLocationAddressBL.convertToProperAddress(addressObj);
             if (addressTo != null)
@@ -340,13 +353,17 @@ namespace ODLMWebAPI.Controllers
         [HttpGet]
         public int MigrationOfmyLocationAddress()
         {
+            string addressResponse = null;
+            ResultMessage resultMessage = new ResultMessage();
             List<newdata> migrationDataList = new List<newdata>();
             migrationDataList = _iGeoLocationAddressBL.SelectAlllatlngData();
             if (migrationDataList != null)
             {
                 foreach (var item in migrationDataList)
                 {
-                    string addressResponse = _iGeoLocationAddressBL.myLocationAddress(item.Lat, item.Lng);
+
+                    resultMessage  = _iGeoLocationAddressBL.myLocationAddress(item.Lat, item.Lng);
+                    addressResponse = resultMessage.Tag.ToString();
                     GoogleGeoCodeResponse addressObj = JsonConvert.DeserializeObject<GoogleGeoCodeResponse>(addressResponse);
                     if (addressObj.status == "OVER_QUERY_LIMIT")
                     {

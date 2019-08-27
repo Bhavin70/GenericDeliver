@@ -514,6 +514,7 @@ namespace ODLMWebAPI.StaticStuff
         #region Configuration Sections
 
         public static String IS_MAP_MY_INDIA = "IS_MAP_MY_INDIA";
+        public static String MAP_API_URL = "MAP_API_URL";
         public static string CP_MAX_ALLOWED_DEL_PERIOD = "MAX_ALLOWED_DEL_PERIOD";
         public static string LOADING_SLIP_DEFAULT_SIZES = "LOADING_SLIP_DEFAULT_SIZES";
         public static string LOADING_SLIP_DEFAULT_SPECIFICATION = "LOADING_SLIP_DEFAULT_SPECIFICATION";
