@@ -22,7 +22,7 @@ namespace ODLMWebAPI.DAL
         #region Methods
         public String SqlSelectQuery()
         {
-            String sqlSelectQry = " SELECT * FROM [dimProdCat]"; 
+            String sqlSelectQry = " SELECT * FROM [dimProdCat] where isActive=1"; 
             return sqlSelectQry;
         }
         #endregion
