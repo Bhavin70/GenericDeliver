@@ -22,7 +22,7 @@ namespace ODLMWebAPI.DAL
         public String SqlSelectQuery()
         {
             String sqlSelectQry = " SELECT parity.* ,  prodCat.prodCateDesc ,prodSpec.prodSpecDesc, material.materialSubType as materialDesc," +
-                " ,brandDesc='', itemName='',displayName='' " +
+                " brandDesc='', itemName='',displayName='' " +
                                   " ,tblParitySummary.brandId " +
                                   " FROM[tblParityDetails] parity" +
                                   " LEFT JOIN dimProdCat prodCat ON parity.prodCatId = prodCat.idProdCat" +
@@ -47,6 +47,48 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Selection
+        public TblParityDetailsTO GetTblParityDetails(TblParityDetailsTO parityDetailsTO)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader sqlReader = null;
+            String WhereCondition = String.Empty;
+            try
+            {
+               
+                    WhereCondition = " WHERE ISNULL(parity.prodCatId,0)=" + parityDetailsTO.ProdCatId + " AND ISNULL(parity.prodSpecId,0)="
+                   + parityDetailsTO.ProdSpecId + " AND ISNULL(parity.materialId,0)=" + parityDetailsTO.MaterialId +
+                   " AND ISNULL(parity.brandId,0)=" + parityDetailsTO.BrandId + " AND ISNULL(parity.prodItemId,0)=" +parityDetailsTO.ProdItemId +
+                   " AND ISNULL(parity.stateId,0)=" + parityDetailsTO.StateId + 
+                   " AND parity.isActive=1";
+                
+              
+
+
+                conn.Open();
+                cmdSelect.CommandText = SqlSelectQuery() + WhereCondition;
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblParityDetailsTO> list = ConvertDTToList(sqlReader);
+                if (list != null && list.Count == 1)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (sqlReader != null)
+                    sqlReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
         public List<TblParityDetailsTO> SelectAllTblParityDetails(int parityId, Int32 prodSpecId, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();
@@ -405,6 +447,8 @@ namespace ODLMWebAPI.DAL
             String prodCatIdCondition2 = String.Empty;
             String prodCatIdCondition3 = String.Empty;
             String whereCondition = String.Empty;
+            String brandIdCondition1 = String.Empty;
+            String brandIdCondition2 = String.Empty;
             try
             {
                 conn.Open();
@@ -429,7 +473,12 @@ namespace ODLMWebAPI.DAL
 
                     regularSpecString += " prodSpec.idProdSpec =" + productSpecForRegular;
                 }
-
+                //Aniket [27-8-2019]
+                if(brandId>0)
+                {
+                    brandIdCondition1 = " and brand.idBrand = " + brandId;
+                    brandIdCondition2 = " and brandId = " + brandId;
+                }
                 if (productSpecInfoListTo == 0)
                 {
                     cmdSelect.CommandText = "  SELECT  latestParity.idParityDtl, latestParity.parityId, latestParity.parityAmt,latestParity.nonConfParityAmt," +
@@ -443,9 +492,9 @@ namespace ODLMWebAPI.DAL
                                                            " FULL OUTER JOIN dimProdCat prodCat ON 1 = 1 "+ prodCatIdCondition1 + " and prodCat.isActive = 1 " +
                                                            " FULL OUTER JOIN dimProdSpec prodSpec ON 1 = 1  and prodSpec.isActive = 1 " +
                                                            " full outer join dimState stateName ON 1 = 1 and stateName.idState = " + stateId +
-                                                           " full outer join dimBrand brand ON 1 = 1 and brand.idBrand = " + brandId +
+                                                           " full outer join dimBrand brand ON 1 = 1 " + brandIdCondition1 +
                                                            " full outer join dimCurrency currency ON 1 = 1 and currency.idCurrency = " + currencyId +
-                                                           " LEFT JOIN( select * from tblParityDetails where stateId= " + stateId + " and isActive = 1 and brandId = " + brandId +
+                                                           " LEFT JOIN( select * from tblParityDetails where stateId= " + stateId + " and isActive = 1 " + brandIdCondition2  +
                                                            prodCatIdCondition2 + " and currencyId = " + currencyId + ") latestParity " +
                                                            " ON material.idMaterial = latestParity.materialId AND prodCat.idProdCat = latestParity.prodCatId " +
                                                            " AND prodSpec.idProdSpec = latestParity.prodSpecId AND stateName.idState = latestParity.stateId " +

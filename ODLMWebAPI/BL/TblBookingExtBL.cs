@@ -60,7 +60,7 @@ namespace ODLMWebAPI.BL
                          TblBookingExtTO tempTO = tblBookingExtTOList[i];
                         var parityList = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(tempTO.MaterialId, tempTO.ProdCatId, tempTO.ProdSpecId, tempTO.ProdItemId, tempTO.BrandId, stateId, tblBookingsTO.CreatedOn);
                         
-                        var result= tblProductInfoTOList.Where(a => a.MaterialId == tempTO.MaterialId && a.ProdCatId == tempTO.ProdCatId && a.ProdSpecId == tempTO.ProdSpecId).FirstOrDefault();
+                        var result= tblProductInfoTOList.Where(a => a.MaterialId == tempTO.MaterialId && a.ProdCatId == tempTO.ProdCatId && a.ProdSpecId == tempTO.ProdSpecId && a.BrandId==tempTO.BrandId).FirstOrDefault();
                         //var res = tblParityDetailsTOList.Where(a => a.MaterialId == tempTO.MaterialId && a.ProdCatId == tempTO.ProdCatId && a.ProdSpecId == tempTO.ProdSpecId).FirstOrDefault();
                          if(parityList != null && parityList.Count>0)
                          {
@@ -73,7 +73,7 @@ namespace ODLMWebAPI.BL
                          if(result!=null)
                          {
                             tempTO.AvgBundleWt = result.AvgBundleWt;
-                            double itemwiseRate = tempTO.BookedQty*(tempTO.Rate+tempTO.ParityAmt);
+                            double itemwiseRate = tempTO.BookedQty*(tempTO.BookingRate+tempTO.ParityAmt);
                              discount = tempTO.Discount * tempTO.BookedQty * 1000;
                             tempTO.Discount = discount;
                             itemwiseRate = itemwiseRate - discount;

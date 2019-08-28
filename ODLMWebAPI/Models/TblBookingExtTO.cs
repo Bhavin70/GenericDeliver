@@ -51,6 +51,8 @@ namespace ODLMWebAPI.Models
         double parityAmt;
         double itemWiseRate;
         double totalAmt;
+        double bookingRate; // Aniket [28-8-2019] suggested by saket for shreebalaji cliet to store booking rate without parity
+
         #endregion
 
         #region Constructor
@@ -186,6 +188,7 @@ namespace ODLMWebAPI.Models
         public double ParityAmt { get => parityAmt; set => parityAmt = value; }
         public double ItemWiseRate { get => itemWiseRate; set => itemWiseRate = value; }
         public double TotalAmt { get => totalAmt; set => totalAmt = value; }
+        public double BookingRate { get => bookingRate; set => bookingRate = value; }
 
 
 

@@ -202,9 +202,9 @@ namespace ODLMWebAPI.BL
                                 if (parityList != null)
                                 {
                                     if (tblBookingsTO.IsConfirmed == 1)
-                                        item.Rate = item.Rate + parityList[0].ParityAmt;
+                                        item.Rate = item.BookingRate + parityList[0].ParityAmt;
                                     else
-                                        item.Rate = item.Rate + parityList[0].ParityAmt + parityList[0].NonConfParityAmt;
+                                        item.Rate = item.BookingRate + parityList[0].ParityAmt + parityList[0].NonConfParityAmt;
                                 }
                             }
 

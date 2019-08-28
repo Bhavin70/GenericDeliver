@@ -350,6 +350,23 @@ namespace ODLMWebAPI.Controllers
                 return null;
             }
         }
+        [HttpGet]
+        [Route("GetTblParityDetails")]
+        public TblParityDetailsTO GetTblParityDetails(Int32 ProdCatId,Int32 ProdSpecId,Int32 MaterialId,Int32 BrandId,Int32 StateId)
+        {
+            TblParityDetailsTO tblParityTO = new TblParityDetailsTO();
+            tblParityTO.ProdCatId = ProdCatId;
+            tblParityTO.ProdSpecId = ProdSpecId;
+            tblParityTO.MaterialId = MaterialId;
+            tblParityTO.BrandId = BrandId;
+            tblParityTO.StateId = StateId;
+            TblParityDetailsTO tblParityDetailsTO=_iTblParityDetailsBL.GetTblParityDetails(tblParityTO);
+            if (tblParityDetailsTO != null)
+                return tblParityDetailsTO;
+            else
+                return tblParityTO;
+        }
+
         // Aniket [21-Jan-2019] added to fetch ParityDetailsList against brand
         //[Route("GetParityDetailsListFromBrand")]
         //[HttpGet]

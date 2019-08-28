@@ -862,7 +862,6 @@ namespace ODLMWebAPI.BL
             int result = 0;
             ResultMessage resultMessage = new StaticStuff.ResultMessage();
             resultMessage.MessageType = ResultMessageE.None;
-
             int restrictBeyondQuota = 0;
             try
             {
@@ -1589,8 +1588,10 @@ namespace ODLMWebAPI.BL
                             {
                                 TblBookingExtTO tblBookingExtTO = tblBookingScheduleTO.OrderDetailsLst[j];
                                 tblBookingExtTO.BookingId = tblBookingsTO.IdBooking;
-                                //if(isBalajiClient==0)
-                                tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
+                                //Aniket [28-8-2019] added condition for shreebalaji client to save itemwise rate
+                                if(tblBookingsTO.IsItemized==0)
+                                    tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
+
                                 tblBookingExtTO.ScheduleId = tblBookingScheduleTO.IdSchedule;
                                 if (!isRegular)
                                 {

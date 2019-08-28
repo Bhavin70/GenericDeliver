@@ -22,7 +22,7 @@ namespace ODLMWebAPI.DAL
         public String SqlSelectQuery()
         {
             String sqlSelectQry = " SELECT  bookingDtl.* ,material.materialSubType,booking.bookingDatetime,isConfirmed,isJointDelivery,cdStructure,noOfDeliveries " +
-                                  " , prodCat.prodCateDesc AS prodCatDesc ,prodSpec.prodSpecDesc,booking.brandId, tblBookingSchedule.scheduleDate," +
+                                  " , prodCat.prodCateDesc AS prodCatDesc ,prodSpec.prodSpecDesc,ISNULL(bookingDtl.brandId,booking.brandId) as brandId, tblBookingSchedule.scheduleDate," +
                                   "  brand.brandName AS brandDesc ,item.itemName,prodClass.displayName,tblBookingSchedule.loadingLayerId ,item.conversionFactor " +
                                   //" , loadingLayer.layerDesc 
                                   " FROM tblBookingExt bookingDtl " +
@@ -346,6 +346,8 @@ namespace ODLMWebAPI.DAL
                         tblBookingExtTONew.UomQty = Convert.ToDouble(tblBookingExtTODT["uomQty"]);
                     if (tblBookingExtTODT["pendingUomQty"] != DBNull.Value)
                         tblBookingExtTONew.PendingUomQty = Convert.ToDouble(tblBookingExtTODT["pendingUomQty"]);
+                    if (tblBookingExtTODT["bookingRate"] != DBNull.Value)
+                        tblBookingExtTONew.BookingRate = Convert.ToDouble(tblBookingExtTODT["bookingRate"]);
                     tblBookingExtTOList.Add(tblBookingExtTONew);
                 }
             }
@@ -474,6 +476,7 @@ namespace ODLMWebAPI.DAL
                             " ,[discount]" +
                             " ,[uomQty]" +
                             " ,[pendingUomQty]" +
+                             " ,[bookingRate]" +
                             //" ,[loadingLayerId]" +
                             " )" +
                 " VALUES (" +
@@ -490,6 +493,7 @@ namespace ODLMWebAPI.DAL
                             " ,@discount " +
                             " ,@uomQty " +
                             " ,@pendingUomQty " +
+                             " ,@bookingRate " +
                             //" ,@LoadingLayerId" +
                             " )";
 
@@ -511,6 +515,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@discount", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.Discount);
             cmdInsert.Parameters.Add("@uomQty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.UomQty);
             cmdInsert.Parameters.Add("@pendingUomQty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.PendingUomQty);
+            cmdInsert.Parameters.Add("@bookingRate", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.BookingRate);
 
             //cmdInsert.Parameters.Add("@LoadingLayerId", System.Data.SqlDbType.Int).Value = tblBookingExtTO.LoadingLayerId;
 
