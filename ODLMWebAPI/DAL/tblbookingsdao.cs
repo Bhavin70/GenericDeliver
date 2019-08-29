@@ -29,7 +29,7 @@ namespace ODLMWebAPI.DAL
         public String SqlSelectQuery(Int32 loginUserId = 0)
         {
             
-            String sqlSelectQry = "SELECT bookings.*, userCreatedBy.userDisplayName As createdByName,userUpdatedBy.userDisplayName As updatedByName, "+
+            String sqlSelectQry = "SELECT bookings.*,dimStat.statusName as dealerCat,dimStat.colorCode,userCreatedBy.userDisplayName As createdByName,userUpdatedBy.userDisplayName As updatedByName, "+
                                   "orgCnf.firmName as cnfName,orgDealer.isOverdueExist  as isOrgOverDue, tblTranAction.tranActionTypeId As tranActionTypeId," +
                                   " orgDealer.firmName + ',' + " +
                                   " CASE WHEN orgDealer.addrId IS NULL THEN '' Else case WHEN address.villageName IS NOT NULL THEN address.villageName " +
@@ -44,6 +44,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblUser userStatusBy ON userStatusBy.idUser = bookings.statusBy " +
                                   " LEFT JOIN tblOrganization orgDealer  ON bookings.dealerOrgId = orgDealer.idOrganization " +
                                   " LEFT JOIN dimStatus ON dimStatus.idStatus = bookings.statusId "+
+                                  " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = orgDealer.statusId" +
                                   " LEFT JOIN dimBrand brandDtl ON brandDtl.idBrand = bookings.brandId " +
                                   //" LEFT JOIN tblUserAreaAllocation userAreaAlloc on userAreaAlloc.cnfOrgId = bookings.cnFOrgId "+
                                   //" AND userAreaAlloc.userId = "+ RMId +
@@ -968,6 +969,7 @@ namespace ODLMWebAPI.DAL
                         sqlQuery = " SELECT DISTINCT idOrganization " +
                                    " FROM tblOrganization " +
                                    " INNER JOIN tblCnfDealers ON dealerOrgId=idOrganization" +
+                                   
                                    " INNER JOIN " +
                                    " ( " +
                                    " SELECT tblAddress.*, organizationId FROM tblOrgAddress " +
@@ -1616,9 +1618,11 @@ namespace ODLMWebAPI.DAL
                         tblBookingsTONew.IsItemized = Convert.ToInt32(tblBookingsTODT["isItemized"]);
                     if (tblBookingsTODT["stateId"] != DBNull.Value)
                         tblBookingsTONew.StateId = Convert.ToInt32(tblBookingsTODT["stateId"]);
+                             if (tblBookingsTODT["dealerCat"] != DBNull.Value)
+                        tblBookingsTONew.DealerCat = Convert.ToString(tblBookingsTODT["dealerCat"]);
+                             if (tblBookingsTODT["colorCode"] != DBNull.Value)
+                        tblBookingsTONew.ColorCode = Convert.ToString(tblBookingsTODT["colorCode"]);
                     tblBookingsTOList.Add(tblBookingsTONew);
-
-
                 }
             }
             return tblBookingsTOList;
