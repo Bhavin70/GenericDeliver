@@ -27,9 +27,10 @@ namespace ODLMWebAPI.IoT {
         //hrushikesh
         //on startup create client wise Lists
         public static void setModbusRef () {
-            //
             if (!Constants.Local_API) {
                 JObject o1 = JObject.Parse (System.IO.File.ReadAllText (@".\connection.json"));
+                //Thread is created so main thread can continue on starting API at startup
+                //Hrushikesh
                 Thread thread = new Thread(delegate ()
                 {
                 foreach (var property in o1) {
@@ -61,10 +62,10 @@ namespace ODLMWebAPI.IoT {
             }
         }
 
-        //Hrushikesh added to return particular clients modbus List
+        //Hrushikesh added to return particular client's modbus List
         public List<int> getModbusRefList () {
         if (!Constants.Local_API) {
-            string domainName = _iConnectionString.GetSubDomain ();
+            string domainName = _iConnectionString.GetSubDomain();
                 return modbusRefDict[domainName];
             } else {
                 return Startup.AvailableModbusRefList;

@@ -103,7 +103,7 @@ namespace ODLMWebAPI.DAL
         }
 
         //Hrushikesh Added for IOT for non multi tenancy Config
-        //this method is purposely kept static 
+        //this method is purposely kept static refer GeModRefMaxData() for its non static version.
          public static List<int> GeModRefMaxDataNonMulti()
         {
             SqlCommand cmdSelect = new SqlCommand();
