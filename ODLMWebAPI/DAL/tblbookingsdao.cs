@@ -44,7 +44,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblUser userStatusBy ON userStatusBy.idUser = bookings.statusBy " +
                                   " LEFT JOIN tblOrganization orgDealer  ON bookings.dealerOrgId = orgDealer.idOrganization " +
                                   " LEFT JOIN dimStatus ON dimStatus.idStatus = bookings.statusId "+
-                                  " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = orgDealer.statusId" +
+                                  " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = orgDealer.orgStatusId" +
                                   " LEFT JOIN dimBrand brandDtl ON brandDtl.idBrand = bookings.brandId " +
                                   //" LEFT JOIN tblUserAreaAllocation userAreaAlloc on userAreaAlloc.cnfOrgId = bookings.cnFOrgId "+
                                   //" AND userAreaAlloc.userId = "+ RMId +
