@@ -619,6 +619,7 @@ namespace ODLMWebAPI.DAL
 
                   string sqlQuery=" SELECT loading.* ,org.digitalSign, org.firmName as cnfOrgName,transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName " +
+                                  " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
                                   " FROM tempLoading loading " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = loading.cnfOrgId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = loading.statusId " +
@@ -626,12 +627,14 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
                                   " LEFT JOIN tblUser ON idUser=loading.createdBy " +
+                                  " LEFT JOIN tblGate tblGate ON tblGate.idGate = loading.gateId " +
                                   " WHERE idLoading in ( select loadingId from temploadingslip where idLoadingSlip =" + loadingSlipId + ") " +
 
                                   " UNION ALL " +
 
                                   " SELECT loading.* ,org.digitalSign, org.firmName as cnfOrgName,transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName " +
+                                   " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
                                   " FROM finalLoading loading " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = loading.cnfOrgId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = loading.statusId " +
@@ -639,6 +642,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
                                   " LEFT JOIN tblUser ON idUser=loading.createdBy " +
+                                  " LEFT JOIN tblGate tblGate ON tblGate.idGate = loading.gateId " +
                                   " WHERE idLoading in ( select loadingId from finalloadingslip where idLoadingSlip =" + loadingSlipId + ") ";
 
                 cmdSelect.CommandText = sqlQuery;

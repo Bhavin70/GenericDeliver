@@ -598,7 +598,8 @@ namespace ODLMWebAPI.IoT
                     if (gateIoTResult != null && gateIoTResult.Data != null && gateIoTResult.Data.Count != 0)
                     {
                         tblLoadingSlipTO.VehicleNo = (string)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.VehicleNo];
-                    }
+                        tblLoadingSlipTO.TransporterOrgId = Convert.ToInt32(gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.TransportorId]);
+                     }
 
                     //var layerList = totalLoadingSlipExtList.GroupBy(x => x.LoadingLayerid).ToList();
                     //List<int> totalLayerList = new List<int>();

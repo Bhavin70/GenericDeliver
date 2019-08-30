@@ -149,6 +149,12 @@ namespace ODLMWebAPI.BL
                 tblLoadingSlipTO.TblLoadingSlipDtlTO = _iTblLoadingSlipDtlDAO.SelectLoadingSlipDtlTO(loadingSlipId, conn, tran);
                 tblLoadingSlipTO.LoadingSlipExtTOList = _iTblLoadingSlipExtDAO.SelectAllTblLoadingSlipExt(loadingSlipId, conn, tran);
                 tblLoadingSlipTO.DeliveryAddressTOList = _iTblLoadingSlipAddressBL.SelectAllTblLoadingSlipAddressList(loadingSlipId, conn, tran);
+                int configId = _iTblConfigParamsDAO.IoTSetting();
+                if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
+                {
+                    _iIotCommunication.GetItemDataFromIotForGivenLoadingSlip(tblLoadingSlipTO);
+                }
+
                 return tblLoadingSlipTO;
             }
             catch (Exception ex)
@@ -157,8 +163,58 @@ namespace ODLMWebAPI.BL
             }
         }
 
- 
-       
+
+        public TblLoadingSlipTO SelectAllLoadingSlipWithDetailsForExtract(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran)
+        {
+            try
+            {
+                TblLoadingSlipTO tblLoadingSlipTO = _iTblLoadingSlipDAO.SelectTblLoadingSlip(loadingSlipId, conn, tran);
+                if (tblLoadingSlipTO == null)
+                {
+                    return null;
+                }
+                tblLoadingSlipTO.PaymentTermOptionRelationTOLst = _iTblPaymentTermOptionRelationDAO.SelectTblPaymentTermOptionRelationByLoadingId(loadingSlipId, conn, tran);
+                tblLoadingSlipTO.TblLoadingSlipDtlTO = _iTblLoadingSlipDtlDAO.SelectLoadingSlipDtlTO(loadingSlipId, conn, tran);
+                tblLoadingSlipTO.LoadingSlipExtTOList = _iTblLoadingSlipExtDAO.SelectAllTblLoadingSlipExt(loadingSlipId, conn, tran);
+                tblLoadingSlipTO.DeliveryAddressTOList = _iTblLoadingSlipAddressBL.SelectAllTblLoadingSlipAddressList(loadingSlipId, conn, tran);
+                return tblLoadingSlipTO;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+
+        public TblLoadingSlipTO SelectAllLoadingSlipWithDetailsForExtract(Int32 loadingSlipId)
+        {
+            SqlConnection conn = new SqlConnection(Startup.ConnectionString);
+            SqlTransaction tran = null;
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+                TblLoadingSlipTO tblLoadingSlipTO = new TblLoadingSlipTO();
+                tblLoadingSlipTO = SelectAllLoadingSlipWithDetailsForExtract(loadingSlipId, conn, tran);
+                if (tblLoadingSlipTO == null)
+                {
+                    tran.Rollback();
+                    return null;
+                }
+                return tblLoadingSlipTO;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+
+
         public TblLoadingSlipTO SelectTblLoadingSlipTO(Int32 idLoadingSlip)
         {
             return  _iTblLoadingSlipDAO.SelectTblLoadingSlip(idLoadingSlip);
@@ -282,6 +338,7 @@ namespace ODLMWebAPI.BL
                             {
                                 tblLoadingTOList[d].StatusId = dimStatusTO.IdStatus;
                                 tblLoadingTOList[d].StatusDesc = dimStatusTO.StatusName;
+                                tblLoadingTOList[d].StatusName = dimStatusTO.StatusName;
                             }
 
                         }

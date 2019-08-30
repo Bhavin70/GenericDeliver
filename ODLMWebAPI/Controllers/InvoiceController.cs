@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.IoT.Interfaces;
+using static ODLMWebAPI.StaticStuff.Constants;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -137,8 +138,8 @@ namespace ODLMWebAPI.Controllers
                         //add Iot settings
                         
                         
-                        _iIotCommunication.GetItemDataFromIotForGivenLoadingSlip(tblLoadingSlipTO);
-                        invoiceTO.VehicleNo = tblLoadingSlipTO.VehicleNo;
+                      // _iIotCommunication.GetItemDataFromIotForGivenLoadingSlip(tblLoadingSlipTO);
+                       // invoiceTO.VehicleNo = tblLoadingSlipTO.VehicleNo;
                         
                         for (int i = 0; i < itemList.Count; i++)
                         {
@@ -156,7 +157,15 @@ namespace ODLMWebAPI.Controllers
                         /*GJ@20170929 : To get the History Details for Approval and Acceptance*/
                         //if (invoiceTO.StatusId == (int)Constants.InvoiceStatusE.PENDING_FOR_AUTHORIZATION || invoiceTO.StatusId == (int)Constants.InvoiceStatusE.PENDING_FOR_ACCEPTANCE)
                         //{
+                            if (invoiceTO.InvoiceModeE != InvoiceModeE.MANUAL_INVOICE)
+                            {
+                                //Sanjay [30-May-2019] Conditions added for auth invoice. If type is firm and auth then data wil be written to DB else on IoT
+                                if (invoiceTO.IsConfirmed == 0)
+                                _iTblInvoiceBL.SetGateAndWeightIotData(invoiceTO, 0);
+                            else if (invoiceTO.InvoiceStatusE != InvoiceStatusE.AUTHORIZED && invoiceTO.InvoiceStatusE != InvoiceStatusE.CANCELLED)
+                                _iTblInvoiceBL.SetGateAndWeightIotData(invoiceTO, 0);
 
+                        }
                         //Saket [2017-11-21]
                         String strProdGstCode = String.Join(",", invoiceTO.InvoiceItemDetailsTOList.Select(s => s.ProdGstCodeId.ToString()).ToArray());
 
@@ -717,7 +726,7 @@ namespace ODLMWebAPI.Controllers
                     return resultMessage;
                 }
                Int32 isConfirm = 1;
-                return _iTblInvoiceBL.GenerateInvoiceNumber(Convert.ToInt32(invoiceId), Convert.ToInt32(loginUserId), isConfirm, Convert.ToInt32(invGenerateModeId),Convert.ToString(taxInvoiceNumber), manualinvoiceno);
+                return _iTblLoadingBL.GenerateInvoiceNumber(Convert.ToInt32(invoiceId), Convert.ToInt32(loginUserId), isConfirm, Convert.ToInt32(invGenerateModeId),Convert.ToString(taxInvoiceNumber), manualinvoiceno);
             }
             catch (Exception ex)
             {

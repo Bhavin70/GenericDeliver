@@ -17,7 +17,7 @@ using ODLMWebAPI.IoT;
 using System.Threading;
 
 namespace ODLMWebAPI.BL
-{   
+{
     public class TblLoadingBL : ITblLoadingBL
     {
         private readonly ITblLoadingDAO _iTblLoadingDAO;
@@ -75,7 +75,10 @@ namespace ODLMWebAPI.BL
         private readonly IGateCommunication _iGateCommunication;
         private readonly ITblWeighingMachineDAO _iTblWeighingMachineDAO;
         private readonly IWeighingCommunication _iWeighingCommunication;
-        public TblLoadingBL(IWeighingCommunication iWeighingCommunication,ITblWeighingMachineDAO iTblWeighingMachineDAO, IGateCommunication iGateCommunication,IIotCommunication iIotCommunication,ITblGateBL iTblGateBL,ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL)
+        private readonly ITblInvoiceHistoryDAO _iTblInvoiceHistoryDAO;
+        private readonly ITblBookingDelAddrDAO _iTblBookingDelAddrDAO;
+
+        public TblLoadingBL(IWeighingCommunication iWeighingCommunication, ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblInvoiceHistoryDAO iTblInvoiceHistoryDAO, ITblWeighingMachineDAO iTblWeighingMachineDAO, IGateCommunication iGateCommunication, IIotCommunication iIotCommunication, ITblGateBL iTblGateBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL)
         {
             _iTblLoadingDAO = iTblLoadingDAO;
             _iTblUserRoleBL = iTblUserRoleBL;
@@ -86,7 +89,7 @@ namespace ODLMWebAPI.BL
             _iTblConfigParamsBL = iTblConfigParamsBL;
             _iTblLoadingSlipDtlDAO = iTblLoadingSlipDtlDAO;
             _iTblBookingsDAO = iTblBookingsDAO;
-             _iTblBookingParitiesDAO = iTblBookingParitiesDAO;
+            _iTblBookingParitiesDAO = iTblBookingParitiesDAO;
             _iDimBrandDAO = iDimBrandDAO;
             _iTblAddressDAO = iTblAddressDAO;
             _iTblParityDetailsBL = iTblParityDetailsBL;
@@ -132,10 +135,12 @@ namespace ODLMWebAPI.BL
             _iGateCommunication = iGateCommunication;
             _iTblWeighingMachineDAO = iTblWeighingMachineDAO;
             _iWeighingCommunication = iWeighingCommunication;
+            _iTblInvoiceHistoryDAO = iTblInvoiceHistoryDAO;
+            _iTblBookingDelAddrDAO = iTblBookingDelAddrDAO;
         }
         #region Selection
 
-        
+
 
         public void GetWeighingMeasuresFromIoT(string loadingId, bool isUnloading, List<TblWeighingMeasuresTO> tblWeighingMeasuresTOList, SqlConnection conn, SqlTransaction tran)
         {
@@ -234,7 +239,7 @@ namespace ODLMWebAPI.BL
             return _iTblLoadingDAO.SelectAllTblloadingList(fromDate, toDate);
         }
 
-        public List<TblLoadingTO> SelectAllTblLoadingList(List<TblUserRoleTO> tblUserRoleTOList, Int32 cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, Int32 isConfirm, Int32 brandId, Int32 loadingNavigateId,Int32 superwisorId)
+        public List<TblLoadingTO> SelectAllTblLoadingList(List<TblUserRoleTO> tblUserRoleTOList, Int32 cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, Int32 isConfirm, Int32 brandId, Int32 loadingNavigateId, Int32 superwisorId)
         {
             //Aniket [30-7-2019] added for IOT
 
@@ -294,7 +299,7 @@ namespace ODLMWebAPI.BL
             {
                 return tblLoadingTOList;
             }
-           
+
 
         }
 
@@ -501,7 +506,7 @@ namespace ODLMWebAPI.BL
             return _iTblLoadingDAO.SelectAllTblLoadingLinkList(tblUserRoleTO, dearlerOrgId, loadingStatusId, fromDate, toDate);
         }
 
-        public List<TblLoadingTO> SelectAllLoadingListByStatus(string statusId,int gateId=0)
+        public List<TblLoadingTO> SelectAllLoadingListByStatus(string statusId, int gateId = 0)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -509,7 +514,7 @@ namespace ODLMWebAPI.BL
             {
                 conn.Open();
                 tran = conn.BeginTransaction();
-                return _iTblLoadingDAO.SelectAllLoadingListByStatus(statusId, conn, tran,gateId);
+                return _iTblLoadingDAO.SelectAllLoadingListByStatus(statusId, conn, tran, gateId);
             }
             catch (Exception ex)
             {
@@ -565,7 +570,7 @@ namespace ODLMWebAPI.BL
                 conn.Close();
             }
         }
-         
+
         public List<TblLoadingTO> SelectLoadingTOListWithDetails(string idLoadings)
         {
             try
@@ -663,7 +668,7 @@ namespace ODLMWebAPI.BL
                         {
                             return new TblLoadingTO();
                         }
-                       
+
                         if (tblLoadingTO.LoadingSlipList == null)
                         {
                             tblLoadingTO.LoadingSlipList = new List<TblLoadingSlipTO>();
@@ -676,7 +681,7 @@ namespace ODLMWebAPI.BL
                             _iIotCommunication.GetItemDataFromIotAndMerge(tblLoadingTO, false);
 
                             if (tempLoadingSlipInvoiceTO.LoadingSlipId == tblLoadingSlipTOTemp.IdLoadingSlip)
-                          _iIotCommunication.GetItemDataFromIotForGivenLoadingSlip(tblLoadingSlipTOTemp);
+                                _iIotCommunication.GetItemDataFromIotForGivenLoadingSlip(tblLoadingSlipTOTemp);
 
                         }
 
@@ -725,7 +730,7 @@ namespace ODLMWebAPI.BL
                         foreach (var item in tblLoadingTO.LoadingSlipList)
                         {
                             if (item.IdLoadingSlip == loadingSlipId)
-                               _iIotCommunication.GetItemDataFromIotForGivenLoadingSlip(item);
+                                _iIotCommunication.GetItemDataFromIotForGivenLoadingSlip(item);
                         }
                     }
                 }
@@ -742,7 +747,7 @@ namespace ODLMWebAPI.BL
         //Priyanka [25-07-2018]
         public TblLoadingTO SelectTblLoadingByLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran)
         {
-                return _iTblLoadingDAO.SelectTblLoadingByLoadingSlipId(loadingSlipId, conn, tran);
+            return _iTblLoadingDAO.SelectTblLoadingByLoadingSlipId(loadingSlipId, conn, tran);
 
         }
 
@@ -820,7 +825,7 @@ namespace ODLMWebAPI.BL
         }
 
 
-        public  tblUserMachineMappingTo SelectUserMachineTo(int userId)
+        public tblUserMachineMappingTo SelectUserMachineTo(int userId)
         {
             SqlConnection conn = new SqlConnection(Startup.ConnectionString);
             SqlTransaction tran = null;
@@ -865,9 +870,9 @@ namespace ODLMWebAPI.BL
             {
                 TblUserRoleTO tblUserRoleTO = new TblUserRoleTO();
                 //Boolean isPriorityOther = true;
-                if (tblUserRoleTOList!=null && tblUserRoleTOList.Count >0)
+                if (tblUserRoleTOList != null && tblUserRoleTOList.Count > 0)
                 {
-                     tblUserRoleTO = _iTblUserRoleBL.SelectUserRoleTOAccToPriority(tblUserRoleTOList);
+                    tblUserRoleTO = _iTblUserRoleBL.SelectUserRoleTOAccToPriority(tblUserRoleTOList);
                     // isPriorityOther = BL.TblUserRoleBL.selectRolePriorityForOther(tblUserRoleTOList);
                 }
                 return _iTblLoadingDAO.SelectDashboardLoadingInfo(tblUserRoleTO, orgId, sysDate, loadingType);
@@ -883,7 +888,7 @@ namespace ODLMWebAPI.BL
             return _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(vehicleNo, loadingDate);
         }
 
-        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading,int loadingId)//Aniket [13-6-2019] added loadingId paramater
+        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading, int loadingId)//Aniket [13-6-2019] added loadingId paramater
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -903,7 +908,7 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading,int loadingId,  SqlConnection conn, SqlTransaction tran)
+        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading, int loadingId, SqlConnection conn, SqlTransaction tran)
         {
             return _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(vehicleNo, isAllowNxtLoading, loadingId, conn, tran);
         }
@@ -1074,23 +1079,23 @@ namespace ODLMWebAPI.BL
         /// <param name="idBooking"></param>
         /// <returns></returns>
 
-        public TblLoadingTO SelectLoadingTOWithDetailsByBooking(String tempBookingsIdsList,String tempScheduleIdsList)
+        public TblLoadingTO SelectLoadingTOWithDetailsByBooking(String tempBookingsIdsList, String tempScheduleIdsList)
         {
             try
             {
                 TblLoadingTO tblLoadingTO = new TblLoadingTO();
-                List<Int32> bookingsIdsList=new List<Int32>();
+                List<Int32> bookingsIdsList = new List<Int32>();
                 List<Int32> scheduleIdsList = new List<Int32>();
                 List<TblBookingExtTO> tblAllBookingExtTOList = new List<TblBookingExtTO>();
                 //get bookingIds List
-                if(!String.IsNullOrEmpty(tempBookingsIdsList))
+                if (!String.IsNullOrEmpty(tempBookingsIdsList))
                 {
                     bookingsIdsList = tempBookingsIdsList.Split(',').Select(int.Parse).ToList();
                 }
                 //get ScheduleIds List
-                if(!String.IsNullOrEmpty(tempScheduleIdsList ))
+                if (!String.IsNullOrEmpty(tempScheduleIdsList))
                 {
-                    scheduleIdsList= tempScheduleIdsList.Split(',').Select(int.Parse).ToList();
+                    scheduleIdsList = tempScheduleIdsList.Split(',').Select(int.Parse).ToList();
                 }
                 TblBookingsTO tblBookingTO = new TblBookingsTO();
                 if (bookingsIdsList != null && bookingsIdsList.Count > 0)
@@ -1106,17 +1111,17 @@ namespace ODLMWebAPI.BL
                             tblLoadingTO.FreightAmt = tblBookingTO.FreightAmt;
                             tblLoadingTO.CnfOrgId = tblBookingTO.CnFOrgId;
                             tblLoadingTO.CnfOrgName = tblBookingTO.CnfName;
-                           
+
                             tblLoadingTO.LoadingSlipList = new List<TblLoadingSlipTO>();
-                             if (tblBookingTO.BookingScheduleTOLst != null && tblBookingTO.BookingScheduleTOLst.Count > 0)
+                            if (tblBookingTO.BookingScheduleTOLst != null && tblBookingTO.BookingScheduleTOLst.Count > 0)
                             {
                                 List<TblBookingScheduleTO> temptblBookingScheduleTOList = tblBookingTO.BookingScheduleTOLst;
                                 List<TblBookingScheduleTO> tblBookingScheduleTOList = new List<TblBookingScheduleTO>();
 
                                 //get schedule list
-                                if (scheduleIdsList!=null && scheduleIdsList.Count > 0)
+                                if (scheduleIdsList != null && scheduleIdsList.Count > 0)
                                 {
-                                    for(int p=0;p< scheduleIdsList.Count;p++)
+                                    for (int p = 0; p < scheduleIdsList.Count; p++)
                                     {
                                         Int32 scheduleId = scheduleIdsList[p];
                                         TblBookingScheduleTO tempTblBookingScheduleTO = new TblBookingScheduleTO();
@@ -1135,7 +1140,7 @@ namespace ODLMWebAPI.BL
                                     }
                                 }
                                 //get distinct schedule list
-                                List<TblBookingScheduleTO> distinctBookingScheduleList= tblBookingScheduleTOList.GroupBy(w => w.LoadingLayerId).Select(x => x.FirstOrDefault()).ToList();
+                                List<TblBookingScheduleTO> distinctBookingScheduleList = tblBookingScheduleTOList.GroupBy(w => w.LoadingLayerId).Select(x => x.FirstOrDefault()).ToList();
                                 if (distinctBookingScheduleList != null && distinctBookingScheduleList.Count > 0)
                                 {
                                     for (int m = 0; m < distinctBookingScheduleList.Count; m++)
@@ -1161,15 +1166,15 @@ namespace ODLMWebAPI.BL
                                         }
                                     }
                                     Double bookQty = tblBookingTO.PendingQty;
-                                   
+
 
                                     for (int p = 0; p < distinctBookingScheduleList.Count; p++)
                                     {
                                         TblBookingScheduleTO distBookingScheduleTO = distinctBookingScheduleList[p];
-                                        var listToCheck= distBookingScheduleTO.OrderDetailsLst.GroupBy(a => new {  a.ProdSpecId, a.ProdCatId, a.MaterialId, a.ProdItemId,a.BrandId, a.ProdCatDesc, a.ProdSpecDesc, a.MaterialSubType, a.BrandDesc, a.DisplayName }).
+                                        var listToCheck = distBookingScheduleTO.OrderDetailsLst.GroupBy(a => new { a.ProdSpecId, a.ProdCatId, a.MaterialId, a.ProdItemId, a.BrandId, a.ProdCatDesc, a.ProdSpecDesc, a.MaterialSubType, a.BrandDesc, a.DisplayName }).
                                             Select(a => new { ProdCatId = a.Key.ProdCatId, ProdItemId = a.Key.ProdItemId, ProdSpecId = a.Key.ProdSpecId, BrandId = a.Key.BrandId, MaterialId = a.Key.MaterialId, ProdCatDesc = a.Key.ProdCatDesc,
-                                                ProdSpecDesc = a.Key.ProdSpecDesc,BrandDesc = a.Key.BrandDesc,MaterialSubType = a.Key.MaterialSubType,
-                                                DisplayName = a.Key.DisplayName,BalanceQty = a.Sum(acs => acs.BalanceQty) }).ToList();
+                                                ProdSpecDesc = a.Key.ProdSpecDesc, BrandDesc = a.Key.BrandDesc, MaterialSubType = a.Key.MaterialSubType,
+                                                DisplayName = a.Key.DisplayName, BalanceQty = a.Sum(acs => acs.BalanceQty) }).ToList();
 
                                         distBookingScheduleTO.OrderDetailsLst = new List<TblBookingExtTO>();
                                         for (int l = 0; l < listToCheck.Count; l++)
@@ -1197,7 +1202,7 @@ namespace ODLMWebAPI.BL
                                         if (distBookingScheduleTO.DeliveryAddressLst != null && distBookingScheduleTO.DeliveryAddressLst.Count > 0)
                                         {
                                             List<TblBookingDelAddrTO> tblBookingDelAddrTOList = distBookingScheduleTO.DeliveryAddressLst;
-                                                //.Where(ele => ele.ScheduleId == distBookingScheduleTO.IdSchedule).ToList();
+                                            //.Where(ele => ele.ScheduleId == distBookingScheduleTO.IdSchedule).ToList();
                                             TblBookingDelAddrTO tblBookingDelAddrTO = new TblBookingDelAddrTO();
                                             for (int j = 0; j < tblBookingDelAddrTOList.Count; j++)
                                             {
@@ -1226,17 +1231,17 @@ namespace ODLMWebAPI.BL
                                             }
 
                                         }
-                                       
+
                                         if (distBookingScheduleTO.OrderDetailsLst != null && distBookingScheduleTO.OrderDetailsLst.Count > 0)
                                         {
                                             List<TblBookingExtTO> tblBookingExtTOList = distBookingScheduleTO.OrderDetailsLst;
-                                                //.Where(ele => ele.ScheduleId == distBookingScheduleTO.IdSchedule).ToList();
+                                            //.Where(ele => ele.ScheduleId == distBookingScheduleTO.IdSchedule).ToList();
                                             TblBookingExtTO tblBookingExtTO = new TblBookingExtTO();
                                             Double totLayerQty = 0;
                                             for (int k = 0; k < tblBookingExtTOList.Count; k++)
                                             {
                                                 TblLoadingSlipExtTO tblLoadingSlipExtTO = new TblLoadingSlipExtTO();
-                                                 tblBookingExtTO = tblBookingExtTOList[k];
+                                                tblBookingExtTO = tblBookingExtTOList[k];
                                                 tblLoadingSlipExtTO.BalanceQty = tblBookingExtTO.BalanceQty;
                                                 tblLoadingSlipExtTO.LoadingQty = tblBookingExtTO.BalanceQty;
                                                 tblLoadingSlipExtTO.MaterialId = tblBookingExtTO.MaterialId;
@@ -1259,14 +1264,14 @@ namespace ODLMWebAPI.BL
                                             if (bookQty >= totLayerQty)
                                             {
                                                 bookQty = bookQty - totLayerQty;
-                                                
+
                                             }
                                             else
                                             {
                                                 totLayerQty = bookQty;
                                                 bookQty = 0;
                                             }
-                                             tblLoadingSlipTO.TblLoadingSlipDtlTO.LoadingQty =totLayerQty;
+                                            tblLoadingSlipTO.TblLoadingSlipDtlTO.LoadingQty = totLayerQty;
 
 
                                         }
@@ -1326,7 +1331,7 @@ namespace ODLMWebAPI.BL
             tblLoadingSlipTO.IsConfirmed = tblBookingTO.IsConfirmed;
             tblLoadingSlipTO.DealerOrgId = tblBookingTO.DealerOrgId;
             tblLoadingSlipTO.DealerOrgName = tblBookingTO.DealerName;
-            tblLoadingSlipTO.FreightAmt= tblBookingTO.FreightAmt;
+            tblLoadingSlipTO.FreightAmt = tblBookingTO.FreightAmt;
             tblLoadingSlipTO.OrcAmt = tblBookingTO.OrcAmt;
             tblLoadingSlipTO.OrcMeasure = tblBookingTO.OrcMeasure;
             tblLoadingSlipTO.ORCPersonName = tblBookingTO.ORCPersonName;
@@ -1335,6 +1340,791 @@ namespace ODLMWebAPI.BL
             tblLoadingSlipTO.DeliveryAddressTOList = new List<TblLoadingSlipAddressTO>();
             tblLoadingSlipTO.LoadingSlipExtTOList = new List<TblLoadingSlipExtTO>();
             return tblLoadingSlipTO;
+        }
+
+        public ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            ResultMessage resultMessage = new ResultMessage();
+            DateTime serverDate = _iCommon.ServerDateTime;
+
+            string entityRangeString = "REGULAR_TAX_INVOICE_";
+            int result = 0;
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+
+                TblInvoiceTO invoiceTO = _iTblInvoiceDAO.SelectTblInvoice(invoiceId, conn, tran);
+                if (invoiceTO == null)
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("invoiceTO Found NULL"); return resultMessage;
+                }
+                //Vijaymala[23-03-2016]added to check invoice details of igst,cgst,sgst taxes
+                #region To check invoice details is valid or not
+                string errorMsg = string.Empty;
+                Boolean isValidInvoice = _iTblInvoiceBL.CheckInvoiceDetailsAccToState(invoiceTO, ref errorMsg);
+                if (!isValidInvoice)
+                {
+                    resultMessage.DefaultBehaviour(errorMsg);
+                    return resultMessage;
+                }
+                #endregion
+
+                if (string.IsNullOrEmpty(invoiceTO.InvoiceNo) || invoiceTO.InvoiceNo == "0")
+                {
+
+                    if (invGenModeId != (int)Constants.InvoiceGenerateModeE.REGULAR)
+                    {
+
+                        resultMessage = _iTblInvoiceBL.PrepareAndSaveInternalTaxInvoices(invoiceTO, conn, tran);
+                        if (resultMessage.MessageType == ResultMessageE.Information)
+                        {
+                            tran.Commit();
+                            resultMessage.Text = "Invoice Converted Successfully";
+                            resultMessage.DisplayMessage = "Invoice Converted Successfully";
+                            return resultMessage;
+                        }
+                        else
+                        {
+                            tran.Rollback();
+                            return resultMessage;
+                        }
+                    }
+                    //if (string.IsNullOrEmpty(invoiceTO.ElectronicRefNo))
+                    //{
+                    //    tran.Rollback();
+                    //    resultMessage.DefaultBehaviour("Can Not Continue.EWay Bill No is Not Assign.");
+                    //    resultMessage.DisplayMessage = "Not Allowed.EWay Bill No is Not Updated.";
+                    //    return resultMessage;
+                    //}
+                    // Ramdas.W @ 28102017 : chenge InvoiceStatus for new Invoice number genarate  AUTHORIZED And status not conform  
+                    if (invoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.AUTHORIZED && isconfirm == 0)
+                    {
+                        invoiceTO.InvoiceStatusE = Constants.InvoiceStatusE.NEW;
+                    }
+
+                    if (invoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.PENDING_FOR_AUTHORIZATION
+                        || invoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.CANCELLED
+                        || invoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.AUTHORIZED
+                        )
+                    {
+
+
+                        tran.Rollback();
+                        resultMessage.DefaultBehaviour("Can Not Continue.INvoice Status Is -" + invoiceTO.StatusName);
+                        resultMessage.DisplayMessage = "Not Allowed.Invoice is :" + invoiceTO.StatusName;
+                        return resultMessage;
+
+                    }
+                    invoiceTO.StatusDate = serverDate;
+                    invoiceTO.UpdatedBy = loginUserId;
+                    invoiceTO.UpdatedOn = serverDate;
+                    invoiceTO.InvoiceStatusE = Constants.InvoiceStatusE.AUTHORIZED;
+
+
+                    #region Invoice Authorization Date As Invoice Date
+                    //Saket [2018-6-04] Added
+                    Int32 invoiceAuthDateAsInvoiceDate = 0;
+                    TblConfigParamsTO invoiceAuthDateAsInvoiceDateConfigTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_AUTHORIZATION_DATE_AS_INV_DATE, conn, tran);
+                    if (invoiceAuthDateAsInvoiceDateConfigTO != null)
+                    {
+                        invoiceAuthDateAsInvoiceDate = Convert.ToInt32(invoiceAuthDateAsInvoiceDateConfigTO.ConfigParamVal);
+                    }
+
+                    if (invoiceAuthDateAsInvoiceDate == 1)
+                    {
+                        invoiceTO.InvoiceDate = serverDate;
+                    }
+                    #endregion
+
+                    if (invoiceTO.IsConfirmed == 1)
+                    {
+                        TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_INTERNALTXFER_INVOICE_ORG_ID, conn, tran);
+                        // Aniket [05-02-2019] check manual branswise invoice no generate or not
+                        TblConfigParamsTO tblConfigParamsTOForBrand = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.GENERATE_MANUALLY_BRANDWISE_INVOICENO, conn, tran);
+                        if (tblConfigParamsTO == null)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
+                            return resultMessage;
+                        }
+                        Int32 internalOrgId = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+                        TblEntityRangeTO entityRangeTO = null;
+                        if (Convert.ToInt32(tblConfigParamsTOForBrand.ConfigParamVal) == 1)
+                        {
+                            DimBrandTO dimBrandTO = _iDimBrandDAO.SelectDimBrand(invoiceTO.BrandId);
+                            entityRangeString += dimBrandTO.IdBrand.ToString();
+                            entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(entityRangeString, invoiceTO.FinYearId, conn, tran);
+                        }
+
+                        else if (invoiceTO.InvFromOrgId == internalOrgId)
+                            entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(Constants.ENTITY_RANGE_REGULAR_TAX_INVOICE_BMM, invoiceTO.FinYearId, conn, tran);
+                        else
+                            entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(invoiceTO.InvoiceTypeId, invoiceTO.FinYearId, conn, tran);
+
+                        if (entityRangeTO == null)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("entityRangeTO Found NULL. Entity Range Not Defined"); return resultMessage;
+                        }
+                        Int32 entityPrevVal = 0;
+                        bool isInvoicePresent = false;
+                        int newTaxNumber = 0;
+                        //Aniket [17-jan-2019] to check invoice number should generate manually or automatically
+                        if (String.IsNullOrEmpty(taxInvoiceNumber))
+                        {
+
+                            entityPrevVal = entityRangeTO.EntityPrevValue;
+                            entityPrevVal++;
+                            if (String.IsNullOrEmpty(entityRangeTO.Suffix))
+                            {
+                                invoiceTO.InvoiceNo = entityRangeTO.Prefix + entityPrevVal.ToString();
+                            }
+                            else
+                            {
+                                invoiceTO.InvoiceNo = entityRangeTO.Prefix + entityPrevVal.ToString() + entityRangeTO.Suffix;
+                            }
+
+                        }
+                        else
+                        {
+
+                            TblInvoiceTO tblInvoiceTO = _iTblInvoiceDAO.SelectAllTblInvoice(taxInvoiceNumber, invoiceTO.FinYearId);
+                            // List<TblInvoiceTO> tempList = list.Where(x => x.FinYearId == invoiceTO.FinYearId).ToList();
+                            // List<TblInvoiceTO> existInvoiceList = new List<TblInvoiceTO>();
+                            // if (tempList != null && tempList.Count > 0)
+                            //  {
+                            //   existInvoiceList = tempList.Where(ele => ele.InvoiceNo == taxInvoiceNumber).ToList();
+                            if (!String.IsNullOrEmpty(tblInvoiceTO.InvoiceNo))
+                            {
+
+                                isInvoicePresent = true;
+                                resultMessage.DefaultBehaviour(taxInvoiceNumber + " Invoice number has been already generated against Id  " + tblInvoiceTO.IdInvoice);
+                                return resultMessage;
+
+                            }
+                            if (String.IsNullOrEmpty(entityRangeTO.Suffix))
+                            {
+                                invoiceTO.InvoiceNo = taxInvoiceNumber;
+                            }
+                            else
+                            {
+                                invoiceTO.InvoiceNo = taxInvoiceNumber + entityRangeTO.Suffix;
+                            }
+
+
+                            newTaxNumber = manualinvoiceno;
+                            //  }
+                        }
+
+                        result = _iTblInvoiceBL.UpdateTblInvoice(invoiceTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("Error While Updating Invoice Number After Entity Range"); return resultMessage;
+                        }
+                        if (String.IsNullOrEmpty(taxInvoiceNumber))
+                        {
+                            entityRangeTO.EntityPrevValue = entityPrevVal;
+                        }
+                        else
+                        {
+                            entityRangeTO.EntityPrevValue = newTaxNumber;
+                        }
+                        result = _iTblEntityRangeDAO.UpdateTblEntityRange(entityRangeTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("Error While UpdateTblEntityRange"); return resultMessage;
+                        }
+                    }
+
+                    else
+                    {
+                        result = _iTblInvoiceBL.UpdateTblInvoice(invoiceTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("Error While Updating Invoice Number After Entity Range"); return resultMessage;
+                        }
+                    }
+
+                    //Generate inv history record
+                    TblInvoiceHistoryTO invHistoryTO = new TblInvoiceHistoryTO();
+                    invHistoryTO.InvoiceId = invoiceTO.IdInvoice;
+                    invHistoryTO.CreatedOn = serverDate;
+                    invHistoryTO.CreatedBy = loginUserId;
+                    invHistoryTO.StatusDate = serverDate;
+                    invHistoryTO.StatusId = (int)Constants.InvoiceStatusE.AUTHORIZED;
+                    invHistoryTO.StatusRemark = "Invoice Authorized With Inv No :" + invoiceTO.InvoiceNo;
+                    result = _iTblInvoiceHistoryDAO.InsertTblInvoiceHistory(invHistoryTO, conn, tran);
+                    if (result != 1)
+                    {
+                        tran.Rollback();
+                        resultMessage.DefaultBehaviour("Error While InsertTblInvoiceHistory"); return resultMessage;
+                    }
+                }
+                else
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("Invoice No is already Generated");
+                    resultMessage.DisplayMessage = "Invoice No #" + invoiceTO.InvoiceNo + " is already Generated";
+                    return resultMessage;
+                }
+                TblLoadingTO tblLoadingTO = new TblLoadingTO();
+                //Kiran [10-Dec-2018] For IoT Implementations
+                //int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                //if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
+                //{
+                TblLoadingSlipTO tblLoadingSlipTOselect = _iTblLoadingSlipDAO.SelectTblLoadingSlip(invoiceTO.LoadingSlipId, conn, tran);
+                if (tblLoadingSlipTOselect == null)
+                {
+                    tran.Rollback();
+                    resultMessage.Text = "";
+                    resultMessage.MessageType = ResultMessageE.Error;
+                    resultMessage.Result = 0;
+                    return resultMessage;
+                }
+
+                tblLoadingTO = SelectLoadingTOWithDetails(tblLoadingSlipTOselect.LoadingId);
+
+                // tblLoadingTO = TblLoadingBL.SelectTblLoadingTO(tblLoadingSlipTOselect.LoadingId, conn, tran);
+                if (tblLoadingTO == null || tblLoadingTO.VehicleNo == null || tblLoadingTO.TransporterOrgId == 0)
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("tblLoadingTO Found NULL"); return resultMessage;
+                }
+                resultMessage = RightDataFromIotToDB(tblLoadingTO.IdLoading, tblLoadingTO, conn, tran);
+                if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                {
+                    tran.Rollback();
+                    resultMessage.MessageType = ResultMessageE.Error;
+                    resultMessage.Text = "Error While Writng Data from DB";
+                    return resultMessage;
+                }
+                // }
+
+                resultMessage = SpiltBookingAgainstInvoice(invoiceTO, tblLoadingTO, conn, tran);
+                if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                {
+                    return resultMessage;
+                }
+
+                #region Write Data to Invoice
+
+                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
+                {
+                    if (invoiceTO.IsConfirmed == 1)
+                    {
+                        invoiceTO = _iTblInvoiceBL.SelectTblInvoiceTOWithDetails(invoiceTO.IdInvoice, conn, tran);
+                        if (invoiceTO == null || invoiceTO.VehicleNo == null || invoiceTO.TransportOrgId == 0)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("invoiceTO Found NULL OR VehicleNo Found NULL OR TransportOrgId Found NULL when write Data to Invoice"); return resultMessage;
+                        }
+
+                        var invoiceItemList = invoiceTO.InvoiceItemDetailsTOList.Where(w => w.LoadingSlipExtId > 0).ToList();
+                        if (invoiceItemList != null && invoiceItemList.Count > 0)
+                        {
+                            for (int s = 0; s < invoiceItemList.Count; s++)
+                            {
+                                if (invoiceItemList[s].InvoiceQty <= 0)
+                                {
+                                    tran.Rollback();
+                                    resultMessage.DefaultBehaviour("Invoice Item Qty found zero when write Data to Invoice");
+                                    return resultMessage;
+                                }
+                            }
+                        }
+
+
+                        Int32 statusId = invoiceTO.StatusId;
+
+                        invoiceTO.StatusId = (Int32)Constants.InvoiceStatusE.NEW;
+
+                        // TblInvoiceBL.SetGateAndWeightIotData(invoiceTO);
+
+                        invoiceTO.StatusId = statusId;
+
+                        result = _iTblInvoiceBL.UpdateTblInvoice(invoiceTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            resultMessage.Text = "Error While updating tblInvoiceTO";
+                            return resultMessage;
+                        }
+
+                        for (int p = 0; p < invoiceTO.InvoiceItemDetailsTOList.Count; p++)
+                        {
+                            TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = invoiceTO.InvoiceItemDetailsTOList[p];
+
+                            result = _iTblInvoiceItemDetailsDAO.UpdateTblInvoiceItemDetails(tblInvoiceItemDetailsTO, conn, tran);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                resultMessage.Text = "Error While updating tblInvoiceItemTO";
+                                return resultMessage;
+                            }
+
+                        }
+
+                    }
+                }
+               
+                #endregion
+                tran.Commit();
+                resultMessage.DefaultSuccessBehaviour();
+                resultMessage.DisplayMessage = "Success..Invoice authorized and #" + invoiceTO.InvoiceNo + " is generated";
+                resultMessage.Tag = invoiceTO;
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "GenerateInvoiceNumber");
+                return resultMessage;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+
+        public ResultMessage RightDataFromIotToDB(Int32 loadingId, TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
+                {
+                    if (loadingId == 0)
+                    {
+                        throw new Exception("loadingId == 0");
+                    }
+
+                    //TblLoadingTO tblLoadingTO = SelectLoadingTOWithDetails(loadingId, conn, tran);
+                    if (tblLoadingTO == null)
+                    {
+                        throw new Exception("tblLoadingTO == null");
+                    }
+                    if (tblLoadingTO.LoadingSlipList == null || tblLoadingTO.LoadingSlipList.Count == 0)
+                    {
+                        throw new Exception("tblLoadingTO.LoadingSlipList == 0");
+                    }
+
+                    //Move Confirm Data.
+                    //tblLoadingTO.LoadingSlipList = tblLoadingTO.LoadingSlipList.Where(w => w.IsConfirmed == 1).ToList();
+                    List<TblLoadingSlipTO> loadingSlipListConfirm = tblLoadingTO.LoadingSlipList.Where(w => w.IsConfirmed == 1).ToList();
+
+
+                    if (loadingSlipListConfirm.Count > 0)
+                    {
+
+
+                        if (String.IsNullOrEmpty(tblLoadingTO.VehicleNo) || tblLoadingTO.TransporterOrgId == 0)
+                        {
+                            throw new Exception("tblLoadingTO Found NULL");
+                        }
+
+                        //Write DATA
+
+                        Int32 result = UpdateTblLoading(tblLoadingTO, conn, tran);
+                        if (result != 1)
+                        {
+                            throw new Exception("Error While updating Loading status for loadingId - " + tblLoadingTO.IdLoading);
+                        }
+
+
+                        if (tblLoadingTO.LoadingStatusHistoryTOList != null && tblLoadingTO.LoadingStatusHistoryTOList.Count > 0)
+                        {
+                            for (int t = 0; t < tblLoadingTO.LoadingStatusHistoryTOList.Count; t++)
+                            {
+                                TblLoadingStatusHistoryTO tblLoadingStatusHistoryTO = tblLoadingTO.LoadingStatusHistoryTOList[t];
+                                tblLoadingStatusHistoryTO.CreatedBy = tblLoadingTO.UpdatedBy;
+                                //tblLoadingStatusHistoryTO.StatusDate = CommonDAO.SelectServerDateTime();
+                                tblLoadingStatusHistoryTO.CreatedOn = tblLoadingTO.StatusDate;
+                                result = _iTblLoadingStatusHistoryDAO.InsertTblLoadingStatusHistory(tblLoadingStatusHistoryTO, conn, tran);
+                                if (result != 1)
+                                {
+                                    throw new Exception("Error While inserting status history record  for index " + t + " against loadingId - " + tblLoadingTO.IdLoading);
+
+                                }
+
+                            }
+                        }
+
+
+                        for (int j = 0; j < loadingSlipListConfirm.Count; j++)
+                        {
+                            TblLoadingSlipTO tblLoadingSlipTO = loadingSlipListConfirm[j];
+
+                            result = _iTblLoadingSlipBL.UpdateTblLoadingSlip(tblLoadingSlipTO, conn, tran);
+                            if (result != 1)
+                            {
+                                throw new Exception("Error While updating LoadingSlip status For loadingslipId - " + tblLoadingSlipTO.IdLoadingSlip);
+                            }
+
+
+                            for (int k = 0; k < tblLoadingSlipTO.LoadingSlipExtTOList.Count; k++)
+                            {
+
+                                TblLoadingSlipExtTO tblLoadingSlipExtTO = tblLoadingSlipTO.LoadingSlipExtTOList[k];
+
+                                if (tblLoadingSlipExtTO.LoadedWeight <= 0)
+                                {
+                                    throw new Exception("Loading Wt found zero for ext id IdLoadingSlipExt - " + tblLoadingSlipExtTO.IdLoadingSlipExt);
+                                }
+
+                                Int32 tempResult = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExt(tblLoadingSlipExtTO, conn, tran);
+                                if (tempResult != 1)
+                                {
+                                    throw new Exception("Error While updating LoadingSlip Ext status for Ext Id - " + tblLoadingSlipExtTO.IdLoadingSlipExt);
+                                }
+                            }
+
+
+                        }
+                    }
+
+                }
+
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "");
+                return resultMessage;
+            }
+        }
+
+        public ResultMessage SpiltBookingAgainstInvoice(TblInvoiceTO tblInvoiceTO, TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+
+            try
+            {
+                Int32 result = 0;
+                if (tblInvoiceTO == null)
+                {
+                    throw new Exception("InvoiceTO is NULL");
+                }
+
+                //if (tblInvoiceTO.IsConfirmed != 0)
+                //{
+                //    resultMessage.DefaultSuccessBehaviour();
+                //    resultMessage.DisplayMessage = "Invoice No - " + tblInvoiceTO.IdInvoice + " Is Confirm";
+                //    resultMessage.Text = resultMessage.DisplayMessage;
+                //    return resultMessage;
+                //}
+
+                if (tblInvoiceTO.LoadingSlipId <= 0)
+                {
+                    resultMessage.DefaultSuccessBehaviour();
+                    return resultMessage;
+                }
+
+                //Check if every invoice against loading is confirm
+                List<TblInvoiceTO> loadingInvoiceList = _iTblInvoiceBL.SelectInvoiceListFromLoadingSlipId(tblInvoiceTO.LoadingSlipId, conn, tran);
+                if (loadingInvoiceList == null || loadingInvoiceList.Count == 0)
+                {
+                    throw new Exception("Invoice not found against loading slip Id - " + tblInvoiceTO.LoadingSlipId);
+                }
+                for (int i = 0; i < loadingInvoiceList.Count; i++)
+                {
+                    if (loadingInvoiceList[i].InvoiceStatusE != Constants.InvoiceStatusE.AUTHORIZED)
+                    {
+                        resultMessage.DefaultSuccessBehaviour();
+                        return resultMessage;
+                    }
+                }
+
+                //if (tblLoadingTO.LoadingSlipList == null || tblLoadingTO.LoadingSlipList.Count == 0)
+                //{
+                //    throw new Exception("LoadingSlipList is null for LoadingSlipId");
+                //}
+                //TblLoadingSlipTO tblLoadingSlipTO = tblLoadingTO.LoadingSlipList.Where(w => w.IdLoadingSlip == tblInvoiceTO.LoadingSlipId).FirstOrDefault();
+
+                TblLoadingSlipTO tblLoadingSlipTO = _iTblLoadingSlipDAO.SelectTblLoadingSlip(tblInvoiceTO.LoadingSlipId, conn, tran);
+                if (tblLoadingSlipTO == null)
+                {
+                    throw new Exception("LoadingSlipList is null for LoadingSlipId");
+                }
+                tblLoadingSlipTO.TblLoadingSlipDtlTO = _iTblLoadingSlipDtlDAO.SelectLoadingSlipDtlTO(tblLoadingSlipTO.IdLoadingSlip, conn, tran);
+                //tblLoadingSlipTO.LoadingSlipExtTOList = BL.TblLoadingSlipExtBL.SelectAllTblLoadingSlipExtList(tblLoadingSlipTO.IdLoadingSlip, conn, tran);
+                //tblLoadingSlipTO.DeliveryAddressTOList = BL.TblLoadingSlipAddressBL.SelectAllTblLoadingSlipAddressList(tblLoadingSlipTO.IdLoadingSlip, conn, tran);
+
+
+
+                //TblLoadingSlipBL.SelectAllLoadingSlipWithDetails(tblInvoiceTO.LoadingSlipId, conn, tran);
+                if (tblLoadingSlipTO == null)
+                {
+                    throw new Exception("tblLoadingSlipTO is null for LoadingSlipId - " + tblInvoiceTO.LoadingSlipId);
+                }
+
+
+                if (tblLoadingTO.LoadingTypeE == Constants.LoadingTypeE.OTHER)
+                {
+                    if (tblLoadingSlipTO.TblLoadingSlipDtlTO == null)
+                    {
+                        resultMessage.DefaultSuccessBehaviour();
+                        return resultMessage;
+                    }
+                }
+
+                if (tblLoadingSlipTO.TblLoadingSlipDtlTO == null)
+                {
+                    throw new Exception("TblLoadingSlipDtlTO is null for LoadingSlipId - " + tblInvoiceTO.LoadingSlipId);
+                }
+
+                Int32 currentBookingId = tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingId;
+
+                if (currentBookingId == 0)
+                {
+                    throw new Exception("Booking Id is zero for LoadingSlipId - " + tblInvoiceTO.LoadingSlipId);
+                }
+
+                TblBookingsTO tblBookingsTO = _iCircularDependencyBL.SelectBookingsTOWithDetails(currentBookingId);
+                if (tblBookingsTO == null)
+                {
+                    throw new Exception("tblBookingsTO == null for bookingId" + currentBookingId);
+                }
+
+                if (tblInvoiceTO.IsConfirmed == tblBookingsTO.IsConfirmed)
+                {
+                    resultMessage.DefaultSuccessBehaviour();
+                    resultMessage.DisplayMessage = "Booking & Invoice are - " + tblInvoiceTO.IsConfirmed;
+                    return resultMessage;
+                }
+
+                //if (tblBookingsTO.IsConfirmed == 0)
+                //{
+                //    resultMessage.DefaultSuccessBehaviour();
+                //    resultMessage.DisplayMessage = "Booking is already tentative";
+                //    return resultMessage;
+                //}
+
+                Double splitQty = tblLoadingSlipTO.TblLoadingSlipDtlTO.LoadingQty;
+                #region Update Current Booking
+
+                if (splitQty == tblBookingsTO.BookingQty)
+                {
+                    if (tblBookingsTO.IsConfirmed == 0)
+                        tblBookingsTO.IsConfirmed = 1;
+                    else
+                        tblBookingsTO.IsConfirmed = 0;
+
+
+                    result = _iTblBookingsDAO.UpdateTblBookings(tblBookingsTO, conn, tran);
+                    if (result != 1)
+                    {
+                        throw new Exception("Error while updating tblBookingsTO for bookingId - " + tblBookingsTO.IdBooking);
+                    }
+
+                    resultMessage.DefaultSuccessBehaviour();
+                    return resultMessage;
+
+                }
+                else
+                {
+                    tblBookingsTO.BookingQty -= splitQty;
+                }
+                result = _iTblBookingsDAO.UpdateTblBookings(tblBookingsTO, conn, tran);
+                if (result != 1)
+                {
+                    throw new Exception("Error while updating tblBookingsTO for bookingId - " + tblBookingsTO.IdBooking);
+                }
+
+                if (tblBookingsTO.OrderDetailsLst != null && tblBookingsTO.OrderDetailsLst.Count > 0)
+                {
+
+                    Double previousBookingItemQty = tblBookingsTO.OrderDetailsLst.Sum(s => s.BookedQty);
+
+                    Double diffQty = previousBookingItemQty - tblBookingsTO.BookingQty;
+                    if (diffQty > 0)
+                    {
+                        //Delete Item which are in loading slip.
+                        for (int i = 0; i < tblLoadingSlipTO.LoadingSlipExtTOList.Count; i++)
+                        {
+                            if (diffQty <= 0)
+                            {
+                                break;
+                            }
+
+                            TblLoadingSlipExtTO tblLoadingSlipExtTO = tblLoadingSlipTO.LoadingSlipExtTOList[i];
+
+                            Double adjustedQty = tblLoadingSlipExtTO.LoadingQty;
+
+                            List<TblBookingExtTO> tblBookingExtTOList = tblBookingsTO.OrderDetailsLst.Where(w => w.ProdCatId == tblLoadingSlipExtTO.ProdCatId &&
+                                                            w.ProdSpecId == tblLoadingSlipExtTO.ProdSpecId && w.MaterialId == tblLoadingSlipExtTO.MaterialId &&
+                                                            w.ProdItemId == tblLoadingSlipExtTO.ProdItemId).ToList();
+
+                            if (tblBookingExtTOList != null && tblBookingExtTOList.Count > 0)
+                            {
+                                for (int j = 0; j < tblBookingExtTOList.Count; j++)
+                                {
+
+                                    if (adjustedQty <= 0 || diffQty <= 0)
+                                    {
+                                        break;
+                                    }
+
+                                    TblBookingExtTO tblBookingExtTO = tblBookingExtTOList[j];
+                                    if (tblBookingExtTO.BookedQty >= adjustedQty)
+                                    {
+                                        diffQty -= adjustedQty;
+
+                                        tblBookingExtTO.BookedQty -= adjustedQty;
+                                        adjustedQty = 0;
+                                    }
+                                    else
+                                    {
+                                        diffQty -= tblBookingExtTO.BookedQty;
+
+                                        adjustedQty -= tblBookingExtTO.BookedQty;
+                                        tblBookingExtTO.BookedQty = 0;
+                                    }
+
+                                    result = _iTblBookingExtDAO.UpdateTblBookingExt(tblBookingExtTO, conn, tran);
+                                    if (result != 1)
+                                    {
+                                        tran.Rollback();
+                                        resultMessage.Text = "Sorry..Record Could not be saved. Error While InsertTblBookingExt in Function SaveNewBooking";
+                                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                                        resultMessage.Result = 0;
+                                        resultMessage.MessageType = ResultMessageE.Error;
+                                        return resultMessage;
+                                    }
+
+                                }
+                            }
+
+                        }
+                    }
+                }
+
+
+                #endregion
+
+                #region New Booking
+
+                tblBookingsTO.BookingRefId = Convert.ToInt32(tblBookingsTO.BookingDisplayNo);
+                tblBookingsTO.PendingQty = 0;
+                tblBookingsTO.BookingQty = splitQty;
+                tblBookingsTO.IdBooking = 0;
+                List<TblBookingsTO> List = _iTblBookingsDAO.SelectTblBookingsRef(tblBookingsTO.BookingRefId, conn, tran);
+                tblBookingsTO.BookingDisplayNo = List != null && List.Count > 0 ? tblBookingsTO.BookingDisplayNo + "/" + (Convert.ToInt32(List.Count) + Convert.ToInt32(1)) : tblBookingsTO.BookingDisplayNo + "/1";
+                if (tblBookingsTO.IsConfirmed == 0)
+                {
+                    tblBookingsTO.IsConfirmed = 1;
+                }
+                else
+                {
+                    tblBookingsTO.IsConfirmed = 0;
+                }
+
+                result = _iTblBookingsDAO.InsertTblBookings(tblBookingsTO, conn, tran);
+                if (result != 1)
+                {
+                    throw new Exception("Error while inserting tblBookingsTO for refBookingId- " + tblBookingsTO.BookingRefId);
+                }
+
+                Int32 newBookingId = tblBookingsTO.IdBooking;
+
+                if (tblBookingsTO.DeliveryAddressLst != null && tblBookingsTO.DeliveryAddressLst.Count > 0)
+                {
+                    for (int i = 0; i < tblBookingsTO.DeliveryAddressLst.Count; i++)
+                    {
+                        if (string.IsNullOrEmpty(tblBookingsTO.DeliveryAddressLst[i].Country))
+                            tblBookingsTO.DeliveryAddressLst[i].Country = Constants.DefaultCountry;
+
+                        tblBookingsTO.DeliveryAddressLst[i].BookingId = newBookingId;
+                        result = _iTblBookingDelAddrDAO.InsertTblBookingDelAddr(tblBookingsTO.DeliveryAddressLst[i], conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.Text = "Error While Inserting Booking Del Address in Function SaveNewBooking";
+                            resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            return resultMessage;
+                        }
+                    }
+                }
+
+                if (tblLoadingSlipTO.LoadingSlipExtTOList != null && tblLoadingSlipTO.LoadingSlipExtTOList.Count > 0)
+                {
+                    for (int i = 0; i < tblLoadingSlipTO.LoadingSlipExtTOList.Count; i++)
+                    {
+                        TblBookingExtTO tblBookingExtTO = new TblBookingExtTO(tblLoadingSlipTO.LoadingSlipExtTOList[i]);
+                        tblBookingExtTO.BookingId = newBookingId;
+                        tblBookingExtTO.Rate = tblBookingsTO.BookingRate;
+
+                        result = _iTblBookingExtDAO.InsertTblBookingExt(tblBookingExtTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.Text = "Sorry..Record Could not be saved. Error While InsertTblBookingExt in Function SaveNewBooking";
+                            resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                            resultMessage.Result = 0;
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            return resultMessage;
+                        }
+                    }
+                }
+                if (tblLoadingSlipTO.LoadingSlipExtTOList != null && tblLoadingSlipTO.LoadingSlipExtTOList.Count > 0)
+                {
+                    for (int i = 0; i < tblLoadingSlipTO.LoadingSlipExtTOList.Count; i++)
+                    {
+                        tblLoadingSlipTO.LoadingSlipExtTOList[i].BookingId = newBookingId;
+
+                        int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                        if (weightSourceConfigId != (Int32)Constants.WeighingDataSourceE.IoT)
+                        {
+                            if (tblLoadingSlipTO.IsConfirmed == 0)
+                            {
+                                tblLoadingSlipTO.LoadingSlipExtTOList[i].LoadedBundles = 0;
+                                tblLoadingSlipTO.LoadingSlipExtTOList[i].LoadedWeight = 0;
+                                tblLoadingSlipTO.LoadingSlipExtTOList[i].CalcTareWeight = 0;
+                            }
+                        }
+
+                        result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExt(tblLoadingSlipTO.LoadingSlipExtTOList[i], conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.Text = "Sorry..Record Could not be saved. Error While InsertTblLoadingSlipExt in Function SaveNewBooking";
+                            resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                            resultMessage.Result = 0;
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            return resultMessage;
+                        }
+                    }
+                }
+                #endregion
+
+                tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingId = newBookingId;
+
+                result = _iTblLoadingSlipDtlDAO.UpdateTblLoadingSlipDtl(tblLoadingSlipTO.TblLoadingSlipDtlTO, conn, tran);
+                if (result != 1)
+                {
+                    throw new Exception("Error while updating tblLoadingSlipTO.TblLoadingSlipDtlTO for IdLoadSlipDtl - " + tblLoadingSlipTO.TblLoadingSlipDtlTO.IdLoadSlipDtl);
+                }
+
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "");
+                return resultMessage;
+            }
         }
 
         #endregion
@@ -4611,7 +5401,7 @@ namespace ODLMWebAPI.BL
             resultMessage.Text = "Not Entered In The Loop";
             try
             {
-                //Sanjay [10-Dec-2018] For IoT Implementations
+                //Kiran [10-Dec-2018] For IoT Implementations
                 int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
 
                 List<TblProductInfoTO> productConfgList = _iTblProductInfoDAO.SelectAllLatestProductInfo(conn, tran);
@@ -5419,7 +6209,7 @@ namespace ODLMWebAPI.BL
 
         }
 
-        //Aniket [30-7-2019] added for IOT
+        //Kiran [30-7-2019] added for IOT
         private  int RemoveDateFromGateAndWeightIOT(TblLoadingTO tblLoadingTO)
         {
             //Addes by kiran for retry 3 times to delete All Data
@@ -7708,7 +8498,7 @@ namespace ODLMWebAPI.BL
 
                 Boolean isBoyondLoadingQuota = false;
                 Double finalLoadQty = 0;
-                int modbusRefIdInc = 0;
+                int modbusRefIdInc = tblLoadingSlipExtTOListAll.Max(w=>w.ModbusRefId);
                 resultMessage = InsertLoadingExtDetails(tblLoadingTO, conn, tran, ref isBoyondLoadingQuota, ref finalLoadQty, tblLoadingSlipTO, tblBookingsTO, new List<TblBookingExtTO>(),ref modbusRefIdInc);//added by Aniket last parameter modbusRefIdInc is modbusRefId needs to change logic 
                 if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
                 {
@@ -8066,7 +8856,7 @@ namespace ODLMWebAPI.BL
                     if (tblInvoiceTO.IsConfirmed == 1 && tblInvoiceTO.StatusId == Convert.ToInt32(Constants.InvoiceStatusE.AUTHORIZED))
                     {
                         Int32 isconfirm = 0;
-                        _iTblInvoiceBL.GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR);
+                        GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR);
 
                     }
                     return resultMessage;
@@ -8392,7 +9182,7 @@ namespace ODLMWebAPI.BL
                 if (tblInvoiceTO.IsConfirmed == 1 && tblInvoiceTO.StatusId == Convert.ToInt32(Constants.InvoiceStatusE.AUTHORIZED))
                 {
                     Int32 isconfirm = 0;
-                    _iTblInvoiceBL.GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR);
+                    GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR);
 
                 }
                 return resultMessage;

@@ -38,5 +38,7 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage OldChangeLoadingSlipConfirmationStatus(TblLoadingSlipTO tblLoadingSlipTO, Int32 loginUserId, SqlConnection conn, SqlTransaction tran);
         int DeleteTblLoadingSlip(Int32 idLoadingSlip);
         int DeleteTblLoadingSlip(Int32 idLoadingSlip, SqlConnection conn, SqlTransaction tran);
+        TblLoadingSlipTO SelectAllLoadingSlipWithDetailsForExtract(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran);
+        TblLoadingSlipTO SelectAllLoadingSlipWithDetailsForExtract(Int32 loadingSlipId);
     }
 }

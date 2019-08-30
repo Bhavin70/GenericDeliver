@@ -85,6 +85,10 @@ namespace ODLMWebAPI.BL.Interfaces
 
         List<TblLoadingTO> SetLoadingStatusData(String loadingStatusId, bool isEncoded, int configId, List<TblLoadingTO> tblLoadingTOList);
 
+        ResultMessage RightDataFromIotToDB(Int32 loadingId, TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran);
 
+        ResultMessage SpiltBookingAgainstInvoice(TblInvoiceTO tblInvoiceTO, TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran);
+
+        ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0);
     }
 }

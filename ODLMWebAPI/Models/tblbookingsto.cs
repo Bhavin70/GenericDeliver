@@ -76,7 +76,7 @@ namespace ODLMWebAPI.Models
         Double sizesQty;                //Priyanka [21-06-2018] : Added for SHIVANGI.
         String directorRemark;          //Priyanka [25-06-2018]
         Int32 isOrgOverDue;             //Priyanka [24-07-2018]
-       
+
         Int32 statusBy;
         Int32 tranActionTypeId;         //Priyanka [10-08-2018]
 
@@ -84,7 +84,7 @@ namespace ODLMWebAPI.Models
 
         Int32 isSez;
         //Aniket
-       
+
         double uomQty;
         double pendingUomQty;
         int isInUom;
@@ -93,7 +93,9 @@ namespace ODLMWebAPI.Models
         List<TblPaymentTermOptionRelationTO> paymentTermOptionRelationTOLst;
         //Aniket [23-7-2019]
         int stateId;
-       
+        Int32 bookingRefId;
+        String bookingDisplayNo;
+
         #endregion
 
         #region Constructor
@@ -474,6 +476,8 @@ namespace ODLMWebAPI.Models
         public int IsItemized { get => isItemized; set => isItemized = value; }
         public int StateId { get => stateId; set => stateId = value; }
 
+        public int BookingRefId { get => bookingRefId; set => bookingRefId = value; }
+        public string BookingDisplayNo { get => bookingDisplayNo; set => bookingDisplayNo = value; }
 
         #endregion
 

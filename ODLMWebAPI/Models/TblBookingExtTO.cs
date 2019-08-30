@@ -56,6 +56,16 @@ namespace ODLMWebAPI.Models
         #region Constructor
         public TblBookingExtTO()
         {
+
+        }
+
+        public TblBookingExtTO(TblLoadingSlipExtTO tblLoadingSlipExtTO)
+        {
+            this.ProdCatId = tblLoadingSlipExtTO.ProdCatId;
+            this.ProdSpecId = tblLoadingSlipExtTO.ProdSpecId;
+            this.ProdItemId = tblLoadingSlipExtTO.ProdItemId;
+            this.MaterialId = tblLoadingSlipExtTO.MaterialId;
+            this.BookedQty = tblLoadingSlipExtTO.LoadingQty;
         }
 
         #endregion
