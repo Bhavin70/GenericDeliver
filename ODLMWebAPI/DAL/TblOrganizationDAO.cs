@@ -39,7 +39,7 @@ namespace ODLMWebAPI.DAL
         //Aniket [30-7-2019] added for IOT
         public String GetFirmNameByOrgId(Int32 orgId)
         {
-            String sqlConnStr = Startup.ConnectionString;
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
             SqlCommand cmdSelect = new SqlCommand();
             try

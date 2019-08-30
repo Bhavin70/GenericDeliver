@@ -63,7 +63,7 @@ namespace ODLMWebAPI.DAL
         //Aniket [22-8-2019] added for IoT, to get PortNumber and machine IP
         public  Dictionary<Int32, TblLoadingTO> SelectModbusRefIdByLoadingSlipIdDCT(string loadingSlipNos)
         {
-            String sqlConnStr = Startup.ConnectionString;
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
             SqlDataReader tblLoadingSlipTODT = null;
             SqlCommand cmdSelect = new SqlCommand();

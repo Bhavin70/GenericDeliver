@@ -124,6 +124,8 @@ namespace ODLMWebAPI
            }
        });
 
+                //Hrushikesh added for IOT Configuration
+             services.AddScoped<IModbusRefConfig, ModbusRefConfig>();
             services.AddScoped<IDimBrandBL, DimBrandBL>();
             services.AddScoped<IDimDistrictBL, DimDistrictBL>();
             services.AddScoped<IDimensionBL, DimensionBL>();
@@ -593,6 +595,9 @@ namespace ODLMWebAPI
                     }
                 });
 
+                //setting up multiTenant modbusRefLists
+                //Hrushikesh
+                ModbusRefConfig.setModbusRef();
 
         }
     }

@@ -15,8 +15,9 @@ namespace ODLMWebAPI.BL
         {
             this.httpContext = httpContextAccessor.HttpContext;
         }
-        public string GetSubDomain(String url)
+        public string GetSubDomain()
         {
+            String url =  this.httpContext.Request.Headers["apiurl"];
             if (url != null)
             {
                 Uri fullPath = new Uri(url);
@@ -46,17 +47,14 @@ namespace ODLMWebAPI.BL
                     return Startup.AzureConnectionStr;
             }
             else
-            {
-                String HostURL = this.httpContext.Request.Headers["apiurl"];
-                if (!String.IsNullOrEmpty(HostURL))
-                {
-                    String SubDomain = GetSubDomain(HostURL);
+            {  
+                    String SubDomain = GetSubDomain();
                     if (!String.IsNullOrEmpty(SubDomain))
                     {
                         JObject o1 = JObject.Parse(System.IO.File.ReadAllText(@".\connection.json"));
                         return (string)o1[SubDomain][ConfigName];
                     }
-                }
+                
             }
             return string.Empty;
         }
