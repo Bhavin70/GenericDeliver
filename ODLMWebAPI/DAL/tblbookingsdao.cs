@@ -579,14 +579,14 @@ namespace ODLMWebAPI.DAL
                                         " LEFT JOIN dimStatus ON dimStatus.idStatus=bookings.statusId" +
                                         " LEFT JOIN dimBrand brandDtl ON brandDtl.idBrand=bookings.brandId" +
                                         " WHERE dealerOrgId=" + dealerId +
-                                        " AND statusId IN(" + statusIds + ") " + whereCond +
+                                        " AND bookings.statusId IN(" + statusIds + ") " + whereCond +
                                         " ORDER BY bookings.createdOn DESC ";
 
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
                 SqlDataReader sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
-                List<TblBookingsTO> list = ConvertDTToList(sqlReader);
+                List<TblBookingsTO> list = ConvertDTToListForBookingHistory(sqlReader);
                 return list;
             }
             catch (Exception ex)
@@ -1454,6 +1454,174 @@ namespace ODLMWebAPI.DAL
                 }
             }
             return cnFWiseReportTOList;
+        }
+        //Aniket [29-8-2019] added for Last 4 bookings enquires convertDTList
+        public List<TblBookingsTO> ConvertDTToListForBookingHistory(SqlDataReader tblBookingsTODT)
+        {
+            List<TblBookingsTO> tblBookingsTOList = new List<TblBookingsTO>();
+            if (tblBookingsTODT != null)
+            {
+                while (tblBookingsTODT.Read())
+                {
+                    TblBookingsTO tblBookingsTONew = new TblBookingsTO();
+                    if (tblBookingsTODT["idBooking"] != DBNull.Value)
+                        tblBookingsTONew.IdBooking = Convert.ToInt32(tblBookingsTODT["idBooking"].ToString());
+                    if (tblBookingsTODT["cnFOrgId"] != DBNull.Value)
+                        tblBookingsTONew.CnFOrgId = Convert.ToInt32(tblBookingsTODT["cnFOrgId"].ToString());
+                    if (tblBookingsTODT["dealerOrgId"] != DBNull.Value)
+                        tblBookingsTONew.DealerOrgId = Convert.ToInt32(tblBookingsTODT["dealerOrgId"].ToString());
+                    if (tblBookingsTODT["deliveryDays"] != DBNull.Value)
+                        tblBookingsTONew.DeliveryDays = Convert.ToInt32(tblBookingsTODT["deliveryDays"].ToString());
+                    if (tblBookingsTODT["noOfDeliveries"] != DBNull.Value)
+                        tblBookingsTONew.NoOfDeliveries = Convert.ToInt32(tblBookingsTODT["noOfDeliveries"].ToString());
+                    if (tblBookingsTODT["isConfirmed"] != DBNull.Value)
+                        tblBookingsTONew.IsConfirmed = Convert.ToInt32(tblBookingsTODT["isConfirmed"].ToString());
+                    if (tblBookingsTODT["isJointDelivery"] != DBNull.Value)
+                        tblBookingsTONew.IsJointDelivery = Convert.ToInt32(tblBookingsTODT["isJointDelivery"].ToString());
+                    if (tblBookingsTODT["isSpecialRequirement"] != DBNull.Value)
+                        tblBookingsTONew.IsSpecialRequirement = Convert.ToInt32(tblBookingsTODT["isSpecialRequirement"].ToString());
+                    if (tblBookingsTODT["cdStructure"] != DBNull.Value)
+                        tblBookingsTONew.CdStructure = Convert.ToDouble(tblBookingsTODT["cdStructure"].ToString());
+                    if (tblBookingsTODT["statusId"] != DBNull.Value)
+                        tblBookingsTONew.StatusId = Convert.ToInt32(tblBookingsTODT["statusId"].ToString());
+                    if (tblBookingsTODT["isWithinQuotaLimit"] != DBNull.Value)
+                        tblBookingsTONew.IsWithinQuotaLimit = Convert.ToInt32(tblBookingsTODT["isWithinQuotaLimit"].ToString());
+                    if (tblBookingsTODT["globalRateId"] != DBNull.Value)
+                        tblBookingsTONew.GlobalRateId = Convert.ToInt32(tblBookingsTODT["globalRateId"].ToString());
+                    if (tblBookingsTODT["quotaDeclarationId"] != DBNull.Value)
+                        tblBookingsTONew.QuotaDeclarationId = Convert.ToInt32(tblBookingsTODT["quotaDeclarationId"].ToString());
+                    if (tblBookingsTODT["quotaQtyBforBooking"] != DBNull.Value)
+                        tblBookingsTONew.QuotaQtyBforBooking = Convert.ToInt32(tblBookingsTODT["quotaQtyBforBooking"].ToString());
+                    if (tblBookingsTODT["quotaQtyAftBooking"] != DBNull.Value)
+                        tblBookingsTONew.QuotaQtyAftBooking = Convert.ToInt32(tblBookingsTODT["quotaQtyAftBooking"].ToString());
+                    if (tblBookingsTODT["createdBy"] != DBNull.Value)
+                        tblBookingsTONew.CreatedBy = Convert.ToInt32(tblBookingsTODT["createdBy"].ToString());
+                    if (tblBookingsTODT["createdOn"] != DBNull.Value)
+                        tblBookingsTONew.CreatedOn = Convert.ToDateTime(tblBookingsTODT["createdOn"].ToString());
+                    if (tblBookingsTODT["updatedBy"] != DBNull.Value)
+                        tblBookingsTONew.UpdatedBy = Convert.ToInt32(tblBookingsTODT["updatedBy"].ToString());
+                    if (tblBookingsTODT["bookingDatetime"] != DBNull.Value)
+                        tblBookingsTONew.BookingDatetime = Convert.ToDateTime(tblBookingsTODT["bookingDatetime"].ToString());
+                    if (tblBookingsTODT["statusDate"] != DBNull.Value)
+                        tblBookingsTONew.StatusDate = Convert.ToDateTime(tblBookingsTODT["statusDate"].ToString());
+                    if (tblBookingsTODT["updatedOn"] != DBNull.Value)
+                        tblBookingsTONew.UpdatedOn = Convert.ToDateTime(tblBookingsTODT["updatedOn"].ToString());
+                    if (tblBookingsTODT["bookingQty"] != DBNull.Value)
+                        tblBookingsTONew.BookingQty = Convert.ToDouble(tblBookingsTODT["bookingQty"].ToString());
+                    if (tblBookingsTODT["bookingRate"] != DBNull.Value)
+                        tblBookingsTONew.BookingRate = Convert.ToDouble(tblBookingsTODT["bookingRate"].ToString());
+                    if (tblBookingsTODT["comments"] != DBNull.Value)
+                        tblBookingsTONew.Comments = Convert.ToString(tblBookingsTODT["comments"].ToString());
+
+                    if (tblBookingsTODT["cnfName"] != DBNull.Value)
+                        tblBookingsTONew.CnfName = Convert.ToString(tblBookingsTODT["cnfName"].ToString());
+                    if (tblBookingsTODT["dealerName"] != DBNull.Value)
+                        tblBookingsTONew.DealerName = Convert.ToString(tblBookingsTODT["dealerName"].ToString());
+
+                    if (tblBookingsTODT["statusName"] != DBNull.Value)
+                        tblBookingsTONew.Status = Convert.ToString(tblBookingsTODT["statusName"].ToString());
+
+                    if (tblBookingsTODT["pendingQty"] != DBNull.Value)
+                        tblBookingsTONew.PendingQty = Convert.ToDouble(tblBookingsTODT["pendingQty"].ToString());
+
+                    if (tblBookingsTODT["authReasons"] != DBNull.Value)
+                        tblBookingsTONew.AuthReasons = Convert.ToString(tblBookingsTODT["authReasons"].ToString());
+                    if (tblBookingsTODT["cdStructureId"] != DBNull.Value)
+                        tblBookingsTONew.CdStructureId = Convert.ToInt32(tblBookingsTODT["cdStructureId"].ToString());
+
+                    if (tblBookingsTODT["parityId"] != DBNull.Value)
+                        tblBookingsTONew.ParityId = Convert.ToInt32(tblBookingsTODT["parityId"].ToString());
+                    //CommonDAO.SetDateStandards(tblBookingsTONew);
+
+                    if (tblBookingsTODT["orcAmt"] != DBNull.Value)
+                        tblBookingsTONew.OrcAmt = Convert.ToDouble(tblBookingsTODT["orcAmt"].ToString());
+                    if (tblBookingsTODT["orcMeasure"] != DBNull.Value)
+                        tblBookingsTONew.OrcMeasure = Convert.ToString(tblBookingsTODT["orcMeasure"].ToString());
+                    if (tblBookingsTODT["billingName"] != DBNull.Value)
+                        tblBookingsTONew.BillingName = Convert.ToString(tblBookingsTODT["billingName"].ToString());
+
+                    //Sanjay [2017-06-06]
+                    if (tblBookingsTODT["poNo"] != DBNull.Value)
+                        tblBookingsTONew.PoNo = Convert.ToString(tblBookingsTODT["poNo"].ToString());
+
+                    //Saket [2017-11-10] Added.
+                    if (tblBookingsTODT["transporterScopeYn"] != DBNull.Value)
+                        tblBookingsTONew.TransporterScopeYn = Convert.ToInt32(tblBookingsTODT["transporterScopeYn"].ToString());
+
+                    if (tblBookingsTODT["brandId"] != DBNull.Value)
+                        tblBookingsTONew.BrandId = Convert.ToInt32(tblBookingsTODT["brandId"].ToString());
+                    if (tblBookingsTODT["brandName"] != DBNull.Value)
+                        tblBookingsTONew.BrandName = Convert.ToString(tblBookingsTODT["brandName"].ToString());
+                    if (tblBookingsTODT["vehicleNo"] != DBNull.Value)
+                        tblBookingsTONew.VehicleNo = Convert.ToString(tblBookingsTODT["vehicleNo"].ToString());
+                    if (tblBookingsTODT["freightAmt"] != DBNull.Value)
+                        tblBookingsTONew.FreightAmt = Convert.ToDouble(tblBookingsTODT["freightAmt"].ToString());
+                    if (tblBookingsTODT["poFileBase64"] != DBNull.Value)
+                        tblBookingsTONew.PoFileBase64 = Convert.ToString(tblBookingsTODT["poFileBase64"].ToString());
+
+                    if (tblBookingsTODT["projectName"] != DBNull.Value)
+                        tblBookingsTONew.ProjectName = Convert.ToString(tblBookingsTODT["projectName"].ToString());
+
+                    //Vijaymla[26-02-2018]added
+                    if (tblBookingsTODT["poDate"] != DBNull.Value)
+                        tblBookingsTONew.PoDate = Convert.ToDateTime(tblBookingsTODT["poDate"].ToString());
+
+                    if (tblBookingsTODT["orcPersonName"] != DBNull.Value)
+                        tblBookingsTONew.ORCPersonName = Convert.ToString(tblBookingsTODT["orcPersonName"]);
+
+                    //Priyanka [18-06-2018] Added
+                    if (tblBookingsTODT["createdByName"] != DBNull.Value)
+                        tblBookingsTONew.CreatedByName = Convert.ToString(tblBookingsTODT["createdByName"]);
+
+                    if (tblBookingsTODT["updatedByName"] != DBNull.Value)
+                        tblBookingsTONew.UpdatedByName = Convert.ToString(tblBookingsTODT["updatedByName"]);
+
+                    //Priyakna [08-06-2018] : Added for SHIVANGI.
+                    if (tblBookingsTODT["isOverdueExist"] != DBNull.Value)
+                        tblBookingsTONew.IsOverdueExist = Convert.ToInt32(tblBookingsTODT["isOverdueExist"].ToString());
+
+                    //Priyanka [21-06-2018] : Added for SHIVANGI.
+                    if (tblBookingsTODT["sizesQty"] != DBNull.Value)
+                        tblBookingsTONew.SizesQty = Convert.ToDouble(tblBookingsTODT["sizesQty"].ToString());
+
+                    //Priyanka [25-06-2018] : Added for Director Remark while adding booking
+                    if (tblBookingsTODT["directorRemark"] != DBNull.Value)
+                        tblBookingsTONew.DirectorRemark = Convert.ToString(tblBookingsTODT["directorRemark"].ToString());
+
+                    if (tblBookingsTODT["isOrgOverDue"] != DBNull.Value)
+                        tblBookingsTONew.IsOrgOverDue = Convert.ToInt32(tblBookingsTODT["isOrgOverDue"].ToString());
+
+                    if (tblBookingsTODT["statusBy"] != DBNull.Value)
+                        tblBookingsTONew.StatusBy = Convert.ToInt32(tblBookingsTODT["statusBy"].ToString());
+
+                    if (tblBookingsTODT["tranActionTypeId"] != DBNull.Value)
+                        tblBookingsTONew.TranActionTypeId = Convert.ToInt32(tblBookingsTODT["tranActionTypeId"].ToString());
+
+                    //[05-09-2018]Vijaymala added for booking type like other or regular
+                    if (tblBookingsTODT["bookingType"] != DBNull.Value)
+                        tblBookingsTONew.BookingType = Convert.ToInt32(tblBookingsTODT["bookingType"].ToString());
+
+                    if (tblBookingsTONew.BookingType == (int)Constants.BookingType.IsOther)
+                    {
+                        tblBookingsTONew.BrandName = "Others";
+                    }
+                    if (tblBookingsTODT["isSez"] != DBNull.Value)
+                        tblBookingsTONew.IsSez = Convert.ToInt32(tblBookingsTODT["isSez"].ToString());
+
+                    //Aniket [13-6-2019]
+                    if (tblBookingsTODT["uomQty"] != DBNull.Value)
+                        tblBookingsTONew.UomQty = Convert.ToDouble(tblBookingsTODT["uomQty"]);
+                    if (tblBookingsTODT["pendingUomQty"] != DBNull.Value)
+                        tblBookingsTONew.PendingUomQty = Convert.ToDouble(tblBookingsTODT["pendingUomQty"]);
+                    if (tblBookingsTODT["isInUom"] != DBNull.Value)
+                        tblBookingsTONew.IsInUom = Convert.ToInt32(tblBookingsTODT["isInUom"]);
+                    if (tblBookingsTODT["isItemized"] != DBNull.Value)
+                        tblBookingsTONew.IsItemized = Convert.ToInt32(tblBookingsTODT["isItemized"]);
+                   
+                    tblBookingsTOList.Add(tblBookingsTONew);
+                }
+            }
+            return tblBookingsTOList;
         }
         public List<TblBookingsTO> ConvertDTToList(SqlDataReader tblBookingsTODT)
         {
