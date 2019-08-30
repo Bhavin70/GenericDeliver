@@ -262,13 +262,13 @@ namespace ODLMWebAPI.Controllers
                         tblGlobalRateTO.CreatedBy = Convert.ToInt32(loginUserId);
                         tblGlobalRateTO.BrandId = brandId;
                         tblGlobalRateTO.Rate = tblOrganizationTOList[0].BrandRateDtlTOList.Where(a => a.BrandId == brandId).FirstOrDefault().Rate;
-                        if (tblGlobalRateTO.Rate <= 0)
-                        {
-                            resultMessage.Result = 0;
-                            resultMessage.DefaultBehaviour("Rate can not less than or equal to zero");
-                            return resultMessage;
+                        //if (tblGlobalRateTO.Rate <= 0)
+                        //{
+                        //    resultMessage.Result = 0;
+                        //    resultMessage.DefaultBehaviour("Rate can not less than or equal to zero");
+                        //    return resultMessage;
 
-                        }
+                        //}
                         tblGlobalRateTO.BrandName = tblOrganizationTOList[0].BrandRateDtlTOList.Where(a => a.BrandId == brandId).FirstOrDefault().BrandName;
                         tblGlobalRateTO.Comments = Convert.ToString(comments);
                         tblGlobalRateTO.RateReasonId = Convert.ToInt32(rateReasonId);
