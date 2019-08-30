@@ -495,10 +495,6 @@ namespace ODLMWebAPI.BL {
             } finally {
                 conn.Close ();
             }
-            finally
-            {
-                conn.Close();
-            }
         }
 
         public List<TblLoadingTO> SelectLoadingTOListWithDetails(string idLoadings)
@@ -7761,7 +7757,7 @@ namespace ODLMWebAPI.BL {
                     resultMessage.DefaultSuccessBehaviour ();
                     if (tblInvoiceTO.IsConfirmed == 1 && tblInvoiceTO.StatusId == Convert.ToInt32 (Constants.InvoiceStatusE.AUTHORIZED)) {
                         Int32 isconfirm = 0;
-                        _iTblInvoiceBL.GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR);
+                        GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR);
 
                     }
                     return resultMessage;
@@ -8058,7 +8054,7 @@ namespace ODLMWebAPI.BL {
 
                 if (tblInvoiceTO.IsConfirmed == 1 && tblInvoiceTO.StatusId == Convert.ToInt32 (Constants.InvoiceStatusE.AUTHORIZED)) {
                     Int32 isconfirm = 0;
-                    _iTblInvoiceBL.GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR);
+                    GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR);
 
                 }
                 return resultMessage;
