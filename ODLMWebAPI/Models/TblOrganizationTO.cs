@@ -13,6 +13,8 @@ namespace ODLMWebAPI.Models
         #region Declarations
         Int32 idOrganization;
         Int32 orgTypeId;
+
+       public Int32 StatusId {set;get;}
         Int32 addrId;
         Int32 firstOwnerPersonId;
         Int32 secondOwnerPersonId;
