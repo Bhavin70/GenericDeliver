@@ -35,7 +35,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = SqlSelectQuery();
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE isActive=1";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -194,7 +194,12 @@ namespace ODLMWebAPI.DAL
                         dimBrandTONew.ShortNm = Convert.ToString(dimBrandTODT["shortNm"].ToString());
                     if (dimBrandTODT["isTaxInclusive"] != DBNull.Value)
                         dimBrandTONew.IsTaxInclusive = Convert.ToInt32(dimBrandTODT["isTaxInclusive"].ToString());
-                    
+                    if (dimBrandTODT["prodCatIdStr"] != DBNull.Value)
+                        dimBrandTONew.ProdCatIdStr = Convert.ToString(dimBrandTODT["prodCatIdStr"].ToString());
+                    if (dimBrandTODT["materialIdStr"] != DBNull.Value)
+                        dimBrandTONew.MaterialIdStr = Convert.ToString(dimBrandTODT["materialIdStr"].ToString());
+                    if (dimBrandTODT["specificationIdStr"] != DBNull.Value)
+                        dimBrandTONew.SpecificationIdStr = Convert.ToString(dimBrandTODT["specificationIdStr"].ToString());
                     dimBrandTOList.Add(dimBrandTONew);
                 }
             }

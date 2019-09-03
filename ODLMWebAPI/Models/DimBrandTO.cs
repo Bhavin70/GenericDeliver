@@ -14,6 +14,11 @@ namespace ODLMWebAPI.Models
         Int32 isDefault;  //[05-09-2018]Vijaymala added to set default brand
         String shortNm  ;
         Int32 isTaxInclusive;
+        //Aniket [3-9-2019]
+        String prodCatIdStr;
+        String materialIdStr;
+        String specificationIdStr;
+
         #endregion
 
         #region Constructor
@@ -48,6 +53,9 @@ namespace ODLMWebAPI.Models
         public Int32 IsDefault { get => isDefault; set => isDefault = value; }
         public string ShortNm { get => shortNm; set => shortNm = value; }
         public int IsTaxInclusive { get => isTaxInclusive; set => isTaxInclusive = value; }
+        public string ProdCatIdStr { get => prodCatIdStr; set => prodCatIdStr = value; }
+        public string MaterialIdStr { get => materialIdStr; set => materialIdStr = value; }
+        public string SpecificationIdStr { get => specificationIdStr; set => specificationIdStr = value; }
         #endregion
     }
 }
