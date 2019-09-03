@@ -17,6 +17,7 @@ namespace ODLMWebAPI.BL.Interfaces
         int UpdateDimStatus(DimStatusTO dimStatusTO);
         int UpdateDimStatus(DimStatusTO dimStatusTO, SqlConnection conn, SqlTransaction tran);
         int DeleteDimStatus(Int32 idStatus);
+        DimStatusTO SelectDimStatusOnOrgId(int orgId);
         int DeleteDimStatus(Int32 idStatus, SqlConnection conn, SqlTransaction tran);
     }
 }

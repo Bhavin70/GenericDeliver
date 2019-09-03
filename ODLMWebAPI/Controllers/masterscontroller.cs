@@ -270,6 +270,17 @@ namespace ODLMWebAPI.Controllers
         }
 
 
+        
+        [Route("GetStatusByOrgId")]
+        [HttpGet]
+        public DimStatusTO GetStatusOnOrgId(Int32 orgId)
+        {
+            return _iDimStatusBL.SelectDimStatusOnOrgId(orgId);
+
+        }
+
+
+
         /// <summary>
         /// Kiran[16-08-2018] To get module Communication List using moduleId and entityId
         /// </summary>

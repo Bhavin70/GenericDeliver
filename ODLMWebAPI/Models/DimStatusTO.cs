@@ -15,7 +15,7 @@ namespace ODLMWebAPI.Models
         Int32 prevStatusId;
         String statusDesc;
         String colorCode;
-
+        Int32 isBlocked;
         #endregion
 
         #region Constructor
@@ -55,6 +55,8 @@ namespace ODLMWebAPI.Models
         }
         public string ColorCode { get => colorCode; set => colorCode = value; }
 
+     public int IsBlocked { get => isBlocked; set => isBlocked = value; }
+   
         #endregion
     }
 }

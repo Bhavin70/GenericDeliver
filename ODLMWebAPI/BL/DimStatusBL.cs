@@ -38,6 +38,12 @@ namespace ODLMWebAPI.BL
             return _iDimStatusDAO.SelectAllDimStatus(txnTypeId);
         }
 
+        
+        public DimStatusTO SelectDimStatusOnOrgId(int orgId)
+        {
+              return _iDimStatusDAO.SelectDimStatusOnOrgId(orgId);     
+        }
+
         public DimStatusTO SelectDimStatusTO(Int32 idStatus)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));

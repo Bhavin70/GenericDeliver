@@ -56,6 +56,38 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+
+  public DimStatusTO SelectDimStatusOnOrgId(int orgId)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            conn.Open();
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                    cmdSelect.CommandText = SqlSelectQuery() + " WHERE idStatus in ( select orgStatusId from tblOrganization where idOrganization  =" + orgId +")";
+                cmdSelect.Connection = conn;
+            
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                SqlDataReader rdr = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DimStatusTO> list = ConvertDTToList(rdr);
+                rdr.Dispose();
+                if(list !=null && list.Count>0)
+                return list[0];
+                else
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
         public List<DimStatusTO> SelectAllDimStatus(int txnTypeId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -137,6 +169,8 @@ namespace ODLMWebAPI.DAL
                         dimStatusTONew.StatusDesc = Convert.ToString(dimStatusTODT["statusDesc"]);
                     if (dimStatusTODT["colorCode"] != DBNull.Value)
                         dimStatusTONew.ColorCode = Convert.ToString(dimStatusTODT["colorCode"]);
+                              if (dimStatusTODT["isBlocked"] != DBNull.Value)
+                        dimStatusTONew.IsBlocked = Convert.ToInt32(dimStatusTODT["isBlocked"]);
 
                     dimStatusTOList.Add(dimStatusTONew);
                 }

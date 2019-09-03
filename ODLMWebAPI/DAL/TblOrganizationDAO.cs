@@ -184,6 +184,8 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+            
+
         public List<TblOrganizationTO> SelectAllTblOrganization(Constants.OrgTypeE orgTypeE)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -1071,11 +1073,13 @@ namespace ODLMWebAPI.DAL
                     if (tblOrganizationTODT["dateOfEstablishment"] != DBNull.Value)
                         tblOrganizationTONew.DateOfEstablishment = Convert.ToDateTime(tblOrganizationTODT["dateOfEstablishment"].ToString());
 
+
                     tblOrganizationTOList.Add(tblOrganizationTONew);
                 }
             }
             return tblOrganizationTOList;
         }
+
 
 
         public List<OrgExportRptTO> SelectAllOrgListToExport(Int32 orgTypeId, Int32 parentId)

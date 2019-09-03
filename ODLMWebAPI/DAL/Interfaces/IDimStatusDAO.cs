@@ -23,6 +23,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteDimStatus(Int32 idStatus);
         int DeleteDimStatus(Int32 idStatus, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idStatus, SqlCommand cmdDelete);
+         DimStatusTO SelectDimStatusOnOrgId(int orgId);
 
     }
 }
