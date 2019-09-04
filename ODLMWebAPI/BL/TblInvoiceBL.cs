@@ -3513,19 +3513,25 @@ namespace ODLMWebAPI.BL
                             }
                            
                         }
-                        Double bundles = 0;
                         bool result;
+                        Double sum = 0;
                         // commented by Aniket 
                         //bundles = invoiceItemlist.Sum(s => Convert.ToDouble(s.Bundles));
                         //Aniket [30-8-2019] added if bundles is null or empty string
                         for (int i = 0; i < invoiceItemlist.Count; i++)
                         {
+                            Double bundles = 0;
                             result = double.TryParse(invoiceItemlist[i].Bundles, out bundles);
+                            if (result)
+                            {
+                                sum += bundles;
+                            }
+
                         }
-                        itemFooterDetailsDT.Rows[0]["totalBundles"] = bundles;
+                        itemFooterDetailsDT.Rows[0]["totalBundles"] = sum;
                         tblInvoiceTO.BasicAmt= invoiceItemlist.Sum(s => Convert.ToInt32(s.BasicTotal));//added code to sum of items basic total
                         itemFooterDetailsDT.Rows[0]["totalBasicAmt"] = Math.Round(tblInvoiceTO.BasicAmt,2);
-                        invoiceDT.Rows[0]["totalBundles"] = bundles;
+                        invoiceDT.Rows[0]["totalBundles"] = sum;
                         if (isMathRoundoff == 1)
                         {
                             invoiceDT.Rows[0]["totalBasicAmt"] = tblInvoiceTO.BasicAmt;
