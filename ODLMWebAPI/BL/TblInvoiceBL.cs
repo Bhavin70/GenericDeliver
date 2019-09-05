@@ -3607,10 +3607,13 @@ namespace ODLMWebAPI.BL
                     headerDT.Columns.Add("lblShippingStateCode");
                     headerDT.Columns.Add("lblShippingGstin");
                     headerDT.Columns.Add("lblShippingPanNo");
-
                     addressDT.Rows.Add();
                     addressDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
-                    addressDT.Rows[0]["poDateStr"] = tblInvoiceTO.PoDateStr;
+                    if(!String.IsNullOrEmpty(tblInvoiceTO.PoDateStr))
+                    {
+                        DateTime poDate = Convert.ToDateTime(tblInvoiceTO.PoDateStr);
+                        addressDT.Rows[0]["poDateStr"] = poDate.ToString("dd/MM/yyyy");
+                    }
                     addressDT.Rows[0]["electronicRefNo"] = tblInvoiceTO.ElectronicRefNo;
                     string finalAddr = "", addr1 = "" ;
                     if (tblInvoiceTO.InvoiceAddressTOList != null && tblInvoiceTO.InvoiceAddressTOList.Count > 0)
