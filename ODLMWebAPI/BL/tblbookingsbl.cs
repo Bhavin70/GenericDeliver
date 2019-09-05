@@ -2918,8 +2918,8 @@ namespace ODLMWebAPI.BL
                         {
                              tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
                             tempTxt = tempTxt.Replace("@BookingIdStr", tblBookingsTO.IdBooking.ToString());
-                            tempTxt = tempTxt.Replace("@CNCStr", "");
-                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+                            tempTxt = tempTxt.Replace("@CNCStr",tblBookingsTO.CnfName);
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblBookingsTO.DealerName);
 
                             tblAlertInstanceTO.AlertComment = tempTxt;
                         }
