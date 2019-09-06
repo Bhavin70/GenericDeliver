@@ -3666,11 +3666,16 @@ namespace ODLMWebAPI.BL
                                 if (tblBillingInvoiceAddressTO.Taluka.ToLower() != tblBillingInvoiceAddressTO.District.ToLower())
                                     addressStr += ", " + tblBillingInvoiceAddressTO.District;
                             }
+                        
                             if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.State))
                             {
                                 addressStr += ", " + tblBillingInvoiceAddressTO.State;
                             }
-
+                            //Aniket [6-9-2019] added PinCode in address
+                            if(!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.PinCode) && tblBillingInvoiceAddressTO.PinCode!="0")
+                            {
+                                addressStr += "- " + tblBillingInvoiceAddressTO.PinCode;
+                            }
 
                             addressDT.Rows[0]["billingAddr"] = addressStr;
 
@@ -3785,6 +3790,10 @@ namespace ODLMWebAPI.BL
                                     if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.State))
                                     {
                                         consigneeAddr += ", " + tblBillingInvoiceAddressTO.State;
+                                    }
+                                    if(!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.PinCode) && tblConsigneeInvoiceAddressTO.PinCode!="0")
+                                    {
+                                        consigneeAddr += "- " + tblConsigneeInvoiceAddressTO.PinCode;
                                     }
                                     addressDT.Rows[0]["consigneeAddr"] = consigneeAddr;
                                     if(!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.GstinNo))
