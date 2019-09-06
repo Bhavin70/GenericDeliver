@@ -3308,9 +3308,12 @@ namespace ODLMWebAPI.BL
                         invoiceDT.Rows[0]["grossWeight"] = tblInvoiceTO.GrossWeight / 1000;
                         invoiceDT.Rows[0]["tareWeight"] = tblInvoiceTO.TareWeight / 1000;
                         invoiceDT.Rows[0]["netWeight"] = tblInvoiceTO.NetWeight / 1000;
-
-                        headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
-                        invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        if(!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                        {
+                            headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                            invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        }
+                    
                         invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
                         invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
                         headerDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
@@ -3339,9 +3342,11 @@ namespace ODLMWebAPI.BL
                         invoiceDT.Rows[0]["grossWeight"] = Math.Round(tblInvoiceTO.GrossWeight / 1000, 3);
                         invoiceDT.Rows[0]["tareWeight"] = Math.Round(tblInvoiceTO.TareWeight / 1000, 3);
                         invoiceDT.Rows[0]["netWeight"] = Math.Round(tblInvoiceTO.NetWeight / 1000, 3);
-
-                        headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
-                        invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                        {
+                            headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                            invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        }
                         invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
                         invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
                         headerDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
@@ -3663,7 +3668,7 @@ namespace ODLMWebAPI.BL
                                 if (String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
                                     tblBillingInvoiceAddressTO.Taluka = String.Empty;
 
-                                if (tblBillingInvoiceAddressTO.Taluka.ToLower() != tblBillingInvoiceAddressTO.District.ToLower())
+                                if (tblBillingInvoiceAddressTO.Taluka.ToLower().Trim() != tblBillingInvoiceAddressTO.District.ToLower().Trim())
                                     addressStr += ", " + tblBillingInvoiceAddressTO.District;
                             }
                         
