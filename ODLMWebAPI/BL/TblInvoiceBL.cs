@@ -445,6 +445,13 @@ namespace ODLMWebAPI.BL
                 TblInvoiceAddressTO tblInvoiceAddressTO = tblInvoiceAddressTOList.Where(ele => ele.TxnAddrTypeId == (Int32)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS).FirstOrDefault();
                 if (tblInvoiceAddressTO != null)
                 {
+                    //Aniket [9-9-2019] added to check StateId is null or not.. if null do not allow to create or udate the invoice
+                    // issue was if stateId not found automatically convert  CGST invoice calc to IGST
+                    if(tblInvoiceAddressTO.StateId==0)
+                    {
+                        errorMsg = "State not found. Kindly select State from list in billing address ";
+                        return false;
+                    }
                     if (tblOrgAddressTO.StateId == tblInvoiceAddressTO.StateId)
                     {
                         if (tblInvoiceTO.IgstAmt > 0)
@@ -3689,11 +3696,15 @@ namespace ODLMWebAPI.BL
 
                             if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.PanNo))
                                 addressDT.Rows[0]["billingPanNo"] = tblBillingInvoiceAddressTO.PanNo.ToUpper();
+                            //Aniket [9-9-2-2019]
+                            if (tblInvoiceTO.IsConfirmed == 1)
+                                addressDT.Rows[0]["billingMobNo"] = tblBillingInvoiceAddressTO.ContactNo;
+                            else
+                                addressDT.Rows[0]["billingMobNo"] = String.Empty;
 
-                            addressDT.Rows[0]["billingMobNo"] = tblBillingInvoiceAddressTO.ContactNo;
-                           
 
-                            if(stateList != null && stateList.Count >0)
+
+                            if (stateList != null && stateList.Count >0)
                             {
                                 DropDownTO stateTO = stateList.Where(ele => ele.Value == tblBillingInvoiceAddressTO.StateId).FirstOrDefault();
                                 addressDT.Rows[0]["billingState"] = tblBillingInvoiceAddressTO.State;
@@ -3806,8 +3817,11 @@ namespace ODLMWebAPI.BL
 
                                     if(!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.PanNo))
                                         addressDT.Rows[0]["consigneePanNo"] = tblConsigneeInvoiceAddressTO.PanNo.ToUpper();
-
-                                    addressDT.Rows[0]["consigneeMobNo"] = tblConsigneeInvoiceAddressTO.ContactNo;
+                                    //Aniket [9-9-2-2019]
+                                    if (tblInvoiceTO.IsConfirmed == 1)
+                                        addressDT.Rows[0]["consigneeMobNo"] = tblConsigneeInvoiceAddressTO.ContactNo;
+                                    else
+                                        addressDT.Rows[0]["consigneeMobNo"] = String.Empty;
 
                                     if (stateList != null && stateList.Count > 0)
                                     {
@@ -3857,9 +3871,13 @@ namespace ODLMWebAPI.BL
                                                                         + " ," + tblShippingAddressTO.District + "," + tblShippingAddressTO.State;
                                     headerDT.Rows[0]["shippingGstNo"] = tblShippingAddressTO.GstinNo;
                                     headerDT.Rows[0]["shippingPanNo"] = tblShippingAddressTO.PanNo;
-                                    headerDT.Rows[0]["shippingMobNo"] = tblShippingAddressTO.ContactNo;
+                                    //Aniket [9-9-2-2019]
+                                    if (tblInvoiceTO.IsConfirmed == 1)
+                                        headerDT.Rows[0]["shippingMobNo"] = tblShippingAddressTO.ContactNo;
+                                    else
+                                        headerDT.Rows[0]["shippingMobNo"] = String.Empty;
 
-                                  
+
                                 }
                             }
 
