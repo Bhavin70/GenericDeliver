@@ -1189,7 +1189,7 @@ namespace ODLMWebAPI.BL
                                     {
                                        if(item.ProdCatId== tblLoadingSlipExtTO.ProdCatId && item.ProdSpecId== tblLoadingSlipExtTO.ProdSpecId && item.BrandId== tblLoadingSlipExtTO.BrandId && item.MaterialId== tblLoadingSlipExtTO.MaterialId && item.ProdItemId== tblLoadingSlipExtTO.ProdItemId)
                                         {
-                                            bookingPrice = bookingPrice - (item.Discount*item.BookedQty*1000);
+                                            bookingPrice = bookingPrice - (item.Discount * 1000);
                                         }
                                     }
                                     
