@@ -3334,9 +3334,12 @@ namespace ODLMWebAPI.BL
                         invoiceDT.Rows[0]["grossWeight"] = tblInvoiceTO.GrossWeight / 1000;
                         invoiceDT.Rows[0]["tareWeight"] = tblInvoiceTO.TareWeight / 1000;
                         invoiceDT.Rows[0]["netWeight"] = tblInvoiceTO.NetWeight / 1000;
-
-                        headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
-                        invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        if(!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                        {
+                            headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                            invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        }
+                    
                         invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
                         invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
                         headerDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
@@ -3365,9 +3368,11 @@ namespace ODLMWebAPI.BL
                         invoiceDT.Rows[0]["grossWeight"] = Math.Round(tblInvoiceTO.GrossWeight / 1000, 3);
                         invoiceDT.Rows[0]["tareWeight"] = Math.Round(tblInvoiceTO.TareWeight / 1000, 3);
                         invoiceDT.Rows[0]["netWeight"] = Math.Round(tblInvoiceTO.NetWeight / 1000, 3);
-
-                        headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
-                        invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                        {
+                            headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                            invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        }
                         invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
                         invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
                         headerDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
@@ -3539,19 +3544,25 @@ namespace ODLMWebAPI.BL
                             }
                            
                         }
-                        Double bundles = 0;
                         bool result;
+                        Double sum = 0;
                         // commented by Aniket 
                         //bundles = invoiceItemlist.Sum(s => Convert.ToDouble(s.Bundles));
                         //Aniket [30-8-2019] added if bundles is null or empty string
                         for (int i = 0; i < invoiceItemlist.Count; i++)
                         {
+                            Double bundles = 0;
                             result = double.TryParse(invoiceItemlist[i].Bundles, out bundles);
+                            if (result)
+                            {
+                                sum += bundles;
+                            }
+
                         }
-                        itemFooterDetailsDT.Rows[0]["totalBundles"] = bundles;
+                        itemFooterDetailsDT.Rows[0]["totalBundles"] = sum;
                         tblInvoiceTO.BasicAmt= invoiceItemlist.Sum(s => Convert.ToInt32(s.BasicTotal));//added code to sum of items basic total
                         itemFooterDetailsDT.Rows[0]["totalBasicAmt"] = Math.Round(tblInvoiceTO.BasicAmt,2);
-                        invoiceDT.Rows[0]["totalBundles"] = bundles;
+                        invoiceDT.Rows[0]["totalBundles"] = sum;
                         if (isMathRoundoff == 1)
                         {
                             invoiceDT.Rows[0]["totalBasicAmt"] = tblInvoiceTO.BasicAmt;
@@ -3627,10 +3638,13 @@ namespace ODLMWebAPI.BL
                     headerDT.Columns.Add("lblShippingStateCode");
                     headerDT.Columns.Add("lblShippingGstin");
                     headerDT.Columns.Add("lblShippingPanNo");
-
                     addressDT.Rows.Add();
                     addressDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
-                    addressDT.Rows[0]["poDateStr"] = tblInvoiceTO.PoDateStr;
+                    if(!String.IsNullOrEmpty(tblInvoiceTO.PoDateStr))
+                    {
+                        DateTime poDate = Convert.ToDateTime(tblInvoiceTO.PoDateStr);
+                        addressDT.Rows[0]["poDateStr"] = poDate.ToString("dd/MM/yyyy");
+                    }
                     addressDT.Rows[0]["electronicRefNo"] = tblInvoiceTO.ElectronicRefNo;
                     string finalAddr = "", addr1 = "" ;
                     if (tblInvoiceTO.InvoiceAddressTOList != null && tblInvoiceTO.InvoiceAddressTOList.Count > 0)
@@ -3680,14 +3694,19 @@ namespace ODLMWebAPI.BL
                                 if (String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
                                     tblBillingInvoiceAddressTO.Taluka = String.Empty;
 
-                                if (tblBillingInvoiceAddressTO.Taluka.ToLower() != tblBillingInvoiceAddressTO.District.ToLower())
+                                if (tblBillingInvoiceAddressTO.Taluka.ToLower().Trim() != tblBillingInvoiceAddressTO.District.ToLower().Trim())
                                     addressStr += ", " + tblBillingInvoiceAddressTO.District;
                             }
+                        
                             if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.State))
                             {
                                 addressStr += ", " + tblBillingInvoiceAddressTO.State;
                             }
-
+                            //Aniket [6-9-2019] added PinCode in address
+                            if(!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.PinCode) && tblBillingInvoiceAddressTO.PinCode!="0")
+                            {
+                                addressStr += "- " + tblBillingInvoiceAddressTO.PinCode;
+                            }
 
                             addressDT.Rows[0]["billingAddr"] = addressStr;
 
@@ -3802,6 +3821,10 @@ namespace ODLMWebAPI.BL
                                     if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.State))
                                     {
                                         consigneeAddr += ", " + tblBillingInvoiceAddressTO.State;
+                                    }
+                                    if(!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.PinCode) && tblConsigneeInvoiceAddressTO.PinCode!="0")
+                                    {
+                                        consigneeAddr += "- " + tblConsigneeInvoiceAddressTO.PinCode;
                                     }
                                     addressDT.Rows[0]["consigneeAddr"] = consigneeAddr;
                                     if(!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.GstinNo))
