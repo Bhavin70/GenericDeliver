@@ -311,7 +311,34 @@ namespace ODLMWebAPI.BL
             return null;
         }
 
+        public DimFinYearTO GetCurrentFinancialYear(DateTime curDate)
+        {
+            List<DimFinYearTO> mstFinYearTOList = _iDimensionDAO.SelectAllMstFinYearList();
+            for (int i = 0; i < mstFinYearTOList.Count; i++)
+            {
+                DimFinYearTO mstFinYearTO = mstFinYearTOList[i];
+                if (curDate >= mstFinYearTO.FinYearStartDate &&
+                    curDate <= mstFinYearTO.FinYearEndDate)
+                    return mstFinYearTO;
+            }
 
+            //Means Current Financial year not found so insert it
+            DateTime startDate = Constants.GetStartDateTimeOfYear(curDate);
+            DateTime endDate = Constants.GetEndDateTimeOfYear(curDate);
+            int finYear = startDate.Year;
+            DimFinYearTO newMstFinYearTO = new DimFinYearTO();
+            newMstFinYearTO.FinYearDisplayName = finYear + "-" + (finYear + 1);
+            newMstFinYearTO.FinYearEndDate = endDate;
+            newMstFinYearTO.IdFinYear = finYear;
+            newMstFinYearTO.FinYearStartDate = startDate;
+            int result = _iDimensionDAO.InsertMstFinYear(newMstFinYearTO);
+            if (result == 1)
+            {
+                return newMstFinYearTO;
+            }
+
+            return null;
+        }
 
         // Vaibhav [27-Sep-2017] added to select all reporting type list
         public List<DropDownTO> GetReportingType()
