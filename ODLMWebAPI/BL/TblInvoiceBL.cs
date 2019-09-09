@@ -14,11 +14,13 @@ using System.IO;
 using Microsoft.AspNetCore.Http;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
- 
+using static ODLMWebAPI.StaticStuff.Constants;
+
 namespace ODLMWebAPI.BL
 {      
     public class TblInvoiceBL : ITblInvoiceBL
     {
+        private readonly ITblInvoiceChangeOrgHistoryDAO _iTblInvoiceChangeOrgHistoryDAO;
         private readonly ITblInvoiceDAO _iTblInvoiceDAO;
         private readonly ITblUserRoleBL _iTblUserRoleBL;
         private readonly ITblInvoiceItemDetailsBL _iTblInvoiceItemDetailsBL;
@@ -67,8 +69,9 @@ namespace ODLMWebAPI.BL
         private readonly ITblPaymentTermOptionRelationBL _iTblPaymentTermOptionRelationBL;
         private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
         private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
-        public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL)
+        public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblInvoiceChangeOrgHistoryDAO iTblInvoiceChangeOrgHistoryDAO, ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL)
         {
+            _iTblInvoiceChangeOrgHistoryDAO =iTblInvoiceChangeOrgHistoryDAO;
             _iTblInvoiceDAO = iTblInvoiceDAO;
             _iTblUserRoleBL = iTblUserRoleBL;
             _iTblInvoiceItemDetailsBL = iTblInvoiceItemDetailsBL;
@@ -756,10 +759,13 @@ namespace ODLMWebAPI.BL
                     return resultMessage;
                 }
 
+
+                if(tblInvoiceTO.InvFromOrgId ==0)
+                {
                 TblConfigParamsTO paramTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID, conn, tran);
                 if (paramTO != null)
                     tblInvoiceTO.InvFromOrgId = Convert.ToInt32(paramTO.ConfigParamVal);
-
+                } 
                 //Saket [2018-02-23] Added
                 if (tblInvoiceTO.InvoiceItemDetailsTOList != null && tblInvoiceTO.InvoiceItemDetailsTOList.Count > 0)
                 {
@@ -1758,7 +1764,7 @@ namespace ODLMWebAPI.BL
             #endregion
         }
 
-        public ResultMessage PrepareAndSaveInternalTaxInvoices(TblInvoiceTO invoiceTO, SqlConnection conn, SqlTransaction tran)
+        public ResultMessage PrepareAndSaveInternalTaxInvoices(TblInvoiceTO invoiceTO, int invoiceGenerateModeE,int fromOrgId,int toOrgId ,TblInvoiceChangeOrgHistoryTO changeHisTO,SqlConnection conn, SqlTransaction tran)
         {
             ResultMessage resultMsg = new ResultMessage();
             string entityRangeName = string.Empty;
@@ -1775,7 +1781,8 @@ namespace ODLMWebAPI.BL
 
                 #region 1 BRM TO BM Invoice
 
-                resultMsg = PrepareNewInvoiceObjectList(invoiceTO, invoiceItemTOList, invoiceAddressTOList, Constants.InvoiceGenerateModeE.BRMTOBM, conn, tran);
+                 //pass changed from org ()    
+                resultMsg = PrepareNewInvoiceObjectList(invoiceTO, invoiceItemTOList, invoiceAddressTOList, invoiceGenerateModeE,fromOrgId,toOrgId, conn, tran,0);
                 if (resultMsg.MessageType == ResultMessageE.Information)
                 {
                     if (resultMsg.Tag != null && resultMsg.Tag.GetType() == typeof(List<TblInvoiceTO>))
@@ -1857,9 +1864,12 @@ namespace ODLMWebAPI.BL
 
                 #endregion
 
+                 //duplicate   
                 #region 2 BM TO Actual Customer Invoice
-
-                resultMsg = PrepareNewInvoiceObjectList(invoiceTO, invoiceItemTOList, invoiceAddressTOList, Constants.InvoiceGenerateModeE.BMTOCUSTOMER, conn, tran);
+                 if (invoiceGenerateModeE ==(int) InvoiceGenerateModeE.DUPLICATE)
+                {
+                    //pass second org (org->cust)
+                resultMsg = PrepareNewInvoiceObjectList(invoiceTO, invoiceItemTOList, invoiceAddressTOList, invoiceGenerateModeE,fromOrgId,toOrgId, conn, tran);
                 if (resultMsg.MessageType == ResultMessageE.Information)
                 {
                     if (resultMsg.Tag != null && resultMsg.Tag.GetType() == typeof(List<TblInvoiceTO>))
@@ -1874,6 +1884,10 @@ namespace ODLMWebAPI.BL
                                 {
                                     return resultMsg;
                                 }
+                                else
+                                {
+                                        changeHisTO.DupInvoiceId =tblInvoiceTOList[i].IdInvoice;
+                                }
                             }
                         }
                     }
@@ -1882,7 +1896,7 @@ namespace ODLMWebAPI.BL
                 {
                     return resultMsg;
                 }
-
+            }
                 #endregion
 
                 resultMsg.DefaultSuccessBehaviour();
@@ -1895,7 +1909,7 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        public ResultMessage PrepareNewInvoiceObjectList(TblInvoiceTO invoiceTO, List<TblInvoiceItemDetailsTO> invoiceItemTOList, List<TblInvoiceAddressTO> invoiceAddressTOList, Constants.InvoiceGenerateModeE invoiceGenerateModeE, SqlConnection conn, SqlTransaction tran)
+        public ResultMessage PrepareNewInvoiceObjectList(TblInvoiceTO invoiceTO, List<TblInvoiceItemDetailsTO> invoiceItemTOList, List<TblInvoiceAddressTO> invoiceAddressTOList, int invoiceGenerateModeE,int fromOrgId,int toOrgId ,SqlConnection conn, SqlTransaction tran,int swap=1)
         {
             ResultMessage resultMsg = new ResultMessage();          
             try
@@ -1918,19 +1932,28 @@ namespace ODLMWebAPI.BL
                 TblConfigParamsTO tblConfigParamsTO = null;
                 DateTime serverDateTime = _iCommon.ServerDateTime;
                 Int32 billingStateId = 0;
-                if (invoiceGenerateModeE == Constants.InvoiceGenerateModeE.BRMTOBM)
-                {
-                    tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID, conn, tran);
-                }
-                else
-                    tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_INTERNALTXFER_INVOICE_ORG_ID, conn, tran);
+                
+                //Hrushikesh Need to change here
+                // if (invoiceGenerateModeE == (int)Constants.InvoiceGenerateModeE.Duplicate)
+                // {
+                //     //org1 id (org1->org2)
+                //     tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID, conn, tran);
+                // }
+                // else
+                //     //changed from org                
+                //     tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_INTERNALTXFER_INVOICE_ORG_ID, conn, tran);
 
-                if (tblConfigParamsTO == null)
-                {
-                    resultMsg.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
-                    return resultMsg;
-                }
-                Int32 internalOrgId = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+                // if (tblConfigParamsTO == null)
+                // {
+                //     resultMsg.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
+                //     return resultMsg;
+                // }
+                // //Hrushikesh Need to change here 
+                // Int32 internalOrgId = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+                Int32 internalOrgId = fromOrgId;
+                
+                if(invoiceGenerateModeE== (int) InvoiceGenerateModeE.DUPLICATE &&swap==0)
+                 internalOrgId = toOrgId;
                 TblOrganizationTO orgTO = _iTblOrganizationBL.SelectTblOrganizationTO(internalOrgId, conn, tran);
                 TblAddressTO ofcAddrTO =_iTblAddressBL.SelectOrgAddressWrtAddrType(internalOrgId, Constants.AddressTypeE.OFFICE_ADDRESS, conn, tran);
                 if (ofcAddrTO == null)
@@ -1952,7 +1975,7 @@ namespace ODLMWebAPI.BL
                 #endregion
 
                 #region 2 Added Invoice Address Details
-                if (invoiceGenerateModeE == Constants.InvoiceGenerateModeE.BRMTOBM)
+                if (invoiceGenerateModeE == (int)Constants.InvoiceGenerateModeE.DUPLICATE && swap==1)
                 {
                     tblInvoiceTO.Narration = "To Bhagylaxmi Metal";
 
@@ -1963,7 +1986,10 @@ namespace ODLMWebAPI.BL
                         resultMsg.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
                         return resultMsg;
                     }
-                    Int32 internalBMOrgId = Convert.ToInt32(configParamsTO.ConfigParamVal);
+                   //Hrushikesh Need to change here 
+                                       //org2 id (org2->cust)
+                    // Int32 internalBMOrgId =   Convert.ToInt32(configParamsTO.ConfigParamVal);
+                     Int32 internalBMOrgId =   toOrgId;
                     TblOrganizationTO bmOrgTO = _iTblOrganizationBL.SelectTblOrganizationTO(internalBMOrgId, conn, tran);
                     TblAddressTO bmOfcAddrTO =_iTblAddressBL.SelectOrgAddressWrtAddrType(internalBMOrgId, Constants.AddressTypeE.OFFICE_ADDRESS, conn, tran);
                     if (bmOfcAddrTO == null)
@@ -2024,7 +2050,7 @@ namespace ODLMWebAPI.BL
                     tblInvoiceTO.InvoiceAddressTOList.Add(consigneeInvoiceAddressTo);
 
                 }
-                else if (invoiceGenerateModeE == Constants.InvoiceGenerateModeE.BMTOCUSTOMER)
+                else if (invoiceGenerateModeE == (int)Constants.InvoiceGenerateModeE.CHANGEFROM || swap==0)
                 {
                     foreach (var deliveryAddrTo in invoiceAddressTOList)
                     {
@@ -5341,7 +5367,85 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        public ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId,String taxInvoiceNumber="",Int32 manualinvoiceno=0)
+
+                public ResultMessage exchangeInvoice(Int32 invoiceId,  Int32 invGenModeId,int fromOrgId,int toOrgId )
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            ResultMessage resultMessage = new ResultMessage();
+            DateTime serverDate = _iCommon.ServerDateTime;
+
+            string entityRangeString = "REGULAR_TAX_INVOICE_";
+            int result = 0;
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+
+                TblInvoiceTO invoiceTO = _iTblInvoiceDAO.SelectTblInvoice(invoiceId, conn, tran);
+                if (invoiceTO == null)
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("invoiceTO Found NULL"); return resultMessage;
+                }
+                //Vijaymala[23-03-2016]added to check invoice details of igst,cgst,sgst taxes
+                #region To check invoice details is valid or not
+                string errorMsg = string.Empty;
+                Boolean isValidInvoice = CheckInvoiceDetailsAccToState(invoiceTO, ref errorMsg);
+                if (!isValidInvoice)
+                {
+                    resultMessage.DefaultBehaviour(errorMsg);
+                    return resultMessage;
+                }
+                #endregion
+
+                TblInvoiceChangeOrgHistoryTO invHistTO = new TblInvoiceChangeOrgHistoryTO();
+                invHistTO.InvoiceId = invoiceTO.IdInvoice;
+                invHistTO.CreatedOn = _iCommon.ServerDateTime;
+                invHistTO.CreatedBy = 1;
+               if(invGenModeId ==(int)Constants.InvoiceGenerateModeE.DUPLICATE)
+               {
+               invHistTO.ActionDesc = "Duplicate";
+               } 
+                if(invGenModeId ==(int)Constants.InvoiceGenerateModeE.CHANGEFROM)
+               {
+               invHistTO.ActionDesc = "Change Organization";
+               } 
+             resultMessage = PrepareAndSaveInternalTaxInvoices(invoiceTO,invGenModeId,fromOrgId,toOrgId,invHistTO, conn, tran);
+                int res = _iTblInvoiceChangeOrgHistoryDAO.InsertTblInvoiceChangeOrgHistory(invHistTO,conn,tran);     
+                     
+                     if(res != 1 )
+                     {
+                        tran.Rollback();
+                           resultMessage.Text = "failed to save History in exchangeInvoice";
+                            return resultMessage; 
+                     }
+                        if (resultMessage.MessageType == ResultMessageE.Information)
+                        {
+                            tran.Commit();
+                            resultMessage.Text = "Invoice Converted Successfully";
+                            resultMessage.DisplayMessage = "Invoice Converted Successfully";
+                            return resultMessage;
+                        }
+                        else
+                        {
+                            tran.Rollback();
+                            return resultMessage;
+                        }
+            }
+           catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "GenerateInvoiceNumber");
+                return resultMessage;
+            }
+            
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+        public ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId,int fromOrgId,int toOrgId,String taxInvoiceNumber="",Int32 manualinvoiceno=0)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -5377,8 +5481,9 @@ namespace ODLMWebAPI.BL
 
                     if (invGenModeId != (int)Constants.InvoiceGenerateModeE.REGULAR)
                     {
-
-                        resultMessage = PrepareAndSaveInternalTaxInvoices(invoiceTO, conn, tran);
+                        TblInvoiceChangeOrgHistoryTO changeHisTO = new TblInvoiceChangeOrgHistoryTO();
+                        resultMessage = PrepareAndSaveInternalTaxInvoices(invoiceTO,invGenModeId,fromOrgId,toOrgId, changeHisTO,conn, tran);
+                 
                         if (resultMessage.MessageType == ResultMessageE.Information)
                         {
                             tran.Commit();
@@ -5386,6 +5491,7 @@ namespace ODLMWebAPI.BL
                             resultMessage.DisplayMessage = "Invoice Converted Successfully";
                             return resultMessage;
                         }
+                        
                         else
                         {
                             tran.Rollback();
@@ -5441,7 +5547,7 @@ namespace ODLMWebAPI.BL
 
                     if (invoiceTO.IsConfirmed == 1)
                     {
-                        TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_INTERNALTXFER_INVOICE_ORG_ID, conn, tran);
+                        TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID, conn, tran);
                         // Aniket [05-02-2019] check manual branswise invoice no generate or not
                         TblConfigParamsTO tblConfigParamsTOForBrand = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.GENERATE_MANUALLY_BRANDWISE_INVOICENO, conn, tran);
                         if (tblConfigParamsTO == null)
@@ -5450,7 +5556,7 @@ namespace ODLMWebAPI.BL
                             resultMessage.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
                             return resultMessage;
                         }
-                        Int32 internalOrgId = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+                        Int32 defualtOrgId = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
                         TblEntityRangeTO entityRangeTO = null;
                         if (Convert.ToInt32(tblConfigParamsTOForBrand.ConfigParamVal) == 1)
                         {
@@ -5458,9 +5564,12 @@ namespace ODLMWebAPI.BL
                             entityRangeString += dimBrandTO.IdBrand.ToString();
                             entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(entityRangeString, invoiceTO.FinYearId, conn, tran);
                         }
-
-                        else if (invoiceTO.InvFromOrgId == internalOrgId)
-                            entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(Constants.ENTITY_RANGE_REGULAR_TAX_INVOICE_BMM, invoiceTO.FinYearId, conn, tran);
+                        //Hrushikesh added get entity Range organizationwise
+                        else if (invoiceTO.InvFromOrgId != defualtOrgId)
+                        {
+                            string  orgstr = Constants.ENTITY_RANGE_REGULAR_TAX_INTERNALORG + invoiceTO.InvFromOrgId;
+                            entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(orgstr, invoiceTO.FinYearId, conn, tran);
+                        }
                         else
                             entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(invoiceTO.InvoiceTypeId, invoiceTO.FinYearId, conn, tran);
 

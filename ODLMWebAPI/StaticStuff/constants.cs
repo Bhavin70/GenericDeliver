@@ -542,6 +542,7 @@ namespace ODLMWebAPI.StaticStuff
         public static string CP_BILLING_NOT_CONFIRM_AUTHENTICATION = "BILLING_NOT_CONFIRM_AUTHENTICATION";
         public static string CONSOLIDATE_STOCK = "CONSOLIDATE_STOCK";
         public static String ENTITY_RANGE_REGULAR_TAX_INVOICE_BMM = "REGULAR_TAX_INVOICE_BMM";
+  public static String ENTITY_RANGE_REGULAR_TAX_INTERNALORG = "REGULAR_TAX_INVOICE_ORG_";
 
         public static string CP_BRAND_WISE_INVOICE = "BRAND_WISE_INVOICE";
         public static string CP_SKIP_LOADING_APPROVAL = "SKIP_LOADING_APPROVAL";
@@ -893,9 +894,11 @@ namespace ODLMWebAPI.StaticStuff
         public enum InvoiceGenerateModeE
         {
             REGULAR = 0,
-            BRMTOBM = 1,
-            BMTOCUSTOMER = 2
+            DUPLICATE = 1,
+            CHANGEFROM  = 2
         }
+
+        
 
         /// <summary>
         /// Vijaymala[06-02-2018]Added To Set Firm Name

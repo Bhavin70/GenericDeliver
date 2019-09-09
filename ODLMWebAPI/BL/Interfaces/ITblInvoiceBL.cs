@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using ODLMWebAPI.StaticStuff;
+using static ODLMWebAPI.StaticStuff.Constants;
 
 namespace ODLMWebAPI.BL.Interfaces
 {   
@@ -40,8 +41,8 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage SaveNewInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
         int InsertTblInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
         ResultMessage PrepareAndSaveNewTaxInvoice(TblLoadingTO loadingTO, SqlConnection conn, SqlTransaction tran);
-        ResultMessage PrepareAndSaveInternalTaxInvoices(TblInvoiceTO invoiceTO, SqlConnection conn, SqlTransaction tran);
-        ResultMessage PrepareNewInvoiceObjectList(TblInvoiceTO invoiceTO, List<TblInvoiceItemDetailsTO> invoiceItemTOList, List<TblInvoiceAddressTO> invoiceAddressTOList, Constants.InvoiceGenerateModeE invoiceGenerateModeE, SqlConnection conn, SqlTransaction tran);
+       ResultMessage PrepareAndSaveInternalTaxInvoices(TblInvoiceTO invoiceTO, int invoiceGenerateModeE,int fromOrgId,int toOrgId ,TblInvoiceChangeOrgHistoryTO changeHisTO,SqlConnection conn, SqlTransaction tran);
+        ResultMessage PrepareNewInvoiceObjectList(TblInvoiceTO invoiceTO, List<TblInvoiceItemDetailsTO> invoiceItemTOList, List<TblInvoiceAddressTO> invoiceAddressTOList, int invoiceGenerateModeE,int fromOrgId,int toOrgId ,SqlConnection conn, SqlTransaction tran,int swap=1);
         ResultMessage ComposeInvoice(List<Int32> invoiceIdsList, Int32 loginUserId);
         ResultMessage DecomposeInvoice(List<Int32> invoiceIdsList, Int32 loginUserId);
         ResultMessage SaveInvoiceDocumentDetails(TblInvoiceTO invoiceTO, List<TblDocumentDetailsTO> tblDocumentDetailsTOList, Int32 loginUserId);
@@ -57,7 +58,8 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage SaveUpdatedInvoice(TblInvoiceTO invoiceTO);
         ResultMessage UpdateInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
         TblInvoiceTO updateInvoiceToCalc(TblInvoiceTO tblInvoiceTo, SqlConnection conn, SqlTransaction tran, Boolean isCheckHist = true);
-        ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0);
+        ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm,Int32 invGenModeId,int fromOrgId,int toOrgId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0);
+        ResultMessage exchangeInvoice(Int32 invoiceId,  Int32 invGenModeId,int fromOrgId,int toOrgId );
         ResultMessage UpdateInvoiceNonCommercialDetails(TblInvoiceTO tblInvoiceTO);
         //ResultMessage UpdateInvoiceConfrimNonConfirmDetails(TblInvoiceTO tblInvoiceTO, Int32 loginUserId);
         ResultMessage UpdateInvoiceAfterloadingSlipOut(Int32 loadingId, SqlConnection conn, SqlTransaction tran);
