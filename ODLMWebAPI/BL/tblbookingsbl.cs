@@ -2914,11 +2914,16 @@ namespace ODLMWebAPI.BL
                         tblAlertInstanceTO.AlertAction = "BOOKING_APPROVED_BY_DIRECTORS";
                         //tblAlertInstanceTO.AlertComment = "Not Confirmed Booking #" + tblBookingsTO.IdBooking + " is accepted by Director";
                         //Aniket [5-8-2019] added
+                        string cncStr = string.Empty;
+                        if (tblBookingsTO.IsConfirmed == 1)
+                            cncStr = " Confirmed ";
+                        else
+                            cncStr = " Not Confirmd ";
                         if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
                         {
                              tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
                             tempTxt = tempTxt.Replace("@BookingIdStr", tblBookingsTO.IdBooking.ToString());
-                            tempTxt = tempTxt.Replace("@CNCStr",tblBookingsTO.CnfName);
+                            tempTxt = tempTxt.Replace("@CNCStr", cncStr);
                             tempTxt = tempTxt.Replace("@DealerNameStr", tblBookingsTO.DealerName);
 
                             tblAlertInstanceTO.AlertComment = tempTxt;
