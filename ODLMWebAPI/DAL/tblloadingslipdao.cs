@@ -1309,6 +1309,7 @@ namespace ODLMWebAPI.DAL
                 String sqlQuery = @" UPDATE [tempLoadingSlip] SET " +
                             "  [statusId]= @StatusId" +
                             " ,[statusDate]= @StatusDate" +
+                            " ,[vehicleNo]= @VehicleNo" +
                             " ,[loadingDatetime]= @LoadingDatetime" +
                             " ,[statusReason]= @StatusReason" +
                             " ,[statusReasonId]= @statusReasonId" +
@@ -1323,6 +1324,7 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Parameters.Add("@StatusReason", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.StatusReason);
                 cmdUpdate.Parameters.Add("@LoadingId", System.Data.SqlDbType.Int).Value = tblLoadingTO.IdLoading;
                 cmdUpdate.Parameters.Add("@statusReasonId", System.Data.SqlDbType.Int).Value = tblLoadingTO.StatusReasonId;
+                cmdUpdate.Parameters.Add("@VehicleNo", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.VehicleNo);
                 return cmdUpdate.ExecuteNonQuery();
             }
             catch (Exception ex)

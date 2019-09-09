@@ -44,5 +44,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblOtherTaxRpt> SelectOtherTaxDetailsReport(DateTime frmDt, DateTime toDt, int isConfirm, Int32 otherTaxId);
         List<TblOtherTaxRpt> ConvertDTToOtherTaxRptTOList(SqlDataReader tblInvoiceRptTODT);
         TblInvoiceTO SelectAllTblInvoice(string taxInvoiceNumber, int finYearId);
+
+        double GetTareWeightFromInvoice(String lodingSlipIds, SqlConnection conn, SqlTransaction tran);
     }
 }

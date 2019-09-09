@@ -1040,13 +1040,14 @@ namespace ODLMWebAPI.Controllers
             
             return _iTblLoadingBL.SelectLoadingTOWithDetailsByBooking(bookingIdsList,scheduleIdsList);
         }
-        //Aniket [21-8-2019]
-        //[Route("RemoveVehOutDatFromIotDevice")]
-        //[HttpGet]
-        //public ResultMessage RemoveVehOutDatFromIotDevice()
-        //{
-        //    return _iTblLoadingBL.RemoveDatFromIotDevice();
-        //}
+
+        //Aniket[21 - 8 - 2019]
+        [Route("RemoveVehOutDatFromIotDevice")]
+        [HttpGet]
+        public ResultMessage RemoveVehOutDatFromIotDevice()
+        {
+            return _iTblLoadingBL.RemoveDatFromIotDevice();
+        }
         #endregion
 
         #region Post
@@ -1668,6 +1669,22 @@ namespace ODLMWebAPI.Controllers
                 {
                     resultMessage.DefaultBehaviour("loginUserId Found NULL");
                     return resultMessage;
+                }
+                TblLoadingTO existingTblLoadingTO = _iTblLoadingBL.SelectTblLoadingTO(tblLoadingTO.IdLoading);
+                if (existingTblLoadingTO == null)
+                {
+                    resultMessage.MessageType = ResultMessageE.Error;
+                    resultMessage.Text = "existingTblLoadingTO Found NULL";
+                    resultMessage.Result = 0;
+                    return resultMessage;
+                }
+                //Added By Kiran For avoid to change old value 14/03/19
+                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                {
+                    tblLoadingTO.VehicleNo = existingTblLoadingTO.VehicleNo;
+                    tblLoadingTO.StatusId = existingTblLoadingTO.StatusId;
+                    tblLoadingTO.TransporterOrgId = existingTblLoadingTO.TransporterOrgId;
                 }
 
                 //TblLoadingTO existingTblLoadingTO = _iTblLoadingBL.SelectTblLoadingTO(tblLoadingTO.IdLoading);

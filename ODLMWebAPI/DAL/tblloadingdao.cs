@@ -187,8 +187,7 @@ namespace ODLMWebAPI.DAL
         }
 
 
-
-        
+       
         public List<TblLoadingTO> SelectAllTblLoading()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -247,6 +246,42 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+
+
+        public TblLoadingTO SelectTblLoadingTOByModBusRefId(Int32 modBusRefId, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                cmdSelect.CommandText = " SELECT * FROM (" + SqlSelectQuery() + ")sq1 WHERE idLoading in ( select loadingId from tempLoadingSlip where modbusRefId =" + modBusRefId + ") " +
+
+                                      // Vaibhav [20-Nov-2017] Added to select from finalLoadingSlip
+
+                                      " UNION ALL " + " SELECT * FROM (" + SqlSelectQuery() + ")sq1 WHERE idLoading in ( select loadingId from finalLoadingSlip where modbusRefId =" + modBusRefId + ") ";
+
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblLoadingTO> list = ConvertDTToList(reader);
+                if (list != null && list.Count == 1)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                reader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
+
         public List<TblLoadingTO> SelectAllTblloadingList(DateTime fromDate, DateTime toDate)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);

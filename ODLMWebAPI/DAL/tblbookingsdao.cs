@@ -1645,6 +1645,10 @@ namespace ODLMWebAPI.DAL
                         tblBookingsTONew.IsItemized = Convert.ToInt32(tblBookingsTODT["isItemized"]);
                     if (tblBookingsTODT["stateId"] != DBNull.Value)
                         tblBookingsTONew.StateId = Convert.ToInt32(tblBookingsTODT["stateId"]);
+                    if (tblBookingsTODT["bookingRefId"] != DBNull.Value)
+                        tblBookingsTONew.BookingRefId = Convert.ToInt32(tblBookingsTODT["bookingRefId"]);
+                    if (tblBookingsTODT["bookingDisplayNo"] != DBNull.Value)
+                        tblBookingsTONew.BookingDisplayNo = Convert.ToString(tblBookingsTODT["bookingDisplayNo"]);
                     tblBookingsTOList.Add(tblBookingsTONew);
 
 
@@ -1976,6 +1980,8 @@ namespace ODLMWebAPI.DAL
                             " ,[pendingUomQty]" +  // Aniket [4-6-2019]
                             " ,[isInUom]" +  //Aniket[13-6-2019]
                             " ,[isItemized]" + //Aniket[13-6-2019]
+                            " ,[bookingRefId]" + //kiran[06-09-2019]
+                            " ,[bookingDisplayNo]" + //kiran[06-09-2019]
                             " )" +
                 " VALUES (" +
                             "  @CnFOrgId " +
@@ -2026,6 +2032,8 @@ namespace ODLMWebAPI.DAL
                             " ,@pendingUomQty" +
                             " ,@isInUom" +
                             " ,@isItemized" +
+                            " ,@bookingRefId" +
+                            " ,@bookingDisplayNo" +
                              " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -2082,6 +2090,8 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@pendingUomQty", System.Data.SqlDbType.Decimal).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.PendingUomQty);
             cmdInsert.Parameters.Add("@isInUom", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.IsInUom);
             cmdInsert.Parameters.Add("@isItemized", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.IsItemized);
+            cmdInsert.Parameters.Add("@bookingRefId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingRefId);
+            cmdInsert.Parameters.Add("@bookingDisplayNo", System.Data.SqlDbType.VarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingDisplayNo);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
@@ -2219,6 +2229,8 @@ namespace ODLMWebAPI.DAL
                             " ,[pendingUomQty] = @pendingUomQty" +
                             " ,[isInUom] = @isInUom" +
                             " ,[isItemized] = @isItemized" +
+                            " ,[bookingRefId] = @bookingRefId" +
+                            " ,[bookingDisplayNo] = @bookingDisplayNo" +
                             " WHERE  [idBooking] = @IdBooking";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -2272,6 +2284,8 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@pendingUomQty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.PendingUomQty);
             cmdUpdate.Parameters.Add("@isInUom", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.IsInUom);
             cmdUpdate.Parameters.Add("@isItemized", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.IsItemized);
+            cmdUpdate.Parameters.Add("@bookingRefId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingRefId);
+            cmdUpdate.Parameters.Add("@bookingDisplayNo", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingDisplayNo);
 
 
             return cmdUpdate.ExecuteNonQuery();

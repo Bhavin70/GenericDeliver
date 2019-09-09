@@ -90,5 +90,17 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage SpiltBookingAgainstInvoice(TblInvoiceTO tblInvoiceTO, TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran);
 
         ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0);
+
+        ResultMessage RemoveDatFromIotDevice();
+
+        TblLoadingTO SelectTblLoadingTOByModBusRefId(Int32 modBusRefId);
+
+        TblLoadingTO SelectTblLoadingTOByModBusRefId(Int32 modBusRefId, SqlConnection conn, SqlTransaction tran);
+
+        ResultMessage MarkDeliverAndRemoveModBusRefs(Int32 loadingId);
+
+        ResultMessage MarkDeliverAndRemoveModBusRefs(Int32 loadingId, SqlConnection conn, SqlTransaction tran);
+
+        ResultMessage DeleteLoadingData(Int32 loadingId, SqlConnection conn, SqlTransaction tran);
     }
 }

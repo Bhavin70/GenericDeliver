@@ -1733,6 +1733,30 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public double GetTareWeightFromInvoice(String lodingSlipIds, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                cmdSelect.CommandText = "SELECT MIN(tareWeight) FROM tempinvoice  WHERE loadingSlipId IN (" + lodingSlipIds + " )";
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                return Convert.ToDouble(cmdSelect.ExecuteScalar());
+
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
 
         public List<TblLoadingSlipTO> SelectLoadingDetailsByInvoiceId(int invoiceId,SqlConnection conn, SqlTransaction tran)
         {

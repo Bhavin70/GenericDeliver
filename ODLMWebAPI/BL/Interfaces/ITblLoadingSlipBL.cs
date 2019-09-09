@@ -40,5 +40,7 @@ namespace ODLMWebAPI.BL.Interfaces
         int DeleteTblLoadingSlip(Int32 idLoadingSlip, SqlConnection conn, SqlTransaction tran);
         TblLoadingSlipTO SelectAllLoadingSlipWithDetailsForExtract(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran);
         TblLoadingSlipTO SelectAllLoadingSlipWithDetailsForExtract(Int32 loadingSlipId);
+
+        ResultMessage DeleteLoadingSlipWithDetails(TblLoadingTO tblLoadingTO, Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran);
     }
 }

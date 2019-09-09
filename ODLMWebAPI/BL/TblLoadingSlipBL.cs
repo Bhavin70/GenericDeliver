@@ -213,6 +213,99 @@ namespace ODLMWebAPI.BL
             }
         }
 
+        public ResultMessage DeleteLoadingSlipWithDetails(TblLoadingTO tblLoadingTO, Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+
+            try
+            {
+                #region Delete Slip
+
+
+                Int32 result = 0;
+                if (tblLoadingTO.LoadingType != (int)Constants.LoadingTypeE.OTHER)
+                {
+                    
+                    TblLoadingSlipDtlTO tblLoadingSlipDtlTO = _iTblLoadingSlipDtlDAO.SelectLoadingSlipDtlTO(loadingSlipId, conn, tran);
+                    if (tblLoadingSlipDtlTO == null)
+                    {
+                        tran.Rollback();
+                        resultMessage.DefaultBehaviour("Error : tblLoadingTo found null");
+                        return resultMessage;
+                    }
+                   
+                    result = _iTblLoadingSlipDtlDAO.DeleteTblLoadingSlipDtl(tblLoadingSlipDtlTO.IdLoadSlipDtl, conn, tran);
+                    if (result != 1)
+                    {
+                        tran.Rollback();
+                        resultMessage.DefaultBehaviour("Error While Deleting Loading Slip Details.");
+                        return resultMessage;
+                    }
+                }
+                //Delete Address
+
+                List<TblLoadingSlipAddressTO> tblLoadingSlipAddressTOList = _iTblLoadingSlipAddressBL.SelectAllTblLoadingSlipAddressList(loadingSlipId, conn, tran);
+                if (tblLoadingSlipAddressTOList != null && tblLoadingSlipAddressTOList.Count > 0)
+                {
+                    for (int u = 0; u < tblLoadingSlipAddressTOList.Count; u++)
+                    {
+                        result = _iTblLoadingSlipAddressBL.DeleteTblLoadingSlipAddress(tblLoadingSlipAddressTOList[u].IdLoadSlipAddr, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("Error While Deleting Loading Slip Address Details for IdLoadSlipAddr = " + tblLoadingSlipAddressTOList[u].IdLoadSlipAddr);
+                            return resultMessage;
+                        }
+                    }
+
+                }
+                
+                List<TblLoadingSlipExtTO> tblLoadingSlipExtList = _iTblLoadingSlipExtDAO.SelectAllTblLoadingSlipExt(loadingSlipId, conn, tran);
+                if (tblLoadingSlipExtList != null && tblLoadingSlipExtList.Count > 0)
+                {
+                    for (int j = 0; j < tblLoadingSlipExtList.Count; j++)
+                    {
+                        
+                        result = _iTblLoadingSlipExtHistoryDAO.DeleteLoadingSlipExtHistoryForItem(tblLoadingSlipExtList[j].IdLoadingSlipExt, conn, tran);
+                        if (result < 0)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("Error While Deleting Loading Slip Extenstion History Details for IdLoadingSlipExt = " + tblLoadingSlipExtList[j].IdLoadingSlipExt);
+                            return resultMessage;
+                        }
+                        
+                        result = _iTblLoadingSlipExtDAO.DeleteTblLoadingSlipExt(tblLoadingSlipExtList[j].IdLoadingSlipExt, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("Error While Deleting Loading Slip Extenstion Details for IdLoadingSlipExt = " + tblLoadingSlipExtList[j].IdLoadingSlipExt);
+                            return resultMessage;
+                        }
+                    }
+
+                }
+                
+                result = _iTblLoadingSlipDAO.DeleteTblLoadingSlip(loadingSlipId, conn, tran);
+                if (result != 1)
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("Error While Deleting Loading Slip Details");
+                    return resultMessage;
+                }
+
+                #endregion
+
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+
+            }
+            catch (Exception ex)
+            {
+                resultMessage = new ResultMessage();
+                resultMessage.DefaultExceptionBehaviour(ex, "DeleteLoadingSlipWithDetails");
+                return resultMessage;
+            }
+        }
 
 
         public TblLoadingSlipTO SelectTblLoadingSlipTO(Int32 idLoadingSlip)

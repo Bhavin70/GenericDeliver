@@ -50,6 +50,9 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<int> GeModRefMaxData();
         tblUserMachineMappingTo SelectUserMachineTo(int userId, SqlConnection conn, SqlTransaction tran);
         TblLoadingTO SelectTblLoading(Int32 idLoading);
+        TblLoadingTO SelectTblLoadingTOByModBusRefId(Int32 modBusRefId, SqlConnection conn, SqlTransaction tran);
+
+
 
     }
 }
