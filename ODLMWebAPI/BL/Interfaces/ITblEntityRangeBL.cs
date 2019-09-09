@@ -21,5 +21,7 @@ namespace ODLMWebAPI.BL.Interfaces
         int UpdateTblEntityRange(TblEntityRangeTO tblEntityRangeTO, SqlConnection conn, SqlTransaction tran);
         int DeleteTblEntityRange(Int32 idEntityRange);
         int DeleteTblEntityRange(Int32 idEntityRange, SqlConnection conn, SqlTransaction tran);
+
+        TblEntityRangeTO SelectTblEntityRangeTOByEntityName(string entityName, int finYearId);
     }
 }

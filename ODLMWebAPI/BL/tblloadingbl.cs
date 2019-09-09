@@ -1568,7 +1568,7 @@ namespace ODLMWebAPI.BL {
             {
                 conn.Open();
                 tran = conn.BeginTransaction();
-
+                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
                 TblInvoiceTO invoiceTO = _iTblInvoiceDAO.SelectTblInvoice(invoiceId, conn, tran);
                 if (invoiceTO == null)
                 {
@@ -1787,11 +1787,7 @@ namespace ODLMWebAPI.BL {
                     resultMessage.DisplayMessage = "Invoice No #" + invoiceTO.InvoiceNo + " is already Generated";
                     return resultMessage;
                 }
-                TblLoadingTO tblLoadingTO = new TblLoadingTO();
-                //Kiran [10-Dec-2018] For IoT Implementations
-                //int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
-                //if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
-                //{
+                Int32 count = 0;
                 TblLoadingSlipTO tblLoadingSlipTOselect = _iTblLoadingSlipDAO.SelectTblLoadingSlip(invoiceTO.LoadingSlipId, conn, tran);
                 if (tblLoadingSlipTOselect == null)
                 {
@@ -1801,24 +1797,63 @@ namespace ODLMWebAPI.BL {
                     resultMessage.Result = 0;
                     return resultMessage;
                 }
-
-                tblLoadingTO = SelectLoadingTOWithDetails(tblLoadingSlipTOselect.LoadingId);
-
-                // tblLoadingTO = TblLoadingBL.SelectTblLoadingTO(tblLoadingSlipTOselect.LoadingId, conn, tran);
-                if (tblLoadingTO == null || tblLoadingTO.VehicleNo == null || tblLoadingTO.TransporterOrgId == 0)
+                List<TblLoadingSlipTO> list = _iTblLoadingSlipDAO.SelectAllTblLoadingSlip(tblLoadingSlipTOselect.LoadingId, conn, tran);
+                TblLoadingTO tblLoadingTO = new TblLoadingTO();
+                if (list == null)
                 {
                     tran.Rollback();
-                    resultMessage.DefaultBehaviour("tblLoadingTO Found NULL"); return resultMessage;
+                    resultMessage.DefaultBehaviour("LoadingSlip Found NULL"); return resultMessage;
                 }
-                resultMessage = RightDataFromIotToDB(tblLoadingTO.IdLoading, tblLoadingTO, conn, tran);
-                if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                else
                 {
-                    tran.Rollback();
-                    resultMessage.MessageType = ResultMessageE.Error;
-                    resultMessage.Text = "Error While Writng Data from DB";
-                    return resultMessage;
+                    for (int i = 0; i < list.Count; i++)
+                    {
+
+                        List<TblInvoiceTO> invoiceTOselectList = _iTblInvoiceDAO.SelectInvoiceListFromLoadingSlipId(list[i].IdLoadingSlip, conn, tran);
+
+                        if (invoiceTOselectList != null)
+                        {
+                            List<TblInvoiceTO> TblInvoiceTOTemp = invoiceTOselectList.Where(w => w.InvoiceStatusE == Constants.InvoiceStatusE.AUTHORIZED).ToList();
+
+                            //if (TblInvoiceTOTemp == null || TblInvoiceTOTemp.Count == 0)
+                            if (invoiceTOselectList != null && invoiceTOselectList.Count == TblInvoiceTOTemp.Count)
+                            {
+                                count++;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                   // int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                    if (list.Count == count)
+                    {
+                        tblLoadingTO = SelectLoadingTOWithDetails(tblLoadingSlipTOselect.LoadingId);
+
+                        // tblLoadingTO = TblLoadingBL.SelectTblLoadingTO(tblLoadingSlipTOselect.LoadingId, conn, tran);
+                        if (tblLoadingTO == null || tblLoadingTO.VehicleNo == null || tblLoadingTO.TransporterOrgId == 0)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("tblLoadingTO Found NULL"); return resultMessage;
+                        }
+                        
+                        if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
+                        {
+                            //tblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.LOADING_IN_PROGRESS);
+                            tblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.LOADING_CONFIRM);
+                            tblLoadingTO.StatusReason = "Loading Confirmed";
+                        }
+                        resultMessage = RightDataFromIotToDB(tblLoadingTO.IdLoading, tblLoadingTO, conn, tran);
+                        if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                        {
+                            tran.Rollback();
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            resultMessage.Text = "Error While Writng Data from DB";
+                            return resultMessage;
+                        }
+                    }
                 }
-                // }
 
                 resultMessage = SpiltBookingAgainstInvoice(invoiceTO, tblLoadingTO, conn, tran);
                 if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
@@ -1828,7 +1863,7 @@ namespace ODLMWebAPI.BL {
 
                 #region Write Data to Invoice
 
-                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+               
                 if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
                 {
                     if (invoiceTO.IsConfirmed == 1)
@@ -1977,7 +2012,8 @@ namespace ODLMWebAPI.BL {
                         for (int j = 0; j < loadingSlipListConfirm.Count; j++)
                         {
                             TblLoadingSlipTO tblLoadingSlipTO = loadingSlipListConfirm[j];
-
+                            tblLoadingSlipTO.StatusId = Convert.ToInt16(Constants.TranStatusE.LOADING_CONFIRM);
+                            tblLoadingSlipTO.StatusReason = "Loading Confirmed";
                             result = _iTblLoadingSlipBL.UpdateTblLoadingSlip(tblLoadingSlipTO, conn, tran);
                             if (result != 1)
                             {
@@ -7907,7 +7943,7 @@ namespace ODLMWebAPI.BL {
 
                 Boolean isBoyondLoadingQuota = false;
                 Double finalLoadQty = 0;
-                int modbusRefIdInc = 0;
+                int modbusRefIdInc = tblLoadingSlipExtTOListAll.Max(w=>w.ModbusRefId);
                 resultMessage = InsertLoadingExtDetails(tblLoadingTO, conn, tran, ref isBoyondLoadingQuota, ref finalLoadQty, tblLoadingSlipTO, tblBookingsTO, new List<TblBookingExtTO>(),ref modbusRefIdInc);//added by Aniket last parameter modbusRefIdInc is modbusRefId needs to change logic 
                 if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
                 {

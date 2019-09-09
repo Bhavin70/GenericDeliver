@@ -67,5 +67,9 @@ namespace ODLMWebAPI.DAL.Interfaces
         int InsertMstFinYear(DimFinYearTO newMstFinYearTO, SqlConnection conn, SqlTransaction tran);
         List<DropDownTO> GetUserListDepartmentWise(string deptId);
         List<DropDownTO> SelectAllInvoiceCopyList();
+
+        List<DimFinYearTO> SelectAllMstFinYearList();
+
+        int InsertMstFinYear(DimFinYearTO newMstFinYearTO);
     }
 }

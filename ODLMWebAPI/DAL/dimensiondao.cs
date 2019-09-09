@@ -1226,6 +1226,52 @@ namespace ODLMWebAPI.DAL
 
         }
 
+
+        public List<DimFinYearTO> SelectAllMstFinYearList()
+        {
+
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            ResultMessage resultMessage = new ResultMessage();
+            SqlDataReader dateReader = null;
+            try
+            {
+                conn.Open();
+                String aqlQuery = "SELECT * FROM dimFinYear ";
+
+                cmdSelect = new SqlCommand(aqlQuery, conn);
+                dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DimFinYearTO> finYearTOList = new List<DimFinYearTO>();
+                while (dateReader.Read())
+                {
+                    DimFinYearTO finYearTO = new DimFinYearTO();
+                    if (dateReader["idFinYear"] != DBNull.Value)
+                        finYearTO.IdFinYear = Convert.ToInt32(dateReader["idFinYear"].ToString());
+                    if (dateReader["finYearDisplayName"] != DBNull.Value)
+                        finYearTO.FinYearDisplayName = Convert.ToString(dateReader["finYearDisplayName"].ToString());
+                    if (dateReader["finYearStartDate"] != DBNull.Value)
+                        finYearTO.FinYearStartDate = Convert.ToDateTime(dateReader["finYearStartDate"].ToString());
+                    if (dateReader["finYearEndDate"] != DBNull.Value)
+                        finYearTO.FinYearEndDate = Convert.ToDateTime(dateReader["finYearEndDate"].ToString());
+
+                    finYearTOList.Add(finYearTO);
+                }
+
+                return finYearTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+
+        }
+
         // Vaibhav [27-Sep-2017] added to select reporting type list
         public List<DropDownTO> SelectReportingType()
         {
@@ -2378,6 +2424,47 @@ namespace ODLMWebAPI.DAL
             }
             finally
             {
+                cmdInsert.Dispose();
+            }
+        }
+
+        public int InsertMstFinYear(DimFinYearTO newMstFinYearTO)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdInsert = new SqlCommand();
+            try
+            {
+
+                conn.Open();
+                String sqlQuery = @" INSERT INTO [dimFinYear]( " +
+                            "  [idFinYear]" +
+                            " ,[finYearDisplayName]" +
+                            " ,[finYearStartDate]" +
+                            " ,[finYearEndDate]" +
+                            " )" +
+                " VALUES (" +
+                            "  @idFinYear " +
+                            " ,@finYearDisplayName " +
+                            " ,@finYearStartDate " +
+                            " ,@finYearEndDate " +
+                            " )";
+                cmdInsert.CommandText = sqlQuery;
+                cmdInsert.CommandType = System.Data.CommandType.Text;
+
+                cmdInsert.Parameters.Add("@idFinYear", System.Data.SqlDbType.Int).Value = newMstFinYearTO.IdFinYear;
+                cmdInsert.Parameters.Add("@finYearDisplayName", System.Data.SqlDbType.NVarChar).Value = newMstFinYearTO.FinYearDisplayName;
+                cmdInsert.Parameters.Add("@finYearStartDate", System.Data.SqlDbType.DateTime).Value = newMstFinYearTO.FinYearStartDate;
+                cmdInsert.Parameters.Add("@finYearEndDate", System.Data.SqlDbType.DateTime).Value = newMstFinYearTO.FinYearEndDate;
+                return cmdInsert.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                conn.Close();
                 cmdInsert.Dispose();
             }
         }

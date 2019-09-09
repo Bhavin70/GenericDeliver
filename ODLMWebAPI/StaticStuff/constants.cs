@@ -739,7 +739,7 @@ namespace ODLMWebAPI.StaticStuff
         public static string IS_BALAJI_CLIENT = "IS_BALAJI_CLIENT";
         //Aniket [30-7-2019] added for IOT
         public static string CP_WEIGHING_MEASURE_SOURCE_ID = "WEIGHING_MEASURE_SOURCE_ID";
-
+        public static String REGULAR_BOOKING = "REGULAR_BOOKING";
         #endregion
 
         #region Common functions
