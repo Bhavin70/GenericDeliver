@@ -7367,7 +7367,7 @@ namespace ODLMWebAPI.BL
                     if (tblInvoiceTO.IsConfirmed == 1 && tblInvoiceTO.StatusId == Convert.ToInt32(Constants.InvoiceStatusE.AUTHORIZED))
                     {
                         Int32 isconfirm = 0;
-                        _iTblInvoiceBL.GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR);
+                        _iTblInvoiceBL.GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR,0,0);
 
                     }
                     return resultMessage;
@@ -7693,7 +7693,7 @@ namespace ODLMWebAPI.BL
                 if (tblInvoiceTO.IsConfirmed == 1 && tblInvoiceTO.StatusId == Convert.ToInt32(Constants.InvoiceStatusE.AUTHORIZED))
                 {
                     Int32 isconfirm = 0;
-                    _iTblInvoiceBL.GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR);
+                    _iTblInvoiceBL.GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR,0,0);
 
                 }
                 return resultMessage;

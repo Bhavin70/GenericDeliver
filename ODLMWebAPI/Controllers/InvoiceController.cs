@@ -73,7 +73,7 @@ namespace ODLMWebAPI.Controllers
         /// <returns></returns>
         [Route("GetInvoiceList")]
         [HttpGet]
-        public List<TblInvoiceTO> GetInvoiceList(string fromDate, string toDate, int isConfirm, Int32 cnfId,  Int32 dealerID, String userRoleTOList, Int32 brandId = 0, Int32 invoiceId = 0, Int32 statusId = 0)
+        public List<TblInvoiceTO> GetInvoiceList(string fromDate, string toDate, int isConfirm, Int32 cnfId,  Int32 dealerID, String userRoleTOList, Int32 brandId = 0, Int32 invoiceId = 0, Int32 statusId = 0,Int32 internalOrgId=0)
         {
             try
             {
@@ -95,6 +95,11 @@ namespace ODLMWebAPI.Controllers
                     toDt = _iCommon.ServerDateTime.Date;
 
                 List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleTOList);
+                if(internalOrgId >0)
+                {
+                return _iTblInvoiceBL.SelectAllTblInvoiceList(frmDt, toDt, isConfirm, cnfId, dealerID, tblUserRoleTOList, brandId, invoiceId,statusId)
+                .Where(e=>e.InvFromOrgId==internalOrgId).ToList();   
+                }
                 return _iTblInvoiceBL.SelectAllTblInvoiceList(frmDt, toDt, isConfirm, cnfId, dealerID, tblUserRoleTOList, brandId, invoiceId,statusId);
             }
             catch (Exception ex)
@@ -668,6 +673,24 @@ namespace ODLMWebAPI.Controllers
 
         }
 
+
+        [Route("PostexchangeInvoice")]
+        [HttpPost]
+        public ResultMessage exchangeInvoice(int invoiceId,int invGenerateModeId,int fromOrgId,int toOrgId=0)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                return _iTblInvoiceBL.exchangeInvoice(invoiceId,invGenerateModeId,fromOrgId,toOrgId);
+            }
+            catch(Exception e)
+            {
+                 resultMessage.DefaultExceptionBehaviour(e, "exchangeIvoice");
+                return resultMessage;
+            }
+        }
+
+
         [Route("PostGenerateInvoiceNumber")]
         [HttpPost]
         public ResultMessage PostGenerateInvoiceNumber([FromBody] JObject data)
@@ -679,6 +702,29 @@ namespace ODLMWebAPI.Controllers
                 var invoiceId = data["invoiceId"].ToString();
                 var invGenerateModeId = data["invGenerateModeId"].ToString();
                 var taxInvoiceNumber  = data["taxInvoiceNumber"].ToString();
+                
+                int fromOrgId =0;
+                int toOrgId =0;
+                // try
+                // {
+                //      fromOrgId  = Convert.ToInt32(data["fromOrgId"].ToString());
+           
+                // }
+                // catch(Exception e)
+                // {
+                // fromOrgId =0;
+                // }
+                
+
+                // try
+                // {
+                //    toOrgId  = Convert.ToInt32(data["toOrgId"].ToString());
+           
+                // }
+                // catch(Exception e)
+                // {
+                //   toOrgId =0   
+                // }
                 Int32 manualinvoiceno = Convert.ToInt32(data["ManualInvoiceNo"]);
                 if (Convert.ToInt32(loginUserId) <= 0)
                 { 
@@ -692,7 +738,7 @@ namespace ODLMWebAPI.Controllers
                     return resultMessage;
                 }
                Int32 isConfirm = 1;
-                return _iTblInvoiceBL.GenerateInvoiceNumber(Convert.ToInt32(invoiceId), Convert.ToInt32(loginUserId), isConfirm, Convert.ToInt32(invGenerateModeId),Convert.ToString(taxInvoiceNumber), manualinvoiceno);
+                return _iTblInvoiceBL.GenerateInvoiceNumber(Convert.ToInt32(invoiceId), Convert.ToInt32(loginUserId), isConfirm, Convert.ToInt32(invGenerateModeId),fromOrgId,toOrgId,Convert.ToString(taxInvoiceNumber), manualinvoiceno);
             }
             catch (Exception ex)
             {

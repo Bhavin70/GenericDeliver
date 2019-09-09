@@ -493,6 +493,9 @@ namespace ODLMWebAPI
             services.AddScoped<IDimConfigurePageBL, DimConfigurePageBL>();
             services.AddScoped<IDimConfigurePageDAO, DimConfigurePageDAO>();
             services.AddScoped<InotificationDAO, notificationDAO>();
+            services.AddScoped<ITblInvoiceChangeOrgHistoryDAO, TblInvoiceChangeOrgHistoryDAO>();
+
+            
 
             services.AddMvc();
             ConnectionString = Configuration.GetSection("Data:DefaultConnection").Value.ToString();
