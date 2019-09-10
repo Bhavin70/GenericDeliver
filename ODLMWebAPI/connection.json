@@ -1,4 +1,4 @@
-﻿{
+﻿//{
 //  "marketingtrial": {
 //    "RequestOriginString": "https://marketingtrial.simpliworks.co.in",
 //    "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
@@ -24,10 +24,10 @@
 //    "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
 //    "ConnectionString": "Server=tcp:genericcentralserver.database.windows.net,1433;Initial Catalog= MarketingDB;Persist Security Info=False;User ID=vega;Password=simple@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 //  },
- "http://localhost:4200": {
-   "RequestOriginString": "http://localhost:4200",
-   "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
-   "ConnectionString": "Server=tcp:genericcentralserver.database.windows.net,1433;Initial Catalog=ModbusTCP;Persist Security Info=False;User ID=vega;Password=simple@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
- }
+// "http://localhost:4200": {
+//   "RequestOriginString": "http://localhost:4200",
+//   "AzureConnectionStr": "DefaultEndpointsProtocol=https;AccountName=testingdoc;AccountKey=VYfTkWd+MVtDgsjLk33o2KkX7CM0+vRXh5SjcPDNwBJU0+VjmxWyw20tUwhZzmrjWDXwCxeoH59FsGrNoWo8sQ==;EndpointSuffix=core.windows.net",
+//   "ConnectionString": "Server=tcp:genericcentralserver.database.windows.net,1433;Initial Catalog=ModbusTCP;Persist Security Info=False;User ID=vega;Password=simple@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
+// }
 
-}
+//}
