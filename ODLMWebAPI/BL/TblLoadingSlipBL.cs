@@ -135,6 +135,7 @@ namespace ODLMWebAPI.BL
             }
         }
 
+
         //GJ@20171002 : Get the Loading Slip details By Loading Slip id
         public TblLoadingSlipTO SelectAllLoadingSlipWithDetails(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran)
         {

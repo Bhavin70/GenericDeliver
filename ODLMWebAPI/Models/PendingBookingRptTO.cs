@@ -34,6 +34,7 @@ namespace ODLMWebAPI.Models
         int transporterScopeYn;
         string transporterScopeYnStr;
         int bookingType;
+        String bookingDisplayNo;
 
         #endregion
 
@@ -97,6 +98,7 @@ namespace ODLMWebAPI.Models
         }
 
         public Int32 BookingType { get => bookingType; set => bookingType = value; }
+        public string BookingDisplayNo { get => bookingDisplayNo; set => bookingDisplayNo = value; }
 
         #endregion
     }

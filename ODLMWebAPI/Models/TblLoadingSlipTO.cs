@@ -73,6 +73,7 @@ namespace ODLMWebAPI.Models
         Int32 isDBup;
         Int32 transporterOrgId;
         String statusDesc;
+        String bookingDisplayNo;
         #endregion
 
         #region Constructor
@@ -400,5 +401,6 @@ namespace ODLMWebAPI.Models
         public int IsDBup { get => isDBup; set => isDBup = value; }
         public int TransporterOrgId { get => transporterOrgId; set => transporterOrgId = value; }
         public string StatusDesc { get => statusDesc; set => statusDesc = value; }
+        public string BookingDisplayNo { get => bookingDisplayNo; set => bookingDisplayNo = value; }
     }
 }

@@ -1736,7 +1736,7 @@ namespace ODLMWebAPI.Controllers
                 var loginUserId = data["loginUserId"].ToString();
                 TblLoadingSlipTO loadingSlipTO = JsonConvert.DeserializeObject<TblLoadingSlipTO>(data["loadingSlipTo"].ToString());
 
-                //TblLoadingSlipTO loadingSlipTO = BL._iTblLoadingSlipBL.SelectTblLoadingSlipTO(Convert.ToInt32(loadingSlipId));
+                loadingSlipTO = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsForExtract(Convert.ToInt32(loadingSlipTO.IdLoadingSlip));
                 if (loadingSlipTO == null)
                 {
                     resultMessage.DefaultBehaviour("loadingSlipTO Found NULL");

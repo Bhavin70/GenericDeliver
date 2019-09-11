@@ -1157,12 +1157,12 @@ namespace ODLMWebAPI.BL
                         var.CalcTareWeight = item.CalcTareWeight;
                     }
 
-                    var emptyItem = lastItemList.Where(w => w.LoadedWeight <= 0).ToList();
-                    if (emptyItem != null && emptyItem.Count > 0)
-                    {
-                        resultMsg.DefaultBehaviour("Weight Not Found Against " + emptyItem.Count + " Item ");
-                        return resultMsg;
-                    }
+                    //var emptyItem = lastItemList.Where(w => w.LoadedWeight <= 0).ToList();
+                    //if (emptyItem != null && emptyItem.Count > 0)
+                    //{
+                    //    resultMsg.DefaultBehaviour("Weight Not Found Against " + emptyItem.Count + " Item ");
+                    //    return resultMsg;
+                    //}
                 }
                 resultMsg = CreateInvoiceAgainstLoadingSlips(loadingTO, conn, tran, loadingSlipTOList);
                 // resultMsg.DefaultSuccessBehaviour();
@@ -1204,7 +1204,7 @@ namespace ODLMWebAPI.BL
                     int weighingSourceId = _iTblConfigParamsDAO.IoTSetting();
                     if(weighingSourceId==2)
                     {
-                        List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = tblLoadingSlipTOTemp.LoadingSlipExtTOList.Where(w => w.Bundles == 0).ToList();
+                        List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = tblLoadingSlipTOTemp.LoadingSlipExtTOList.Where(w => w.LoadedBundles == 0).ToList();
                         if (tblLoadingSlipExtTOList != null && tblLoadingSlipExtTOList.Count > 0)
                         {
                             remove = true;

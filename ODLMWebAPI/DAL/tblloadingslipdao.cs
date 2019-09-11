@@ -22,7 +22,7 @@ namespace ODLMWebAPI.DAL
         public String SqlSelectQuery()
         {
             String sqlSelectQry = " SELECT tempLoadingSlip.* ,tempLoadSlipdtl.loadingQty, " +
-                                  " cnfOrg.firmName as cnfOrgName ,dimStat.statusName ,tempLoadSlipdtl.bookingId,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
+                                  " cnfOrg.firmName as cnfOrgName ,dimStat.statusName ,tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
                                   " ,loading.modbusRefId,loading.gateId,loading.isDBup,gate.portNumber,gate.IoTUrl,gate.machineIP "+
                                   " FROM tempLoadingSlip" +
                                   " LEFT JOIN tblOrganization " +
@@ -32,6 +32,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN dimStatus dimStat " +
                                   " ON dimStat.idStatus = tempLoadingSlip.statusId " +
                                    " Left Join tempLoadingSlipDtl tempLoadSlipdtl ON tempLoadSlipdtl.loadingSlipId = tempLoadingSlip.idLoadingSlip " +
+                                    " Left Join tblBookings tblBookings ON tempLoadSlipdtl.bookingId = tblBookings.idbooking " +
                                    "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = tblOrganization.addrId" +   //Aniket K [03-Jan-2019] Added to show village name against dealer
                                    " LEFT JOIN temploading loading on loading.idloading = tempLoadingSlip.loadingId "+
                                    " LEFT JOIN tblGate gate on gate.idGate=loading.gateId "+
@@ -41,7 +42,7 @@ namespace ODLMWebAPI.DAL
             " UNION ALL " +
 
                                   " SELECT finalLoadingSlip.* , tempLoadSlipdtl.loadingQty, " +
-                                  " cnfOrg.firmName as cnfOrgName, dimStat.statusName, tempLoadSlipdtl.bookingId,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
+                                  " cnfOrg.firmName as cnfOrgName, dimStat.statusName, tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
                                   " , loading.modbusRefId,loading.gateId,loading.isDBup,gate.portNumber,gate.IoTUrl,gate.machineIP "+
                                   " FROM finalLoadingSlip " +
                                   " LEFT JOIN tblOrganization " +
@@ -51,6 +52,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN dimStatus dimStat " +
                                   " ON dimStat.idStatus = finalLoadingSlip.statusId " +
                                    " Left Join finalLoadingSlipDtl tempLoadSlipdtl ON tempLoadSlipdtl.loadingSlipId = finalLoadingSlip.idLoadingSlip " +
+                                   " Left Join tblBookings tblBookings ON tempLoadSlipdtl.bookingId = tblBookings.idbooking " +
                                    "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = tblOrganization.addrId " +  //Aniket K [03-Jan-2019] Added to show village name against dealer
                                     " LEFT JOIN temploading loading on loading.idloading = finalLoadingSlip.loadingId " +
                                    " LEFT JOIN tblGate gate on gate.idGate=loading.gateId ";
@@ -658,6 +660,8 @@ namespace ODLMWebAPI.DAL
                         tblLoadingSlipTONew.MachineIP = Convert.ToString(tblLoadingSlipTODT["machineIP"]);
                     if (tblLoadingSlipTODT["isDBup"] != DBNull.Value)
                         tblLoadingSlipTONew.IsDBup = Convert.ToInt32(tblLoadingSlipTODT["isDBup"]);
+                    if (tblLoadingSlipTODT["bookingDisplayNo"] != DBNull.Value)
+                        tblLoadingSlipTONew.BookingDisplayNo = Convert.ToString(tblLoadingSlipTODT["bookingDisplayNo"]);
                     tblLoadingSlipTOList.Add(tblLoadingSlipTONew);
                 }
             }
@@ -892,7 +896,7 @@ namespace ODLMWebAPI.DAL
                     whereisConFinal1 += " WHERE tblLoadingSlip.idLoadingSlip IN (select loadingSlipId from tempLoadingSlipExt where brandId = " + brandId + " ) ";
                 }
 
-                String sqlQuery = " SELECT tblLoadingSlip.* ,org.digitalSign, loading.loadingType, loading.superwisorId,org.firmName as cnfOrgName, tblLoadSlipdtl.loadingQty, tblOrganization.firmName " +
+                String sqlQuery = " SELECT tblLoadingSlip.* ,org.digitalSign,tblBookings.bookingDisplayNo, loading.loadingType, loading.superwisorId,org.firmName as cnfOrgName, tblLoadSlipdtl.loadingQty, tblOrganization.firmName " +
                                   " + ',' +  CASE WHEN tblOrganization.addrId IS NULL THEN '' Else case WHEN address.villageName IS NOT NULL " +
                                   " THEN address.villageName ELSE CASE WHEN address.talukaName IS NOT NULL THEN address.talukaName " +
                                   " ELSE CASE WHEN address.districtName IS NOT NULL THEN address.districtName ELSE address.stateName" +
@@ -902,6 +906,7 @@ namespace ODLMWebAPI.DAL
                                    " , loading.modbusRefId, loading.gateId,loading.isDBup "+
                                   " FROM  tempLoadingSlip tblLoadingSlip " +
                                   " Left Join tempLoadingSlipDtl tblLoadSlipdtl ON tblLoadSlipdtl.loadingSlipId = tblLoadingSlip.idLoadingSlip " +
+                                  " Left Join tblBookings tblBookings ON tblLoadSlipdtl.bookingId = tblBookings.idbooking " +
                                   " LEFT JOIN tblOrganization ON tblOrganization.idOrganization = tblLoadingSlip.dealerOrgId " +
                                   " LEFT JOIN tempLoading loading ON loading.idLoading = tblLoadingSlip.loadingId " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = tblLoadingSlip.cnfOrgId " +
@@ -915,7 +920,7 @@ namespace ODLMWebAPI.DAL
 
                                   " UNION ALL " +
 
-                                  " SELECT tblLoadingSlip.* ,org.digitalSign,loading.loadingType,loading.superwisorId, org.firmName as cnfOrgName, tblLoadSlipdtl.loadingQty, tblOrganization.firmName " +
+                                  " SELECT tblLoadingSlip.* ,org.digitalSign,tblBookings.bookingDisplayNo, loading.loadingType,loading.superwisorId, org.firmName as cnfOrgName, tblLoadSlipdtl.loadingQty, tblOrganization.firmName " +
                                    " + ',' +  CASE WHEN tblOrganization.addrId IS NULL THEN '' Else case WHEN address.villageName IS NOT NULL " +
                                   " THEN address.villageName ELSE CASE WHEN address.talukaName IS NOT NULL THEN address.talukaName " +
                                   " ELSE CASE WHEN address.districtName IS NOT NULL THEN address.districtName ELSE address.stateName" +
@@ -926,6 +931,7 @@ namespace ODLMWebAPI.DAL
                                    " , loading.modbusRefId, loading.gateId,loading.isDBup " +
                                   " FROM finalLoadingSlip tblLoadingSlip  " +
                                   " Left Join finalLoadingSlipDtl tblLoadSlipdtl ON tblLoadSlipdtl.loadingSlipId = tblLoadingSlip.idLoadingSlip " +
+                                  " Left Join tblBookings tblBookings ON tblLoadSlipdtl.bookingId = tblBookings.idbooking " +
                                   " LEFT JOIN tblOrganization ON tblOrganization.idOrganization = tblLoadingSlip.dealerOrgId " +
                                   " LEFT JOIN finalLoading loading ON loading.idLoading = tblLoadingSlip.loadingId " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = tblLoadingSlip.cnfOrgId " +
