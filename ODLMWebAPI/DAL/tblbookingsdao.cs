@@ -213,6 +213,48 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public TblBookingsTO SelectBookingsDetailsFromInVoiceId(Int32 invoiceId, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader tblBookingsTODT = null;
+            try
+            {
+                cmdSelect.CommandText = "select booking.bookingRate,booking.brandId  from tempLoadingSlipDtl detl " +
+                    " left join tempInvoice invoice ON detl.loadingSlipId = invoice.loadingSlipId" +
+                    " left join tblBookings booking ON detl.bookingId = booking.idbooking " +
+                    "where idInvoice =" + invoiceId;
+
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                tblBookingsTODT = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                TblBookingsTO tblBookingsTONew = new TblBookingsTO();
+                if (tblBookingsTODT != null)
+                {
+                    while (tblBookingsTODT.Read())
+                    {
+                        if (tblBookingsTODT["bookingRate"] != DBNull.Value)
+                            tblBookingsTONew.BookingRate = Convert.ToDouble(tblBookingsTODT["bookingRate"].ToString());
+                        if (tblBookingsTODT["brandId"] != DBNull.Value)
+                            tblBookingsTONew.BrandId = Convert.ToInt32(tblBookingsTODT["brandId"].ToString());
+                    }
+                 
+                }
+                return tblBookingsTONew;
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (tblBookingsTODT != null) tblBookingsTODT.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
+       
         public List<TblBookingsTO> SelectAllBookingsListForApproval(Int32 isConfirmed, Int32 idBrand)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);

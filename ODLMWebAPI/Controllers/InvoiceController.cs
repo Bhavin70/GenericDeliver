@@ -676,12 +676,12 @@ namespace ODLMWebAPI.Controllers
 
         [Route("PostexchangeInvoice")]
         [HttpPost]
-        public ResultMessage exchangeInvoice(int invoiceId,int invGenerateModeId,int fromOrgId,int toOrgId=0)
+        public ResultMessage exchangeInvoice(int invoiceId,int invGenerateModeId,int fromOrgId,int toOrgId=0, int isCalculateWithBaseRate = 0)
         {
             ResultMessage resultMessage = new StaticStuff.ResultMessage();
             try
             {
-                return _iTblInvoiceBL.exchangeInvoice(invoiceId,invGenerateModeId,fromOrgId,toOrgId);
+                return _iTblInvoiceBL.exchangeInvoice(invoiceId,invGenerateModeId,fromOrgId,toOrgId, isCalculateWithBaseRate);
             }
             catch(Exception e)
             {
