@@ -47,6 +47,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         int ExecuteDeletionCommand(Int32 idBooking, SqlCommand cmdDelete);
         List<CnFWiseReportTO> SelectCnfCNCBookingReport(DateTime fromDate, DateTime toDate);
         List<TblBookingsTO> SelectAllBookingDateWise(DateTime fromDate, DateTime toDate);
-       
+        TblBookingsTO SelectBookingsDetailsFromInVoiceId(Int32 invoiceId, SqlConnection conn, SqlTransaction tran);
+
+
     }
 }

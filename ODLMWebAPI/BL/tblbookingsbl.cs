@@ -238,6 +238,11 @@ namespace ODLMWebAPI.BL
 
         }
 
+
+        public TblBookingsTO SelectBookingsDetailsFromInVoiceId(Int32 inInvoice, SqlConnection conn, SqlTransaction tran)
+        {
+            return _iTblBookingsDAO.SelectBookingsDetailsFromInVoiceId(inInvoice, conn, tran);
+        }
         public List<TblBookingsTO> SelectAllBookingsListFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran)
         {
             return _iTblBookingsDAO.SelectAllBookingsListFromLoadingSlipId(loadingSlipId, conn, tran);
