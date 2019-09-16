@@ -707,6 +707,7 @@ namespace ODLMWebAPI.BL
                 if (!isValidInvoice)
                 {
                     resultMessage.DefaultBehaviour(errorMsg);
+                    resultMessage.Text = errorMsg;
                     return resultMessage;
                 }
                 #endregion
@@ -1426,20 +1427,28 @@ namespace ODLMWebAPI.BL
                   
                     //[05-03-2018]Vijaymala:Changes the code to change prodItemDesc as per Kalika and SRJ requirement 
                     Int32 a = 0;
-
+                    Int32 isHide = 0;
                     TblConfigParamsTO regulartemp = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DISPLAY_BRAND_ON_INVOICE, conn, tran);
                     if (regulartemp != null)
                     {
                         a = Convert.ToInt32(regulartemp.ConfigParamVal);
 
                     }
+                    TblConfigParamsTO isHideBrandNameOnNC = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.HIDE_BRAND_NAME_ON_NC_INVOICE, conn, tran);
+                    if(isHideBrandNameOnNC!=null)
+                    {
+                        isHide = Convert.ToInt32(isHideBrandNameOnNC.ConfigParamVal);
+                    }
                     //[05-09-2018] : Vijaymala added to set product item display for other booking in invoice
                     if (loadingSlipExtTo.ProdItemId == 0)
                     {
                         if (a == 1)
                         {
+                            if(isHide==1 && tblInvoiceTO.IsConfirmed==0)
+                                tblInvoiceItemDetailsTO.ProdItemDesc =  loadingSlipExtTo.ProdCatDesc + " " + loadingSlipExtTo.ProdSpecDesc + " " + loadingSlipExtTo.MaterialDesc;
+                            else
+                                tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.BrandDesc + " " + loadingSlipExtTo.ProdCatDesc + " " + loadingSlipExtTo.ProdSpecDesc + " " + loadingSlipExtTo.MaterialDesc;
 
-                            tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.BrandDesc + " " + loadingSlipExtTo.ProdCatDesc + " " + loadingSlipExtTo.ProdSpecDesc + " " + loadingSlipExtTo.MaterialDesc;
                         }
                         else
                         {

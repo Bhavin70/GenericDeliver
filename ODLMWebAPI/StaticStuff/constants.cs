@@ -727,7 +727,10 @@ namespace ODLMWebAPI.StaticStuff
 
         //Aniket [10-6-2019]
         public static string IS_BALAJI_CLIENT = "IS_BALAJI_CLIENT";
+        //Aniket [9-9-2019]
+        public static string HIDE_BRAND_NAME_ON_NC_INVOICE = "HIDE_BRAND_NAME_ON_NC_INVOICE";
         #endregion
+
 
         #region Common functions
 
