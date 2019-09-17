@@ -1185,16 +1185,20 @@ namespace ODLMWebAPI.BL
                                         bookingPrice = tblBookingParitiesTO.BookingRate;
                                     // Aniket [18-6-2019]
                                     // added to reduce item wise discount from bookingprice
-                                    if(bookingExtTOList!=null && bookingExtTOList.Count>0)
+                                    if(tblBookingsTO.IsItemized==1)
                                     {
-                                        foreach (TblBookingExtTO item in bookingExtTOList)
+                                        if (bookingExtTOList != null && bookingExtTOList.Count > 0)
                                         {
-                                            if (item.ProdCatId == tblLoadingSlipExtTO.ProdCatId && item.ProdSpecId == tblLoadingSlipExtTO.ProdSpecId && item.BrandId == tblLoadingSlipExtTO.BrandId && item.MaterialId == tblLoadingSlipExtTO.MaterialId && item.ProdItemId == tblLoadingSlipExtTO.ProdItemId)
+                                            foreach (TblBookingExtTO item in bookingExtTOList)
                                             {
-                                                bookingPrice = bookingPrice - (item.Discount * item.BookedQty * 1000);
+                                                if (item.ProdCatId == tblLoadingSlipExtTO.ProdCatId && item.ProdSpecId == tblLoadingSlipExtTO.ProdSpecId && item.BrandId == tblLoadingSlipExtTO.BrandId && item.MaterialId == tblLoadingSlipExtTO.MaterialId && item.ProdItemId == tblLoadingSlipExtTO.ProdItemId)
+                                                {
+                                                    bookingPrice = bookingPrice - (item.Discount * item.BookedQty * 1000);
+                                                }
                                             }
                                         }
                                     }
+                                    
                                   
                                    // rateCalcDesc = "B.R : " + tblBookingParitiesTO.BookingRate + "|";
                                    if(isTaxInclusive==1 && isTaxInclusiveWithTaxes==0)
