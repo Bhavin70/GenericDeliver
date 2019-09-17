@@ -26,6 +26,7 @@ namespace ODLMWebAPI.Models
         String state;
         String pinCode;
         Int32 addrSourceTypeId;
+        String villageName;
 
         #endregion
 
@@ -132,6 +133,8 @@ namespace ODLMWebAPI.Models
             get { return addrSourceTypeId; }
             set { addrSourceTypeId = value; }
         }
+
+        public string VillageName { get => villageName; set => villageName = value; }
 
 
         #endregion
