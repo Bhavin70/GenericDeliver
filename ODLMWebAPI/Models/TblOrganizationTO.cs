@@ -426,4 +426,14 @@ namespace ODLMWebAPI.Models
 
         #endregion
     }
+
+    /// <summary>
+    /// Sanjay [16-Sept-2019] This will be basic Org Object. Will return Name and Contact Details Only.
+    /// We may required Address Or Village name.Which is not considered in this modifications
+    /// </summary>
+    public class OrgBasicInfo
+    {
+        public string FirmName { get; set; }
+        public string MobileNo { get; set; }
+    }
 }

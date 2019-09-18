@@ -32,6 +32,8 @@ namespace ODLMWebAPI.Models
         TblGstCodeDtlsTO gstCodeDtlsTO;
 
         Int32 brandId;
+        String brandName;
+        String productNameWoBrand;
 
         #endregion
 
@@ -128,6 +130,8 @@ namespace ODLMWebAPI.Models
         public Int32 CdStructureId { get => cdStructureId; set => cdStructureId = value; }
         public string ChangeIn { get => changeIn; set => changeIn = value; }
         public int BrandId { get => brandId; set => brandId = value; }
+        public string ProductNameWoBrand { get => productNameWoBrand; set => productNameWoBrand = value; }
+        public string BrandName { get => brandName; set => brandName = value; }
         #endregion
 
         public TblInvoiceItemDetailsTO DeepCopy()
