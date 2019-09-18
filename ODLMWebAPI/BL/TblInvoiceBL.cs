@@ -173,7 +173,7 @@ namespace ODLMWebAPI.BL
         /// <param name="StatusId"></param>
         /// <param name="distributorOrgId"></param>
         /// <returns></returns>
-        public List<TblInvoiceTO> SelectTblInvoiceByStatus(int statusId, int distributorOrgId, int invoiceId)
+        public List<TblInvoiceTO> SelectTblInvoiceByStatus(int statusId, int distributorOrgId, int invoiceId,int isConfirm)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -181,7 +181,7 @@ namespace ODLMWebAPI.BL
             {
                 conn.Open();
                 tran = conn.BeginTransaction();
-                return _iTblInvoiceDAO.SelectTblInvoiceByStatus(statusId, distributorOrgId, invoiceId, conn, tran);
+                return _iTblInvoiceDAO.SelectTblInvoiceByStatus(statusId, distributorOrgId, invoiceId, conn, tran, isConfirm);
             }
             catch (Exception ex)
             {
@@ -1332,6 +1332,7 @@ namespace ODLMWebAPI.BL
                     tblInvoiceAddressTo.StateId = deliveryAddrTo.StateId;
                     tblInvoiceAddressTo.State = deliveryAddrTo.State;
                     tblInvoiceAddressTo.Taluka = deliveryAddrTo.TalukaName;
+                    tblInvoiceAddressTo.VillageName = deliveryAddrTo.VillageName;
                     tblInvoiceAddressTo.District = deliveryAddrTo.DistrictName;
                     tblInvoiceAddressTo.BillingName = deliveryAddrTo.BillingName;
                     tblInvoiceAddressTo.ContactNo = deliveryAddrTo.ContactNo;
@@ -1427,28 +1428,25 @@ namespace ODLMWebAPI.BL
                   
                     //[05-03-2018]Vijaymala:Changes the code to change prodItemDesc as per Kalika and SRJ requirement 
                     Int32 a = 0;
-                    Int32 isHide = 0;
+                   // Int32 isHide = 0;
                     TblConfigParamsTO regulartemp = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DISPLAY_BRAND_ON_INVOICE, conn, tran);
                     if (regulartemp != null)
                     {
                         a = Convert.ToInt32(regulartemp.ConfigParamVal);
 
                     }
-                    TblConfigParamsTO isHideBrandNameOnNC = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.HIDE_BRAND_NAME_ON_NC_INVOICE, conn, tran);
-                    if(isHideBrandNameOnNC!=null)
-                    {
-                        isHide = Convert.ToInt32(isHideBrandNameOnNC.ConfigParamVal);
-                    }
+                    //Aniket [18-9-2019] commented the code
+                    //TblConfigParamsTO isHideBrandNameOnNC = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.HIDE_BRAND_NAME_ON_NC_INVOICE, conn, tran);
+                    //if(isHideBrandNameOnNC!=null)
+                    //{
+                    //    isHide = Convert.ToInt32(isHideBrandNameOnNC.ConfigParamVal);
+                    //}
                     //[05-09-2018] : Vijaymala added to set product item display for other booking in invoice
                     if (loadingSlipExtTo.ProdItemId == 0)
                     {
                         if (a == 1)
                         {
-                            if(isHide==1 && tblInvoiceTO.IsConfirmed==0)
-                                tblInvoiceItemDetailsTO.ProdItemDesc =  loadingSlipExtTo.ProdCatDesc + " " + loadingSlipExtTo.ProdSpecDesc + " " + loadingSlipExtTo.MaterialDesc;
-                            else
                                 tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.BrandDesc + " " + loadingSlipExtTo.ProdCatDesc + " " + loadingSlipExtTo.ProdSpecDesc + " " + loadingSlipExtTo.MaterialDesc;
-
                         }
                         else
                         {
@@ -1766,6 +1764,23 @@ namespace ODLMWebAPI.BL
             #endregion
 
             #region 5 Save main Invoice
+            //Aniket [16-9-2-19] added to round of the invoice values
+            int roundOffValue = 0;
+            TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.ROUND_OFF_TAX_INVOICE_VALUES);
+            if(tblConfigParamsTO!=null)
+            {
+                roundOffValue =Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+            }
+            if(roundOffValue>0)
+            {
+                taxableTotal = Math.Round(taxableTotal, roundOffValue);
+                discountTotal = Math.Round(discountTotal, roundOffValue);
+                igstTotal = Math.Round(igstTotal, roundOffValue);
+                cgstTotal = Math.Round(cgstTotal, roundOffValue);
+                sgstTotal = Math.Round(sgstTotal, roundOffValue);
+                basicTotal = Math.Round(basicTotal, roundOffValue);
+            }
+
             tblInvoiceTO.TaxableAmt = taxableTotal;
             tblInvoiceTO.DiscountAmt = discountTotal;
             tblInvoiceTO.IgstAmt = igstTotal;
@@ -1773,7 +1788,7 @@ namespace ODLMWebAPI.BL
             tblInvoiceTO.SgstAmt = sgstTotal;
             double finalGrandTotal = Math.Round(grandTotal);
             tblInvoiceTO.GrandTotal = finalGrandTotal;
-            tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);                      
+            tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, roundOffValue);                      
             tblInvoiceTO.BasicAmt = basicTotal;
             tblInvoiceTO.InvoiceItemDetailsTOList = tblInvoiceItemDetailsTOList;
             return tblInvoiceTO;
@@ -3294,7 +3309,7 @@ namespace ODLMWebAPI.BL
 
                 //Aniket [06-03-2019] added to check whether Math.Round() function should include in tax calculation or not
                 int isMathRoundoff = 0;
-                TblConfigParamsTO tblconfigParamForMathRound = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_TAX_INVOICE_CALCULATION);
+                TblConfigParamsTO tblconfigParamForMathRound = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_TAX_ON_PRINT_INVOICE);
                 if(tblconfigParamForMathRound!=null)
                 {
                     if(tblconfigParamForMathRound.ConfigParamVal=="1")
@@ -3853,10 +3868,19 @@ namespace ODLMWebAPI.BL
                             //                                      +  tblBillingInvoiceAddressTO.District + ", " + tblBillingInvoiceAddressTO.State;
 
                             // }
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.VillageName))
+                            {
+                                addressStr += " " + tblBillingInvoiceAddressTO.VillageName;
+                            }
+                            //Aniket [6-9-2019] added PinCode in address
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.PinCode) && tblBillingInvoiceAddressTO.PinCode != "0")
+                            {
+                                addressStr += "-" + tblBillingInvoiceAddressTO.PinCode;
+                            }
 
                             if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
                             {
-                                addressStr += " "+ tblBillingInvoiceAddressTO.Taluka;
+                                addressStr += ", "+ tblBillingInvoiceAddressTO.Taluka;
                             }
 
                             if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.District))
@@ -3865,18 +3889,14 @@ namespace ODLMWebAPI.BL
                                     tblBillingInvoiceAddressTO.Taluka = String.Empty;
 
                                 if (tblBillingInvoiceAddressTO.Taluka.ToLower().Trim() != tblBillingInvoiceAddressTO.District.ToLower().Trim())
-                                    addressStr += ", " + tblBillingInvoiceAddressTO.District;
+                                    addressStr += ",Dist-" + tblBillingInvoiceAddressTO.District;
                             }
                         
                             if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.State))
                             {
-                                addressStr += ", " + tblBillingInvoiceAddressTO.State;
+                                //addressStr += ", " + tblBillingInvoiceAddressTO.State;
                             }
-                            //Aniket [6-9-2019] added PinCode in address
-                            if(!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.PinCode) && tblBillingInvoiceAddressTO.PinCode!="0")
-                            {
-                                addressStr += "- " + tblBillingInvoiceAddressTO.PinCode;
-                            }
+                           
 
                             addressDT.Rows[0]["billingAddr"] = addressStr;
 
@@ -3889,7 +3909,11 @@ namespace ODLMWebAPI.BL
                             if (tblInvoiceTO.IsConfirmed == 1)
                                 addressDT.Rows[0]["billingMobNo"] = tblBillingInvoiceAddressTO.ContactNo;
                             else
+                            {
                                 addressDT.Rows[0]["billingMobNo"] = String.Empty;
+                                addressDT.Rows[0]["lblMobNo"] = String.Empty;
+                            }
+                                
 
 
 
@@ -3899,7 +3923,7 @@ namespace ODLMWebAPI.BL
                                 addressDT.Rows[0]["billingState"] = tblBillingInvoiceAddressTO.State;
                                 if (stateTO != null)
                                 {
-                                    addressDT.Rows[0]["billingStateCode"] = stateTO.Tag;
+                                    addressDT.Rows[0]["billingStateCode"] = stateTO.Text + " " + stateTO.Tag;
                                 }
                             }
 
@@ -3979,9 +4003,18 @@ namespace ODLMWebAPI.BL
 
                                     //addressDT.Rows[0]["consigneeAddr"] = tblConsigneeInvoiceAddressTO.Address + "," + tblConsigneeInvoiceAddressTO.Taluka
                                     //                                    + " ," + tblConsigneeInvoiceAddressTO.District + "," + tblConsigneeInvoiceAddressTO.State;
+                                    //Aniket [6-9-2019] added PinCode in address
+                                    if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.VillageName))
+                                    {
+                                        consigneeAddr += " " + tblConsigneeInvoiceAddressTO.VillageName;
+                                    }
+                                    if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.PinCode) && tblConsigneeInvoiceAddressTO.PinCode != "0")
+                                    {
+                                        consigneeAddr += "- " + tblConsigneeInvoiceAddressTO.PinCode;
+                                    }
                                     if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
                                     {
-                                        consigneeAddr += " " + tblConsigneeInvoiceAddressTO.Taluka;
+                                        consigneeAddr += ", " + tblConsigneeInvoiceAddressTO.Taluka;
                                     }
 
                                     if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.District))
@@ -3990,16 +4023,16 @@ namespace ODLMWebAPI.BL
                                             tblConsigneeInvoiceAddressTO.Taluka = String.Empty;
 
                                         if (tblConsigneeInvoiceAddressTO.Taluka.ToLower() != tblConsigneeInvoiceAddressTO.District.ToLower())
-                                            consigneeAddr += ", " + tblConsigneeInvoiceAddressTO.District;
+                                            consigneeAddr += ",Dist-" + tblConsigneeInvoiceAddressTO.District;
                                     }
                                     if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.State))
                                     {
                                         consigneeAddr += ", " + tblBillingInvoiceAddressTO.State;
                                     }
-                                    if(!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.PinCode) && tblConsigneeInvoiceAddressTO.PinCode!="0")
-                                    {
-                                        consigneeAddr += "- " + tblConsigneeInvoiceAddressTO.PinCode;
-                                    }
+                                    //if(!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.PinCode) && tblConsigneeInvoiceAddressTO.PinCode!="0")
+                                    //{
+                                    //    consigneeAddr += "- " + tblConsigneeInvoiceAddressTO.PinCode;
+                                    //}
                                     addressDT.Rows[0]["consigneeAddr"] = consigneeAddr;
                                     if(!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.GstinNo))
                                         addressDT.Rows[0]["consigneeGstNo"] = tblConsigneeInvoiceAddressTO.GstinNo.ToUpper();
@@ -4010,7 +4043,11 @@ namespace ODLMWebAPI.BL
                                     if (tblInvoiceTO.IsConfirmed == 1)
                                         addressDT.Rows[0]["consigneeMobNo"] = tblConsigneeInvoiceAddressTO.ContactNo;
                                     else
+                                    {
                                         addressDT.Rows[0]["consigneeMobNo"] = String.Empty;
+                                        addressDT.Rows[0]["lblMobNo"] = String.Empty;
+                                    }
+                                        
 
                                     if (stateList != null && stateList.Count > 0)
                                     {
@@ -4508,7 +4545,7 @@ namespace ODLMWebAPI.BL
             hsnItemTaxDT.Columns.Add("taxTotal", typeof(double));
 
             int isMathRounfOff = 0;
-            TblConfigParamsTO tblConfigParams = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_TAX_INVOICE_CALCULATION);
+            TblConfigParamsTO tblConfigParams = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_TAX_ON_PRINT_INVOICE);
             if(tblConfigParams != null)
             {
                 if(tblConfigParams.ConfigParamVal=="1")
@@ -5393,7 +5430,7 @@ namespace ODLMWebAPI.BL
                 tblInvoiceItemDetailsTO.BasicTotal = tblInvoiceItemDetailsTO.Rate * tblInvoiceItemDetailsTO.InvoiceQty;
                 tblInvoiceTo.BasicAmt += tblInvoiceItemDetailsTO.BasicTotal;
                 DropDownTO cdDropDownTO = _iDimensionBL.SelectCDDropDown(tblInvoiceItemDetailsTO.CdStructureId);
-                TblConfigParamsTO tblConfigParams = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_TAX_INVOICE_CALCULATION);
+                TblConfigParamsTO tblConfigParams = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_TAX_ON_PRINT_INVOICE);
                 if(tblConfigParams!=null)
                 {
                     if(tblConfigParams.ConfigParamVal=="1")

@@ -13,7 +13,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblInvoiceTO> SelectAllTblInvoice();
         List<TblInvoiceTO> SelectAllTblInvoice(DateTime frmDt, DateTime toDt, int isConfirm, Int32 cnfId, Int32 dealerId, TblUserRoleTO tblUserRoleTO, Int32 brandId, Int32 invoiceId, Int32 statusId);
         TblInvoiceTO SelectTblInvoice(Int32 idInvoice, SqlConnection conn, SqlTransaction tran);
-        List<TblInvoiceTO> SelectTblInvoiceByStatus(Int32 statusId, int distributorOrgId, int invoiceId, SqlConnection conn, SqlTransaction tran);
+        List<TblInvoiceTO> SelectTblInvoiceByStatus(Int32 statusId, int distributorOrgId, int invoiceId, SqlConnection conn, SqlTransaction tran,int isConfirm);
         TblInvoiceTO SelectInvoiceTOFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran);
         List<TblInvoiceTO> SelectInvoiceListFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn = null, SqlTransaction tran = null);
         List<TblInvoiceTO> SelectInvoiceListFromLoadingSlipIds(String loadingSlipIds, SqlConnection conn, SqlTransaction tran);

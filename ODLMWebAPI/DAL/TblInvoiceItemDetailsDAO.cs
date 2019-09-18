@@ -21,13 +21,13 @@ namespace ODLMWebAPI.DAL
         #region Methods
         public String SqlSelectQuery()
         {
-            String sqlSelectQry = " SELECT * FROM [tempInvoiceItemDetails]" +
+            String sqlSelectQry = " SELECT tempItemDtl.*,brandName FROM [tempInvoiceItemDetails] tempItemDtl LEFT JOIN dimBrand ON idbrand=brandId" +
 
                                  // Vaibhav [10-Jan-2018] Added to select from finalInvoiceItemDetails
 
                                  " UNION ALL " +
 
-                                 " SELECT * FROM [finalInvoiceItemDetails]";
+                                 " SELECT finalItemDtl.*, brandName FROM [finalInvoiceItemDetails] finalItemDtl  LEFT JOIN dimBrand ON idbrand=brandId";
 
             return sqlSelectQry;
         }
@@ -228,7 +228,15 @@ namespace ODLMWebAPI.DAL
                         tblInvoiceItemDetailsTONew.CdStructureId = Convert.ToInt32(tblInvoiceItemDetailsTODT["cdStructureId"]);
 
                     if (tblInvoiceItemDetailsTODT["brandId"] != DBNull.Value)
-                       tblInvoiceItemDetailsTONew.BrandId = Convert.ToInt32(tblInvoiceItemDetailsTODT["brandId"]);
+                        tblInvoiceItemDetailsTONew.BrandId = Convert.ToInt32(tblInvoiceItemDetailsTODT["brandId"]);
+
+                    //Sanjay Gunjal 16-Sept-2019 To Get Name of the product without brand name. Required while printing on NC invoices
+                    if (tblInvoiceItemDetailsTODT["brandName"] != DBNull.Value)
+                        tblInvoiceItemDetailsTONew.BrandName = Convert.ToString(tblInvoiceItemDetailsTODT["brandName"]);
+                    if (!string.IsNullOrEmpty(tblInvoiceItemDetailsTONew.BrandName))
+                    {
+                        tblInvoiceItemDetailsTONew.ProductNameWoBrand = tblInvoiceItemDetailsTONew.ProdItemDesc.Replace(tblInvoiceItemDetailsTONew.BrandName, "");
+                    }
 
                     tblInvoiceItemDetailsTOList.Add(tblInvoiceItemDetailsTONew);
                 }
