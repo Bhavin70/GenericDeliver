@@ -1354,22 +1354,32 @@ namespace ODLMWebAPI.BL
                     {
                         tblInvoiceAddressTo.BillingOrgId = loadingSlipTo.DealerOrgId;
                     }
-
-                    if (deliveryAddrTo.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS)
+                    //Aniket [18-9-2019]
+                    int showDeliveryLocation = 0;
+                    TblConfigParamsTO tblConfigParamTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.SHOW_DELIVERY_LOCATION_ON_INVOICE);
+                    if(tblConfigParamTO!=null)
                     {
-                        billingStateId = deliveryAddrTo.StateId;
-                        if (string.IsNullOrEmpty(deliveryAddrTo.VillageName))
-                        {
-                            if (string.IsNullOrEmpty(deliveryAddrTo.TalukaName))
-                            {
-                                tblInvoiceTO.DeliveryLocation = deliveryAddrTo.DistrictName;
-                            }
-                            tblInvoiceTO.DeliveryLocation = deliveryAddrTo.TalukaName;
-                        }
-                        else
-                            tblInvoiceTO.DeliveryLocation = deliveryAddrTo.VillageName;
-
+                        showDeliveryLocation = Convert.ToInt32(tblConfigParamTO.ConfigParamVal);
                     }
+                    if(showDeliveryLocation==1)
+                    {
+                        if (deliveryAddrTo.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS)
+                        {
+                            billingStateId = deliveryAddrTo.StateId;
+                            if (string.IsNullOrEmpty(deliveryAddrTo.VillageName))
+                            {
+                                if (string.IsNullOrEmpty(deliveryAddrTo.TalukaName))
+                                {
+                                    tblInvoiceTO.DeliveryLocation = deliveryAddrTo.DistrictName;
+                                }
+                                tblInvoiceTO.DeliveryLocation = deliveryAddrTo.TalukaName;
+                            }
+                            else
+                                tblInvoiceTO.DeliveryLocation = deliveryAddrTo.VillageName;
+
+                        }
+                    }
+                  
                     tblInvoiceTO.InvoiceAddressTOList.Add(tblInvoiceAddressTo);
                 }
             }
