@@ -37,7 +37,8 @@ namespace ODLMWebAPI.BL
         private readonly ITblWeighingMachineBL _iTblWeighingMachineBL;
         private readonly IWeighingCommunication _iWeighingCommunication;
         private readonly ITblLoadingBL _iTblLoadingBL;
-        public TblWeighingMeasuresBL(IWeighingCommunication iWeighingCommunication,ITblWeighingMachineBL iTblWeighingMachineBL,IIotCommunication iIotCommunication,ITblInvoiceBL iTblInvoiceBL, ICircularDependencyBL iCircularDependencyBL, ITblAlertInstanceBL iTblAlertInstanceBL, ITblUserDAO iTblUserDAO, ITblOrganizationDAO iTblOrganizationDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblConfigParamsDAO iTblConfigParamsDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblProductItemDAO iTblProductItemDAO, IConnectionString iConnectionString, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblUnLoadingItemDetDAO iTblUnLoadingItemDetDAO)
+        private readonly IDimStatusDAO _iDimStatusDAO;
+        public TblWeighingMeasuresBL(IWeighingCommunication iWeighingCommunication, IDimStatusDAO iDimStatusDAO,ITblWeighingMachineBL iTblWeighingMachineBL,IIotCommunication iIotCommunication,ITblInvoiceBL iTblInvoiceBL, ICircularDependencyBL iCircularDependencyBL, ITblAlertInstanceBL iTblAlertInstanceBL, ITblUserDAO iTblUserDAO, ITblOrganizationDAO iTblOrganizationDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblConfigParamsDAO iTblConfigParamsDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblProductItemDAO iTblProductItemDAO, IConnectionString iConnectionString, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblUnLoadingItemDetDAO iTblUnLoadingItemDetDAO)
         {
             _iTblWeighingMeasuresDAO = iTblWeighingMeasuresDAO;
             _iTblLoadingSlipExtDAO = iTblLoadingSlipExtDAO;
@@ -59,7 +60,9 @@ namespace ODLMWebAPI.BL
             _iIotCommunication = iIotCommunication;
             _iTblWeighingMachineBL = iTblWeighingMachineBL;
             _iWeighingCommunication = iWeighingCommunication;
-            
+            _iDimStatusDAO = iDimStatusDAO;
+
+
         }
         #region Selection
 
@@ -615,9 +618,17 @@ namespace ODLMWebAPI.BL
                                     vRes = vRes.GroupBy(g => g.WeighingMachineId).Select(s => s.FirstOrDefault()).ToList();
                                     if (vRes != null && vRes.Count >= 2)
                                     {
-                                        resultMessage = _iTblLoadingBL.UpdateLoadingStatusToGateIoT(loadingTO, conn, tran);
-                                        if (resultMessage.MessageType != ResultMessageE.Information)
+                                        DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus(Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH), conn, tran);
+                                        if (statusTO == null || statusTO.IotStatusId == 0)
                                         {
+                                            resultMessage.DefaultBehaviour("iot status id not found for loading to pass at gate iot");
+                                            return resultMessage;
+                                        }
+                                        object[] statusframeTO = new object[2] { loadingTO.ModbusRefId, statusTO.IotStatusId };
+                                        result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(loadingTO, statusframeTO);
+                                        if (result != 1)
+                                        {
+                                            resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
                                             return resultMessage;
                                         }
                                     }

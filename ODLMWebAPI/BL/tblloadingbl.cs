@@ -1844,6 +1844,26 @@ namespace ODLMWebAPI.BL {
                             tblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.LOADING_CONFIRM);
                             tblLoadingTO.StatusReason = "Loading Confirmed";
                         }
+                        TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_WEIGHING_SCALE, conn, tran);
+                        if (configParamsTO != null)
+                        {
+                            if (Convert.ToInt32(configParamsTO.ConfigParamVal) == 1)
+                            {
+                                DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus(Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH), conn, tran);
+                                if (statusTO == null || statusTO.IotStatusId == 0)
+                                {
+                                    resultMessage.DefaultBehaviour("iot status id not found for loading to pass at gate iot");
+                                    return resultMessage;
+                                }
+                                object[] statusframeTO = new object[2] { tblLoadingTO.ModbusRefId, statusTO.IotStatusId };
+                                result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(tblLoadingTO, statusframeTO);
+                                if (result != 1)
+                                {
+                                    resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
+                                    return resultMessage;
+                                }
+                            }
+                        }
                         resultMessage = RightDataFromIotToDB(tblLoadingTO.IdLoading, tblLoadingTO, conn, tran);
                         if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
                         {
@@ -6088,9 +6108,9 @@ namespace ODLMWebAPI.BL {
                         return resultMessage;
                     }
 
-                    tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
-                    tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
-                    tblLoadingTO.StatusReason = "Loading Scheduled";
+                    existingLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
+                    existingLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
+                    existingLoadingTO.StatusReason = "Loading Scheduled";
                     List<object[]> frameList = _iIotCommunication.GenerateGateIoTStatusFrameData(existingLoadingTO, statusTO.IotStatusId);
                     if (frameList != null && frameList.Count > 0)
                     {
@@ -6112,12 +6132,12 @@ namespace ODLMWebAPI.BL {
                 }
                 else
                 {
-                    tblLoadingTO.StatusId = statusTO.PrevStatusId;
+                    existingLoadingTO.StatusId = statusTO.PrevStatusId;
                 }
                    
                 #region 2. Update Loading Slip Status
                 //Update LoadingTO Status First
-                result = UpdateTblLoading (tblLoadingTO, conn, tran);
+                result = UpdateTblLoading (existingLoadingTO, conn, tran);
                 if (result != 1) {
                     tran.Rollback ();
                     resultMessage.MessageType = ResultMessageE.Error;
@@ -6126,7 +6146,7 @@ namespace ODLMWebAPI.BL {
                 }
 
                 //Update Individual Loading Slip statuses
-                result = _iTblLoadingSlipBL.UpdateTblLoadingSlip (tblLoadingTO, conn, tran);
+                result = _iTblLoadingSlipBL.UpdateTblLoadingSlip (existingLoadingTO, conn, tran);
                 if (result <= 0) {
                     tran.Rollback ();
                     resultMessage.MessageType = ResultMessageE.Error;
