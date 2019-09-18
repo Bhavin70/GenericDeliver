@@ -718,7 +718,7 @@ namespace ODLMWebAPI.StaticStuff
         public static string ANNOUNCE_RATE_WITH_RATEBAND_CURRENT_QUOTA = "ANNOUNCE_RATE_WITH_RATEBAND_CURRENT_QUOTA";
         public static string RESTRICT_CNF_BEYOND_BOOKING_QUOTA = "RESTRICT_CNF_BEYOND_BOOKING_QUOTA";
         //Aniket [06-03-2019] added to check Math.Round() function to be used in tax calculations or not
-        public static string IS_ROUND_OFF_TAX_INVOICE_CALCULATION = "IS_ROUND_OFF_TAX_INVOICE_CALCULATION";
+        public static string IS_ROUND_OFF_TAX_ON_PRINT_INVOICE = "IS_ROUND_OFF_TAX_ON_PRINT_INVOICE";
 
         //Aniket [25-3-2019] added to check which statusId booking details exclude from CNC report
         public static string CNF_BOOKING_REPORT_EXCLUDE_STATUSID = "CNF_BOOKING_REPORT_EXCLUDE_STATUSID";
@@ -730,6 +730,8 @@ namespace ODLMWebAPI.StaticStuff
         public static string IS_BALAJI_CLIENT = "IS_BALAJI_CLIENT";
         //Aniket [9-9-2019]
         public static string HIDE_BRAND_NAME_ON_NC_INVOICE = "HIDE_BRAND_NAME_ON_NC_INVOICE";
+        //Aniket [16-9-2019]
+        public static string ROUND_OFF_TAX_INVOICE_VALUES = "ROUND_OFF_TAX_INVOICE_VALUES";
         #endregion
 
 

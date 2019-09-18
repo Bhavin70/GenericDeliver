@@ -305,20 +305,25 @@ namespace ODLMWebAPI.DAL
         /// <param name="StatusId"></param>
         /// <param name="distributorOrgId"></param>
         /// <returns></returns>
-        public List<TblInvoiceTO> SelectTblInvoiceByStatus(Int32 statusId, int distributorOrgId,int invoiceId, SqlConnection conn, SqlTransaction tran)
+        public List<TblInvoiceTO> SelectTblInvoiceByStatus(Int32 statusId, int distributorOrgId,int invoiceId, SqlConnection conn, SqlTransaction tran,int isConfirm)
         {
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader reader = null;
             string whereCondition = String.Empty;
+            string isConfirmCondition = String.Empty;
             try
             {
+                if(isConfirm!=2)
+                {
+                    isConfirmCondition = " AND sq1.isConfirmed=" + isConfirm;
+                }
                 if (invoiceId > 0)
                 {
                     whereCondition = " AND sq1.idInvoice = " + invoiceId;
                 }
                 if (distributorOrgId == 0)
                 {
-                    cmdSelect.CommandText = " SELECT * FROM ("+ SqlSelectQuery() + ")sq1 WHERE sq1.statusId = " + statusId + whereCondition;
+                    cmdSelect.CommandText = " SELECT * FROM ("+ SqlSelectQuery() + ")sq1 WHERE sq1.statusId = " + statusId + whereCondition+isConfirmCondition;
 
                 }
                 else
