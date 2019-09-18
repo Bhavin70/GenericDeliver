@@ -1826,6 +1826,7 @@ namespace ODLMWebAPI.BL
                             //Update Invoice Object
                             invToUpdateTO.UpdatedBy = invoiceTO.CreatedBy;
                             invToUpdateTO.UpdatedOn = _iCommon.ServerDateTime;
+                            invToUpdateTO.InvFromOrgFreeze = 1;
                             result = UpdateTblInvoice(invToUpdateTO, conn, tran);
                             if (result != 1)
                             {
@@ -1934,6 +1935,8 @@ namespace ODLMWebAPI.BL
                         {
                             for (int i = 0; i < tblInvoiceTOList.Count; i++)
                             {
+                                tblInvoiceTOList[i].InvFromOrgFreeze = 1;
+
                                 resultMsg = SaveNewInvoice(tblInvoiceTOList[i], conn, tran);
                                 if (resultMsg.MessageType != ResultMessageE.Information)
                                 {
@@ -2219,7 +2222,37 @@ namespace ODLMWebAPI.BL
                         return resultMsg;
                     }
 
-                    tblInvoiceItemDetailsTO.ProdGstCodeId = Convert.ToInt32(tblConfigParamForInternalItem.ConfigParamVal);
+                    Int32 prodItemId = Convert.ToInt32(tblConfigParamForInternalItem.ConfigParamVal);
+                    if (prodItemId == 0)
+                    {
+                        tran.Rollback();
+                        resultMsg.DefaultBehaviour("Internal INTERNAL DEFAULT ITEM Not Found in Configuration.");
+                        return resultMsg;
+                    }
+
+                    TblProductItemTO tblProductItemTO = _iTblProductItemDAO.SelectTblProductItem(prodItemId);
+                    if (tblProductItemTO == null)
+                    {
+                        tran.Rollback();
+                        resultMsg.DefaultBehaviour("Internal INTERNAL DEFAULT ITEM Not Found in Configuration.");
+                        return resultMsg;
+                    }
+
+                    tblInvoiceItemDetailsTO.ProdItemDesc = tblProductItemTO.ItemDesc;
+
+                    //tblInvoiceItemDetailsTO.ProdGstCodeId = Convert.ToInt32(tblConfigParamForInternalItem.ConfigParamVal);
+
+                    TblProdGstCodeDtlsTO tblProdGstCodeDtlsTOTemp = _iTblProdGstCodeDtlsDAO.SelectTblProdGstCodeDtls(0, 0, 0, prodItemId, 0, conn, tran);
+
+                    if (tblProdGstCodeDtlsTOTemp == null)
+                    {
+                        tran.Rollback();
+                        resultMsg.DefaultBehaviour("Please define GST code for item Id - " + prodItemId);
+                        return resultMsg;
+                    }
+
+                    tblInvoiceItemDetailsTO.ProdGstCodeId = tblProdGstCodeDtlsTOTemp.IdProdGstCode;
+
                     tblInvoiceItemDetailsTOsList.Add(tblInvoiceItemDetailsTO);
                    
                     invoiceItemTOList = tblInvoiceItemDetailsTOsList;
@@ -5539,7 +5572,7 @@ namespace ODLMWebAPI.BL
         }
 
 
-                public ResultMessage exchangeInvoice(Int32 invoiceId,  Int32 invGenModeId,int fromOrgId,int toOrgId, int isCalculateWithBaseRate)
+        public ResultMessage exchangeInvoice(Int32 invoiceId, Int32 invGenModeId, int fromOrgId, int toOrgId, int isCalculateWithBaseRate)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -5559,6 +5592,14 @@ namespace ODLMWebAPI.BL
                     tran.Rollback();
                     resultMessage.DefaultBehaviour("invoiceTO Found NULL"); return resultMessage;
                 }
+
+                if (invoiceTO.InvFromOrgFreeze == 1)
+                {
+                    resultMessage.DefaultBehaviour();
+                    resultMessage.Text = "Invoie Already Converted";
+                    return resultMessage;
+                }
+
                 //Vijaymala[23-03-2016]added to check invoice details of igst,cgst,sgst taxes
                 #region To check invoice details is valid or not
                 string errorMsg = string.Empty;
@@ -5574,42 +5615,42 @@ namespace ODLMWebAPI.BL
                 invHistTO.InvoiceId = invoiceTO.IdInvoice;
                 invHistTO.CreatedOn = _iCommon.ServerDateTime;
                 invHistTO.CreatedBy = 1;
-               if(invGenModeId ==(int)Constants.InvoiceGenerateModeE.DUPLICATE)
-               {
-               invHistTO.ActionDesc = "Duplicate";
-               } 
-                if(invGenModeId ==(int)Constants.InvoiceGenerateModeE.CHANGEFROM)
-               {
-               invHistTO.ActionDesc = "Change Organization";
-               } 
-             resultMessage = PrepareAndSaveInternalTaxInvoices(invoiceTO,invGenModeId,fromOrgId,toOrgId, isCalculateWithBaseRate,invHistTO, conn, tran);
-                int res = _iTblInvoiceChangeOrgHistoryDAO.InsertTblInvoiceChangeOrgHistory(invHistTO,conn,tran);     
-                     
-                     if(res != 1 )
-                     {
-                        tran.Rollback();
-                           resultMessage.Text = "failed to save History in exchangeInvoice";
-                            return resultMessage; 
-                     }
-                        if (resultMessage.MessageType == ResultMessageE.Information)
-                        {
-                            tran.Commit();
-                            resultMessage.Text = "Invoice Converted Successfully";
-                            resultMessage.DisplayMessage = "Invoice Converted Successfully";
-                            return resultMessage;
-                        }
-                        else
-                        {
-                            tran.Rollback();
-                            return resultMessage;
-                        }
+                if (invGenModeId == (int)Constants.InvoiceGenerateModeE.DUPLICATE)
+                {
+                    invHistTO.ActionDesc = "Duplicate";
+                }
+                if (invGenModeId == (int)Constants.InvoiceGenerateModeE.CHANGEFROM)
+                {
+                    invHistTO.ActionDesc = "Change Organization";
+                }
+                resultMessage = PrepareAndSaveInternalTaxInvoices(invoiceTO, invGenModeId, fromOrgId, toOrgId, isCalculateWithBaseRate, invHistTO, conn, tran);
+                int res = _iTblInvoiceChangeOrgHistoryDAO.InsertTblInvoiceChangeOrgHistory(invHistTO, conn, tran);
+
+                if (res != 1)
+                {
+                    tran.Rollback();
+                    resultMessage.Text = "failed to save History in exchangeInvoice";
+                    return resultMessage;
+                }
+                if (resultMessage.MessageType == ResultMessageE.Information)
+                {
+                    tran.Commit();
+                    resultMessage.Text = "Invoice Converted Successfully";
+                    resultMessage.DisplayMessage = "Invoice Converted Successfully";
+                    return resultMessage;
+                }
+                else
+                {
+                    tran.Rollback();
+                    return resultMessage;
+                }
             }
-           catch (Exception ex)
+            catch (Exception ex)
             {
                 resultMessage.DefaultExceptionBehaviour(ex, "GenerateInvoiceNumber");
                 return resultMessage;
             }
-            
+
             finally
             {
                 conn.Close();
