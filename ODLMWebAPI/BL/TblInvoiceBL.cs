@@ -3594,7 +3594,12 @@ namespace ODLMWebAPI.BL
                     addressDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
                     headerDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo; //Aniket [18-9-2019]
                     addressDT.Rows[0]["poDateStr"] = tblInvoiceTO.PoDateStr;
-                    headerDT.Rows[0]["poDateStr"] = tblInvoiceTO.PoDateStr; //Aniket [18-9-2019]
+                    if (!String.IsNullOrEmpty(tblInvoiceTO.PoDateStr))
+                    {
+                        DateTime poDate = Convert.ToDateTime(tblInvoiceTO.PoDateStr);
+                        headerDT.Rows[0]["poDateStr"] = poDate.ToString("dd/MM/yyyy");
+                    }
+                   
                     addressDT.Rows[0]["electronicRefNo"] = tblInvoiceTO.ElectronicRefNo;
                     string finalAddr = "", addr1 = "" ;
                     if (tblInvoiceTO.InvoiceAddressTOList != null && tblInvoiceTO.InvoiceAddressTOList.Count > 0)
