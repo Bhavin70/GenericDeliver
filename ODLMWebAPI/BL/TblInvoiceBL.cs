@@ -3226,13 +3226,14 @@ namespace ODLMWebAPI.BL
                     headerDT.Columns.Add("invoiceDateStr");
                     headerDT.Columns.Add("deliveryLocation");
                     headerDT.Columns.Add("EWayBillNo"); //Aniket [26-6-2019]
-
+                    headerDT.Columns.Add("poNo");
                     headerDT.Rows[0]["invoiceNo"] = tblInvoiceTO.InvoiceNo;
                     headerDT.Rows[0]["invoiceDateStr"] = tblInvoiceTO.InvoiceDateStr;
                     if(!string.IsNullOrEmpty(tblInvoiceTO.ElectronicRefNo))
                     headerDT.Rows[0]["EWayBillNo"] = tblInvoiceTO.ElectronicRefNo;
                     addressDT.Columns.Add("poNo");
                     addressDT.Columns.Add("poDateStr");
+                    headerDT.Columns.Add("poDateStr");  //Aniket [18-9-2019]
                     addressDT.Columns.Add("electronicRefNo");
 
 
@@ -3591,7 +3592,9 @@ namespace ODLMWebAPI.BL
 
                     addressDT.Rows.Add();
                     addressDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
+                    headerDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo; //Aniket [18-9-2019]
                     addressDT.Rows[0]["poDateStr"] = tblInvoiceTO.PoDateStr;
+                    headerDT.Rows[0]["poDateStr"] = tblInvoiceTO.PoDateStr; //Aniket [18-9-2019]
                     addressDT.Rows[0]["electronicRefNo"] = tblInvoiceTO.ElectronicRefNo;
                     string finalAddr = "", addr1 = "" ;
                     if (tblInvoiceTO.InvoiceAddressTOList != null && tblInvoiceTO.InvoiceAddressTOList.Count > 0)
