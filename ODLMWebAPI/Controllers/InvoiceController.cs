@@ -271,11 +271,11 @@ namespace ODLMWebAPI.Controllers
         /// <returns></returns>
         [Route("GetInvoiceListByStatus")]
         [HttpGet]
-        public List<TblInvoiceTO> GetInvoiceListByStatus(int statusId, int distributorOrgId, int invoiceId)
+        public List<TblInvoiceTO> GetInvoiceListByStatus(int statusId, int distributorOrgId, int invoiceId,int isConfirm=2)
         {
             try
             {
-                return _iTblInvoiceBL.SelectTblInvoiceByStatus(statusId, distributorOrgId, invoiceId);
+                return _iTblInvoiceBL.SelectTblInvoiceByStatus(statusId, distributorOrgId, invoiceId, isConfirm);
             }
             catch (Exception ex)
             {

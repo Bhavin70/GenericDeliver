@@ -92,12 +92,23 @@ namespace ODLMWebAPI.BL
                     address += tblAddressTO.VillageName + ",";
 
                 bookingDelAddrTO.Address = address;
-                bookingDelAddrTO.BillingName = _iTblOrganizationDAO.SelectFirmNameOfOrganiationById(entityId);
+
+                //Sanjay 16-09-2019 Commented as not along with name contact name should also required.
+                //hence new method is introduced
+                //bookingDelAddrTO.BillingName = _iTblOrganizationDAO.SelectFirmNameOfOrganiationById(entityId);
+                OrgBasicInfo orgBasicInfo = _iTblOrganizationDAO.GetOrganizationBasicInfo(entityId);
+                if(orgBasicInfo != null)
+                {
+                    bookingDelAddrTO.BillingName = orgBasicInfo.FirmName;
+                    bookingDelAddrTO.ContactNo = orgBasicInfo.MobileNo;
+                }
+
                 bookingDelAddrTO.DistrictName = tblAddressTO.DistrictName;
                 bookingDelAddrTO.TalukaName = tblAddressTO.TalukaName;
                 bookingDelAddrTO.VillageName = tblAddressTO.VillageName;
                 bookingDelAddrTO.StateId = tblAddressTO.StateId;
                 bookingDelAddrTO.State = tblAddressTO.StateName;
+                bookingDelAddrTO.Pincode = tblAddressTO.Pincode;
 
                 List<TblOrgLicenseDtlTO> licList = _iTblOrgLicenseDtlDAO.SelectAllTblOrgLicenseDtl(entityId);
                 if (licList != null)

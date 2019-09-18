@@ -25,7 +25,18 @@ namespace ODLMWebAPI.DAL.Interfaces
           Dictionary<int, string> SelectRegisteredMobileNoDCT(String orgIds, SqlConnection conn, SqlTransaction tran);
           Dictionary<int, string> SelectRegisteredMobileNoDCTByOrgType(String orgTypeId, SqlConnection conn, SqlTransaction tran);
           String SelectFirmNameOfOrganiationById(Int32 organizationId);
-          List<TblOrganizationTO> ConvertDTToList(SqlDataReader tblOrganizationTODT);
+
+        /// <summary>
+        /// Sanjay [16-Sept-2019] To Get contact details (field-MobileNo) from organization.
+        /// It should return result with below sequence
+        /// If RegMobileNo is there then return else check for First Owner MobileNo if yes return No check alt Mobile No and return
+        /// If Not found then check for second owner mobile no if yes return else check alt Mobile No and return
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <returns></returns>
+        OrgBasicInfo GetOrganizationBasicInfo(Int32 organizationId);
+
+        List<TblOrganizationTO> ConvertDTToList(SqlDataReader tblOrganizationTODT);
           List<OrgExportRptTO> SelectAllOrgListToExport(Int32 orgTypeId, Int32 parentId);
           List<DropDownTO> SelectDealerListForDropDownForCRM(Int32 cnfId, TblUserRoleTO tblUserRoleTO);
           List<OrgExportRptTO> ConvertReaderToList(SqlDataReader tblOrganizationTODT);
