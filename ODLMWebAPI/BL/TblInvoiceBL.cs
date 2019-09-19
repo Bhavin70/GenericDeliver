@@ -1361,11 +1361,12 @@ namespace ODLMWebAPI.BL
                     {
                         showDeliveryLocation = Convert.ToInt32(tblConfigParamTO.ConfigParamVal);
                     }
-                    if(showDeliveryLocation==1)
-                    {
+                   
                         if (deliveryAddrTo.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS)
                         {
                             billingStateId = deliveryAddrTo.StateId;
+                        if (showDeliveryLocation == 1)
+                        {
                             if (string.IsNullOrEmpty(deliveryAddrTo.VillageName))
                             {
                                 if (string.IsNullOrEmpty(deliveryAddrTo.TalukaName))
@@ -1376,9 +1377,10 @@ namespace ODLMWebAPI.BL
                             }
                             else
                                 tblInvoiceTO.DeliveryLocation = deliveryAddrTo.VillageName;
+                        }
 
                         }
-                    }
+                    
                   
                     tblInvoiceTO.InvoiceAddressTOList.Add(tblInvoiceAddressTo);
                 }
