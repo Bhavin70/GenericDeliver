@@ -891,6 +891,13 @@ namespace ODLMWebAPI.BL
                     resultMessage.Result = 0;
                     return resultMessage;
                 }
+                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
+                {
+                    tblLoadingSlipExtTO.LoadedBundles = 0;
+                    tblLoadingSlipExtTO.LoadedWeight = 0;
+                    tblLoadingSlipExtTO.CalcTareWeight = 0;
+                }
                 result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExt(tblLoadingSlipExtTO);
                 if (result < 0)
                 {

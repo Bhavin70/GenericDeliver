@@ -2354,7 +2354,7 @@ namespace ODLMWebAPI.BL {
                         tblLoadingSlipTO.LoadingSlipExtTOList[i].BookingId = newBookingId;
 
                         int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
-                        if (weightSourceConfigId != (Int32)Constants.WeighingDataSourceE.IoT)
+                        if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
                         {
                             if (tblLoadingSlipTO.IsConfirmed == 0)
                             {
@@ -2961,9 +2961,17 @@ namespace ODLMWebAPI.BL {
                 tblLoadingTO.LoadingSlipNo = loadingSlipNo;
                 //Vijaymala added[22-06-2018]
                 if (isAutoGateInVehicle == 1) {
-                    tblLoadingTO.StatusId = (Int32) Constants.TranStatusE.LOADING_GATE_IN;
-                    tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_GATE_IN;
-                    tblLoadingTO.StatusReason = "Vehicle Entered In The Premises";
+                    if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                    {
+                        tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
+                        tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
+                        tblLoadingTO.StatusReason = "Loading Scheduled";
+                    } else
+                    {
+                        tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_GATE_IN;
+                        tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_GATE_IN;
+                        tblLoadingTO.StatusReason = "Vehicle Entered In The Premises";
+                    }
                 } else {
                     tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_NEW;
                     tblLoadingTO.StatusReason = "Loading Scheduled";
@@ -3095,8 +3103,18 @@ namespace ODLMWebAPI.BL {
 
                     //Vijaymala added[22-06-2018]
                     if (isAutoGateInVehicle == 1) {
-                        tblLoadingSlipTO.TranStatusE = Constants.TranStatusE.LOADING_GATE_IN;
-                        tblLoadingTO.StatusId = (Int32) Constants.TranStatusE.LOADING_GATE_IN;
+                        if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                        {
+                            tblLoadingSlipTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
+                            tblLoadingSlipTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
+                            tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
+                            tblLoadingTO.StatusReason = "Loading Scheduled";
+                        }
+                        else
+                        {
+                            tblLoadingSlipTO.TranStatusE = Constants.TranStatusE.LOADING_GATE_IN;
+                            tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_GATE_IN;
+                        }
 
                     } else {
                         tblLoadingSlipTO.TranStatusE = Constants.TranStatusE.LOADING_NEW;
@@ -3381,8 +3399,10 @@ namespace ODLMWebAPI.BL {
                 //    tblLoadingStatusHistoryTO.StatusRemark = "Loading Scheduled & Confirmed";
                 //}
 
-                tblLoadingStatusHistoryTO.TranStatusE = Constants.TranStatusE.LOADING_NOT_CONFIRM;
-                tblLoadingStatusHistoryTO.StatusRemark = "Apporval Needed";
+                //tblLoadingStatusHistoryTO.TranStatusE = Constants.TranStatusE.LOADING_NOT_CONFIRM;
+                //tblLoadingStatusHistoryTO.StatusRemark = "Apporval Needed";
+                tblLoadingStatusHistoryTO.TranStatusE = tblLoadingTO.TranStatusE;
+                tblLoadingStatusHistoryTO.StatusRemark = tblLoadingTO.StatusReason;
 
                 result = _iTblLoadingStatusHistoryDAO.InsertTblLoadingStatusHistory (tblLoadingStatusHistoryTO, conn, tran);
                 if (result != 1) {
@@ -3523,7 +3543,7 @@ namespace ODLMWebAPI.BL {
                 #region Sanjay [10-Dec-2018] Call To IoT To write the vehicle details
 
                 if (weightSourceConfigId == (int) Constants.WeighingDataSourceE.IoT || weightSourceConfigId == (int) Constants.WeighingDataSourceE.BOTH) {
-                    if (tblLoadingTO.StatusId == (Int32) Constants.TranStatusE.LOADING_CONFIRM) {
+                    if (tblLoadingTO.StatusId == (Int32) Constants.TranStatusE.LOADING_CONFIRM || tblLoadingTO.StatusId == (Int32)Constants.TranStatusE.LOADING_NEW) {
                         if (isAutoGateInVehicle == 1)
                         {
                             tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_GATE_IN;

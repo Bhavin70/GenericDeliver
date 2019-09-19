@@ -1298,6 +1298,7 @@ namespace ODLMWebAPI.BL
             {
                 for (int i = 0; i < tblInvoiceTOList.Count; i++)
                 {
+
                     resultMsg = SaveNewInvoice(tblInvoiceTOList[i], conn, tran);
                     if (resultMsg.MessageType != ResultMessageE.Information)
                     {
