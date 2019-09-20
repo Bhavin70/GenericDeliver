@@ -4707,6 +4707,7 @@ namespace ODLMWebAPI.BL
                 if (!isValidInvoice)
                 {
                     resultMessage.DefaultBehaviour(errorMsg);
+                    resultMessage.DisplayMessage = errorMsg;
                     return resultMessage;
                 }
                 #endregion
@@ -5656,6 +5657,7 @@ namespace ODLMWebAPI.BL
                 if (!isValidInvoice)
                 {
                     resultMessage.DefaultBehaviour(errorMsg);
+                    resultMessage.DisplayMessage = errorMsg;
                     return resultMessage;
                 }
                 #endregion
