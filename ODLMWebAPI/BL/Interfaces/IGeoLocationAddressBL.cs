@@ -1,4 +1,5 @@
 ﻿using ODLMWebAPI.Models;
+using ODLMWebAPI.StaticStuff;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -11,7 +12,7 @@ namespace ODLMWebAPI.BL.Interfaces
     {
         GeoLocationAddressTo convertToProperAddress(GoogleGeoCodeResponse addressDetails);
         string createAddressDetils(List<results> googleGeoCodeResponse, string item);
-        string myLocationAddress(string lat, string logn);
+        ResultMessage myLocationAddress(string lat, string logn);
         string myLatLngByAddress(string address);
         List<newdata> SelectAlllatlngData();
         List<newdata> ConvertDTToList(SqlDataReader tblAddressTODT);

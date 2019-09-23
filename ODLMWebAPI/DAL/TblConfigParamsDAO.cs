@@ -193,7 +193,8 @@ namespace ODLMWebAPI.DAL
                         tblConfigParamsTONew.ConfigParamName = Convert.ToString(tblConfigParamsTODT["configParamName"].ToString());
                     if (tblConfigParamsTODT["configParamVal"] != DBNull.Value)
                         tblConfigParamsTONew.ConfigParamVal = Convert.ToString(tblConfigParamsTODT["configParamVal"].ToString());
-
+                     if (tblConfigParamsTODT["moduleId"] != DBNull.Value)
+                        tblConfigParamsTONew.ModuleId = Convert.ToInt32(tblConfigParamsTODT["moduleId"].ToString());
 					///Hrishikesh[27 - 03 - 2018] Added
 					if (tblConfigParamsTODT["isActive"] != DBNull.Value)
 						tblConfigParamsTONew.IsActive = Convert.ToInt32(Convert.ToString(tblConfigParamsTODT["isActive"]));

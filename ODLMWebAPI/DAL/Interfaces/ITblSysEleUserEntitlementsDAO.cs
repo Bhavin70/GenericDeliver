@@ -23,6 +23,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblSysEleUserEntitlements(Int32 idUserEntitlement, Int32 userId, Int32 sysEleId, String permission);
         int DeleteTblSysEleUserEntitlements(Int32 idUserEntitlement, Int32 userId, Int32 sysEleId, String permission, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idUserEntitlement, Int32 userId, Int32 sysEleId, String permission, SqlCommand cmdDelete);
-
+        //harshala
+        List<TblSysEleUserEntitlementsTO> SelectAllTblSysEleUserEntitlementsOnlyRW(int userId);
     }
 }

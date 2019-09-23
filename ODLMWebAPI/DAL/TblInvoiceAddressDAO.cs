@@ -199,6 +199,10 @@ namespace ODLMWebAPI.DAL
                     if (tblInvoiceAddressTODT["addrSourceTypeId"] != DBNull.Value)
                         tblInvoiceAddressTONew.AddrSourceTypeId = Convert.ToInt32(tblInvoiceAddressTODT["addrSourceTypeId"]);
 
+                    //Sanjay 17-09-2019 Prev village was not included in master.
+                    if (tblInvoiceAddressTODT["village"] != DBNull.Value)
+                        tblInvoiceAddressTONew.VillageName = Convert.ToString(tblInvoiceAddressTODT["village"].ToString());
+
                     tblInvoiceAddressTOList.Add(tblInvoiceAddressTONew);
                 }
             }
@@ -270,6 +274,7 @@ namespace ODLMWebAPI.DAL
                                 " ,[state]" +
                                 " ,[pinCode]" +
                                 " ,[addrSourceTypeId]" +
+                                " ,[village]" +
                                 " )" +
                     " VALUES (" +
                                 "  @InvoiceId " +
@@ -290,6 +295,7 @@ namespace ODLMWebAPI.DAL
                                 " ,@State " +
                                 " ,@PinCode " +
                                 " ,@addrSourceTypeId " +
+                                " ,@village " +
                                 " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
@@ -313,6 +319,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@State", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceAddressTO.State);
             cmdInsert.Parameters.Add("@PinCode", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceAddressTO.PinCode);
             cmdInsert.Parameters.Add("@addrSourceTypeId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceAddressTO.AddrSourceTypeId);
+            cmdInsert.Parameters.Add("@village", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceAddressTO.VillageName);
 
             if (cmdInsert.ExecuteNonQuery()==1)
             {
@@ -388,6 +395,7 @@ namespace ODLMWebAPI.DAL
                                 " ,[state]= @State" +
                                 " ,[pinCode] = @PinCode" +
                                 " ,[addrSourceTypeId] = @addrSourceTypeId " +
+                                " ,[village] = @village" +
 
                                 " WHERE [idInvoiceAddr] = @IdInvoiceAddr"; 
 
@@ -413,6 +421,7 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@State", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceAddressTO.State);
             cmdUpdate.Parameters.Add("@PinCode", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceAddressTO.PinCode);
             cmdUpdate.Parameters.Add("@addrSourceTypeId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceAddressTO.AddrSourceTypeId);
+            cmdUpdate.Parameters.Add("@village", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceAddressTO.VillageName);
 
             return cmdUpdate.ExecuteNonQuery();
         }

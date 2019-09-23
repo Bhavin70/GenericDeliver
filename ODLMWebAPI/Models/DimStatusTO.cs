@@ -18,6 +18,7 @@ namespace ODLMWebAPI.Models
         //Aniket [30-7-2019] added for IOT
         Int32 iotStatusId;
         int dispSeqNo;
+        Int32 isBlocked;
         #endregion
 
         #region Constructor
@@ -59,6 +60,8 @@ namespace ODLMWebAPI.Models
         public int IotStatusId { get => iotStatusId; set => iotStatusId = value; }
         public int DispSeqNo { get => dispSeqNo; set => dispSeqNo = value; }
 
+     public int IsBlocked { get => isBlocked; set => isBlocked = value; }
+   
         #endregion
     }
 }

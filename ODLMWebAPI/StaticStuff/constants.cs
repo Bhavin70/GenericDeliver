@@ -527,6 +527,7 @@ namespace ODLMWebAPI.StaticStuff
         #region Configuration Sections
 
         public static String IS_MAP_MY_INDIA = "IS_MAP_MY_INDIA";
+        public static String MAP_API_URL = "MAP_API_URL";
         public static string CP_MAX_ALLOWED_DEL_PERIOD = "MAX_ALLOWED_DEL_PERIOD";
         public static string LOADING_SLIP_DEFAULT_SIZES = "LOADING_SLIP_DEFAULT_SIZES";
         public static string LOADING_SLIP_DEFAULT_SPECIFICATION = "LOADING_SLIP_DEFAULT_SPECIFICATION";
@@ -554,6 +555,8 @@ namespace ODLMWebAPI.StaticStuff
         public static string CP_BILLING_NOT_CONFIRM_AUTHENTICATION = "BILLING_NOT_CONFIRM_AUTHENTICATION";
         public static string CONSOLIDATE_STOCK = "CONSOLIDATE_STOCK";
         public static String ENTITY_RANGE_REGULAR_TAX_INVOICE_BMM = "REGULAR_TAX_INVOICE_BMM";
+  public static String ENTITY_RANGE_REGULAR_TAX_INTERNALORG = "REGULAR_TAX_INVOICE_ORG_";
+  public static String INTERNAL_DEFAULT_ITEM = "INTERNAL_DEFAULT_ITEM";
 
         public static string CP_BRAND_WISE_INVOICE = "BRAND_WISE_INVOICE";
         public static string CP_SKIP_LOADING_APPROVAL = "SKIP_LOADING_APPROVAL";
@@ -728,7 +731,7 @@ namespace ODLMWebAPI.StaticStuff
         public static string ANNOUNCE_RATE_WITH_RATEBAND_CURRENT_QUOTA = "ANNOUNCE_RATE_WITH_RATEBAND_CURRENT_QUOTA";
         public static string RESTRICT_CNF_BEYOND_BOOKING_QUOTA = "RESTRICT_CNF_BEYOND_BOOKING_QUOTA";
         //Aniket [06-03-2019] added to check Math.Round() function to be used in tax calculations or not
-        public static string IS_ROUND_OFF_TAX_INVOICE_CALCULATION = "IS_ROUND_OFF_TAX_INVOICE_CALCULATION";
+        public static string IS_ROUND_OFF_TAX_ON_PRINT_INVOICE = "IS_ROUND_OFF_TAX_ON_PRINT_INVOICE";
 
         //Aniket [25-3-2019] added to check which statusId booking details exclude from CNC report
         public static string CNF_BOOKING_REPORT_EXCLUDE_STATUSID = "CNF_BOOKING_REPORT_EXCLUDE_STATUSID";
@@ -738,10 +741,17 @@ namespace ODLMWebAPI.StaticStuff
 
         //Aniket [10-6-2019]
         public static string IS_BALAJI_CLIENT = "IS_BALAJI_CLIENT";
+        //Aniket [9-9-2019]
+        public static string HIDE_BRAND_NAME_ON_NC_INVOICE = "HIDE_BRAND_NAME_ON_NC_INVOICE";
+        //Aniket [16-9-2019]
+        public static string ROUND_OFF_TAX_INVOICE_VALUES = "ROUND_OFF_TAX_INVOICE_VALUES";
+        //Aniket [18-9-2019]
+        public static string SHOW_DELIVERY_LOCATION_ON_INVOICE = "SHOW_DELIVERY_LOCATION_ON_INVOICE";
         //Aniket [30-7-2019] added for IOT
         public static string CP_WEIGHING_MEASURE_SOURCE_ID = "WEIGHING_MEASURE_SOURCE_ID";
         public static String REGULAR_BOOKING = "REGULAR_BOOKING";
         #endregion
+
 
         #region Common functions
 
@@ -908,9 +918,11 @@ namespace ODLMWebAPI.StaticStuff
         public enum InvoiceGenerateModeE
         {
             REGULAR = 0,
-            BRMTOBM = 1,
-            BMTOCUSTOMER = 2
+            DUPLICATE = 1,
+            CHANGEFROM  = 2
         }
+
+        
 
         /// <summary>
         /// Vijaymala[06-02-2018]Added To Set Firm Name

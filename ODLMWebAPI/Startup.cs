@@ -513,6 +513,9 @@ namespace ODLMWebAPI
             services.AddScoped<ITblGateDAO, TblGateDAO>();
 
 
+            services.AddScoped<ITblInvoiceChangeOrgHistoryDAO, TblInvoiceChangeOrgHistoryDAO>();
+
+            
 
             services.AddMvc();
             ConnectionString = Configuration.GetSection("Data:DefaultConnection").Value.ToString();

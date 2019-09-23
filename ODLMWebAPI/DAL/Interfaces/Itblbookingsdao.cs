@@ -49,5 +49,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblBookingsTO> SelectAllBookingDateWise(DateTime fromDate, DateTime toDate);
 
         List<TblBookingsTO> SelectTblBookingsRef(Int32 BookingRefId, SqlConnection conn, SqlTransaction tran);
+        TblBookingsTO SelectBookingsDetailsFromInVoiceId(Int32 invoiceId, SqlConnection conn, SqlTransaction tran);
+
+
     }
 }

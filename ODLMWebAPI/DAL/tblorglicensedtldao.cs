@@ -164,6 +164,12 @@ namespace ODLMWebAPI.DAL
                         tblOrgLicenseDtlTONew.CreatedOn = Convert.ToDateTime(tblOrgLicenseDtlTODT["createdOn"].ToString());
                     if (tblOrgLicenseDtlTODT["licenseValue"] != DBNull.Value)
                         tblOrgLicenseDtlTONew.LicenseValue = Convert.ToString(tblOrgLicenseDtlTODT["licenseValue"].ToString());
+
+                    if (!String.IsNullOrEmpty(tblOrgLicenseDtlTONew.LicenseValue))
+                    {
+                        tblOrgLicenseDtlTONew.LicenseValue = tblOrgLicenseDtlTONew.LicenseValue.ToUpper();
+                    }
+
                     if (tblOrgLicenseDtlTODT["licenseName"] != DBNull.Value)
                         tblOrgLicenseDtlTONew.LicenseName = Convert.ToString(tblOrgLicenseDtlTODT["licenseName"].ToString());
                     tblOrgLicenseDtlTOList.Add(tblOrgLicenseDtlTONew);

@@ -86,6 +86,9 @@ namespace ODLMWebAPI.Models
         DateTime preparationDate; // Aniket [06-02-2019] to store invoice preparation date and time
         Int32 isDBup;
         Int32 loadingStatusId;
+
+        Int32 invFromOrgFreeze;   //Saket [2019-09-17] Added For A1 customization
+
         #endregion
 
         #region Constructor
@@ -514,6 +517,9 @@ namespace ODLMWebAPI.Models
         public int LoadingStatusId { get => loadingStatusId; set => loadingStatusId = value; }
         #endregion
 
+
+
+        public int InvFromOrgFreeze { get => invFromOrgFreeze; set => invFromOrgFreeze = value; }
 
         public TblInvoiceTO DeepCopy()
         {

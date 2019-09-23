@@ -78,6 +78,8 @@ namespace ODLMWebAPI.BL {
         private readonly ITblBookingDelAddrDAO _iTblBookingDelAddrDAO;
 
         public TblLoadingBL(IWeighingCommunication iWeighingCommunication, IModbusRefConfig iModbusRefConfig,ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblInvoiceHistoryDAO iTblInvoiceHistoryDAO, ITblWeighingMachineDAO iTblWeighingMachineDAO, IGateCommunication iGateCommunication, IIotCommunication iIotCommunication, ITblGateBL iTblGateBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL)
+        private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
+        public TblLoadingBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL)
         {
             _iTblLoadingDAO = iTblLoadingDAO;
             _iTblUserRoleBL = iTblUserRoleBL;
@@ -137,6 +139,7 @@ namespace ODLMWebAPI.BL {
             _iTblInvoiceHistoryDAO = iTblInvoiceHistoryDAO;
             _iTblBookingDelAddrDAO = iTblBookingDelAddrDAO;
             _iModbusRefConfig  = iModbusRefConfig;
+            _iTblAlertDefinitionDAO = iTblAlertDefinitionDAO;
         }
         #region Selection
 
@@ -2567,14 +2570,24 @@ namespace ODLMWebAPI.BL {
                                     bookingPrice = tblBookingParitiesTO.BookingRate;
                                     // Aniket [18-6-2019]
                                     // added to reduce item wise discount from bookingprice
-                                    foreach (TblBookingExtTO item in bookingExtTOList) {
-                                        if (item.ProdCatId == tblLoadingSlipExtTO.ProdCatId && item.ProdSpecId == tblLoadingSlipExtTO.ProdSpecId && item.BrandId == tblLoadingSlipExtTO.BrandId && item.MaterialId == tblLoadingSlipExtTO.MaterialId && item.ProdItemId == tblLoadingSlipExtTO.ProdItemId) {
-                                            bookingPrice = bookingPrice - (item.Discount * item.BookedQty * 1000);
+                                    if(tblBookingsTO.IsItemized==1)
+                                    {
+                                        if (bookingExtTOList != null && bookingExtTOList.Count > 0)
+                                        {
+                                            foreach (TblBookingExtTO item in bookingExtTOList)
+                                            {
+                                                if (item.ProdCatId == tblLoadingSlipExtTO.ProdCatId && item.ProdSpecId == tblLoadingSlipExtTO.ProdSpecId && item.BrandId == tblLoadingSlipExtTO.BrandId && item.MaterialId == tblLoadingSlipExtTO.MaterialId && item.ProdItemId == tblLoadingSlipExtTO.ProdItemId)
+                                                {
+                                                    bookingPrice = bookingPrice - (item.Discount * item.BookedQty * 1000);
+                                                }
+                                            }
                                         }
                                     }
-
-                                    // rateCalcDesc = "B.R : " + tblBookingParitiesTO.BookingRate + "|";
-                                    if (isTaxInclusive == 1 && isTaxInclusiveWithTaxes == 0) {
+                                    
+                                  
+                                   // rateCalcDesc = "B.R : " + tblBookingParitiesTO.BookingRate + "|";
+                                   if(isTaxInclusive==1 && isTaxInclusiveWithTaxes==0)
+                                    {
                                         bookingPrice = bookingPrice / 1.18;
                                         bookingPrice = Math.Round (bookingPrice, 2);
                                     }
@@ -3513,8 +3526,9 @@ namespace ODLMWebAPI.BL {
                     TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO ();
                     tblAlertInstanceTO.AlertDefinitionId = (int) NotificationConstants.NotificationsE.LOADING_SLIP_CONFIRMATION_REQUIRED;
                     tblAlertInstanceTO.AlertAction = "LOADING_SLIP_CONFIRMATION_REQUIRED";
-                    tblAlertInstanceTO.AlertComment = "Not confirmed loading slip  " + tblLoadingTO.LoadingSlipNo + "  is awaiting for confirmation";
-                    if (dealerNameActive == 1) //Vijaymala added[03-05-2018]
+
+                    tblAlertInstanceTO.AlertComment = "Loading slip  " + tblLoadingTO.LoadingSlipNo + "  is awaiting for confirmation";
+                    if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                     {
                         tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
                         tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ")."; //      
@@ -5662,6 +5676,8 @@ namespace ODLMWebAPI.BL {
                 #endregion
 
                 #region 4. Notifications For Approval Or Information
+                //Aniket [6-8-2019] added to set alert and sms dynamically
+                List<TblAlertDefinitionTO> tblAlertDefinitionTOList = _iTblAlertDefinitionDAO.SelectAllTblAlertDefinition();
                 //Vijaymala added[03-05-2018]to change  notification with party name
                 TblConfigParamsTO dealerNameConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO (Constants.CP_ADD_DEALER_IN_NOTIFICATION, conn, tran);
                 Int32 dealerNameActive = 0;
@@ -5699,15 +5715,33 @@ namespace ODLMWebAPI.BL {
                         }
                     }
 
-                    if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_CONFIRM) {
-                        tblAlertInstanceTO.AlertDefinitionId = (int) NotificationConstants.NotificationsE.LOADING_SLIP_CONFIRMED;
+                    if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_CONFIRM)
+                    {
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.LOADING_SLIP_CONFIRMED);
+                        string tempTxt = "", tempSms = "";
+                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.LOADING_SLIP_CONFIRMED;
                         tblAlertInstanceTO.AlertAction = "LOADING_SLIP_CONFIRMED";
-                        tblAlertInstanceTO.AlertComment = "Not confirmed loading slip  " + tblLoadingTO.LoadingSlipNo + "  For Vehicle No :" + tblLoadingTO.VehicleNo + "  is approved";
-
-                        if (dealerNameActive == 1) //Vijaymala added[03-05-2018]
+                        //Aniket [6-8-2019] 
+                        if(!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
                         {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ")."; //      
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@LoadingSlipStr", tblLoadingTO.LoadingSlipNo);
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+                            if (!string.IsNullOrEmpty(tblLoadingTO.VehicleNo))
+                                tempTxt = tempTxt.Replace("@VehicleNoStr", tblLoadingTO.VehicleNo);
+                            else
+                                tempTxt = tempTxt.Replace("@VehicleNoStr", "-");
+
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
+                        tblAlertInstanceTO.AlertComment = "Loading slip  " + tblLoadingTO.LoadingSlipNo + "  For Vehicle No :" + tblLoadingTO.VehicleNo + "  is approved";
+
+                        if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
+                        {
+                            tempTxt = tempTxt.Replace("@DealerNameStr", dealerOrgNames);
+                            tblAlertInstanceTO.SmsComment = tempTxt;
+                            //tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ").";//      
                         }
 
                         tblAlertInstanceTO.SourceDisplayId = "LOADING_SLIP_CONFIRMED";
@@ -5734,15 +5768,32 @@ namespace ODLMWebAPI.BL {
                             return resultMessage;
                         }
 
-                    } else if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_CANCEL) {
-                        tblAlertInstanceTO.AlertDefinitionId = (int) NotificationConstants.NotificationsE.LOADING_SLIP_CANCELLED;
+                    }
+                    else if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_CANCEL)
+                    {
+                        //Aniket [6-8-2019]
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.LOADING_SLIP_CANCELLED);
+                        string tempTxt = "";
+                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.LOADING_SLIP_CANCELLED;
                         tblAlertInstanceTO.AlertAction = "LOADING_SLIP_CANCELLED";
+                        if(!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@LoadingSlipNoStr", tblLoadingTO.LoadingSlipNo);
+                            tempTxt = tempTxt.Replace("@ReasonStr", tblLoadingTO.StatusReason);
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
                         tblAlertInstanceTO.AlertComment = "Your Generated Loading Slip (Ref " + tblLoadingTO.LoadingSlipNo + ")  is cancelled due to " + tblLoadingTO.StatusReason;
 
                         if (dealerNameActive == 1) //Vijaymala added[03-05-2018]
                         {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ")."; //      
+                            tempTxt = tempTxt.Replace("@DealerNameStr", dealerOrgNames);
+
+                            tblAlertInstanceTO.SmsComment = tempTxt;
+                            //tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ").";//      
                         }
 
                         tblAlertInstanceTO.SourceDisplayId = "LOADING_SLIP_CANCELLED";
@@ -5772,29 +5823,73 @@ namespace ODLMWebAPI.BL {
                             resultMessage.Text = "Error While Reseting Prev Alert";
                             return resultMessage;
                         }
-                    } else if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_DELIVERED) {
-                        tblAlertInstanceTO.AlertDefinitionId = (int) NotificationConstants.NotificationsE.VEHICLE_OUT_FOR_DELIVERY;
+                    }
+                    else if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_DELIVERED)
+                    {
+                        //Aniket [6-8-2019]
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.VEHICLE_OUT_FOR_DELIVERY);
+                        string tempTxt = "";
+                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.VEHICLE_OUT_FOR_DELIVERY;
                         tblAlertInstanceTO.AlertAction = "VEHICLE_OUT_FOR_DELIVERY";
+                        if(!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@LoadingSlipNoStr", tblLoadingTO.LoadingSlipNo);
+                            tempTxt = tempTxt.Replace("@VehicleNoStr", tblLoadingTO.VehicleNo);
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
                         tblAlertInstanceTO.AlertComment = "Your Loading Slip (Ref " + tblLoadingTO.LoadingSlipNo + ")  of Vehicle No " + tblLoadingTO.VehicleNo + " is out for delivery";
 
                         if (dealerNameActive == 1) //Vijaymala added[03-05-2018]
                         {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ")."; //      
+                            //tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
+                            // tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ").";// 
+                            tempTxt = tempTxt.Replace("@DealerNameStr", dealerOrgNames);
+                            tblAlertInstanceTO.SmsComment = tempTxt;
                         }
 
                         tblAlertInstanceTO.SourceDisplayId = "VEHICLE_OUT_FOR_DELIVERY";
                         tblAlertInstanceTO.SmsTOList = new List<TblSmsTO> ();
 
                         //SMS to Dealer
-                        Dictionary<int, string> dealerDCT = _iTblLoadingSlipBL.SelectRegMobileNoDCTForLoadingDealers (tblLoadingTO.IdLoading.ToString (), conn, tran);
-                        if (dealerDCT != null) {
-                            foreach (var item in dealerDCT.Keys) {
-                                TblSmsTO smsTO = new TblSmsTO ();
+                        //Aniket [31-7-2019] added to set sms text dynamically
+                       // TblAlertDefinitionTO tblAlertDefinitionTO = _iTblAlertDefinitionDAO.SelectTblAlertDefinition((int)NotificationConstants.NotificationsE.VEHICLE_OUT_FOR_DELIVERY, conn, tran);
+
+                        Dictionary<int, string> dealerDCT = _iTblLoadingSlipBL.SelectRegMobileNoDCTForLoadingDealers(tblLoadingTO.IdLoading.ToString(), conn, tran);
+                        if (dealerDCT != null)
+                        {
+                            foreach (var item in dealerDCT.Keys)
+                            {
+                                TblSmsTO smsTO = new TblSmsTO();
                                 smsTO.MobileNo = dealerDCT[item];
                                 smsTO.SourceTxnDesc = "VEHICLE_OUT_FOR_DELIVERY";
+                                if(!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
+                                {
+                                    string tempSmsString = tblAlertDefinitionTO.DefaultSmsTxt;
+                                    tempSmsString= tempSmsString.Replace("@QtyStr",tblLoadingTO.TotalLoadingQty.ToString());
+                                    if(!string.IsNullOrEmpty(tblLoadingTO.VehicleNo))
+                                        tempSmsString=tempSmsString.Replace("@TruckNoStr", tblLoadingTO.VehicleNo);
+                                    else
+                                        tempSmsString=tempSmsString.Replace("@TruckNoStr", "-");
+                                    if (!string.IsNullOrEmpty(tblLoadingTO.ContactNo))
+                                        tempSmsString=tempSmsString.Replace("@NoStr",tblLoadingTO.ContactNo);
+                                    else
+                                        tempSmsString= tempSmsString.Replace("@NoStr", "-");
+
+                                    if (!string.IsNullOrEmpty(tblLoadingTO.DriverName))
+                                        tempSmsString= tempSmsString.Replace("@NameStr",tblLoadingTO.DriverName);
+                                    else
+                                        tempSmsString= tempSmsString.Replace("@NameStr", "-");
+                                   
+                                    smsTO.SmsTxt = tempSmsString;
+                                }
+                                else
                                 smsTO.SmsTxt = "Your Loading Slip Ref. " + tblLoadingTO.LoadingSlipNo + " is out for delivery";
-                                tblAlertInstanceTO.SmsTOList.Add (smsTO);
+
+                                tblAlertInstanceTO.SmsTOList.Add(smsTO);
                             }
                         }
 
@@ -5804,43 +5899,93 @@ namespace ODLMWebAPI.BL {
 
                     //Priyanka [09-10-2018] - Added to send notifications to persons about vehicle status like vehicle
                     //                        gate in, reported, clearance to send in for loading. 
-                    else if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_GATE_IN) {
-                        tblAlertInstanceTO.AlertDefinitionId = (int) NotificationConstants.NotificationsE.LOADING_GATE_IN;
+
+                    else if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_GATE_IN)
+                    {
+                        //Aniket [6-8-2019]
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.LOADING_GATE_IN);
+                        string tempTxt = "";
+                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.LOADING_GATE_IN;
                         tblAlertInstanceTO.AlertAction = "LOADING_GATE_IN";
+                        if(!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@VehicleNoStr", tblLoadingTO.VehicleNo);
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
                         tblAlertInstanceTO.AlertComment = "Vehicle No " + tblLoadingTO.VehicleNo + " is gate in for loading.";
 
                         if (dealerNameActive == 1) //Vijaymala added[03-05-2018]
                         {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ")."; //      
+                            tempTxt = tempTxt.Replace("@DealerNameStr", dealerOrgNames);
+                            tblAlertInstanceTO.SmsComment = tempTxt;
+                           // tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ").";//      
                         }
 
                         tblAlertInstanceTO.SourceDisplayId = "LOADING_GATE_IN";
                         tblAlertInstanceTO.SmsTOList = new List<TblSmsTO> ();
                         tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
-                    } else if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_REPORTED_FOR_LOADING) {
-                        tblAlertInstanceTO.AlertDefinitionId = (int) NotificationConstants.NotificationsE.VEHICLE_REPORTED_FOR_LOADING;
+                    }
+
+                    else if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_REPORTED_FOR_LOADING)
+                    {
+                        //Aniket [6-8-2019]
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.LOADING_GATE_IN);
+                        string tempTxt = "";
+
+                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.VEHICLE_REPORTED_FOR_LOADING;
                         tblAlertInstanceTO.AlertAction = "VEHICLE_REPORTED_FOR_LOADING";
-                        tblAlertInstanceTO.AlertComment = "Vehicle No " + tblLoadingTO.VehicleNo + " is reported for loading.";
+                        if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@VehicleNoStr", tblLoadingTO.VehicleNo);
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
+                            tblAlertInstanceTO.AlertComment = "Vehicle No " + tblLoadingTO.VehicleNo + " is reported for loading.";
 
                         if (dealerNameActive == 1) //Vijaymala added[03-05-2018]
                         {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ")."; //      
+                            tempTxt = tempTxt.Replace("@DealerNameStr", dealerOrgNames);
+                            tblAlertInstanceTO.SmsComment = tempTxt;
+                            //tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ").";//      
                         }
 
                         tblAlertInstanceTO.SourceDisplayId = "VEHICLE_REPORTED_FOR_LOADING";
                         tblAlertInstanceTO.SmsTOList = new List<TblSmsTO> ();
                         tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
-                    } else if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_VEHICLE_CLERANCE_TO_SEND_IN) {
-                        tblAlertInstanceTO.AlertDefinitionId = (int) NotificationConstants.NotificationsE.LOADING_VEHICLE_CLEARANCE_TO_SEND_IN;
+                    }
+
+                    
+                     else if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_VEHICLE_CLERANCE_TO_SEND_IN)
+                    {
+                        //Aniket [6-8-2019]
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.LOADING_VEHICLE_CLEARANCE_TO_SEND_IN);
+                        string tempTxt = "";
+
+                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.LOADING_VEHICLE_CLEARANCE_TO_SEND_IN;
                         tblAlertInstanceTO.AlertAction = "LOADING_VEHICLE_CLEARANCE_TO_SEND_IN";
-                        tblAlertInstanceTO.AlertComment = "Vehicle No " + tblLoadingTO.VehicleNo + " is clear to send in for loading.";
+                        if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@VehicleNoStr", tblLoadingTO.VehicleNo);
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
+                            tblAlertInstanceTO.AlertComment = "Vehicle No " + tblLoadingTO.VehicleNo + " is clear to send in for loading.";
 
                         if (dealerNameActive == 1) //Vijaymala added[03-05-2018]
                         {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ")."; //      
+                            tempTxt = tempTxt.Replace("@DealerNameStr", dealerOrgNames);
+                            tblAlertInstanceTO.SmsComment = tempTxt;
+                           // tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ").";//      
                         }
 
                         tblAlertInstanceTO.SourceDisplayId = "LOADING_VEHICLE_CLEARANCE_TO_SEND_IN";

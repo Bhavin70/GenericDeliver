@@ -22,6 +22,7 @@ namespace ODLMWebAPI.BL
 {      
     public class TblInvoiceBL : ITblInvoiceBL
     {
+        private readonly ITblInvoiceChangeOrgHistoryDAO _iTblInvoiceChangeOrgHistoryDAO;
         private readonly ITblInvoiceDAO _iTblInvoiceDAO;
         private readonly ITblUserRoleBL _iTblUserRoleBL;
         private readonly ITblInvoiceItemDetailsBL _iTblInvoiceItemDetailsBL;
@@ -73,7 +74,10 @@ namespace ODLMWebAPI.BL
         private readonly IGateCommunication _iGateCommunication;
         private readonly ITblLoadingSlipDAO _iTblLoadingSlipDAO;
         public TblInvoiceBL(ITblLoadingSlipDAO iTblLoadingSlipDAO,IIotCommunication iIotCommunication, IGateCommunication iGateCommunication, ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL)
+        private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
+        public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblInvoiceChangeOrgHistoryDAO iTblInvoiceChangeOrgHistoryDAO, ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL)
         {
+            _iTblInvoiceChangeOrgHistoryDAO =iTblInvoiceChangeOrgHistoryDAO;
             _iTblInvoiceDAO = iTblInvoiceDAO;
             _iTblUserRoleBL = iTblUserRoleBL;
             _iTblInvoiceItemDetailsBL = iTblInvoiceItemDetailsBL;
@@ -124,6 +128,7 @@ namespace ODLMWebAPI.BL
             _iIotCommunication = iIotCommunication;
             _iGateCommunication = iGateCommunication;
             _iTblLoadingSlipDAO = iTblLoadingSlipDAO;
+            _iTblAlertDefinitionDAO = iTblAlertDefinitionDAO;
         }
         #region Selection
 
@@ -383,7 +388,7 @@ namespace ODLMWebAPI.BL
         /// <param name="StatusId"></param>
         /// <param name="distributorOrgId"></param>
         /// <returns></returns>
-        public List<TblInvoiceTO> SelectTblInvoiceByStatus(int statusId, int distributorOrgId, int invoiceId)
+        public List<TblInvoiceTO> SelectTblInvoiceByStatus(int statusId, int distributorOrgId, int invoiceId,int isConfirm)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -391,7 +396,7 @@ namespace ODLMWebAPI.BL
             {
                 conn.Open();
                 tran = conn.BeginTransaction();
-                return _iTblInvoiceDAO.SelectTblInvoiceByStatus(statusId, distributorOrgId, invoiceId, conn, tran);
+                return _iTblInvoiceDAO.SelectTblInvoiceByStatus(statusId, distributorOrgId, invoiceId, conn, tran, isConfirm);
             }
             catch (Exception ex)
             {
@@ -659,6 +664,13 @@ namespace ODLMWebAPI.BL
                 TblInvoiceAddressTO tblInvoiceAddressTO = tblInvoiceAddressTOList.Where(ele => ele.TxnAddrTypeId == (Int32)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS).FirstOrDefault();
                 if (tblInvoiceAddressTO != null)
                 {
+                    //Aniket [9-9-2019] added to check StateId is null or not.. if null do not allow to create or udate the invoice
+                    // issue was if stateId not found automatically convert  CGST invoice calc to IGST
+                    if(tblInvoiceAddressTO.StateId==0)
+                    {
+                        errorMsg = "State not found. Kindly select State from list in billing address ";
+                        return false;
+                    }
                     if (tblOrgAddressTO.StateId == tblInvoiceAddressTO.StateId)
                     {
                         if (tblInvoiceTO.IgstAmt > 0)
@@ -911,6 +923,7 @@ namespace ODLMWebAPI.BL
                 if (!isValidInvoice)
                 {
                     resultMessage.DefaultBehaviour(errorMsg);
+                    resultMessage.Text = errorMsg;
                     return resultMessage;
                 }
                 #endregion
@@ -970,10 +983,13 @@ namespace ODLMWebAPI.BL
                     return resultMessage;
                 }
 
+
+                if(tblInvoiceTO.InvFromOrgId ==0)
+                {
                 TblConfigParamsTO paramTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID, conn, tran);
                 if (paramTO != null)
                     tblInvoiceTO.InvFromOrgId = Convert.ToInt32(paramTO.ConfigParamVal);
-
+                } 
                 //Saket [2018-02-23] Added
                 if (tblInvoiceTO.InvoiceItemDetailsTOList != null && tblInvoiceTO.InvoiceItemDetailsTOList.Count > 0)
                 {
@@ -1578,6 +1594,7 @@ namespace ODLMWebAPI.BL
                     tblInvoiceAddressTo.StateId = deliveryAddrTo.StateId;
                     tblInvoiceAddressTo.State = deliveryAddrTo.State;
                     tblInvoiceAddressTo.Taluka = deliveryAddrTo.TalukaName;
+                    tblInvoiceAddressTo.VillageName = deliveryAddrTo.VillageName;
                     tblInvoiceAddressTo.District = deliveryAddrTo.DistrictName;
                     tblInvoiceAddressTo.BillingName = deliveryAddrTo.BillingName;
                     tblInvoiceAddressTo.ContactNo = deliveryAddrTo.ContactNo;
@@ -1599,22 +1616,34 @@ namespace ODLMWebAPI.BL
                     {
                         tblInvoiceAddressTo.BillingOrgId = loadingSlipTo.DealerOrgId;
                     }
-
-                    if (deliveryAddrTo.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS)
+                    //Aniket [18-9-2019]
+                    int showDeliveryLocation = 0;
+                    TblConfigParamsTO tblConfigParamTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.SHOW_DELIVERY_LOCATION_ON_INVOICE);
+                    if(tblConfigParamTO!=null)
                     {
-                        billingStateId = deliveryAddrTo.StateId;
-                        if (string.IsNullOrEmpty(deliveryAddrTo.VillageName))
-                        {
-                            if (string.IsNullOrEmpty(deliveryAddrTo.TalukaName))
-                            {
-                                tblInvoiceTO.DeliveryLocation = deliveryAddrTo.DistrictName;
-                            }
-                            tblInvoiceTO.DeliveryLocation = deliveryAddrTo.TalukaName;
-                        }
-                        else
-                            tblInvoiceTO.DeliveryLocation = deliveryAddrTo.VillageName;
-
+                        showDeliveryLocation = Convert.ToInt32(tblConfigParamTO.ConfigParamVal);
                     }
+                   
+                        if (deliveryAddrTo.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS)
+                        {
+                            billingStateId = deliveryAddrTo.StateId;
+                        if (showDeliveryLocation == 1)
+                        {
+                            if (string.IsNullOrEmpty(deliveryAddrTo.VillageName))
+                            {
+                                if (string.IsNullOrEmpty(deliveryAddrTo.TalukaName))
+                                {
+                                    tblInvoiceTO.DeliveryLocation = deliveryAddrTo.DistrictName;
+                                }
+                                tblInvoiceTO.DeliveryLocation = deliveryAddrTo.TalukaName;
+                            }
+                            else
+                                tblInvoiceTO.DeliveryLocation = deliveryAddrTo.VillageName;
+                        }
+
+                        }
+                    
+                  
                     tblInvoiceTO.InvoiceAddressTOList.Add(tblInvoiceAddressTo);
                 }
             }
@@ -1673,20 +1702,25 @@ namespace ODLMWebAPI.BL
                   
                     //[05-03-2018]Vijaymala:Changes the code to change prodItemDesc as per Kalika and SRJ requirement 
                     Int32 a = 0;
-
+                   // Int32 isHide = 0;
                     TblConfigParamsTO regulartemp = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DISPLAY_BRAND_ON_INVOICE, conn, tran);
                     if (regulartemp != null)
                     {
                         a = Convert.ToInt32(regulartemp.ConfigParamVal);
 
                     }
+                    //Aniket [18-9-2019] commented the code
+                    //TblConfigParamsTO isHideBrandNameOnNC = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.HIDE_BRAND_NAME_ON_NC_INVOICE, conn, tran);
+                    //if(isHideBrandNameOnNC!=null)
+                    //{
+                    //    isHide = Convert.ToInt32(isHideBrandNameOnNC.ConfigParamVal);
+                    //}
                     //[05-09-2018] : Vijaymala added to set product item display for other booking in invoice
                     if (loadingSlipExtTo.ProdItemId == 0)
                     {
                         if (a == 1)
                         {
-
-                            tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.BrandDesc + " " + loadingSlipExtTo.ProdCatDesc + " " + loadingSlipExtTo.ProdSpecDesc + " " + loadingSlipExtTo.MaterialDesc;
+                                tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.BrandDesc + " " + loadingSlipExtTo.ProdCatDesc + " " + loadingSlipExtTo.ProdSpecDesc + " " + loadingSlipExtTo.MaterialDesc;
                         }
                         else
                         {
@@ -2004,6 +2038,23 @@ namespace ODLMWebAPI.BL
             #endregion
 
             #region 5 Save main Invoice
+            //Aniket [16-9-2-19] added to round of the invoice values
+            int roundOffValue = 0;
+            TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.ROUND_OFF_TAX_INVOICE_VALUES);
+            if(tblConfigParamsTO!=null)
+            {
+                roundOffValue =Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+            }
+            if(roundOffValue>0)
+            {
+                taxableTotal = Math.Round(taxableTotal, roundOffValue);
+                discountTotal = Math.Round(discountTotal, roundOffValue);
+                igstTotal = Math.Round(igstTotal, roundOffValue);
+                cgstTotal = Math.Round(cgstTotal, roundOffValue);
+                sgstTotal = Math.Round(sgstTotal, roundOffValue);
+                basicTotal = Math.Round(basicTotal, roundOffValue);
+            }
+
             tblInvoiceTO.TaxableAmt = taxableTotal;
             tblInvoiceTO.DiscountAmt = discountTotal;
             tblInvoiceTO.IgstAmt = igstTotal;
@@ -2011,7 +2062,7 @@ namespace ODLMWebAPI.BL
             tblInvoiceTO.SgstAmt = sgstTotal;
             double finalGrandTotal = Math.Round(grandTotal);
             tblInvoiceTO.GrandTotal = finalGrandTotal;
-            tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);                      
+            tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, roundOffValue);                      
             tblInvoiceTO.BasicAmt = basicTotal;
             tblInvoiceTO.InvoiceItemDetailsTOList = tblInvoiceItemDetailsTOList;
             int configId = _iTblConfigParamsDAO.IoTSetting();
@@ -2072,7 +2123,14 @@ namespace ODLMWebAPI.BL
 
                 #region 1 BRM TO BM Invoice
 
-                resultMsg = PrepareNewInvoiceObjectList(invoiceTO, invoiceItemTOList, invoiceAddressTOList, Constants.InvoiceGenerateModeE.BRMTOBM, conn, tran);
+                //pass changed from org ()    
+                List<TblInvoiceItemDetailsTO> invoiceItemChangeList = new List<TblInvoiceItemDetailsTO>();
+                invoiceItemTOList.ForEach(d =>
+                {
+                    invoiceItemChangeList.Add(d.DeepCopy());
+                }
+                );
+                resultMsg = PrepareNewInvoiceObjectList(invoiceTO, invoiceItemTOList, invoiceAddressTOList, invoiceGenerateModeE,fromOrgId,toOrgId, 0, conn, tran,0);
                 if (resultMsg.MessageType == ResultMessageE.Information)
                 {
                     if (resultMsg.Tag != null && resultMsg.Tag.GetType() == typeof(List<TblInvoiceTO>))
@@ -2094,6 +2152,7 @@ namespace ODLMWebAPI.BL
                             //Update Invoice Object
                             invToUpdateTO.UpdatedBy = invoiceTO.CreatedBy;
                             invToUpdateTO.UpdatedOn = _iCommon.ServerDateTime;
+                            invToUpdateTO.InvFromOrgFreeze = 1;
                             result = UpdateTblInvoice(invToUpdateTO, conn, tran);
                             if (result != 1)
                             {
@@ -2101,31 +2160,62 @@ namespace ODLMWebAPI.BL
                                 return resultMsg;
                             }
 
-                            // Update Invoice Item Details
-                            for (int invI = 0; invI < invToUpdateTO.InvoiceItemDetailsTOList.Count; invI++)
-                            {
-                                TblInvoiceItemDetailsTO itemTO = invToUpdateTO.InvoiceItemDetailsTOList[invI];
-                                result = _iTblInvoiceItemDetailsBL.UpdateTblInvoiceItemDetails(itemTO, conn, tran);
-                                if (result != 1)
-                                {
-                                    resultMsg.DefaultBehaviour("Error While UpdateTblInvoiceItemDetails");
-                                    return resultMsg;
-                                }
+                            // Added for insert new created item list and tex details for change invoice mode and calculate with base rate @Kiran
 
-                                if (itemTO.InvoiceItemTaxDtlsTOList != null && itemTO.InvoiceItemTaxDtlsTOList.Count > 0)
+                            //if(isCalculateWithBaseRate == 1 && invoiceGenerateModeE == (int)InvoiceGenerateModeE.DUPLICATE)
+                            //{
+                            //    for (int invI = 0; invI < invToUpdateTO.InvoiceItemDetailsTOList.Count; invI++)
+                            //    {
+                            //        TblInvoiceItemDetailsTO itemTO = invToUpdateTO.InvoiceItemDetailsTOList[invI];
+                                   
+                            //        result = _iTblInvoiceItemDetailsBL.InsertTblInvoiceItemDetails(itemTO, conn, tran);
+                            //        if (result != 1)
+                            //        {
+                            //            resultMsg.DefaultBehaviour("Error While InsertTblInvoiceItemDetails");
+                            //            return resultMsg;
+                            //        }
+                            //        if (itemTO.InvoiceItemTaxDtlsTOList != null && itemTO.InvoiceItemTaxDtlsTOList.Count > 0)
+                            //        {
+                            //            for (int t = 0; t < itemTO.InvoiceItemTaxDtlsTOList.Count; t++)
+                            //            {
+                            //                itemTO.InvoiceItemTaxDtlsTOList[t].InvoiceItemId = itemTO.IdInvoiceItem;
+                            //                result = _iTblInvoiceItemTaxDtlsBL.InsertTblInvoiceItemTaxDtls(itemTO.InvoiceItemTaxDtlsTOList[t], conn, tran);
+                            //                if (result != 1)
+                            //                {
+                            //                    resultMsg.DefaultBehaviour("Error While InsertTblInvoiceItemTaxDtls");
+                            //                    return resultMsg;
+                            //                }
+                            //            }
+                            //        }
+                            //    }
+                            //}else
+                            //{
+                                // Update Invoice Item Details
+                                for (int invI = 0; invI < invToUpdateTO.InvoiceItemDetailsTOList.Count; invI++)
                                 {
-                                    for (int t = 0; t < itemTO.InvoiceItemTaxDtlsTOList.Count; t++)
+                                    TblInvoiceItemDetailsTO itemTO = invToUpdateTO.InvoiceItemDetailsTOList[invI];
+                                    result = _iTblInvoiceItemDetailsBL.UpdateTblInvoiceItemDetails(itemTO, conn, tran);
+                                    if (result != 1)
                                     {
-                                        itemTO.InvoiceItemTaxDtlsTOList[t].InvoiceItemId = itemTO.IdInvoiceItem;
-                                        result = _iTblInvoiceItemTaxDtlsBL.InsertTblInvoiceItemTaxDtls(itemTO.InvoiceItemTaxDtlsTOList[t], conn, tran);
-                                        if (result != 1)
+                                        resultMsg.DefaultBehaviour("Error While UpdateTblInvoiceItemDetails");
+                                        return resultMsg;
+                                    }
+
+                                    if (itemTO.InvoiceItemTaxDtlsTOList != null && itemTO.InvoiceItemTaxDtlsTOList.Count > 0)
+                                    {
+                                        for (int t = 0; t < itemTO.InvoiceItemTaxDtlsTOList.Count; t++)
                                         {
-                                            resultMsg.DefaultBehaviour("Error While InsertTblInvoiceItemTaxDtls");
-                                            return resultMsg;
+                                            itemTO.InvoiceItemTaxDtlsTOList[t].InvoiceItemId = itemTO.IdInvoiceItem;
+                                            result = _iTblInvoiceItemTaxDtlsBL.InsertTblInvoiceItemTaxDtls(itemTO.InvoiceItemTaxDtlsTOList[t], conn, tran);
+                                            if (result != 1)
+                                            {
+                                                resultMsg.DefaultBehaviour("Error While InsertTblInvoiceItemTaxDtls");
+                                                return resultMsg;
+                                            }
                                         }
                                     }
                                 }
-                            }
+                           // }
 
                             result = _iTblInvoiceAddressBL.DeleteTblInvoiceAddressByinvoiceId(invToUpdateTO.IdInvoice, conn, tran);
                             if (result == -1)
@@ -2154,9 +2244,14 @@ namespace ODLMWebAPI.BL
 
                 #endregion
 
+                 //duplicate   
                 #region 2 BM TO Actual Customer Invoice
-
-                resultMsg = PrepareNewInvoiceObjectList(invoiceTO, invoiceItemTOList, invoiceAddressTOList, Constants.InvoiceGenerateModeE.BMTOCUSTOMER, conn, tran);
+                 if (invoiceGenerateModeE ==(int) InvoiceGenerateModeE.DUPLICATE)
+                {
+                    //pass second org (org->cust)
+                //resultMsg = PrepareNewInvoiceObjectList(invoiceTO, invoiceItemTOList, invoiceAddressTOList, invoiceGenerateModeE,fromOrgId,toOrgId, 0,conn, tran);
+                //Change method Parameter for new colne @Kiran
+                resultMsg = PrepareNewInvoiceObjectList(invoiceTO, invoiceItemChangeList, invoiceAddressTOList, invoiceGenerateModeE,fromOrgId,toOrgId, isCalculateWithBaseRate, conn, tran);
                 if (resultMsg.MessageType == ResultMessageE.Information)
                 {
                     if (resultMsg.Tag != null && resultMsg.Tag.GetType() == typeof(List<TblInvoiceTO>))
@@ -2166,10 +2261,16 @@ namespace ODLMWebAPI.BL
                         {
                             for (int i = 0; i < tblInvoiceTOList.Count; i++)
                             {
+                                tblInvoiceTOList[i].InvFromOrgFreeze = 1;
+
                                 resultMsg = SaveNewInvoice(tblInvoiceTOList[i], conn, tran);
                                 if (resultMsg.MessageType != ResultMessageE.Information)
                                 {
                                     return resultMsg;
+                                }
+                                else
+                                {
+                                        changeHisTO.DupInvoiceId =tblInvoiceTOList[i].IdInvoice;
                                 }
                             }
                         }
@@ -2179,7 +2280,7 @@ namespace ODLMWebAPI.BL
                 {
                     return resultMsg;
                 }
-
+            }
                 #endregion
 
                 resultMsg.DefaultSuccessBehaviour();
@@ -2192,7 +2293,7 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        public ResultMessage PrepareNewInvoiceObjectList(TblInvoiceTO invoiceTO, List<TblInvoiceItemDetailsTO> invoiceItemTOList, List<TblInvoiceAddressTO> invoiceAddressTOList, Constants.InvoiceGenerateModeE invoiceGenerateModeE, SqlConnection conn, SqlTransaction tran)
+        public ResultMessage PrepareNewInvoiceObjectList(TblInvoiceTO invoiceTO, List<TblInvoiceItemDetailsTO> invoiceItemTOList, List<TblInvoiceAddressTO> invoiceAddressTOList, int invoiceGenerateModeE,int fromOrgId,int toOrgId ,int isCalculateWithBaseRate,SqlConnection conn, SqlTransaction tran,int swap=1)
         {
             ResultMessage resultMsg = new ResultMessage();          
             try
@@ -2215,19 +2316,28 @@ namespace ODLMWebAPI.BL
                 TblConfigParamsTO tblConfigParamsTO = null;
                 DateTime serverDateTime = _iCommon.ServerDateTime;
                 Int32 billingStateId = 0;
-                if (invoiceGenerateModeE == Constants.InvoiceGenerateModeE.BRMTOBM)
-                {
-                    tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID, conn, tran);
-                }
-                else
-                    tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_INTERNALTXFER_INVOICE_ORG_ID, conn, tran);
+                
+                //Hrushikesh Need to change here
+                // if (invoiceGenerateModeE == (int)Constants.InvoiceGenerateModeE.Duplicate)
+                // {
+                //     //org1 id (org1->org2)
+                //     tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID, conn, tran);
+                // }
+                // else
+                //     //changed from org                
+                //     tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_INTERNALTXFER_INVOICE_ORG_ID, conn, tran);
 
-                if (tblConfigParamsTO == null)
-                {
-                    resultMsg.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
-                    return resultMsg;
-                }
-                Int32 internalOrgId = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+                // if (tblConfigParamsTO == null)
+                // {
+                //     resultMsg.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
+                //     return resultMsg;
+                // }
+                // //Hrushikesh Need to change here 
+                // Int32 internalOrgId = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+                Int32 internalOrgId = fromOrgId;
+                
+                if(invoiceGenerateModeE== (int) InvoiceGenerateModeE.DUPLICATE &&swap==0)
+                 internalOrgId = toOrgId;
                 TblOrganizationTO orgTO = _iTblOrganizationBL.SelectTblOrganizationTO(internalOrgId, conn, tran);
                 TblAddressTO ofcAddrTO =_iTblAddressBL.SelectOrgAddressWrtAddrType(internalOrgId, Constants.AddressTypeE.OFFICE_ADDRESS, conn, tran);
                 if (ofcAddrTO == null)
@@ -2249,7 +2359,7 @@ namespace ODLMWebAPI.BL
                 #endregion
 
                 #region 2 Added Invoice Address Details
-                if (invoiceGenerateModeE == Constants.InvoiceGenerateModeE.BRMTOBM)
+                if (invoiceGenerateModeE == (int)Constants.InvoiceGenerateModeE.DUPLICATE && swap==1)
                 {
                     tblInvoiceTO.Narration = "To Bhagylaxmi Metal";
 
@@ -2260,7 +2370,10 @@ namespace ODLMWebAPI.BL
                         resultMsg.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
                         return resultMsg;
                     }
-                    Int32 internalBMOrgId = Convert.ToInt32(configParamsTO.ConfigParamVal);
+                   //Hrushikesh Need to change here 
+                                       //org2 id (org2->cust)
+                    // Int32 internalBMOrgId =   Convert.ToInt32(configParamsTO.ConfigParamVal);
+                     Int32 internalBMOrgId =   toOrgId;
                     TblOrganizationTO bmOrgTO = _iTblOrganizationBL.SelectTblOrganizationTO(internalBMOrgId, conn, tran);
                     TblAddressTO bmOfcAddrTO =_iTblAddressBL.SelectOrgAddressWrtAddrType(internalBMOrgId, Constants.AddressTypeE.OFFICE_ADDRESS, conn, tran);
                     if (bmOfcAddrTO == null)
@@ -2321,7 +2434,7 @@ namespace ODLMWebAPI.BL
                     tblInvoiceTO.InvoiceAddressTOList.Add(consigneeInvoiceAddressTo);
 
                 }
-                else if (invoiceGenerateModeE == Constants.InvoiceGenerateModeE.BMTOCUSTOMER)
+                else if (invoiceGenerateModeE == (int)Constants.InvoiceGenerateModeE.CHANGEFROM || swap==0)
                 {
                     foreach (var deliveryAddrTo in invoiceAddressTOList)
                     {
@@ -2359,86 +2472,198 @@ namespace ODLMWebAPI.BL
 
 
                 #region Regular Invoice Items i.e from Loading
-                foreach (var existingInvItemTO in invoiceItemTOList)
+                //Added By Kiran new changes for invoice calculate using base rate
+                if (isCalculateWithBaseRate == 1 && invoiceGenerateModeE == (int)InvoiceGenerateModeE.DUPLICATE)
                 {
-                    TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = existingInvItemTO.DeepCopy();
-                    List<TblInvoiceItemTaxDtlsTO> tblInvoiceItemTaxDtlsTOList = new List<TblInvoiceItemTaxDtlsTO>();
-                    TblProdGstCodeDtlsTO tblProdGstCodeDtlsTO = new TblProdGstCodeDtlsTO();
-                    TblProductItemTO tblProductItemTO = new TblProductItemTO();
-                    Double itemGrandTotal = 0;
+                    List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOsList = new List<TblInvoiceItemDetailsTO>();
+                    TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = invoiceItemTOList[0];
+                    
+                    tblInvoiceItemDetailsTO.InvoiceQty = invoiceItemTOList.Sum(s => s.InvoiceQty);
+                    tblInvoiceItemDetailsTO.CdStructure = 0;
+                    tblInvoiceItemDetailsTO.CdAmt = 0;
+                    tblInvoiceItemDetailsTO.LoadingSlipExtId = 0;
+                    tblInvoiceItemDetailsTO.CdStructureId = 0;
 
-                    tblProdGstCodeDtlsTO = _iTblProdGstCodeDtlsDAO.SelectTblProdGstCodeDtls(tblInvoiceItemDetailsTO.ProdGstCodeId, conn, tran);
-                    if (tblProdGstCodeDtlsTO == null)
+                    Double sum = 0;
+                    //var resultDelInvoice = _iTblInvoiceItemTaxDtlsBL.DeleteInvoiceItemTaxDtlsByInvId(tblInvoiceTO.IdInvoice, conn, tran);
+                    //if (resultDelInvoice <= -1)
+                    //{
+                    //    resultMsg.DefaultBehaviour("Error While DeleteInvoiceItemTaxDtlsByInvId");
+                    //    return resultMsg;
+                    //}
+                    for (int i = 0; i < invoiceItemTOList.Count; i++)
                     {
-                        resultMsg.DefaultBehaviour("ProdGSTCodeDetails found null against IdInvoiceItem is : " + tblInvoiceItemDetailsTO.IdInvoiceItem + ".");
-                        resultMsg.DisplayMessage = "GSTIN Not Defined for Item :" + tblInvoiceItemDetailsTO.ProdItemDesc;
+                        Double bundles = 0;
+                       bool result = double.TryParse(invoiceItemTOList[i].Bundles, out bundles);
+                        if (result)
+                        {
+                            sum += bundles;
+                        }
+                        //var resultItem = _iTblInvoiceItemDetailsBL.DeleteTblInvoiceItemDetails(invoiceItemTOList[i].IdInvoiceItem, conn, tran);
+                        //if (resultItem != 1)
+                        //{
+                        //    resultMsg.DefaultBehaviour("Error While DeleteTblInvoiceItemDetails");
+                        //    return resultMsg;
+                        //}
+
+                    }
+                    
+                    tblInvoiceItemDetailsTO.Bundles = Convert.ToString(sum);
+                    TblBookingsTO TblBookingsTO = _iTblBookingsBL.SelectBookingsDetailsFromInVoiceId(tblInvoiceTO.IdInvoice, conn, tran);
+                    if(TblBookingsTO == null)
+                    {
+                        resultMsg.DefaultBehaviour("Booking details not found");
+                        resultMsg.DisplayMessage = "Booking Details Not Found for invoice Id " + tblInvoiceTO.IdInvoice;
                         return resultMsg;
                     }
-                    TblGstCodeDtlsTO gstCodeDtlsTO = _iTblGstCodeDtlsDAO.SelectTblGstCodeDtls(tblProdGstCodeDtlsTO.GstCodeId, conn, tran);
-                    if (gstCodeDtlsTO != null)
+                    Int32 isTaxInclusiveWithTaxes = 0;
+                    TblConfigParamsTO rateCalcConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_RATE_CALCULATIONS_TAX_INCLUSIVE, conn, tran);
+                    if (rateCalcConfigParamsTO != null)
                     {
-                        gstCodeDtlsTO.TaxRatesTOList = _iTblTaxRatesDAO.SelectAllTblTaxRates(tblProdGstCodeDtlsTO.GstCodeId, conn, tran);
+                        isTaxInclusiveWithTaxes = Convert.ToInt32(rateCalcConfigParamsTO.ConfigParamVal);
                     }
-                    if (gstCodeDtlsTO == null)
+                    Int32 isTaxInclusive = 0;
+                    DimBrandTO dimBrandTO = _iDimBrandDAO.SelectDimBrand(TblBookingsTO.BrandId);
+
+                    if (dimBrandTO != null)
                     {
-                        resultMsg.DefaultBehaviour("GST code details found null : " + tblInvoiceItemDetailsTO.ProdItemDesc + ".");
-                        resultMsg.DisplayMessage = "GSTIN Not Defined for Item :" + tblInvoiceItemDetailsTO.ProdItemDesc;
+                        isTaxInclusive = dimBrandTO.IsTaxInclusive;
+                    }
+                    if (isTaxInclusive == 1 && isTaxInclusiveWithTaxes == 0)
+                    {
+                        TblBookingsTO.BookingRate = TblBookingsTO.BookingRate / 1.18;
+                        TblBookingsTO.BookingRate = Math.Round(TblBookingsTO.BookingRate, 2);
+                    }
+                    tblInvoiceItemDetailsTO.Rate = TblBookingsTO.BookingRate;
+                    tblInvoiceItemDetailsTO.BasicTotal = tblInvoiceItemDetailsTO.Rate * tblInvoiceItemDetailsTO.InvoiceQty;
+                    tblInvoiceItemDetailsTO.TaxableAmt = tblInvoiceItemDetailsTO.BasicTotal - tblInvoiceItemDetailsTO.CdAmt;
+                    invoiceTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
+                    //To get INTERNAL DEFAULT ITEM
+                    TblConfigParamsTO tblConfigParamForInternalItem = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.INTERNAL_DEFAULT_ITEM, conn, tran);
+
+                    if (tblConfigParamForInternalItem == null)
+                    {
+                        tran.Rollback();
+                        resultMsg.DefaultBehaviour("Internal INTERNAL DEFAULT ITEM Not Found in Configuration.");
                         return resultMsg;
                     }
 
-                    tblInvoiceItemDetailsTO.GstinCodeNo = gstCodeDtlsTO.CodeNumber;
-
-                    #region 4 Added Invoice Item Tax details
-
-                    foreach (var taxRateTo in gstCodeDtlsTO.TaxRatesTOList)
+                    Int32 prodItemId = Convert.ToInt32(tblConfigParamForInternalItem.ConfigParamVal);
+                    if (prodItemId == 0)
                     {
-                        TblInvoiceItemTaxDtlsTO tblInvoiceItemTaxDtlsTO = new TblInvoiceItemTaxDtlsTO();
-                        tblInvoiceItemTaxDtlsTO.TaxRateId = taxRateTo.IdTaxRate;
-                        tblInvoiceItemTaxDtlsTO.TaxPct = taxRateTo.TaxPct;
-                        tblInvoiceItemTaxDtlsTO.TaxRatePct = (gstCodeDtlsTO.TaxPct * taxRateTo.TaxPct) / 100;
-                        tblInvoiceItemTaxDtlsTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
-                        tblInvoiceItemTaxDtlsTO.TaxAmt = (tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100;
-                        tblInvoiceItemTaxDtlsTO.TaxTypeId = taxRateTo.TaxTypeId;
-                        if (billingStateId == ofcAddrTO.StateId)
-                        {
-                            if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.CGST)
-                            {
-                                cgstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
-                            }
-                            else if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.SGST)
-                            {
-                                sgstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
-                            }
-                            else continue;
-                        }
-                        else
-                        {
-                            if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.IGST)
-                            {
-                                igstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
-                            }
-                            else continue;
-                        }
+                        tran.Rollback();
+                        resultMsg.DefaultBehaviour("Internal INTERNAL DEFAULT ITEM Not Found in Configuration.");
+                        return resultMsg;
                     }
-                    #endregion
 
-                    basicTotal += existingInvItemTO.BasicTotal;
-                    taxableTotal += existingInvItemTO.TaxableAmt;
-                    discountTotal += existingInvItemTO.CdAmt;
+                    TblProductItemTO tblProductItemTO = _iTblProductItemDAO.SelectTblProductItem(prodItemId);
+                    if (tblProductItemTO == null)
+                    {
+                        tran.Rollback();
+                        resultMsg.DefaultBehaviour("Internal INTERNAL DEFAULT ITEM Not Found in Configuration.");
+                        return resultMsg;
+                    }
 
-                    itemGrandTotal += existingInvItemTO.TaxableAmt;
+                    tblInvoiceItemDetailsTO.ProdItemDesc = tblProductItemTO.ItemDesc;
 
-                    grandTotal += itemGrandTotal;
-                    tblInvoiceItemDetailsTO.GrandTotal = itemGrandTotal;
-                    tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList = tblInvoiceItemTaxDtlsTOList;
-                    tblInvoiceItemDetailsTOList.Add(tblInvoiceItemDetailsTO);
+                    //tblInvoiceItemDetailsTO.ProdGstCodeId = Convert.ToInt32(tblConfigParamForInternalItem.ConfigParamVal);
+
+                    TblProdGstCodeDtlsTO tblProdGstCodeDtlsTOTemp = _iTblProdGstCodeDtlsDAO.SelectTblProdGstCodeDtls(0, 0, 0, prodItemId, 0, conn, tran);
+
+                    if (tblProdGstCodeDtlsTOTemp == null)
+                    {
+                        tran.Rollback();
+                        resultMsg.DefaultBehaviour("Please define GST code for item Id - " + prodItemId);
+                        return resultMsg;
+                    }
+
+                    tblInvoiceItemDetailsTO.ProdGstCodeId = tblProdGstCodeDtlsTOTemp.IdProdGstCode;
+
+                    tblInvoiceItemDetailsTOsList.Add(tblInvoiceItemDetailsTO);
+                   
+                    invoiceItemTOList = tblInvoiceItemDetailsTOsList;
                 }
+               
+                    foreach (var existingInvItemTO in invoiceItemTOList)
+                    {
+                        TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = existingInvItemTO.DeepCopy();
+                        List<TblInvoiceItemTaxDtlsTO> tblInvoiceItemTaxDtlsTOList = new List<TblInvoiceItemTaxDtlsTO>();
+                        TblProdGstCodeDtlsTO tblProdGstCodeDtlsTO = new TblProdGstCodeDtlsTO();
+                        TblProductItemTO tblProductItemTO = new TblProductItemTO();
+                        Double itemGrandTotal = 0;
+
+                        tblProdGstCodeDtlsTO = _iTblProdGstCodeDtlsDAO.SelectTblProdGstCodeDtls(tblInvoiceItemDetailsTO.ProdGstCodeId, conn, tran);
+                        if (tblProdGstCodeDtlsTO == null)
+                        {
+                            resultMsg.DefaultBehaviour("ProdGSTCodeDetails found null against IdInvoiceItem is : " + tblInvoiceItemDetailsTO.IdInvoiceItem + ".");
+                            resultMsg.DisplayMessage = "GSTIN Not Defined for Item :" + tblInvoiceItemDetailsTO.ProdItemDesc;
+                            return resultMsg;
+                        }
+                        TblGstCodeDtlsTO gstCodeDtlsTO = _iTblGstCodeDtlsDAO.SelectTblGstCodeDtls(tblProdGstCodeDtlsTO.GstCodeId, conn, tran);
+                        if (gstCodeDtlsTO != null)
+                        {
+                            gstCodeDtlsTO.TaxRatesTOList = _iTblTaxRatesDAO.SelectAllTblTaxRates(tblProdGstCodeDtlsTO.GstCodeId, conn, tran);
+                        }
+                        if (gstCodeDtlsTO == null)
+                        {
+                            resultMsg.DefaultBehaviour("GST code details found null : " + tblInvoiceItemDetailsTO.ProdItemDesc + ".");
+                            resultMsg.DisplayMessage = "GSTIN Not Defined for Item :" + tblInvoiceItemDetailsTO.ProdItemDesc;
+                            return resultMsg;
+                        }
+
+                        tblInvoiceItemDetailsTO.GstinCodeNo = gstCodeDtlsTO.CodeNumber;
+
+                        #region 4 Added Invoice Item Tax details
+
+                        foreach (var taxRateTo in gstCodeDtlsTO.TaxRatesTOList)
+                        {
+                            TblInvoiceItemTaxDtlsTO tblInvoiceItemTaxDtlsTO = new TblInvoiceItemTaxDtlsTO();
+                            tblInvoiceItemTaxDtlsTO.TaxRateId = taxRateTo.IdTaxRate;
+                            tblInvoiceItemTaxDtlsTO.TaxPct = taxRateTo.TaxPct;
+                            tblInvoiceItemTaxDtlsTO.TaxRatePct = (gstCodeDtlsTO.TaxPct * taxRateTo.TaxPct) / 100;
+                            tblInvoiceItemTaxDtlsTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
+                            tblInvoiceItemTaxDtlsTO.TaxAmt = (tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100;
+                            tblInvoiceItemTaxDtlsTO.TaxTypeId = taxRateTo.TaxTypeId;
+                            if (billingStateId == ofcAddrTO.StateId)
+                            {
+                                if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.CGST)
+                                {
+                                    cgstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                    itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                    tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
+                                }
+                                else if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.SGST)
+                                {
+                                    sgstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                    itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                    tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
+                                }
+                                else continue;
+                            }
+                            else
+                            {
+                                if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.IGST)
+                                {
+                                    igstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                    itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                    tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
+                                }
+                                else continue;
+                            }
+                        }
+                        #endregion
+
+                        basicTotal += existingInvItemTO.BasicTotal;
+                        taxableTotal += existingInvItemTO.TaxableAmt;
+                        discountTotal += existingInvItemTO.CdAmt;
+
+                        itemGrandTotal += existingInvItemTO.TaxableAmt;
+
+                        grandTotal += itemGrandTotal;
+                        tblInvoiceItemDetailsTO.GrandTotal = itemGrandTotal;
+                        tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList = tblInvoiceItemTaxDtlsTOList;
+                        tblInvoiceItemDetailsTOList.Add(tblInvoiceItemDetailsTO);
+                    }
 
                 #endregion
 
@@ -3395,7 +3620,7 @@ namespace ODLMWebAPI.BL
 
                 //Aniket [06-03-2019] added to check whether Math.Round() function should include in tax calculation or not
                 int isMathRoundoff = 0;
-                TblConfigParamsTO tblconfigParamForMathRound = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_TAX_INVOICE_CALCULATION);
+                TblConfigParamsTO tblconfigParamForMathRound = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_TAX_ON_PRINT_INVOICE);
                 if(tblconfigParamForMathRound!=null)
                 {
                     if(tblconfigParamForMathRound.ConfigParamVal=="1")
@@ -3519,6 +3744,12 @@ namespace ODLMWebAPI.BL
 
                 if (tblInvoiceTO != null)
                 {
+
+                    if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                    {
+                        tblInvoiceTO.VehicleNo = tblInvoiceTO.VehicleNo.ToUpper();
+                    }
+
                     headerDT.Columns.Add("invoiceNo");
                     headerDT.Columns.Add("invoiceDateStr");
                     headerDT.Columns.Add("deliveryLocation");
@@ -3599,9 +3830,12 @@ namespace ODLMWebAPI.BL
                         invoiceDT.Rows[0]["grossWeight"] = tblInvoiceTO.GrossWeight / 1000;
                         invoiceDT.Rows[0]["tareWeight"] = tblInvoiceTO.TareWeight / 1000;
                         invoiceDT.Rows[0]["netWeight"] = tblInvoiceTO.NetWeight / 1000;
-
-                        headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
-                        invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        if(!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                        {
+                            headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                            invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        }
+                    
                         invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
                         invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
                         headerDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
@@ -3630,9 +3864,11 @@ namespace ODLMWebAPI.BL
                         invoiceDT.Rows[0]["grossWeight"] = Math.Round(tblInvoiceTO.GrossWeight / 1000, 3);
                         invoiceDT.Rows[0]["tareWeight"] = Math.Round(tblInvoiceTO.TareWeight / 1000, 3);
                         invoiceDT.Rows[0]["netWeight"] = Math.Round(tblInvoiceTO.NetWeight / 1000, 3);
-
-                        headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
-                        invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                        {
+                            headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                            invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        }
                         invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
                         invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
                         headerDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
@@ -3785,6 +4021,8 @@ namespace ODLMWebAPI.BL
                         itemFooterDetailsDT.Columns.Add("totalQty",typeof(double));
                         itemFooterDetailsDT.Columns.Add("totalBundles");
                         itemFooterDetailsDT.Columns.Add("totalBasicAmt", typeof(double));
+                        itemFooterDetailsDT.Columns.Add("EWayBillNo");
+                        itemFooterDetailsDT.Rows[0]["EWayBillNo"] = tblInvoiceTO.ElectronicRefNo;
                         var totalQtyResTO = invoiceItemlist.Where(ele => ele.OtherTaxId == 0).ToList();
                         if (totalQtyResTO != null && totalQtyResTO.Count > 0)
                         {
@@ -3802,12 +4040,25 @@ namespace ODLMWebAPI.BL
                             }
                            
                         }
-                        Double bundles = 0;
-                        bundles = invoiceItemlist.Sum(s => Convert.ToDouble(s.Bundles));
-                        itemFooterDetailsDT.Rows[0]["totalBundles"] = bundles;
+                        bool result;
+                        Double sum = 0;
+                        // commented by Aniket 
+                        //bundles = invoiceItemlist.Sum(s => Convert.ToDouble(s.Bundles));
+                        //Aniket [30-8-2019] added if bundles is null or empty string
+                        for (int i = 0; i < invoiceItemlist.Count; i++)
+                        {
+                            Double bundles = 0;
+                            result = double.TryParse(invoiceItemlist[i].Bundles, out bundles);
+                            if (result)
+                            {
+                                sum += bundles;
+                            }
+
+                        }
+                        itemFooterDetailsDT.Rows[0]["totalBundles"] = sum;
                         tblInvoiceTO.BasicAmt= invoiceItemlist.Sum(s => Convert.ToInt32(s.BasicTotal));//added code to sum of items basic total
                         itemFooterDetailsDT.Rows[0]["totalBasicAmt"] = Math.Round(tblInvoiceTO.BasicAmt,2);
-                        invoiceDT.Rows[0]["totalBundles"] = bundles;
+                        invoiceDT.Rows[0]["totalBundles"] = sum;
                         if (isMathRoundoff == 1)
                         {
                             invoiceDT.Rows[0]["totalBasicAmt"] = tblInvoiceTO.BasicAmt;
@@ -3883,10 +4134,13 @@ namespace ODLMWebAPI.BL
                     headerDT.Columns.Add("lblShippingStateCode");
                     headerDT.Columns.Add("lblShippingGstin");
                     headerDT.Columns.Add("lblShippingPanNo");
-
                     addressDT.Rows.Add();
                     addressDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
-                    addressDT.Rows[0]["poDateStr"] = tblInvoiceTO.PoDateStr;
+                    if(!String.IsNullOrEmpty(tblInvoiceTO.PoDateStr))
+                    {
+                        DateTime poDate = Convert.ToDateTime(tblInvoiceTO.PoDateStr);
+                        addressDT.Rows[0]["poDateStr"] = poDate.ToString("dd/MM/yyyy");
+                    }
                     addressDT.Rows[0]["electronicRefNo"] = tblInvoiceTO.ElectronicRefNo;
                     string finalAddr = "", addr1 = "" ;
                     if (tblInvoiceTO.InvoiceAddressTOList != null && tblInvoiceTO.InvoiceAddressTOList.Count > 0)
@@ -3899,57 +4153,101 @@ namespace ODLMWebAPI.BL
                             addressDT.Rows[0]["lblGstin"] = strGstin;
                             addressDT.Rows[0]["lblPanNo"] = strPanNo;
                             addressDT.Rows[0]["billingNm"] = tblBillingInvoiceAddressTO.BillingName;
-                            if(!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka)&& !String.IsNullOrEmpty(tblBillingInvoiceAddressTO.District))
-                            {
-                               if (tblBillingInvoiceAddressTO.Taluka.ToLower()==tblBillingInvoiceAddressTO.District.ToLower())
-                                {
-                                        addressDT.Rows[0]["billingAddr"] = tblBillingInvoiceAddressTO.Address + " " + tblBillingInvoiceAddressTO.District + ", " + tblBillingInvoiceAddressTO.State;
-                                }
-                                else
-                                {
-                                    addressDT.Rows[0]["billingAddr"] = tblBillingInvoiceAddressTO.Address + ", " + tblBillingInvoiceAddressTO.Taluka
-                                                                  + tblBillingInvoiceAddressTO.District + ", " + tblBillingInvoiceAddressTO.State;
-                                }
-                            }
-                           else if(!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
-                            {
-                                addressDT.Rows[0]["billingAddr"] = tblBillingInvoiceAddressTO.Address +" " + tblBillingInvoiceAddressTO.Taluka
-                                                                  + ", " + tblBillingInvoiceAddressTO.District + ", " + tblBillingInvoiceAddressTO.State;
-                            }
-                            else if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.District))
-                            {
-                                addressDT.Rows[0]["billingAddr"] = tblBillingInvoiceAddressTO.Address +" "
-                                                                 +  tblBillingInvoiceAddressTO.District + ", " + tblBillingInvoiceAddressTO.State;
 
+                            String addressStr = tblBillingInvoiceAddressTO.Address;
+
+                            // if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka)&& !String.IsNullOrEmpty(tblBillingInvoiceAddressTO.District))
+                            // {
+                            //    if (tblBillingInvoiceAddressTO.Taluka.ToLower()==tblBillingInvoiceAddressTO.District.ToLower())
+                            //     {
+                            //             addressDT.Rows[0]["billingAddr"] = tblBillingInvoiceAddressTO.Address + " " + tblBillingInvoiceAddressTO.District + ", " + tblBillingInvoiceAddressTO.State;
+                            //     }
+                            //     else
+                            //     {
+                            //         addressDT.Rows[0]["billingAddr"] = tblBillingInvoiceAddressTO.Address + ", " + tblBillingInvoiceAddressTO.Taluka
+                            //                                       + tblBillingInvoiceAddressTO.District + ", " + tblBillingInvoiceAddressTO.State;
+                            //     }
+                            // }
+                            //else if(!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
+                            // {
+                            //     addressDT.Rows[0]["billingAddr"] = tblBillingInvoiceAddressTO.Address +" " + tblBillingInvoiceAddressTO.Taluka
+                            //                                       + ", " + tblBillingInvoiceAddressTO.District + ", " + tblBillingInvoiceAddressTO.State;
+                            // }
+                            // else if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.District))
+                            // {
+                            //     addressDT.Rows[0]["billingAddr"] = tblBillingInvoiceAddressTO.Address +" "
+                            //                                      +  tblBillingInvoiceAddressTO.District + ", " + tblBillingInvoiceAddressTO.State;
+
+                            // }
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.VillageName))
+                            {
+                                addressStr += " " + tblBillingInvoiceAddressTO.VillageName;
                             }
-                      
-                         
-                            addressDT.Rows[0]["billingGstNo"] = tblBillingInvoiceAddressTO.GstinNo;
-                            addressDT.Rows[0]["billingPanNo"] = tblBillingInvoiceAddressTO.PanNo;
-                            addressDT.Rows[0]["billingMobNo"] = tblBillingInvoiceAddressTO.ContactNo;
+                            //Aniket [6-9-2019] added PinCode in address
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.PinCode) && tblBillingInvoiceAddressTO.PinCode != "0")
+                            {
+                                addressStr += "-" + tblBillingInvoiceAddressTO.PinCode;
+                            }
+
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
+                            {
+                                addressStr += ", "+ tblBillingInvoiceAddressTO.Taluka;
+                            }
+
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.District))
+                            {
+                                if (String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
+                                    tblBillingInvoiceAddressTO.Taluka = String.Empty;
+
+                                if (tblBillingInvoiceAddressTO.Taluka.ToLower().Trim() != tblBillingInvoiceAddressTO.District.ToLower().Trim())
+                                    addressStr += ",Dist-" + tblBillingInvoiceAddressTO.District;
+                            }
+                        
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.State))
+                            {
+                                //addressStr += ", " + tblBillingInvoiceAddressTO.State;
+                            }
                            
 
-                            if(stateList != null && stateList.Count >0)
+                            addressDT.Rows[0]["billingAddr"] = addressStr;
+
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.GstinNo))
+                                addressDT.Rows[0]["billingGstNo"] = tblBillingInvoiceAddressTO.GstinNo.ToUpper();
+
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.PanNo))
+                                addressDT.Rows[0]["billingPanNo"] = tblBillingInvoiceAddressTO.PanNo.ToUpper();
+                            //Aniket [9-9-2-2019]
+                            if (tblInvoiceTO.IsConfirmed == 1)
+                                addressDT.Rows[0]["billingMobNo"] = tblBillingInvoiceAddressTO.ContactNo;
+                            else
+                            {
+                                addressDT.Rows[0]["billingMobNo"] = String.Empty;
+                                addressDT.Rows[0]["lblMobNo"] = String.Empty;
+                            }
+                                
+
+
+
+                            if (stateList != null && stateList.Count >0)
                             {
                                 DropDownTO stateTO = stateList.Where(ele => ele.Value == tblBillingInvoiceAddressTO.StateId).FirstOrDefault();
                                 addressDT.Rows[0]["billingState"] = tblBillingInvoiceAddressTO.State;
                                 if (stateTO != null)
                                 {
-                                    addressDT.Rows[0]["billingStateCode"] = stateTO.Tag;
+                                    addressDT.Rows[0]["billingStateCode"] = stateTO.Text + " " + stateTO.Tag;
                                 }
                             }
 
                             
 
                         }
-
+                        Boolean IsDisplayConsignee = true;
                         TblInvoiceAddressTO tblConsigneeInvoiceAddressTO = tblInvoiceTO.InvoiceAddressTOList.Where(eleA => eleA.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.CONSIGNEE_ADDRESS).FirstOrDefault();
                         if (tblConsigneeInvoiceAddressTO != null)
                         {
                             if(!String.IsNullOrEmpty (tblConsigneeInvoiceAddressTO.BillingName))
                             {
-                                Boolean IsDisplayConsignee = false;
-
+                                
                                 TblConfigParamsTO tempConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName("DISPLAY_CONSIGNEE_ADDRESS_ON_PRINTABLE_INVOICE");
                                 if (tempConfigParamsTO != null)
                                 {
@@ -3962,16 +4260,24 @@ namespace ODLMWebAPI.BL
                                         IsDisplayConsignee = false;
                                     }
                                 }
-                                if (tblConsigneeInvoiceAddressTO.BillingName.Trim() == tblBillingInvoiceAddressTO.BillingName.Trim() && !IsDisplayConsignee )
+                                if (!IsDisplayConsignee)
                                 {
-                              
-                                        IsDisplayConsignee = false;
-                                    
+                                    if (tblConsigneeInvoiceAddressTO.BillingName.Trim() == tblBillingInvoiceAddressTO.BillingName.Trim())
+                                    {
+                                        if (tblConsigneeInvoiceAddressTO.Address.Trim() == tblBillingInvoiceAddressTO.Address.Trim())
+                                            IsDisplayConsignee = false;
+                                        else
+                                            IsDisplayConsignee = true;
+                                    }
+                                    else
+                                    {
+                                        IsDisplayConsignee = true;
+                                    }
                                 }
-                                if(tblConsigneeInvoiceAddressTO.BillingName.Trim() != tblBillingInvoiceAddressTO.BillingName.Trim())
-                                {
-                                    IsDisplayConsignee = true;
-                                }
+                                //if(tblConsigneeInvoiceAddressTO.BillingName.Trim() != tblBillingInvoiceAddressTO.BillingName.Trim())
+                                //{
+                                //    IsDisplayConsignee = true;
+                                //}
 
                                 if (IsDisplayConsignee)
                                 {
@@ -3980,34 +4286,79 @@ namespace ODLMWebAPI.BL
                                     addressDT.Rows[0]["lblConGstin"] = strGstin;
                                     addressDT.Rows[0]["lblConPanNo"] = strPanNo;
                                     addressDT.Rows[0]["consigneeNm"] = tblConsigneeInvoiceAddressTO.BillingName;
-                                    if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka) && !String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.District))
-                                    {
-                                        if (tblConsigneeInvoiceAddressTO.Taluka.ToLower() == tblConsigneeInvoiceAddressTO.District.ToLower())
-                                        {
-                                            addressDT.Rows[0]["consigneeAddr"] = tblConsigneeInvoiceAddressTO.Address + " " + tblConsigneeInvoiceAddressTO.District + ", " + tblConsigneeInvoiceAddressTO.State;
-                                        }
-                                        else
-                                        {
-                                            addressDT.Rows[0]["consigneeAddr"] = tblConsigneeInvoiceAddressTO.Address + ", " + tblConsigneeInvoiceAddressTO.Taluka
-                                                                          + tblConsigneeInvoiceAddressTO.District + ", " + tblConsigneeInvoiceAddressTO.State;
-                                        }
-                                    }
-                                    else if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
-                                    {
-                                        addressDT.Rows[0]["consigneeAddr"] = tblConsigneeInvoiceAddressTO.Address + " " + tblConsigneeInvoiceAddressTO.Taluka
-                                                                          + ", " + tblConsigneeInvoiceAddressTO.District + ", " + tblConsigneeInvoiceAddressTO.State;
-                                    }
-                                    else if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.District))
-                                    {
-                                        addressDT.Rows[0]["consigneeAddr"] = tblConsigneeInvoiceAddressTO.Address + " "
-                                                                         + tblConsigneeInvoiceAddressTO.District + ", " + tblConsigneeInvoiceAddressTO.State;
 
-                                    }
+                                    String consigneeAddr = tblConsigneeInvoiceAddressTO.Address;
+                                    //if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka) && !String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.District))
+                                    //{
+                                    //    if (tblConsigneeInvoiceAddressTO.Taluka.ToLower() == tblConsigneeInvoiceAddressTO.District.ToLower())
+                                    //    {
+                                    //        addressDT.Rows[0]["consigneeAddr"] = tblConsigneeInvoiceAddressTO.Address + " " + tblConsigneeInvoiceAddressTO.District + ", " + tblConsigneeInvoiceAddressTO.State;
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        addressDT.Rows[0]["consigneeAddr"] = tblConsigneeInvoiceAddressTO.Address + ", " + tblConsigneeInvoiceAddressTO.Taluka
+                                    //                                      + tblConsigneeInvoiceAddressTO.District + ", " + tblConsigneeInvoiceAddressTO.State;
+                                    //    }
+                                    //}
+                                    //else if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
+                                    //{
+                                    //    addressDT.Rows[0]["consigneeAddr"] = tblConsigneeInvoiceAddressTO.Address + " " + tblConsigneeInvoiceAddressTO.Taluka
+                                    //                                      + ", " + tblConsigneeInvoiceAddressTO.District + ", " + tblConsigneeInvoiceAddressTO.State;
+                                    //}
+                                    //else if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.District))
+                                    //{
+                                    //    addressDT.Rows[0]["consigneeAddr"] = tblConsigneeInvoiceAddressTO.Address + " "
+                                    //                                     + tblConsigneeInvoiceAddressTO.District + ", " + tblConsigneeInvoiceAddressTO.State;
+
+                                    //}
+
                                     //addressDT.Rows[0]["consigneeAddr"] = tblConsigneeInvoiceAddressTO.Address + "," + tblConsigneeInvoiceAddressTO.Taluka
                                     //                                    + " ," + tblConsigneeInvoiceAddressTO.District + "," + tblConsigneeInvoiceAddressTO.State;
-                                    addressDT.Rows[0]["consigneeGstNo"] = tblConsigneeInvoiceAddressTO.GstinNo;
-                                    addressDT.Rows[0]["consigneePanNo"] = tblConsigneeInvoiceAddressTO.PanNo;
-                                    addressDT.Rows[0]["consigneeMobNo"] = tblConsigneeInvoiceAddressTO.ContactNo;
+                                    //Aniket [6-9-2019] added PinCode in address
+                                    if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.VillageName))
+                                    {
+                                        consigneeAddr += " " + tblConsigneeInvoiceAddressTO.VillageName;
+                                    }
+                                    if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.PinCode) && tblConsigneeInvoiceAddressTO.PinCode != "0")
+                                    {
+                                        consigneeAddr += "- " + tblConsigneeInvoiceAddressTO.PinCode;
+                                    }
+                                    if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
+                                    {
+                                        consigneeAddr += ", " + tblConsigneeInvoiceAddressTO.Taluka;
+                                    }
+
+                                    if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.District))
+                                    {
+                                        if (String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
+                                            tblConsigneeInvoiceAddressTO.Taluka = String.Empty;
+
+                                        if (tblConsigneeInvoiceAddressTO.Taluka.ToLower() != tblConsigneeInvoiceAddressTO.District.ToLower())
+                                            consigneeAddr += ",Dist-" + tblConsigneeInvoiceAddressTO.District;
+                                    }
+                                    if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.State))
+                                    {
+                                        consigneeAddr += ", " + tblBillingInvoiceAddressTO.State;
+                                    }
+                                    //if(!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.PinCode) && tblConsigneeInvoiceAddressTO.PinCode!="0")
+                                    //{
+                                    //    consigneeAddr += "- " + tblConsigneeInvoiceAddressTO.PinCode;
+                                    //}
+                                    addressDT.Rows[0]["consigneeAddr"] = consigneeAddr;
+                                    if(!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.GstinNo))
+                                        addressDT.Rows[0]["consigneeGstNo"] = tblConsigneeInvoiceAddressTO.GstinNo.ToUpper();
+
+                                    if(!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.PanNo))
+                                        addressDT.Rows[0]["consigneePanNo"] = tblConsigneeInvoiceAddressTO.PanNo.ToUpper();
+                                    //Aniket [9-9-2-2019]
+                                    if (tblInvoiceTO.IsConfirmed == 1)
+                                        addressDT.Rows[0]["consigneeMobNo"] = tblConsigneeInvoiceAddressTO.ContactNo;
+                                    else
+                                    {
+                                        addressDT.Rows[0]["consigneeMobNo"] = String.Empty;
+                                        addressDT.Rows[0]["lblMobNo"] = String.Empty;
+                                    }
+                                        
 
                                     if (stateList != null && stateList.Count > 0)
                                     {
@@ -4057,9 +4408,13 @@ namespace ODLMWebAPI.BL
                                                                         + " ," + tblShippingAddressTO.District + "," + tblShippingAddressTO.State;
                                     headerDT.Rows[0]["shippingGstNo"] = tblShippingAddressTO.GstinNo;
                                     headerDT.Rows[0]["shippingPanNo"] = tblShippingAddressTO.PanNo;
-                                    headerDT.Rows[0]["shippingMobNo"] = tblShippingAddressTO.ContactNo;
+                                    //Aniket [9-9-2-2019]
+                                    if (tblInvoiceTO.IsConfirmed == 1)
+                                        headerDT.Rows[0]["shippingMobNo"] = tblShippingAddressTO.ContactNo;
+                                    else
+                                        headerDT.Rows[0]["shippingMobNo"] = String.Empty;
 
-                                  
+
                                 }
                             }
 
@@ -4501,7 +4856,7 @@ namespace ODLMWebAPI.BL
             hsnItemTaxDT.Columns.Add("taxTotal", typeof(double));
 
             int isMathRounfOff = 0;
-            TblConfigParamsTO tblConfigParams = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_TAX_INVOICE_CALCULATION);
+            TblConfigParamsTO tblConfigParams = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_TAX_ON_PRINT_INVOICE);
             if(tblConfigParams != null)
             {
                 if(tblConfigParams.ConfigParamVal=="1")
@@ -4651,6 +5006,7 @@ namespace ODLMWebAPI.BL
                 if (!isValidInvoice)
                 {
                     resultMessage.DefaultBehaviour(errorMsg);
+                    resultMessage.DisplayMessage = errorMsg;
                     return resultMessage;
                 }
                 #endregion
@@ -5020,6 +5376,9 @@ namespace ODLMWebAPI.BL
                 #endregion
 
                 #region Notifications & SMSs
+                //Aniket [6-8-2019] added to send alert and sms notifications dynamically
+                List<TblAlertDefinitionTO> tblAlertDefinitionTOList = _iTblAlertDefinitionDAO.SelectAllTblAlertDefinition();
+
                 //Vijaymala added[03-05-2018]to change  notification with party name
                 TblConfigParamsTO dealerNameConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_ADD_DEALER_IN_NOTIFICATION, conn, tran);
                 Int32 dealerNameActive = 0;
@@ -5053,14 +5412,28 @@ namespace ODLMWebAPI.BL
                         //[24-01-2018] Vijaymala:Added cd change condition to update invoice to invoice approval
                         if (isRateChange || isCdChanged)
                         {
+                            var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.INVOICE_APPROVAL_REQUIRED);
+                            string tempTxt = "";
+
                             tblInvoiceTO.InvoiceStatusE = Constants.InvoiceStatusE.PENDING_FOR_AUTHORIZATION;
                             tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_APPROVAL_REQUIRED;
                             tblAlertInstanceTO.AlertAction = "INVOICE_APPROVAL_REQUIRED";
+                            if(!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                            {
+                                tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                                tempTxt = tempTxt.Replace("@InvoiceIdStr",tblInvoiceTO.IdInvoice.ToString());
+                                tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                                tblAlertInstanceTO.AlertComment = tempTxt;
+                            }
+                            else
                             tblAlertInstanceTO.AlertComment = "Approval Required For Invoice #" + tblInvoiceTO.IdInvoice;
+
                             if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                             {
-                                tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                                tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
+                                tempTxt = tempTxt.Replace("@DealerNameStr", tblInvoiceTO.DealerName);
+                                tblAlertInstanceTO.SmsComment = tempTxt;
+                               // tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
                             }
                             resultMessage = InvoiceStatusUpdate(tblInvoiceTO, tblInvoiceTO.StatusId, conn, tran);
                             if (resultMessage.MessageType != ResultMessageE.Information)
@@ -5082,15 +5455,28 @@ namespace ODLMWebAPI.BL
                                     tblAlertUsersTOList.Add(tblAlertUsersTO);
                                 }
                             }
+                            var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.INVOICE_ACCEPTANCE_REQUIRED);
+                            string tempTxt = "";
 
                             tblInvoiceTO.InvoiceStatusE = Constants.InvoiceStatusE.PENDING_FOR_ACCEPTANCE;
                             tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_ACCEPTANCE_REQUIRED;
                             tblAlertInstanceTO.AlertAction = "INVOICE_ACCEPTANCE_REQUIRED";
-                            tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " is awaiting for acceptance";
+                            if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                            {
+                                tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                                tempTxt = tempTxt.Replace("@InvoiceIdStr", tblInvoiceTO.IdInvoice.ToString());
+                                tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                                tblAlertInstanceTO.AlertComment = tempTxt;
+                            }
+                            else
+                                tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " is awaiting for acceptance";
+
                             if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                             {
-                                tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                                tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
+                                tempTxt = tempTxt.Replace("@DealerNameStr", tblInvoiceTO.DealerName);
+                                tblAlertInstanceTO.SmsComment = tempTxt;
+                               // tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
                             }
                             resultMessage = InvoiceStatusUpdate(tblInvoiceTO, tblInvoiceTO.StatusId, conn, tran);
                             if (resultMessage.MessageType != ResultMessageE.Information)
@@ -5106,13 +5492,26 @@ namespace ODLMWebAPI.BL
                     }
                     else if (tblInvoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.AUTHORIZED_BY_DIRECTOR)
                     {
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.INVOICE_APPROVED_BY_DIRECTOR);
+                        string tempTxt = "";
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_APPROVED_BY_DIRECTOR;
                         tblAlertInstanceTO.AlertAction = "INVOICE_APPROVED_BY_DIRECTOR";
-                        tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Approved.";
+                        if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@InvoiceIdStr", tblInvoiceTO.IdInvoice.ToString());
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
+                            tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Approved.";
+
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblInvoiceTO.DealerName);
+                            tblAlertInstanceTO.SmsComment = tempTxt;
+                            //tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
                         }
                         resultMessage = CheckAndUpdateForInvoiceAcceptanceStatus(existingInvoiceTO, tblInvoiceTO, tblAlertInstanceTO, tblAlertUsersTOList, conn, tran);
                         if (resultMessage.MessageType != ResultMessageE.Information)
@@ -5120,13 +5519,27 @@ namespace ODLMWebAPI.BL
                     }
                     else if (tblInvoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.REJECTED_BY_DIRECTOR)
                     {
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DIRECTOR);
+                        string tempTxt = "";
+
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DIRECTOR;
                         tblAlertInstanceTO.AlertAction = "INVOICE_REJECTED_BY_DIRECTOR";
-                        tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Rejected by Director";
+                        if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@InvoiceIdStr", tblInvoiceTO.IdInvoice.ToString());
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
+                            tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Rejected by Director";
+
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblInvoiceTO.DealerName);
+                            tblAlertInstanceTO.SmsComment = tempTxt;
+                            //tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
                         }
                         resultMessage = InvoiceStatusUpdate(tblInvoiceTO, tblInvoiceTO.StatusId, conn, tran);
                         if (resultMessage.MessageType != ResultMessageE.Information)
@@ -5142,13 +5555,29 @@ namespace ODLMWebAPI.BL
                     }
                     else if (tblInvoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.REJECTED_BY_DISTRIBUTOR)
                     {
-                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DIRECTOR;
+                        //Aniket [6-8-2019] commented as NotificationsE should be INVOICE_REJECTED_BY_DISTRIBUTOR
+                        // tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DIRECTOR;
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DISTRIBUTOR);
+                        string tempTxt = "";
+
+                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DISTRIBUTOR;
                         tblAlertInstanceTO.AlertAction = "INVOICE_REJECTED_BY_DISTRIBUTOR";
-                        tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Rejected by Distributer";
+                        if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@InvoiceIdStr", tblInvoiceTO.IdInvoice.ToString());
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
+                            tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Rejected by Distributer";
+
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblInvoiceTO.DealerName);
+                            tblAlertInstanceTO.SmsComment = tempTxt;
+                           // tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
                         }
                         resultMessage = InvoiceStatusUpdate(tblInvoiceTO, tblInvoiceTO.StatusId, conn, tran);
                         if (resultMessage.MessageType != ResultMessageE.Information)
@@ -5164,13 +5593,26 @@ namespace ODLMWebAPI.BL
                     }
                     else if (tblInvoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.ACCEPTED_BY_DISTRIBUTOR)
                     {
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.INVOICE_ACCEPTED_BY_DISTRIBUTOR);
+                        string tempTxt = "";
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_ACCEPTED_BY_DISTRIBUTOR;
                         tblAlertInstanceTO.AlertAction = "INVOICE_ACCEPTED_BY_DISTRIBUTOR";
-                        tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is accecpted By Distributor.";
+                        if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        {
+                            tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                            tempTxt = tempTxt.Replace("@InvoiceIdStr", tblInvoiceTO.IdInvoice.ToString());
+                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+
+                            tblAlertInstanceTO.AlertComment = tempTxt;
+                        }
+                        else
+                            tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is accecpted By Distributor.";
+
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblInvoiceTO.DealerName);
+                            tblAlertInstanceTO.SmsComment = tempTxt;
+                           // tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
                         }
                         resultMessage = InvoiceStatusUpdate(tblInvoiceTO, tblInvoiceTO.StatusId, conn, tran);
                         if (resultMessage.MessageType != ResultMessageE.Information)
@@ -5178,17 +5620,18 @@ namespace ODLMWebAPI.BL
                             return resultMessage;
                         }
                     }
-                    else if (tblInvoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.REJECTED_BY_DISTRIBUTOR)
-                    {
-                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DISTRIBUTOR;
-                        tblAlertInstanceTO.AlertAction = "INVOICE_REJECTED_BY_DISTRIBUTOR";
-                        tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Rejected by Distributor.";
-                        if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
-                        {
-                            tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
-                            tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
-                        }
-                    }
+                    //Aniket [6-8-2019] commented as REJECTED_BY_DISTRIBUTOR is already written above
+                    //else if (tblInvoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.REJECTED_BY_DISTRIBUTOR)
+                    //{
+                    //    tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.INVOICE_REJECTED_BY_DISTRIBUTOR;
+                    //    tblAlertInstanceTO.AlertAction = "INVOICE_REJECTED_BY_DISTRIBUTOR";
+                    //    tblAlertInstanceTO.AlertComment = "Invoice #" + tblInvoiceTO.IdInvoice + " Is Rejected by Distributor.";
+                    //    if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
+                    //    {
+                    //        tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
+                    //        tblAlertInstanceTO.AlertComment += " (" + tblInvoiceTO.DealerName + ").";
+                    //    }
+                    //}
 
 
                     tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
@@ -5300,7 +5743,7 @@ namespace ODLMWebAPI.BL
                 tblInvoiceItemDetailsTO.BasicTotal = tblInvoiceItemDetailsTO.Rate * tblInvoiceItemDetailsTO.InvoiceQty;
                 tblInvoiceTo.BasicAmt += tblInvoiceItemDetailsTO.BasicTotal;
                 DropDownTO cdDropDownTO = _iDimensionBL.SelectCDDropDown(tblInvoiceItemDetailsTO.CdStructureId);
-                TblConfigParamsTO tblConfigParams = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_TAX_INVOICE_CALCULATION);
+                TblConfigParamsTO tblConfigParams = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_TAX_ON_PRINT_INVOICE);
                 if(tblConfigParams!=null)
                 {
                     if(tblConfigParams.ConfigParamVal=="1")
@@ -5474,6 +5917,88 @@ namespace ODLMWebAPI.BL
             catch (Exception ex)
             {
                 resultMessage.DefaultExceptionBehaviour(ex, "InvoiceAccetanceStatus");
+                return resultMessage;
+            }
+        }
+
+
+        public ResultMessage exchangeInvoice(Int32 invoiceId, Int32 invGenModeId, int fromOrgId, int toOrgId, int isCalculateWithBaseRate)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            ResultMessage resultMessage = new ResultMessage();
+            DateTime serverDate = _iCommon.ServerDateTime;
+
+            string entityRangeString = "REGULAR_TAX_INVOICE_";
+            int result = 0;
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+
+                TblInvoiceTO invoiceTO = _iTblInvoiceDAO.SelectTblInvoice(invoiceId, conn, tran);
+                if (invoiceTO == null)
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("invoiceTO Found NULL"); return resultMessage;
+                }
+
+                if (invoiceTO.InvFromOrgFreeze == 1)
+                {
+                    resultMessage.DefaultBehaviour();
+                    resultMessage.Text = "Invoie Already Converted";
+                    return resultMessage;
+                }
+
+                //Vijaymala[23-03-2016]added to check invoice details of igst,cgst,sgst taxes
+                #region To check invoice details is valid or not
+                string errorMsg = string.Empty;
+                Boolean isValidInvoice = CheckInvoiceDetailsAccToState(invoiceTO, ref errorMsg);
+                if (!isValidInvoice)
+                {
+                    resultMessage.DefaultBehaviour(errorMsg);
+                    resultMessage.DisplayMessage = errorMsg;
+                    return resultMessage;
+                }
+                #endregion
+
+                TblInvoiceChangeOrgHistoryTO invHistTO = new TblInvoiceChangeOrgHistoryTO();
+                invHistTO.InvoiceId = invoiceTO.IdInvoice;
+                invHistTO.CreatedOn = _iCommon.ServerDateTime;
+                invHistTO.CreatedBy = 1;
+                if (invGenModeId == (int)Constants.InvoiceGenerateModeE.DUPLICATE)
+                {
+                    invHistTO.ActionDesc = "Duplicate";
+                }
+                if (invGenModeId == (int)Constants.InvoiceGenerateModeE.CHANGEFROM)
+                {
+                    invHistTO.ActionDesc = "Change Organization";
+                }
+                resultMessage = PrepareAndSaveInternalTaxInvoices(invoiceTO, invGenModeId, fromOrgId, toOrgId, isCalculateWithBaseRate, invHistTO, conn, tran);
+                int res = _iTblInvoiceChangeOrgHistoryDAO.InsertTblInvoiceChangeOrgHistory(invHistTO, conn, tran);
+
+                if (res != 1)
+                {
+                    tran.Rollback();
+                    resultMessage.Text = "failed to save History in exchangeInvoice";
+                    return resultMessage;
+                }
+                if (resultMessage.MessageType == ResultMessageE.Information)
+                {
+                    tran.Commit();
+                    resultMessage.Text = "Invoice Converted Successfully";
+                    resultMessage.DisplayMessage = "Invoice Converted Successfully";
+                    return resultMessage;
+                }
+                else
+                {
+                    tran.Rollback();
+                    return resultMessage;
+                }
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "GenerateInvoiceNumber");
                 return resultMessage;
             }
         }

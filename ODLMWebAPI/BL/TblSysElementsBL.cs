@@ -424,6 +424,233 @@ namespace ODLMWebAPI.BL
             return _iTblSysElementsDAO.DeleteTblSysElements(idSysElement, conn, tran);
         }
 
+        //Harshala [20-07-2019] : Added to give all permissions to user or role.
+        public ResultMessage SavegiveAllPermission(PermissionTO permissionTO)
+        {
+
+            ResultMessage resultMsg = new ResultMessage();
+            SqlConnection conn = new SqlConnection(Startup.ConnectionString);
+            SqlTransaction tran = null;
+            int result = 0;
+            try
+            {
+               conn.Open();
+                tran = conn.BeginTransaction();
+                
+                if(permissionTO.UserId>0 || permissionTO.RoleId>0)
+                {
+                    List<TblSysElementsTO> list = _iTblSysElementsDAO.SelectgiveAllTblSysElements(); 
+                     if (list != null)
+                     {
+                        for (int i = 0; i < list.Count; i++)
+                        {
+                            permissionTO.IdSysElement=list[i].IdSysElement;
+                          result=  SaveRoleOrUserPermission(permissionTO,conn,tran);
+                            if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMsg.MessageType = ResultMessageE.Error;
+                            resultMsg.Result = 0;
+                            resultMsg.Text = "Error while Inserting role Permission";
+                            resultMsg.DisplayMessage = "Error. Permissions could not be updated";
+                            return resultMsg;
+                        }
+                          
+                        }
+                     }
+                }
+
+                tran.Commit();
+                 resultMsg.DefaultSuccessBehaviour();
+                 return resultMsg;
+
+            }
+            catch (Exception ex)
+            {
+                resultMsg.MessageType = ResultMessageE.Error;
+                resultMsg.Exception = ex;
+                resultMsg.Result = -1;
+                resultMsg.Text = "Exception Error While SaveRoleOrUserPermission ";
+                resultMsg.DisplayMessage = "Error. Permissions could not be updated";
+                return resultMsg;
+            }
+            finally
+            {
+               conn.Close();
+            }
+
+
+        }
+
+        public  int SaveRoleOrUserPermission(PermissionTO permissionTO, SqlConnection con, SqlTransaction trann)
+        {
+            SqlConnection conn = con;
+            SqlTransaction tran = trann;
+            int result = 0;
+            try
+            {
+              //  conn.Open();
+              //  tran = conn.BeginTransaction();
+
+                if (permissionTO.UserId > 0)
+                {
+                    TblSysEleUserEntitlementsTO userPermissionTO = _iTblSysEleUserEntitlementsDAO.SelectUserSysEleUserEntitlements(permissionTO.UserId, permissionTO.IdSysElement, conn, tran);
+                    if (userPermissionTO == null)
+                    {
+                        // Insert New Entry
+                        userPermissionTO = new TblSysEleUserEntitlementsTO();
+                        userPermissionTO.UserId = permissionTO.UserId;
+                        userPermissionTO.Permission = permissionTO.EffectivePermission;
+                        userPermissionTO.SysEleId = permissionTO.IdSysElement;
+                        userPermissionTO.CreatedBy = permissionTO.CreatedBy;
+                        userPermissionTO.CreatedOn = permissionTO.CreatedOn;
+                        result = _iTblSysEleUserEntitlementsBL.InsertTblSysEleUserEntitlements(userPermissionTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            return -1;
+                           
+                        }
+                    }
+                    else
+                    {
+                        userPermissionTO.Permission = permissionTO.EffectivePermission;
+                        result = _iTblSysEleUserEntitlementsBL.UpdateTblSysEleUserEntitlements(userPermissionTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            return -1;
+                        }
+                    }
+                }
+                else
+                {
+                    TblSysEleRoleEntitlementsTO rolePermissionTO = _iTblSysEleRoleEntitlementsDAO.SelectRoleSysEleUserEntitlements(permissionTO.RoleId, permissionTO.IdSysElement, conn, tran);
+                    if (rolePermissionTO == null)
+                    {
+                        // Insert New Entry
+                        rolePermissionTO = new TblSysEleRoleEntitlementsTO();
+                        rolePermissionTO.RoleId = permissionTO.RoleId;
+                        rolePermissionTO.Permission = permissionTO.EffectivePermission;
+                        rolePermissionTO.SysEleId = permissionTO.IdSysElement;
+                        rolePermissionTO.CreatedBy = permissionTO.CreatedBy;
+                        rolePermissionTO.CreatedOn = permissionTO.CreatedOn;
+                        result =_iTblSysEleRoleEntitlementsBL.InsertTblSysEleRoleEntitlements(rolePermissionTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            return -1;
+                        }
+                    }
+                    else
+                    {
+                        rolePermissionTO.Permission = permissionTO.EffectivePermission;
+                        result =_iTblSysEleRoleEntitlementsBL.UpdateTblSysEleRoleEntitlements(rolePermissionTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            
+                            return -1;
+                        }
+                    }
+                }
+
+
+              //  tran.Commit();
+                
+                return result;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                return -1;
+
+            }
+            finally
+            {
+            }
+        }
+
+        //Harshala
+        public int checkUserOrRolePermissions(int roleId, int userId)
+        {
+
+         List<TblSysElementsTO> AllpermissionsList = _iTblSysElementsDAO.SelectgiveAllTblSysElements();
+         List<TblSysEleUserEntitlementsTO> ListOfUserPermission = new List<TblSysEleUserEntitlementsTO>();
+         List<TblSysEleRoleEntitlementsTO> ListOfRolePermission = new List<TblSysEleRoleEntitlementsTO>();
+        if(roleId != 0 && userId == 0)
+         {
+             ListOfRolePermission = _iTblSysEleRoleEntitlementsDAO.SelectAllTblSysEleRoleEntitlementsOnlyRW(roleId);  
+             if(AllpermissionsList.Count == ListOfRolePermission.Count)
+                return 1;
+         }
+         else
+         {
+            ListOfUserPermission = _iTblSysEleUserEntitlementsDAO.SelectAllTblSysEleUserEntitlementsOnlyRW(userId);
+            if(AllpermissionsList.Count == ListOfUserPermission.Count)
+                return 1;
+         }
+         return 0;
+    }
+
+    //harshala
+     public  List<tblViewPermissionTO> selectPermissionswrtRole(int roleId,int userId)
+        {
+            
+            List<tblViewPermissionTO> list = _iTblSysElementsDAO.selectPermissionswrtRole(roleId,userId); //gives modules list
+           
+            if(list.Count>0)
+            {
+                for(int i=0;i<list.Count;i++)
+                {
+              
+                   list[i].MenuTOs=_iTblSysElementsDAO.SelectMenuPermission(roleId,userId, list[i].IdModule); //add menu's to list list
+                   list[i].ElementList=_iTblSysElementsDAO.SelectElementPermission(roleId,userId,list[i].IdModule); //add elements to list
+                    
+                }
+                
+            }
+            return list;
+            
+        }     
+
+        /// <summary>
+        /// Harshala [2019-08-08] Following function will return the list of all permissions
+        /// </summary>
+        /// <returns></returns>
+        public List<DropDownTO> SelectAllPermissionDropdownList()
+        {
+            return _iTblSysElementsDAO.SelectAllPermissionList();
+        } 
+
+           /// <summary>
+        /// Harshala [2019-08-09] Following function will return the list of users and roles which are having selected permissions from dropdown
+        /// </summary>
+        /// <returns></returns>
+        public tblViewPermissionTO SelectAllUserRolewrtPermission(int idSysElement)
+        {
+             tblViewPermissionTO tblViewPermissionTo=new tblViewPermissionTO();
+
+            List<tblRoleUserTO> RoleList = _iTblSysElementsDAO.SelectAllRolewrtPermission(idSysElement);
+            List<tblRoleUserTO> UserList = _iTblSysElementsDAO.SelectAllUserwrtPermission(idSysElement);
+            
+            if(RoleList !=null && RoleList.Count>0)
+            {
+                    tblViewPermissionTo.RoleList=RoleList;
+            }
+            
+             if(UserList !=null && UserList.Count>0)
+             {
+             tblViewPermissionTo.UserList=UserList;
+             }
+            return tblViewPermissionTo;
+            
+        }
+
+
+
+
+
         #endregion
         
     }

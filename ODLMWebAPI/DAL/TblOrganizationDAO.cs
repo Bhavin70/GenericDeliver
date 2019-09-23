@@ -220,6 +220,8 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+            
+
         public List<TblOrganizationTO> SelectAllTblOrganization(Constants.OrgTypeE orgTypeE)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -972,6 +974,57 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public OrgBasicInfo GetOrganizationBasicInfo(Int32 organizationId)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader rdr = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = " SELECT party.firmName, " +
+                                        " CASE WHEN LEN(RTRIM(party.registeredMobileNos)) > 3 THEN party.registeredMobileNos " +
+                                        " WHEN LEN(RTRIM(firstOwner.mobileNo)) > 3 THEN firstOwner.mobileNo " +
+                                        " WHEN LEN(RTRIM(firstOwner.alternateMobNo)) > 3 THEN firstOwner.alternateMobNo " +
+                                        " WHEN LEN(RTRIM(secondOwner.mobileNo)) > 3 THEN firstOwner.mobileNo " +
+                                        " WHEN LEN(RTRIM(secondOwner.alternateMobNo)) > 3 THEN firstOwner.alternateMobNo " +
+                                        " ELSE '91' END as mobileNo " +
+                                        " FROM tblOrganization party " +
+                                        " LEFT JOIN tblPerson firstOwner " +
+                                        " ON firstOwner.idPerson = party.firstOwnerPersonId " +
+                                        " LEFT JOIN tblPerson secondOwner " +
+                                        " ON secondOwner.idPerson = party.secondOwnerPersonId " +
+                                        " WHERE idOrganization = " + organizationId;
+
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                OrgBasicInfo orgBasicInfo = null;
+
+                rdr = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                while (rdr.Read())
+                {
+                    orgBasicInfo = new OrgBasicInfo();
+                    if (rdr["firmName"] != DBNull.Value)
+                        orgBasicInfo.FirmName = Convert.ToString(rdr["firmName"].ToString());
+                    if (rdr["mobileNo"] != DBNull.Value)
+                        orgBasicInfo.MobileNo = Convert.ToString(rdr["mobileNo"].ToString());
+                }
+
+                return orgBasicInfo;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (rdr != null) rdr.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
         public List<TblOrganizationTO> ConvertDTToList(SqlDataReader tblOrganizationTODT)
         {
             List<TblOrganizationTO> tblOrganizationTOList = new List<TblOrganizationTO>();
@@ -1107,11 +1160,13 @@ namespace ODLMWebAPI.DAL
                     if (tblOrganizationTODT["dateOfEstablishment"] != DBNull.Value)
                         tblOrganizationTONew.DateOfEstablishment = Convert.ToDateTime(tblOrganizationTODT["dateOfEstablishment"].ToString());
 
+
                     tblOrganizationTOList.Add(tblOrganizationTONew);
                 }
             }
             return tblOrganizationTOList;
         }
+
 
 
         public List<OrgExportRptTO> SelectAllOrgListToExport(Int32 orgTypeId, Int32 parentId)

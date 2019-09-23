@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using ODLMWebAPI.StaticStuff;
+using static ODLMWebAPI.StaticStuff.Constants;
 
 namespace ODLMWebAPI.BL.Interfaces
 {   
@@ -15,7 +16,7 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblInvoiceTO> SelectAllTblInvoiceList();
         List<TblInvoiceTO> SelectAllTblInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm, Int32 cnfId, Int32 dealerID, List<TblUserRoleTO> tblUserRoleTOList, Int32 brandId, Int32 invoiceId, Int32 statusId);
         TblInvoiceTO SelectTblInvoiceTO(Int32 idInvoice);
-        List<TblInvoiceTO> SelectTblInvoiceByStatus(int statusId, int distributorOrgId, int invoiceId);
+        List<TblInvoiceTO> SelectTblInvoiceByStatus(int statusId, int distributorOrgId, int invoiceId,int isConfirm);
         TblInvoiceTO SelectTblInvoiceTOWithDetails(Int32 idInvoice);
         TblInvoiceTO SelectTblInvoiceTOWithDetails(Int32 idInvoice, SqlConnection conn, SqlTransaction tran);
         TblInvoiceTO SelectInvoiceTOFromLoadingSlipId(Int32 loadingSlipId);
@@ -39,6 +40,9 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage InsertTblInvoice(TblInvoiceTO tblInvoiceTO);
         ResultMessage SaveNewInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
         int InsertTblInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
+        ResultMessage PrepareAndSaveNewTaxInvoice(TblLoadingTO loadingTO, SqlConnection conn, SqlTransaction tran);
+       ResultMessage PrepareAndSaveInternalTaxInvoices(TblInvoiceTO invoiceTO, int invoiceGenerateModeE,int fromOrgId,int toOrgId ,int isCalculateWithBaseRate,TblInvoiceChangeOrgHistoryTO changeHisTO,SqlConnection conn, SqlTransaction tran);
+        ResultMessage PrepareNewInvoiceObjectList(TblInvoiceTO invoiceTO, List<TblInvoiceItemDetailsTO> invoiceItemTOList, List<TblInvoiceAddressTO> invoiceAddressTOList, int invoiceGenerateModeE,int fromOrgId,int toOrgId ,int isCalculateWithBaseRate, SqlConnection conn, SqlTransaction tran,int swap=1);
         ResultMessage PrepareAndSaveNewTaxInvoice(TblLoadingTO loadingTO, List<TblLoadingSlipExtTO> lastItemList, SqlConnection conn, SqlTransaction tran);
         ResultMessage PrepareAndSaveInternalTaxInvoices(TblInvoiceTO invoiceTO, SqlConnection conn, SqlTransaction tran);
         ResultMessage PrepareNewInvoiceObjectList(TblInvoiceTO invoiceTO, List<TblInvoiceItemDetailsTO> invoiceItemTOList, List<TblInvoiceAddressTO> invoiceAddressTOList, Constants.InvoiceGenerateModeE invoiceGenerateModeE, SqlConnection conn, SqlTransaction tran);
@@ -57,6 +61,8 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage SaveUpdatedInvoice(TblInvoiceTO invoiceTO);
         ResultMessage UpdateInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
         TblInvoiceTO updateInvoiceToCalc(TblInvoiceTO tblInvoiceTo, SqlConnection conn, SqlTransaction tran, Boolean isCheckHist = true);
+        ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm,Int32 invGenModeId,int fromOrgId,int toOrgId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0);
+        ResultMessage exchangeInvoice(Int32 invoiceId,  Int32 invGenModeId,int fromOrgId,int toOrgId , int isCalculateWithBaseRate);
         //ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0);
         ResultMessage UpdateInvoiceNonCommercialDetails(TblInvoiceTO tblInvoiceTO);
         //ResultMessage UpdateInvoiceConfrimNonConfirmDetails(TblInvoiceTO tblInvoiceTO, Int32 loginUserId);

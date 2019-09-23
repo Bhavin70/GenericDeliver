@@ -313,20 +313,25 @@ namespace ODLMWebAPI.DAL
         /// <param name="StatusId"></param>
         /// <param name="distributorOrgId"></param>
         /// <returns></returns>
-        public List<TblInvoiceTO> SelectTblInvoiceByStatus(Int32 statusId, int distributorOrgId,int invoiceId, SqlConnection conn, SqlTransaction tran)
+        public List<TblInvoiceTO> SelectTblInvoiceByStatus(Int32 statusId, int distributorOrgId,int invoiceId, SqlConnection conn, SqlTransaction tran,int isConfirm)
         {
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader reader = null;
             string whereCondition = String.Empty;
+            string isConfirmCondition = String.Empty;
             try
             {
+                if(isConfirm!=2)
+                {
+                    isConfirmCondition = " AND sq1.isConfirmed=" + isConfirm;
+                }
                 if (invoiceId > 0)
                 {
                     whereCondition = " AND sq1.idInvoice = " + invoiceId;
                 }
                 if (distributorOrgId == 0)
                 {
-                    cmdSelect.CommandText = " SELECT * FROM ("+ SqlSelectQuery() + ")sq1 WHERE sq1.statusId = " + statusId + whereCondition;
+                    cmdSelect.CommandText = " SELECT * FROM ("+ SqlSelectQuery() + ")sq1 WHERE sq1.statusId = " + statusId + whereCondition+isConfirmCondition;
 
                 }
                 else
@@ -703,8 +708,7 @@ namespace ODLMWebAPI.DAL
                         tblInvoiceTONew.CurrencyName = Convert.ToString(tblInvoiceTODT["currencyName"].ToString());
                     if (tblInvoiceTODT["statusName"] != DBNull.Value)
                         tblInvoiceTONew.StatusName = Convert.ToString(tblInvoiceTODT["statusName"].ToString());
-                    if (tblInvoiceTODT["invoiceTypeDesc"] != DBNull.Value)
-                        tblInvoiceTONew.InvoiceTypeDesc = Convert.ToString(tblInvoiceTODT["invoiceTypeDesc"].ToString());
+                   
                     if (tblInvoiceTODT["deliveryLocation"] != DBNull.Value)
                         tblInvoiceTONew.DeliveryLocation = Convert.ToString(tblInvoiceTODT["deliveryLocation"]);
 
@@ -722,6 +726,18 @@ namespace ODLMWebAPI.DAL
                         tblInvoiceTONew.GrossWeight = Convert.ToDouble(tblInvoiceTODT["grossWeight"]);
                     if (tblInvoiceTODT["isConfirmed"] != DBNull.Value)
                         tblInvoiceTONew.IsConfirmed = Convert.ToInt32(tblInvoiceTODT["isConfirmed"]);
+                    //Aniket [19-9-2019] modified for C and NC invoice type description
+                    if(tblInvoiceTONew.IsConfirmed==1)
+                    {
+                        if (tblInvoiceTODT["invoiceTypeDesc"] != DBNull.Value)
+                            tblInvoiceTONew.InvoiceTypeDesc = Convert.ToString(tblInvoiceTODT["invoiceTypeDesc"].ToString());
+                    }
+                    else
+                    {
+                        if (tblInvoiceTODT["invoiceTypeDesc"] != DBNull.Value)
+                            tblInvoiceTONew.InvoiceTypeDesc = "Delivery Challan";
+                    }
+
                     if (tblInvoiceTODT["rcmFlag"] != DBNull.Value)
                         tblInvoiceTONew.RcmFlag = Convert.ToInt32(tblInvoiceTODT["rcmFlag"]);
                     if (tblInvoiceTODT["remark"] != DBNull.Value)
@@ -759,6 +775,9 @@ namespace ODLMWebAPI.DAL
                         tblInvoiceTONew.LoadingStatusId = Convert.ToInt32(tblInvoiceTODT["loadingStatusId"]);
                     if (tblInvoiceTODT["isDBup"] != DBNull.Value)
                         tblInvoiceTONew.IsDBup = Convert.ToInt32(tblInvoiceTODT["isDBup"]);
+
+                    if (tblInvoiceTODT["invFromOrgFreeze"] != DBNull.Value)
+                        tblInvoiceTONew.InvFromOrgFreeze = Convert.ToInt32(tblInvoiceTODT["invFromOrgFreeze"].ToString());
 
                     tblInvoiceTOList.Add(tblInvoiceTONew);
                 }
@@ -1946,6 +1965,7 @@ namespace ODLMWebAPI.DAL
                                 " ,[orcPersonName]" +
                                 " ,[grossWtTakenDate]" +
                                 " ,[preparationDate]" +
+                                " ,[invFromOrgFreeze]" +
 
                                 " )" +
                     " VALUES (" +
@@ -2004,7 +2024,7 @@ namespace ODLMWebAPI.DAL
                                 " ,@ORCPersonName " +
                                 " ,@grossWtTakenDate" +
                                 " ,@preparationDate" +
-
+                                " ,@InvFromOrgFreeze" +
                                 " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
@@ -2065,6 +2085,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@ORCPersonName", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.ORCPersonName);
             cmdInsert.Parameters.Add("@grossWtTakenDate", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.GrossWtTakenDate;
             cmdInsert.Parameters.Add("@preparationDate", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.PreparationDate;
+            cmdInsert.Parameters.Add("@InvFromOrgFreeze", System.Data.SqlDbType.Int).Value = tblInvoiceTO.InvFromOrgFreeze;
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
@@ -2281,6 +2302,7 @@ namespace ODLMWebAPI.DAL
                              " ,[orcPersonName]=@ORCPersonName " +
                              " ,[grossWtTakenDate]=@grossWtTakenDate " +
                              " ,[preparationDate]=@preparationDate " +
+                             " ,[invFromOrgFreeze]=@InvFromOrgFreeze " +
 
                              " WHERE [idInvoice] = @IdInvoice";
 
@@ -2340,6 +2362,7 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@ORCPersonName", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.ORCPersonName);
             cmdUpdate.Parameters.Add("@grossWtTakenDate", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.GrossWtTakenDate;
             cmdUpdate.Parameters.Add("@preparationDate", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.PreparationDate;
+            cmdUpdate.Parameters.Add("@InvFromOrgFreeze", System.Data.SqlDbType.Int).Value = tblInvoiceTO.InvFromOrgFreeze;
 
             return cmdUpdate.ExecuteNonQuery();
         }

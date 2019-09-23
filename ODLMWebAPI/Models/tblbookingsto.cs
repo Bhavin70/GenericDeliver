@@ -37,6 +37,9 @@ namespace ODLMWebAPI.Models
         String cnfName;
         String dealerName;
 
+        String dealerCat;
+        String colorCode;
+
         List<TblBookingDelAddrTO> deliveryAddressLst;
         List<TblBookingExtTO> orderDetailsLst;
         String status;
@@ -324,6 +327,33 @@ namespace ODLMWebAPI.Models
         public String CreatedOnStr
         {
             get { return createdOn.ToString(Constants.DefaultDateFormat); }
+        }
+
+
+        public String DealerCat
+        {
+             get
+            {
+                return dealerCat;
+            }
+
+            set
+            {
+                dealerCat = value;
+            }
+        }
+
+        public String ColorCode
+        {
+            get
+            {
+                return colorCode;
+            }
+
+            set
+            {
+                colorCode = value;
+            }
         }
 
         public String StatusDateStr

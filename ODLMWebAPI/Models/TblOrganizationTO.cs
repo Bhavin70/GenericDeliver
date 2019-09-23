@@ -13,6 +13,8 @@ namespace ODLMWebAPI.Models
         #region Declarations
         Int32 idOrganization;
         Int32 orgTypeId;
+
+       public Int32 StatusId {set;get;}
         Int32 addrId;
         Int32 firstOwnerPersonId;
         Int32 secondOwnerPersonId;
@@ -423,5 +425,15 @@ namespace ODLMWebAPI.Models
 
 
         #endregion
+    }
+
+    /// <summary>
+    /// Sanjay [16-Sept-2019] This will be basic Org Object. Will return Name and Contact Details Only.
+    /// We may required Address Or Village name.Which is not considered in this modifications
+    /// </summary>
+    public class OrgBasicInfo
+    {
+        public string FirmName { get; set; }
+        public string MobileNo { get; set; }
     }
 }
