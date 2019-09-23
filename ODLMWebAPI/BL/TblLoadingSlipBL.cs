@@ -789,14 +789,14 @@ namespace ODLMWebAPI.BL
                     {
 
                     }
-                    int configId = _iTblConfigParamsDAO.IoTSetting();
-                    if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
-                    {
-                        tblLoadingSlipTO.VehicleNo = "";
-                        tblLoadingSlipExtTO.LoadedBundles = 0;
-                        tblLoadingSlipExtTO.LoadedWeight = 0;
-                        tblLoadingSlipExtTO.CalcTareWeight = 0;
-                    }
+                    //int configId = _iTblConfigParamsDAO.IoTSetting();
+                    //if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
+                    //{
+                    //    tblLoadingSlipTO.VehicleNo = "";
+                    //    tblLoadingSlipExtTO.LoadedBundles = 0;
+                    //    tblLoadingSlipExtTO.LoadedWeight = 0;
+                    //    tblLoadingSlipExtTO.CalcTareWeight = 0;
+                    //}
                     result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExt(tblLoadingSlipExtTO, conn, tran);
                     if (result != 1)
                     {
