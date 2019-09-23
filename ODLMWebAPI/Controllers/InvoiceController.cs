@@ -772,7 +772,7 @@ namespace ODLMWebAPI.Controllers
                     return resultMessage;
                 }
                Int32 isConfirm = 1;
-                return _iTblInvoiceBL.GenerateInvoiceNumber(Convert.ToInt32(invoiceId), Convert.ToInt32(loginUserId), isConfirm, Convert.ToInt32(invGenerateModeId),fromOrgId,toOrgId,Convert.ToString(taxInvoiceNumber), manualinvoiceno);
+                return _iTblLoadingBL.GenerateInvoiceNumber(Convert.ToInt32(invoiceId), Convert.ToInt32(loginUserId), isConfirm, Convert.ToInt32(invGenerateModeId),fromOrgId,toOrgId,Convert.ToString(taxInvoiceNumber), manualinvoiceno);
             }
             catch (Exception ex)
             {

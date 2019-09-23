@@ -76,10 +76,10 @@ namespace ODLMWebAPI.BL {
         private readonly IWeighingCommunication _iWeighingCommunication;
         private readonly ITblInvoiceHistoryDAO _iTblInvoiceHistoryDAO;
         private readonly ITblBookingDelAddrDAO _iTblBookingDelAddrDAO;
-
-        public TblLoadingBL(IWeighingCommunication iWeighingCommunication, IModbusRefConfig iModbusRefConfig,ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblInvoiceHistoryDAO iTblInvoiceHistoryDAO, ITblWeighingMachineDAO iTblWeighingMachineDAO, IGateCommunication iGateCommunication, IIotCommunication iIotCommunication, ITblGateBL iTblGateBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL)
         private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
-        public TblLoadingBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL)
+        public TblLoadingBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO, IWeighingCommunication iWeighingCommunication, IModbusRefConfig iModbusRefConfig,ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblInvoiceHistoryDAO iTblInvoiceHistoryDAO, ITblWeighingMachineDAO iTblWeighingMachineDAO, IGateCommunication iGateCommunication, IIotCommunication iIotCommunication, ITblGateBL iTblGateBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL)
+        
+       // public TblLoadingBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL)
         {
             _iTblLoadingDAO = iTblLoadingDAO;
             _iTblUserRoleBL = iTblUserRoleBL;
@@ -1558,7 +1558,8 @@ namespace ODLMWebAPI.BL {
             return tblLoadingSlipTO;
         }
 
-        public ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0)
+        //public ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0)
+        public ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, int fromOrgId, int toOrgId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -1594,8 +1595,8 @@ namespace ODLMWebAPI.BL {
 
                     if (invGenModeId != (int)Constants.InvoiceGenerateModeE.REGULAR)
                     {
-
-                        resultMessage = _iTblInvoiceBL.PrepareAndSaveInternalTaxInvoices(invoiceTO, conn, tran);
+                        TblInvoiceChangeOrgHistoryTO changeHisTO = new TblInvoiceChangeOrgHistoryTO();
+                        resultMessage = _iTblInvoiceBL.PrepareAndSaveInternalTaxInvoices(invoiceTO, invGenModeId, fromOrgId, toOrgId, 0, changeHisTO, conn, tran);
                         if (resultMessage.MessageType == ResultMessageE.Information)
                         {
                             tran.Commit();
@@ -1667,7 +1668,7 @@ namespace ODLMWebAPI.BL {
                             resultMessage.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
                             return resultMessage;
                         }
-                        Int32 internalOrgId = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+                        Int32 defualtOrgId = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
                         TblEntityRangeTO entityRangeTO = null;
                         if (Convert.ToInt32(tblConfigParamsTOForBrand.ConfigParamVal) == 1)
                         {
@@ -1675,9 +1676,12 @@ namespace ODLMWebAPI.BL {
                             entityRangeString += dimBrandTO.IdBrand.ToString();
                             entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(entityRangeString, invoiceTO.FinYearId, conn, tran);
                         }
-
-                        else if (invoiceTO.InvFromOrgId == internalOrgId)
-                            entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(Constants.ENTITY_RANGE_REGULAR_TAX_INVOICE_BMM, invoiceTO.FinYearId, conn, tran);
+                        //Hrushikesh added get entity Range organizationwise
+                        else if (invoiceTO.InvFromOrgId != defualtOrgId)
+                        {
+                            string orgstr = Constants.ENTITY_RANGE_REGULAR_TAX_INTERNALORG + invoiceTO.InvFromOrgId;
+                            entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(orgstr, invoiceTO.FinYearId, conn, tran);
+                        }
                         else
                             entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(invoiceTO.InvoiceTypeId, invoiceTO.FinYearId, conn, tran);
 
@@ -8497,7 +8501,7 @@ namespace ODLMWebAPI.BL {
                     resultMessage.DefaultSuccessBehaviour ();
                     if (tblInvoiceTO.IsConfirmed == 1 && tblInvoiceTO.StatusId == Convert.ToInt32 (Constants.InvoiceStatusE.AUTHORIZED)) {
                         Int32 isconfirm = 0;
-                        GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR);
+                        GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR,0,0);
 
                     }
                     return resultMessage;
@@ -8794,7 +8798,7 @@ namespace ODLMWebAPI.BL {
 
                 if (tblInvoiceTO.IsConfirmed == 1 && tblInvoiceTO.StatusId == Convert.ToInt32 (Constants.InvoiceStatusE.AUTHORIZED)) {
                     Int32 isconfirm = 0;
-                    GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR);
+                    GenerateInvoiceNumber(tblInvoiceTO.IdInvoice, loginUserId, isconfirm, (int)Constants.InvoiceGenerateModeE.REGULAR,0,0);
 
                 }
                 return resultMessage;
