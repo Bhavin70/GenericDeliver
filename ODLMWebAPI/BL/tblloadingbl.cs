@@ -1844,6 +1844,26 @@ namespace ODLMWebAPI.BL {
                             tblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.LOADING_CONFIRM);
                             tblLoadingTO.StatusReason = "Loading Confirmed";
                         }
+                        TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_WEIGHING_SCALE, conn, tran);
+                        if (configParamsTO != null)
+                        {
+                            if (Convert.ToInt32(configParamsTO.ConfigParamVal) == 1)
+                            {
+                                DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus(Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH), conn, tran);
+                                if (statusTO == null || statusTO.IotStatusId == 0)
+                                {
+                                    resultMessage.DefaultBehaviour("iot status id not found for loading to pass at gate iot");
+                                    return resultMessage;
+                                }
+                                object[] statusframeTO = new object[2] { tblLoadingTO.ModbusRefId, statusTO.IotStatusId };
+                                result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(tblLoadingTO, statusframeTO);
+                                if (result != 1)
+                                {
+                                    resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
+                                    return resultMessage;
+                                }
+                            }
+                        }
                         resultMessage = RightDataFromIotToDB(tblLoadingTO.IdLoading, tblLoadingTO, conn, tran);
                         if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
                         {
@@ -2334,7 +2354,7 @@ namespace ODLMWebAPI.BL {
                         tblLoadingSlipTO.LoadingSlipExtTOList[i].BookingId = newBookingId;
 
                         int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
-                        if (weightSourceConfigId != (Int32)Constants.WeighingDataSourceE.IoT)
+                        if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
                         {
                             if (tblLoadingSlipTO.IsConfirmed == 0)
                             {
@@ -2941,9 +2961,17 @@ namespace ODLMWebAPI.BL {
                 tblLoadingTO.LoadingSlipNo = loadingSlipNo;
                 //Vijaymala added[22-06-2018]
                 if (isAutoGateInVehicle == 1) {
-                    tblLoadingTO.StatusId = (Int32) Constants.TranStatusE.LOADING_GATE_IN;
-                    tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_GATE_IN;
-                    tblLoadingTO.StatusReason = "Vehicle Entered In The Premises";
+                    if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                    {
+                        tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
+                        tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
+                        tblLoadingTO.StatusReason = "Loading Scheduled";
+                    } else
+                    {
+                        tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_GATE_IN;
+                        tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_GATE_IN;
+                        tblLoadingTO.StatusReason = "Vehicle Entered In The Premises";
+                    }
                 } else {
                     tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_NEW;
                     tblLoadingTO.StatusReason = "Loading Scheduled";
@@ -3075,8 +3103,18 @@ namespace ODLMWebAPI.BL {
 
                     //Vijaymala added[22-06-2018]
                     if (isAutoGateInVehicle == 1) {
-                        tblLoadingSlipTO.TranStatusE = Constants.TranStatusE.LOADING_GATE_IN;
-                        tblLoadingTO.StatusId = (Int32) Constants.TranStatusE.LOADING_GATE_IN;
+                        if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                        {
+                            tblLoadingSlipTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
+                            tblLoadingSlipTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
+                            tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
+                            tblLoadingTO.StatusReason = "Loading Scheduled";
+                        }
+                        else
+                        {
+                            tblLoadingSlipTO.TranStatusE = Constants.TranStatusE.LOADING_GATE_IN;
+                            tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_GATE_IN;
+                        }
 
                     } else {
                         tblLoadingSlipTO.TranStatusE = Constants.TranStatusE.LOADING_NEW;
@@ -3361,8 +3399,10 @@ namespace ODLMWebAPI.BL {
                 //    tblLoadingStatusHistoryTO.StatusRemark = "Loading Scheduled & Confirmed";
                 //}
 
-                tblLoadingStatusHistoryTO.TranStatusE = Constants.TranStatusE.LOADING_NOT_CONFIRM;
-                tblLoadingStatusHistoryTO.StatusRemark = "Apporval Needed";
+                //tblLoadingStatusHistoryTO.TranStatusE = Constants.TranStatusE.LOADING_NOT_CONFIRM;
+                //tblLoadingStatusHistoryTO.StatusRemark = "Apporval Needed";
+                tblLoadingStatusHistoryTO.TranStatusE = tblLoadingTO.TranStatusE;
+                tblLoadingStatusHistoryTO.StatusRemark = tblLoadingTO.StatusReason;
 
                 result = _iTblLoadingStatusHistoryDAO.InsertTblLoadingStatusHistory (tblLoadingStatusHistoryTO, conn, tran);
                 if (result != 1) {
@@ -3503,7 +3543,7 @@ namespace ODLMWebAPI.BL {
                 #region Sanjay [10-Dec-2018] Call To IoT To write the vehicle details
 
                 if (weightSourceConfigId == (int) Constants.WeighingDataSourceE.IoT || weightSourceConfigId == (int) Constants.WeighingDataSourceE.BOTH) {
-                    if (tblLoadingTO.StatusId == (Int32) Constants.TranStatusE.LOADING_CONFIRM) {
+                    if (tblLoadingTO.StatusId == (Int32) Constants.TranStatusE.LOADING_CONFIRM || tblLoadingTO.StatusId == (Int32)Constants.TranStatusE.LOADING_NEW) {
                         if (isAutoGateInVehicle == 1)
                         {
                             tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_GATE_IN;
@@ -6049,19 +6089,75 @@ namespace ODLMWebAPI.BL {
             try {
                 conn.Open ();
                 tran = conn.BeginTransaction ();
-
-                DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus (tblLoadingTO.StatusId, conn, tran);
-                if (statusTO == null || statusTO.PrevStatusId == 0) {
-                    tran.Rollback ();
+                TblLoadingTO existingLoadingTO = SelectTblLoadingTO(tblLoadingTO.IdLoading, conn, tran);
+                if (existingLoadingTO == null)
+                {
+                    //tran.Rollback();
+                    resultMessage.MessageType = ResultMessageE.Error;
+                    resultMessage.Text = "Error : existingLoadingTO Found NULL ";
+                    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                    resultMessage.Result = 0;
+                    return resultMessage;
+                }
+                if (existingLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_CANCEL || existingLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_DELIVERED)
+                {
+                    //tran.Rollback();
+                    resultMessage.MessageType = ResultMessageE.Error;
+                    resultMessage.Text = "Record could not be updated as selected Loading is already " + existingLoadingTO.StatusDesc;
+                    resultMessage.DisplayMessage = "Record could not be updated as selected loading is already " + existingLoadingTO.StatusDesc;
+                    resultMessage.Result = 0;
+                    return resultMessage;
+                }
+                DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus(tblLoadingTO.StatusId, conn, tran);
+                if (statusTO == null || statusTO.PrevStatusId == 0)
+                {
+                    tran.Rollback();
                     resultMessage.MessageType = ResultMessageE.Error;
                     resultMessage.Text = "Error...statusTO Found NULL In Method RestorePreviousStatusForLoading";
                     return resultMessage;
                 }
 
-                tblLoadingTO.StatusId = statusTO.PrevStatusId;
+                int configId = _iTblConfigParamsDAO.IoTSetting();
+                if (configId == (Int32)Constants.WeighingDataSourceE.IoT)
+                {
+                    statusTO = _iDimStatusDAO.SelectDimStatus(statusTO.PrevStatusId, conn, tran);
+                    if (statusTO == null || statusTO.IotStatusId == 0)
+                    {
+                        tran.Rollback();
+                        resultMessage.DefaultBehaviour("iot status id not found for loading to pass at gate iot");
+                        return resultMessage;
+                    }
+
+                    existingLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
+                    existingLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
+                    existingLoadingTO.StatusReason = "Loading Scheduled";
+                    List<object[]> frameList = _iIotCommunication.GenerateGateIoTStatusFrameData(existingLoadingTO, statusTO.IotStatusId);
+                    if (frameList != null && frameList.Count > 0)
+                    {
+                        for (int f = 0; f < frameList.Count; f++)
+                        {
+                            result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(tblLoadingTO, frameList[f]);
+                            if (result != 1)
+                            {
+                                resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
+                                return resultMessage;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        resultMessage.DefaultBehaviour("frameList Found Null Or Empty while PostGateAPIDataToModbusTcpApi");
+                        return resultMessage;
+                    }
+                }
+                else
+                {
+                    existingLoadingTO.StatusId = statusTO.PrevStatusId;
+                }
+                   
                 #region 2. Update Loading Slip Status
                 //Update LoadingTO Status First
-                result = UpdateTblLoading (tblLoadingTO, conn, tran);
+                result = UpdateTblLoading (existingLoadingTO, conn, tran);
                 if (result != 1) {
                     tran.Rollback ();
                     resultMessage.MessageType = ResultMessageE.Error;
@@ -6070,7 +6166,7 @@ namespace ODLMWebAPI.BL {
                 }
 
                 //Update Individual Loading Slip statuses
-                result = _iTblLoadingSlipBL.UpdateTblLoadingSlip (tblLoadingTO, conn, tran);
+                result = _iTblLoadingSlipBL.UpdateTblLoadingSlip (existingLoadingTO, conn, tran);
                 if (result <= 0) {
                     tran.Rollback ();
                     resultMessage.MessageType = ResultMessageE.Error;
@@ -6080,20 +6176,23 @@ namespace ODLMWebAPI.BL {
                 #endregion
 
                 #region 3. Create History Record
-
-                TblLoadingStatusHistoryTO tblLoadingStatusHistoryTO = new TblLoadingStatusHistoryTO ();
-                tblLoadingStatusHistoryTO.CreatedBy = tblLoadingTO.UpdatedBy;
-                tblLoadingStatusHistoryTO.CreatedOn = tblLoadingTO.UpdatedOn;
-                tblLoadingStatusHistoryTO.LoadingId = tblLoadingTO.IdLoading;
-                tblLoadingStatusHistoryTO.StatusDate = tblLoadingTO.StatusDate;
-                tblLoadingStatusHistoryTO.StatusId = tblLoadingTO.StatusId;
-                tblLoadingStatusHistoryTO.StatusRemark = tblLoadingTO.StatusReason + " Reversed";
-                result = _iTblLoadingStatusHistoryDAO.InsertTblLoadingStatusHistory (tblLoadingStatusHistoryTO, conn, tran);
-                if (result != 1) {
-                    tran.Rollback ();
-                    resultMessage.MessageType = ResultMessageE.Error;
-                    resultMessage.Text = "Error While InsertTblLoadingStatusHistory In Method UpdateDeliverySlipConfirmations";
-                    return resultMessage;
+                if (configId != (Int32)Constants.WeighingDataSourceE.IoT)
+                {
+                    TblLoadingStatusHistoryTO tblLoadingStatusHistoryTO = new TblLoadingStatusHistoryTO();
+                    tblLoadingStatusHistoryTO.CreatedBy = tblLoadingTO.UpdatedBy;
+                    tblLoadingStatusHistoryTO.CreatedOn = tblLoadingTO.UpdatedOn;
+                    tblLoadingStatusHistoryTO.LoadingId = tblLoadingTO.IdLoading;
+                    tblLoadingStatusHistoryTO.StatusDate = tblLoadingTO.StatusDate;
+                    tblLoadingStatusHistoryTO.StatusId = tblLoadingTO.StatusId;
+                    tblLoadingStatusHistoryTO.StatusRemark = tblLoadingTO.StatusReason + " Reversed";
+                    result = _iTblLoadingStatusHistoryDAO.InsertTblLoadingStatusHistory(tblLoadingStatusHistoryTO, conn, tran);
+                    if (result != 1)
+                    {
+                        tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Text = "Error While InsertTblLoadingStatusHistory In Method UpdateDeliverySlipConfirmations";
+                        return resultMessage;
+                    }
                 }
 
                 #endregion
@@ -7709,9 +7808,15 @@ namespace ODLMWebAPI.BL {
                     }
 
                 }
+                //Added By kiran for passing Item Extenstion List For PrepareAndSaveNewTaxInvoice method
+                List<TblLoadingSlipExtTO> TblLoadingSlipExtList = new List<TblLoadingSlipExtTO>();
+                loadingSlipTOList.ForEach(d =>
+                {
+                    TblLoadingSlipExtList.AddRange(d.LoadingSlipExtTOList);
+                });
 
                 if (!skipInvoiceProcess) {
-                    resultMessage = _iTblInvoiceBL.PrepareAndSaveNewTaxInvoice (loadingTOFinal, null, conn, tran); //null parameter added by Aniket [19-8-2019] needs to change
+                    resultMessage = _iTblInvoiceBL.PrepareAndSaveNewTaxInvoice (loadingTOFinal, TblLoadingSlipExtList, conn, tran);
                     if (resultMessage.MessageType != ResultMessageE.Information) {
                         tran.Rollback ();
                         return resultMessage;
@@ -8134,9 +8239,17 @@ namespace ODLMWebAPI.BL {
                 tran = conn.BeginTransaction ();
 
                 if (tblLoadingTOList != null && tblLoadingTOList.Count > 0) {
+
+                    //Added By kiran for passing Item Extenstion List For PrepareAndSaveNewTaxInvoice method
+                    List<TblLoadingSlipExtTO> TblLoadingSlipExtList = new List<TblLoadingSlipExtTO>();
+                    tblLoadingTOList.ForEach(c => c.LoadingSlipList.ForEach(d =>
+                    {
+                        TblLoadingSlipExtList.AddRange(d.LoadingSlipExtTOList);
+                    }));
+
                     for (int i = 0; i < tblLoadingTOList.Count; i++) {
                         tblLoadingTOList[i].CreatedBy = userId;
-                        resultMessage = _iTblInvoiceBL.PrepareAndSaveNewTaxInvoice (tblLoadingTOList[i], null, conn, tran); //null parameter added by Aniket [19-8-2019] needs to change
+                        resultMessage = _iTblInvoiceBL.PrepareAndSaveNewTaxInvoice (tblLoadingTOList[i], TblLoadingSlipExtList, conn, tran);
                         if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information) {
                             return resultMessage;
                         } else {

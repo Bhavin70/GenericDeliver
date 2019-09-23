@@ -1983,6 +1983,9 @@ namespace ODLMWebAPI.DAL
                             " ,[loadingType] = @loadingType " +
                             " ,[currencyId] = @currencyId " +
                             " ,[currencyRate] = @currencyRate " +
+                            ",[modbusRefId]=@ModbusRefId" +
+                            ",[gateId]=@GateId" +
+                            ",[isDBup]=@IsDBup" +
 
                             " WHERE [idLoading] = @IdLoading ";
 
@@ -2015,7 +2018,9 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@loadingType", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.LoadingType);
             cmdUpdate.Parameters.Add("@currencyId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.CurrencyId);
             cmdUpdate.Parameters.Add("@currencyRate", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.CurrencyRate);
-
+            cmdUpdate.Parameters.Add("@ModbusRefId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.ModbusRefId);
+            cmdUpdate.Parameters.Add("@GateId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.GateId);
+            cmdUpdate.Parameters.Add("@IsDBup", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.IsDBup);
             return cmdUpdate.ExecuteNonQuery();
         }
         #endregion

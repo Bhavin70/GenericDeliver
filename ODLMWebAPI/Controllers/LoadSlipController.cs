@@ -41,9 +41,10 @@ namespace ODLMWebAPI.Controllers
         private readonly ITblLoadingQuotaTransferBL _iTblLoadingQuotaTransferBL;
         private readonly IDimStatusBL _iDimStatusBL;
         private readonly ICommon _iCommon;
+        private readonly IFinalBookingData _iFinalBookingData;
         private readonly IIotCommunication _iIotCommunication;
         private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
-        public LoadSlipController(ITblConfigParamsDAO iTblConfigParamsDAO,IIotCommunication iIotCommunication,ITblInvoiceBL iTblInvoiceBL, IDimStatusBL iDimStatusBL, ITblLoadingQuotaTransferBL iTblLoadingQuotaTransferBL, ITblGlobalRateBL iTblGlobalRateBL, ITblUnloadingStandDescBL iTblUnloadingStandDescBL, ITblUnLoadingBL iTblUnLoadingBL, ITblBookingDelAddrBL iTblBookingDelAddrBL, ITblConfigParamsBL iTblConfigParamsBL, ITblLoadingAllowedTimeBL iTblLoadingAllowedTimeBL, ITblLoadingSlipExtBL iTblLoadingSlipExtBL, ITblLoadingQuotaDeclarationBL iTblLoadingQuotaDeclarationBL, ITblLoadingQuotaConfigBL iTblLoadingQuotaConfigBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ICommon iCommon, ITblStatusReasonBL iTblStatusReasonBL, ITblUserBL iTblUserBL, ITblLoadingBL iTblLoadingBL, ITblTransportSlipBL iTblTransportSlipBL)
+        public LoadSlipController(ITblConfigParamsDAO iTblConfigParamsDAO, IFinalBookingData iFinalBookingData,IIotCommunication iIotCommunication,ITblInvoiceBL iTblInvoiceBL, IDimStatusBL iDimStatusBL, ITblLoadingQuotaTransferBL iTblLoadingQuotaTransferBL, ITblGlobalRateBL iTblGlobalRateBL, ITblUnloadingStandDescBL iTblUnloadingStandDescBL, ITblUnLoadingBL iTblUnLoadingBL, ITblBookingDelAddrBL iTblBookingDelAddrBL, ITblConfigParamsBL iTblConfigParamsBL, ITblLoadingAllowedTimeBL iTblLoadingAllowedTimeBL, ITblLoadingSlipExtBL iTblLoadingSlipExtBL, ITblLoadingQuotaDeclarationBL iTblLoadingQuotaDeclarationBL, ITblLoadingQuotaConfigBL iTblLoadingQuotaConfigBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ICommon iCommon, ITblStatusReasonBL iTblStatusReasonBL, ITblUserBL iTblUserBL, ITblLoadingBL iTblLoadingBL, ITblTransportSlipBL iTblTransportSlipBL)
         {
             _iTblStatusReasonBL = iTblStatusReasonBL;
             _iTblUserBL = iTblUserBL;
@@ -66,6 +67,7 @@ namespace ODLMWebAPI.Controllers
             _iCommon = iCommon;
             _iIotCommunication = iIotCommunication;
             _iTblConfigParamsDAO = iTblConfigParamsDAO;
+            _iFinalBookingData = iFinalBookingData;
         }
         #region Get
         
@@ -1041,13 +1043,40 @@ namespace ODLMWebAPI.Controllers
             return _iTblLoadingBL.SelectLoadingTOWithDetailsByBooking(bookingIdsList,scheduleIdsList);
         }
 
-        //Aniket[21 - 8 - 2019]
+        //Kiran [21 - 8 - 2019] For Ckeck deliverd vehicle on IoT and remove data 
         [Route("RemoveVehOutDatFromIotDevice")]
         [HttpGet]
         public ResultMessage RemoveVehOutDatFromIotDevice()
         {
             return _iTblLoadingBL.RemoveDatFromIotDevice();
         }
+
+        [Route("PostInvoiceReportListForExcel")]
+        [HttpPost]
+        public ResultMessage PostInvoiceReportListForExcel([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                List<TblInvoiceRptTO> tblInvoiceList = JsonConvert.DeserializeObject<List<TblInvoiceRptTO>>(data["data"].ToString());
+                var result = _iFinalBookingData.CreateTempInvoiceExcel(tblInvoiceList, null, null);
+                if (result == 1)
+                {
+                    resultMessage.DefaultSuccessBehaviour();
+                }
+                return resultMessage;
+
+            }
+            catch (Exception ex)
+            {
+                resultMessage.Exception = ex;
+                resultMessage.Result = -1;
+                resultMessage.Text = "Exception in API Call";
+                return resultMessage;
+            }
+        }
+
+
         #endregion
 
         #region Post
@@ -1736,7 +1765,7 @@ namespace ODLMWebAPI.Controllers
                 var loginUserId = data["loginUserId"].ToString();
                 TblLoadingSlipTO loadingSlipTO = JsonConvert.DeserializeObject<TblLoadingSlipTO>(data["loadingSlipTo"].ToString());
 
-                //TblLoadingSlipTO loadingSlipTO = BL._iTblLoadingSlipBL.SelectTblLoadingSlipTO(Convert.ToInt32(loadingSlipId));
+                loadingSlipTO = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsForExtract(Convert.ToInt32(loadingSlipTO.IdLoadingSlip));
                 if (loadingSlipTO == null)
                 {
                     resultMessage.DefaultBehaviour("loadingSlipTO Found NULL");

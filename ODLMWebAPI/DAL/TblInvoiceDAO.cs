@@ -1766,7 +1766,7 @@ namespace ODLMWebAPI.DAL
             {
                 cmdSelect.CommandText =
 
-                    " SELECT tempLoadingSlip.* ,tblOrganization.firmName as dealerOrgName, tempLoadSlipdtl.bookingId,tempLoadSlipdtl.loadingQty, cnfOrg.firmName as cnfOrgName ,dimStat.statusName " +
+                    " SELECT tempLoadingSlip.* ,tblOrganization.firmName as dealerOrgName,tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tempLoadSlipdtl.loadingQty, cnfOrg.firmName as cnfOrgName ,dimStat.statusName " +
                                   " FROM tempLoadingSlip " +
                                   " LEFT JOIN tblOrganization " +
                                   " ON tblOrganization.idOrganization = tempLoadingSlip.dealerOrgId " +
@@ -1777,6 +1777,7 @@ namespace ODLMWebAPI.DAL
                                   " INNER JOIN tempLoadingSlipInvoice loadingSlipInvoice ON tempLoadingSlip.idLoadingSlip = loadingSlipInvoice.loadingSlipId " +
                                   //Saket [2018-06-09] Added.
                                   " LEFT JOIN tempLoadingSlipDtl tempLoadSlipdtl ON tempLoadSlipdtl.loadingSlipId = tempLoadingSlip.idLoadingSlip " +
+                                   " Left Join tblBookings tblBookings ON tempLoadSlipdtl.bookingId = tblBookings.idbooking " +
                                   " WHERE loadingSlipInvoice.invoiceId = " + invoiceId; 
 
                 cmdSelect.Connection = conn;

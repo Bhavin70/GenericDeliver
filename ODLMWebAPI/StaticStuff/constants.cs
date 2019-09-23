@@ -166,7 +166,8 @@ namespace ODLMWebAPI.StaticStuff
             UNLOADING_COMPLETED = 22,
             UNLOADING_CANCELED = 23,
             BOOKING_PENDING_FOR_DIRECTOR_APPROVAL = 24,  //Sanjay [2017-12-19] New Status when Finance Forward Booking to Director Approval.
-            BOOKING_HOLD_BY_ADMIN_OR_DIRECTOR = 25                            //Priyanka [2018-30-07] Added for adding new status in booking.
+            BOOKING_HOLD_BY_ADMIN_OR_DIRECTOR = 25  ,                          //Priyanka [2018-30-07] Added for adding new status in booking.
+            INVOICE_GENERATED_AND_READY_FOR_DISPACH = 26,
         }
 
         public enum LoadingLayerE

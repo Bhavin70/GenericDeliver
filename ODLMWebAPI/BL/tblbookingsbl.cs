@@ -639,6 +639,7 @@ namespace ODLMWebAPI.BL
                         }
 
                         pendingBookingRptTO.BookingId = bookingId;
+                        pendingBookingRptTO.BookingDisplayNo = bookingTO.BookingDisplayNo;
                         pendingBookingRptTO.CnfName = bookingTO.CnfName;
                         pendingBookingRptTO.CnfOrgId = bookingTO.CnFOrgId;
                         pendingBookingRptTO.DealerName = bookingTO.DealerName;

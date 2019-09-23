@@ -523,7 +523,7 @@ namespace ODLMWebAPI.IoT
             if (statusIds.Equals("101"))
                 return "7,14,20";
             if (statusIds.Equals("102"))
-                return "15,16,24,25";
+                return "15,16,24,25,26";
             if (statusIds.Equals("103"))
                 return "15,24";
             if (statusIds.Equals("104"))
