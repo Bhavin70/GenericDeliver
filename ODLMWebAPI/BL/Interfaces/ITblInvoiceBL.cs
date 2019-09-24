@@ -40,14 +40,10 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage InsertTblInvoice(TblInvoiceTO tblInvoiceTO);
         ResultMessage SaveNewInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
         int InsertTblInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
-        // ResultMessage PrepareAndSaveNewTaxInvoice(TblLoadingTO loadingTO, SqlConnection conn, SqlTransaction tran);
-        //PrepareNewInvoiceObjectList
-        //PrepareNewInvoiceObjectList
+     
         ResultMessage PrepareAndSaveInternalTaxInvoices(TblInvoiceTO invoiceTO, int invoiceGenerateModeE,int fromOrgId,int toOrgId ,int isCalculateWithBaseRate,TblInvoiceChangeOrgHistoryTO changeHisTO,SqlConnection conn, SqlTransaction tran);
         ResultMessage PrepareNewInvoiceObjectList(TblInvoiceTO invoiceTO, List<TblInvoiceItemDetailsTO> invoiceItemTOList, List<TblInvoiceAddressTO> invoiceAddressTOList, int invoiceGenerateModeE,int fromOrgId,int toOrgId ,int isCalculateWithBaseRate, SqlConnection conn, SqlTransaction tran,int swap=1);
         ResultMessage PrepareAndSaveNewTaxInvoice(TblLoadingTO loadingTO, List<TblLoadingSlipExtTO> lastItemList, SqlConnection conn, SqlTransaction tran);
-        //ResultMessage PrepareAndSaveInternalTaxInvoices(TblInvoiceTO invoiceTO, SqlConnection conn, SqlTransaction tran);
-       //ResultMessage PrepareNewInvoiceObjectList(TblInvoiceTO invoiceTO, List<TblInvoiceItemDetailsTO> invoiceItemTOList, List<TblInvoiceAddressTO> invoiceAddressTOList, Constants.InvoiceGenerateModeE invoiceGenerateModeE, SqlConnection conn, SqlTransaction tran);
         ResultMessage ComposeInvoice(List<Int32> invoiceIdsList, Int32 loginUserId);
         ResultMessage DecomposeInvoice(List<Int32> invoiceIdsList, Int32 loginUserId);
         ResultMessage SaveInvoiceDocumentDetails(TblInvoiceTO invoiceTO, List<TblDocumentDetailsTO> tblDocumentDetailsTOList, Int32 loginUserId);

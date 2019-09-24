@@ -351,7 +351,7 @@ namespace ODLMWebAPI.BL
                         }
 
                         //Saket [2019-05-27] Added round off and added LoadingSlipExtId > 0 conidtion.
-                        tblInvoice.NetWeight = tblInvoice.InvoiceItemDetailsTOList.Where(w => w.LoadingSlipExtId > 0).Sum(s => s.InvoiceQty);
+                        tblInvoice.NetWeight = tblInvoice.InvoiceItemDetailsTOList.Where(w => w.OtherTaxId == 0).Sum(s => s.InvoiceQty);
                         tblInvoice.NetWeight = tblInvoice.NetWeight * conversionFactor;
                         tblInvoice.NetWeight = Math.Round(tblInvoice.NetWeight, 2);
 
@@ -2119,10 +2119,24 @@ namespace ODLMWebAPI.BL
             {
                 DateTime serverDateTime = _iCommon.ServerDateTime;
                 Int32 invoiceId = invoiceTO.IdInvoice;
-                List<TblInvoiceItemDetailsTO> invoiceItemTOList = _iTblInvoiceItemDetailsBL.SelectAllTblInvoiceItemDetailsList(invoiceId, conn, tran);
-                List<TblInvoiceItemTaxDtlsTO> invoiceItemTaxTOList = _iTblInvoiceItemTaxDtlsBL.SelectInvoiceItemTaxDtlsListByInvoiceId(invoiceId, conn, tran);
-                List<TblInvoiceAddressTO> invoiceAddressTOList = _iTblInvoiceAddressBL.SelectAllTblInvoiceAddressList(invoiceId, conn, tran);
-
+                int configId = _iTblConfigParamsDAO.IoTSetting();
+                List<TblInvoiceItemDetailsTO> invoiceItemTOList = new List<TblInvoiceItemDetailsTO>();
+                List<TblInvoiceItemTaxDtlsTO> invoiceItemTaxTOList = new List<TblInvoiceItemTaxDtlsTO>();
+                List<TblInvoiceAddressTO> invoiceAddressTOList = new List<TblInvoiceAddressTO>();
+                //Added By Kiran For IoT related Invoice data 24/09/2019
+                if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
+                {
+                    invoiceTO = SelectTblInvoiceTOWithDetails(invoiceId, conn, tran);
+                    invoiceItemTOList = invoiceTO.InvoiceItemDetailsTOList;
+                    invoiceTO.InvoiceItemDetailsTOList.ForEach(f => { invoiceItemTaxTOList.AddRange(f.InvoiceItemTaxDtlsTOList); });
+                    invoiceAddressTOList = invoiceTO.InvoiceAddressTOList;
+                }
+                else
+                {
+                     invoiceItemTOList = _iTblInvoiceItemDetailsBL.SelectAllTblInvoiceItemDetailsList(invoiceId, conn, tran);
+                     invoiceItemTaxTOList = _iTblInvoiceItemTaxDtlsBL.SelectInvoiceItemTaxDtlsListByInvoiceId(invoiceId, conn, tran);
+                     invoiceAddressTOList = _iTblInvoiceAddressBL.SelectAllTblInvoiceAddressList(invoiceId, conn, tran);
+                }
                 #region 1 BRM TO BM Invoice
 
                 //pass changed from org ()    
@@ -5939,6 +5953,7 @@ namespace ODLMWebAPI.BL
                 tran = conn.BeginTransaction();
 
                 TblInvoiceTO invoiceTO = _iTblInvoiceDAO.SelectTblInvoice(invoiceId, conn, tran);
+
                 if (invoiceTO == null)
                 {
                     tran.Rollback();

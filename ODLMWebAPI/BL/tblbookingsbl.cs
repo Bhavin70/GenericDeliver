@@ -1792,7 +1792,7 @@ namespace ODLMWebAPI.BL
                     var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_CONFIRMED);
                     tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_CONFIRMED;
                     tblAlertInstanceTO.AlertAction = "BOOKING_CONFIRMED";
-                    tblAlertInstanceTO.AlertComment = "Your Booking #" + tblBookingsTO.IdBooking + " is confirmed. Rate : " + tblBookingsTO.BookingRate + " AND Qty : " + tblBookingsTO.BookingQty;
+                    tblAlertInstanceTO.AlertComment = "Your Booking #" + tblBookingsTO.BookingDisplayNo + " is confirmed. Rate : " + tblBookingsTO.BookingRate + " AND Qty : " + tblBookingsTO.BookingQty;
                     tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
                     // SMS to Dealer
                     TblSmsTO smsTO = new TblSmsTO();
@@ -1819,7 +1819,7 @@ namespace ODLMWebAPI.BL
                             else
                                 confirmMsg = "Not Confirmed";
 
-                            smsTO.SmsTxt = "Your Order Of Qty " + tblBookingsTO.BookingQty.ToString().Trim() + " MT with Rate " + tblBookingsTO.BookingRate + " (Rs/MT) is " + confirmMsg.Trim() + " Your Ref No : " + tblBookingsTO.IdBooking + "";
+                            smsTO.SmsTxt = "Your Order Of Qty " + tblBookingsTO.BookingQty.ToString().Trim() + " MT with Rate " + tblBookingsTO.BookingRate + " (Rs/MT) is " + confirmMsg.Trim() + " Your Ref No : " + tblBookingsTO.BookingDisplayNo + "";
                             
                         }
                         
@@ -1864,7 +1864,7 @@ namespace ODLMWebAPI.BL
                                 tblAlertInstanceTO.AlertComment = tempTxt;
                             }
                             else
-                            tblAlertInstanceTO.AlertComment = "approval required for booking #" + tblBookingsTO.IdBooking;
+                            tblAlertInstanceTO.AlertComment = "approval required for booking #" + tblBookingsTO.BookingDisplayNo;
                         }
 
                     }
@@ -1955,7 +1955,7 @@ namespace ODLMWebAPI.BL
                 {
                     tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.DIRECTOR_REMARK_IN_BOOKING;
                     tblAlertInstanceTO.AlertAction = "DIRECTOR_REMARK_IN_BOOKING";
-                    tblAlertInstanceTO.AlertComment = "Enquiry No. #" + tblBookingsTO.IdBooking + " Director has remark -" + tblBookingsTO.DirectorRemark;
+                    tblAlertInstanceTO.AlertComment = "Enquiry No. #" + tblBookingsTO.BookingDisplayNo + " Director has remark -" + tblBookingsTO.DirectorRemark;
                     tblAlertInstanceTO.SourceDisplayId = "Director Remark for booking";
 
                     tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
@@ -1979,8 +1979,8 @@ namespace ODLMWebAPI.BL
                 resultMessage.MessageType = ResultMessageE.Information;
                 if (tblBookingsTO.IsWithinQuotaLimit == 1)
                 {
-                    resultMessage.Text = "Success, Enquiry # - " + tblBookingsTO.IdBooking + " is generated Successfully.";
-                    resultMessage.DisplayMessage = "Enquiry # - " + tblBookingsTO.IdBooking + " is generated Successfully.";
+                    resultMessage.Text = "Success, Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is generated Successfully.";
+                    resultMessage.DisplayMessage = "Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is generated Successfully.";
                     resultMessage.Tag = tblBookingsTO.IdBooking;
                 }
                 else
@@ -1988,13 +1988,13 @@ namespace ODLMWebAPI.BL
 
                     if (tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR)
                     {
-                        resultMessage.Text = "Success, Enquiry # - " + tblBookingsTO.IdBooking + " is accepted";
-                        resultMessage.DisplayMessage = "Enquiry # - " + tblBookingsTO.IdBooking + " is accepted";
+                        resultMessage.Text = "Success, Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is accepted";
+                        resultMessage.DisplayMessage = "Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is accepted";
                     }
                     else
                     {
-                        resultMessage.Text = "Success, Enquiry # - " + tblBookingsTO.IdBooking + " is generated Successfully But Sent For Approval";
-                        resultMessage.DisplayMessage = "Enquiry # - " + tblBookingsTO.IdBooking + " is generated Successfully But Sent For Approval";
+                        resultMessage.Text = "Success, Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is generated Successfully But Sent For Approval";
+                        resultMessage.DisplayMessage = "Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is generated Successfully But Sent For Approval";
                     }
 
                     resultMessage.Tag = tblBookingsTO.IdBooking;

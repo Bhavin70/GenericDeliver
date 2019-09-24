@@ -3308,7 +3308,7 @@ namespace ODLMWebAPI.BL {
                             tran.Rollback ();
                             resultMessage.MessageType = ResultMessageE.Error;
                             resultMessage.Text = "Error : tblBookingsTO.PendingQty gone less than 0";
-                            resultMessage.DisplayMessage = "Error - 01 : Record Could Not Be Saved. Pending Qty Of Selected Booking #" + tblBookingsTO.IdBooking + " is less then loading Qty" + Environment.NewLine + " Please recreate the loading slip";
+                            resultMessage.DisplayMessage = "Error - 01 : Record Could Not Be Saved. Pending Qty Of Selected Booking #" + tblBookingsTO.BookingDisplayNo + " is less then loading Qty" + Environment.NewLine + " Please recreate the loading slip";
                             return resultMessage;
                         }
 
