@@ -732,6 +732,8 @@ namespace ODLMWebAPI.StaticStuff
         public static string HIDE_BRAND_NAME_ON_NC_INVOICE = "HIDE_BRAND_NAME_ON_NC_INVOICE";
         //Aniket [16-9-2019]
         public static string ROUND_OFF_TAX_INVOICE_VALUES = "ROUND_OFF_TAX_INVOICE_VALUES";
+        //Aniket [18-9-2019]
+        public static string SHOW_DELIVERY_LOCATION_ON_INVOICE = "SHOW_DELIVERY_LOCATION_ON_INVOICE";
         #endregion
 
 

@@ -700,8 +700,7 @@ namespace ODLMWebAPI.DAL
                         tblInvoiceTONew.CurrencyName = Convert.ToString(tblInvoiceTODT["currencyName"].ToString());
                     if (tblInvoiceTODT["statusName"] != DBNull.Value)
                         tblInvoiceTONew.StatusName = Convert.ToString(tblInvoiceTODT["statusName"].ToString());
-                    if (tblInvoiceTODT["invoiceTypeDesc"] != DBNull.Value)
-                        tblInvoiceTONew.InvoiceTypeDesc = Convert.ToString(tblInvoiceTODT["invoiceTypeDesc"].ToString());
+                   
                     if (tblInvoiceTODT["deliveryLocation"] != DBNull.Value)
                         tblInvoiceTONew.DeliveryLocation = Convert.ToString(tblInvoiceTODT["deliveryLocation"]);
 
@@ -719,6 +718,18 @@ namespace ODLMWebAPI.DAL
                         tblInvoiceTONew.GrossWeight = Convert.ToDouble(tblInvoiceTODT["grossWeight"]);
                     if (tblInvoiceTODT["isConfirmed"] != DBNull.Value)
                         tblInvoiceTONew.IsConfirmed = Convert.ToInt32(tblInvoiceTODT["isConfirmed"]);
+                    //Aniket [19-9-2019] modified for C and NC invoice type description
+                    if(tblInvoiceTONew.IsConfirmed==1)
+                    {
+                        if (tblInvoiceTODT["invoiceTypeDesc"] != DBNull.Value)
+                            tblInvoiceTONew.InvoiceTypeDesc = Convert.ToString(tblInvoiceTODT["invoiceTypeDesc"].ToString());
+                    }
+                    else
+                    {
+                        if (tblInvoiceTODT["invoiceTypeDesc"] != DBNull.Value)
+                            tblInvoiceTONew.InvoiceTypeDesc = "Delivery Challan";
+                    }
+
                     if (tblInvoiceTODT["rcmFlag"] != DBNull.Value)
                         tblInvoiceTONew.RcmFlag = Convert.ToInt32(tblInvoiceTODT["rcmFlag"]);
                     if (tblInvoiceTODT["remark"] != DBNull.Value)
