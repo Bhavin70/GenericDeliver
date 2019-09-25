@@ -17,7 +17,7 @@ namespace ODLMWebAPI.BL.Interfaces
         Dictionary<Int32, Int32> SelectLatestBrandAndRateDCT();
         Dictionary<Int32, Int32> SelectLatestGroupAndRateDCT();
         Boolean IsRateAlreadyDeclaredForTheDate(DateTime date, SqlConnection conn, SqlTransaction tran);
-        TblGlobalRateTO SelectProductGroupItemGlobalRate(Int32 prodItemId);
+        TblGlobalRateTO SelectProductGroupItemGlobalRate(Int32 prodItemId,Int32 prodCatId,Int32 prodSpecId,Int32 materialId);
         int InsertTblGlobalRate(TblGlobalRateTO tblGlobalRateTO);
         int InsertTblGlobalRate(TblGlobalRateTO tblGlobalRateTO, SqlConnection conn, SqlTransaction tran);
         int UpdateTblGlobalRate(TblGlobalRateTO tblGlobalRateTO);

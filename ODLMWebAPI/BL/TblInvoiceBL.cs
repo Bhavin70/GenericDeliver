@@ -278,7 +278,7 @@ namespace ODLMWebAPI.BL
               conn.Close();
             }
         }
-        public TblInvoiceTO SelectInvoiceTOFromLoadingSlipId(Int32 loadingSlipId)
+        public List<TblInvoiceTO> SelectInvoiceTOFromLoadingSlipId(Int32 loadingSlipId)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -298,7 +298,7 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        public TblInvoiceTO SelectInvoiceTOFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran)
+        public List<TblInvoiceTO> SelectInvoiceTOFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran)
         {
             return _iTblInvoiceDAO.SelectInvoiceTOFromLoadingSlipId(loadingSlipId, conn, tran);
         }

@@ -21,10 +21,13 @@ namespace ODLMWebAPI.DAL
         #region Methods
         public String SqlSelectQuery()
         {
-            String sqlSelectQry = " select tblGroupItem.*, (proadClass.displayName  + '/' + prodItem.itemName) as prodItemDesc " +
-                " from tblGroupItem tblGroupItem" +
-                " LEFT JOIN  tblProductItem prodItem on prodItem.idProdItem=tblGroupItem.prodItemId " +
-                " LEFT JOIN tblProdClassification proadClass on prodItem.prodClassId = proadClass.idProdClass"; 
+            String sqlSelectQry = " select tblGroupItem.*,  CASE WHEN tblGroupItem.prodItemId > 0 THEN (ISNULL(proadClass.displayName, '')+'/'+ ISNULL(prodItem.itemName,''))" +
+                " ELSE prodCateDesc +' ' + prodSpecDesc + '-' + materialSubType END AS prodItemDesc from tblGroupItem tblGroupItem" +
+                " LEFT JOIN  tblProductItem prodItem on prodItem.idProdItem = tblGroupItem.prodItemId" +
+                " LEFT JOIN tblProdClassification proadClass on prodItem.prodClassId = proadClass.idProdClass" +
+                " LEFT JOIN dimProdCat ON idProdCat = tblGroupItem.prodCatId" +
+                " LEFT JOIN dimProdSpec ON idProdSpec = tblGroupItem.prodSpecId" +
+                " LEFT JOIN tblMaterial ON idMaterial = tblGroupItem.materialId "; 
             return sqlSelectQry;
         }
         #endregion
@@ -139,6 +142,12 @@ namespace ODLMWebAPI.DAL
                         tblGroupItemTONew.UpdatedOn = Convert.ToDateTime(tblGroupItemTODT["updatedOn"].ToString());
                     if (tblGroupItemTODT["prodItemDesc"] != DBNull.Value)
                         tblGroupItemTONew.ProdItemDesc = Convert.ToString(tblGroupItemTODT["prodItemDesc"].ToString());
+                    if (tblGroupItemTODT["prodCatId"] != DBNull.Value)
+                        tblGroupItemTONew.ProdCatId = Convert.ToInt32(tblGroupItemTODT["prodCatId"].ToString());
+                    if (tblGroupItemTODT["prodSpecId"] != DBNull.Value)
+                        tblGroupItemTONew.ProdSpecId = Convert.ToInt32(tblGroupItemTODT["prodSpecId"].ToString());
+                    if (tblGroupItemTODT["materialId"] != DBNull.Value)
+                        tblGroupItemTONew.MaterialId = Convert.ToInt32(tblGroupItemTODT["materialId"].ToString());
                     tblGroupItemTOList.Add(tblGroupItemTONew);
                 }
             }
@@ -146,7 +155,7 @@ namespace ODLMWebAPI.DAL
         }
 
 
-        public TblGroupItemTO SelectTblGroupItemDetails(Int32 prodItemId)
+        public TblGroupItemTO SelectTblGroupItemDetails(Int32 prodItemId, Int32 prodCatId, Int32 prodSpecId, Int32 materialId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -155,7 +164,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE tblGroupItem.isActive=1  AND ISNULL(prodItemId,0)=" + prodItemId;
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE tblGroupItem.isActive=1  AND ISNULL(prodItemId,0)=" + prodItemId + " AND ISNULL(prodCatId,0)=" + prodCatId + " AND ISNULL(prodSpecId,0)=" + prodSpecId + " AND ISNULL(materialId,0)=" + materialId;
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -179,13 +188,13 @@ namespace ODLMWebAPI.DAL
 
 
 
-        public TblGroupItemTO SelectTblGroupItemDetails(Int32 prodItemId, SqlConnection conn, SqlTransaction tran)
+        public TblGroupItemTO SelectTblGroupItemDetails(Int32 prodItemId, Int32 prodCatId, Int32 prodSpecId, Int32 materialId, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader reader = null;
             try
             {
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE tblGroupItem.isActive=1  AND ISNULL(prodItemId,0)=" + prodItemId;
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE tblGroupItem.isActive=1  AND ISNULL(prodItemId,0)=" + prodItemId+" AND ISNULL(prodCatId,0)="+prodCatId + " AND ISNULL(prodSpecId,0)=" + prodSpecId + " AND ISNULL(materialId,0)=" + materialId;
                 cmdSelect.Connection = conn;
                 cmdSelect.Transaction = tran;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
@@ -291,6 +300,9 @@ namespace ODLMWebAPI.DAL
             " ,[isActive]" +
             " ,[createdOn]" +
             " ,[updatedOn]" +
+            " ,[prodCatId]" +
+            " ,[prodSpecId]" +
+            " ,[materialId]" +
             " )" +
 " VALUES (" +
             "  @GroupId " +
@@ -299,18 +311,27 @@ namespace ODLMWebAPI.DAL
             " ,@UpdatedBy " +
             " ,@IsActive " +
             " ,@CreatedOn " +
-            " ,@UpdatedOn " + 
+            " ,@UpdatedOn " +
+            " ,@ProdCatId " +
+            " ,@ProdSpecId " +
+            " ,@MaterialId " +
             " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
 
             cmdInsert.Parameters.Add("@GroupId", System.Data.SqlDbType.Int).Value = tblGroupItemTO.GroupId;
-            cmdInsert.Parameters.Add("@ProdItemId", System.Data.SqlDbType.Int).Value = tblGroupItemTO.ProdItemId;
+            cmdInsert.Parameters.Add("@ProdItemId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGroupItemTO.ProdItemId);
             cmdInsert.Parameters.Add("@CreatedBy", System.Data.SqlDbType.Int).Value = tblGroupItemTO.CreatedBy;
             cmdInsert.Parameters.Add("@UpdatedBy", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGroupItemTO.UpdatedBy);
             cmdInsert.Parameters.Add("@IsActive", System.Data.SqlDbType.Int).Value = tblGroupItemTO.IsActive;
             cmdInsert.Parameters.Add("@CreatedOn", System.Data.SqlDbType.DateTime).Value = tblGroupItemTO.CreatedOn;
             cmdInsert.Parameters.Add("@UpdatedOn", System.Data.SqlDbType.DateTime).Value = Constants.GetSqlDataValueNullForBaseValue(tblGroupItemTO.UpdatedOn);
+            cmdInsert.Parameters.Add("@ProdCatId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGroupItemTO.ProdCatId);
+            cmdInsert.Parameters.Add("@ProdSpecId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGroupItemTO.ProdSpecId);
+            cmdInsert.Parameters.Add("@MaterialId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGroupItemTO.MaterialId);
+
+
+
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = Constants.IdentityColumnQuery;
@@ -374,6 +395,9 @@ namespace ODLMWebAPI.DAL
             " ,[isActive]= @IsActive" +
             " ,[createdOn]= @CreatedOn" +
             " ,[updatedOn] = @UpdatedOn" +
+            " ,[prodCatId] = @ProdCatId" +
+            " ,[prodSpecId] = @ProdSpecId" +
+            " ,[materialId] = @MaterialId" +
             " WHERE  [idGroupItem] = @IdGroupItem";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -381,12 +405,15 @@ namespace ODLMWebAPI.DAL
 
             cmdUpdate.Parameters.Add("@IdGroupItem", System.Data.SqlDbType.Int).Value = tblGroupItemTO.IdGroupItem;
             cmdUpdate.Parameters.Add("@GroupId", System.Data.SqlDbType.Int).Value = tblGroupItemTO.GroupId;
-            cmdUpdate.Parameters.Add("@ProdItemId", System.Data.SqlDbType.Int).Value = tblGroupItemTO.ProdItemId;
+            cmdUpdate.Parameters.Add("@ProdItemId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGroupItemTO.ProdItemId);
             cmdUpdate.Parameters.Add("@CreatedBy", System.Data.SqlDbType.Int).Value = tblGroupItemTO.CreatedBy;
             cmdUpdate.Parameters.Add("@UpdatedBy", System.Data.SqlDbType.Int).Value = tblGroupItemTO.UpdatedBy;
             cmdUpdate.Parameters.Add("@IsActive", System.Data.SqlDbType.Int).Value = tblGroupItemTO.IsActive;
             cmdUpdate.Parameters.Add("@CreatedOn", System.Data.SqlDbType.DateTime).Value = tblGroupItemTO.CreatedOn;
             cmdUpdate.Parameters.Add("@UpdatedOn", System.Data.SqlDbType.DateTime).Value = tblGroupItemTO.UpdatedOn;
+            cmdUpdate.Parameters.Add("@ProdCatId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGroupItemTO.ProdCatId);
+            cmdUpdate.Parameters.Add("@ProdSpecId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGroupItemTO.ProdSpecId);
+            cmdUpdate.Parameters.Add("@MaterialId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGroupItemTO.MaterialId);
             return cmdUpdate.ExecuteNonQuery();
         }
         #endregion
