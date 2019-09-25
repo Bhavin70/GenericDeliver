@@ -80,7 +80,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE bookingDtl.bookingId=" + bookingId;
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE bookingDtl.bookingId=" + bookingId + " AND bookingDtl.scheduleId > 0";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
