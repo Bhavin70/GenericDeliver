@@ -839,10 +839,10 @@ namespace ODLMWebAPI.Controllers
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public TblGlobalRateTO GetProductGroupItemGlobalRate(Int32 prodItemId)
+        public TblGlobalRateTO GetProductGroupItemGlobalRate(Int32 prodItemId,Int32 prodCatId=0,Int32 prodSpecId=0,Int32 materialId=0)
         {
 
-            return _iTblGlobalRateBL.SelectProductGroupItemGlobalRate(prodItemId);
+            return _iTblGlobalRateBL.SelectProductGroupItemGlobalRate(prodItemId,prodCatId,prodSpecId, materialId);
         }
 
 
