@@ -351,7 +351,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-        public TblInvoiceTO SelectInvoiceTOFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran)
+        public List<TblInvoiceTO> SelectInvoiceTOFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader reader = null;
@@ -365,9 +365,12 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
                 reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
-                List<TblInvoiceTO> list = ConvertDTToList(reader);
-                if (list != null && list.Count == 1) return list[0];
-                return null;
+                //List<TblInvoiceTO> list = ConvertDTToList(reader);
+                //if (list != null && list.Count == 1) return list[0];
+                //return null;
+
+                return ConvertDTToList(reader);
+
             }
             catch (Exception ex)
             {

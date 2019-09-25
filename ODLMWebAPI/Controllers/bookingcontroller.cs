@@ -184,9 +184,9 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetDealerBookingHistory")]
         [HttpGet]
-        public List<TblBookingsTO> GetDealerBookingHistory(Int32 dealerId , Int32 lastNRecords=4)
+        public List<TblBookingsTO> GetDealerBookingHistory(Int32 dealerId , Int32 lastNRecords=4, Int32 bookingId = 0)
        {
-            return _iTblBookingsBL.SelectAllLatestBookingOfDealer(dealerId, lastNRecords);
+            return _iTblBookingsBL.SelectAllLatestBookingOfDealer(dealerId, lastNRecords, bookingId);
         }
 
 

@@ -19,8 +19,8 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblInvoiceTO> SelectTblInvoiceByStatus(int statusId, int distributorOrgId, int invoiceId,int isConfirm);
         TblInvoiceTO SelectTblInvoiceTOWithDetails(Int32 idInvoice);
         TblInvoiceTO SelectTblInvoiceTOWithDetails(Int32 idInvoice, SqlConnection conn, SqlTransaction tran);
-        TblInvoiceTO SelectInvoiceTOFromLoadingSlipId(Int32 loadingSlipId);
-        TblInvoiceTO SelectInvoiceTOFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran);
+        List<TblInvoiceTO> SelectInvoiceTOFromLoadingSlipId(Int32 loadingSlipId);
+        List<TblInvoiceTO> SelectInvoiceTOFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran);
         List<TblInvoiceTO> SelectInvoiceTOListFromLoadingSlipId(Int32 loadingSlipId);
         List<TblInvoiceTO> SelectInvoiceListFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran);
         List<TblInvoiceTO> SelectInvoiceListFromLoadingSlipIds(String loadingSlipIds, SqlConnection conn, SqlTransaction tran);

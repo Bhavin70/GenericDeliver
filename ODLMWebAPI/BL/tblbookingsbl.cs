@@ -320,13 +320,13 @@ namespace ODLMWebAPI.BL
 
         }
 
-        public List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords)
+        public List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords , Int32 bookingId)
         {
-            List<TblBookingsTO> pendingList = _iTblBookingsDAO.SelectAllLatestBookingOfDealer(dealerId, lastNRecords, true);
+            List<TblBookingsTO> pendingList = _iTblBookingsDAO.SelectAllLatestBookingOfDealer(dealerId, lastNRecords, true, bookingId);
             if (pendingList != null && pendingList.Count < lastNRecords)
             {
                 lastNRecords = lastNRecords - pendingList.Count;
-                List<TblBookingsTO> list = _iTblBookingsDAO.SelectAllLatestBookingOfDealer(dealerId, lastNRecords, false);
+                List<TblBookingsTO> list = _iTblBookingsDAO.SelectAllLatestBookingOfDealer(dealerId, lastNRecords, false, bookingId);
                 if (list != null)
                 {
                     for (int i = 0; i < list.Count; i++)

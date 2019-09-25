@@ -762,12 +762,30 @@ namespace ODLMWebAPI.Controllers
         [HttpGet]
         public TblInvoiceTO IsInvoiceGeneratedByLoadingSlipId(Int32 idLoadingSlip)
         {
-            TblInvoiceTO invoiceTO = _iTblInvoiceBL.SelectInvoiceTOFromLoadingSlipId(idLoadingSlip);
-            if (invoiceTO == null)
+            //TblInvoiceTO invoiceTO = _iTblInvoiceBL.SelectInvoiceTOFromLoadingSlipId(idLoadingSlip);
+            //if (invoiceTO == null)
+            //{
+            //    return null;
+            //}
+            //return invoiceTO;
+
+            List<TblInvoiceTO> invoiceTOList = _iTblInvoiceBL.SelectInvoiceTOFromLoadingSlipId(idLoadingSlip);
+
+            if (invoiceTOList != null && invoiceTOList.Count > 0)
             {
-                return null;
+                foreach (var invoiceTO in invoiceTOList)
+                {
+                    if (!string.IsNullOrEmpty(invoiceTO.InvoiceNo))
+                    {
+                        return invoiceTO;
+                    }
+                }
+
+                return invoiceTOList[0];
             }
-            return invoiceTO;
+            else
+                return null;
+
         }
 
         /// <summary>
