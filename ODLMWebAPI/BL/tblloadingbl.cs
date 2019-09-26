@@ -4137,7 +4137,22 @@ namespace ODLMWebAPI.BL
                             {
                                 Int32 bookingId = distinctBookings[i].Key;
                                     Double bookingQty = loadingSlipDtlTOList.Where(b => b.BookingId == bookingId).Sum(l => l.LoadingQty);
-
+                                double uomQty = 0;
+                                //Aniket [25-9-2019]
+                                var tempList = loadingSlipDtlTOList.Where(b => b.BookingId == bookingId).ToList();
+                                foreach (var item in tempList)
+                                {
+                                    List<TblLoadingSlipExtTO> list = _iTblLoadingSlipExtDAO.SelectAllLoadingSlipExtListFromLoadingId(item.LoadingSlipId.ToString(), conn, tran);
+                                    if(list!=null)
+                                    {
+                                        for (int j = 0; j < list.Count; j++)
+                                        {
+                                            uomQty += list[i].Bundles;
+                                        }
+                                    }
+                                   
+                                }
+                                
                                     //Call to update pending booking qty for loading
                                     TblBookingsTO tblBookingsTO = new Models.TblBookingsTO();
                                     tblBookingsTO = _iTblBookingsDAO.SelectTblBookings(bookingId, conn, tran);
@@ -4152,6 +4167,7 @@ namespace ODLMWebAPI.BL
 
                                     tblBookingsTO.IdBooking = bookingId;
                                     tblBookingsTO.PendingQty = tblBookingsTO.PendingQty + bookingQty;
+                                    tblBookingsTO.PendingUomQty = tblBookingsTO.PendingUomQty + uomQty;
                                     tblBookingsTO.UpdatedBy = tblLoadingTO.UpdatedBy;
                                     tblBookingsTO.UpdatedOn = tblLoadingTO.UpdatedOn;
 
