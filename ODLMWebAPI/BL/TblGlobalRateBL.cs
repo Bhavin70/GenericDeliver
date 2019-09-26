@@ -75,7 +75,8 @@ namespace ODLMWebAPI.BL
 
         public Dictionary<Int32, Int32> SelectLatestGroupAndRateDCT()
         {
-            return _iTblGlobalRateDAO.SelectLatestGroupAndRateDCT();
+            String rateDeclarationRate = String.Empty;
+            return _iTblGlobalRateDAO.SelectLatestGroupAndRateDCT(rateDeclarationRate);
         }
 
         public Boolean IsRateAlreadyDeclaredForTheDate(DateTime date, SqlConnection conn, SqlTransaction tran)
@@ -90,10 +91,10 @@ namespace ODLMWebAPI.BL
         /// <param name="tblGlobalRateTO"></param>
         /// <returns></returns>
 
-        public TblGlobalRateTO SelectProductGroupItemGlobalRate(Int32 prodItemId)
+        public TblGlobalRateTO SelectProductGroupItemGlobalRate(Int32 prodItemId, Int32 prodCatId=0, Int32 prodSpecId=0, Int32 materialId=0)
         {
             TblGlobalRateTO rateTO = new TblGlobalRateTO();
-            TblGroupItemTO tblGroupItemTO = _iTblGroupItemDAO.SelectTblGroupItemDetails(prodItemId);
+            TblGroupItemTO tblGroupItemTO = _iTblGroupItemDAO.SelectTblGroupItemDetails(prodItemId,prodCatId,prodSpecId,materialId);//Aniket [24-9-2019
             if (tblGroupItemTO != null)
             {
                 Dictionary<Int32, Int32> groupRateDCT = SelectLatestGroupAndRateDCT();

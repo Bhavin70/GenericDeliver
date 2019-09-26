@@ -543,6 +543,7 @@ namespace ODLMWebAPI.StaticStuff
         public static string CONSOLIDATE_STOCK = "CONSOLIDATE_STOCK";
         public static String ENTITY_RANGE_REGULAR_TAX_INVOICE_BMM = "REGULAR_TAX_INVOICE_BMM";
   public static String ENTITY_RANGE_REGULAR_TAX_INTERNALORG = "REGULAR_TAX_INVOICE_ORG_";
+  public static String INTERNAL_DEFAULT_ITEM = "INTERNAL_DEFAULT_ITEM";
 
         public static string CP_BRAND_WISE_INVOICE = "BRAND_WISE_INVOICE";
         public static string CP_SKIP_LOADING_APPROVAL = "SKIP_LOADING_APPROVAL";
@@ -717,7 +718,7 @@ namespace ODLMWebAPI.StaticStuff
         public static string ANNOUNCE_RATE_WITH_RATEBAND_CURRENT_QUOTA = "ANNOUNCE_RATE_WITH_RATEBAND_CURRENT_QUOTA";
         public static string RESTRICT_CNF_BEYOND_BOOKING_QUOTA = "RESTRICT_CNF_BEYOND_BOOKING_QUOTA";
         //Aniket [06-03-2019] added to check Math.Round() function to be used in tax calculations or not
-        public static string IS_ROUND_OFF_TAX_INVOICE_CALCULATION = "IS_ROUND_OFF_TAX_INVOICE_CALCULATION";
+        public static string IS_ROUND_OFF_TAX_ON_PRINT_INVOICE = "IS_ROUND_OFF_TAX_ON_PRINT_INVOICE";
 
         //Aniket [25-3-2019] added to check which statusId booking details exclude from CNC report
         public static string CNF_BOOKING_REPORT_EXCLUDE_STATUSID = "CNF_BOOKING_REPORT_EXCLUDE_STATUSID";
@@ -727,7 +728,14 @@ namespace ODLMWebAPI.StaticStuff
 
         //Aniket [10-6-2019]
         public static string IS_BALAJI_CLIENT = "IS_BALAJI_CLIENT";
+        //Aniket [9-9-2019]
+        public static string HIDE_BRAND_NAME_ON_NC_INVOICE = "HIDE_BRAND_NAME_ON_NC_INVOICE";
+        //Aniket [16-9-2019]
+        public static string ROUND_OFF_TAX_INVOICE_VALUES = "ROUND_OFF_TAX_INVOICE_VALUES";
+        //Aniket [18-9-2019]
+        public static string SHOW_DELIVERY_LOCATION_ON_INVOICE = "SHOW_DELIVERY_LOCATION_ON_INVOICE";
         #endregion
+
 
         #region Common functions
 

@@ -271,11 +271,11 @@ namespace ODLMWebAPI.Controllers
         /// <returns></returns>
         [Route("GetInvoiceListByStatus")]
         [HttpGet]
-        public List<TblInvoiceTO> GetInvoiceListByStatus(int statusId, int distributorOrgId, int invoiceId)
+        public List<TblInvoiceTO> GetInvoiceListByStatus(int statusId, int distributorOrgId, int invoiceId,int isConfirm=2)
         {
             try
             {
-                return _iTblInvoiceBL.SelectTblInvoiceByStatus(statusId, distributorOrgId, invoiceId);
+                return _iTblInvoiceBL.SelectTblInvoiceByStatus(statusId, distributorOrgId, invoiceId, isConfirm);
             }
             catch (Exception ex)
             {
@@ -676,12 +676,12 @@ namespace ODLMWebAPI.Controllers
 
         [Route("PostexchangeInvoice")]
         [HttpPost]
-        public ResultMessage exchangeInvoice(int invoiceId,int invGenerateModeId,int fromOrgId,int toOrgId=0)
+        public ResultMessage exchangeInvoice(int invoiceId,int invGenerateModeId,int fromOrgId,int toOrgId=0, int isCalculateWithBaseRate = 0)
         {
             ResultMessage resultMessage = new StaticStuff.ResultMessage();
             try
             {
-                return _iTblInvoiceBL.exchangeInvoice(invoiceId,invGenerateModeId,fromOrgId,toOrgId);
+                return _iTblInvoiceBL.exchangeInvoice(invoiceId,invGenerateModeId,fromOrgId,toOrgId, isCalculateWithBaseRate);
             }
             catch(Exception e)
             {

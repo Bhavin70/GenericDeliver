@@ -213,6 +213,48 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public TblBookingsTO SelectBookingsDetailsFromInVoiceId(Int32 invoiceId, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader tblBookingsTODT = null;
+            try
+            {
+                cmdSelect.CommandText = "select booking.bookingRate,booking.brandId  from tempLoadingSlipDtl detl " +
+                    " left join tempInvoice invoice ON detl.loadingSlipId = invoice.loadingSlipId" +
+                    " left join tblBookings booking ON detl.bookingId = booking.idbooking " +
+                    "where idInvoice =" + invoiceId;
+
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                tblBookingsTODT = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                TblBookingsTO tblBookingsTONew = new TblBookingsTO();
+                if (tblBookingsTODT != null)
+                {
+                    while (tblBookingsTODT.Read())
+                    {
+                        if (tblBookingsTODT["bookingRate"] != DBNull.Value)
+                            tblBookingsTONew.BookingRate = Convert.ToDouble(tblBookingsTODT["bookingRate"].ToString());
+                        if (tblBookingsTODT["brandId"] != DBNull.Value)
+                            tblBookingsTONew.BrandId = Convert.ToInt32(tblBookingsTODT["brandId"].ToString());
+                    }
+                 
+                }
+                return tblBookingsTONew;
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (tblBookingsTODT != null) tblBookingsTODT.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
+       
         public List<TblBookingsTO> SelectAllBookingsListForApproval(Int32 isConfirmed, Int32 idBrand)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -551,7 +593,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords, Boolean pendingYn)
+        public List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords, Boolean pendingYn , Int32 bookingId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -563,9 +605,15 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
+
+                if (bookingId > 0)
+                {
+                    whereCond += " AND bookings.idBooking !=  " + bookingId;
+                }
+
                 cmdSelect.CommandText = " SELECT TOP " + lastNRecords + " bookings.*, userCreatedBy.userDisplayName As createdByName, " +
                                          "userUpdatedBy.userDisplayName As updatedByName, orgDealer.isOverdueExist  as isOrgOverDue, " +
-                                         " tblTranAction.tranActionTypeId As tranActionTypeId ," +
+                                         //" tblTranAction.tranActionTypeId As tranActionTypeId ," +
                                         " orgCnf.firmName as cnfName,orgDealer.firmName as dealerName ,dimStatus.statusName" +
                                         " ,brandDtl.brandName " +
                                         " FROM tblbookings bookings " +
@@ -573,7 +621,7 @@ namespace ODLMWebAPI.DAL
                                         " ON bookings.cnfOrgId = orgCnf.idOrganization " +
                                         " LEFT JOIN tblOrganization orgDealer " +
                                         " ON bookings.dealerOrgId = orgDealer.idOrganization " +
-                                         " LEFT JOIN tblTranActions tblTranAction ON tblTranAction.transId = bookings.idBooking "+
+                                         //" LEFT JOIN tblTranActions tblTranAction ON tblTranAction.transId = bookings.idBooking "+
                                         " LEFT JOIN tblUser userCreatedBy ON userCreatedBy.idUser = bookings.createdBy " +
                                         " LEFT JOIN tblUser userUpdatedBy ON userUpdatedBy.idUser = bookings.updatedBy " +
                                         " LEFT JOIN dimStatus ON dimStatus.idStatus=bookings.statusId" +
@@ -1594,8 +1642,8 @@ namespace ODLMWebAPI.DAL
                     if (tblBookingsTODT["statusBy"] != DBNull.Value)
                         tblBookingsTONew.StatusBy = Convert.ToInt32(tblBookingsTODT["statusBy"].ToString());
 
-                    if (tblBookingsTODT["tranActionTypeId"] != DBNull.Value)
-                        tblBookingsTONew.TranActionTypeId = Convert.ToInt32(tblBookingsTODT["tranActionTypeId"].ToString());
+                    //if (tblBookingsTODT["tranActionTypeId"] != DBNull.Value)
+                    //    tblBookingsTONew.TranActionTypeId = Convert.ToInt32(tblBookingsTODT["tranActionTypeId"].ToString());
 
                     //[05-09-2018]Vijaymala added for booking type like other or regular
                     if (tblBookingsTODT["bookingType"] != DBNull.Value)

@@ -20,7 +20,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblBookingsTO> SelectAllPendingBookingsList(Int32 cnfId, string dateCondOper, Boolean onlyPendingYn, int isTransporterScopeYn, int isConfirmed, DateTime asOnDate, int brandId, TblUserRoleTO tblUserRoleTO);
         List<TblBookingsTO> SelectTodayLoadedAndDeletedBookingsList(Int32 cnfId, DateTime asOnDate);
         List<TblBookingsTO> SelectAllTodaysBookingsWithOpeningBalance(Int32 cnfId, DateTime asOnDate, int isTransporterScopeYn, int isConfirmed, int brandId);
-        List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords, Boolean pendingYn);
+        List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords, Boolean pendingYn, Int32 bookingId);
         List<TblBookingsTO> SelectAllBookingList(Int32 cnfId, Int32 dealerId, TblUserRoleTO tblUserRoleTO);
         List<TblBookingsTO> GetOrderwiseDealerList();
         List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId);
@@ -47,6 +47,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         int ExecuteDeletionCommand(Int32 idBooking, SqlCommand cmdDelete);
         List<CnFWiseReportTO> SelectCnfCNCBookingReport(DateTime fromDate, DateTime toDate);
         List<TblBookingsTO> SelectAllBookingDateWise(DateTime fromDate, DateTime toDate);
-       
+        TblBookingsTO SelectBookingsDetailsFromInVoiceId(Int32 invoiceId, SqlConnection conn, SqlTransaction tran);
+
+
     }
 }
