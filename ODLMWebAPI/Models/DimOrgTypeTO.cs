@@ -11,6 +11,8 @@ namespace ODLMWebAPI.Models
         Int32 createUserYn;
         Int32 defaultRoleId;
         String orgType;
+        int isKycYn;
+        int isKycMandatory;
         #endregion
 
         #region Constructor
@@ -51,6 +53,9 @@ namespace ODLMWebAPI.Models
             get { return orgType; }
             set { orgType = value; }
         }
+
+        public int IsKycYn { get => isKycYn; set => isKycYn = value; }
+        public int IsKycMandatory { get => isKycMandatory; set => isKycMandatory = value; }
         #endregion
     }
 }
