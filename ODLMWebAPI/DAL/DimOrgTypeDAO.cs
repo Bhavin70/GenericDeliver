@@ -129,6 +129,10 @@ namespace ODLMWebAPI.DAL
                         dimOrgTypeTONew.DefaultRoleId = Convert.ToInt32(dimOrgTypeTODT["defaultRoleId"].ToString());
                     if (dimOrgTypeTODT["OrgType"] != DBNull.Value)
                         dimOrgTypeTONew.OrgType = Convert.ToString(dimOrgTypeTODT["OrgType"].ToString());
+                    if (dimOrgTypeTODT["isKycYn"] != DBNull.Value)
+                        dimOrgTypeTONew.IsKycYn = Convert.ToInt32(dimOrgTypeTODT["isKycYn"].ToString());
+                    if (dimOrgTypeTODT["isKycMandatory"] != DBNull.Value)
+                        dimOrgTypeTONew.IsKycMandatory = Convert.ToInt32(dimOrgTypeTODT["isKycMandatory"].ToString());
                     dimOrgTypeTOList.Add(dimOrgTypeTONew);
                 }
             }
