@@ -870,7 +870,11 @@ namespace ODLMWebAPI.BL
                                                 tblLoadingSlipAddressTO.Country = tblBookingDelAddrTO.Country;
                                                 tblLoadingSlipAddressTO.Pincode = tblBookingDelAddrTO.Pincode.ToString();
                                                 tblLoadingSlipAddressTO.TxnAddrTypeId = tblBookingDelAddrTO.TxnAddrTypeId;
-                                                tblLoadingSlipAddressTO.AddrSourceTypeId = tblBookingDelAddrTO.AddrSourceTypeId;
+
+                                                //Saket [2019-09-27] From pending booking auto loading slip addres src should be booking.
+                                                //tblLoadingSlipAddressTO.AddrSourceTypeId = tblBookingDelAddrTO.AddrSourceTypeId;
+                                                tblLoadingSlipAddressTO.AddrSourceTypeId = (int)Constants.AddressSourceTypeE.FROM_BOOKINGS;
+
                                                 tblLoadingSlipAddressTO.LoadingLayerId = tblBookingDelAddrTO.LoadingLayerId;
                                                 tblLoadingSlipAddressTO.BillingOrgId = tblBookingDelAddrTO.BillingOrgId;
 
