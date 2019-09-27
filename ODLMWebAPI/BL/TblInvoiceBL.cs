@@ -4037,10 +4037,10 @@ namespace ODLMWebAPI.BL
                                         if (tblConsigneeInvoiceAddressTO.Taluka.ToLower() != tblConsigneeInvoiceAddressTO.District.ToLower())
                                             consigneeAddr += ",Dist-" + tblConsigneeInvoiceAddressTO.District;
                                     }
-                                    if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.State))
-                                    {
-                                        consigneeAddr += ", " + tblBillingInvoiceAddressTO.State;
-                                    }
+                                    //if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.State))
+                                    //{
+                                    //    consigneeAddr += ", " + tblConsigneeInvoiceAddressTO.State;
+                                    //}
                                     //if(!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.PinCode) && tblConsigneeInvoiceAddressTO.PinCode!="0")
                                     //{
                                     //    consigneeAddr += "- " + tblConsigneeInvoiceAddressTO.PinCode;
