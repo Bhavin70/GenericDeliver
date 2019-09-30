@@ -3890,20 +3890,47 @@ namespace ODLMWebAPI.BL
                                 addressStr += "-" + tblBillingInvoiceAddressTO.PinCode;
                             }
 
-                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
-                            {
-                                addressStr += ", "+ tblBillingInvoiceAddressTO.Taluka;
-                            }
+                            //if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
+                            //{
+                            //    addressStr += ", "+ tblBillingInvoiceAddressTO.Taluka;
+                            //}
 
-                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.District))
-                            {
-                                if (String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
+                            //if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.District))
+                            //{
+                            //    if (String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
+                            //        tblBillingInvoiceAddressTO.Taluka = String.Empty;
+
+                            //    if (tblBillingInvoiceAddressTO.Taluka.ToLower().Trim() != tblBillingInvoiceAddressTO.District.ToLower().Trim())
+                            //        addressStr += ",Dist-" + tblBillingInvoiceAddressTO.District;
+                            //}
+
+
+                            if (String.IsNullOrEmpty(tblBillingInvoiceAddressTO.District))
+                                tblBillingInvoiceAddressTO.District = String.Empty;
+
+                            if (String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
                                     tblBillingInvoiceAddressTO.Taluka = String.Empty;
 
-                                if (tblBillingInvoiceAddressTO.Taluka.ToLower().Trim() != tblBillingInvoiceAddressTO.District.ToLower().Trim())
-                                    addressStr += ",Dist-" + tblBillingInvoiceAddressTO.District;
+                            String districtNameWithLabel = String.Empty;
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.District))
+                                districtNameWithLabel = ",Dist-" + tblBillingInvoiceAddressTO.District;
+
+                            if (tblBillingInvoiceAddressTO.Taluka.ToLower().Trim() == tblBillingInvoiceAddressTO.District.ToLower().Trim())
+                            {
+                                
+                                    addressStr += districtNameWithLabel;
                             }
-                        
+                            else
+                            {
+                                if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
+                                {
+                                    addressStr += ", " + tblBillingInvoiceAddressTO.Taluka;
+                                }
+
+                                addressStr += districtNameWithLabel;
+                            }
+
+
                             if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.State))
                             {
                                 //addressStr += ", " + tblBillingInvoiceAddressTO.State;
@@ -4024,19 +4051,48 @@ namespace ODLMWebAPI.BL
                                     {
                                         consigneeAddr += "- " + tblConsigneeInvoiceAddressTO.PinCode;
                                     }
-                                    if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
-                                    {
-                                        consigneeAddr += ", " + tblConsigneeInvoiceAddressTO.Taluka;
-                                    }
+                                    //if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
+                                    //{
+                                    //    consigneeAddr += ", " + tblConsigneeInvoiceAddressTO.Taluka;
+                                    //}
 
+                                    //if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.District))
+                                    //{
+                                    //    if (String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
+                                    //        tblConsigneeInvoiceAddressTO.Taluka = String.Empty;
+
+                                    //    if (tblConsigneeInvoiceAddressTO.Taluka.ToLower() != tblConsigneeInvoiceAddressTO.District.ToLower())
+                                    //        consigneeAddr += ",Dist-" + tblConsigneeInvoiceAddressTO.District;
+                                    //}
+
+
+                                    if (String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.District))
+                                        tblConsigneeInvoiceAddressTO.District = String.Empty;
+
+                                    if (String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
+                                        tblConsigneeInvoiceAddressTO.Taluka = String.Empty;
+
+                                    String districtNameWithLabel = String.Empty;
                                     if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.District))
-                                    {
-                                        if (String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
-                                            tblConsigneeInvoiceAddressTO.Taluka = String.Empty;
+                                        districtNameWithLabel = ",Dist-" + tblConsigneeInvoiceAddressTO.District;
 
-                                        if (tblConsigneeInvoiceAddressTO.Taluka.ToLower() != tblConsigneeInvoiceAddressTO.District.ToLower())
-                                            consigneeAddr += ",Dist-" + tblConsigneeInvoiceAddressTO.District;
+                                    if (tblConsigneeInvoiceAddressTO.Taluka.ToLower().Trim() == tblConsigneeInvoiceAddressTO.District.ToLower().Trim())
+                                    {
+                                        consigneeAddr += districtNameWithLabel;
                                     }
+                                    else
+                                    {
+                                        if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
+                                        {
+                                            consigneeAddr += ", " + tblConsigneeInvoiceAddressTO.Taluka;
+                                        }
+
+                                        consigneeAddr += districtNameWithLabel;
+                                    }
+
+
+
+
                                     //if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.State))
                                     //{
                                     //    consigneeAddr += ", " + tblConsigneeInvoiceAddressTO.State;

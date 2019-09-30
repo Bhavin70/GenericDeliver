@@ -7672,9 +7672,27 @@ namespace ODLMWebAPI.BL
                 exiInvoiceTO.RoundOffAmt = calculatedInvoiceTO.RoundOffAmt;
                 exiInvoiceTO.BasicAmt = calculatedInvoiceTO.BasicAmt;
                 calculatedInvoiceTO.InvoiceItemDetailsTOList.ForEach(ele => ele.InvoiceId = invoiceId);
+                calculatedInvoiceTO.InvoiceAddressTOList.ForEach(ele => ele.InvoiceId = invoiceId);
+
+                if (calculatedInvoiceTO.InvoiceAddressTOList != null && calculatedInvoiceTO.InvoiceAddressTOList.Count > 0)
+                {
+                    if (exiInvoiceTO.InvoiceAddressTOList != null && exiInvoiceTO.InvoiceAddressTOList.Count > 0)
+                    {
+                        for (int a = 0; a < calculatedInvoiceTO.InvoiceAddressTOList.Count; a++)
+                        {
+                            if (exiInvoiceTO.InvoiceAddressTOList.Count > a)
+                            {
+                                calculatedInvoiceTO.InvoiceAddressTOList[a].IdInvoiceAddr = exiInvoiceTO.InvoiceAddressTOList[a].IdInvoiceAddr;
+                            }
+                        }
+                    }
+                }
+                //Saket [2019-09-30] Error while validating Invoice ,i.e CST applied for inter state invoice.
+                exiInvoiceTO.InvoiceAddressTOList = calculatedInvoiceTO.InvoiceAddressTOList;
 
                 exiInvoiceTO.InvoiceItemDetailsTOList = calculatedInvoiceTO.InvoiceItemDetailsTOList;
 
+                
                 #endregion
 
 
