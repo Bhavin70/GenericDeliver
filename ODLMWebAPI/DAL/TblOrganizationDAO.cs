@@ -1748,6 +1748,7 @@ namespace ODLMWebAPI.DAL
                             " ,[influencerTypeId]"+
                             " ,[isOverdueExist]" +              //Priyanka [07-06-2018] : Added for SHIVANGI.
                             " ,[dateOfEstablishment]" +
+                            " ,[orgStatusId]" +
                             " )" +
                 " VALUES (" +
                             "  @OrgTypeId " +
@@ -1773,6 +1774,7 @@ namespace ODLMWebAPI.DAL
                             " ,@influencerTypeId" +
                             " ,@isOverdueExist" +                           //Priyanka [07-06-2018] : Added for SHIVANGI
                             " ,@DateOfEstablishment" +
+                            " ,@orgStatusId" +
                             " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
@@ -1802,6 +1804,8 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@InfluencerTypeId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblOrganizationTO.InfluencerTypeId);
             cmdInsert.Parameters.Add("@isOverdueExist", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblOrganizationTO.IsOverdueExist);         //Priyanka [07-06-2018] : Added for SHIVANGI.
             cmdInsert.Parameters.Add("@DateOfEstablishment", System.Data.SqlDbType.DateTime).Value = Constants.GetSqlDataValueNullForBaseValue(tblOrganizationTO.DateOfEstablishment); //Sudhir[21-06-2018] 
+                 cmdInsert.Parameters.Add("@orgStatusId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblOrganizationTO.StatusId);
+     
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = sqlSelectIdentityQry;

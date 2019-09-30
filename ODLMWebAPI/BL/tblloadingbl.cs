@@ -870,7 +870,11 @@ namespace ODLMWebAPI.BL
                                                 tblLoadingSlipAddressTO.Country = tblBookingDelAddrTO.Country;
                                                 tblLoadingSlipAddressTO.Pincode = tblBookingDelAddrTO.Pincode.ToString();
                                                 tblLoadingSlipAddressTO.TxnAddrTypeId = tblBookingDelAddrTO.TxnAddrTypeId;
-                                                tblLoadingSlipAddressTO.AddrSourceTypeId = tblBookingDelAddrTO.AddrSourceTypeId;
+
+                                                //Saket [2019-09-27] From pending booking auto loading slip addres src should be booking.
+                                                //tblLoadingSlipAddressTO.AddrSourceTypeId = tblBookingDelAddrTO.AddrSourceTypeId;
+                                                tblLoadingSlipAddressTO.AddrSourceTypeId = (int)Constants.AddressSourceTypeE.FROM_BOOKINGS;
+
                                                 tblLoadingSlipAddressTO.LoadingLayerId = tblBookingDelAddrTO.LoadingLayerId;
                                                 tblLoadingSlipAddressTO.BillingOrgId = tblBookingDelAddrTO.BillingOrgId;
 
@@ -7668,9 +7672,27 @@ namespace ODLMWebAPI.BL
                 exiInvoiceTO.RoundOffAmt = calculatedInvoiceTO.RoundOffAmt;
                 exiInvoiceTO.BasicAmt = calculatedInvoiceTO.BasicAmt;
                 calculatedInvoiceTO.InvoiceItemDetailsTOList.ForEach(ele => ele.InvoiceId = invoiceId);
+                calculatedInvoiceTO.InvoiceAddressTOList.ForEach(ele => ele.InvoiceId = invoiceId);
+
+                if (calculatedInvoiceTO.InvoiceAddressTOList != null && calculatedInvoiceTO.InvoiceAddressTOList.Count > 0)
+                {
+                    if (exiInvoiceTO.InvoiceAddressTOList != null && exiInvoiceTO.InvoiceAddressTOList.Count > 0)
+                    {
+                        for (int a = 0; a < calculatedInvoiceTO.InvoiceAddressTOList.Count; a++)
+                        {
+                            if (exiInvoiceTO.InvoiceAddressTOList.Count > a)
+                            {
+                                calculatedInvoiceTO.InvoiceAddressTOList[a].IdInvoiceAddr = exiInvoiceTO.InvoiceAddressTOList[a].IdInvoiceAddr;
+                            }
+                        }
+                    }
+                }
+                //Saket [2019-09-30] Error while validating Invoice ,i.e CST applied for inter state invoice.
+                exiInvoiceTO.InvoiceAddressTOList = calculatedInvoiceTO.InvoiceAddressTOList;
 
                 exiInvoiceTO.InvoiceItemDetailsTOList = calculatedInvoiceTO.InvoiceItemDetailsTOList;
 
+                
                 #endregion
 
 
