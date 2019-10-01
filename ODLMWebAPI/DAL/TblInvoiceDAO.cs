@@ -328,7 +328,7 @@ namespace ODLMWebAPI.DAL
                 }
                 else
                 {
-                    cmdSelect.CommandText = " SELECT * FROM ("+ SqlSelectQuery() + ")sq1 WHERE sq1.statusId = " + statusId + " AND ISNULL(sq1.distributorOrgId,0)=" + distributorOrgId;
+                    cmdSelect.CommandText = " SELECT * FROM (" + SqlSelectQuery() + ")sq1 WHERE sq1.statusId = " + statusId + " AND ISNULL(sq1.distributorOrgId,0)=" + distributorOrgId + isConfirmCondition;
 
                 }
               
