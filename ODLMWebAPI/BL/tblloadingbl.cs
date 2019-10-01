@@ -847,6 +847,7 @@ namespace ODLMWebAPI.BL
                                         TblLoadingSlipTO tblLoadingSlipTO = selectLoadingSlipTO(tblBookingTO);
 
                                         tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingId = tblBookingTO.IdBooking;
+                                        tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingRate = tblBookingTO.BookingRate;
                                         if (distBookingScheduleTO.DeliveryAddressLst != null && distBookingScheduleTO.DeliveryAddressLst.Count > 0)
                                         {
                                             List<TblBookingDelAddrTO> tblBookingDelAddrTOList = distBookingScheduleTO.DeliveryAddressLst;
