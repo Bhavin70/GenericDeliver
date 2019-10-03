@@ -15,7 +15,7 @@ namespace ODLMWebAPI.BL.Interfaces
         Double SelectTotalPendingBookingQty(DateTime sysDate);
         void AssignOverDueAmount(List<TblBookingsTO> tblBookingsTOList);
         List<TblBookingsTO> SelectAllBookingsListForAcceptance(Int32 cnfId, List<TblUserRoleTO> userRoleTOList, Int32 isConfirmed);
-        List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords);
+        List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords, Int32 bookingId);
         List<TblBookingsTO> SelectAllBookingList(Int32 cnfId, Int32 dealerId, List<TblUserRoleTO> tblUserRoleTOList);
         List<TblBookingsTO> GetOrderwiseDealerList();
         List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, List<TblUserRoleTO> tblUserRoleTOList, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId);

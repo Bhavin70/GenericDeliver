@@ -16,6 +16,10 @@ namespace ODLMWebAPI.Models
         DateTime createdOn;
         DateTime updatedOn;
         String   prodItemDesc;
+        Int32 prodCatId;
+        Int32 prodSpecId;
+        Int32 materialId;
+
         #endregion
 
         #region Constructor
@@ -68,6 +72,9 @@ namespace ODLMWebAPI.Models
         }
 
         public string ProdItemDesc { get => prodItemDesc; set => prodItemDesc = value; }
+        public int ProdCatId { get => prodCatId; set => prodCatId = value; }
+        public int ProdSpecId { get => prodSpecId; set => prodSpecId = value; }
+        public int MaterialId { get => materialId; set => materialId = value; }
         #endregion
     }
 }

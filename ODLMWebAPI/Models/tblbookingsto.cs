@@ -42,6 +42,7 @@ namespace ODLMWebAPI.Models
 
         List<TblBookingDelAddrTO> deliveryAddressLst;
         List<TblBookingExtTO> orderDetailsLst;
+        List<TblBookingExtTO> orderDetailsLstForItemWise;
         String status;
         Double pendingQty;
         Double loadingQty;
@@ -503,6 +504,7 @@ namespace ODLMWebAPI.Models
         public int IsInUom { get => isInUom; set => isInUom = value; }
         public int IsItemized { get => isItemized; set => isItemized = value; }
         public int StateId { get => stateId; set => stateId = value; }
+        public List<TblBookingExtTO> OrderDetailsLstForItemWise { get => orderDetailsLstForItemWise; set => orderDetailsLstForItemWise = value; }
 
 
         #endregion
