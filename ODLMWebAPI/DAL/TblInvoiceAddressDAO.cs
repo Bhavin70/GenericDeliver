@@ -182,6 +182,13 @@ namespace ODLMWebAPI.DAL
                         tblInvoiceAddressTONew.GstinNo = Convert.ToString(tblInvoiceAddressTODT["gstinNo"].ToString());
                     if (tblInvoiceAddressTODT["panNo"] != DBNull.Value)
                         tblInvoiceAddressTONew.PanNo = Convert.ToString(tblInvoiceAddressTODT["panNo"].ToString());
+
+                    //Saket [2019-09-26] Added
+                    if (!String.IsNullOrEmpty(tblInvoiceAddressTONew.GstinNo))
+                        tblInvoiceAddressTONew.GstinNo = tblInvoiceAddressTONew.GstinNo.ToUpper();
+                    if (!String.IsNullOrEmpty(tblInvoiceAddressTONew.PanNo))
+                        tblInvoiceAddressTONew.PanNo = tblInvoiceAddressTONew.PanNo.ToUpper();
+
                     if (tblInvoiceAddressTODT["aadharNo"] != DBNull.Value)
                         tblInvoiceAddressTONew.AadharNo = Convert.ToString(tblInvoiceAddressTODT["aadharNo"].ToString());
                     if (tblInvoiceAddressTODT["contactNo"] != DBNull.Value)

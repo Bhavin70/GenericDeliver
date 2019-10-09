@@ -780,12 +780,30 @@ namespace ODLMWebAPI.Controllers
         [HttpGet]
         public TblInvoiceTO IsInvoiceGeneratedByLoadingSlipId(Int32 idLoadingSlip)
         {
-            TblInvoiceTO invoiceTO = _iTblInvoiceBL.SelectInvoiceTOFromLoadingSlipId(idLoadingSlip);
-            if (invoiceTO == null)
+            //TblInvoiceTO invoiceTO = _iTblInvoiceBL.SelectInvoiceTOFromLoadingSlipId(idLoadingSlip);
+            //if (invoiceTO == null)
+            //{
+            //    return null;
+            //}
+            //return invoiceTO;
+
+            List<TblInvoiceTO> invoiceTOList = _iTblInvoiceBL.SelectInvoiceTOFromLoadingSlipId(idLoadingSlip);
+
+            if (invoiceTOList != null && invoiceTOList.Count > 0)
             {
-                return null;
+                foreach (var invoiceTO in invoiceTOList)
+                {
+                    if (!string.IsNullOrEmpty(invoiceTO.InvoiceNo))
+                    {
+                        return invoiceTO;
+                    }
+                }
+
+                return invoiceTOList[0];
             }
-            return invoiceTO;
+            else
+                return null;
+
         }
 
         /// <summary>
@@ -857,10 +875,10 @@ namespace ODLMWebAPI.Controllers
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public TblGlobalRateTO GetProductGroupItemGlobalRate(Int32 prodItemId)
+        public TblGlobalRateTO GetProductGroupItemGlobalRate(Int32 prodItemId,Int32 prodCatId=0,Int32 prodSpecId=0,Int32 materialId=0)
         {
 
-            return _iTblGlobalRateBL.SelectProductGroupItemGlobalRate(prodItemId);
+            return _iTblGlobalRateBL.SelectProductGroupItemGlobalRate(prodItemId,prodCatId,prodSpecId, materialId);
         }
 
 

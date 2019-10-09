@@ -37,15 +37,15 @@ namespace ODLMWebAPI.BL
             return _iTblGroupItemDAO.SelectTblGroupItem(idGroupItem);
         }
 
-        public TblGroupItemTO SelectTblGroupItemDetails(Int32 prodItemId)
+        public TblGroupItemTO SelectTblGroupItemDetails(Int32 prodItemId, Int32 prodCatId, Int32 prodSpecId, Int32 materialId)
         {
-            return _iTblGroupItemDAO.SelectTblGroupItemDetails(prodItemId);
+            return _iTblGroupItemDAO.SelectTblGroupItemDetails(prodItemId,prodCatId,prodSpecId,materialId);
         }
 
 
-        public TblGroupItemTO SelectTblGroupItemDetails(Int32 prodItemId, SqlConnection conn, SqlTransaction tran)
+        public TblGroupItemTO SelectTblGroupItemDetails(Int32 prodItemId,Int32 prodCatId,Int32 prodSpecId,Int32 materialId, SqlConnection conn, SqlTransaction tran)
         {
-            return _iTblGroupItemDAO.SelectTblGroupItemDetails(prodItemId, conn, tran);
+            return _iTblGroupItemDAO.SelectTblGroupItemDetails(prodItemId, prodCatId, prodSpecId, materialId, conn, tran);
         }
 
         public List<TblGroupItemTO> SelectAllTblGroupItemDtlsList(Int32 groupId = 0)
@@ -111,7 +111,7 @@ namespace ODLMWebAPI.BL
                 {
 
                     TblGroupItemTO tblGroupItemTO = tblGroupItemTOList[i];
-                    TblGroupItemTO existingtblGroupItemTO = SelectTblGroupItemDetails(tblGroupItemTO.ProdItemId, conn, tran);
+                    TblGroupItemTO existingtblGroupItemTO = SelectTblGroupItemDetails(tblGroupItemTO.ProdItemId,tblGroupItemTO.ProdCatId,tblGroupItemTO.ProdSpecId,tblGroupItemTO.MaterialId, conn, tran);
                     if (existingtblGroupItemTO != null)
                     {
                         //Update and Deactivate the Linkage

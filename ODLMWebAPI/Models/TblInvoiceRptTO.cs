@@ -79,6 +79,7 @@ namespace ODLMWebAPI.Models
         String overdueTallyRefId;
         String enquiryTallyRefId;
         DateTime deliveredOn;
+        String salesEngineer;
         #endregion
 
         #region Constructor
@@ -429,6 +430,7 @@ namespace ODLMWebAPI.Models
         public string OverdueTallyRefId { get => overdueTallyRefId; set => overdueTallyRefId = value; }
         public string EnquiryTallyRefId { get => enquiryTallyRefId; set => enquiryTallyRefId = value; }
         public DateTime DeliveredOn { get => deliveredOn; set => deliveredOn = value; }
+        public string SalesEngineer { get => salesEngineer; set => salesEngineer = value; }
         #endregion
     }
 }

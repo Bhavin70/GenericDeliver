@@ -77,6 +77,8 @@ namespace ODLMWebAPI.BL {
         private readonly ITblInvoiceHistoryDAO _iTblInvoiceHistoryDAO;
         private readonly ITblBookingDelAddrDAO _iTblBookingDelAddrDAO;
         private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
+        private readonly ITblGroupItemDAO _iTblGroupItemDAO;
+        private readonly ITblGlobalRateDAO _iTblGlobalRateDAO;
         public TblLoadingBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO, IWeighingCommunication iWeighingCommunication, IModbusRefConfig iModbusRefConfig,ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblInvoiceHistoryDAO iTblInvoiceHistoryDAO, ITblWeighingMachineDAO iTblWeighingMachineDAO, IGateCommunication iGateCommunication, IIotCommunication iIotCommunication, ITblGateBL iTblGateBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL)
         
        // public TblLoadingBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL)
@@ -140,6 +142,8 @@ namespace ODLMWebAPI.BL {
             _iTblBookingDelAddrDAO = iTblBookingDelAddrDAO;
             _iModbusRefConfig  = iModbusRefConfig;
             _iTblAlertDefinitionDAO = iTblAlertDefinitionDAO;
+            _iTblGroupItemDAO = iTblGroupItemDAO;
+            _iTblGlobalRateDAO = iTblGlobalRateDAO;
         }
         #region Selection
 
@@ -1426,7 +1430,9 @@ namespace ODLMWebAPI.BL {
                                         TblLoadingSlipTO tblLoadingSlipTO = selectLoadingSlipTO (tblBookingTO);
 
                                         tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingId = tblBookingTO.IdBooking;
-                                        if (distBookingScheduleTO.DeliveryAddressLst != null && distBookingScheduleTO.DeliveryAddressLst.Count > 0) {
+                                        tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingRate = tblBookingTO.BookingRate;
+                                        if (distBookingScheduleTO.DeliveryAddressLst != null && distBookingScheduleTO.DeliveryAddressLst.Count > 0)
+                                        {
                                             List<TblBookingDelAddrTO> tblBookingDelAddrTOList = distBookingScheduleTO.DeliveryAddressLst;
                                             //.Where(ele => ele.ScheduleId == distBookingScheduleTO.IdSchedule).ToList();
                                             TblBookingDelAddrTO tblBookingDelAddrTO = new TblBookingDelAddrTO();
@@ -1448,7 +1454,11 @@ namespace ODLMWebAPI.BL {
                                                 tblLoadingSlipAddressTO.Country = tblBookingDelAddrTO.Country;
                                                 tblLoadingSlipAddressTO.Pincode = tblBookingDelAddrTO.Pincode.ToString ();
                                                 tblLoadingSlipAddressTO.TxnAddrTypeId = tblBookingDelAddrTO.TxnAddrTypeId;
-                                                tblLoadingSlipAddressTO.AddrSourceTypeId = tblBookingDelAddrTO.AddrSourceTypeId;
+
+                                                //Saket [2019-09-27] From pending booking auto loading slip addres src should be booking.
+                                                //tblLoadingSlipAddressTO.AddrSourceTypeId = tblBookingDelAddrTO.AddrSourceTypeId;
+                                                tblLoadingSlipAddressTO.AddrSourceTypeId = (int)Constants.AddressSourceTypeE.FROM_BOOKINGS;
+
                                                 tblLoadingSlipAddressTO.LoadingLayerId = tblBookingDelAddrTO.LoadingLayerId;
                                                 tblLoadingSlipAddressTO.BillingOrgId = tblBookingDelAddrTO.BillingOrgId;
 
@@ -2569,8 +2579,26 @@ namespace ODLMWebAPI.BL {
                                     String rateCalcDesc = string.Empty;
                                     int isBalajiClient = 0;
                                     Double bookingPrice;
-                                    List<TblBookingExtTO> bookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt (tblBookingParitiesTO.BookingId);
-
+                                    List<TblBookingExtTO> bookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(tblBookingParitiesTO.BookingId);
+                                    //Aniket [24-9-2019]
+                                    TblGlobalRateTO rateTO = null;
+                                    TblGroupItemTO tblGroupItemTO = _iTblGroupItemDAO.SelectTblGroupItemDetails(tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.MaterialId);
+                                    if(tblGroupItemTO!=null)
+                                    {
+                                        rateTO = new TblGlobalRateTO();
+                                        Dictionary<Int32, Int32> rateDCT= _iTblGlobalRateDAO.SelectLatestGroupAndRateDCT(tblBookingsTO.CreatedOn.ToString("yyyy-MM-dd"));
+                                        if (rateDCT != null)
+                                        {
+                                            if (rateDCT.ContainsKey(tblGroupItemTO.GroupId))
+                                            {
+                                                Int32 rateID = rateDCT[tblGroupItemTO.GroupId];
+                                                rateTO = _iTblGlobalRateDAO.SelectTblGlobalRate(rateID);
+                                            }
+                                        }
+                                    }
+                                    if (rateTO != null)
+                                        bookingPrice = rateTO.Rate;
+                                    else
                                     bookingPrice = tblBookingParitiesTO.BookingRate;
                                     // Aniket [18-6-2019]
                                     // added to reduce item wise discount from bookingprice
@@ -8754,10 +8782,28 @@ namespace ODLMWebAPI.BL {
                 exiInvoiceTO.GrandTotal = calculatedInvoiceTO.GrandTotal;
                 exiInvoiceTO.RoundOffAmt = calculatedInvoiceTO.RoundOffAmt;
                 exiInvoiceTO.BasicAmt = calculatedInvoiceTO.BasicAmt;
-                calculatedInvoiceTO.InvoiceItemDetailsTOList.ForEach (ele => ele.InvoiceId = invoiceId);
+                calculatedInvoiceTO.InvoiceItemDetailsTOList.ForEach(ele => ele.InvoiceId = invoiceId);
+                calculatedInvoiceTO.InvoiceAddressTOList.ForEach(ele => ele.InvoiceId = invoiceId);
+
+                if (calculatedInvoiceTO.InvoiceAddressTOList != null && calculatedInvoiceTO.InvoiceAddressTOList.Count > 0)
+                {
+                    if (exiInvoiceTO.InvoiceAddressTOList != null && exiInvoiceTO.InvoiceAddressTOList.Count > 0)
+                    {
+                        for (int a = 0; a < calculatedInvoiceTO.InvoiceAddressTOList.Count; a++)
+                        {
+                            if (exiInvoiceTO.InvoiceAddressTOList.Count > a)
+                            {
+                                calculatedInvoiceTO.InvoiceAddressTOList[a].IdInvoiceAddr = exiInvoiceTO.InvoiceAddressTOList[a].IdInvoiceAddr;
+                            }
+                        }
+                    }
+                }
+                //Saket [2019-09-30] Error while validating Invoice ,i.e CST applied for inter state invoice.
+                exiInvoiceTO.InvoiceAddressTOList = calculatedInvoiceTO.InvoiceAddressTOList;
 
                 exiInvoiceTO.InvoiceItemDetailsTOList = calculatedInvoiceTO.InvoiceItemDetailsTOList;
 
+                
                 #endregion
 
                 //exiInvoiceTO = updateInvoiceToCalc(exiInvoiceTO, conn, tran, false);

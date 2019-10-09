@@ -320,13 +320,13 @@ namespace ODLMWebAPI.BL
 
         }
 
-        public List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords)
+        public List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords , Int32 bookingId)
         {
-            List<TblBookingsTO> pendingList = _iTblBookingsDAO.SelectAllLatestBookingOfDealer(dealerId, lastNRecords, true);
+            List<TblBookingsTO> pendingList = _iTblBookingsDAO.SelectAllLatestBookingOfDealer(dealerId, lastNRecords, true, bookingId);
             if (pendingList != null && pendingList.Count < lastNRecords)
             {
                 lastNRecords = lastNRecords - pendingList.Count;
-                List<TblBookingsTO> list = _iTblBookingsDAO.SelectAllLatestBookingOfDealer(dealerId, lastNRecords, false);
+                List<TblBookingsTO> list = _iTblBookingsDAO.SelectAllLatestBookingOfDealer(dealerId, lastNRecords, false, bookingId);
                 if (list != null)
                 {
                     for (int i = 0; i < list.Count; i++)
@@ -1614,10 +1614,7 @@ namespace ODLMWebAPI.BL
                                 }
                             }
                         }
-                        else
-                        {
-
-                        }
+                        
                         #endregion
                         #region 3.2. Save Order Delivery Addresses
 
@@ -1654,9 +1651,29 @@ namespace ODLMWebAPI.BL
                     }
 
                 }
-                else
+                #endregion
+                #region Added By Kiran For Bundle Wise Item Details using booking Id
+                if (tblBookingsTO.OrderDetailsLstForItemWise != null && tblBookingsTO.OrderDetailsLstForItemWise.Count > 0)
                 {
-
+                    List<TblBookingExtTO> tblBookingExtTOItemWiseList = tblBookingsTO.OrderDetailsLstForItemWise.Where(w => w.BookedQty > 0).ToList();
+                    for (int j = 0; j < tblBookingExtTOItemWiseList.Count; j++)
+                    {
+                        TblBookingExtTO tblBookingExtTO = tblBookingExtTOItemWiseList[j];
+                        tblBookingExtTO.BookingId = tblBookingsTO.IdBooking;
+                        tblBookingExtTO.BalanceQty = tblBookingExtTO.BookedQty;
+                        //if(isBalajiClient==0)
+                        tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
+                        result = _iTblBookingExtDAO.InsertTblBookingExt(tblBookingExtTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.Text = "Record Could not be saved.";
+                            resultMessage.DisplayMessage = "Record Could not be saved.";
+                            resultMessage.Result = 0;
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            return resultMessage;
+                        }
+                    }
                 }
                 #endregion
 
@@ -2293,7 +2310,31 @@ namespace ODLMWebAPI.BL
                         return resultMessage;
                     }
                 }
-
+                //Aniket [23-9-2019] added to update booking rate in bookings parities table 
+                int updateBookingparityResult;
+                List<TblBookingParitiesTO> tblBookingParitiesTOList = _iTblBookingParitiesDAO.SelectTblBookingParitiesByBookingId(tblBookingsTO.IdBooking, conn, tran);
+                TblBookingParitiesTO tblBookingParitiesTO = new TblBookingParitiesTO();
+                if(tblBookingParitiesTOList!=null && tblBookingParitiesTOList.Count>0)
+                {
+                    tblBookingParitiesTOList.ForEach(x =>
+                    {
+                        if (x.BookingId==tblBookingsTO.IdBooking && x.BrandId==tblBookingsTO.BrandId)
+                        {
+                            tblBookingParitiesTO = x;
+                        }
+                    });
+                }
+                if(tblBookingParitiesTO!=null)
+                {
+                    tblBookingParitiesTO.BookingRate = tblBookingsTO.BookingRate;
+                    updateBookingparityResult =  _iTblBookingParitiesDAO.UpdateTblBookingParities(tblBookingParitiesTO, conn, tran);
+                    if(updateBookingparityResult!=1)
+                    {
+                        tran.Rollback();
+                        resultMessage.DisplayMessage = "Error while update in Booking parities ";
+                        return resultMessage;
+                    }
+                }
                 //#region Notifications & SMSs
                 resultMessage = SendNotification(tblBookingsTO, isCnfAcceptDirectly, false, conn, tran);
                 if (resultMessage.MessageType != ResultMessageE.Information)
