@@ -97,7 +97,9 @@ namespace ODLMWebAPI.Models
         List<TblPaymentTermOptionRelationTO> paymentTermOptionRelationTOLst;
         //Aniket [23-7-2019]
         int stateId;
-       
+
+        Double creditLimit;
+
         #endregion
 
         #region Constructor
@@ -505,6 +507,7 @@ namespace ODLMWebAPI.Models
         public int IsItemized { get => isItemized; set => isItemized = value; }
         public int StateId { get => stateId; set => stateId = value; }
         public List<TblBookingExtTO> OrderDetailsLstForItemWise { get => orderDetailsLstForItemWise; set => orderDetailsLstForItemWise = value; }
+        public double CreditLimit { get => creditLimit; set => creditLimit = value; }
 
 
         #endregion

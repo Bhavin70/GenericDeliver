@@ -29,7 +29,7 @@ namespace ODLMWebAPI.DAL
         public String SqlSelectQuery(Int32 loginUserId = 0)
         {
             
-            String sqlSelectQry = "SELECT bookings.*,dimStat.statusName as dealerCat,dimStat.colorCode,userCreatedBy.userDisplayName As createdByName,userUpdatedBy.userDisplayName As updatedByName, "+
+            String sqlSelectQry = "SELECT bookings.*,dimStat.statusName as dealerCat,dimStat.colorCode,orgDealer.creditLimit ,userCreatedBy.userDisplayName As createdByName,userUpdatedBy.userDisplayName As updatedByName, " +
                                   "orgCnf.firmName as cnfName,orgDealer.isOverdueExist  as isOrgOverDue, tblTranAction.tranActionTypeId As tranActionTypeId," +
                                   " orgDealer.firmName + ',' + " +
                                   " CASE WHEN orgDealer.addrId IS NULL THEN '' Else case WHEN address.villageName IS NOT NULL THEN address.villageName " +
@@ -1838,6 +1838,10 @@ namespace ODLMWebAPI.DAL
                         tblBookingsTONew.DealerCat = Convert.ToString(tblBookingsTODT["dealerCat"]);
                              if (tblBookingsTODT["colorCode"] != DBNull.Value)
                         tblBookingsTONew.ColorCode = Convert.ToString(tblBookingsTODT["colorCode"]);
+
+                    if (tblBookingsTODT["creditLimit"] != DBNull.Value)
+                        tblBookingsTONew.CreditLimit = Convert.ToDouble(tblBookingsTODT["creditLimit"]);
+
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }
             }
