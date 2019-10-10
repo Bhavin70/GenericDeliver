@@ -610,6 +610,7 @@ namespace ODLMWebAPI.StaticStuff
         //Vijaymala[19 - 06 - 2018] Added to HIDE RATE BAND DECLARATION
         public static string CP_DISPLAY_RATE_BAND_DECLARATION = "DISPLAY_RATE_BAND_DECLARATION";
         public static string CP_RATE_DECLARATION_FOR_ENQUIRY = "DAILY_RATE_DECLARATION_FOR_ENQUIRY";
+        public static string CP_SEND_RATE_SMS_TO_DEALER_REGISTER_MOBILE_NO = "SEND_RATE_SMS_TO_DEALER_REGISTER_MOBILE_NO";
         public static string CP_CD_STRUCTURE_IN_PERCENTAGE = "CD_STRUCTURE_IN_PERCENTAGE";
         public static string CP_CD_STRUCTURE_IN_RS = "CD_STRUCTURE_IN_RS";
         public static string CP_FROM_LOCATION = "FROM_LOCATION";
