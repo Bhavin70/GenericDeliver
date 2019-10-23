@@ -153,7 +153,7 @@ namespace ODLMWebAPI.Controllers
                                 if(itemList[i].LoadingSlipExtId== tblLoadingSlipTO.LoadingSlipExtTOList[j].IdLoadingSlipExt)
                                 {
                                     itemList[i].Bundles = tblLoadingSlipTO.LoadingSlipExtTOList[j].Bundles.ToString();
-                                    itemList[i].InvoiceQty = tblLoadingSlipTO.LoadingSlipExtTOList[j].LoadingQty;
+                                    itemList[i].InvoiceQty = Math.Round(tblLoadingSlipTO.LoadingSlipExtTOList[j].LoadedWeight * 0.001, 3);
                                     
                                 }
                             }

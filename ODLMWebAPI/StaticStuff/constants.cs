@@ -747,7 +747,7 @@ namespace ODLMWebAPI.StaticStuff
         public static string ROUND_OFF_TAX_INVOICE_VALUES = "ROUND_OFF_TAX_INVOICE_VALUES";
         //Aniket [18-9-2019]
         public static string SHOW_DELIVERY_LOCATION_ON_INVOICE = "SHOW_DELIVERY_LOCATION_ON_INVOICE";
-        //Aniket [30-7-2019] added for IOT
+        //@KKM [30-7-2019] added for IOT
         public static string CP_WEIGHING_MEASURE_SOURCE_ID = "WEIGHING_MEASURE_SOURCE_ID";
         public static String REGULAR_BOOKING = "REGULAR_BOOKING";
         #endregion

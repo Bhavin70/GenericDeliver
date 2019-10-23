@@ -1659,7 +1659,8 @@ namespace ODLMWebAPI.BL {
 
                     if (invoiceTO.IsConfirmed == 1)
                     {
-                        TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_INTERNALTXFER_INVOICE_ORG_ID, conn, tran);
+                        //Added By hrushikesh for default org id 09/10/2019
+                        TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID, conn, tran);
                         // Aniket [05-02-2019] check manual branswise invoice no generate or not
                         TblConfigParamsTO tblConfigParamsTOForBrand = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.GENERATE_MANUALLY_BRANDWISE_INVOICENO, conn, tran);
                         if (tblConfigParamsTO == null)
@@ -3558,7 +3559,7 @@ namespace ODLMWebAPI.BL {
 
                 }
                 #endregion
-                #region Sanjay [10-Dec-2018] Call To IoT To write the vehicle details
+                #region @KKM [10-Dec-2018] Call To IoT To write the vehicle details
 
                 if (weightSourceConfigId == (int) Constants.WeighingDataSourceE.IoT || weightSourceConfigId == (int) Constants.WeighingDataSourceE.BOTH) {
                     if (tblLoadingTO.StatusId == (Int32) Constants.TranStatusE.LOADING_CONFIRM || tblLoadingTO.StatusId == (Int32)Constants.TranStatusE.LOADING_NEW) {
@@ -3570,10 +3571,10 @@ namespace ODLMWebAPI.BL {
                         }
                         int res = WriteDataOnIOT (tblLoadingTO, conn, tran, vehicleNumber, transporterId);
                         if (res == 0) {
-                            tran.Rollback ();
+                            tran.Rollback();
                             resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Text = "Error While write data on IOT";
-
+                            resultMessage.Text = "Network Error, Please Try Again";
+                            resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
                             return resultMessage;
                         }
                     }
@@ -3640,7 +3641,7 @@ namespace ODLMWebAPI.BL {
         }
         //Aniket [7-8-2019] added to write data on IOT
         public int WriteDataOnIOT (TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran, String vehicleNumber, int transporterId) {
-            int result = 1;
+            int result = 0;
             DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus (tblLoadingTO.StatusId, conn, tran);
             if (statusTO == null || statusTO.IotStatusId == 0) {
                 result = 0;

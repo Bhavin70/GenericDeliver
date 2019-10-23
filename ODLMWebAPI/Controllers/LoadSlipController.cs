@@ -266,7 +266,7 @@ namespace ODLMWebAPI.Controllers
         public List<TblLoadingTO> GetAllPendingLoadingList(string userRoleTOList, Int32 cnfId, Int32 loadingStatusId, string fromDate, String toDate,Int32 loadingTypeId,Int32 dealerId, Int32 isConfirm = -1, Int32 brandId = 0, Int32 loadingNavigateId = 0,Int32 superwisorId=0)
         {
             try
-            {
+           {
                 DateTime frmDate = DateTime.MinValue;
                 DateTime tDate = DateTime.MinValue;
                 if (Constants.IsDateTime(fromDate))
