@@ -151,9 +151,22 @@ namespace ODLMWebAPI.BL
                 string LoadingSlipNos = string.Empty;
                 for (int i = 0; i < loadingSlipTOList.Count; i++)
                 {
-                    TblInvoiceTO invoiceTo = new TblInvoiceTO();
-                    invoiceTo = _iTblInvoiceDAO.SelectInvoiceTOFromLoadingSlipId(loadingSlipTOList[i].IdLoadingSlip, conn, tran);
-                    if (invoiceTo == null || invoiceTo.StatusId != (int)Constants.InvoiceStatusE.AUTHORIZED)
+                    //TblInvoiceTO invoiceTo = new TblInvoiceTO();
+                    //invoiceTo = _iTblInvoiceDAO.SelectInvoiceTOFromLoadingSlipId(loadingSlipTOList[i].IdLoadingSlip, conn, tran);
+                    //if (invoiceTo == null || invoiceTo.StatusId != (int)Constants.InvoiceStatusE.AUTHORIZED)
+                    //{
+                    //    LoadingSlipNos = string.IsNullOrEmpty(LoadingSlipNos) ? loadingSlipTOList[i].LoadingSlipNo : LoadingSlipNos + "," + loadingSlipTOList[i].LoadingSlipNo;
+                    //}
+
+                    List<TblInvoiceTO> invoiceToList = new List<TblInvoiceTO>();
+                    invoiceToList = _iTblInvoiceDAO.SelectInvoiceTOFromLoadingSlipId(loadingSlipTOList[i].IdLoadingSlip, conn, tran);
+                    if (invoiceToList == null || invoiceToList.Count == 0)
+                    {
+                        LoadingSlipNos = string.IsNullOrEmpty(LoadingSlipNos) ? loadingSlipTOList[i].LoadingSlipNo : LoadingSlipNos + "," + loadingSlipTOList[i].LoadingSlipNo;
+                    }
+
+                    var unauthInvs = invoiceToList.Where(inv => inv.InvoiceStatusE != Constants.InvoiceStatusE.AUTHORIZED).ToList();
+                    if (unauthInvs != null && unauthInvs.Count > 0)
                     {
                         LoadingSlipNos = string.IsNullOrEmpty(LoadingSlipNos) ? loadingSlipTOList[i].LoadingSlipNo : LoadingSlipNos + "," + loadingSlipTOList[i].LoadingSlipNo;
                     }

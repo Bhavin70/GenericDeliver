@@ -120,7 +120,6 @@ namespace ODLMWebAPI.BL
                     
                     if (bookingList != null && bookingList.Count > 0)
                     {
-                       
                         for (int i = 0; i < bookingList.Count; i++)
                         {
                             var matchedAvgWt = tblProductInfoTOs.Where(b => b.MaterialId == bookingList[i].MaterialId

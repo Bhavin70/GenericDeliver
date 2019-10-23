@@ -14,8 +14,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         TblGroupItemTO SelectTblGroupItem(Int32 idGroupItem);
         TblGroupItemTO SelectAllTblGroupItem(SqlConnection conn, SqlTransaction tran);
         List<TblGroupItemTO> ConvertDTToList(SqlDataReader tblGroupItemTODT);
-        TblGroupItemTO SelectTblGroupItemDetails(Int32 prodItemId);
-        TblGroupItemTO SelectTblGroupItemDetails(Int32 prodItemId, SqlConnection conn, SqlTransaction tran);
+        TblGroupItemTO SelectTblGroupItemDetails(Int32 prodItemId, Int32 prodCatId, Int32 prodSpecId, Int32 materialId);
+        TblGroupItemTO SelectTblGroupItemDetails(Int32 prodItemId, Int32 prodCatId, Int32 prodSpecId, Int32 materialId, SqlConnection conn, SqlTransaction tran);
         List<TblGroupItemTO> SelectAllTblGroupItemDtlsList(Int32 groupId, SqlConnection conn, SqlTransaction tran);
         int InsertTblGroupItem(TblGroupItemTO tblGroupItemTO);
         int InsertTblGroupItem(TblGroupItemTO tblGroupItemTO, SqlConnection conn, SqlTransaction tran);
