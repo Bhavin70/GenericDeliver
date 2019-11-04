@@ -27,7 +27,8 @@ namespace ODLMWebAPI.BL
         private readonly IConnectionString _iConnectionString;
         private readonly ICommon _iCommon;
         private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
-        public TblQuotaDeclarationBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ICommon iCommon, IConnectionString iConnectionString, ITblUserBrandDAO iTblUserBrandDAO, ITblBookingActionsBL iTblBookingActionsBL, ITblAlertInstanceBL iTblAlertInstanceBL, ITblUserBL iTblUserBL, ITblPersonBL iTblPersonBL, ITblGlobalRateBL iTblGlobalRateBL, ITblUserBrandBL iTblUserBrandBL, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, ITblConfigParamsBL iTblConfigParamsBL)
+        private readonly ITblOrganizationBL _iTblOrganizationBL;
+        public TblQuotaDeclarationBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ICommon iCommon, IConnectionString iConnectionString, ITblUserBrandDAO iTblUserBrandDAO, ITblBookingActionsBL iTblBookingActionsBL, ITblAlertInstanceBL iTblAlertInstanceBL, ITblUserBL iTblUserBL, ITblPersonBL iTblPersonBL, ITblGlobalRateBL iTblGlobalRateBL, ITblUserBrandBL iTblUserBrandBL, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, ITblConfigParamsBL iTblConfigParamsBL, ITblOrganizationBL iTblOrganizationBL)
         {
             _iTblQuotaDeclarationDAO = iTblQuotaDeclarationDAO;
             _iTblConfigParamsBL = iTblConfigParamsBL;
@@ -41,6 +42,7 @@ namespace ODLMWebAPI.BL
             _iConnectionString = iConnectionString;
             _iCommon = iCommon;
             _iTblAlertDefinitionDAO = iTblAlertDefinitionDAO;
+            _iTblOrganizationBL = iTblOrganizationBL;
         }
         #region Selection
 
@@ -631,6 +633,10 @@ namespace ODLMWebAPI.BL
 
                 #region 3. Send Notifications Via SMS Or Email To All C&F
 
+
+
+
+
                 TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
                 tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.NEW_RATE_AND_QUOTA_DECLARED;
 
@@ -663,6 +669,44 @@ namespace ODLMWebAPI.BL
                     tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
                     tblAlertInstanceTO.SmsTOList = smsTOList;
                 }
+
+
+                #region Send sms to ORG Type 
+
+                TblConfigParamsTO smsToOrgType = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_SEND_RATE_SMS_TO_DEALER_REGISTER_MOBILE_NO);
+                if (smsToOrgType != null)
+                {
+                    if (!String.IsNullOrEmpty(smsToOrgType.ConfigParamVal))
+                    {
+                        if (smsToOrgType.ConfigParamVal == "1")
+                        {
+                            List<TblOrganizationTO> tblOrganizationTODealerList = _iTblOrganizationBL.SelectAllTblOrganizationList(Constants.OrgTypeE.DEALER);
+                            if (tblOrganizationTODealerList != null && tblOrganizationTODealerList.Count > 0)
+                            {
+                                for (int q = 0; q < tblOrganizationTODealerList.Count; q++)
+                                {
+                                    TblOrganizationTO tblOrganizationTO = tblOrganizationTODealerList[q];
+
+                                    if (!String.IsNullOrEmpty(tblOrganizationTO.RegisteredMobileNos))
+                                    {
+                                        if (tblOrganizationTO.RegisteredMobileNos.Length > 5)
+                                        {
+                                            TblSmsTO smsTO1 = new TblSmsTO();
+                                            smsTO1.MobileNo = tblOrganizationTO.RegisteredMobileNos;
+                                            smsTO1.SourceTxnDesc = "Quota & Rate Declaration";
+                                            smsTO1.SmsTxt = tempSmsString;
+                                            tblAlertInstanceTO.SmsTOList.Add(smsTO1);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                #endregion
+
+
 
                 String alertDefIds = (int)NotificationConstants.NotificationsE.NEW_RATE_AND_QUOTA_DECLARED + "," + (int)NotificationConstants.NotificationsE.BOOKINGS_CLOSED;
                 result = _iTblAlertInstanceBL.ResetAlertInstanceByDef(alertDefIds, conn, tran);
