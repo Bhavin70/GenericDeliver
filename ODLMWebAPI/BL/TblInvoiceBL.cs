@@ -3273,7 +3273,7 @@ namespace ODLMWebAPI.BL
                 multipleInvoiceCopyDT.Columns.Add("invoiceCopyName");
 
                 //Aniket [13-02-2019] to display payment term option on print invoice
-                string paymentTerm = "";
+                string paymentTermAllCommaSeparated = "";
                 List<DropDownTO> multipleInvoiceCopyList = _iDimensionBL.SelectInvoiceCopyList();
 
                 if(multipleInvoiceCopyList!=null)
@@ -3289,26 +3289,6 @@ namespace ODLMWebAPI.BL
                     }
                 }
 
-                List<TblPaymentTermsForBookingTO> tblPaymentTermsForBookingTOList = _iTblPaymentTermsForBookingBL.SelectAllTblPaymentTermsForBookingFromBookingId(0, invoiceId);
-                if(tblPaymentTermsForBookingTOList!=null)
-                {
-                    foreach (var item in tblPaymentTermsForBookingTOList)
-                    {
-                        if(item.PaymentTermOptionList!=null && item.PaymentTermOptionList.Count>0)
-                        {
-                            foreach (var x in item.PaymentTermOptionList)
-                            {
-                                if (x.IsSelected == 1)
-                                {
-                                    paymentTerm = x.PaymentTermOption;
-                                }
-                            }
-
-                        }
-                       
-
-                    }
-                }
                
 
                 int defaultCompOrgId = 0;
@@ -3370,7 +3350,39 @@ namespace ODLMWebAPI.BL
                     headerDT.Rows[0]["orgEmailAddr"] = organizationTO.EmailAddr;
                 }
 
-     
+                List<TblPaymentTermsForBookingTO> tblPaymentTermsForBookingTOList = _iTblPaymentTermsForBookingBL.SelectAllTblPaymentTermsForBookingFromBookingId(0, invoiceId);
+                if (tblPaymentTermsForBookingTOList != null)
+                {
+                    foreach (var item in tblPaymentTermsForBookingTOList)
+                    {
+
+                        invoiceDT.Columns.Add(item.PaymentTerm);
+                        headerDT.Columns.Add(item.PaymentTerm);
+
+                        if (item.PaymentTermOptionList != null && item.PaymentTermOptionList.Count > 0)
+                        {
+                            foreach (var x in item.PaymentTermOptionList)
+                            {
+                                if (x.IsSelected == 1)
+                                {
+                                    paymentTermAllCommaSeparated += x.PaymentTermOption + ",";
+
+                                    invoiceDT.Rows[0][item.PaymentTerm] = x.PaymentTermOption;
+                                    headerDT.Rows[0][item.PaymentTerm] = x.PaymentTermOption;
+                                }
+                            }
+
+                        }
+
+
+                    }
+                }
+
+                if (!String.IsNullOrEmpty(paymentTermAllCommaSeparated))
+                {
+                    paymentTermAllCommaSeparated = paymentTermAllCommaSeparated.TrimEnd(',');
+                }
+
                 if (tblAddressTO != null)
                 {
                     String orgAddrStr = String.Empty;
@@ -3591,10 +3603,10 @@ namespace ODLMWebAPI.BL
                     }
                     //Aniket [8-02-2019] added
                     headerDT.Columns.Add("paymentTerm");
-                    if (!string.IsNullOrEmpty(paymentTerm))
+                    if (!string.IsNullOrEmpty(paymentTermAllCommaSeparated))
                     {
-                        invoiceDT.Rows[0]["paymentTerm"] = paymentTerm;
-                        headerDT.Rows[0]["paymentTerm"] = paymentTerm;
+                        invoiceDT.Rows[0]["paymentTerm"] = paymentTermAllCommaSeparated;
+                        headerDT.Rows[0]["paymentTerm"] = paymentTermAllCommaSeparated;
                     }
                     Double taxTotal = 0;
                     if (tblInvoiceTO.CgstAmt >0 && tblInvoiceTO.SgstAmt >0)
