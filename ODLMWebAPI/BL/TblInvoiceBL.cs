@@ -4558,6 +4558,19 @@ namespace ODLMWebAPI.BL
                 {
                     sgstPct = tblInvoiceItemTaxDtlsTO.TaxRatePct;
                 }
+
+                if (igstPct == 0)
+                {
+                    igstPct = cgstPct + sgstPct;
+                }
+                if (cgstPct == 0)
+                {
+                    if (igstPct > 0)
+                    {
+                        cgstPct = igstPct / 2;
+                        sgstPct = cgstPct;
+                    }
+                }
             }
 
             return true;
