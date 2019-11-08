@@ -3367,9 +3367,17 @@ namespace ODLMWebAPI.BL
                             {
                                 if (x.IsSelected == 1)
                                 {
-                                    paymentTermAllCommaSeparated += x.PaymentTermOption + ",";
 
-                                    invoiceDT.Rows[0][item.PaymentTerm] = x.PaymentTermOption;
+                                    String tempPayment = x.PaymentTermOption;
+                                    if (x.IsDescriptive == 1)
+                                    {
+                                        tempPayment = x.PaymentTermsDescription;
+                                    }
+
+
+                                    paymentTermAllCommaSeparated += tempPayment + ",";
+
+                                    invoiceDT.Rows[0][item.PaymentTerm] = tempPayment;
                                     //headerDT.Rows[0][item.PaymentTerm] = x.PaymentTermOption;
                                 }
                             }
