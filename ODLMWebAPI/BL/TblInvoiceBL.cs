@@ -3311,29 +3311,31 @@ namespace ODLMWebAPI.BL
                 }
 
                 //HeaderDT 
-                headerDT.Columns.Add("orgFirmName");
-                headerDT.Columns.Add("orgVillageNm");
-                headerDT.Columns.Add("orgPhoneNo");
-                headerDT.Columns.Add("orgFaxNo");
-                headerDT.Columns.Add("orgEmailAddr");
-                headerDT.Columns.Add("orgWebsite");
-                headerDT.Columns.Add("orgAddr");
-                headerDT.Columns.Add("orgCinNo");
-                headerDT.Columns.Add("orgGstinNo");
-                headerDT.Columns.Add("orgPanNo");
-                headerDT.Columns.Add("orgState");
-                headerDT.Columns.Add("orgStateCode");
+                //headerDT.Columns.Add("orgFirmName");
+                invoiceDT.Columns.Add("orgVillageNm");
+                invoiceDT.Columns.Add("orgPhoneNo");
+                invoiceDT.Columns.Add("orgFaxNo");
+                invoiceDT.Columns.Add("orgEmailAddr");
+                invoiceDT.Columns.Add("orgWebsite");
+                invoiceDT.Columns.Add("orgAddr");
+                invoiceDT.Columns.Add("orgCinNo");
+                invoiceDT.Columns.Add("orgGstinNo");
+                invoiceDT.Columns.Add("orgPanNo");   //Twicie
+                invoiceDT.Columns.Add("orgState");
+                invoiceDT.Columns.Add("orgStateCode");
 
-                headerDT.Columns.Add("plotNo");
-                headerDT.Columns.Add("areaName");
-                headerDT.Columns.Add("district");
-                headerDT.Columns.Add("pinCode");
+                invoiceDT.Columns.Add("plotNo");
+                invoiceDT.Columns.Add("areaName");
+                invoiceDT.Columns.Add("district");
+                invoiceDT.Columns.Add("pinCode");
 
 
                 invoiceDT.Columns.Add("orgFirmName");
                 invoiceDT.Columns.Add("hsnNo");
                 invoiceDT.Columns.Add("panNo");
                 invoiceDT.Columns.Add("paymentTerm");
+                invoiceDT.Columns.Add("poNo");
+                invoiceDT.Columns.Add("poDateStr");
 
                 TblAddressTO tblAddressTO = _iTblAddressBL.SelectOrgAddressWrtAddrType(organizationTO.IdOrganization, Constants.AddressTypeE.OFFICE_ADDRESS);
                 List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
@@ -3341,13 +3343,13 @@ namespace ODLMWebAPI.BL
                 {
                     headerDT.Rows.Add();
                     invoiceDT.Rows.Add();
-                    headerDT.Rows[0]["orgFirmName"] = organizationTO.FirmName;
+                    //headerDT.Rows[0]["orgFirmName"] = organizationTO.FirmName;
                     invoiceDT.Rows[0]["orgFirmName"] = organizationTO.FirmName;
 
-                    headerDT.Rows[0]["orgPhoneNo"] = organizationTO.PhoneNo;
-                    headerDT.Rows[0]["orgFaxNo"] = organizationTO.FaxNo;
-                    headerDT.Rows[0]["orgWebsite"] = organizationTO.Website;
-                    headerDT.Rows[0]["orgEmailAddr"] = organizationTO.EmailAddr;
+                    invoiceDT.Rows[0]["orgPhoneNo"] = organizationTO.PhoneNo;
+                    invoiceDT.Rows[0]["orgFaxNo"] = organizationTO.FaxNo;
+                    invoiceDT.Rows[0]["orgWebsite"] = organizationTO.Website;
+                    invoiceDT.Rows[0]["orgEmailAddr"] = organizationTO.EmailAddr;
                 }
 
                 List<TblPaymentTermsForBookingTO> tblPaymentTermsForBookingTOList = _iTblPaymentTermsForBookingBL.SelectAllTblPaymentTermsForBookingFromBookingId(0, invoiceId);
@@ -3357,7 +3359,7 @@ namespace ODLMWebAPI.BL
                     {
 
                         invoiceDT.Columns.Add(item.PaymentTerm);
-                        headerDT.Columns.Add(item.PaymentTerm);
+                        //headerDT.Columns.Add(item.PaymentTerm);
 
                         if (item.PaymentTermOptionList != null && item.PaymentTermOptionList.Count > 0)
                         {
@@ -3368,7 +3370,7 @@ namespace ODLMWebAPI.BL
                                     paymentTermAllCommaSeparated += x.PaymentTermOption + ",";
 
                                     invoiceDT.Rows[0][item.PaymentTerm] = x.PaymentTermOption;
-                                    headerDT.Rows[0][item.PaymentTerm] = x.PaymentTermOption;
+                                    //headerDT.Rows[0][item.PaymentTerm] = x.PaymentTermOption;
                                 }
                             }
 
@@ -3389,28 +3391,28 @@ namespace ODLMWebAPI.BL
                     if (!String.IsNullOrEmpty(tblAddressTO.PlotNo))
                     {
                         orgAddrStr += tblAddressTO.PlotNo;
-                        headerDT.Rows[0]["plotNo"] = tblAddressTO.PlotNo;
+                        invoiceDT.Rows[0]["plotNo"] = tblAddressTO.PlotNo;
                     }
                     if (!String.IsNullOrEmpty(tblAddressTO.AreaName))
                     {
                         orgAddrStr += " " + tblAddressTO.AreaName;
-                        headerDT.Rows[0]["areaName"] = tblAddressTO.AreaName;
+                        invoiceDT.Rows[0]["areaName"] = tblAddressTO.AreaName;
                     }
                     if (!String.IsNullOrEmpty(tblAddressTO.DistrictName))
                     {
                         orgAddrStr += " " + tblAddressTO.DistrictName;
-                        headerDT.Rows[0]["district"] = tblAddressTO.DistrictName;
+                        invoiceDT.Rows[0]["district"] = tblAddressTO.DistrictName;
 
                     }
                     if (tblAddressTO.Pincode > 0)
                     {
                         orgAddrStr += "-" + tblAddressTO.Pincode;
-                        headerDT.Rows[0]["pinCode"] = tblAddressTO.Pincode;
+                        invoiceDT.Rows[0]["pinCode"] = tblAddressTO.Pincode;
 
                     }
-                    headerDT.Rows[0]["orgVillageNm"] = tblAddressTO.VillageName + "-" + tblAddressTO.Pincode;
-                    headerDT.Rows[0]["orgAddr"] = orgAddrStr;
-                    headerDT.Rows[0]["orgState"] = tblAddressTO.StateName;
+                    invoiceDT.Rows[0]["orgVillageNm"] = tblAddressTO.VillageName + "-" + tblAddressTO.Pincode;
+                    invoiceDT.Rows[0]["orgAddr"] = orgAddrStr;
+                    invoiceDT.Rows[0]["orgState"] = tblAddressTO.StateName;
 
                     if (stateList != null && stateList.Count > 0)
                     {
@@ -3418,7 +3420,7 @@ namespace ODLMWebAPI.BL
                         if (stateTO != null)
                         {
 
-                            headerDT.Rows[0]["orgStateCode"] = stateTO.Tag;
+                            invoiceDT.Rows[0]["orgStateCode"] = stateTO.Tag;
                         }
                     }
 
@@ -3434,19 +3436,19 @@ namespace ODLMWebAPI.BL
                     var cinNo = orgLicenseList.Where(a => a.LicenseId == (int)Constants.CommercialLicenseE.CIN_NO).FirstOrDefault();
                     if (cinNo != null)
                     {
-                        headerDT.Rows[headerDT.Rows.Count - 1]["orgCinNo"] = cinNo.LicenseValue;
+                        invoiceDT.Rows[invoiceDT.Rows.Count - 1]["orgCinNo"] = cinNo.LicenseValue;
                     }
                     //GSTIN Number
                     var gstinNo = orgLicenseList.Where(a => a.LicenseId == (int)Constants.CommercialLicenseE.IGST_NO).FirstOrDefault();
                     if (gstinNo != null)
                     {
-                        headerDT.Rows[headerDT.Rows.Count - 1]["orgGstinNo"] = gstinNo.LicenseValue;
+                        invoiceDT.Rows[invoiceDT.Rows.Count - 1]["orgGstinNo"] = gstinNo.LicenseValue;
                     }
                     //PAN Number
                     var panNo = orgLicenseList.Where(a => a.LicenseId == (int)Constants.CommercialLicenseE.PAN_NO).FirstOrDefault();
                     if (panNo != null)
                     {
-                        headerDT.Rows[headerDT.Rows.Count - 1]["orgPanNo"] = panNo.LicenseValue;
+                        invoiceDT.Rows[invoiceDT.Rows.Count - 1]["orgPanNo"] = panNo.LicenseValue;
                         invoiceDT.Rows[0]["panNo"] = panNo.LicenseValue;
 
                     }
@@ -3463,15 +3465,15 @@ namespace ODLMWebAPI.BL
                         tblInvoiceTO.VehicleNo = tblInvoiceTO.VehicleNo.ToUpper();
                     }
 
-                    headerDT.Columns.Add("invoiceNo");
-                    headerDT.Columns.Add("invoiceDateStr");
-                    headerDT.Columns.Add("deliveryLocation");
-                    headerDT.Columns.Add("EWayBillNo"); //Aniket [26-6-2019]
+                    invoiceDT.Columns.Add("invoiceNo");
+                    invoiceDT.Columns.Add("invoiceDateStr");
+                    //headerDT.Columns.Add("deliveryLocation");
+                    invoiceDT.Columns.Add("EWayBillNo"); //Aniket [26-6-2019]
 
-                    headerDT.Rows[0]["invoiceNo"] = tblInvoiceTO.InvoiceNo;
-                    headerDT.Rows[0]["invoiceDateStr"] = tblInvoiceTO.InvoiceDateStr;
+                    invoiceDT.Rows[0]["invoiceNo"] = tblInvoiceTO.InvoiceNo;
+                    invoiceDT.Rows[0]["invoiceDateStr"] = tblInvoiceTO.InvoiceDateStr;
                     if (!string.IsNullOrEmpty(tblInvoiceTO.ElectronicRefNo))
-                        headerDT.Rows[0]["EWayBillNo"] = tblInvoiceTO.ElectronicRefNo;
+                        invoiceDT.Rows[0]["EWayBillNo"] = tblInvoiceTO.ElectronicRefNo;
                     addressDT.Columns.Add("poNo");
                     addressDT.Columns.Add("poDateStr");
                     addressDT.Columns.Add("electronicRefNo");
@@ -3502,8 +3504,8 @@ namespace ODLMWebAPI.BL
                     invoiceDT.Columns.Add("netWeight", typeof(double));
 
 
-                    headerDT.Columns.Add("vehicleNo");
-                    headerDT.Columns.Add("lrNumber");
+                    //headerDT.Columns.Add("vehicleNo");
+                    //headerDT.Columns.Add("lrNumber");
                     invoiceDT.Columns.Add("vehicleNo");
                     invoiceDT.Columns.Add("transporterName");
                     invoiceDT.Columns.Add("deliveryLocation");
@@ -3543,17 +3545,17 @@ namespace ODLMWebAPI.BL
                         invoiceDT.Rows[0]["grossWeight"] = tblInvoiceTO.GrossWeight / 1000;
                         invoiceDT.Rows[0]["tareWeight"] = tblInvoiceTO.TareWeight / 1000;
                         invoiceDT.Rows[0]["netWeight"] = tblInvoiceTO.NetWeight / 1000;
-                        if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
-                        {
-                            headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
-                            invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
-                        }
+                        //if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                        //{
+                        //    headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        //    invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        //}
 
                         invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
-                        invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
-                        headerDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
-                        invoiceDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
-                        headerDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
+                        //invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
+                        //headerDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
+                        //invoiceDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
+                        //headerDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
                         invoiceDT.Rows[0]["disPer"] = getDiscountPerct(tblInvoiceTO);
                         invoiceDT.Rows[0]["roundOff"] = tblInvoiceTO.RoundOffAmt;
                     }
@@ -3577,36 +3579,43 @@ namespace ODLMWebAPI.BL
                         invoiceDT.Rows[0]["grossWeight"] = Math.Round(tblInvoiceTO.GrossWeight / 1000, 3);
                         invoiceDT.Rows[0]["tareWeight"] = Math.Round(tblInvoiceTO.TareWeight / 1000, 3);
                         invoiceDT.Rows[0]["netWeight"] = Math.Round(tblInvoiceTO.NetWeight / 1000, 3);
-                        if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
-                        {
-                            headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
-                            invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
-                        }
+                        //if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                        //{
+                        //    headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        //    invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        //}
                         invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
-                        invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
-                        headerDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
-                        invoiceDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
-                        headerDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
+                        //invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
+                        //headerDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
+                        //invoiceDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
+                        //headerDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
                         invoiceDT.Rows[0]["disPer"] = Math.Round(getDiscountPerct(tblInvoiceTO), 2);
                         invoiceDT.Rows[0]["roundOff"] = Math.Round(tblInvoiceTO.RoundOffAmt, 2);
 
                     }
 
+                    if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                    {
+                        invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                    }
+                    invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
+                    invoiceDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
+
                     //Aniket [8-02-2019] added
-                    headerDT.Columns.Add("preparationDate");
+                    //headerDT.Columns.Add("preparationDate");
                     if (tblInvoiceTO.GrossWtTakenDate != DateTime.MinValue)
                         invoiceDT.Rows[0]["grossWtTakenDate"] = tblInvoiceTO.GrossWtDateStr;
                     if (tblInvoiceTO.PreparationDate != DateTime.MinValue)
                     {
                         invoiceDT.Rows[0]["preparationDate"] = tblInvoiceTO.PreparationDateStr;
-                        headerDT.Rows[0]["preparationDate"] = tblInvoiceTO.PreparationDateStr;
+                        //headerDT.Rows[0]["preparationDate"] = tblInvoiceTO.PreparationDateStr;
                     }
                     //Aniket [8-02-2019] added
-                    headerDT.Columns.Add("paymentTerm");
+                    //headerDT.Columns.Add("paymentTerm");
                     if (!string.IsNullOrEmpty(paymentTermAllCommaSeparated))
                     {
                         invoiceDT.Rows[0]["paymentTerm"] = paymentTermAllCommaSeparated;
-                        headerDT.Rows[0]["paymentTerm"] = paymentTermAllCommaSeparated;
+                        //headerDT.Rows[0]["paymentTerm"] = paymentTermAllCommaSeparated;
                     }
                     Double taxTotal = 0;
                     if (tblInvoiceTO.CgstAmt > 0 && tblInvoiceTO.SgstAmt > 0)
@@ -3835,24 +3844,26 @@ namespace ODLMWebAPI.BL
                     addressDT.Columns.Add("lblConPanNo");
 
 
-                    headerDT.Columns.Add("shippingNm");
-                    headerDT.Columns.Add("shippingAddr");
-                    headerDT.Columns.Add("shippingGstNo");
-                    headerDT.Columns.Add("shippingPanNo");
-                    headerDT.Columns.Add("shippingMobNo");
-                    headerDT.Columns.Add("shippingState");
-                    headerDT.Columns.Add("shippingStateCode");
+                    invoiceDT.Columns.Add("shippingNm");
+                    invoiceDT.Columns.Add("shippingAddr");
+                    invoiceDT.Columns.Add("shippingGstNo");
+                    invoiceDT.Columns.Add("shippingPanNo");
+                    invoiceDT.Columns.Add("shippingMobNo");
+                    invoiceDT.Columns.Add("shippingState");
+                    invoiceDT.Columns.Add("shippingStateCode");
 
-                    headerDT.Columns.Add("lblShippingMobNo");
-                    headerDT.Columns.Add("lblShippingStateCode");
-                    headerDT.Columns.Add("lblShippingGstin");
-                    headerDT.Columns.Add("lblShippingPanNo");
+                    invoiceDT.Columns.Add("lblShippingMobNo");
+                    invoiceDT.Columns.Add("lblShippingStateCode");
+                    invoiceDT.Columns.Add("lblShippingGstin");
+                    invoiceDT.Columns.Add("lblShippingPanNo");
                     addressDT.Rows.Add();
                     addressDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
+                    invoiceDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
                     if (!String.IsNullOrEmpty(tblInvoiceTO.PoDateStr))
                     {
                         DateTime poDate = Convert.ToDateTime(tblInvoiceTO.PoDateStr);
                         addressDT.Rows[0]["poDateStr"] = poDate.ToString("dd/MM/yyyy");
+                        invoiceDT.Rows[0]["poDateStr"] = poDate.ToString("dd/MM/yyyy");
                     }
                     addressDT.Rows[0]["electronicRefNo"] = tblInvoiceTO.ElectronicRefNo;
                     string finalAddr = "", addr1 = "";
@@ -4155,33 +4166,33 @@ namespace ODLMWebAPI.BL
                                     //headerDT.Rows.Add();
                                     if (!String.IsNullOrEmpty(tblShippingAddressTO.ContactNo))
                                     {
-                                        headerDT.Rows[0]["lblShippingMobNo"] = strMobNo;
+                                        invoiceDT.Rows[0]["lblShippingMobNo"] = strMobNo;
                                     }
                                     if (!String.IsNullOrEmpty(tblShippingAddressTO.State))
                                     {
-                                        headerDT.Rows[0]["lblShippingStateCode"] = strStateCode;
+                                        invoiceDT.Rows[0]["lblShippingStateCode"] = strStateCode;
                                     }
                                     if (!String.IsNullOrEmpty(tblShippingAddressTO.GstinNo))
                                     {
-                                        headerDT.Rows[0]["lblShippingGstin"] = strGstin;
+                                        invoiceDT.Rows[0]["lblShippingGstin"] = strGstin;
                                     }
                                     if (!String.IsNullOrEmpty(tblShippingAddressTO.PanNo))
                                     {
-                                        headerDT.Rows[0]["lblShippingPanNo"] = strPanNo;
+                                        invoiceDT.Rows[0]["lblShippingPanNo"] = strPanNo;
                                     }
 
 
 
-                                    headerDT.Rows[0]["shippingNm"] = tblShippingAddressTO.BillingName;
-                                    headerDT.Rows[0]["shippingAddr"] = tblShippingAddressTO.Address + "," + tblShippingAddressTO.Taluka
+                                    invoiceDT.Rows[0]["shippingNm"] = tblShippingAddressTO.BillingName;
+                                    invoiceDT.Rows[0]["shippingAddr"] = tblShippingAddressTO.Address + "," + tblShippingAddressTO.Taluka
                                                                         + " ," + tblShippingAddressTO.District + "," + tblShippingAddressTO.State;
-                                    headerDT.Rows[0]["shippingGstNo"] = tblShippingAddressTO.GstinNo;
-                                    headerDT.Rows[0]["shippingPanNo"] = tblShippingAddressTO.PanNo;
+                                    invoiceDT.Rows[0]["shippingGstNo"] = tblShippingAddressTO.GstinNo;
+                                    invoiceDT.Rows[0]["shippingPanNo"] = tblShippingAddressTO.PanNo;
                                     //Aniket [9-9-2-2019]
                                     if (tblInvoiceTO.IsConfirmed == 1)
-                                        headerDT.Rows[0]["shippingMobNo"] = tblShippingAddressTO.ContactNo;
+                                        invoiceDT.Rows[0]["shippingMobNo"] = tblShippingAddressTO.ContactNo;
                                     else
-                                        headerDT.Rows[0]["shippingMobNo"] = String.Empty;
+                                        invoiceDT.Rows[0]["shippingMobNo"] = String.Empty;
 
 
                                 }
@@ -4211,6 +4222,14 @@ namespace ODLMWebAPI.BL
                     }
 
                 }
+
+                //Saket [2019-08-11] To keep the both DT columns same
+                //If two same columns with different values then 2 rows will be created while merging DT.
+                //invoiceDT.Merge(headerDT);
+
+                headerDT = invoiceDT.Copy();
+                headerDT.TableName = "headerDT"; 
+
                 printDataSet.Tables.Add(headerDT);
                 printDataSet.Tables.Add(invoiceDT);
                 printDataSet.Tables.Add(invoiceItemDT);
