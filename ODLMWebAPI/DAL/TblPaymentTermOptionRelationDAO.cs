@@ -21,7 +21,7 @@ namespace ODLMWebAPI.DAL
         #region Methods
         public String SqlSelectQuery()
         {
-            String sqlSelectQry = "SELECT PaymentTermRelation.*,PaymentTermOptions.paymentTermOption,PaymentTerms.paymentTerm FROM [tblPaymentTermOptionRelation] PaymentTermRelation " +
+            String sqlSelectQry = "SELECT PaymentTermRelation.*,PaymentTermOptions.paymentTermOption,PaymentTerms.paymentTerm,PaymentTermOptions.paymentTermId FROM [tblPaymentTermOptionRelation] PaymentTermRelation " +
                 "LEFT JOIN tblPaymentTermOptions PaymentTermOptions ON PaymentTermRelation.paymentTermOptionId = PaymentTermOptions.idPaymentTermOption " +
                 "LEFT JOIN tblPaymentTermsForBooking PaymentTerms ON PaymentTermOptions.paymentTermId = PaymentTerms.idPaymentTerm"; 
             return sqlSelectQry;
@@ -97,7 +97,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = " SELECT paymentTermOptRel.*, paymentTermOpt.paymentTermId,paymentTermOpt.paymentTermOption,paymentTerm.paymentTerm from tblPaymentTermOptionRelation paymentTermOptRel " +
+                cmdSelect.CommandText = " SELECT paymentTermOptRel.*, paymentTermOpt.paymentTermId,paymentTermOpt.paymentTermOption,paymentTerm.paymentTerm,paymentTermOpt.paymentTermId from tblPaymentTermOptionRelation paymentTermOptRel " +
                                         " Left join tblPaymentTermOptions paymentTermOpt ON paymentTermOpt.idPaymentTermOption = paymentTermOptRel.paymentTermOptionId "+
                                         " left join tblPaymentTermsForBooking paymentTerm ON paymentTerm.idPaymentTerm=paymentTermOpt.paymentTermId "+
                                         " WHERE paymentTermOptRel.bookingId= " + bookingId + " AND paymentTermOpt.paymentTermId = " + paymentTermId + " AND paymentTermOptRel.isActive=1 ";
@@ -136,7 +136,7 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 cmdSelect.CommandText = " SELECT paymentTermOptRel.*, paymentTermOpt.paymentTermId ,paymentTermOpt.paymentTermOption "+
-                                        " , paymentTerm.paymentTerm from tblPaymentTermOptionRelation paymentTermOptRel " +
+                                        " , paymentTerm.paymentTerm,paymentTermOpt.paymentTermId from tblPaymentTermOptionRelation paymentTermOptRel " +
                                         " Left join tblPaymentTermOptions paymentTermOpt ON paymentTermOpt.idPaymentTermOption = paymentTermOptRel.paymentTermOptionId " +
                                         " left join tblPaymentTermsForBooking paymentTerm ON paymentTerm.idPaymentTerm=paymentTermOpt.paymentTermId "+
                                         " WHERE paymentTermOptRel.invoiceId= " + invoiceId + " AND paymentTermOpt.paymentTermId = " + paymentTermId + "AND paymentTermOptRel.isActive=1 ";
@@ -362,6 +362,8 @@ namespace ODLMWebAPI.DAL
                         tblPaymentTermOptionRelationTONew.PaymentTerm = Convert.ToString(tblPaymentTermOptionRelationTODT["paymentTerm"].ToString());
                     if (tblPaymentTermOptionRelationTODT["paymentTermsDescription"] != DBNull.Value)
                         tblPaymentTermOptionRelationTONew.PaymentTermsDescription = Convert.ToString(tblPaymentTermOptionRelationTODT["paymentTermsDescription"].ToString());
+                    if (tblPaymentTermOptionRelationTODT["paymentTermId"] != DBNull.Value)
+                        tblPaymentTermOptionRelationTONew.PaymentTermId = Convert.ToInt32(tblPaymentTermOptionRelationTODT["paymentTermId"].ToString());
                     tblPaymentTermOptionRelationTOList.Add(tblPaymentTermOptionRelationTONew);
                 }
             }
