@@ -751,6 +751,10 @@ namespace ODLMWebAPI.BL
                         tblBookingTO = _iCircularDependencyBL.SelectBookingsTOWithDetails(bookingId);
                         if (tblBookingTO != null)
                         {
+                            //added newly by HArshala
+                            tblBookingTO.PaymentTermOptionRelationTOLst = _iTblPaymentTermOptionRelationDAO.SelectTblPaymentTermOptionRelationByBookingId(bookingId);
+
+
                             tblLoadingTO.VehicleNo = tblBookingTO.VehicleNo;
                             tblLoadingTO.FreightAmt = tblBookingTO.FreightAmt;
                             tblLoadingTO.CnfOrgId = tblBookingTO.CnFOrgId;
