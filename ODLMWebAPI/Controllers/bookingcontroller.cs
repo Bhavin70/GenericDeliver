@@ -883,11 +883,13 @@ namespace ODLMWebAPI.Controllers
                 loadingAllowedTimeTO.CreatedBy = Convert.ToInt32(loginUserId);
                 loadingAllowedTimeTO.CreatedOn = createdDate;
 
-                loadingAllowedTimeTO.AllowedBookingTime = Convert.ToDateTime(loadingAllowedTimeTO.ExtendedHrs) ;
+                //loadingAllowedTimeTO.AllowedBookingTime = Convert.ToDateTime(loadingAllowedTimeTO.ExtendedHrs) ;
+                loadingAllowedTimeTO.AllowedBookingTime = Convert.ToDateTime(loadingAllowedTimeTO.ExtendedHrs);
 
                 TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_BOOKING_END_TIME);
                 if (tblConfigParamsTO != null)
-                    tblConfigParamsTO.ConfigParamVal =  Convert.ToString(loadingAllowedTimeTO.AllowedBookingTimeStr).Replace(" ", string.Empty);
+                    //tblConfigParamsTO.ConfigParamVal =  Convert.ToString(loadingAllowedTimeTO.AllowedBookingTimeStr).Replace(" ", string.Empty);
+                    tblConfigParamsTO.ConfigParamVal = loadingAllowedTimeTO.ExtendedHrs;
 
                 int result= _iTblConfigParamsBL.UpdateTblConfigParams(tblConfigParamsTO);
                 rMessage.MessageType = ResultMessageE.Information;

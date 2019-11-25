@@ -275,6 +275,10 @@ namespace ODLMWebAPI.DAL
 
         public int ExecuteInsertionCommand(TblBookingScheduleTO tblBookingScheduleTO, SqlCommand cmdInsert)
         {
+
+            if (tblBookingScheduleTO.ScheduleGroupId == 0)
+                tblBookingScheduleTO.ScheduleGroupId = 1;
+
             String sqlQuery = @" INSERT INTO [tblBookingSchedule]( " + 
             //"  [idSchedule]" +
             " [bookingId]" +
