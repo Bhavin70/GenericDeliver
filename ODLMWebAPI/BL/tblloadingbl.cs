@@ -1054,14 +1054,14 @@ namespace ODLMWebAPI.BL
 
 
                 //Sanjay [2018-07-04] Tax Calculations Inclusive Of Taxes Or Exclusive Of Taxes. Reported From Customer Shivangi Rolling Mills.By default it will be 0 i.e. Tax Exclusive
-                Int32 isTaxInclusiveWithTaxes = 0;
+                //Int32 isTaxInclusiveWithTaxes = 0;
                 Int32 isTaxInclusiveWithAllParam = 0; // Less CD,parity,ORC while reverse GSTIN Calculation
                 Boolean isSez = false;
-                TblConfigParamsTO rateCalcConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_RATE_CALCULATIONS_TAX_INCLUSIVE, conn, tran);
-                if (rateCalcConfigParamsTO != null)
-                {
-                    isTaxInclusiveWithTaxes = Convert.ToInt32(rateCalcConfigParamsTO.ConfigParamVal);
-                }
+                //TblConfigParamsTO rateCalcConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_RATE_CALCULATIONS_TAX_INCLUSIVE, conn, tran);
+                //if (rateCalcConfigParamsTO != null)
+                //{
+                //    isTaxInclusiveWithTaxes = Convert.ToInt32(rateCalcConfigParamsTO.ConfigParamVal);
+                //}
 
                 TblConfigParamsTO rateCalcTaxInclConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_RATE_CALCULATIONS_TAX_INCLUSIVE_WITH_ALL_PARAMS_LESS, conn, tran);
                 if (rateCalcTaxInclConfigParamsTO != null)
@@ -1208,7 +1208,6 @@ namespace ODLMWebAPI.BL
 
 
                                     String rateCalcDesc = string.Empty;
-                                    int isBalajiClient = 0;
                                     Double bookingPrice;
                                     List<TblBookingExtTO> bookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(tblBookingParitiesTO.BookingId);
                                     //Aniket [24-9-2019]
@@ -1247,11 +1246,30 @@ namespace ODLMWebAPI.BL
                                         }
                                     }
 
+                                    TblGstCodeDtlsTO gstCodeDtlsTO = _iTblGstCodeDtlsDAO.SelectGstCodeDtlsTO(tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdItemId, conn, tran);
+                                    if (gstCodeDtlsTO == null)
+                                    {
+                                        tran.Rollback();
+                                        resultMessage.DefaultBehaviour();
+                                        resultMessage.Text = "Error : GST Code Not Found";
+                                        string mateDesc = tblLoadingSlipExtTO.DisplayName;
+                                        //[05-09-2018] : Vijaymala commented code to set display  name for item for other and regular
+                                        //tblLoadingSlipExtTO.MaterialDesc + " " + tblLoadingSlipExtTO.ProdCatDesc + "-" + tblLoadingSlipExtTO.ProdSpecDesc;
+                                        resultMessage.DisplayMessage = "Warning : GST Code Is Not Defined For " + mateDesc + " Please contact BackOffice";
+                                        return resultMessage;
+                                    }
 
                                     // rateCalcDesc = "B.R : " + tblBookingParitiesTO.BookingRate + "|";
-                                    if (isTaxInclusive == 1 && isTaxInclusiveWithTaxes == 0)
+                                    //if (isTaxInclusive == 1 && isTaxInclusiveWithTaxes == 0)
+                                    if (isTaxInclusive == 1 && isTaxInclusiveWithAllParam == 0)
                                     {
-                                        bookingPrice = bookingPrice / 1.18;
+                                        //bookingPrice = bookingPrice / 1.18;
+
+                                        Double divisor = 100 + gstCodeDtlsTO.TaxPct;
+
+                                        divisor = divisor / 100;
+
+                                        bookingPrice = bookingPrice / divisor;
                                         bookingPrice = Math.Round(bookingPrice, 2);
                                     }
                                     rateCalcDesc = "B.R : " + bookingPrice + "|";
@@ -1330,17 +1348,24 @@ namespace ODLMWebAPI.BL
                                     if (tblLoadingSlipTO.IsConfirmed == 1)
                                         cdApplicableAmt += parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
 
+
+                                    //if (isTaxInclusiveWithAllParam == 1)
+                                    //{
+                                    //    Double divisor = 100 + gstCodeDtlsTO.TaxPct;
+
+                                    //    divisor = divisor / 100;
+
+                                    //    cdApplicableAmt = cdApplicableAmt / divisor;
+                                    //    cdApplicableAmt = Math.Round(cdApplicableAmt, 2);
+                                    //}
+
+
                                     Double cdAmt = 0;
                                     Double orgCdAmt = 0;
                                     //Vijaymala added[22-06-2018]
                                     DropDownTO dropDownTO = _iDimensionDAO.SelectCDDropDown(tblLoadingSlipTO.CdStructureId);
 
-                                    if (isBalajiClient == 1)
-                                    {
-
-                                    }
-                                    else
-                                    {
+                                    
                                         if (tblLoadingSlipTO.CdStructure >= 0)
                                         {
                                             //Priyanka [23-07-2018] Added if cdstructure is 0
@@ -1358,7 +1383,6 @@ namespace ODLMWebAPI.BL
                                                 cdAmt = cdAmt + tblLoadingSlipTO.AddDiscAmt;        //Priyanka [09-07-18]
                                             }
                                         }
-                                    }
 
 
                                     rateCalcDesc += "CD :" + Math.Round(cdAmt, 2) + "|";
@@ -1371,20 +1395,8 @@ namespace ODLMWebAPI.BL
                                     Double gstAmt = 0;
                                     Double finalRate = 0;
 
-                                    TblGstCodeDtlsTO gstCodeDtlsTO = _iTblGstCodeDtlsDAO.SelectGstCodeDtlsTO(tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdItemId, conn, tran);
-                                    if (gstCodeDtlsTO == null)
-                                    {
-                                        tran.Rollback();
-                                        resultMessage.DefaultBehaviour();
-                                        resultMessage.Text = "Error : GST Code Not Found";
-                                        string mateDesc = tblLoadingSlipExtTO.DisplayName;
-                                        //[05-09-2018] : Vijaymala commented code to set display  name for item for other and regular
-                                        //tblLoadingSlipExtTO.MaterialDesc + " " + tblLoadingSlipExtTO.ProdCatDesc + "-" + tblLoadingSlipExtTO.ProdSpecDesc;
-                                        resultMessage.DisplayMessage = "Warning : GST Code Is Not Defined For " + mateDesc + " Please contact BackOffice";
-                                        return resultMessage;
-                                    }
-
-                                    if (isTaxInclusiveWithTaxes == 0 || isTaxInclusive == 0)
+                                    //if (isTaxInclusiveWithTaxes == 0 || isTaxInclusive == 0)
+                                    if(isTaxInclusive == 0)
                                     {
                                         if (tblLoadingSlipTO.IsConfirmed == 1)
                                             //gstApplicableAmt = rateAfterCD + freightPerMT + parityTO.ExpenseAmt + parityTO.OtherAmt;
@@ -1408,35 +1420,40 @@ namespace ODLMWebAPI.BL
                                     }
                                     else
                                     {
-                                        if (isSez)
+                                        if (isTaxInclusiveWithAllParam == 0)
                                         {
-                                            gstCodeDtlsTO.TaxPct = 0;
-                                        }
-                                        Double taxToDivide = 100 + gstCodeDtlsTO.TaxPct;
+                                            if (isSez)
+                                            {
+                                                gstCodeDtlsTO.TaxPct = 0;
+                                            }
+                                            Double taxToDivide = 100 + gstCodeDtlsTO.TaxPct;
 
-                                        gstAmt = basicRateTaxIncl - ((basicRateTaxIncl / taxToDivide) * 100);
-                                        gstAmt = Math.Round(gstAmt, 2);
-                                        gstApplicableAmt = basicRateTaxIncl - gstAmt;
-                                        finalRate = basicRateTaxIncl;
-                                        cdApplicableAmt = gstApplicableAmt + cdAmt;
+                                            gstAmt = basicRateTaxIncl - ((basicRateTaxIncl / taxToDivide) * 100);
+                                            gstAmt = Math.Round(gstAmt, 2);
+                                            gstApplicableAmt = basicRateTaxIncl - gstAmt;
+                                            finalRate = basicRateTaxIncl;
+                                            cdApplicableAmt = gstApplicableAmt + cdAmt;
+                                        }
+                                        //Rate Calculation for A1 Ispaat- All param will less from declared rate expect Freight
+                                        else if (isTaxInclusiveWithAllParam == 1)
+                                        {
+                                            if (isSez)
+                                            {
+                                                gstCodeDtlsTO.TaxPct = 0;
+                                            }
+                                            Double taxToDivide = 100 + gstCodeDtlsTO.TaxPct;
+
+                                            double reverseGstBasicAmt = (bookingPrice - cdAmt - orcAmtPerTon + parityAmt + priceSetOff + bvcAmt) + freightPerMT;
+                                            gstAmt = reverseGstBasicAmt - ((reverseGstBasicAmt / taxToDivide) * 100);
+                                            gstAmt = Math.Round(gstAmt, 2);
+                                            gstApplicableAmt = reverseGstBasicAmt - gstAmt;
+                                            finalRate = reverseGstBasicAmt;
+                                            cdApplicableAmt = gstApplicableAmt + cdAmt;
+                                        }
+
                                     }
 
-                                    //Rate Calculation for A1 Ispaat- All param will less from declared rate expect Freight
-                                    if (isTaxInclusiveWithAllParam == 1 && isTaxInclusive == 1)
-                                    {
-                                        if (isSez)
-                                        {
-                                            gstCodeDtlsTO.TaxPct = 0;
-                                        }
-                                        Double taxToDivide = 100 + gstCodeDtlsTO.TaxPct;
-
-                                        double reverseGstBasicAmt = (bookingPrice - cdAmt - orcAmtPerTon - parityAmt - priceSetOff - bvcAmt) + freightPerMT;
-                                        gstAmt = reverseGstBasicAmt - ((reverseGstBasicAmt / taxToDivide) * 100);
-                                        gstAmt = Math.Round(gstAmt, 2);
-                                        gstApplicableAmt = reverseGstBasicAmt - gstAmt;
-                                        finalRate = reverseGstBasicAmt;
-                                        cdApplicableAmt = gstApplicableAmt + cdAmt;
-                                    }
+                                    
 
 
                                     tblLoadingSlipExtTO.TaxableRateMT = gstApplicableAmt;
