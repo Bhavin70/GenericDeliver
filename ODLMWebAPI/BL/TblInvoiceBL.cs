@@ -38,6 +38,7 @@ namespace ODLMWebAPI.BL
         private readonly ITblLoadingSlipDtlDAO _iTblLoadingSlipDtlDAO;
         private readonly ITblWeighingMeasuresDAO _iTblWeighingMeasuresDAO;
         private readonly ITblParitySummaryDAO _iTblParitySummaryDAO;
+        private readonly IDimensionDAO _iDimensionDAO;
         private readonly ITblProductItemDAO _iTblProductItemDAO;
         private readonly ITblProdGstCodeDtlsDAO _iTblProdGstCodeDtlsDAO;
         private readonly ITblGstCodeDtlsDAO _iTblGstCodeDtlsDAO;
@@ -69,7 +70,7 @@ namespace ODLMWebAPI.BL
         private readonly ITblPaymentTermOptionRelationBL _iTblPaymentTermOptionRelationBL;
         private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
         private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
-        public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO, ITblInvoiceChangeOrgHistoryDAO iTblInvoiceChangeOrgHistoryDAO, ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL)
+        public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO, ITblInvoiceChangeOrgHistoryDAO iTblInvoiceChangeOrgHistoryDAO, ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL, IDimensionDAO iDimensionDAO)
         {
             _iTblInvoiceChangeOrgHistoryDAO = iTblInvoiceChangeOrgHistoryDAO;
             _iTblInvoiceDAO = iTblInvoiceDAO;
@@ -120,6 +121,7 @@ namespace ODLMWebAPI.BL
             _iTblPaymentTermOptionRelationBL = iTblPaymentTermOptionRelationBL;
             _iTblConfigParamsDAO = iTblConfigParamsDAO;
             _iTblAlertDefinitionDAO = iTblAlertDefinitionDAO;
+            _iDimensionDAO = iDimensionDAO;
         }
         #region Selection
 
@@ -2217,28 +2219,23 @@ namespace ODLMWebAPI.BL
                         resultMsg.DisplayMessage = "Booking Details Not Found for invoice Id " + tblInvoiceTO.IdInvoice;
                         return resultMsg;
                     }
-                    Int32 isTaxInclusiveWithTaxes = 0;
-                    TblConfigParamsTO rateCalcConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_RATE_CALCULATIONS_TAX_INCLUSIVE, conn, tran);
-                    if (rateCalcConfigParamsTO != null)
+
+                    TblBookingsTO = _iTblBookingsBL.SelectTblBookingsTO(TblBookingsTO.IdBooking, conn, tran);
+                    if (TblBookingsTO == null)
                     {
-                        isTaxInclusiveWithTaxes = Convert.ToInt32(rateCalcConfigParamsTO.ConfigParamVal);
+                        resultMsg.DefaultBehaviour("Booking details not found");
+                        resultMsg.DisplayMessage = "Booking Details Not Found for invoice Id " + tblInvoiceTO.IdInvoice;
+                        return resultMsg;
                     }
+                    //Int32 isTaxInclusiveWithTaxes = 0;
+                    //TblConfigParamsTO rateCalcConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_RATE_CALCULATIONS_TAX_INCLUSIVE, conn, tran);
+                    //if (rateCalcConfigParamsTO != null)
+                    //{
+                    //    isTaxInclusiveWithTaxes = Convert.ToInt32(rateCalcConfigParamsTO.ConfigParamVal);
+                    //}
                     Int32 isTaxInclusive = 0;
                     DimBrandTO dimBrandTO = _iDimBrandDAO.SelectDimBrand(TblBookingsTO.BrandId);
 
-                    if (dimBrandTO != null)
-                    {
-                        isTaxInclusive = dimBrandTO.IsTaxInclusive;
-                    }
-                    if (isTaxInclusive == 1 && isTaxInclusiveWithTaxes == 0)
-                    {
-                        TblBookingsTO.BookingRate = TblBookingsTO.BookingRate / 1.18;
-                        TblBookingsTO.BookingRate = Math.Round(TblBookingsTO.BookingRate, 2);
-                    }
-                    tblInvoiceItemDetailsTO.Rate = TblBookingsTO.BookingRate;
-                    tblInvoiceItemDetailsTO.BasicTotal = tblInvoiceItemDetailsTO.Rate * tblInvoiceItemDetailsTO.InvoiceQty;
-                    tblInvoiceItemDetailsTO.TaxableAmt = tblInvoiceItemDetailsTO.BasicTotal - tblInvoiceItemDetailsTO.CdAmt;
-                    invoiceTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
                     //To get INTERNAL DEFAULT ITEM
                     TblConfigParamsTO tblConfigParamForInternalItem = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.INTERNAL_DEFAULT_ITEM, conn, tran);
 
@@ -2257,6 +2254,79 @@ namespace ODLMWebAPI.BL
                         return resultMsg;
                     }
 
+                    TblProdGstCodeDtlsTO tblProdGstCodeDtlsTOTemp = _iTblProdGstCodeDtlsDAO.SelectTblProdGstCodeDtls(0, 0, 0, prodItemId, 0, conn, tran);
+
+                    if (tblProdGstCodeDtlsTOTemp == null)
+                    {
+                        tran.Rollback();
+                        resultMsg.DefaultBehaviour("Please define GST code for item Id - " + prodItemId);
+                        return resultMsg;
+                    }
+                    TblGstCodeDtlsTO gstCodeDtlsTO = _iTblGstCodeDtlsDAO.SelectTblGstCodeDtls(tblProdGstCodeDtlsTOTemp.GstCodeId, conn, tran);
+                    if (gstCodeDtlsTO == null)
+                    {
+                        resultMsg.DefaultBehaviour("GST code details found null : " + tblInvoiceItemDetailsTO.ProdItemDesc + ".");
+                        resultMsg.DisplayMessage = "GSTIN Not Defined for Item :" + tblInvoiceItemDetailsTO.ProdItemDesc;
+                        return resultMsg;
+                    }
+
+                    if (dimBrandTO != null)
+                    {
+                        isTaxInclusive = dimBrandTO.IsTaxInclusive;
+                    }
+                    //if (isTaxInclusive == 1 && isTaxInclusiveWithTaxes == 0)
+                    if (isTaxInclusive == 1)
+                    {
+                        Double bookingRateTemp = TblBookingsTO.BookingRate;
+                        Double cdAmt = 0;
+                        if (TblBookingsTO.CdStructure >= 0)
+                        {
+                            DropDownTO dropDownTO = _iDimensionDAO.SelectCDDropDown(TblBookingsTO.CdStructureId);
+
+                            //Priyanka [23-07-2018] Added if cdstructure is 0
+                            Int32 isRsValue = Convert.ToInt32(dropDownTO.Text);
+                            if (isRsValue == (int)Constants.CdType.IsRs)
+                            {
+                                cdAmt = TblBookingsTO.CdStructure;
+                            }
+                            else
+                            {
+
+                                cdAmt = (TblBookingsTO.BookingRate * TblBookingsTO.CdStructure) / 100;
+                            }
+
+                        }
+                        Double orcPerMt = 0;
+                        if (TblBookingsTO.OrcAmt > 0)
+                        {
+                            if (TblBookingsTO.OrcMeasure == "Rs/MT")
+                            {
+                                orcPerMt = TblBookingsTO.OrcAmt;
+                            }
+                            else
+                            {
+                                orcPerMt = TblBookingsTO.OrcAmt / TblBookingsTO.BookingQty;
+                            }
+                        }
+
+
+
+                        bookingRateTemp -= 400;
+                        bookingRateTemp -= cdAmt;
+                        bookingRateTemp -= orcPerMt;
+
+                        Double divisor = 100 + gstCodeDtlsTO.TaxPct;
+                        divisor = divisor / 100;
+                        bookingRateTemp = bookingRateTemp / divisor;
+
+                        TblBookingsTO.BookingRate = Math.Round(bookingRateTemp, 2);
+                    }
+                    tblInvoiceItemDetailsTO.Rate = TblBookingsTO.BookingRate;
+                    tblInvoiceItemDetailsTO.BasicTotal = tblInvoiceItemDetailsTO.Rate * tblInvoiceItemDetailsTO.InvoiceQty;
+                    tblInvoiceItemDetailsTO.TaxableAmt = tblInvoiceItemDetailsTO.BasicTotal - tblInvoiceItemDetailsTO.CdAmt;
+                    invoiceTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
+                    
+
                     TblProductItemTO tblProductItemTO = _iTblProductItemDAO.SelectTblProductItem(prodItemId);
                     if (tblProductItemTO == null)
                     {
@@ -2268,15 +2338,6 @@ namespace ODLMWebAPI.BL
                     tblInvoiceItemDetailsTO.ProdItemDesc = tblProductItemTO.ItemDesc;
 
                     //tblInvoiceItemDetailsTO.ProdGstCodeId = Convert.ToInt32(tblConfigParamForInternalItem.ConfigParamVal);
-
-                    TblProdGstCodeDtlsTO tblProdGstCodeDtlsTOTemp = _iTblProdGstCodeDtlsDAO.SelectTblProdGstCodeDtls(0, 0, 0, prodItemId, 0, conn, tran);
-
-                    if (tblProdGstCodeDtlsTOTemp == null)
-                    {
-                        tran.Rollback();
-                        resultMsg.DefaultBehaviour("Please define GST code for item Id - " + prodItemId);
-                        return resultMsg;
-                    }
 
                     tblInvoiceItemDetailsTO.ProdGstCodeId = tblProdGstCodeDtlsTOTemp.IdProdGstCode;
 
