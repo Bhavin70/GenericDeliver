@@ -1449,6 +1449,13 @@ namespace ODLMWebAPI.BL
                                             gstApplicableAmt = reverseGstBasicAmt - gstAmt;
                                             finalRate = reverseGstBasicAmt;
                                             cdApplicableAmt = gstApplicableAmt + cdAmt;
+
+                                            if (true)  //For A1
+                                            {
+                                                cdApplicableAmt = gstApplicableAmt;
+                                                tblLoadingSlipTO.CdStructure = 0;
+                                                tblLoadingSlipTO.CdStructureId = 0;
+                                            }
                                         }
 
                                     }
