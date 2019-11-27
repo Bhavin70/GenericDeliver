@@ -628,6 +628,7 @@ namespace ODLMWebAPI.StaticStuff
 
         //Sanjay [2017-07-04] Tax Calculations Inclusive Of Taxes Or Exclusive Of Taxes. Reported From Customer Shivangi Rolling Mills
         public static string CP_RATE_CALCULATIONS_TAX_INCLUSIVE = "RATE_CALCULATIONS_TAX_INCLUSIVE";
+        public static string CP_RATE_CALCULATIONS_TAX_INCLUSIVE_WITH_ALL_PARAMS_LESS = "RATE_CALCULATIONS_TAX_INCLUSIVE_WITH_ALL_PARAMS_LESS";
 
         //Priyanka [16-07-2018] Added for SHIVANGI (additional discount, displaying freight, convert freight into required format)  
         public static string CP_IS_ADDITIONAL_DISCOUNT_APPLICABLE = "IS_ADDITIONAL_DISCOUNT_APPLICABLE";
