@@ -1453,8 +1453,11 @@ namespace ODLMWebAPI.BL
                                             if (true)  //For A1
                                             {
                                                 cdApplicableAmt = gstApplicableAmt;
-                                                tblLoadingSlipTO.CdStructure = 0;
-                                                tblLoadingSlipTO.CdStructureId = 0;
+                                                if (tblLoadingSlipTO.LoadingSlipExtTOList.Count - 1 == e)
+                                                {
+                                                    tblLoadingSlipTO.CdStructure = 0;
+                                                    tblLoadingSlipTO.CdStructureId = 0;
+                                                }
                                             }
                                         }
 
