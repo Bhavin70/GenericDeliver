@@ -2335,7 +2335,7 @@ namespace ODLMWebAPI.BL
                         return resultMsg;
                     }
 
-                    tblInvoiceItemDetailsTO.ProdItemDesc = tblProductItemTO.ItemDesc;
+                    tblInvoiceItemDetailsTO.ProdItemDesc = tblProductItemTO.ItemName;
 
                     //tblInvoiceItemDetailsTO.ProdGstCodeId = Convert.ToInt32(tblConfigParamForInternalItem.ConfigParamVal);
 

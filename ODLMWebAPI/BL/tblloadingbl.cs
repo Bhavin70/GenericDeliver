@@ -1071,6 +1071,8 @@ namespace ODLMWebAPI.BL
 
                 List<TblConfigParamsTO> tblConfigParamsTOList = _iTblConfigParamsBL.SelectAllTblConfigParamsList();
                 Boolean isRateRounded = false;
+                Int32 dontShowCdOnInvoice = 0;
+
                 TblConfigParamsTO roundRateConfig = new TblConfigParamsTO();
                 if (tblConfigParamsTOList!=null && tblConfigParamsTOList.Count >0)
                 {
@@ -1079,6 +1081,14 @@ namespace ODLMWebAPI.BL
                     {
                         isRateRounded = true;
                     }
+
+
+                    TblConfigParamsTO temp = tblConfigParamsTOList.Where(ele => ele.ConfigParamName == Constants.CP_DO_NOT_SHOW_CD_ON_INOVICE).FirstOrDefault();
+                    if (temp != null)
+                    {
+                        dontShowCdOnInvoice = Convert.ToInt32(temp.ConfigParamVal);
+                    }
+
                 }
 
                 Double forAmtPerMT = 0; //Vijaymala added[22-06-2018]
@@ -1450,14 +1460,9 @@ namespace ODLMWebAPI.BL
                                             finalRate = reverseGstBasicAmt;
                                             cdApplicableAmt = gstApplicableAmt + cdAmt;
 
-                                            if (true)  //For A1
+                                            if (dontShowCdOnInvoice == 1)  //For A1
                                             {
                                                 cdApplicableAmt = gstApplicableAmt;
-                                                if (tblLoadingSlipTO.LoadingSlipExtTOList.Count - 1 == e)
-                                                {
-                                                    tblLoadingSlipTO.CdStructure = 0;
-                                                    tblLoadingSlipTO.CdStructureId = 0;
-                                                }
                                             }
                                         }
 
@@ -1808,6 +1813,15 @@ namespace ODLMWebAPI.BL
                     isBrandWiseLoading = Convert.ToInt32(tblConfigParamsTOBrandWise.ConfigParamVal);
                 }
 
+                Int32 dontShowCdOnInvoice = 0;
+
+                TblConfigParamsTO temp = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DO_NOT_SHOW_CD_ON_INOVICE);
+                if (temp != null)
+                {
+                    dontShowCdOnInvoice = Convert.ToInt32(temp.ConfigParamVal);
+                }
+
+
                 if (isBrandWiseLoading == 1)
                 {
                     if (tblLoadingTO.LoadingSlipList != null && tblLoadingTO.LoadingSlipList.Count > 0)
@@ -1957,6 +1971,15 @@ namespace ODLMWebAPI.BL
                         }
                     }
                     tblLoadingSlipTO.LoadingSlipNo = slipNo;
+
+
+                    if (dontShowCdOnInvoice == 1)
+                    {
+                        tblLoadingSlipTO.CdStructure = 0;
+                        tblLoadingSlipTO.CdStructureId = 0;
+                    }
+
+
                     result = _iTblLoadingSlipBL.InsertTblLoadingSlip(tblLoadingSlipTO, conn, tran);
                     if (result != 1)
                     {

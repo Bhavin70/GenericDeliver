@@ -35,14 +35,14 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 /*To get Server Date Time for Local DB*/
-                //String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
+                String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
 
                 //To get Server Date Time for Azure Server DB
-                string sqlQuery = " declare @dfecha as datetime " +
-                                  " declare @d as datetimeoffset " +
-                                  " set @dfecha= sysdatetime()   " +
-                                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
-                                  " select convert(datetime, @d)";
+                //string sqlQuery = " declare @dfecha as datetime " +
+                //                  " declare @d as datetimeoffset " +
+                //                  " set @dfecha= sysdatetime()   " +
+                //                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
+                //                  " select convert(datetime, @d)";
 
                 cmdSelect = new SqlCommand(sqlQuery, conn);
 

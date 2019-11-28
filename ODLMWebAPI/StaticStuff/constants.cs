@@ -689,6 +689,8 @@ namespace ODLMWebAPI.StaticStuff
 
         public static string CP_IS_INVOICE_RATE_ROUNDED = "IS_INVOICE_RATE_ROUNDED";
 
+        public static string CP_DO_NOT_SHOW_CD_ON_INOVICE = "DO_NOT_SHOW_CD_ON_INOVICE";  //Added for A1
+
         //Priyanka[17-12-2018]
         public static string CP_HIDE_SOLD_UNSOLD_STOCK = "HIDE_SOLD_UNSOLD_STOCK";
 
