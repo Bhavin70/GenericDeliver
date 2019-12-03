@@ -468,6 +468,8 @@ namespace ODLMWebAPI.StaticStuff
 
         #region Constants Or Static Strings
         public static String Local_URL = "http://localhost:4200";
+        //Added by Kiran for set current module id as per tblmodule sequence
+        public static Int32 DefaultModuleID = 1;
         public static Boolean Local_API = true;
         public static String CONNECTION_STRING = "ConnectionString";
         public static String AZURE_CONNECTION_STRING = "AzureConnectionStr";

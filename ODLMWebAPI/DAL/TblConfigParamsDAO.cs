@@ -15,10 +15,13 @@ namespace ODLMWebAPI.DAL
     {
         private readonly IConnectionString _iConnectionString;
         private readonly ICommon _iCommon;
-        public TblConfigParamsDAO(ICommon iCommon, IConnectionString iConnectionString)
+        private readonly ITblModuleDAO _iblModuleDAO;
+
+        public TblConfigParamsDAO(ICommon iCommon, IConnectionString iConnectionString, ITblModuleDAO itblModuleDAO)
         {
             _iConnectionString = iConnectionString;
             _iCommon = iCommon;
+            _iblModuleDAO = itblModuleDAO;
         }
         #region Methods
         public String SqlSelectQuery()
@@ -34,11 +37,18 @@ namespace ODLMWebAPI.DAL
         public int IoTSetting()
         {
             int WeighingSrcConfig = (int)StaticStuff.Constants.WeighingDataSourceE.DB;
-            TblConfigParamsTO tblConfigParamsTO = SelectTblConfigParamsValByName(StaticStuff.Constants.CP_WEIGHING_MEASURE_SOURCE_ID);
-            if (tblConfigParamsTO != null)
+            //TblConfigParamsTO tblConfigParamsTO = SelectTblConfigParamsValByName(StaticStuff.Constants.CP_WEIGHING_MEASURE_SOURCE_ID);
+            //if (tblConfigParamsTO != null)
+            //{
+            //    WeighingSrcConfig = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+            //}
+
+            TblModuleTO tblModuleTO = _iblModuleDAO.SelectTblModule((int)StaticStuff.Constants.DefaultModuleID);
+            if (tblModuleTO != null && tblModuleTO.IotconfigSetting != 0)
             {
-                WeighingSrcConfig = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+                WeighingSrcConfig = tblModuleTO.IotconfigSetting;
             }
+
             return WeighingSrcConfig;
         }
         public List<TblConfigParamsTO> SelectAllTblConfigParams()
