@@ -80,7 +80,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE bookingDtl.bookingId=" + bookingId;
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE bookingDtl.bookingId=" + bookingId + " AND bookingDtl.scheduleId > 0";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -504,7 +504,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@Rate", System.Data.SqlDbType.NVarChar).Value = tblBookingExtTO.Rate;
             cmdInsert.Parameters.Add("@prodCatId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.ProdCatId);
             cmdInsert.Parameters.Add("@prodSpecId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.ProdSpecId);
-            cmdInsert.Parameters.Add("@ScheduleId", System.Data.SqlDbType.Int).Value = tblBookingExtTO.ScheduleId;
+            cmdInsert.Parameters.Add("@ScheduleId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.ScheduleId);
             cmdInsert.Parameters.Add("@BrandId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.BrandId);
             cmdInsert.Parameters.Add("@BalanceQty", System.Data.SqlDbType.NVarChar).Value = tblBookingExtTO.BalanceQty;
             cmdInsert.Parameters.Add("@ProdItemId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.ProdItemId);

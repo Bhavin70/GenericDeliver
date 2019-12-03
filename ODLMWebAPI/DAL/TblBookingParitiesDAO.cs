@@ -307,9 +307,9 @@ namespace ODLMWebAPI.DAL
 
             cmdUpdate.Parameters.Add("@IdBookingParity", System.Data.SqlDbType.Int).Value = tblBookingParitiesTO.IdBookingParity;
             cmdUpdate.Parameters.Add("@BookingId", System.Data.SqlDbType.Int).Value = tblBookingParitiesTO.BookingId;
-            cmdUpdate.Parameters.Add("@ParityId", System.Data.SqlDbType.Int).Value = tblBookingParitiesTO.ParityId;
+            cmdUpdate.Parameters.Add("@ParityId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingParitiesTO.ParityId);
             cmdUpdate.Parameters.Add("@BookingRate", System.Data.SqlDbType.Decimal).Value = tblBookingParitiesTO.BookingRate;
-            cmdUpdate.Parameters.Add("@ParityId", System.Data.SqlDbType.Int).Value = tblBookingParitiesTO.BrandId;
+            cmdUpdate.Parameters.Add("@BrandId", System.Data.SqlDbType.Int).Value = tblBookingParitiesTO.BrandId;
             return cmdUpdate.ExecuteNonQuery();
         }
         #endregion

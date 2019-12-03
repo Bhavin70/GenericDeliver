@@ -63,8 +63,10 @@ namespace ODLMWebAPI.Controllers
         private readonly ITblAddonsFunDtlsBL _iTblAddonsFunDtlsBL;
         private readonly ICommon _iCommon;
         private readonly IDimConfigurePageBL _iDimConfigurePageBL;
-        public MastersController(IDimConfigurePageBL iDimConfigurePageBL,ITblAddonsFunDtlsBL iTblAddonsFunDtlsBL, ITblTranActionsBL iTblTranActionsBL, IDimTalukaBL iDimTalukaBL, IDimDistrictBL iDimDistrictBL, IVitplNotify iVitplNotify, ITblUserBL iTblUserBL, ITblSessionHistoryBL iTblSessionHistoryBL, ITblCRMShareDocsDetailsBL iTblCRMShareDocsDetailsBL, ITblRoleBL iTblRoleBL, ITbltaskWithoutSubscBL iTbltaskWithoutSubscBL, ITblTaskModuleExtBL iTblTaskModuleExtBL, ITblRoleOrgSettingBL iTblRoleOrgSettingBL, IDimProdSpecDescBL iDimProdSpecDescBL, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblOtherDesignationsBL iTblOtherDesignationsBL, ITblGroupBL iTblGroupBL, IDimStateBL iDimStateBL, IDimBrandBL iDimBrandBL, ITblStockConfigBL iTblStockConfigBL, IDimMstDeptBL iDimMstDeptBL, ITblUnloadingStandDescBL iTblUnloadingStandDescBL, IDimUnitMeasuresBL iDimUnitMeasuresBL, ITblEmailConfigrationBL iTblEmailConfigrationBL, IDimMstDesignationBL iDimMstDesignationBL, ITblSupervisorBL iTblSupervisorBL, ITblStockYardBL iTblStockYardBL, ITblConfigParamsBL iTblConfigParamsBL, IDimVehicleTypeBL iDimVehicleTypeBL, ITblPageElementsBL iTblPageElementsBL, ITblPagesBL iTblPagesBL, ITblSessionBL iTblSessionBL, ITblItemTallyRefDtlsBL iTblItemTallyRefDtlsBL, ITblModuleCommunicationBL iTblModuleCommunicationBL, IDimStatusBL iDimStatusBL, ITblPersonBL iTblPersonBL, IDimensionBL iDimensionBL, ICommon iCommon, ITblItemBroadCategoriesBL iTblItemBroadCategoriesBL, ITblCRMLabelBL iTblCRMLabelBL)
+        private readonly IDimOrgTypeBL _iDimOrgTypeBL;
+        public MastersController(IDimConfigurePageBL iDimConfigurePageBL,IDimOrgTypeBL iDimOrgTypeBL,ITblAddonsFunDtlsBL iTblAddonsFunDtlsBL, ITblTranActionsBL iTblTranActionsBL, IDimTalukaBL iDimTalukaBL, IDimDistrictBL iDimDistrictBL, IVitplNotify iVitplNotify, ITblUserBL iTblUserBL, ITblSessionHistoryBL iTblSessionHistoryBL, ITblCRMShareDocsDetailsBL iTblCRMShareDocsDetailsBL, ITblRoleBL iTblRoleBL, ITbltaskWithoutSubscBL iTbltaskWithoutSubscBL, ITblTaskModuleExtBL iTblTaskModuleExtBL, ITblRoleOrgSettingBL iTblRoleOrgSettingBL, IDimProdSpecDescBL iDimProdSpecDescBL, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblOtherDesignationsBL iTblOtherDesignationsBL, ITblGroupBL iTblGroupBL, IDimStateBL iDimStateBL, IDimBrandBL iDimBrandBL, ITblStockConfigBL iTblStockConfigBL, IDimMstDeptBL iDimMstDeptBL, ITblUnloadingStandDescBL iTblUnloadingStandDescBL, IDimUnitMeasuresBL iDimUnitMeasuresBL, ITblEmailConfigrationBL iTblEmailConfigrationBL, IDimMstDesignationBL iDimMstDesignationBL, ITblSupervisorBL iTblSupervisorBL, ITblStockYardBL iTblStockYardBL, ITblConfigParamsBL iTblConfigParamsBL, IDimVehicleTypeBL iDimVehicleTypeBL, ITblPageElementsBL iTblPageElementsBL, ITblPagesBL iTblPagesBL, ITblSessionBL iTblSessionBL, ITblItemTallyRefDtlsBL iTblItemTallyRefDtlsBL, ITblModuleCommunicationBL iTblModuleCommunicationBL, IDimStatusBL iDimStatusBL, ITblPersonBL iTblPersonBL, IDimensionBL iDimensionBL, ICommon iCommon, ITblItemBroadCategoriesBL iTblItemBroadCategoriesBL, ITblCRMLabelBL iTblCRMLabelBL)
         {
+            _iDimOrgTypeBL =iDimOrgTypeBL;
             _iTblCRMLabelBL = iTblCRMLabelBL;
             _iTblItemBroadCategoriesBL = iTblItemBroadCategoriesBL;
             _iDimensionBL = iDimensionBL;
@@ -833,6 +835,15 @@ namespace ODLMWebAPI.Controllers
             return subDepartmentTOList;
         }
 
+
+  //Aniket [26-08-2019] added to fetch dimOrgType list
+        [HttpGet]
+        [Route("SelectAllDimOrgTypeList")]
+        public List<DimOrgTypeTO> SelectAllDimOrgTypeList()
+        {
+            List<DimOrgTypeTO> dimOrgTypeTOList = _iDimOrgTypeBL.SelectAllDimOrgTypeList();
+            return dimOrgTypeTOList;
+        }
 
         /// <summary>
         /// Vaibhav [25-Sep-2017] get all designation for drop down

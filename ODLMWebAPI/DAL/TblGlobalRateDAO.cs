@@ -164,7 +164,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public Dictionary<Int32, Int32> SelectLatestGroupAndRateDCT()
+        public Dictionary<Int32, Int32> SelectLatestGroupAndRateDCT(String rateDeclarationDate="")
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -172,8 +172,13 @@ namespace ODLMWebAPI.DAL
             SqlDataReader sqlDataReader = null;
             try
             {
+                string whereCondition = String.Empty;
                 conn.Open();
-                cmdSelect.CommandText = " SELECT groupId,MAX(idGlobalRate) idGlobalRate  FROM tblGlobalRate" +
+                if(!string.IsNullOrEmpty(rateDeclarationDate))
+                {
+                    whereCondition = " WHERE cast (createdOn  as date )<='"+rateDeclarationDate+"'";
+                }
+                cmdSelect.CommandText = " SELECT groupId,MAX(idGlobalRate) idGlobalRate  FROM tblGlobalRate"+whereCondition +
                                         " GROUP BY groupId";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
