@@ -258,7 +258,7 @@ namespace ODLMWebAPI.Controllers
             return userTO;
         }
         /// <summary>
-        /// Priyanka [27-12-2018] : Added to gete the all active user brand list.
+        /// Priyanka [27-12-2018] : Added to get the all active user brand list.
         /// </summary>
         /// <returns></returns>
 
