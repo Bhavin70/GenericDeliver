@@ -40,7 +40,7 @@ namespace ODLMWebAPI.Models
 
         #region GetSet
 
-        public Int32 IsDefualtBrand { get; set; }
+        public Int32 IsAutoSelect { get; set; }
         public Int32 IdQuotaDeclaration
         {
             get { return idQuotaDeclaration; }

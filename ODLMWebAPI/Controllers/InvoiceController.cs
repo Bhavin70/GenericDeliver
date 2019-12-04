@@ -702,7 +702,9 @@ namespace ODLMWebAPI.Controllers
                 var invoiceId = data["invoiceId"].ToString();
                 var invGenerateModeId = data["invGenerateModeId"].ToString();
                 var taxInvoiceNumber  = data["taxInvoiceNumber"].ToString();
-                
+               
+                String invComment = data["invComment"].ToString();
+        
                 int fromOrgId =0;
                 int toOrgId =0;
                 // try
@@ -738,7 +740,7 @@ namespace ODLMWebAPI.Controllers
                     return resultMessage;
                 }
                Int32 isConfirm = 1;
-                return _iTblInvoiceBL.GenerateInvoiceNumber(Convert.ToInt32(invoiceId), Convert.ToInt32(loginUserId), isConfirm, Convert.ToInt32(invGenerateModeId),fromOrgId,toOrgId,Convert.ToString(taxInvoiceNumber), manualinvoiceno);
+                return _iTblInvoiceBL.GenerateInvoiceNumber(Convert.ToInt32(invoiceId), Convert.ToInt32(loginUserId), isConfirm, Convert.ToInt32(invGenerateModeId),fromOrgId,toOrgId,Convert.ToString(taxInvoiceNumber), manualinvoiceno,invComment);
             }
             catch (Exception ex)
             {
