@@ -770,6 +770,9 @@ namespace ODLMWebAPI.DAL
                     if (tblInvoiceTODT["invFromOrgFreeze"] != DBNull.Value)
                         tblInvoiceTONew.InvFromOrgFreeze = Convert.ToInt32(tblInvoiceTODT["invFromOrgFreeze"].ToString());
 
+                    if (tblInvoiceTODT["comment"] != DBNull.Value)
+                        tblInvoiceTONew.InvComment = Convert.ToString(tblInvoiceTODT["comment"].ToString());
+
                     tblInvoiceTOList.Add(tblInvoiceTONew);
                 }
             }
@@ -1902,6 +1905,7 @@ namespace ODLMWebAPI.DAL
                                 " ,[grossWtTakenDate]" +
                                 " ,[preparationDate]" +
                                 " ,[invFromOrgFreeze]" +
+                                " ,[comment]" +
 
                                 " )" +
                     " VALUES (" +
@@ -1961,7 +1965,8 @@ namespace ODLMWebAPI.DAL
                                 " ,@grossWtTakenDate" +
                                 " ,@preparationDate" +
                                 " ,@InvFromOrgFreeze" +
-                                " )";
+                                " ,@comment" +
+                                 " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
 
@@ -2022,6 +2027,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@grossWtTakenDate", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.GrossWtTakenDate;
             cmdInsert.Parameters.Add("@preparationDate", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.PreparationDate;
             cmdInsert.Parameters.Add("@InvFromOrgFreeze", System.Data.SqlDbType.Int).Value = tblInvoiceTO.InvFromOrgFreeze;
+            cmdInsert.Parameters.Add("@comment", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.InvComment);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
@@ -2239,6 +2245,7 @@ namespace ODLMWebAPI.DAL
                              " ,[grossWtTakenDate]=@grossWtTakenDate " +
                              " ,[preparationDate]=@preparationDate " +
                              " ,[invFromOrgFreeze]=@InvFromOrgFreeze " +
+                             " ,[comment]=@comment " +
 
                              " WHERE [idInvoice] = @IdInvoice";
 
@@ -2299,6 +2306,8 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@grossWtTakenDate", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.GrossWtTakenDate;
             cmdUpdate.Parameters.Add("@preparationDate", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.PreparationDate;
             cmdUpdate.Parameters.Add("@InvFromOrgFreeze", System.Data.SqlDbType.Int).Value = tblInvoiceTO.InvFromOrgFreeze;
+            cmdUpdate.Parameters.Add("@comment", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.InvComment);
+
 
             return cmdUpdate.ExecuteNonQuery();
         }

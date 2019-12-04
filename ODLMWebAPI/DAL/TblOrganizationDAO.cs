@@ -1057,6 +1057,8 @@ namespace ODLMWebAPI.DAL
                     if (tblOrganizationTODT["orgLogo"] != DBNull.Value)
                         tblOrganizationTONew.OrgLogo = Convert.ToString(tblOrganizationTODT["orgLogo"].ToString());
 
+                    if (tblOrganizationTODT["creditLimit"] != DBNull.Value)
+                        tblOrganizationTONew.CreditLimit = Convert.ToDouble(tblOrganizationTODT["creditLimit"].ToString());
 
 
                     if (tblOrganizationTONew.OrgTypeE == Constants.OrgTypeE.C_AND_F_AGENT)
