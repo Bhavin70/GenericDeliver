@@ -3398,6 +3398,10 @@ namespace ODLMWebAPI.BL
                 invoiceDT.Columns.Add("poNo");
                 invoiceDT.Columns.Add("poDateStr");
 
+                invoiceDT.Columns.Add("TotalTaxAmt");
+                invoiceDT.Columns.Add("TotalTaxAmtWordStr");
+
+
                 TblAddressTO tblAddressTO = _iTblAddressBL.SelectOrgAddressWrtAddrType(organizationTO.IdOrganization, Constants.AddressTypeE.OFFICE_ADDRESS);
                 List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
                 if (organizationTO != null)
@@ -3551,13 +3555,19 @@ namespace ODLMWebAPI.BL
                     commercialDT = getCommercialDT(tblInvoiceTO); //for SRJ
                     hsnItemTaxDT = getHsnItemTaxDT(tblInvoiceTO); //for Parameshwar
                     commercialDT.TableName = "commercialDT";
+
+                    
+
                     invoiceDT.Columns.Add("discountAmt", typeof(double));
+                    invoiceDT.Columns.Add("discountAmtStr");
+
                     invoiceDT.Columns.Add("freightAmt", typeof(double));
                     invoiceDT.Columns.Add("pfAmt", typeof(double));
                     invoiceDT.Columns.Add("cessAmt", typeof(double));
                     invoiceDT.Columns.Add("afterCessAmt", typeof(double));
 
                     invoiceDT.Columns.Add("taxableAmt", typeof(double));
+                    invoiceDT.Columns.Add("taxableAmtStr");
                     invoiceDT.Columns.Add("cgstAmt", typeof(double));
                     invoiceDT.Columns.Add("sgstAmt", typeof(double));
                     invoiceDT.Columns.Add("igstAmt", typeof(double));
@@ -3594,10 +3604,27 @@ namespace ODLMWebAPI.BL
                     invoiceDT.Columns.Add("grossWtTakenDate");
                     invoiceDT.Columns.Add("preparationDate");
 
-                    if (isMathRoundoff == 1)
+                    Double totalTaxAmt, cgstAmt, sgstAmt, igstAmt = 0;
+
+                    cgstAmt = Math.Round(tblInvoiceTO.CgstAmt, 2);
+                    sgstAmt = Math.Round(tblInvoiceTO.SgstAmt, 2);
+                    igstAmt = Math.Round(tblInvoiceTO.IgstAmt, 2);
+
+                    totalTaxAmt = Math.Round(cgstAmt + sgstAmt + igstAmt, 2);
+
+                    invoiceDT.Rows[0]["TotalTaxAmt"] = totalTaxAmt;
+                    invoiceDT.Rows[0]["TotalTaxAmtWordStr"] = currencyTowords(totalTaxAmt, tblInvoiceTO.CurrencyId); ;
+
+                    //if (isMathRoundoff == 1)
+                    if (isMathRoundoff == 1)  //Not applicable as each value will round off upto 2
                     {
                         invoiceDT.Rows[0]["discountAmt"] = tblInvoiceTO.DiscountAmt;
+                        invoiceDT.Rows[0]["discountAmtStr"] = currencyTowords(tblInvoiceTO.DiscountAmt, tblInvoiceTO.CurrencyId);
+
                         invoiceDT.Rows[0]["taxableAmt"] = tblInvoiceTO.TaxableAmt;
+                        invoiceDT.Rows[0]["taxableAmtStr"] = currencyTowords(tblInvoiceTO.TaxableAmt, tblInvoiceTO.CurrencyId);
+
+
                         invoiceDT.Rows[0]["cgstAmt"] = tblInvoiceTO.CgstAmt;
                         invoiceDT.Rows[0]["cgstTotalStr"] = currencyTowords(tblInvoiceTO.CgstAmt, tblInvoiceTO.CurrencyId);
                         invoiceDT.Rows[0]["sgstAmt"] = tblInvoiceTO.SgstAmt;
@@ -3611,16 +3638,16 @@ namespace ODLMWebAPI.BL
                         invoiceDT.Rows[0]["grandTotalStr"] = currencyTowords(tblInvoiceTO.GrandTotal, tblInvoiceTO.CurrencyId);
 
 
-                        invoiceDT.Rows[0]["grossWeight"] = tblInvoiceTO.GrossWeight / 1000;
-                        invoiceDT.Rows[0]["tareWeight"] = tblInvoiceTO.TareWeight / 1000;
-                        invoiceDT.Rows[0]["netWeight"] = tblInvoiceTO.NetWeight / 1000;
+                        //invoiceDT.Rows[0]["grossWeight"] = tblInvoiceTO.GrossWeight / 1000;
+                        //invoiceDT.Rows[0]["tareWeight"] = tblInvoiceTO.TareWeight / 1000;
+                        //invoiceDT.Rows[0]["netWeight"] = tblInvoiceTO.NetWeight / 1000;
                         //if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
                         //{
                         //    headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
                         //    invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
                         //}
 
-                        invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
+                        //invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
                         //invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
                         //headerDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
                         //invoiceDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
@@ -3631,7 +3658,10 @@ namespace ODLMWebAPI.BL
                     else
                     {
                         invoiceDT.Rows[0]["discountAmt"] = Math.Round(tblInvoiceTO.DiscountAmt, 2);
+                        invoiceDT.Rows[0]["discountAmtStr"] = currencyTowords(tblInvoiceTO.DiscountAmt, tblInvoiceTO.CurrencyId);
                         invoiceDT.Rows[0]["taxableAmt"] = Math.Round(tblInvoiceTO.TaxableAmt, 2);
+                        invoiceDT.Rows[0]["taxableAmtStr"] = currencyTowords(tblInvoiceTO.TaxableAmt, tblInvoiceTO.CurrencyId);
+
                         invoiceDT.Rows[0]["cgstAmt"] = Math.Round(tblInvoiceTO.CgstAmt, 2);
                         invoiceDT.Rows[0]["cgstTotalStr"] = currencyTowords(tblInvoiceTO.CgstAmt, tblInvoiceTO.CurrencyId);
                         invoiceDT.Rows[0]["sgstAmt"] = Math.Round(tblInvoiceTO.SgstAmt, 2);
@@ -3645,15 +3675,15 @@ namespace ODLMWebAPI.BL
                         invoiceDT.Rows[0]["grandTotalStr"] = currencyTowords(tblInvoiceTO.GrandTotal, tblInvoiceTO.CurrencyId);
 
 
-                        invoiceDT.Rows[0]["grossWeight"] = Math.Round(tblInvoiceTO.GrossWeight / 1000, 3);
-                        invoiceDT.Rows[0]["tareWeight"] = Math.Round(tblInvoiceTO.TareWeight / 1000, 3);
-                        invoiceDT.Rows[0]["netWeight"] = Math.Round(tblInvoiceTO.NetWeight / 1000, 3);
+                        //invoiceDT.Rows[0]["grossWeight"] = Math.Round(tblInvoiceTO.GrossWeight / 1000, 3);
+                        //invoiceDT.Rows[0]["tareWeight"] = Math.Round(tblInvoiceTO.TareWeight / 1000, 3);
+                        //invoiceDT.Rows[0]["netWeight"] = Math.Round(tblInvoiceTO.NetWeight / 1000, 3);
                         //if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
                         //{
                         //    headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
                         //    invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
                         //}
-                        invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
+                        //invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
                         //invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
                         //headerDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
                         //invoiceDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
@@ -3662,6 +3692,12 @@ namespace ODLMWebAPI.BL
                         invoiceDT.Rows[0]["roundOff"] = Math.Round(tblInvoiceTO.RoundOffAmt, 2);
 
                     }
+
+                    invoiceDT.Rows[0]["grossWeight"] = Math.Round(tblInvoiceTO.GrossWeight / 1000, 3);
+                    invoiceDT.Rows[0]["tareWeight"] = Math.Round(tblInvoiceTO.TareWeight / 1000, 3);
+                    invoiceDT.Rows[0]["netWeight"] = Math.Round(tblInvoiceTO.NetWeight / 1000, 3);
+
+                    invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
 
                     if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
                     {
@@ -4054,7 +4090,9 @@ namespace ODLMWebAPI.BL
                                 addressDT.Rows[0]["billingState"] = tblBillingInvoiceAddressTO.State;
                                 if (stateTO != null)
                                 {
-                                    addressDT.Rows[0]["billingStateCode"] = stateTO.Text + " " + stateTO.Tag;
+                                    //Saket [2019-04-12] Can be manage from template - Change for A1.s
+                                    //addressDT.Rows[0]["billingStateCode"] = stateTO.Text + " " + stateTO.Tag;
+                                    addressDT.Rows[0]["billingStateCode"] = stateTO.Tag;  
                                 }
                             }
 
