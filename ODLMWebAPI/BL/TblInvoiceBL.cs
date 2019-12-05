@@ -1778,32 +1778,39 @@ namespace ODLMWebAPI.BL
             #endregion
 
             #region 5 Save main Invoice
-            //Aniket [16-9-2-19] added to round of the invoice values
-            int roundOffValue = 0;
-            TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.ROUND_OFF_TAX_INVOICE_VALUES);
-            if (tblConfigParamsTO != null)
-            {
-                roundOffValue = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
-            }
-            if (roundOffValue > 0)
-            {
-                taxableTotal = Math.Round(taxableTotal, roundOffValue);
-                discountTotal = Math.Round(discountTotal, roundOffValue);
-                igstTotal = Math.Round(igstTotal, roundOffValue);
-                cgstTotal = Math.Round(cgstTotal, roundOffValue);
-                sgstTotal = Math.Round(sgstTotal, roundOffValue);
-                basicTotal = Math.Round(basicTotal, roundOffValue);
-            }
+            //int roundOffValue = 2;
+            ////Aniket [16-9-2-19] added to round of the invoice values
+            //
+            //TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.ROUND_OFF_TAX_INVOICE_VALUES);
+            //if (tblConfigParamsTO != null)
+            //{
+            //    roundOffValue = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+            //}
+            ////if (roundOffValue > 0) Saket [2019-12-05] not needed these condition 
+            //if(true)
+            //{
+            //    taxableTotal = Math.Round(taxableTotal, roundOffValue);
+            //    discountTotal = Math.Round(discountTotal, roundOffValue);
+            //    igstTotal = Math.Round(igstTotal, roundOffValue);
+            //    cgstTotal = Math.Round(cgstTotal, roundOffValue);
+            //    sgstTotal = Math.Round(sgstTotal, roundOffValue);
+            //    basicTotal = Math.Round(basicTotal, roundOffValue);
+            //}
 
             tblInvoiceTO.TaxableAmt = taxableTotal;
             tblInvoiceTO.DiscountAmt = discountTotal;
             tblInvoiceTO.IgstAmt = igstTotal;
             tblInvoiceTO.CgstAmt = cgstTotal;
             tblInvoiceTO.SgstAmt = sgstTotal;
+            tblInvoiceTO.BasicAmt = basicTotal;
+
             double finalGrandTotal = Math.Round(grandTotal);
             tblInvoiceTO.GrandTotal = finalGrandTotal;
-            tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, roundOffValue);
-            tblInvoiceTO.BasicAmt = basicTotal;
+            tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);
+            
+
+            RoundOffInvoiceValuesBySetting(tblInvoiceTO);
+
             tblInvoiceTO.InvoiceItemDetailsTOList = tblInvoiceItemDetailsTOList;
             return tblInvoiceTO;
             #endregion
@@ -2064,7 +2071,7 @@ namespace ODLMWebAPI.BL
                 #region 2 Added Invoice Address Details
                 if (invoiceGenerateModeE == (int)Constants.InvoiceGenerateModeE.DUPLICATE && swap == 1)
                 {
-                    tblInvoiceTO.Narration = "To Bhagylaxmi Metal";
+                    //tblInvoiceTO.Narration = "To Bhagylaxmi Metal";
 
                     TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_INTERNALTXFER_INVOICE_ORG_ID, conn, tran);
 
@@ -2433,15 +2440,21 @@ namespace ODLMWebAPI.BL
                 #endregion
 
                 #region 5 Save main Invoice
+
+
                 tblInvoiceTO.TaxableAmt = taxableTotal;
                 tblInvoiceTO.DiscountAmt = discountTotal;
                 tblInvoiceTO.IgstAmt = igstTotal;
                 tblInvoiceTO.CgstAmt = cgstTotal;
                 tblInvoiceTO.SgstAmt = sgstTotal;
+                tblInvoiceTO.BasicAmt = basicTotal;
+
                 double finalGrandTotal = Math.Round(grandTotal);
                 tblInvoiceTO.GrandTotal = finalGrandTotal;
                 tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);
-                tblInvoiceTO.BasicAmt = basicTotal;
+
+                RoundOffInvoiceValuesBySetting(tblInvoiceTO);
+
                 tblInvoiceTO.InvoiceItemDetailsTOList = tblInvoiceItemDetailsTOList;
                 #endregion
 
@@ -2462,6 +2475,29 @@ namespace ODLMWebAPI.BL
             {
 
             }
+        }
+
+
+        public void RoundOffInvoiceValuesBySetting(TblInvoiceTO tblInvoiceTO)
+        {
+
+            int roundOffValue = 0;
+            TblConfigParamsTO tblConfigParamsTOR = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.ROUND_OFF_TAX_INVOICE_VALUES);
+            if (tblConfigParamsTOR != null)
+            {
+                roundOffValue = Convert.ToInt32(tblConfigParamsTOR.ConfigParamVal);
+            }
+            //if (roundOffValue > 0) Saket [2019-12-05] not needed these condition 
+            if (true)
+            {
+                tblInvoiceTO.TaxableAmt = Math.Round(tblInvoiceTO.TaxableAmt, roundOffValue);
+                tblInvoiceTO.DiscountAmt = Math.Round(tblInvoiceTO.DiscountAmt, roundOffValue);
+                tblInvoiceTO.IgstAmt = Math.Round(tblInvoiceTO.IgstAmt, roundOffValue);
+                tblInvoiceTO.CgstAmt = Math.Round(tblInvoiceTO.CgstAmt, roundOffValue);
+                tblInvoiceTO.SgstAmt = Math.Round(tblInvoiceTO.SgstAmt, roundOffValue);
+                tblInvoiceTO.BasicAmt = Math.Round(tblInvoiceTO.BasicAmt, roundOffValue);
+            }
+
         }
 
         /// <summary>
@@ -2912,10 +2948,14 @@ namespace ODLMWebAPI.BL
                             finalInvoiceTO.IgstAmt = igstTotal;
                             finalInvoiceTO.CgstAmt = cgstTotal;
                             finalInvoiceTO.SgstAmt = sgstTotal;
+                            finalInvoiceTO.BasicAmt = basicTotal;
+
                             double finalGrandTotal = Math.Round(grandTotal);
                             finalInvoiceTO.GrandTotal = finalGrandTotal;
                             finalInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);
-                            finalInvoiceTO.BasicAmt = basicTotal;
+
+                            RoundOffInvoiceValuesBySetting(finalInvoiceTO);
+
                             finalInvoiceTO.UpdatedBy = loginUserId;
                             finalInvoiceTO.UpdatedOn = serverDate;
                             finalInvoiceTO.StatusId = (int)Constants.InvoiceStatusE.NEW;
@@ -5002,6 +5042,13 @@ namespace ODLMWebAPI.BL
                     tblInvoiceTO.IgstAmt = existingInvoiceTO.IgstAmt;
                     tblInvoiceTO.CgstAmt = existingInvoiceTO.CgstAmt;
                     tblInvoiceTO.SgstAmt = existingInvoiceTO.SgstAmt;
+
+                    double finalGrandTotal = Math.Round(existingInvoiceTO.GrandTotal);
+                    tblInvoiceTO.GrandTotal = finalGrandTotal;
+                    tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - existingInvoiceTO.GrandTotal, 2);
+
+                    RoundOffInvoiceValuesBySetting(tblInvoiceTO);
+
                     tblInvoiceTO.GrandTotal = existingInvoiceTO.GrandTotal;
 
                     tblInvoiceTO.InvoiceItemDetailsTOList = existingInvoiceTO.InvoiceItemDetailsTOList;
