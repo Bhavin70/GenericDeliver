@@ -42,11 +42,11 @@ namespace ODLMWebAPI.DAL
 
                 if (ActiveSelectionTypeE == StaticStuff.Constants.ActiveSelectionTypeE.Active)
                 {
-                    cmdSelect.CommandText += " WHERE ISNULL(tblGate.isActive,0) = 1 ";
+                    cmdSelect.CommandText += " WHERE ISNULL(tblGate.isActive,0) = 1 AND moduleId = " + StaticStuff.Constants.DefaultModuleID;
                 }
                 else if (ActiveSelectionTypeE == StaticStuff.Constants.ActiveSelectionTypeE.NonActive)
                 {
-                    cmdSelect.CommandText += " WHERE ISNULL(tblGate.isActive,0) = 0 ";
+                    cmdSelect.CommandText += " WHERE ISNULL(tblGate.isActive,0) = 0 AND moduleId = " + StaticStuff.Constants.DefaultModuleID;
                 }
 
                 cmdSelect.Connection = conn;
@@ -109,11 +109,11 @@ namespace ODLMWebAPI.DAL
 
                 if (ActiveSelectionTypeE == StaticStuff.Constants.ActiveSelectionTypeE.Active)
                 {
-                    cmdSelect.CommandText += " WHERE ISNULL(tblGate.isActive,0) = 1 ";
+                    cmdSelect.CommandText += " WHERE ISNULL(tblGate.isActive,0) = 1 AND moduleId = " + StaticStuff.Constants.DefaultModuleID;
                 }
                 else if (ActiveSelectionTypeE ==StaticStuff.Constants.ActiveSelectionTypeE.NonActive)
                 {
-                    cmdSelect.CommandText += " WHEREISNULL(tblGate.isActive,0) = 0 ";
+                    cmdSelect.CommandText += " WHEREISNULL(tblGate.isActive,0) = 0 AND moduleId = " + StaticStuff.Constants.DefaultModuleID;
                 }
 
 
@@ -168,6 +168,8 @@ namespace ODLMWebAPI.DAL
                         tblGateTONew.IoTUrl = Convert.ToString(tblGateTODT["ioTUrl"].ToString());
                     if (tblGateTODT["machineIP"] != DBNull.Value)
                         tblGateTONew.MachineIP = Convert.ToString(tblGateTODT["machineIP"].ToString());
+                    if (tblGateTODT["moduleId"] != DBNull.Value)
+                        tblGateTONew.ModuleId = Convert.ToInt32(tblGateTODT["moduleId"].ToString());
                     tblGateTOList.Add(tblGateTONew);
                 }
             }
