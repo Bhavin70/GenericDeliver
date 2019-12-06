@@ -73,7 +73,7 @@ namespace ODLMWebAPI.Controllers
         /// <returns></returns>
         [Route("GetInvoiceList")]
         [HttpGet]
-        public List<TblInvoiceTO> GetInvoiceList(string fromDate, string toDate, int isConfirm, Int32 cnfId,  Int32 dealerID, String userRoleTOList, Int32 brandId = 0, Int32 invoiceId = 0, Int32 statusId = 0,Int32 internalOrgId=0)
+        public List<TblInvoiceTO> GetInvoiceList(string fromDate, string toDate, int isConfirm, Int32 cnfId,  Int32 dealerID, String userRoleTOList, Int32 brandId = 0, Int32 invoiceId = 0, Int32 statusId = 0,String internalOrgId="")
         {
             try
             {
@@ -95,12 +95,12 @@ namespace ODLMWebAPI.Controllers
                     toDt = _iCommon.ServerDateTime.Date;
 
                 List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleTOList);
-                if(internalOrgId >0)
-                {
-                return _iTblInvoiceBL.SelectAllTblInvoiceList(frmDt, toDt, isConfirm, cnfId, dealerID, tblUserRoleTOList, brandId, invoiceId,statusId)
-                .Where(e=>e.InvFromOrgId==internalOrgId).ToList();   
-                }
-                return _iTblInvoiceBL.SelectAllTblInvoiceList(frmDt, toDt, isConfirm, cnfId, dealerID, tblUserRoleTOList, brandId, invoiceId,statusId);
+                //if(internalOrgId >0)
+                //{
+                //return _iTblInvoiceBL.SelectAllTblInvoiceList(frmDt, toDt, isConfirm, cnfId, dealerID, tblUserRoleTOList, brandId, invoiceId,statusId)
+                //.Where(e=>e.InvFromOrgId==internalOrgId).ToList();   
+                //}
+                return _iTblInvoiceBL.SelectAllTblInvoiceList(frmDt, toDt, isConfirm, cnfId, dealerID, tblUserRoleTOList, brandId, invoiceId, statusId, internalOrgId);
             }
             catch (Exception ex)
             {
