@@ -1040,6 +1040,19 @@ namespace ODLMWebAPI.BL
             // Vaibhav [11-April-2018] Added to select invoice date configuration.
             TblConfigParamsTO invoiceDateConfigTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_TARE_WEIGHT_DATE_AS_INV_DATE, conn, tran);
 
+            Int32 dontShowCdOnInvoice = 0;
+
+            TblConfigParamsTO tblConfigParamsTOCdDoNotshow = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DO_NOT_SHOW_CD_ON_INOVICE);
+            if (tblConfigParamsTOCdDoNotshow != null)
+            {
+                dontShowCdOnInvoice = Convert.ToInt32(tblConfigParamsTOCdDoNotshow.ConfigParamVal);
+            }
+
+            if (dontShowCdOnInvoice == 1)
+            {
+                loadingSlipTOList.ForEach(f => { f.CdStructure = 0; f.CdStructureId = 0; });
+            }
+
             foreach (var loadingSlipTo in loadingSlipTOList)
             {
                 TblInvoiceTO tblInvoiceTO = PrepareInvoiceAgainstLoadingSlip(loadingTO, conn, tran, internalOrgId, ofcAddrTO, rcmConfigParamsTO, invoiceDateConfigTO, loadingSlipTo);
