@@ -180,6 +180,57 @@ namespace ODLMWebAPI.DAL
             return tblQuotaDeclarationTOList;
         }
 
+
+        public List<TblQuotaDeclarationTO> ConvertDTToListQouta(SqlDataReader tblQuotaDeclarationTODT)
+        {
+            List<TblQuotaDeclarationTO> tblQuotaDeclarationTOList = new List<TblQuotaDeclarationTO>();
+            if (tblQuotaDeclarationTODT != null)
+            {
+                while (tblQuotaDeclarationTODT.Read())
+                {
+                    TblQuotaDeclarationTO tblQuotaDeclarationTONew = new TblQuotaDeclarationTO();
+                    if (tblQuotaDeclarationTODT["idQuotaDeclaration"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.IdQuotaDeclaration = Convert.ToInt32(tblQuotaDeclarationTODT["idQuotaDeclaration"].ToString());
+                    if (tblQuotaDeclarationTODT["orgId"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.OrgId = Convert.ToInt32(tblQuotaDeclarationTODT["orgId"].ToString());
+                    if (tblQuotaDeclarationTODT["globalRateId"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.GlobalRateId = Convert.ToInt32(tblQuotaDeclarationTODT["globalRateId"].ToString());
+                    if (tblQuotaDeclarationTODT["createdBy"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.CreatedBy = Convert.ToInt32(tblQuotaDeclarationTODT["createdBy"].ToString());
+                    if (tblQuotaDeclarationTODT["quotaAllocDate"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.QuotaAllocDate = Convert.ToDateTime(tblQuotaDeclarationTODT["quotaAllocDate"].ToString());
+                    if (tblQuotaDeclarationTODT["createdOn"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.CreatedOn = Convert.ToDateTime(tblQuotaDeclarationTODT["createdOn"].ToString());
+                    if (tblQuotaDeclarationTODT["rate_band"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.RateBand = Convert.ToDouble(tblQuotaDeclarationTODT["rate_band"].ToString());
+                    if (tblQuotaDeclarationTODT["alloc_qty"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.AllocQty = Convert.ToDouble(tblQuotaDeclarationTODT["alloc_qty"].ToString());
+                    if (tblQuotaDeclarationTODT["balance_qty"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.BalanceQty = Convert.ToDouble(tblQuotaDeclarationTODT["balance_qty"].ToString());
+                    if (tblQuotaDeclarationTODT["calculatedRate"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.CalculatedRate = Convert.ToDouble(tblQuotaDeclarationTODT["calculatedRate"].ToString());
+                    if (tblQuotaDeclarationTODT["validUpto"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.ValidUpto = Convert.ToInt32(tblQuotaDeclarationTODT["validUpto"].ToString());
+                    if (tblQuotaDeclarationTODT["isActive"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.IsActive = Convert.ToInt32(tblQuotaDeclarationTODT["isActive"].ToString());
+                    if (tblQuotaDeclarationTODT["updatedBy"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.UpdatedBy = Convert.ToInt32(tblQuotaDeclarationTODT["updatedBy"].ToString());
+                    if (tblQuotaDeclarationTODT["updatedOn"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.UpdatedOn = Convert.ToDateTime(tblQuotaDeclarationTODT["updatedOn"].ToString());
+                    if (tblQuotaDeclarationTODT["declaredRate"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.DeclaredRate = Convert.ToDouble(tblQuotaDeclarationTODT["declaredRate"].ToString());
+                    if (tblQuotaDeclarationTODT["brandName"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.BrandName = Convert.ToString(tblQuotaDeclarationTODT["brandName"].ToString());
+                    if (tblQuotaDeclarationTODT["brandId"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.BrandId = Convert.ToInt32(tblQuotaDeclarationTODT["brandId"].ToString());
+                    if (tblQuotaDeclarationTODT["isAutoSelect"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.IsAutoSelect = Convert.ToInt32(tblQuotaDeclarationTODT["isAutoSelect"].ToString());
+                    tblQuotaDeclarationTOList.Add(tblQuotaDeclarationTONew);
+                }
+            }
+            return tblQuotaDeclarationTOList;
+        }
+
         public TblQuotaDeclarationTO SelectTblQuotaDeclaration(Int32 idQuotaDeclaration)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -321,7 +372,7 @@ namespace ODLMWebAPI.DAL
                 //                        " LEFT JOIN dimBrand brand on brand.idBrand=latestRate.brandId) AS latestRateInfo ON latestRateInfo.idGlobalRate = quota.globalRateId WHERE";
                 // Above query commented by Aniket [4-7-2019] as discussed with saket, and written below new query
                 // new query has been written due to validUp mins issues while rate declaration
-                cmdSelect.CommandText= " SELECT quota.*,g.rate as declaredRate,b.brandName,b.idBrand as brandId "+ 
+                cmdSelect.CommandText= " SELECT quota.*,g.rate as declaredRate,b.brandName,b.idBrand as brandId,b.isAutoSelect as isAutoSelect " + 
                                         " FROM tblQuotaDeclaration quota "+
                                         " LEFT JOIN tblGlobalRate g ON quota.globalRateId = g.idGlobalRate "+
                                         " left join dimBrand b ON b.idBrand = g.brandId WHERE";
@@ -340,7 +391,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
                 SqlDataReader tblGlobalRateTODT = cmdSelect.ExecuteReader(CommandBehavior.Default);
-                List<TblQuotaDeclarationTO> list = ConvertDTToList(tblGlobalRateTODT);
+                List<TblQuotaDeclarationTO> list = ConvertDTToListQouta(tblGlobalRateTODT);
                 if (tblGlobalRateTODT != null)
                     tblGlobalRateTODT.Dispose();
                 return list;

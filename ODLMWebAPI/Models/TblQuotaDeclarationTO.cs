@@ -8,6 +8,7 @@ namespace ODLMWebAPI.Models
     public class TblQuotaDeclarationTO
     {
         #region Declarations
+
         Int32 idQuotaDeclaration;
         Int32 orgId;
         Int32 globalRateId;
@@ -38,6 +39,8 @@ namespace ODLMWebAPI.Models
         #endregion
 
         #region GetSet
+
+        public Int32 IsAutoSelect { get; set; }
         public Int32 IdQuotaDeclaration
         {
             get { return idQuotaDeclaration; }

@@ -123,7 +123,7 @@ namespace ODLMWebAPI.DAL
         /// <param name="dealerID"></param>
         /// <param name="userRoleTO"></param>
         /// <returns></returns>
-        public List<TblInvoiceTO> SelectAllTblInvoice(DateTime frmDt, DateTime toDt, int isConfirm, Int32 cnfId, Int32 dealerId, TblUserRoleTO tblUserRoleTO, Int32 brandId, Int32 invoiceId,Int32 statusId)
+        public List<TblInvoiceTO> SelectAllTblInvoice(DateTime frmDt, DateTime toDt, int isConfirm, Int32 cnfId, Int32 dealerId, TblUserRoleTO tblUserRoleTO, Int32 brandId, Int32 invoiceId,Int32 statusId, String internalOrgId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -221,6 +221,15 @@ namespace ODLMWebAPI.DAL
                     brandCondition = "  AND invoice.brandId = " + brandId;
                 }
 
+
+                //Saket [2019-12-06] Added.
+                String interOrgConition = "";
+                if (!String.IsNullOrEmpty(internalOrgId))
+                {
+                    interOrgConition = "  AND invoice.invFromOrgId IN (" + internalOrgId + ")";
+                }
+
+
                 //Vijaymala [2018-08-10 Added status filter 
                 String statusCondition = "";
                 if (statusId > 0 )
@@ -231,23 +240,23 @@ namespace ODLMWebAPI.DAL
                 // Vaibhav [10-Jan-2018] Commented and added new code
                 if (cnfId == 0 && dealerId == 0)
                 {
-                    strQuery = " SELECT * FROM ( " + sqlQueryTemp + areConfJoin + whereCondition  + brandCondition + statusCondition +
+                    strQuery = " SELECT * FROM ( " + sqlQueryTemp + areConfJoin + whereCondition  + brandCondition + interOrgConition + statusCondition +
 
-                               " UNION ALL " + sqlQueryFinal + areConfJoin + whereCondition + brandCondition + statusCondition + " )sq1 ORDER BY sq1.idInvoice desc";
+                               " UNION ALL " + sqlQueryFinal + areConfJoin + whereCondition + brandCondition + interOrgConition + statusCondition + " )sq1 ORDER BY sq1.idInvoice desc";
 
                 }
 
                 else if (cnfId > 0 && dealerId == 0)
                 {
-                    strQuery = " SELECT * FROM ( " + sqlQueryTemp + areConfJoin + whereCondition + "  AND invoice.distributorOrgId='" + cnfId + "'" + brandCondition + statusCondition +
-                               " UNION ALL " + sqlQueryFinal + areConfJoin + whereCondition + " AND invoice.distributorOrgId='" + cnfId + "' " + brandCondition + statusCondition + "  )sq1 ORDER BY sq1.idInvoice desc";
+                    strQuery = " SELECT * FROM ( " + sqlQueryTemp + areConfJoin + whereCondition + "  AND invoice.distributorOrgId='" + cnfId + "'" + brandCondition + interOrgConition + statusCondition +
+                               " UNION ALL " + sqlQueryFinal + areConfJoin + whereCondition + " AND invoice.distributorOrgId='" + cnfId + "' " + brandCondition + interOrgConition + statusCondition + "  )sq1 ORDER BY sq1.idInvoice desc";
 
                 }
 
                 else if (cnfId > 0 && dealerId > 0)
                 {
-                    strQuery = " SELECT * FROM ( " + sqlQueryTemp + areConfJoin + whereCondition + "  AND invoice.distributorOrgId='" + cnfId + "' AND invoice.dealerOrgId='" + dealerId + "' " + brandCondition + statusCondition +
-                                " UNION ALL " + sqlQueryFinal + areConfJoin + whereCondition + "  AND invoice.distributorOrgId='" + cnfId + "' AND invoice.dealerOrgId='" + dealerId + "' " + brandCondition + statusCondition + " )sq1 ORDER BY sq1.idInvoice desc";
+                    strQuery = " SELECT * FROM ( " + sqlQueryTemp + areConfJoin + whereCondition + "  AND invoice.distributorOrgId='" + cnfId + "' AND invoice.dealerOrgId='" + dealerId + "' " + brandCondition + interOrgConition + statusCondition +
+                                " UNION ALL " + sqlQueryFinal + areConfJoin + whereCondition + "  AND invoice.distributorOrgId='" + cnfId + "' AND invoice.dealerOrgId='" + dealerId + "' " + brandCondition + interOrgConition + statusCondition + " )sq1 ORDER BY sq1.idInvoice desc";
                 }
 
                 cmdSelect.CommandText = strQuery;
@@ -769,6 +778,9 @@ namespace ODLMWebAPI.DAL
 
                     if (tblInvoiceTODT["invFromOrgFreeze"] != DBNull.Value)
                         tblInvoiceTONew.InvFromOrgFreeze = Convert.ToInt32(tblInvoiceTODT["invFromOrgFreeze"].ToString());
+
+                    if (tblInvoiceTODT["comment"] != DBNull.Value)
+                        tblInvoiceTONew.InvComment = Convert.ToString(tblInvoiceTODT["comment"].ToString());
 
                     tblInvoiceTOList.Add(tblInvoiceTONew);
                 }
@@ -1902,6 +1914,7 @@ namespace ODLMWebAPI.DAL
                                 " ,[grossWtTakenDate]" +
                                 " ,[preparationDate]" +
                                 " ,[invFromOrgFreeze]" +
+                                " ,[comment]" +
 
                                 " )" +
                     " VALUES (" +
@@ -1961,7 +1974,8 @@ namespace ODLMWebAPI.DAL
                                 " ,@grossWtTakenDate" +
                                 " ,@preparationDate" +
                                 " ,@InvFromOrgFreeze" +
-                                " )";
+                                " ,@comment" +
+                                 " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
 
@@ -2022,6 +2036,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@grossWtTakenDate", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.GrossWtTakenDate;
             cmdInsert.Parameters.Add("@preparationDate", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.PreparationDate;
             cmdInsert.Parameters.Add("@InvFromOrgFreeze", System.Data.SqlDbType.Int).Value = tblInvoiceTO.InvFromOrgFreeze;
+            cmdInsert.Parameters.Add("@comment", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.InvComment);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
@@ -2239,6 +2254,7 @@ namespace ODLMWebAPI.DAL
                              " ,[grossWtTakenDate]=@grossWtTakenDate " +
                              " ,[preparationDate]=@preparationDate " +
                              " ,[invFromOrgFreeze]=@InvFromOrgFreeze " +
+                             " ,[comment]=@comment " +
 
                              " WHERE [idInvoice] = @IdInvoice";
 
@@ -2299,6 +2315,8 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@grossWtTakenDate", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.GrossWtTakenDate;
             cmdUpdate.Parameters.Add("@preparationDate", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.PreparationDate;
             cmdUpdate.Parameters.Add("@InvFromOrgFreeze", System.Data.SqlDbType.Int).Value = tblInvoiceTO.InvFromOrgFreeze;
+            cmdUpdate.Parameters.Add("@comment", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.InvComment);
+
 
             return cmdUpdate.ExecuteNonQuery();
         }

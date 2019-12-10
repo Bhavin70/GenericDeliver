@@ -14,7 +14,7 @@ namespace ODLMWebAPI.BL.Interfaces
     public interface ITblInvoiceBL
     {
         List<TblInvoiceTO> SelectAllTblInvoiceList();
-        List<TblInvoiceTO> SelectAllTblInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm, Int32 cnfId, Int32 dealerID, List<TblUserRoleTO> tblUserRoleTOList, Int32 brandId, Int32 invoiceId, Int32 statusId);
+        List<TblInvoiceTO> SelectAllTblInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm, Int32 cnfId, Int32 dealerID, List<TblUserRoleTO> tblUserRoleTOList, Int32 brandId, Int32 invoiceId, Int32 statusId, String internalOrgId);
         TblInvoiceTO SelectTblInvoiceTO(Int32 idInvoice);
         List<TblInvoiceTO> SelectTblInvoiceByStatus(int statusId, int distributorOrgId, int invoiceId,int isConfirm);
         TblInvoiceTO SelectTblInvoiceTOWithDetails(Int32 idInvoice);
@@ -47,7 +47,7 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage DecomposeInvoice(List<Int32> invoiceIdsList, Int32 loginUserId);
         ResultMessage SaveInvoiceDocumentDetails(TblInvoiceTO invoiceTO, List<TblDocumentDetailsTO> tblDocumentDetailsTOList, Int32 loginUserId);
         ResultMessage InsertInvoiceDocumentDetails(TblInvoiceTO tblInvoiceTO, List<TblDocumentDetailsTO> tblDocumentDetailsTOList, Int32 loginUserId, SqlConnection conn, SqlTransaction tran);
-        ResultMessage PrintReport(Int32 invoiceId);
+        ResultMessage PrintReport(Int32 invoiceId,Boolean isPrinted=false);
         String currencyTowords(Double amount, Int32 currencyId);
         string ConvertNumbertoWords(long number);
         Double getDiscountPerct(TblInvoiceTO resInvoiceTO);
@@ -58,7 +58,7 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage SaveUpdatedInvoice(TblInvoiceTO invoiceTO);
         ResultMessage UpdateInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
         TblInvoiceTO updateInvoiceToCalc(TblInvoiceTO tblInvoiceTo, SqlConnection conn, SqlTransaction tran, Boolean isCheckHist = true);
-        ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm,Int32 invGenModeId,int fromOrgId,int toOrgId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0);
+        ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm,Int32 invGenModeId,int fromOrgId,int toOrgId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0, String invComment = "");
         ResultMessage exchangeInvoice(Int32 invoiceId,  Int32 invGenModeId,int fromOrgId,int toOrgId , int isCalculateWithBaseRate);
         ResultMessage UpdateInvoiceNonCommercialDetails(TblInvoiceTO tblInvoiceTO);
         //ResultMessage UpdateInvoiceConfrimNonConfirmDetails(TblInvoiceTO tblInvoiceTO, Int32 loginUserId);

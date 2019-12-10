@@ -1030,6 +1030,9 @@ namespace ODLMWebAPI.BL
                 tran = conn.BeginTransaction();
 
                 Double freightPerMT = 0;
+
+                #region Commented code Vijaymala added[26-04-2018]
+
                 //Vijaymala added[26-04-2018]:commented that code to get freight from loading slip layerwise
                 //if (tblLoadingTO.IsFreightIncluded == 1)
                 //{
@@ -1046,17 +1049,30 @@ namespace ODLMWebAPI.BL
                 //}
 
                 //Vijaymala[13-11-2018]commented the code .Tax inclusive/exclusive getting from brand
+
+                #endregion
+
+
                 //Sanjay [2018-07-04] Tax Calculations Inclusive Of Taxes Or Exclusive Of Taxes. Reported From Customer Shivangi Rolling Mills.By default it will be 0 i.e. Tax Exclusive
-                Int32 isTaxInclusiveWithTaxes = 0;
+                //Int32 isTaxInclusiveWithTaxes = 0;
+                Int32 isTaxInclusiveWithAllParam = 0; // Less CD,parity,ORC while reverse GSTIN Calculation
                 Boolean isSez = false;
-                TblConfigParamsTO rateCalcConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_RATE_CALCULATIONS_TAX_INCLUSIVE, conn, tran);
-                if (rateCalcConfigParamsTO != null)
+                //TblConfigParamsTO rateCalcConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_RATE_CALCULATIONS_TAX_INCLUSIVE, conn, tran);
+                //if (rateCalcConfigParamsTO != null)
+                //{
+                //    isTaxInclusiveWithTaxes = Convert.ToInt32(rateCalcConfigParamsTO.ConfigParamVal);
+                //}
+
+                TblConfigParamsTO rateCalcTaxInclConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_RATE_CALCULATIONS_TAX_INCLUSIVE_WITH_ALL_PARAMS_LESS, conn, tran);
+                if (rateCalcTaxInclConfigParamsTO != null)
                 {
-                    isTaxInclusiveWithTaxes = Convert.ToInt32(rateCalcConfigParamsTO.ConfigParamVal);
+                    isTaxInclusiveWithAllParam = Convert.ToInt32(rateCalcTaxInclConfigParamsTO.ConfigParamVal);
                 }
 
                 List<TblConfigParamsTO> tblConfigParamsTOList = _iTblConfigParamsBL.SelectAllTblConfigParamsList();
                 Boolean isRateRounded = false;
+                Int32 dontShowCdOnInvoice = 0;
+
                 TblConfigParamsTO roundRateConfig = new TblConfigParamsTO();
                 if (tblConfigParamsTOList!=null && tblConfigParamsTOList.Count >0)
                 {
@@ -1065,6 +1081,14 @@ namespace ODLMWebAPI.BL
                     {
                         isRateRounded = true;
                     }
+
+
+                    TblConfigParamsTO temp = tblConfigParamsTOList.Where(ele => ele.ConfigParamName == Constants.CP_DO_NOT_SHOW_CD_ON_INOVICE).FirstOrDefault();
+                    if (temp != null)
+                    {
+                        dontShowCdOnInvoice = Convert.ToInt32(temp.ConfigParamVal);
+                    }
+
                 }
 
                 Double forAmtPerMT = 0; //Vijaymala added[22-06-2018]
@@ -1077,14 +1101,14 @@ namespace ODLMWebAPI.BL
                     {
                         freightPerMT = tblLoadingSlipTO.FreightAmt;// CalculateFreightAmtPerTon(tblLoadingTO.LoadingSlipList, tblLoadingSlipTO.FreightAmt);
                                                                    //freightPerMT = CalculateFreightAmtPerTon(tblLoadingTO.LoadingSlipList, tblLoadingSlipTO.FreightAmt);
-                        //if (freightPerMT < 0)
-                        //{
-                        //    tran.Rollback();
-                        //    resultMessage.MessageType = ResultMessageE.Error;
-                        //    resultMessage.Text = "Error : Freight Calculations is less than 0. Please check the calculations immediatly";
-                        //    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                        //    return resultMessage;
-                        //}
+                                                                   //if (freightPerMT < 0)
+                                                                   //{
+                                                                   //    tran.Rollback();
+                                                                   //    resultMessage.MessageType = ResultMessageE.Error;
+                                                                   //    resultMessage.Text = "Error : Freight Calculations is less than 0. Please check the calculations immediatly";
+                                                                   //    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                                                                   //    return resultMessage;
+                                                                   //}
                     }
 
                     //Vijaymala added[21-06-2018]for new For amount calculation
@@ -1097,7 +1121,7 @@ namespace ODLMWebAPI.BL
                             freightPerMT = forAmtPerMT + freightPerMT;
                         }
                     }
-                  //  freightPerMT = Math.Abs(freightPerMT);
+                    //  freightPerMT = Math.Abs(freightPerMT);
 
                     if (tblLoadingSlipTO.LoadingSlipExtTOList != null && tblLoadingSlipTO.LoadingSlipExtTOList.Count > 0)
                     {
@@ -1109,7 +1133,7 @@ namespace ODLMWebAPI.BL
                         {
 
                             TblLoadingSlipDtlTO tblLoadingSlipDtlTO = tblLoadingSlipTO.TblLoadingSlipDtlTO;
-                            if(tblLoadingSlipDtlTO.IdBooking > 0)
+                            if (tblLoadingSlipDtlTO.IdBooking > 0)
                             {
                                 tblLoadingSlipDtlTO.BookingId = tblLoadingSlipDtlTO.IdBooking;
 
@@ -1124,7 +1148,7 @@ namespace ODLMWebAPI.BL
                                 return resultMessage;
                             }
 
-                            if(tblBookingsTO.IsSez==1)
+                            if (tblBookingsTO.IsSez == 1)
                             {
                                 isSez = true;
                             }
@@ -1152,7 +1176,7 @@ namespace ODLMWebAPI.BL
 
                             for (int e = 0; e < tblLoadingSlipTO.LoadingSlipExtTOList.Count; e++)
                             {
-                              
+
                                 TblLoadingSlipExtTO tblLoadingSlipExtTO = tblLoadingSlipTO.LoadingSlipExtTOList[e];
 
                                 Int32 isTaxInclusive = 0;
@@ -1164,7 +1188,7 @@ namespace ODLMWebAPI.BL
                                 }
                                 if (tblLoadingSlipExtTO.LoadingQty > 0)
                                 {
-                                    
+
                                     #region Calculate Actual Price From Booking and Parity Settings
 
                                     Double orcAmtPerTon = 0;
@@ -1194,16 +1218,15 @@ namespace ODLMWebAPI.BL
 
 
                                     String rateCalcDesc = string.Empty;
-                                    int isBalajiClient = 0; 
                                     Double bookingPrice;
                                     List<TblBookingExtTO> bookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(tblBookingParitiesTO.BookingId);
                                     //Aniket [24-9-2019]
                                     TblGlobalRateTO rateTO = null;
                                     TblGroupItemTO tblGroupItemTO = _iTblGroupItemDAO.SelectTblGroupItemDetails(tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.MaterialId);
-                                    if(tblGroupItemTO!=null)
+                                    if (tblGroupItemTO != null)
                                     {
                                         rateTO = new TblGlobalRateTO();
-                                        Dictionary<Int32, Int32> rateDCT= _iTblGlobalRateDAO.SelectLatestGroupAndRateDCT(tblBookingsTO.CreatedOn.ToString("yyyy-MM-dd"));
+                                        Dictionary<Int32, Int32> rateDCT = _iTblGlobalRateDAO.SelectLatestGroupAndRateDCT(tblBookingsTO.CreatedOn.ToString("yyyy-MM-dd"));
                                         if (rateDCT != null)
                                         {
                                             if (rateDCT.ContainsKey(tblGroupItemTO.GroupId))
@@ -1216,10 +1239,10 @@ namespace ODLMWebAPI.BL
                                     if (rateTO != null)
                                         bookingPrice = rateTO.Rate;
                                     else
-                                    bookingPrice = tblBookingParitiesTO.BookingRate;
+                                        bookingPrice = tblBookingParitiesTO.BookingRate;
                                     // Aniket [18-6-2019]
                                     // added to reduce item wise discount from bookingprice
-                                    if(tblBookingsTO.IsItemized==1)
+                                    if (tblBookingsTO.IsItemized == 1)
                                     {
                                         if (bookingExtTOList != null && bookingExtTOList.Count > 0)
                                         {
@@ -1232,12 +1255,31 @@ namespace ODLMWebAPI.BL
                                             }
                                         }
                                     }
-                                    
-                                  
-                                   // rateCalcDesc = "B.R : " + tblBookingParitiesTO.BookingRate + "|";
-                                   if(isTaxInclusive==1 && isTaxInclusiveWithTaxes==0)
+
+                                    TblGstCodeDtlsTO gstCodeDtlsTO = _iTblGstCodeDtlsDAO.SelectGstCodeDtlsTO(tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdItemId, conn, tran);
+                                    if (gstCodeDtlsTO == null)
                                     {
-                                        bookingPrice = bookingPrice / 1.18;
+                                        tran.Rollback();
+                                        resultMessage.DefaultBehaviour();
+                                        resultMessage.Text = "Error : GST Code Not Found";
+                                        string mateDesc = tblLoadingSlipExtTO.DisplayName;
+                                        //[05-09-2018] : Vijaymala commented code to set display  name for item for other and regular
+                                        //tblLoadingSlipExtTO.MaterialDesc + " " + tblLoadingSlipExtTO.ProdCatDesc + "-" + tblLoadingSlipExtTO.ProdSpecDesc;
+                                        resultMessage.DisplayMessage = "Warning : GST Code Is Not Defined For " + mateDesc + " Please contact BackOffice";
+                                        return resultMessage;
+                                    }
+
+                                    // rateCalcDesc = "B.R : " + tblBookingParitiesTO.BookingRate + "|";
+                                    //if (isTaxInclusive == 1 && isTaxInclusiveWithTaxes == 0)
+                                    if (isTaxInclusive == 1 && isTaxInclusiveWithAllParam == 0)
+                                    {
+                                        //bookingPrice = bookingPrice / 1.18;
+
+                                        Double divisor = 100 + gstCodeDtlsTO.TaxPct;
+
+                                        divisor = divisor / 100;
+
+                                        bookingPrice = bookingPrice / divisor;
                                         bookingPrice = Math.Round(bookingPrice, 2);
                                     }
                                     rateCalcDesc = "B.R : " + bookingPrice + "|";
@@ -1305,11 +1347,7 @@ namespace ODLMWebAPI.BL
                                     }
                                     else
                                     {
-                                        tran.Rollback();
-                                        resultMessage.DefaultBehaviour();
-                                        resultMessage.Text = "Error : ParityTO Not Found";
-                                        resultMessage.DisplayMessage = "Warning : Parity Details Not Found, Please contact BackOffice";
-                                        return resultMessage;
+
                                     }
 
                                     Double cdApplicableAmt = 0;
@@ -1320,17 +1358,24 @@ namespace ODLMWebAPI.BL
                                     if (tblLoadingSlipTO.IsConfirmed == 1)
                                         cdApplicableAmt += parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
 
+
+                                    //if (isTaxInclusiveWithAllParam == 1)
+                                    //{
+                                    //    Double divisor = 100 + gstCodeDtlsTO.TaxPct;
+
+                                    //    divisor = divisor / 100;
+
+                                    //    cdApplicableAmt = cdApplicableAmt / divisor;
+                                    //    cdApplicableAmt = Math.Round(cdApplicableAmt, 2);
+                                    //}
+
+
                                     Double cdAmt = 0;
                                     Double orgCdAmt = 0;
                                     //Vijaymala added[22-06-2018]
                                     DropDownTO dropDownTO = _iDimensionDAO.SelectCDDropDown(tblLoadingSlipTO.CdStructureId);
 
-                                    if (isBalajiClient==1)
-                                    {
-
-                                    }
-                                    else
-                                    {
+                                    
                                         if (tblLoadingSlipTO.CdStructure >= 0)
                                         {
                                             //Priyanka [23-07-2018] Added if cdstructure is 0
@@ -1348,34 +1393,20 @@ namespace ODLMWebAPI.BL
                                                 cdAmt = cdAmt + tblLoadingSlipTO.AddDiscAmt;        //Priyanka [09-07-18]
                                             }
                                         }
-                                    }
 
-                                 
-                                                                  
-                                   
 
                                     rateCalcDesc += "CD :" + Math.Round(cdAmt, 2) + "|";
-                                    Double basicRateTaxIncl = cdApplicableAmt  -cdAmt + freightPerMT;
+                                    Double basicRateTaxIncl = cdApplicableAmt - cdAmt + freightPerMT;
+                                    //Double basicRateTaxIncl = cdApplicableAmt   + freightPerMT;
                                     Double rateAfterCD = cdApplicableAmt - cdAmt;
+                                    //Double rateAfterCD = cdApplicableAmt;// - cdAmt;
 
                                     Double gstApplicableAmt = 0;
                                     Double gstAmt = 0;
                                     Double finalRate = 0;
 
-                                    TblGstCodeDtlsTO gstCodeDtlsTO = _iTblGstCodeDtlsDAO.SelectGstCodeDtlsTO(tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdItemId, conn, tran);
-                                    if (gstCodeDtlsTO == null)
-                                    {
-                                        tran.Rollback();
-                                        resultMessage.DefaultBehaviour();
-                                        resultMessage.Text = "Error : GST Code Not Found";
-                                        string mateDesc = tblLoadingSlipExtTO.DisplayName;
-                                        //[05-09-2018] : Vijaymala commented code to set display  name for item for other and regular
-                                        //tblLoadingSlipExtTO.MaterialDesc + " " + tblLoadingSlipExtTO.ProdCatDesc + "-" + tblLoadingSlipExtTO.ProdSpecDesc;
-                                        resultMessage.DisplayMessage = "Warning : GST Code Is Not Defined For " + mateDesc + " Please contact BackOffice";
-                                        return resultMessage;
-                                    }
-
-                                    if (isTaxInclusiveWithTaxes == 0 || isTaxInclusive == 0)
+                                    //if (isTaxInclusiveWithTaxes == 0 || isTaxInclusive == 0)
+                                    if(isTaxInclusive == 0)
                                     {
                                         if (tblLoadingSlipTO.IsConfirmed == 1)
                                             //gstApplicableAmt = rateAfterCD + freightPerMT + parityTO.ExpenseAmt + parityTO.OtherAmt;
@@ -1399,32 +1430,56 @@ namespace ODLMWebAPI.BL
                                     }
                                     else
                                     {
-                                        if (isSez)
+                                        if (isTaxInclusiveWithAllParam == 0)
                                         {
-                                            gstCodeDtlsTO.TaxPct = 0;
+                                            if (isSez)
+                                            {
+                                                gstCodeDtlsTO.TaxPct = 0;
+                                            }
+                                            Double taxToDivide = 100 + gstCodeDtlsTO.TaxPct;
+
+                                            gstAmt = basicRateTaxIncl - ((basicRateTaxIncl / taxToDivide) * 100);
+                                            gstAmt = Math.Round(gstAmt, 2);
+                                            gstApplicableAmt = basicRateTaxIncl - gstAmt;
+                                            finalRate = basicRateTaxIncl;
+                                            cdApplicableAmt = gstApplicableAmt + cdAmt;
                                         }
-                                        Double taxToDivide = 100 + gstCodeDtlsTO.TaxPct;
+                                        //Rate Calculation for A1 Ispaat- All param will less from declared rate expect Freight
+                                        else if (isTaxInclusiveWithAllParam == 1)
+                                        {
+                                            if (isSez)
+                                            {
+                                                gstCodeDtlsTO.TaxPct = 0;
+                                            }
+                                            Double taxToDivide = 100 + gstCodeDtlsTO.TaxPct;
 
-                                        gstAmt = basicRateTaxIncl - ((basicRateTaxIncl / taxToDivide) * 100);
-                                        gstAmt = Math.Round(gstAmt, 2);
+                                            double reverseGstBasicAmt = (bookingPrice - cdAmt - orcAmtPerTon + parityAmt + priceSetOff + bvcAmt) + freightPerMT;
+                                            gstAmt = reverseGstBasicAmt - ((reverseGstBasicAmt / taxToDivide) * 100);
+                                            gstAmt = Math.Round(gstAmt, 2);
+                                            gstApplicableAmt = reverseGstBasicAmt - gstAmt;
+                                            finalRate = reverseGstBasicAmt;
+                                            cdApplicableAmt = gstApplicableAmt + cdAmt;
 
-                                        gstApplicableAmt = basicRateTaxIncl - gstAmt;
-                                        finalRate = basicRateTaxIncl;
-                                        cdApplicableAmt = gstApplicableAmt + cdAmt;
+                                            if (dontShowCdOnInvoice == 1)  //For A1
+                                            {
+                                                cdApplicableAmt = gstApplicableAmt;
+                                            }
+                                        }
+
                                     }
+
+                                    
 
 
                                     tblLoadingSlipExtTO.TaxableRateMT = gstApplicableAmt;
                                     tblLoadingSlipExtTO.RatePerMT = finalRate;
-                                    if(isRateRounded)
+                                    if (isRateRounded)
                                     {
-                                        cdApplicableAmt= Math.Round(cdApplicableAmt);
+                                        cdApplicableAmt = Math.Round(cdApplicableAmt);
                                     }
                                     tblLoadingSlipExtTO.CdApplicableAmt = cdApplicableAmt;
                                     //tblLoadingSlipExtTO.FreExpOtherAmt = freightPerMT + parityTO.ExpenseAmt + parityTO.OtherAmt; Sudhir[23-MARCH-2018] Commented
                                     tblLoadingSlipExtTO.FreExpOtherAmt = freightPerMT + parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
-
-
 
                                     TblConfigParamsTO tblConfigParamsTempTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_HIDE_NOT_CONFIRM_OPTION);
 
@@ -1479,6 +1534,7 @@ namespace ODLMWebAPI.BL
                 conn.Close();
             }
         }
+
 
         public void CalculateActualPriceInclusiveOfTaxes()
         {
@@ -1906,6 +1962,7 @@ namespace ODLMWebAPI.BL
                         }
                     }
                     tblLoadingSlipTO.LoadingSlipNo = slipNo;
+
                     result = _iTblLoadingSlipBL.InsertTblLoadingSlip(tblLoadingSlipTO, conn, tran);
                     if (result != 1)
                     {

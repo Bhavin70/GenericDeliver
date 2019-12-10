@@ -8,6 +8,7 @@ namespace ODLMWebAPI.Models
     public class TblInvoiceTO
     {
         #region Declarations
+        public String InvComment { get; set; }
         Int32 idInvoice;
         Int32 invoiceTypeId;
         Int32 transportOrgId;
