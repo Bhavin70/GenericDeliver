@@ -3340,7 +3340,7 @@ namespace ODLMWebAPI.BL
         /// </summary>
         /// <param name="invoiceId"></param>
         /// <returns></returns>
-        public ResultMessage PrintReport(Int32 invoiceId)
+        public ResultMessage PrintReport(Int32 invoiceId,Boolean isPrinted=false)
         {
             ResultMessage resultMessage = new ResultMessage();
 
@@ -4387,7 +4387,46 @@ namespace ODLMWebAPI.BL
                 printDataSet.Tables.Add(multipleInvoiceCopyDT);
                 // printDataSet.Tables.Add(shippingAddressDT);
                 //creating template'''''''''''''''''
-                String templateFilePath = _iDimReportTemplateBL.SelectReportFullName("InvoiceVoucher");
+
+                
+                string templateName = "";
+                if (isPrinted)
+                {
+                    int val = 0;
+                    TblConfigParamsTO configParamsTOTemp = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_DELIVER_SINGLE_OR_MULTI_TEMPLATE_FOR_PRINTED);
+                    if (configParamsTO != null)
+                    {
+                        val = Convert.ToInt16(configParamsTOTemp.ConfigParamVal);
+                    }
+
+                    if (val == 0)
+                    {
+                        templateName = "InvoiceVoucherPrinted";
+                    }
+                    else
+                    {
+                        templateName = "InvoiceVoucherPrePrinted_" + organizationTO.IdOrganization;
+                    }
+
+                }
+                else {
+                    int val = 0;
+                    TblConfigParamsTO configParamsTOTemp = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_DELIVER_SINGLE_OR_MULTI_TEMPLATE_FOR_PLAIN);
+                    if (configParamsTO != null)
+                    {
+                        val = Convert.ToInt16(configParamsTOTemp.ConfigParamVal);
+                    }
+
+                    if (val == 0)
+                    {
+                        templateName = "InvoiceVoucherPlain";
+                    }
+                    else
+                    {
+                        templateName = "InvoiceVoucherPlain_" + organizationTO.IdOrganization;
+                    }
+                }
+                String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
                 String fileName = "Bill-" + DateTime.Now.Ticks;
 
                 //download location for rewrite  template file

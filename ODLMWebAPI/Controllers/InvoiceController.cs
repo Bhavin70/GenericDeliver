@@ -1148,11 +1148,13 @@ namespace ODLMWebAPI.Controllers
             {
                 ResultMessage resultMessage = new StaticStuff.ResultMessage();
                 var invoiceId = data["invoiceId"].ToString();
-               // var firmNameId = data["firmId"].ToString();
+                var isPrinted =Convert.ToBoolean(data["isPrinted"]);
+                // var firmNameId = data["firmId"].ToString();
+                
                 if (invoiceId != null)
                 {
                     DateTime serverDate = _iCommon.ServerDateTime;
-                    return _iTblInvoiceBL.PrintReport(Convert.ToInt32(invoiceId));
+                    return _iTblInvoiceBL.PrintReport(Convert.ToInt32(invoiceId), isPrinted);
                         //, Convert.ToInt32(firmNameId));
                 }
 
