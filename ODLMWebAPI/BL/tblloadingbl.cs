@@ -1813,15 +1813,6 @@ namespace ODLMWebAPI.BL
                     isBrandWiseLoading = Convert.ToInt32(tblConfigParamsTOBrandWise.ConfigParamVal);
                 }
 
-                Int32 dontShowCdOnInvoice = 0;
-
-                TblConfigParamsTO temp = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DO_NOT_SHOW_CD_ON_INOVICE);
-                if (temp != null)
-                {
-                    dontShowCdOnInvoice = Convert.ToInt32(temp.ConfigParamVal);
-                }
-
-
                 if (isBrandWiseLoading == 1)
                 {
                     if (tblLoadingTO.LoadingSlipList != null && tblLoadingTO.LoadingSlipList.Count > 0)
@@ -1971,14 +1962,6 @@ namespace ODLMWebAPI.BL
                         }
                     }
                     tblLoadingSlipTO.LoadingSlipNo = slipNo;
-
-
-                    if (dontShowCdOnInvoice == 1)
-                    {
-                        tblLoadingSlipTO.CdStructure = 0;
-                        tblLoadingSlipTO.CdStructureId = 0;
-                    }
-
 
                     result = _iTblLoadingSlipBL.InsertTblLoadingSlip(tblLoadingSlipTO, conn, tran);
                     if (result != 1)
