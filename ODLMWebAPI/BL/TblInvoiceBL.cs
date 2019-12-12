@@ -4407,7 +4407,7 @@ namespace ODLMWebAPI.BL
                 {
                     int val = 0;
                     TblConfigParamsTO configParamsTOTemp = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.MULTIPLE_TEMPLATE_FOR_PRINTED_INVOICE);
-                    if (configParamsTO != null)
+                    if (configParamsTOTemp != null)
                     {
                         val = Convert.ToInt16(configParamsTOTemp.ConfigParamVal);
                     }
@@ -4425,7 +4425,7 @@ namespace ODLMWebAPI.BL
                 else {
                     int val = 0;
                     TblConfigParamsTO configParamsTOTemp = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.MULTIPLE_TEMPLATE_FOR_PLAIN_INVOICE);
-                    if (configParamsTO != null)
+                    if (configParamsTOTemp != null)
                     {
                         val = Convert.ToInt16(configParamsTOTemp.ConfigParamVal);
                     }
