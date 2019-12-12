@@ -1817,12 +1817,13 @@ namespace ODLMWebAPI.BL
             tblInvoiceTO.SgstAmt = sgstTotal;
             tblInvoiceTO.BasicAmt = basicTotal;
 
-            double finalGrandTotal = Math.Round(grandTotal);
-            tblInvoiceTO.GrandTotal = finalGrandTotal;
-            tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);
+            RoundOffInvoiceValuesBySetting(tblInvoiceTO);
+
+            //double finalGrandTotal = Math.Round(grandTotal);
+            //tblInvoiceTO.GrandTotal = finalGrandTotal;
+            //tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);
             
 
-            RoundOffInvoiceValuesBySetting(tblInvoiceTO);
 
             tblInvoiceTO.InvoiceItemDetailsTOList = tblInvoiceItemDetailsTOList;
             return tblInvoiceTO;
@@ -2462,9 +2463,9 @@ namespace ODLMWebAPI.BL
                 tblInvoiceTO.SgstAmt = sgstTotal;
                 tblInvoiceTO.BasicAmt = basicTotal;
 
-                double finalGrandTotal = Math.Round(grandTotal);
-                tblInvoiceTO.GrandTotal = finalGrandTotal;
-                tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);
+                //double finalGrandTotal = Math.Round(grandTotal);
+                //tblInvoiceTO.GrandTotal = finalGrandTotal;
+                //tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);
 
                 RoundOffInvoiceValuesBySetting(tblInvoiceTO);
 
@@ -2511,6 +2512,11 @@ namespace ODLMWebAPI.BL
                 tblInvoiceTO.BasicAmt = Math.Round(tblInvoiceTO.BasicAmt, roundOffValue);
             }
 
+            Double grandTotal = tblInvoiceTO.TaxableAmt + tblInvoiceTO.IgstAmt + tblInvoiceTO.CgstAmt + tblInvoiceTO.SgstAmt;
+
+            double finalGrandTotal = Math.Round(grandTotal);
+            tblInvoiceTO.GrandTotal = finalGrandTotal;
+            tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);
         }
 
         /// <summary>
@@ -2963,9 +2969,9 @@ namespace ODLMWebAPI.BL
                             finalInvoiceTO.SgstAmt = sgstTotal;
                             finalInvoiceTO.BasicAmt = basicTotal;
 
-                            double finalGrandTotal = Math.Round(grandTotal);
-                            finalInvoiceTO.GrandTotal = finalGrandTotal;
-                            finalInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);
+                            //double finalGrandTotal = Math.Round(grandTotal);
+                            //finalInvoiceTO.GrandTotal = finalGrandTotal;
+                            //finalInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);
 
                             RoundOffInvoiceValuesBySetting(finalInvoiceTO);
 
@@ -5095,13 +5101,13 @@ namespace ODLMWebAPI.BL
                     tblInvoiceTO.CgstAmt = existingInvoiceTO.CgstAmt;
                     tblInvoiceTO.SgstAmt = existingInvoiceTO.SgstAmt;
 
-                    double finalGrandTotal = Math.Round(existingInvoiceTO.GrandTotal);
-                    tblInvoiceTO.GrandTotal = finalGrandTotal;
-                    tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - existingInvoiceTO.GrandTotal, 2);
+                    //double finalGrandTotal = Math.Round(existingInvoiceTO.GrandTotal);
+                    //tblInvoiceTO.GrandTotal = finalGrandTotal;
+                    //tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - existingInvoiceTO.GrandTotal, 2);
 
                     RoundOffInvoiceValuesBySetting(tblInvoiceTO);
 
-                    tblInvoiceTO.GrandTotal = existingInvoiceTO.GrandTotal;
+                    //tblInvoiceTO.GrandTotal = existingInvoiceTO.GrandTotal;
 
                     tblInvoiceTO.InvoiceItemDetailsTOList = existingInvoiceTO.InvoiceItemDetailsTOList;
 
