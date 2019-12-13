@@ -842,6 +842,7 @@ namespace ODLMWebAPI.Controllers
             return _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsByInvoice(invoiceId);
         }
 
+
         /// <summary>
         /// [13-12-2017] Vijaymala : Added To Get Loading slip extension list according to filter 
         /// </summary>

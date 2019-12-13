@@ -470,7 +470,8 @@ namespace ODLMWebAPI.BL
                     headerDT.Columns.Add("LoadingSlipId");
                     headerDT.Columns.Add("LoadingLayerDesc");
                     headerDT.Columns.Add("DriverContactNo");
-                    headerDT.Columns.Add("PreparedBy"); 
+                    headerDT.Columns.Add("PreparedBy");
+                    
 
                     loadingItemDT.Columns.Add("DisplayName");
                     loadingItemDT.Columns.Add("MaterialDesc");                    
@@ -482,6 +483,11 @@ namespace ODLMWebAPI.BL
                     loadingItemDT.Columns.Add("LoadedBundles");
                     loadingItemDT.Columns.Add("RatePerMT");
                     loadingItemDT.Columns.Add("LoadingSlipId");
+                    loadingItemDT.Columns.Add("BrandDesc");
+                    loadingItemDT.Columns.Add("ProdSpecDesc");
+                    loadingItemDT.Columns.Add("ProdcatDesc");
+                    loadingItemDT.Columns.Add("ItemName");
+                    loadingItemDT.Columns.Add("DisplayField");
 
                     if (LoadingTO.LoadingSlipList != null && LoadingTO.LoadingSlipList.Count > 0)
                     {
@@ -558,16 +564,63 @@ namespace ODLMWebAPI.BL
                                 loadingItemDT.Rows.Add();                                
                                 Int32 loadItemDTCount = loadingItemDT.Rows.Count - 1;
 
-                                loadingItemDT.Rows[loadItemDTCount]["DisplayName"] = tblLoadingSlipExtTO.DisplayName;
+                                loadingItemDT.Rows[loadItemDTCount]["DisplayName"] = tblLoadingSlipExtTO.DisplayName;                            
+                                
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["DisplayField"] = tblLoadingSlipExtTO.MaterialDesc;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["DisplayField"] = tblLoadingSlipExtTO.ItemName;
+                                }
                                 if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
                                 {
                                     loadingItemDT.Rows[loadItemDTCount]["MaterialDesc"] = tblLoadingSlipExtTO.MaterialDesc;
                                 }
                                 else
                                 {
-                                    loadingItemDT.Rows[loadItemDTCount]["MaterialDesc"] = tblLoadingSlipExtTO.ItemName;
+                                    loadingItemDT.Rows[loadItemDTCount]["MaterialDesc"] = "";
+                                }
+
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ItemName))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ItemName"] = tblLoadingSlipExtTO.ItemName;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ItemName"] = "";
+                                }
+
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ProdCatDesc))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ProdCatDesc"] = tblLoadingSlipExtTO.ProdCatDesc;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ProdCatDesc"] = "";
 
                                 }
+
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ProdSpecDesc))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ProdSpecDesc"] = tblLoadingSlipExtTO.ProdSpecDesc;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ProdSpecDesc"] = "";
+
+                                }
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.BrandDesc))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["BrandDesc"] = tblLoadingSlipExtTO.BrandDesc;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["BrandDesc"] = "";
+
+                                }
+                               
                                 loadingItemDT.Rows[loadItemDTCount]["ProdItemDesc"] = tblLoadingSlipExtTO.ProdItemDesc;
                                 loadingItemDT.Rows[loadItemDTCount]["LoadingQty"] = tblLoadingSlipExtTO.LoadingQty;
                                 loadingItemDT.Rows[loadItemDTCount]["Bundles"] = tblLoadingSlipExtTO.Bundles;
