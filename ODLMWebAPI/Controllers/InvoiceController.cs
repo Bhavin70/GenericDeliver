@@ -1176,6 +1176,38 @@ namespace ODLMWebAPI.Controllers
         }
 
 
+        [Route("PrintWeighingDetails")]
+        [HttpPost]
+        public ResultMessage PrintWeighingDetails([FromBody] JObject data)
+        {
+            try
+            {
+                ResultMessage resultMessage = new StaticStuff.ResultMessage();
+                var invoiceId = data["invoiceId"].ToString();
+
+                if (invoiceId != null)
+                {
+                    DateTime serverDate = _iCommon.ServerDateTime;
+                    return _iTblInvoiceBL.PrintWeighingReport(Convert.ToInt32(invoiceId));
+                }
+
+                else
+                {
+                    resultMessage.DefaultBehaviour("tempInvoiceDocumentDetailsTO Found NULL");
+                    return resultMessage;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+
+            }
+        }
+
 
         // PUT api/values/5
         [HttpPut("{id}")]

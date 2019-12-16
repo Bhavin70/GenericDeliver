@@ -12,6 +12,7 @@ using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.BL;
 using ODLMWebAPI.DashboardModels;
+using System.IO;
 
 namespace ODLMWebAPI.BL
 {   
@@ -70,11 +71,15 @@ namespace ODLMWebAPI.BL
         private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
         private readonly ITblGroupItemDAO _iTblGroupItemDAO;
         private readonly ITblGlobalRateDAO _iTblGlobalRateDAO;
+        private readonly IRunReport _iRunReport;
+        private readonly IDimReportTemplateBL _iDimReportTemplateBL;
         private readonly ITblPaymentTermsForBookingDAO _iTblPaymentTermsForBookingDAO;
-        public TblLoadingBL(ITblGlobalRateDAO iTblGlobalRateDAO,ITblGroupItemDAO iTblGroupItemDAO,ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL, ITblPaymentTermsForBookingDAO iTblPaymentTermsForBookingDAO)
+        public TblLoadingBL(ITblGlobalRateDAO iTblGlobalRateDAO, IDimReportTemplateBL iDimReportTemplateBL, IRunReport iRunReport, ITblGroupItemDAO iTblGroupItemDAO,ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL, ITblPaymentTermsForBookingDAO iTblPaymentTermsForBookingDAO)
         {
             _iTblLoadingDAO = iTblLoadingDAO;
+            _iRunReport =iRunReport;
             _iTblUserRoleBL = iTblUserRoleBL;
+            _iDimReportTemplateBL = iDimReportTemplateBL;
             _iTblOrganizationDAO = iTblOrganizationDAO;
             _iTblMaterialBL = iTblMaterialBL;
             _iTblLoadingSlipBL = iTblLoadingSlipBL;
@@ -411,6 +416,290 @@ namespace ODLMWebAPI.BL
             catch (Exception ex)
             {
                 return null;
+            }
+
+        }
+
+
+        public ResultMessage PrintReport(int idLoading, bool isPrinted)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+
+            try
+            {
+                TblLoadingTO LoadingTO = SelectLoadingTOWithDetails(idLoading);
+                if (LoadingTO != null)
+                {
+                    DataSet printDataSet = new DataSet();
+
+                    //headerDT
+                    DataTable headerDT = new DataTable();
+                    DataTable addressDT = new DataTable();
+                    DataTable loadingDT = new DataTable();
+                    DataTable loadingItemDT = new DataTable();
+                    DataTable itemFooterDetailsDT = new DataTable();
+
+                    DataTable multipleInvoiceCopyDT = new DataTable();
+                    headerDT.TableName = "headerDT";
+                    loadingDT.TableName = "loadingDT";
+                    addressDT.TableName = "addressDT";
+                    loadingItemDT.TableName = "loadingItemDT";
+                    itemFooterDetailsDT.TableName = "itemFooterDetailsDT";
+
+                    headerDT.Columns.Add("CreatedOnStr");
+                    headerDT.Columns.Add("CnfOrgName");
+                    headerDT.Columns.Add("TransporterOrgName");
+                    headerDT.Columns.Add("DriverName");
+                    headerDT.Columns.Add("ContactNo");
+                    headerDT.Columns.Add("LoadingSlipNo");
+                    headerDT.Columns.Add("DealerOrgName");
+                    headerDT.Columns.Add("VehicleNo");
+                    headerDT.Columns.Add("LoadingId");
+                    headerDT.Columns.Add("BookingRate");             
+                    headerDT.Columns.Add("CdStructure");
+                    headerDT.Columns.Add("IsConfirmed");
+                    headerDT.Columns.Add("FreightAmt");
+                    headerDT.Columns.Add("BillingName");
+                    headerDT.Columns.Add("ConsigneeName");
+                    headerDT.Columns.Add("BillingAddress");
+                    headerDT.Columns.Add("ConsigneeAddress");
+                    headerDT.Columns.Add("BillingGstNo");
+                    headerDT.Columns.Add("ConsigneeGstNo");
+                    headerDT.Columns.Add("ShippingTo");
+                    headerDT.Columns.Add("ShippingAddress");
+                    headerDT.Columns.Add("LoadingSlipId");
+                    headerDT.Columns.Add("LoadingLayerDesc");
+                    headerDT.Columns.Add("DriverContactNo");
+                    headerDT.Columns.Add("PreparedBy");
+                    
+
+                    loadingItemDT.Columns.Add("DisplayName");
+                    loadingItemDT.Columns.Add("MaterialDesc");                    
+                    loadingItemDT.Columns.Add("ProdItemDesc");
+                    loadingItemDT.Columns.Add("LoadingQty");
+                    loadingItemDT.Columns.Add("Bundles");
+                    loadingItemDT.Columns.Add("LoadedWeight");
+                    loadingItemDT.Columns.Add("MstLoadedBundles");
+                    loadingItemDT.Columns.Add("LoadedBundles");
+                    loadingItemDT.Columns.Add("RatePerMT");
+                    loadingItemDT.Columns.Add("LoadingSlipId");
+                    loadingItemDT.Columns.Add("BrandDesc");
+                    loadingItemDT.Columns.Add("ProdSpecDesc");
+                    loadingItemDT.Columns.Add("ProdcatDesc");
+                    loadingItemDT.Columns.Add("ItemName");
+                    loadingItemDT.Columns.Add("DisplayField");
+
+                    if (LoadingTO.LoadingSlipList != null && LoadingTO.LoadingSlipList.Count > 0)
+                    {
+                        for(int i=0;i< LoadingTO.LoadingSlipList.Count;i++)
+                        {
+                           TblLoadingSlipTO loadingSlipTo = LoadingTO.LoadingSlipList[i];
+                            headerDT.Rows.Add();
+                            Int32 loadHeaderDTCount = headerDT.Rows.Count - 1;                            
+
+                            headerDT.Rows[loadHeaderDTCount]["CreatedOnStr"]= LoadingTO.CreatedOnStr;
+                            headerDT.Rows[loadHeaderDTCount]["CnfOrgName"]= LoadingTO.CnfOrgName;
+                            headerDT.Rows[loadHeaderDTCount]["TransporterOrgName"] = LoadingTO.TransporterOrgName;
+                            headerDT.Rows[loadHeaderDTCount]["DriverName"] = LoadingTO.DriverName;
+                            headerDT.Rows[loadHeaderDTCount]["LoadingSlipNo"] = loadingSlipTo.LoadingSlipNo;
+                            headerDT.Rows[loadHeaderDTCount]["DealerOrgName"] = loadingSlipTo.DealerOrgName;
+                            headerDT.Rows[loadHeaderDTCount]["VehicleNo"] = LoadingTO.VehicleNo;
+                            headerDT.Rows[loadHeaderDTCount]["LoadingId"] = loadingSlipTo.LoadingId;
+                            headerDT.Rows[loadHeaderDTCount]["BookingRate"] = loadingSlipTo.TblLoadingSlipDtlTO.BookingRate;
+                            headerDT.Rows[loadHeaderDTCount]["CdStructure"] = loadingSlipTo.CdStructure;
+                            headerDT.Rows[loadHeaderDTCount]["PreparedBy"] = LoadingTO.CreatedByUserName;
+                            headerDT.Rows[loadHeaderDTCount]["LoadingSlipId"] = loadingSlipTo.IdLoadingSlip;
+                            headerDT.Rows[loadHeaderDTCount]["DriverContactNo"] = LoadingTO.ContactNo;
+                            
+                            if (loadingSlipTo.IsConfirmed == 1)
+                            {
+                                headerDT.Rows[loadHeaderDTCount]["IsConfirmed"] = "Confirmed";
+
+                            }
+                            else {
+                                headerDT.Rows[loadHeaderDTCount]["IsConfirmed"] = "-";
+
+                            }
+                            if (loadingSlipTo.IsFreightIncluded == 1)
+                            {
+                                headerDT.Rows[loadHeaderDTCount]["FreightAmt"] = loadingSlipTo.FreightAmt+ " (Included)";
+                            }
+                            else {
+                                headerDT.Rows[loadHeaderDTCount]["FreightAmt"] = loadingSlipTo.FreightAmt + " (NotIncluded)";
+                            }
+
+                            if(loadingSlipTo.DeliveryAddressTOList.Count>0)
+                            {
+                                TblLoadingSlipAddressTO addressTO = loadingSlipTo.DeliveryAddressTOList.Where(w => w.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS).FirstOrDefault();
+                                if(addressTO != null)
+                                {
+                                    headerDT.Rows[loadHeaderDTCount]["BillingName"] = addressTO.BillingName;
+                                    headerDT.Rows[loadHeaderDTCount]["BillingAddress"] = addressTO.Address;
+                                    headerDT.Rows[loadHeaderDTCount]["BillingGstNo"] = addressTO.GstNo;
+                                    headerDT.Rows[loadHeaderDTCount]["ContactNo"] = addressTO.ContactNo;
+
+                                }
+
+                                TblLoadingSlipAddressTO addressTOC = loadingSlipTo.DeliveryAddressTOList.Where(w => w.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.CONSIGNEE_ADDRESS).FirstOrDefault();
+                                if (addressTOC != null)
+                                {
+                                    headerDT.Rows[loadHeaderDTCount]["ConsigneeName"] = addressTOC.BillingName;
+                                    headerDT.Rows[loadHeaderDTCount]["ConsigneeAddress"] = addressTOC.Address;
+                                    headerDT.Rows[loadHeaderDTCount]["ConsigneeGstNo"] = addressTOC.GstNo;
+                                }
+
+                                TblLoadingSlipAddressTO addressTOs = loadingSlipTo.DeliveryAddressTOList.Where(w => w.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.SHIPPING_ADDRESS).FirstOrDefault();
+                                if (addressTOs != null)
+                                {
+
+                                    headerDT.Rows[loadHeaderDTCount]["ShippingTo"] = addressTOs.BillingName;
+                                    headerDT.Rows[loadHeaderDTCount]["ShippingAddress"] = addressTOs.Address;
+                                }
+                            }
+
+                          
+                            for (int j = 0; j < loadingSlipTo.LoadingSlipExtTOList.Count; j++)
+                            {
+                                TblLoadingSlipExtTO tblLoadingSlipExtTO = loadingSlipTo.LoadingSlipExtTOList[j];
+                                loadingItemDT.Rows.Add();                                
+                                Int32 loadItemDTCount = loadingItemDT.Rows.Count - 1;
+
+                                loadingItemDT.Rows[loadItemDTCount]["DisplayName"] = tblLoadingSlipExtTO.DisplayName;                            
+                                
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["DisplayField"] = tblLoadingSlipExtTO.MaterialDesc;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["DisplayField"] = tblLoadingSlipExtTO.ItemName;
+                                }
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["MaterialDesc"] = tblLoadingSlipExtTO.MaterialDesc;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["MaterialDesc"] = "";
+                                }
+
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ItemName))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ItemName"] = tblLoadingSlipExtTO.ItemName;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ItemName"] = "";
+                                }
+
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ProdCatDesc))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ProdCatDesc"] = tblLoadingSlipExtTO.ProdCatDesc;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ProdCatDesc"] = "";
+
+                                }
+
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ProdSpecDesc))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ProdSpecDesc"] = tblLoadingSlipExtTO.ProdSpecDesc;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ProdSpecDesc"] = "";
+
+                                }
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.BrandDesc))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["BrandDesc"] = tblLoadingSlipExtTO.BrandDesc;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["BrandDesc"] = "";
+
+                                }
+                               
+                                loadingItemDT.Rows[loadItemDTCount]["ProdItemDesc"] = tblLoadingSlipExtTO.ProdItemDesc;
+                                loadingItemDT.Rows[loadItemDTCount]["LoadingQty"] = tblLoadingSlipExtTO.LoadingQty;
+                                loadingItemDT.Rows[loadItemDTCount]["Bundles"] = tblLoadingSlipExtTO.Bundles;
+                                loadingItemDT.Rows[loadItemDTCount]["LoadedWeight"] = tblLoadingSlipExtTO.LoadedWeight;
+                                loadingItemDT.Rows[loadItemDTCount]["MstLoadedBundles"] = tblLoadingSlipExtTO.MstLoadedBundles;
+                                loadingItemDT.Rows[loadItemDTCount]["LoadedBundles"] = tblLoadingSlipExtTO.LoadedBundles;
+                                loadingItemDT.Rows[loadItemDTCount]["RatePerMT"] = tblLoadingSlipExtTO.RatePerMT;
+                                loadingItemDT.Rows[loadItemDTCount]["LoadingSlipId"] = tblLoadingSlipExtTO.LoadingSlipId;
+                                headerDT.Rows[loadHeaderDTCount]["LoadingLayerDesc"] = tblLoadingSlipExtTO.LoadingLayerDesc;
+
+                            }
+
+                        }
+                    }
+
+                    //headerDT = loadingDT.Copy();
+                    headerDT.TableName = "headerDT";                    
+
+                    printDataSet.Tables.Add(headerDT);
+                    loadingItemDT.TableName = "loadingItemDT";
+                    printDataSet.Tables.Add(loadingItemDT);
+
+                    //creating template'''''''''''''''''
+                    string templateName = "LoadingSlip";
+                    String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
+                    String fileName = "Bill-" + DateTime.Now.Ticks;
+
+                    //download location for rewrite  template file
+                    String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
+                    // RunReport runReport = new RunReport();
+                    Boolean IsProduction = true;
+
+                    TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName("IS_PRODUCTION_ENVIRONMENT_ACTIVE");
+                    if (tblConfigParamsTO != null)
+                    {
+                        if (Convert.ToInt32(tblConfigParamsTO.ConfigParamVal) == 0)
+                        {
+                            IsProduction = false;
+                        }
+                    }
+                    resultMessage = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePath, saveLocation, Constants.ReportE.PDF_DONT_OPEN, IsProduction);
+                    if (resultMessage.MessageType == ResultMessageE.Information)
+                    {
+                        String filePath = String.Empty;
+                        if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
+                        {
+                            filePath = resultMessage.Tag.ToString();
+                        }
+                        String fileName1 = Path.GetFileName(saveLocation);
+                        Byte[] bytes = File.ReadAllBytes(filePath);
+                        if (bytes != null && bytes.Length > 0)
+                        {
+                            resultMessage.Tag = bytes;
+                            string resFname = Path.GetFileNameWithoutExtension(saveLocation);
+                            string directoryName;
+                            directoryName = Path.GetDirectoryName(saveLocation);
+                            string[] fileEntries = Directory.GetFiles(directoryName, "*Bill*");
+                            string[] filesList = Directory.GetFiles(directoryName, "*Bill*");
+
+                            foreach (string file in filesList)
+                            {
+                                //if (file.ToUpper().Contains(resFname.ToUpper()))
+                                {
+                                    File.Delete(file);
+                                }
+                            }
+                        }
+                        if (resultMessage.MessageType == ResultMessageE.Information)
+                        {
+                            resultMessage.DefaultSuccessBehaviour();
+                        }
+                    }
+                }
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "");
+                return resultMessage;
             }
 
         }

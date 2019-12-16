@@ -165,6 +165,36 @@ namespace ODLMWebAPI.Controllers
         {
             return _iTblLoadingBL.SelectLoadingTOWithDetails(loadingId);
         }
+
+        [Route("PrintLoadingDetails")]
+        [HttpPost]
+        public ResultMessage PrintLoadingDetails([FromBody] JObject data)
+        {
+            try
+            {
+                ResultMessage resultMessage = new StaticStuff.ResultMessage();
+                var idLoading = data["idLoading"].ToString();
+                var isPrinted = Convert.ToBoolean(data["isPrinted"]);
+                if (idLoading != null)
+                {
+                    DateTime serverDate = _iCommon.ServerDateTime;
+                    return _iTblLoadingBL.PrintReport(Convert.ToInt32(idLoading), isPrinted);
+                }
+                else
+                {
+                    resultMessage.DefaultBehaviour("tempInvoiceDocumentDetailsTO Found NULL");
+                    return resultMessage;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {}
+        }
+
+
         /// <summary>
         /// GJ@20171012 : Get the LoadingTo details by LoadingSlipId
         /// </summary>
@@ -811,6 +841,7 @@ namespace ODLMWebAPI.Controllers
         {
             return _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsByInvoice(invoiceId);
         }
+
 
         /// <summary>
         /// [13-12-2017] Vijaymala : Added To Get Loading slip extension list according to filter 

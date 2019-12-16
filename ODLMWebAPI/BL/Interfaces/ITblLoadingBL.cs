@@ -80,5 +80,6 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage DeleteAllBookings(List<Int32> bookingsIdList);
         ResultMessage DeleteAllBookings(List<int> bookingsIdsList, SqlConnection conn, SqlTransaction tran);
         int DeleteDispatchBookingData(Int32 bookingId, SqlConnection conn, SqlTransaction tran);
+        ResultMessage PrintReport(int idLoading, bool isPrinted);
     }
 }
