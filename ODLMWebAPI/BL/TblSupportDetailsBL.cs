@@ -300,10 +300,22 @@ namespace ODLMWebAPI.BL
             try
             {
                 previousInvoiceTO = _iTblInvoiceBL.SelectTblInvoiceTO(tblInvoiceTO.IdInvoice);
+
+                if (previousInvoiceTO == null)
+                {
+                    return null;
+                }
+
+                TblInvoiceTO updateTblInvoiceTO = previousInvoiceTO.DeepCopy();
+
+                updateTblInvoiceTO.InvoiceNo = tblInvoiceTO.InvoiceNo;
+                updateTblInvoiceTO.InvoiceModeId = tblInvoiceTO.InvoiceModeId;
+                updateTblInvoiceTO.StatusId = tblInvoiceTO.StatusId;
+
                 //tblUserTO = _iTblUserBL.SelectTblUserTO(fromUser);
                 conn.Open();
                 tran = conn.BeginTransaction();
-                result = _iTblInvoiceBL.UpdateTblInvoice(tblInvoiceTO, conn, tran);
+                result = _iTblInvoiceBL.UpdateTblInvoice(updateTblInvoiceTO, conn, tran);
                 if (result != 1)
                 {
                     tran.Rollback();
@@ -313,7 +325,10 @@ namespace ODLMWebAPI.BL
                 else
                 {
                     String description = String.Empty;
-                    description = "Invoice Id " + tblInvoiceTO.IdInvoice + " ,";
+                    description = "Invoice Id (" + tblInvoiceTO.IdInvoice + ") ,";
+
+                    description += " Invoice No (" + tblInvoiceTO.InvoiceNo + ") ,";
+
                     if (previousInvoiceTO.StatusId != tblInvoiceTO.StatusId)
                     {
                         description += " Status change from " + previousInvoiceTO.InvoiceStatusE.ToString() + " to " + tblInvoiceTO.InvoiceStatusE.ToString() + " ,";
