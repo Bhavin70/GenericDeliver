@@ -2298,35 +2298,46 @@ namespace ODLMWebAPI.BL
                     //if (isTaxInclusive == 1 && isTaxInclusiveWithTaxes == 0)
                     if (isTaxInclusive == 1)
                     {
+
+                        List<TblLoadingSlipTO> TblLoadingSlipTOList = SelectLoadingSlipDetailsByInvoiceId(tblInvoiceTO.IdInvoice, conn, tran);
+                        if (TblLoadingSlipTOList == null || TblLoadingSlipTOList.Count == 0)
+                        {
+                            resultMsg.DefaultBehaviour("Loading Slip not found against invoice - " + tblInvoiceTO.IdInvoice);
+                            resultMsg.DisplayMessage = "Loading Slip not found against invoice - " + tblInvoiceTO.IdInvoice;
+                            return resultMsg;
+                        }
+
+                        TblLoadingSlipTO tblLoadingSlipTO = TblLoadingSlipTOList[0];
+
                         Double bookingRateTemp = TblBookingsTO.BookingRate;
                         Double cdAmt = 0;
-                        if (TblBookingsTO.CdStructure >= 0)
+                        if (tblLoadingSlipTO.CdStructure >= 0)
                         {
-                            DropDownTO dropDownTO = _iDimensionDAO.SelectCDDropDown(TblBookingsTO.CdStructureId);
+                            DropDownTO dropDownTO = _iDimensionDAO.SelectCDDropDown(tblLoadingSlipTO.CdStructureId);
 
                             //Priyanka [23-07-2018] Added if cdstructure is 0
                             Int32 isRsValue = Convert.ToInt32(dropDownTO.Text);
                             if (isRsValue == (int)Constants.CdType.IsRs)
                             {
-                                cdAmt = TblBookingsTO.CdStructure;
+                                cdAmt = tblLoadingSlipTO.CdStructure;
                             }
                             else
                             {
 
-                                cdAmt = (TblBookingsTO.BookingRate * TblBookingsTO.CdStructure) / 100;
+                                cdAmt = (TblBookingsTO.BookingRate * tblLoadingSlipTO.CdStructure) / 100;
                             }
 
                         }
                         Double orcPerMt = 0;
-                        if (TblBookingsTO.OrcAmt > 0)
+                        if (tblLoadingSlipTO.OrcAmt > 0)
                         {
-                            if (TblBookingsTO.OrcMeasure == "Rs/MT")
+                            if (tblLoadingSlipTO.OrcMeasure == "Rs/MT")
                             {
-                                orcPerMt = TblBookingsTO.OrcAmt;
+                                orcPerMt = tblLoadingSlipTO.OrcAmt;
                             }
                             else
                             {
-                                orcPerMt = TblBookingsTO.OrcAmt / TblBookingsTO.BookingQty;
+                                orcPerMt = tblLoadingSlipTO.OrcAmt / tblLoadingSlipTO.LoadingQty;
                             }
                         }
 
