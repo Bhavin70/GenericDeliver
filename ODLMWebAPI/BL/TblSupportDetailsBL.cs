@@ -220,7 +220,7 @@ namespace ODLMWebAPI.BL
                 //tblUserTO = _iTblUserBL.SelectTblUserTO(fromUser);
                 conn.Open();
                 tran = conn.BeginTransaction();
-                result = _iTblWeighingMeasuresBL.DeleteTblWeighingMeasures(tblWeighingMeasuresTO.IdWeightMeasure);
+                result = _iTblWeighingMeasuresBL.DeleteTblWeighingMeasures(tblWeighingMeasuresTO.IdWeightMeasure, conn, tran);
                 if (result != 1)
                 {
                     tran.Rollback();
@@ -327,7 +327,8 @@ namespace ODLMWebAPI.BL
                     String description = String.Empty;
                     description = "Invoice Id (" + tblInvoiceTO.IdInvoice + ") ,";
 
-                    description += " Invoice No (" + tblInvoiceTO.InvoiceNo + ") ,";
+                    if (previousInvoiceTO.InvoiceNo != tblInvoiceTO.InvoiceNo)
+                        description += " Invoice No  Pre (" + previousInvoiceTO.InvoiceNo + ") New (" + tblInvoiceTO.InvoiceNo + ") ,";
 
                     if (previousInvoiceTO.StatusId != tblInvoiceTO.StatusId)
                     {

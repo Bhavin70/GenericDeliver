@@ -974,6 +974,29 @@ namespace ODLMWebAPI.Controllers
         }
 
 
+        //Saket
+        [Route("GetLoadingListByVehicleNoForSupport")]
+        [HttpGet]
+        public List<TblLoadingTO> GetLoadingListByVehicleNoForSupport(string vehicleNo)
+        {
+            try
+            {
+                return _iTblLoadingBL.SelectAllLoadingListByVehicleNo(vehicleNo);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        //Saket
+        [Route("GetLoadingTODetailsByLoadingNoForSupport")]
+        [HttpGet]
+        public List<TblLoadingTO> GetLoadingTODetailsByLoadingNoForSupport(String loadingSlipNo)
+        {
+            return _iTblLoadingBL.SelectLoadingTOWithDetailsByLoadingNoForSupport(loadingSlipNo);
+        }
+
         [Route("GetLoadSlipExtValues")]
         [HttpPost]
         public ResultMessage GetLoadSlipExtValues([FromBody] JObject data)
