@@ -2339,8 +2339,11 @@ namespace ODLMWebAPI.BL
                         Double divisor = 100 + gstCodeDtlsTO.TaxPct;
                         divisor = divisor / 100;
                         bookingRateTemp = bookingRateTemp / divisor;
+                        
+                        //[2019-12-13 Pandurang]Commented for A One Round Off issues suggested by Saket. 
+                        //TblBookingsTO.BookingRate = Math.Round(bookingRateTemp, 2); 
+                        TblBookingsTO.BookingRate = Math.Round(bookingRateTemp);
 
-                        TblBookingsTO.BookingRate = Math.Round(bookingRateTemp, 2);
                     }
                     tblInvoiceItemDetailsTO.Rate = TblBookingsTO.BookingRate;
                     tblInvoiceItemDetailsTO.BasicTotal = tblInvoiceItemDetailsTO.Rate * tblInvoiceItemDetailsTO.InvoiceQty;
