@@ -827,6 +827,16 @@ namespace ODLMWebAPI.BL
             return _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(vehicleNo, loadingDate);
         }
 
+        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo)
+        {
+            return _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(vehicleNo);
+        }
+
+        public List<TblLoadingTO> SelectLoadingTOWithDetailsByLoadingNoForSupport(string loadingSlipNo)
+        {
+            return _iTblLoadingDAO.SelectLoadingTOWithDetailsByLoadingNoForSupport(loadingSlipNo);
+        }
+
         public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
