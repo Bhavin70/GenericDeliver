@@ -24,7 +24,7 @@ namespace ODLMWebAPI.Models
        
         DateTime createdOn;
         String firmName;
-
+        String firmCode;
         Double lastAllocQty;
         Double lastRateBand;
 
@@ -143,6 +143,12 @@ namespace ODLMWebAPI.Models
         {
             get { return firmName; }
             set { firmName = value; }
+        }
+
+        public String FirmCode
+        {
+            get { return firmCode; }
+            set { firmCode = value; }
         }
 
         /// <summary>
