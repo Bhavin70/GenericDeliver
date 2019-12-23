@@ -13,6 +13,9 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblTaxRatesTO> SelectAllTblTaxRates();
         List<TblTaxRatesTO> SelectAllTblTaxRates(int idGstCode, SqlConnection conn, SqlTransaction tran);
         TblTaxRatesTO SelectTblTaxRates();
+
+        TblTaxRatesTO SelectTblTaxRates(Int32 taxRateId);
+
         List<TblTaxRatesTO> ConvertDTToList(SqlDataReader tblTaxRatesTODT);
         int InsertTblTaxRates(TblTaxRatesTO tblTaxRatesTO);
         int InsertTblTaxRates(TblTaxRatesTO tblTaxRatesTO, SqlConnection conn, SqlTransaction tran);

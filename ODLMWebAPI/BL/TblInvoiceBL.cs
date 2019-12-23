@@ -1,17 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Collections;
-using System.Text;
 using System.Data;
-using ODLMWebAPI.DAL;
 using ODLMWebAPI.Models;
 using ODLMWebAPI.StaticStuff;
 using System.Linq;
-using ODLMWebAPI.StaticStuff;
-using FlexCel.Report;
 using System.IO;
-using Microsoft.AspNetCore.Http;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
 using static ODLMWebAPI.StaticStuff.Constants;
@@ -7965,6 +7959,123 @@ namespace ODLMWebAPI.BL
         }
         #endregion
 
+        #region Post Invoice to SAP
+        public ResultMessage PostSalesInvoiceToSAP(TblInvoiceTO tblInvoiceTO)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            try
+            {
+                if (Startup.CompanyObject == null)
+                {
+                    resultMessage.DefaultBehaviour("SAP Company Object Found NULL");
+                    return resultMessage;
+                }
+
+                #region 1. Create Sale Order Against Invoice
+
+                SAPbobsCOM.Documents saleOrderDocument;
+                saleOrderDocument = Startup.CompanyObject.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oOrders);
+                saleOrderDocument.CardCode = tblInvoiceTO.DealerOrgId.ToString();
+                saleOrderDocument.CardName = tblInvoiceTO.DealerName;
+                saleOrderDocument.DocDate = _iCommon.ServerDateTime;
+                saleOrderDocument.DocDueDate = saleOrderDocument.DocDate;
+                saleOrderDocument.EndDeliveryDate = saleOrderDocument.DocDate;
+                Dictionary<string, double> itemQtyDCT = new Dictionary<string, double>();
+                int itemCount = 0;
+                for (int i = 0; i < tblInvoiceTO.InvoiceItemDetailsTOList.Count; i++)
+                {
+                    //Freight Or Other taxes to ignore from this
+                    if (tblInvoiceTO.InvoiceItemDetailsTOList[i].OtherTaxId > 0)
+                        continue;
+
+                    saleOrderDocument.Lines.SetCurrentLine(itemCount);
+
+                    #region Get Item code Details from RM to FG Configuration and Prod Gst Code Number
+                    if (tblInvoiceTO.InvoiceItemDetailsTOList[i].ProdGstCodeId == 0)
+                    {
+                        resultMessage.DefaultBehaviour("ProdGstCodeId - GSTINCode/HSN Code not found for this item :" + tblInvoiceTO.InvoiceItemDetailsTOList[i].ProdItemDesc);
+                        return resultMessage;
+                    }
+
+                    TblProdGstCodeDtlsTO tblProdGstCodeDtlsTO = _iTblProdGstCodeDtlsDAO.SelectTblProdGstCodeDtlsTO(tblInvoiceTO.InvoiceItemDetailsTOList[i].ProdGstCodeId);
+                    if (tblProdGstCodeDtlsTO == null)
+                    {
+                        resultMessage.DefaultBehaviour("tblProdGstCodeDtlsTO Found NULL. Hence Mapped Sap Item Can not be found");
+                        return resultMessage;
+                    }
+
+                    Int64 productItemId = _iDimensionDAO.GetProductItemIdFromGivenRMDetails(tblProdGstCodeDtlsTO.ProdCatId, tblProdGstCodeDtlsTO.ProdSpecId, tblProdGstCodeDtlsTO.MaterialId, 0, tblProdGstCodeDtlsTO.ProdItemId);
+                    if (productItemId <= 0)
+                    {
+                        resultMessage.DefaultBehaviour("Invoice Item and FG Item Linkgae Not Found in configuration: Check tblProductItemRmToFGConfig");
+                        return resultMessage;
+                    }
+
+                    saleOrderDocument.Lines.ItemCode = productItemId.ToString();
+                    itemQtyDCT.Add(saleOrderDocument.Lines.ItemCode, tblInvoiceTO.InvoiceItemDetailsTOList[i].InvoiceQty);
+
+                    #endregion
+
+                    #region Quantity, Price and discount details
+
+                    saleOrderDocument.Lines.Quantity = tblInvoiceTO.InvoiceItemDetailsTOList[i].InvoiceQty;
+                    saleOrderDocument.Lines.UnitPrice = tblInvoiceTO.InvoiceItemDetailsTOList[i].Rate;
+                    saleOrderDocument.Lines.DiscountPercent = tblInvoiceTO.InvoiceItemDetailsTOList[i].CdStructure;
+
+                    #endregion
+
+                    #region Get Tax Details
+
+                    string sapTaxCode = string.Empty;
+                    if (tblInvoiceTO.InvoiceItemDetailsTOList[i].InvoiceItemTaxDtlsTOList != null
+                        && tblInvoiceTO.InvoiceItemDetailsTOList[i].InvoiceItemTaxDtlsTOList.Count > 0)
+                    {
+                        TblTaxRatesTO tblTaxRatesTO = _iTblTaxRatesDAO.SelectTblTaxRates(tblInvoiceTO.InvoiceItemDetailsTOList[i].InvoiceItemTaxDtlsTOList[0].TaxRateId);
+                        if (tblTaxRatesTO != null)
+                            sapTaxCode = tblTaxRatesTO.SapTaxCode;
+                    }
+                    saleOrderDocument.Lines.TaxCode = sapTaxCode;
+
+                    #endregion
+
+                    saleOrderDocument.Lines.Add();
+                    itemCount++;
+                }
+
+                int result = saleOrderDocument.Add();
+                if (result != 0)
+                {
+                    string errorMsg = Startup.CompanyObject.GetLastErrorDescription();
+                    resultMessage.DefaultBehaviour(errorMsg);
+                    resultMessage.DisplayMessage = errorMsg;
+                }
+                else
+                {
+                    string TxnId = Startup.CompanyObject.GetNewObjectKey();
+                    tblInvoiceTO.SapMappedSalesOrderNo = TxnId;
+                    resultMessage.DefaultSuccessBehaviour();
+                }
+                #endregion
+
+                #region 2. Do Stock Adjustment Against Invoice Items
+
+                #endregion
+
+                #region 3. Create Sale Invoice Against Above Order Ref
+
+                #endregion
+
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "PostSalesInvoiceToSAP");
+                return resultMessage;
+            }
+        }
+
+        #endregion
 
         #region Reports
 

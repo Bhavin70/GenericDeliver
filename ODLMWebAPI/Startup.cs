@@ -36,6 +36,9 @@ namespace ODLMWebAPI
         public static string AzureConnectionStr { get; set; }
         public static string NewConnectionString { get; private set; }
         public static string DeliverUrl { get; private set; }
+
+        public static SAPbobsCOM.Company CompanyObject { get; private set; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
