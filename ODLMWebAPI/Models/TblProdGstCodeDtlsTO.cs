@@ -130,6 +130,9 @@ namespace ODLMWebAPI.Models
             }
         }
 
+        public string SapTaxCode { get; set; }
+        public int TaxTypeId { get; set; }
+
         #endregion
     }
 }

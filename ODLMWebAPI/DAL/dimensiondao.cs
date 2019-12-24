@@ -105,7 +105,90 @@ namespace ODLMWebAPI.DAL
             }
 
         }
-        
+
+        public List<TblProdGstCodeDtlsTO> GetSAPTaxCodeByIdProdGstCode(int idProdGstCode)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            try
+            {
+                conn.Open();
+                string Query = "select tblTaxRates.sapTaxCode, tblTaxRates.taxTypeId, tblProdGstCodeDtls.idProdGstCode from tblProdGstCodeDtls tblProdGstCodeDtls " +
+                " JOIN tblTaxRates tblTaxRates on tblTaxRates.gstCodeId = tblProdGstCodeDtls.gstCodeId " +
+                " where tblProdGstCodeDtls.idProdGstCode = " + idProdGstCode + "";
+
+                cmdSelect = new SqlCommand(Query, conn);
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                SqlDataReader tblProdGstCodeDtlsTODT = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblProdGstCodeDtlsTO> list = new List<TblProdGstCodeDtlsTO>();
+                while (tblProdGstCodeDtlsTODT.Read())
+                {
+                    TblProdGstCodeDtlsTO tblProdGstCodeDtlsTONew = new TblProdGstCodeDtlsTO();
+                    if (tblProdGstCodeDtlsTODT["idProdGstCode"] != DBNull.Value)
+                        tblProdGstCodeDtlsTONew.IdProdGstCode = Convert.ToInt32(tblProdGstCodeDtlsTODT["idProdGstCode"].ToString());
+                    if (tblProdGstCodeDtlsTODT["taxTypeId"] != DBNull.Value)
+                        tblProdGstCodeDtlsTONew.TaxTypeId = Convert.ToInt32(tblProdGstCodeDtlsTODT["taxTypeId"].ToString());
+                    if (tblProdGstCodeDtlsTODT["sapTaxCode"] != DBNull.Value)
+                        tblProdGstCodeDtlsTONew.SapTaxCode = Convert.ToString(tblProdGstCodeDtlsTODT["sapTaxCode"].ToString());
+                    list.Add(tblProdGstCodeDtlsTONew);
+                }
+
+                if (tblProdGstCodeDtlsTODT != null)
+                    tblProdGstCodeDtlsTODT.Dispose();
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+        public Int64 GetProductItemIdFromGivenRMDetails(int prodCatId, int prodSpecId, int materialId, int brandId, int rmProdItemId)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            String sqlQuery = string.Empty;
+            SqlDataReader dateReader = null;
+            try
+            {
+
+                conn.Open();
+
+                sqlQuery = "SELECT * FROM  tblProductItemRmToFGConfig WHERE  isFgToFgMapping=1 AND isActive=1 AND ISNULL(prodCatId,0)=" + prodCatId + " AND ISNULL(prodSpecId,0)=" + prodSpecId +
+                          " AND ISNULL(materialId,0)=" + materialId + " AND ISNULL(brandId,0)=" + brandId + " AND ISNULL(rmProductItemId,0)=" + rmProdItemId;
+
+                cmdSelect = new SqlCommand(sqlQuery, conn);
+                dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+
+                while (dateReader.Read())
+                {
+                    DropDownTO dropDownTONew = new DropDownTO();  // Return first ever record as above condition should produce single record in the table
+                    if (dateReader["fgProductItemId"] != DBNull.Value)
+                        return Convert.ToInt64(dateReader["fgProductItemId"].ToString());
+                }
+
+                return -1;
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                if (dateReader != null)
+                    dateReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
         public List<Dictionary<string, string>> GetColumnName(string tablename, Int32 tableValue)
         {
 

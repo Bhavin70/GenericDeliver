@@ -515,6 +515,9 @@ namespace ODLMWebAPI.Models
 
         public int InvFromOrgFreeze { get => invFromOrgFreeze; set => invFromOrgFreeze = value; }
 
+        public string SapMappedSalesOrderNo { get; set; }
+        public string SapMappedSalesInvoiceNo { get; set; }
+
         public TblInvoiceTO DeepCopy()
         {
             TblInvoiceTO other = (TblInvoiceTO)this.MemberwiseClone();
