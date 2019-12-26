@@ -5387,21 +5387,26 @@ namespace ODLMWebAPI.BL
 
                 //Saket [2018-04-03] Added. 
 
+                Int32 skiploadingApproval = 0;
+
+
                 TblConfigParamsTO tblConfigParamsTOApproval = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_SKIP_INVOICE_APPROVAL, conn, tran);
                 if (tblConfigParamsTOApproval != null)
                 {
-                    Int32 skiploadingApproval = Convert.ToInt32(tblConfigParamsTOApproval.ConfigParamVal);
-                    if (skiploadingApproval == 1)
+                    skiploadingApproval = Convert.ToInt32(tblConfigParamsTOApproval.ConfigParamVal);
+                    if (tblInvoiceTO.CheckSkipApprovalCondition == 0)
                     {
-                        if (tblInvoiceTO.StatusId == (Int32)Constants.InvoiceStatusE.AUTHORIZED_BY_DIRECTOR)
+                        if (skiploadingApproval == 1)
                         {
-                            tblInvoiceTO.StatusId = Convert.ToInt32(Constants.InvoiceStatusE.NEW);
+                            if (tblInvoiceTO.StatusId == (Int32)Constants.InvoiceStatusE.AUTHORIZED_BY_DIRECTOR)
+                            {
+                                tblInvoiceTO.StatusId = Convert.ToInt32(Constants.InvoiceStatusE.NEW);
+                            }
+                            else
+                                tblInvoiceTO.StatusId = Convert.ToInt32(Constants.InvoiceStatusE.ACCEPTED_BY_DISTRIBUTOR);
                         }
-                        else
-                            tblInvoiceTO.StatusId = Convert.ToInt32(Constants.InvoiceStatusE.ACCEPTED_BY_DISTRIBUTOR);
                     }
                 }
-
                 result = UpdateTblInvoice(tblInvoiceTO, conn, tran);
                 if (result != 1)
                 {
@@ -5714,6 +5719,18 @@ namespace ODLMWebAPI.BL
                 #endregion
 
                 #region Notifications & SMSs
+
+                if (tblInvoiceTO.CheckSkipApprovalCondition == 1 && skiploadingApproval == 1)
+                {
+                    resultMessage = InvoiceStatusUpdate(tblInvoiceTO, tblInvoiceTO.StatusId, conn, tran);
+                    if (resultMessage.MessageType != ResultMessageE.Information)
+                    {
+                        return resultMessage;
+                    }
+
+                    goto exitNotification;
+                }
+
                 //Aniket [6-8-2019] added to send alert and sms notifications dynamically
                 List<TblAlertDefinitionTO> tblAlertDefinitionTOList = _iTblAlertDefinitionDAO.SelectAllTblAlertDefinition();
 
