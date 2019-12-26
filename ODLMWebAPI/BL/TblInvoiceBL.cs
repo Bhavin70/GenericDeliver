@@ -2132,6 +2132,7 @@ namespace ODLMWebAPI.BL
                     tblInvoiceAddressTo.AddrSourceTypeId = (int)Constants.AddressSourceTypeE.FROM_CNF;
                     tblInvoiceAddressTo.BillingOrgId = bmOrgTO.IdOrganization;
                     tblInvoiceAddressTo.VillageName = bmOfcAddrTO.VillageName;
+
                     billingStateId = bmOfcAddrTO.StateId;
                     if (string.IsNullOrEmpty(bmOfcAddrTO.VillageName))
                     {
