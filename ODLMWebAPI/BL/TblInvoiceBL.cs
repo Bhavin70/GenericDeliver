@@ -2137,6 +2137,7 @@ namespace ODLMWebAPI.BL
                     tblInvoiceAddressTo.Address = bmOfcAddrTO.PlotNo + bmOfcAddrTO.StreetName;
                     tblInvoiceAddressTo.AddrSourceTypeId = (int)Constants.AddressSourceTypeE.FROM_CNF;
                     tblInvoiceAddressTo.BillingOrgId = bmOrgTO.IdOrganization;
+                    tblInvoiceAddressTo.VillageName = bmOfcAddrTO.VillageName;
 
                     billingStateId = bmOfcAddrTO.StateId;
                     if (string.IsNullOrEmpty(bmOfcAddrTO.VillageName))
@@ -2177,6 +2178,7 @@ namespace ODLMWebAPI.BL
                         tblInvoiceAddressTo.Address = deliveryAddrTo.Address;
                         tblInvoiceAddressTo.AddrSourceTypeId = deliveryAddrTo.AddrSourceTypeId;
                         tblInvoiceAddressTo.BillingOrgId = deliveryAddrTo.BillingOrgId;
+                        tblInvoiceAddressTo.VillageName = deliveryAddrTo.VillageName;
 
                         if (deliveryAddrTo.TxnAddrTypeId == (Int32)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS)
                             billingStateId = deliveryAddrTo.StateId;
