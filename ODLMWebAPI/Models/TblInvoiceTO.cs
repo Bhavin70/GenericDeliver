@@ -87,7 +87,7 @@ namespace ODLMWebAPI.Models
         DateTime preparationDate; // Aniket [06-02-2019] to store invoice preparation date and time
 
         Int32 invFromOrgFreeze;   //Saket [2019-09-17] Added For A1 customization
-
+        Int32 checkSkipApprovalCondition; //Saket [2019-09-17]
         #endregion
 
         #region Constructor
@@ -517,6 +517,7 @@ namespace ODLMWebAPI.Models
 
         public string SapMappedSalesOrderNo { get; set; }
         public string SapMappedSalesInvoiceNo { get; set; }
+        public int CheckSkipApprovalCondition { get => checkSkipApprovalCondition; set => checkSkipApprovalCondition = value; }
 
         public TblInvoiceTO DeepCopy()
         {

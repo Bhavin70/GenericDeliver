@@ -8081,6 +8081,7 @@ namespace ODLMWebAPI.BL
                     //exiInvoiceTO.GrandTotal += totalNCExpAmt + totalNCOtherAmt;
 
                 }
+                exiInvoiceTO.CheckSkipApprovalCondition = 1;
                 resultMessage = _iTblInvoiceBL.UpdateInvoice(exiInvoiceTO, conn, tran);
                 if (resultMessage.MessageType != ResultMessageE.Information)
                 {
