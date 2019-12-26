@@ -21,6 +21,8 @@ namespace ODLMWebAPI.Models
         DateTime updatedOn;
         Double taxPct;
         Int32 isActive;
+        String sapTaxCode;
+
         #endregion
 
         #region Constructor
@@ -93,6 +95,11 @@ namespace ODLMWebAPI.Models
             get { return effectiveToDt.ToString(Constants.DefaultDateFormat); }
 
         }
+
+        /// <summary>
+        /// Sanjay [13-Nov-2019] SAP Mapped Tax Code
+        /// </summary>
+        public string SapTaxCode { get => sapTaxCode; set => sapTaxCode = value; }
         #endregion
     }
 }
