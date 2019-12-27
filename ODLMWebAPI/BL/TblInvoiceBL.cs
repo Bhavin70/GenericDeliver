@@ -896,7 +896,9 @@ namespace ODLMWebAPI.BL
                 }
                 #endregion
 
-
+                #region 4. Save the invoice data to SAP
+                //resultMessage = PostSalesInvoiceToSAP(tblInvoiceTO);
+                #endregion
 
                 resultMessage.DefaultSuccessBehaviour();
                 return resultMessage;
@@ -3376,6 +3378,8 @@ namespace ODLMWebAPI.BL
             try
             {
 
+                TblInvoiceTO tblInvoiceTO = SelectTblInvoiceTOWithDetails(invoiceId);
+
                 DataSet printDataSet = new DataSet();
 
                 //headerDT
@@ -3419,13 +3423,19 @@ namespace ODLMWebAPI.BL
                     }
                 }
 
-
-
                 int defaultCompOrgId = 0;
-                TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_DEFAULT_MATE_COMP_ORGID);
-                if (configParamsTO != null)
+
+                if (tblInvoiceTO.InvFromOrgId == 0)
                 {
-                    defaultCompOrgId = Convert.ToInt16(configParamsTO.ConfigParamVal);
+                    TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                    if (configParamsTO != null)
+                    {
+                        defaultCompOrgId = Convert.ToInt16(configParamsTO.ConfigParamVal);
+                    }
+                }
+                else
+                {
+                    defaultCompOrgId = tblInvoiceTO.InvFromOrgId;
                 }
                 TblOrganizationTO organizationTO = _iTblOrganizationBL.SelectTblOrganizationTO(defaultCompOrgId);
 
@@ -3595,7 +3605,6 @@ namespace ODLMWebAPI.BL
 
                     }
                 }
-                TblInvoiceTO tblInvoiceTO = SelectTblInvoiceTOWithDetails(invoiceId);
 
                 //InvoiceDT
 
@@ -4434,7 +4443,7 @@ namespace ODLMWebAPI.BL
                     }
                     else
                     {
-                        templateName = "InvoiceVoucherPrePrinted_" + organizationTO.IdOrganization;
+                        templateName = "InvoiceVoucherPrePrinted_" + tblInvoiceTO.InvFromOrgId;
                     }
 
                 }
@@ -4452,7 +4461,7 @@ namespace ODLMWebAPI.BL
                     }
                     else
                     {
-                        templateName = "InvoiceVoucherPlain_" + organizationTO.IdOrganization;
+                        templateName = "InvoiceVoucherPlain_" + tblInvoiceTO.InvFromOrgId;
                     }
                 }
                 String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
