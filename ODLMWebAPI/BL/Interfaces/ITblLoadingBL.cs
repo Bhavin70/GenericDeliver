@@ -31,6 +31,9 @@ namespace ODLMWebAPI.BL.Interfaces
         List<DropDownTO> SelectAllVehiclesByStatus(int statusId);
         LoadingInfo SelectDashboardLoadingInfo(List<TblUserRoleTO> tblUserRoleTOList, Int32 orgId, DateTime sysDate, Int32 loadingType);
         List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, DateTime loadingDate);
+
+        List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo);
+        List<TblLoadingTO> SelectLoadingTOWithDetailsByLoadingNoForSupport(String loadingSlipNo);
         List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading);
         List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading, SqlConnection conn, SqlTransaction tran);
         List<TblLoadingTO> SelectAllLoadingListByVehicleNoForDelOut(string vehicleNo, SqlConnection conn, SqlTransaction tran);

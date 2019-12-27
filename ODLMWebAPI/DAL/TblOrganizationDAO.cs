@@ -583,9 +583,9 @@ namespace ODLMWebAPI.DAL
                                    " INNER JOIN " +
                                    " ( " +
                                    " SELECT tblAddress.*, organizationId FROM tblOrgAddress " +
-                                   " INNER JOIN tblAddress ON idAddr = addressId WHERE addrTypeId = 1 " +
+                                   " INNER JOIN tblAddress ON idAddr = addressId " +
                                    " ) addrDtl " +
-                                   " ON idOrganization = organizationId WHERE tblOrganization.isActive=1 AND tblCnfDealers.isActive=1 AND orgTypeId=" + (int)Constants.OrgTypeE.DEALER + " AND cnfOrgId=" + cnfId;
+                                   " ON tblOrganization.addrId=addrDtl.idAddr WHERE tblOrganization.isActive=1 AND tblCnfDealers.isActive=1 AND orgTypeId=" + (int)Constants.OrgTypeE.DEALER + " AND cnfOrgId=" + cnfId;
                     }
                     else
                     {

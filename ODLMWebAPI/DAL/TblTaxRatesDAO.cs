@@ -83,6 +83,38 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public TblTaxRatesTO SelectTblTaxRates(Int32 taxRateId)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE idTaxRate=" + taxRateId;
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblTaxRatesTO> list = ConvertDTToList(reader);
+                if (list != null && list.Count == 1)
+                    return list[0];
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
         public TblTaxRatesTO SelectTblTaxRates()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);

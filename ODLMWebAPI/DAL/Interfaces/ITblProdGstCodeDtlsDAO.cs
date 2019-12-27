@@ -24,6 +24,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblProdGstCodeDtls(Int32 idProdGstCode);
         int DeleteTblProdGstCodeDtls(Int32 idProdGstCode, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idProdGstCode, SqlCommand cmdDelete);
+        TblProdGstCodeDtlsTO SelectTblProdGstCodeDtlsTO(Int32 idProdGstCode);
 
     }
 }
