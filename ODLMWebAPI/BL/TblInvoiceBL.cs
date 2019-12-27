@@ -896,7 +896,9 @@ namespace ODLMWebAPI.BL
                 }
                 #endregion
 
-
+                #region 4. Save the invoice data to SAP
+                //resultMessage = PostSalesInvoiceToSAP(tblInvoiceTO);
+                #endregion
 
                 resultMessage.DefaultSuccessBehaviour();
                 return resultMessage;
@@ -4433,7 +4435,7 @@ namespace ODLMWebAPI.BL
                     }
                     else
                     {
-                        templateName = "InvoiceVoucherPrePrinted_" + organizationTO.IdOrganization;
+                        templateName = "InvoiceVoucherPrePrinted_" + tblInvoiceTO.InvFromOrgId;
                     }
 
                 }
@@ -4451,7 +4453,7 @@ namespace ODLMWebAPI.BL
                     }
                     else
                     {
-                        templateName = "InvoiceVoucherPlain_" + organizationTO.IdOrganization;
+                        templateName = "InvoiceVoucherPlain_" + tblInvoiceTO.InvFromOrgId;
                     }
                 }
                 String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
