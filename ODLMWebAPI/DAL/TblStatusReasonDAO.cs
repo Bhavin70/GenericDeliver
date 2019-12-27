@@ -132,6 +132,9 @@ namespace ODLMWebAPI.DAL
                         tblStatusReasonTONew.CreatedOn = Convert.ToDateTime(tblStatusReasonTODT["createdOn"].ToString());
                     if (tblStatusReasonTODT["reasonDesc"] != DBNull.Value)
                         tblStatusReasonTONew.ReasonDesc = Convert.ToString(tblStatusReasonTODT["reasonDesc"].ToString());
+                    if (tblStatusReasonTODT["isOtherComment"] != DBNull.Value)
+                        tblStatusReasonTONew.IsOtherComment = Convert.ToInt32(tblStatusReasonTODT["isOtherComment"].ToString());
+
                     tblStatusReasonTOList.Add(tblStatusReasonTONew);
                 }
             }
