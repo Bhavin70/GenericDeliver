@@ -84,6 +84,8 @@ namespace ODLMWebAPI.Controllers
                     DropDownTO dropDownTO = new DropDownTO();
                     dropDownTO.Text = tblStatusReasonTOList[i].ReasonDesc;
                     dropDownTO.Value = tblStatusReasonTOList[i].IdStatusReason;
+                    dropDownTO.Tag = tblStatusReasonTOList[i].IsOtherComment;
+
                     statusReasonList.Add(dropDownTO);
                 }
                 return statusReasonList;

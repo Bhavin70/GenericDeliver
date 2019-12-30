@@ -11,6 +11,7 @@ namespace ODLMWebAPI.Models
         Int32 statusId;
         DateTime createdOn;
         String reasonDesc;
+        Int32 isOtherComment;
         #endregion
 
         #region Constructor
@@ -41,6 +42,8 @@ namespace ODLMWebAPI.Models
             get { return reasonDesc; }
             set { reasonDesc = value; }
         }
+
+        public int IsOtherComment { get => isOtherComment; set => isOtherComment = value; }
         #endregion
     }
 }
