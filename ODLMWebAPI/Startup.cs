@@ -499,7 +499,7 @@ namespace ODLMWebAPI
             services.AddScoped<ITblInvoiceChangeOrgHistoryDAO, TblInvoiceChangeOrgHistoryDAO>();
 
 
-            DOSapLogin();
+            //DOSapLogin();
             services.AddMvc();
             ConnectionString = Configuration.GetSection("Data:DefaultConnection").Value.ToString();
             RequestOriginString = Configuration.GetSection("Data:RequestOriginString").Value.ToString();
