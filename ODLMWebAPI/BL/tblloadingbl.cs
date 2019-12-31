@@ -471,7 +471,8 @@ namespace ODLMWebAPI.BL
                     headerDT.Columns.Add("LoadingLayerDesc");
                     headerDT.Columns.Add("DriverContactNo");
                     headerDT.Columns.Add("PreparedBy");
-                    
+                    headerDT.Columns.Add("Comment");
+
 
                     loadingItemDT.Columns.Add("DisplayName");
                     loadingItemDT.Columns.Add("MaterialDesc");                    
@@ -507,6 +508,7 @@ namespace ODLMWebAPI.BL
                             headerDT.Rows[loadHeaderDTCount]["LoadingId"] = loadingSlipTo.LoadingId;
                             headerDT.Rows[loadHeaderDTCount]["BookingRate"] = loadingSlipTo.TblLoadingSlipDtlTO.BookingRate;
                             headerDT.Rows[loadHeaderDTCount]["CdStructure"] = loadingSlipTo.CdStructure;
+                            headerDT.Rows[loadHeaderDTCount]["Comment"] = loadingSlipTo.Comment;
                             headerDT.Rows[loadHeaderDTCount]["PreparedBy"] = LoadingTO.CreatedByUserName;
                             headerDT.Rows[loadHeaderDTCount]["LoadingSlipId"] = loadingSlipTo.IdLoadingSlip;
                             headerDT.Rows[loadHeaderDTCount]["DriverContactNo"] = LoadingTO.ContactNo;

@@ -3477,7 +3477,7 @@ namespace ODLMWebAPI.BL
                 invoiceDT.Columns.Add("poNo");
                 invoiceDT.Columns.Add("poDateStr");
 
-                invoiceDT.Columns.Add("TotalTaxAmt");
+                invoiceDT.Columns.Add("TotalTaxAmt", typeof(double));
                 invoiceDT.Columns.Add("TotalTaxAmtWordStr");
 
 
@@ -4624,7 +4624,8 @@ namespace ODLMWebAPI.BL
                         loadingItemDT.TableName = "loadingItemDT";
                         loadingItemDTForGatePass.TableName = "loadingItemDTForGatePass";
 
-#region Add Columns
+                        #region Add Columns
+                        headerDT.Columns.Add("InvoiceId");
                         headerDT.Columns.Add("FirmName");
                         headerDT.Columns.Add("dealername");
                         headerDT.Columns.Add("VehicleNo");
@@ -4634,6 +4635,7 @@ namespace ODLMWebAPI.BL
                         headerDT.Columns.Add("TotalBundles");
                         headerDT.Columns.Add("TotalNetWt");
 
+                        loadingItemDTForGatePass.Columns.Add("SrNo");
                         loadingItemDTForGatePass.Columns.Add("DisplayName");
                         loadingItemDTForGatePass.Columns.Add("MaterialDesc");
                         loadingItemDTForGatePass.Columns.Add("ProdItemDesc");
@@ -4654,6 +4656,7 @@ namespace ODLMWebAPI.BL
                         loadingItemDTForGatePass.Columns.Add("LoadingSlipId");
 
 
+                        loadingItemDT.Columns.Add("SrNo");
                         loadingItemDT.Columns.Add("DisplayName");
                         loadingItemDT.Columns.Add("MaterialDesc");
                         loadingItemDT.Columns.Add("ProdItemDesc");
@@ -4680,6 +4683,7 @@ namespace ODLMWebAPI.BL
                             headerDT.Rows.Add();
                             double totalBundle = 0;
                             double totalNetWt = 0;
+                            headerDT.Rows[0]["InvoiceId"] = invoiceId;
                             headerDT.Rows[0]["FirmName"] = TblLoadingSlipTO.DealerOrgName;
                             headerDT.Rows[0]["dealername"] = TblLoadingSlipTO.DealerOrgName;
                             headerDT.Rows[0]["VehicleNo"] = TblLoadingSlipTO.VehicleNo;
@@ -4694,6 +4698,7 @@ namespace ODLMWebAPI.BL
                                     loadingItemDT.Rows.Add();
                                     Int32 loadItemDTCount = loadingItemDT.Rows.Count - 1;
 
+                                    loadingItemDT.Rows[loadItemDTCount]["SrNo"] = loadItemDTCount + 1;
                                     loadingItemDT.Rows[loadItemDTCount]["DisplayName"] = tblLoadingSlipExtTO.DisplayName;
 
                                     if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
