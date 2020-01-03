@@ -84,7 +84,7 @@ namespace ODLMWebAPI.Models
         String salesEngineer;
         String orcMeasure;
         Double loadingQty;
-
+        Double totalItemQty;
 
         #endregion
 
@@ -441,6 +441,7 @@ namespace ODLMWebAPI.Models
         public double OrcAmt { get => orcAmt; set => orcAmt = value; }
         public string OrcMeasure { get => orcMeasure; set => orcMeasure = value; }
         public double LoadingQty { get => loadingQty; set => loadingQty = value; }
+        public double TotalItemQty { get => totalItemQty; set => totalItemQty = value; }
         #endregion
     }
 }

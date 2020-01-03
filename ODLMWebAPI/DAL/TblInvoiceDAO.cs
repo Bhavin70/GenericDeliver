@@ -911,6 +911,7 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["idInvoice"] != DBNull.Value)
                                     tblInvoiceRptTONew.IdInvoice = Convert.ToInt32(tblInvoiceRptTODT["idInvoice"].ToString());
                             }
+                         
                             if (tblInvoiceRptTODT.GetName(i).Equals("invoiceNo"))
                             {
                                 if (tblInvoiceRptTODT["invoiceNo"] != DBNull.Value)
@@ -1257,6 +1258,12 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["OrcMeasure"] != DBNull.Value)
                                     tblInvoiceRptTONew.OrcMeasure = Convert.ToString(tblInvoiceRptTODT["OrcMeasure"].ToString());
                             }
+
+                            if (tblInvoiceRptTODT.GetName(i).Equals("TotalItemQty"))
+                            {
+                                if (tblInvoiceRptTODT["TotalItemQty"] != DBNull.Value)
+                                    tblInvoiceRptTONew.TotalItemQty = Convert.ToDouble(tblInvoiceRptTODT["TotalItemQty"].ToString());
+                            }
                         }
 
                         tblInvoiceRPtTOList.Add(tblInvoiceRptTONew);
@@ -1525,7 +1532,7 @@ namespace ODLMWebAPI.DAL
                     " invAddrCons.consigneePinCode,invAddrCons.stateName as consigneeState,invAddrCons.gstinNo as consigneeGstNo, " +
                     " invAddrCons.txnAddrTypeId as consigneeTypeId,booking.bookingRate,itemDetails.prodItemDesc,mat.materialSubType " +
                     " as materialName, itemDetails.bundles, itemDetails.cdStructure,itemDetails.invoiceQty,itemDetails.basicTotal " +
-                    " as taxableAmt  ,freightItem.freightAmt,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId,   " +
+                    " as taxableAmt  ,freightItem.freightAmt,totalItemQtyTbl.TotalItemQty,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId,   " +
                     " invoice.cgstAmt,invoice.igstAmt,invoice.sgstAmt,itemDetails.rate,   itemDetails.cdAmt,itemDetails.otherTaxId, " +
                     " transportOrg.firmName as transporterName,invoice.deliveryLocation,invoice.vehicleNo,transportOrg.registeredMobileNos as contactNo , " +
                     " invoice.grandTotal, invoice.isConfirmed , invoice.statusId, invoice.invFromOrgId ," +
@@ -1560,6 +1567,8 @@ namespace ODLMWebAPI.DAL
                     " ISNULL(prodGstCodeDtl.prodItemId,0) = ISNULL(tblitemtallyrefDtls.prodItemId,0) " +
                     " AND tblitemtallyrefDtls.isActive = 1" +
                     " LEFT JOIN tblMaterial mat on mat.idMaterial = prodGstCodeDtl.materialId " +
+                    " LEFT JOIN( select invoiceId,SUM(invoiceQty) as TotalItemQty " +
+                    " from tempInvoiceItemDetails where otherTaxId is null GROUP BY invoiceId )totalItemQtyTbl On totalItemQtyTbl.invoiceId = invoice.idInvoice" +
                     " LEFT JOIN(select invoiceId, taxableAmt as freightAmt " +
                     " from tempInvoiceItemDetails where otherTaxId = 2  )freightItem On freightItem.invoiceId = invoice.idInvoice " +
                     " LEFT JOIN(select invoiceId, taxableAmt as tcsAmt " +
@@ -1577,7 +1586,7 @@ namespace ODLMWebAPI.DAL
                     " invAddrCons.consigneePinCode,invAddrCons.stateName as consigneeState,invAddrCons.gstinNo as consigneeGstNo, " +
                     " invAddrCons.txnAddrTypeId as consigneeTypeId,booking.bookingRate,itemDetails.prodItemDesc,mat.materialSubType " +
                     " as materialName, itemDetails.bundles, itemDetails.cdStructure,itemDetails.invoiceQty,itemDetails.basicTotal " +
-                    " as taxableAmt  ,freightItem.freightAmt,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId,  " +
+                    " as taxableAmt  ,freightItem.freightAmt,totalItemQtyTbl.TotalItemQty,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId,  " +
                     " invoice.cgstAmt,invoice.igstAmt,invoice.sgstAmt,itemDetails.rate,   itemDetails.cdAmt,itemDetails.otherTaxId,  " +
                     " transportOrg.firmName as transporterName,invoice.deliveryLocation,invoice.vehicleNo,transportOrg.registeredMobileNos as contactNo, " +
                     " invoice.grandTotal, invoice.isConfirmed ,invoice.statusId, invoice.invFromOrgId ," +
@@ -1611,7 +1620,8 @@ namespace ODLMWebAPI.DAL
                     " ISNULL(prodGstCodeDtl.prodItemId,0) = ISNULL(tblitemtallyrefDtls.prodItemId,0) " +
                     " AND tblitemtallyrefDtls.isActive = 1" +
                     " LEFT JOIN tblMaterial mat on mat.idMaterial = prodGstCodeDtl.materialId " +
-
+                    " LEFT JOIN( select invoiceId,SUM(invoiceQty) as TotalItemQty " +
+                    " from finalInvoiceItemDetails where otherTaxId is null GROUP BY invoiceId )totalItemQtyTbl On totalItemQtyTbl.invoiceId = invoice.idInvoice " +
                     " LEFT JOIN(select invoiceId, taxableAmt as freightAmt " +
                     " from finalInvoiceItemDetails where otherTaxId = 2  )freightItem On freightItem.invoiceId = invoice.idInvoice " +
                     " LEFT JOIN(select invoiceId, taxableAmt as tcsAmt " +
