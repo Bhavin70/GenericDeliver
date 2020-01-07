@@ -84,6 +84,8 @@ namespace ODLMWebAPI.Controllers
                     DropDownTO dropDownTO = new DropDownTO();
                     dropDownTO.Text = tblStatusReasonTOList[i].ReasonDesc;
                     dropDownTO.Value = tblStatusReasonTOList[i].IdStatusReason;
+                    dropDownTO.Tag = tblStatusReasonTOList[i].IsOtherComment;
+
                     statusReasonList.Add(dropDownTO);
                 }
                 return statusReasonList;
@@ -842,6 +844,7 @@ namespace ODLMWebAPI.Controllers
             return _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsByInvoice(invoiceId);
         }
 
+
         /// <summary>
         /// [13-12-2017] Vijaymala : Added To Get Loading slip extension list according to filter 
         /// </summary>
@@ -972,6 +975,29 @@ namespace ODLMWebAPI.Controllers
             return _iTblLoadingSlipBL.SelectLoadingTOWithDetailsByLoadingSlipIdForSupport(loadingSlipNo);
         }
 
+
+        //Saket
+        [Route("GetLoadingListByVehicleNoForSupport")]
+        [HttpGet]
+        public List<TblLoadingTO> GetLoadingListByVehicleNoForSupport(string vehicleNo)
+        {
+            try
+            {
+                return _iTblLoadingBL.SelectAllLoadingListByVehicleNo(vehicleNo);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        //Saket
+        [Route("GetLoadingTODetailsByLoadingNoForSupport")]
+        [HttpGet]
+        public List<TblLoadingTO> GetLoadingTODetailsByLoadingNoForSupport(String loadingSlipNo)
+        {
+            return _iTblLoadingBL.SelectLoadingTOWithDetailsByLoadingNoForSupport(loadingSlipNo);
+        }
 
         [Route("GetLoadSlipExtValues")]
         [HttpPost]

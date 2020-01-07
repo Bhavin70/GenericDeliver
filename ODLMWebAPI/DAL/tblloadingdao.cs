@@ -914,6 +914,70 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader sqlReader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = " SELECT * FROM (" + SqlSelectQuery() + ")sq1 WHERE sq1.vehicleNo ='" + vehicleNo + "'";
+                                        
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblLoadingTO> list = ConvertDTToList(sqlReader);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (sqlReader != null)
+                    sqlReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+
+        public List<TblLoadingTO> SelectLoadingTOWithDetailsByLoadingNoForSupport(string loadingSlipNo)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader sqlReader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = " SELECT * FROM (" + SqlSelectQuery() + ")sq1 WHERE sq1.loadingSlipNo ='" + loadingSlipNo + "'";
+
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblLoadingTO> list = ConvertDTToList(sqlReader);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (sqlReader != null)
+                    sqlReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+
         public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading,SqlConnection conn,SqlTransaction tran)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);

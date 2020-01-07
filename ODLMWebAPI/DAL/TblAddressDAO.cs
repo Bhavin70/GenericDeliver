@@ -21,7 +21,7 @@ namespace ODLMWebAPI.DAL
         #region Methods
         public String SqlSelectQuery()
         {
-            String sqlSelectQry = " SELECT addr.* ,tal.talukaName,dist.districtName,stat.stateName " +
+            String sqlSelectQry = " SELECT addr.* , orgAddr.addrTypeId,tal.talukaName,dist.districtName,stat.stateName " +
                                   " FROM tblAddress addr " +
                                   " LEFT JOIN dimTaluka tal ON tal.idTaluka = addr.talukaId " +
                                   " LEFT JOIN dimDistrict dist ON dist.idDistrict = addr.districtId " +
@@ -206,6 +206,11 @@ namespace ODLMWebAPI.DAL
                         tblAddressTONew.DistrictName = Convert.ToString(tblAddressTODT["districtName"].ToString());
                     if (tblAddressTODT["stateName"] != DBNull.Value)
                         tblAddressTONew.StateName = Convert.ToString(tblAddressTODT["stateName"].ToString());
+
+                    if (tblAddressTODT["addrTypeId"] != DBNull.Value)
+                        tblAddressTONew.AddrTypeId = Convert.ToInt32(tblAddressTODT["addrTypeId"].ToString());
+
+                    
                     tblAddressTOList.Add(tblAddressTONew);
                 }
             }

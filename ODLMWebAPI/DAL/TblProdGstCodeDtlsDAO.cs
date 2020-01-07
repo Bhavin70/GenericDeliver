@@ -70,6 +70,27 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public TblProdGstCodeDtlsTO SelectTblProdGstCodeDtlsTO(Int32 idProdGstCode)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlTransaction tran = null;
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+                return SelectTblProdGstCodeDtls(idProdGstCode, conn, tran);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
         public TblProdGstCodeDtlsTO SelectTblProdGstCodeDtls(Int32 idProdGstCode,SqlConnection conn,SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();

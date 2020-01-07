@@ -20,10 +20,12 @@ namespace ODLMWebAPI.Models
         String bundles;
         Double rate;
         Double cdStructure;
+        Double orcAmt;
         Double cdAmt;
         Double taxRatePct;
         Int32 taxTypeId;
         Double freightAmt;
+        Double tcsAmt;
         Double invoiceQty;
         Double taxableAmt;
         Double taxAmt;
@@ -80,6 +82,10 @@ namespace ODLMWebAPI.Models
         String enquiryTallyRefId;
         DateTime deliveredOn;
         String salesEngineer;
+        String orcMeasure;
+        Double loadingQty;
+        Double totalItemQty;
+
         #endregion
 
         #region Constructor
@@ -431,6 +437,11 @@ namespace ODLMWebAPI.Models
         public string EnquiryTallyRefId { get => enquiryTallyRefId; set => enquiryTallyRefId = value; }
         public DateTime DeliveredOn { get => deliveredOn; set => deliveredOn = value; }
         public string SalesEngineer { get => salesEngineer; set => salesEngineer = value; }
+        public double TcsAmt { get => tcsAmt; set => tcsAmt = value; }
+        public double OrcAmt { get => orcAmt; set => orcAmt = value; }
+        public string OrcMeasure { get => orcMeasure; set => orcMeasure = value; }
+        public double LoadingQty { get => loadingQty; set => loadingQty = value; }
+        public double TotalItemQty { get => totalItemQty; set => totalItemQty = value; }
         #endregion
     }
 }
