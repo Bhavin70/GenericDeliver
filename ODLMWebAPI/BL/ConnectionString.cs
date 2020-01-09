@@ -53,8 +53,11 @@ namespace ODLMWebAPI.BL
                     String SubDomain = GetSubDomain(HostURL);
                     if (!String.IsNullOrEmpty(SubDomain))
                     {
-                        JObject o1 = JObject.Parse(System.IO.File.ReadAllText(@".\connection.json"));
-                        return (string)o1[SubDomain][ConfigName];
+                        //JObject o1 = JObject.Parse(System.IO.File.ReadAllText(@".\connection.json"));
+                        //return (string)o1[SubDomain][ConfigName];
+
+                        return (string)Startup.ConnectionJsonFile[SubDomain][ConfigName];
+
                     }
                 }
             }

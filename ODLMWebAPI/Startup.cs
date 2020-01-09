@@ -25,6 +25,7 @@ using ODLMWebAPI.BL;
 using ODLMWebAPI.DAL;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.Authentication;
+using Newtonsoft.Json.Linq;
 
 namespace ODLMWebAPI
 {
@@ -35,6 +36,8 @@ namespace ODLMWebAPI
         public static string RequestOriginString { get; set; }
         public static string AzureConnectionStr { get; set; }
         public static string NewConnectionString { get; private set; }
+
+        public static JObject ConnectionJsonFile { get; private set; }
         public static string DeliverUrl { get; private set; }
         public static String SapConnectivityErrorCode { get; private set; }
         public static SAPbobsCOM.Company CompanyObject { get; private set; }
@@ -505,6 +508,9 @@ namespace ODLMWebAPI
             RequestOriginString = Configuration.GetSection("Data:RequestOriginString").Value.ToString();
             NewConnectionString = Configuration.GetSection("Data:NewDefaultConnection").Value.ToString();
             DeliverUrl = Configuration.GetSection("Data:DeliverUrl").Value.ToString();
+
+
+            ConnectionJsonFile = JObject.Parse(System.IO.File.ReadAllText(@".\connection.json"));
 
             //TblConfigParamsTO tblConfigParamsTO = BL.TblConfigParamsBL.SelectTblConfigParamsValByName(StaticStuff.Constants.CP_AZURE_CONNECTIONSTRING_FOR_DOCUMENTATION);
             //if (tblConfigParamsTO != null)
