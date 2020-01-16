@@ -91,6 +91,8 @@ namespace ODLMWebAPI.Controllers
                     DropDownTO dropDownTO = new DropDownTO();
                     dropDownTO.Text = tblStatusReasonTOList[i].ReasonDesc;
                     dropDownTO.Value = tblStatusReasonTOList[i].IdStatusReason;
+                    dropDownTO.Tag = tblStatusReasonTOList[i].IsOtherComment;
+
                     statusReasonList.Add(dropDownTO);
                 }
                 return statusReasonList;
@@ -172,6 +174,36 @@ namespace ODLMWebAPI.Controllers
         {
             return _iTblLoadingBL.SelectLoadingTOWithDetails(loadingId);
         }
+
+        [Route("PrintLoadingDetails")]
+        [HttpPost]
+        public ResultMessage PrintLoadingDetails([FromBody] JObject data)
+        {
+            try
+            {
+                ResultMessage resultMessage = new StaticStuff.ResultMessage();
+                var idLoading = data["idLoading"].ToString();
+                var isPrinted = Convert.ToBoolean(data["isPrinted"]);
+                if (idLoading != null)
+                {
+                    DateTime serverDate = _iCommon.ServerDateTime;
+                    return _iTblLoadingBL.PrintReport(Convert.ToInt32(idLoading), isPrinted);
+                }
+                else
+                {
+                    resultMessage.DefaultBehaviour("tempInvoiceDocumentDetailsTO Found NULL");
+                    return resultMessage;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {}
+        }
+
+
         /// <summary>
         /// GJ@20171012 : Get the LoadingTo details by LoadingSlipId
         /// </summary>
@@ -830,6 +862,7 @@ namespace ODLMWebAPI.Controllers
             return _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsByInvoice(invoiceId);
         }
 
+
         /// <summary>
         /// [13-12-2017] Vijaymala : Added To Get Loading slip extension list according to filter 
         /// </summary>
@@ -960,6 +993,29 @@ namespace ODLMWebAPI.Controllers
             return _iTblLoadingSlipBL.SelectLoadingTOWithDetailsByLoadingSlipIdForSupport(loadingSlipNo);
         }
 
+
+        //Saket
+        [Route("GetLoadingListByVehicleNoForSupport")]
+        [HttpGet]
+        public List<TblLoadingTO> GetLoadingListByVehicleNoForSupport(string vehicleNo)
+        {
+            try
+            {
+                return _iTblLoadingBL.SelectAllLoadingListByVehicleNo(vehicleNo);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        //Saket
+        [Route("GetLoadingTODetailsByLoadingNoForSupport")]
+        [HttpGet]
+        public List<TblLoadingTO> GetLoadingTODetailsByLoadingNoForSupport(String loadingSlipNo)
+        {
+            return _iTblLoadingBL.SelectLoadingTOWithDetailsByLoadingNoForSupport(loadingSlipNo);
+        }
 
         [Route("GetLoadSlipExtValues")]
         [HttpPost]

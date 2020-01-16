@@ -24,7 +24,7 @@ namespace ODLMWebAPI.Models
        
         DateTime createdOn;
         String firmName;
-
+        String firmCode;
         Double lastAllocQty;
         Double lastRateBand;
 
@@ -62,7 +62,7 @@ namespace ODLMWebAPI.Models
         Int32 isSpecialCnf;
         String digitalSign;
         DateTime deactivatedOn;
-
+        Double creditLimit;
         Int32 districtId;
         /// <summary>
         /// Vijaymla Added to set organization logo,other details bank details for  invoice print
@@ -143,6 +143,12 @@ namespace ODLMWebAPI.Models
         {
             get { return firmName; }
             set { firmName = value; }
+        }
+
+        public String FirmCode
+        {
+            get { return firmCode; }
+            set { firmCode = value; }
         }
 
         /// <summary>
@@ -421,6 +427,7 @@ namespace ODLMWebAPI.Models
         /// Priyanka [19-02-18] added for store the purchase competitor material and grade details.
         /// </summary>
         public List<TblPurchaseCompetitorExtTO> PurchaseCompetitorExtTOList { get => purchaseCompetitorExtTOList; set => purchaseCompetitorExtTOList = value; }
+        public double CreditLimit { get => creditLimit; set => creditLimit = value; }
 
 
 

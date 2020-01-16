@@ -23,7 +23,9 @@ namespace ODLMWebAPI.DAL.Interfaces
         Int64 SelectCountOfLoadingSlips(DateTime date, SqlConnection conn, SqlTransaction tran);
         ODLMWebAPI.DashboardModels.LoadingInfo SelectDashboardLoadingInfo(TblUserRoleTO tblUserRoleTO, Int32 orgId, DateTime sysDate, Int32 loadingType);
         List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, DateTime loadingDate);
-        List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading,int loadingId, SqlConnection conn, SqlTransaction tran);
+        List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo);
+        List<TblLoadingTO> SelectLoadingTOWithDetailsByLoadingNoForSupport(string loadingSlipNo);
+        List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading, int loadingId, SqlConnection conn, SqlTransaction tran);
         List<TblLoadingTO> SelectAllLoadingListByVehicleNoForDelOut(string vehicleNo, SqlConnection conn, SqlTransaction tran);
         //Aniket [19-8-2019]
         List<TblLoadingTO> SelectAllLoadingListByVehicleNoForDelOut(int loadingId, SqlConnection conn, SqlTransaction tran);

@@ -71,5 +71,9 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<DimFinYearTO> SelectAllMstFinYearList();
 
         int InsertMstFinYear(DimFinYearTO newMstFinYearTO);
+
+        List<TblProdGstCodeDtlsTO> GetSAPTaxCodeByIdProdGstCode(int idProdGstCode);
+
+        Int64 GetProductItemIdFromGivenRMDetails(int prodCatId, int prodSpecId, int materialId, int brandId, int rmProdItemId);
     }
 }

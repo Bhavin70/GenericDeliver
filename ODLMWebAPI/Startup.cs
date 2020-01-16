@@ -27,6 +27,7 @@ using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.Authentication;
 using ODLMWebAPI.IoT;
 using ODLMWebAPI.IoT.Interfaces;
+using Newtonsoft.Json.Linq;
 
 namespace ODLMWebAPI
 {
@@ -37,6 +38,8 @@ namespace ODLMWebAPI
         public static string RequestOriginString { get; set; }
         public static string AzureConnectionStr { get; set; }
         public static string NewConnectionString { get; private set; }
+
+        public static JObject ConnectionJsonFile { get; private set; }
         public static string DeliverUrl { get; private set; }
 
         //Aniket [30-7-2019] added for IOT
@@ -46,6 +49,9 @@ namespace ODLMWebAPI
         public static List<int> AvailableModbusRefList { get; set; }
 
         public static string GateIotApiURL { get; set; }
+
+        public static String SapConnectivityErrorCode { get; private set; }
+        public static SAPbobsCOM.Company CompanyObject { get; private set; }
 
         public Startup(IConfiguration configuration)
         {
@@ -515,13 +521,16 @@ namespace ODLMWebAPI
 
             services.AddScoped<ITblInvoiceChangeOrgHistoryDAO, TblInvoiceChangeOrgHistoryDAO>();
 
-            
 
+            //DOSapLogin();
             services.AddMvc();
             ConnectionString = Configuration.GetSection("Data:DefaultConnection").Value.ToString();
             RequestOriginString = Configuration.GetSection("Data:RequestOriginString").Value.ToString();
             NewConnectionString = Configuration.GetSection("Data:NewDefaultConnection").Value.ToString();
             DeliverUrl = Configuration.GetSection("Data:DeliverUrl").Value.ToString();
+
+
+            ConnectionJsonFile = JObject.Parse(System.IO.File.ReadAllText(@".\connection.json"));
 
             //TblConfigParamsTO tblConfigParamsTO = BL.TblConfigParamsBL.SelectTblConfigParamsValByName(StaticStuff.Constants.CP_AZURE_CONNECTIONSTRING_FOR_DOCUMENTATION);
             //if (tblConfigParamsTO != null)
@@ -554,6 +563,59 @@ namespace ODLMWebAPI
                         options.RequireHttpsMetadata = false;
                     });
         }
+
+        public void DOSapLogin()
+        {
+            try
+            {
+                SAPbobsCOM.Company companyObject;
+                //SAPbouiCOM.SboGuiApi sboGuiApi;
+
+                companyObject = new SAPbobsCOM.Company();
+                //sboGuiApi = new SAPbouiCOM.SboGuiApi();
+
+                companyObject.CompanyDB = "VEGA_NEW";
+
+                companyObject.UserName = "manager";
+
+                //companyObject.Password = "Sap@1234";
+                //companyObject.Password = "Vega@123";
+                companyObject.Password = "sap1";
+                companyObject.language = SAPbobsCOM.BoSuppLangs.ln_English;
+                companyObject.DbServerType = SAPbobsCOM.BoDataServerTypes.dst_MSSQL2017;
+                //companyObject.Server = "10.10.110.102";
+                companyObject.Server = "52.172.136.203";
+
+                companyObject.LicenseServer = "52.172.136.203:40000";
+
+                //companyObject.SLDServer = "52.172.136.203\\SQLEXPRESS,1430";
+                companyObject.SLDServer = "52.172.136.203";
+                companyObject.DbUserName = "sa";
+
+                companyObject.DbPassword = "Vega@123";
+
+                //companyObject.LicenseServer = "10.10.110.102:40000";
+
+                //companyObject.UseTrusted = false;
+                //string var = companyObject.GetLastErrorDescription();
+
+                //string Error = companyObject.GetLastErrorDescription();
+
+                int checkConnection = -1;
+
+                checkConnection = companyObject.Connect();
+
+                if (checkConnection == 0)
+                    CompanyObject = companyObject;
+                else
+                    SapConnectivityErrorCode = "Connectivity Error Code : " + companyObject.GetLastErrorDescription() + " " + checkConnection.ToString();
+            }
+            catch (Exception ex)
+            {
+                SapConnectivityErrorCode = "SAP connectivity Exception " + ex.ToString();
+            }
+        }
+
 
         private string GetXmlCommentsPath()
         {
@@ -604,4 +666,6 @@ namespace ODLMWebAPI
 
         }
     }
+
+
 }

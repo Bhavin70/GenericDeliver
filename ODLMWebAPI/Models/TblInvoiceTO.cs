@@ -8,6 +8,7 @@ namespace ODLMWebAPI.Models
     public class TblInvoiceTO
     {
         #region Declarations
+        public String InvComment { get; set; }
         Int32 idInvoice;
         Int32 invoiceTypeId;
         Int32 transportOrgId;
@@ -88,7 +89,7 @@ namespace ODLMWebAPI.Models
         Int32 loadingStatusId;
 
         Int32 invFromOrgFreeze;   //Saket [2019-09-17] Added For A1 customization
-
+        Int32 checkSkipApprovalCondition; //Saket [2019-09-17]
         #endregion
 
         #region Constructor
@@ -520,6 +521,10 @@ namespace ODLMWebAPI.Models
 
 
         public int InvFromOrgFreeze { get => invFromOrgFreeze; set => invFromOrgFreeze = value; }
+
+        public string SapMappedSalesOrderNo { get; set; }
+        public string SapMappedSalesInvoiceNo { get; set; }
+        public int CheckSkipApprovalCondition { get => checkSkipApprovalCondition; set => checkSkipApprovalCondition = value; }
 
         public TblInvoiceTO DeepCopy()
         {
