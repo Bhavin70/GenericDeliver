@@ -1587,7 +1587,7 @@ namespace ODLMWebAPI.BL {
         }
 
         //public ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0)
-        public ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, int fromOrgId, int toOrgId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0)
+        public ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, int fromOrgId, int toOrgId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0, String invComment = "")
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -1607,6 +1607,9 @@ namespace ODLMWebAPI.BL {
                     tran.Rollback();
                     resultMessage.DefaultBehaviour("invoiceTO Found NULL"); return resultMessage;
                 }
+
+                invoiceTO.InvComment = invComment;
+
                 //Vijaymala[23-03-2016]added to check invoice details of igst,cgst,sgst taxes
                 #region To check invoice details is valid or not
                 string errorMsg = string.Empty;

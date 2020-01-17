@@ -1180,8 +1180,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-
-        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading,, int loadingId,SqlConnection conn,SqlTransaction tran)
+        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading,int loadingId,SqlConnection conn,SqlTransaction tran)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlCommand cmdSelect = new SqlCommand();

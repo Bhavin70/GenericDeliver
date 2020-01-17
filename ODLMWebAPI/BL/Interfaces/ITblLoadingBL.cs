@@ -92,7 +92,7 @@ namespace ODLMWebAPI.BL.Interfaces
 
         ResultMessage SpiltBookingAgainstInvoice(TblInvoiceTO tblInvoiceTO, TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran);
 
-        ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, int fromOrgId, int toOrgId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0);
+        ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, int fromOrgId, int toOrgId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0, String invComment = "");
 
         ResultMessage RemoveDatFromIotDevice();
 

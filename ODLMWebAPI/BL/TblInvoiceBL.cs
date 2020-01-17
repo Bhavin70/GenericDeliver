@@ -6695,7 +6695,7 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        public ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId,int fromOrgId,int toOrgId,String taxInvoiceNumber="",Int32 manualinvoiceno=0,String invComment="")
+        public ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, int fromOrgId, int toOrgId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0, String invComment = "")
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -6733,8 +6733,8 @@ namespace ODLMWebAPI.BL
                     if (invGenModeId != (int)Constants.InvoiceGenerateModeE.REGULAR)
                     {
                         TblInvoiceChangeOrgHistoryTO changeHisTO = new TblInvoiceChangeOrgHistoryTO();
-                        resultMessage = PrepareAndSaveInternalTaxInvoices(invoiceTO,invGenModeId,fromOrgId,toOrgId,0, changeHisTO,conn, tran);
-                 
+                        resultMessage = PrepareAndSaveInternalTaxInvoices(invoiceTO, invGenModeId, fromOrgId, toOrgId, 0, changeHisTO, conn, tran);
+
                         if (resultMessage.MessageType == ResultMessageE.Information)
                         {
                             tran.Commit();
@@ -6742,7 +6742,7 @@ namespace ODLMWebAPI.BL
                             resultMessage.DisplayMessage = "Invoice Converted Successfully";
                             return resultMessage;
                         }
-                        
+
                         else
                         {
                             tran.Rollback();
@@ -6789,7 +6789,14 @@ namespace ODLMWebAPI.BL
                     {
                         invoiceAuthDateAsInvoiceDate = Convert.ToInt32(invoiceAuthDateAsInvoiceDateConfigTO.ConfigParamVal);
                     }
+                }
+            }
+            catch (Exception ex)
+            {
 
+            }
+            return resultMessage;
+        }
         
 
         //Aniket [22-4-2019]
@@ -8401,3 +8408,4 @@ namespace ODLMWebAPI.BL
 
     }
 }
+#endregion
