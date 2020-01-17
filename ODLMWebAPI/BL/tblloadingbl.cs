@@ -15,6 +15,7 @@ using ODLMWebAPI.IoT;
 using ODLMWebAPI.IoT.Interfaces;
 using ODLMWebAPI.Models;
 using ODLMWebAPI.StaticStuff;
+using System.IO;
 
 namespace ODLMWebAPI.BL {
     public class TblLoadingBL : ITblLoadingBL {
@@ -79,18 +80,24 @@ namespace ODLMWebAPI.BL {
         private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
         private readonly ITblGroupItemDAO _iTblGroupItemDAO;
         private readonly ITblGlobalRateDAO _iTblGlobalRateDAO;
+        private readonly IRunReport _iRunReport;
+        private readonly IDimReportTemplateBL _iDimReportTemplateBL;
+        private readonly ITblPaymentTermsForBookingDAO _iTblPaymentTermsForBookingDAO;
         public TblLoadingBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO, IWeighingCommunication iWeighingCommunication, IModbusRefConfig iModbusRefConfig,ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblInvoiceHistoryDAO iTblInvoiceHistoryDAO, ITblWeighingMachineDAO iTblWeighingMachineDAO, IGateCommunication iGateCommunication, IIotCommunication iIotCommunication, ITblGateBL iTblGateBL
             , ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO
             , ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO
             , ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO
             , ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO
             , ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL
-            , ITblGroupItemDAO iTblGroupItemDAO, ITblGlobalRateDAO iTblGlobalRateDAO
+            , ITblGroupItemDAO iTblGroupItemDAO, ITblGlobalRateDAO iTblGlobalRateDAO, IRunReport iRunReport, IDimReportTemplateBL iDimReportTemplateBL, ITblPaymentTermsForBookingDAO iTblPaymentTermsForBookingDAO
             )
         
        // public TblLoadingBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL)
         {
             _iTblLoadingDAO = iTblLoadingDAO;
+            _iRunReport = iRunReport;
+            _iDimReportTemplateBL = iDimReportTemplateBL;
+            _iTblPaymentTermsForBookingDAO = iTblPaymentTermsForBookingDAO;
             _iTblUserRoleBL = iTblUserRoleBL;
             _iTblOrganizationDAO = iTblOrganizationDAO;
             _iTblMaterialBL = iTblMaterialBL;
@@ -1172,9 +1179,9 @@ namespace ODLMWebAPI.BL {
             }
         }
 
-        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo (string vehicleNo, DateTime loadingDate) {
-            return _iTblLoadingDAO.SelectAllLoadingListByVehicleNo (vehicleNo, loadingDate);
-        }
+        //public List<TblLoadingTO> SelectAllLoadingListByVehicleNo (string vehicleNo, DateTime loadingDate) {
+        //    return _iTblLoadingDAO.SelectAllLoadingListByVehicleNo (vehicleNo, loadingDate);
+        //}
 
         public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading, int loadingId)//Aniket [13-6-2019] added loadingId paramater
         {
@@ -1352,6 +1359,9 @@ namespace ODLMWebAPI.BL {
                         Int32 bookingId = bookingsIdsList[s];
                         tblBookingTO = _iCircularDependencyBL.SelectBookingsTOWithDetails (bookingId);
                         if (tblBookingTO != null) {
+
+                            tblBookingTO.PaymentTermOptionRelationTOLst = _iTblPaymentTermOptionRelationDAO.SelectTblPaymentTermOptionRelationByBookingId(bookingId);
+
                             tblLoadingTO.VehicleNo = tblBookingTO.VehicleNo;
                             tblLoadingTO.FreightAmt = tblBookingTO.FreightAmt;
                             tblLoadingTO.CnfOrgId = tblBookingTO.CnFOrgId;
@@ -1572,6 +1582,7 @@ namespace ODLMWebAPI.BL {
             tblLoadingSlipTO.TblLoadingSlipDtlTO = new TblLoadingSlipDtlTO ();
             tblLoadingSlipTO.DeliveryAddressTOList = new List<TblLoadingSlipAddressTO> ();
             tblLoadingSlipTO.LoadingSlipExtTOList = new List<TblLoadingSlipExtTO> ();
+            tblLoadingSlipTO.PaymentTermOptionRelationTOLst = tblBookingTO.PaymentTermOptionRelationTOLst;
             return tblLoadingSlipTO;
         }
 
@@ -2432,19 +2443,24 @@ namespace ODLMWebAPI.BL {
             return _iTblLoadingDAO.InsertTblLoading (tblLoadingTO, conn, tran);
         }
 
-        public ResultMessage CalculateLoadingValuesRate (TblLoadingTO tblLoadingTO) {
-            SqlConnection conn = new SqlConnection (_iConnectionString.GetConnectionString (Constants.CONNECTION_STRING));
+        public ResultMessage CalculateLoadingValuesRate(TblLoadingTO tblLoadingTO)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
             int result = 0;
-            ResultMessage resultMessage = new StaticStuff.ResultMessage ();
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
             //resultMessage.Tag = tblLoadingTO;
             resultMessage.MessageType = ResultMessageE.None;
             resultMessage.Text = "Not Entered In The Loop";
-            try {
-                conn.Open ();
-                tran = conn.BeginTransaction ();
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
 
                 Double freightPerMT = 0;
+
+                #region Commented code Vijaymala added[26-04-2018]
+
                 //Vijaymala added[26-04-2018]:commented that code to get freight from loading slip layerwise
                 //if (tblLoadingTO.IsFreightIncluded == 1)
                 //{
@@ -2461,85 +2477,123 @@ namespace ODLMWebAPI.BL {
                 //}
 
                 //Vijaymala[13-11-2018]commented the code .Tax inclusive/exclusive getting from brand
+
+                #endregion
+
+
                 //Sanjay [2018-07-04] Tax Calculations Inclusive Of Taxes Or Exclusive Of Taxes. Reported From Customer Shivangi Rolling Mills.By default it will be 0 i.e. Tax Exclusive
-                Int32 isTaxInclusiveWithTaxes = 0;
+                //Int32 isTaxInclusiveWithTaxes = 0;
+                Int32 isTaxInclusiveWithAllParam = 0; // Less CD,parity,ORC while reverse GSTIN Calculation
                 Boolean isSez = false;
-                TblConfigParamsTO rateCalcConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO (Constants.CP_RATE_CALCULATIONS_TAX_INCLUSIVE, conn, tran);
-                if (rateCalcConfigParamsTO != null) {
-                    isTaxInclusiveWithTaxes = Convert.ToInt32 (rateCalcConfigParamsTO.ConfigParamVal);
+                //TblConfigParamsTO rateCalcConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_RATE_CALCULATIONS_TAX_INCLUSIVE, conn, tran);
+                //if (rateCalcConfigParamsTO != null)
+                //{
+                //    isTaxInclusiveWithTaxes = Convert.ToInt32(rateCalcConfigParamsTO.ConfigParamVal);
+                //}
+
+                TblConfigParamsTO rateCalcTaxInclConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_RATE_CALCULATIONS_TAX_INCLUSIVE_WITH_ALL_PARAMS_LESS, conn, tran);
+                if (rateCalcTaxInclConfigParamsTO != null)
+                {
+                    isTaxInclusiveWithAllParam = Convert.ToInt32(rateCalcTaxInclConfigParamsTO.ConfigParamVal);
                 }
 
-                List<TblConfigParamsTO> tblConfigParamsTOList = _iTblConfigParamsBL.SelectAllTblConfigParamsList ();
+                List<TblConfigParamsTO> tblConfigParamsTOList = _iTblConfigParamsBL.SelectAllTblConfigParamsList();
                 Boolean isRateRounded = false;
-                TblConfigParamsTO roundRateConfig = new TblConfigParamsTO ();
-                if (tblConfigParamsTOList != null && tblConfigParamsTOList.Count > 0) {
-                    roundRateConfig = tblConfigParamsTOList.Where (ele => ele.ConfigParamName == Constants.CP_IS_INVOICE_RATE_ROUNDED).FirstOrDefault ();
-                    if (roundRateConfig != null && Convert.ToInt32 (roundRateConfig.ConfigParamVal) == 1) {
+                Int32 dontShowCdOnInvoice = 0;
+
+                TblConfigParamsTO roundRateConfig = new TblConfigParamsTO();
+                if (tblConfigParamsTOList != null && tblConfigParamsTOList.Count > 0)
+                {
+                    roundRateConfig = tblConfigParamsTOList.Where(ele => ele.ConfigParamName == Constants.CP_IS_INVOICE_RATE_ROUNDED).FirstOrDefault();
+                    if (roundRateConfig != null && Convert.ToInt32(roundRateConfig.ConfigParamVal) == 1)
+                    {
                         isRateRounded = true;
                     }
+
+
+                    TblConfigParamsTO temp = tblConfigParamsTOList.Where(ele => ele.ConfigParamName == Constants.CP_DO_NOT_SHOW_CD_ON_INOVICE).FirstOrDefault();
+                    if (temp != null)
+                    {
+                        dontShowCdOnInvoice = Convert.ToInt32(temp.ConfigParamVal);
+                    }
+
                 }
 
                 Double forAmtPerMT = 0; //Vijaymala added[22-06-2018]
-                for (int i = 0; i < tblLoadingTO.LoadingSlipList.Count; i++) {
+                for (int i = 0; i < tblLoadingTO.LoadingSlipList.Count; i++)
+                {
                     TblLoadingSlipTO tblLoadingSlipTO = tblLoadingTO.LoadingSlipList[i];
 
                     //Vijaymala added[26-04-2018]:to done calculation using  freight from loading slip 
-                    if (tblLoadingSlipTO.IsFreightIncluded == 1) {
-                        freightPerMT = tblLoadingSlipTO.FreightAmt; // CalculateFreightAmtPerTon(tblLoadingTO.LoadingSlipList, tblLoadingSlipTO.FreightAmt);
-                        //freightPerMT = CalculateFreightAmtPerTon(tblLoadingTO.LoadingSlipList, tblLoadingSlipTO.FreightAmt);
-                        //if (freightPerMT < 0)
-                        //{
-                        //    tran.Rollback();
-                        //    resultMessage.MessageType = ResultMessageE.Error;
-                        //    resultMessage.Text = "Error : Freight Calculations is less than 0. Please check the calculations immediatly";
-                        //    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                        //    return resultMessage;
-                        //}
+                    if (tblLoadingSlipTO.IsFreightIncluded == 1)
+                    {
+                        freightPerMT = tblLoadingSlipTO.FreightAmt;// CalculateFreightAmtPerTon(tblLoadingTO.LoadingSlipList, tblLoadingSlipTO.FreightAmt);
+                                                                   //freightPerMT = CalculateFreightAmtPerTon(tblLoadingTO.LoadingSlipList, tblLoadingSlipTO.FreightAmt);
+                                                                   //if (freightPerMT < 0)
+                                                                   //{
+                                                                   //    tran.Rollback();
+                                                                   //    resultMessage.MessageType = ResultMessageE.Error;
+                                                                   //    resultMessage.Text = "Error : Freight Calculations is less than 0. Please check the calculations immediatly";
+                                                                   //    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                                                                   //    return resultMessage;
+                                                                   //}
                     }
 
                     //Vijaymala added[21-06-2018]for new For amount calculation
-                    if (tblLoadingSlipTO.IsForAmountIncluded == 1) {
+                    if (tblLoadingSlipTO.IsForAmountIncluded == 1)
+                    {
 
-                        if (tblLoadingSlipTO.ForAmount > 0) {
+                        if (tblLoadingSlipTO.ForAmount > 0)
+                        {
                             forAmtPerMT = tblLoadingSlipTO.ForAmount;
                             freightPerMT = forAmtPerMT + freightPerMT;
                         }
                     }
                     //  freightPerMT = Math.Abs(freightPerMT);
 
-                    if (tblLoadingSlipTO.LoadingSlipExtTOList != null && tblLoadingSlipTO.LoadingSlipExtTOList.Count > 0) {
-                        if (tblLoadingTO.LoadingType == (int) Constants.LoadingTypeE.OTHER) {
+                    if (tblLoadingSlipTO.LoadingSlipExtTOList != null && tblLoadingSlipTO.LoadingSlipExtTOList.Count > 0)
+                    {
+                        if (tblLoadingTO.LoadingType == (int)Constants.LoadingTypeE.OTHER)
+                        {
 
-                        } else {
+                        }
+                        else
+                        {
 
                             TblLoadingSlipDtlTO tblLoadingSlipDtlTO = tblLoadingSlipTO.TblLoadingSlipDtlTO;
-                            if (tblLoadingSlipDtlTO.IdBooking > 0) {
+                            if (tblLoadingSlipDtlTO.IdBooking > 0)
+                            {
                                 tblLoadingSlipDtlTO.BookingId = tblLoadingSlipDtlTO.IdBooking;
 
                             }
-                            TblBookingsTO tblBookingsTO = _iTblBookingsDAO.SelectTblBookings (tblLoadingSlipDtlTO.BookingId, conn, tran);
-                            if (tblBookingsTO == null) {
-                                tran.Rollback ();
+                            TblBookingsTO tblBookingsTO = _iTblBookingsDAO.SelectTblBookings(tblLoadingSlipDtlTO.BookingId, conn, tran);
+                            if (tblBookingsTO == null)
+                            {
+                                tran.Rollback();
                                 resultMessage.MessageType = ResultMessageE.Error;
                                 resultMessage.Text = "Error :tblBookingsTO Found NUll Or Empty";
                                 resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
                                 return resultMessage;
                             }
 
-                            if (tblBookingsTO.IsSez == 1) {
+                            if (tblBookingsTO.IsSez == 1)
+                            {
                                 isSez = true;
                             }
 
                             String parityIds = String.Empty;
-                            List<TblBookingParitiesTO> tblBookingParitiesTOList = _iTblBookingParitiesDAO.SelectTblBookingParitiesByBookingId (tblBookingsTO.IdBooking, conn, tran);
+                            List<TblBookingParitiesTO> tblBookingParitiesTOList = _iTblBookingParitiesDAO.SelectTblBookingParitiesByBookingId(tblBookingsTO.IdBooking, conn, tran);
 
-                            if (tblBookingParitiesTOList != null && tblBookingParitiesTOList.Count > 0) {
-                                parityIds = String.Join (",", tblBookingParitiesTOList.Select (s => s.ParityId.ToString ()).ToArray ());
+
+                            if (tblBookingParitiesTOList != null && tblBookingParitiesTOList.Count > 0)
+                            {
+                                parityIds = String.Join(",", tblBookingParitiesTOList.Select(s => s.ParityId.ToString()).ToArray());
                             }
 
-                            if (String.IsNullOrEmpty (parityIds)) {
-                                tran.Rollback ();
-                                resultMessage.DefaultBehaviour ();
+                            if (String.IsNullOrEmpty(parityIds))
+                            {
+                                tran.Rollback();
+                                resultMessage.DefaultBehaviour();
                                 resultMessage.Text = "Error : ParityTO Not Found";
                                 resultMessage.DisplayMessage = "Warning : Parity Details Not Found, Please contact BackOffice";
                                 return resultMessage;
@@ -2548,25 +2602,30 @@ namespace ODLMWebAPI.BL {
                             //Sudhir[23-MARCH-2018] Commented For New Parity Logic.
                             // List<TblParityDetailsTO> parityDetailsTOList = BL._iTblParityDetailsBL.SelectAllTblParityDetailsList(parityIds, 0, conn, tran);
 
-                            for (int e = 0; e < tblLoadingSlipTO.LoadingSlipExtTOList.Count; e++) {
+                            for (int e = 0; e < tblLoadingSlipTO.LoadingSlipExtTOList.Count; e++)
+                            {
 
                                 TblLoadingSlipExtTO tblLoadingSlipExtTO = tblLoadingSlipTO.LoadingSlipExtTOList[e];
 
                                 Int32 isTaxInclusive = 0;
-                                DimBrandTO dimBrandTO = _iDimBrandDAO.SelectDimBrand (tblLoadingSlipExtTO.BrandId);
+                                DimBrandTO dimBrandTO = _iDimBrandDAO.SelectDimBrand(tblLoadingSlipExtTO.BrandId);
 
-                                if (dimBrandTO != null) {
+                                if (dimBrandTO != null)
+                                {
                                     isTaxInclusive = dimBrandTO.IsTaxInclusive;
                                 }
-                                if (tblLoadingSlipExtTO.LoadingQty > 0) {
+                                if (tblLoadingSlipExtTO.LoadingQty > 0)
+                                {
 
                                     #region Calculate Actual Price From Booking and Parity Settings
 
                                     Double orcAmtPerTon = 0;
-                                    if (tblLoadingSlipTO.OrcMeasure == "Rs/MT") //Need to change
+                                    if (tblLoadingSlipTO.OrcMeasure == "Rs/MT")  //Need to change
                                     {
                                         orcAmtPerTon = tblLoadingSlipTO.OrcAmt;
-                                    } else {
+                                    }
+                                    else
+                                    {
                                         if (tblLoadingSlipTO.OrcAmt > 0)
                                             orcAmtPerTon = tblLoadingSlipTO.OrcAmt / tblLoadingSlipTO.TblLoadingSlipDtlTO.LoadingQty;
                                     }
@@ -2575,26 +2634,27 @@ namespace ODLMWebAPI.BL {
                                     //rateCalcDesc = "B.R : " + tblBookingsTO.BookingRate + "|";
                                     //Double bookingPrice = tblBookingsTO.BookingRate;
 
-                                    TblBookingParitiesTO tblBookingParitiesTO = tblBookingParitiesTOList.Where (w => w.BrandId == tblLoadingSlipExtTO.BrandId).FirstOrDefault ();
-                                    if (tblBookingParitiesTO == null || tblBookingParitiesTO.BookingRate == 0) {
-                                        tran.Rollback ();
-                                        resultMessage.DefaultBehaviour ();
+                                    TblBookingParitiesTO tblBookingParitiesTO = tblBookingParitiesTOList.Where(w => w.BrandId == tblLoadingSlipExtTO.BrandId).FirstOrDefault();
+                                    if (tblBookingParitiesTO == null || tblBookingParitiesTO.BookingRate == 0)
+                                    {
+                                        tran.Rollback();
+                                        resultMessage.DefaultBehaviour();
                                         resultMessage.Text = "Error : Rate not found against brand - " + tblLoadingSlipExtTO.BrandDesc;
                                         resultMessage.DisplayMessage = "Error : Rate not found against brand - " + tblLoadingSlipExtTO.BrandDesc;
                                         return resultMessage;
                                     }
 
+
                                     String rateCalcDesc = string.Empty;
-                                    int isBalajiClient = 0;
                                     Double bookingPrice;
                                     List<TblBookingExtTO> bookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(tblBookingParitiesTO.BookingId);
                                     //Aniket [24-9-2019]
                                     TblGlobalRateTO rateTO = null;
                                     TblGroupItemTO tblGroupItemTO = _iTblGroupItemDAO.SelectTblGroupItemDetails(tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.MaterialId);
-                                    if(tblGroupItemTO!=null)
+                                    if (tblGroupItemTO != null)
                                     {
                                         rateTO = new TblGlobalRateTO();
-                                        Dictionary<Int32, Int32> rateDCT= _iTblGlobalRateDAO.SelectLatestGroupAndRateDCT(tblBookingsTO.CreatedOn.ToString("yyyy-MM-dd"));
+                                        Dictionary<Int32, Int32> rateDCT = _iTblGlobalRateDAO.SelectLatestGroupAndRateDCT(tblBookingsTO.CreatedOn.ToString("yyyy-MM-dd"));
                                         if (rateDCT != null)
                                         {
                                             if (rateDCT.ContainsKey(tblGroupItemTO.GroupId))
@@ -2607,10 +2667,10 @@ namespace ODLMWebAPI.BL {
                                     if (rateTO != null)
                                         bookingPrice = rateTO.Rate;
                                     else
-                                    bookingPrice = tblBookingParitiesTO.BookingRate;
+                                        bookingPrice = tblBookingParitiesTO.BookingRate;
                                     // Aniket [18-6-2019]
                                     // added to reduce item wise discount from bookingprice
-                                    if(tblBookingsTO.IsItemized==1)
+                                    if (tblBookingsTO.IsItemized == 1)
                                     {
                                         if (bookingExtTOList != null && bookingExtTOList.Count > 0)
                                         {
@@ -2623,13 +2683,32 @@ namespace ODLMWebAPI.BL {
                                             }
                                         }
                                     }
-                                    
-                                  
-                                   // rateCalcDesc = "B.R : " + tblBookingParitiesTO.BookingRate + "|";
-                                   if(isTaxInclusive==1 && isTaxInclusiveWithTaxes==0)
+
+                                    TblGstCodeDtlsTO gstCodeDtlsTO = _iTblGstCodeDtlsDAO.SelectGstCodeDtlsTO(tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdItemId, conn, tran);
+                                    if (gstCodeDtlsTO == null)
                                     {
-                                        bookingPrice = bookingPrice / 1.18;
-                                        bookingPrice = Math.Round (bookingPrice, 2);
+                                        tran.Rollback();
+                                        resultMessage.DefaultBehaviour();
+                                        resultMessage.Text = "Error : GST Code Not Found";
+                                        string mateDesc = tblLoadingSlipExtTO.DisplayName;
+                                        //[05-09-2018] : Vijaymala commented code to set display  name for item for other and regular
+                                        //tblLoadingSlipExtTO.MaterialDesc + " " + tblLoadingSlipExtTO.ProdCatDesc + "-" + tblLoadingSlipExtTO.ProdSpecDesc;
+                                        resultMessage.DisplayMessage = "Warning : GST Code Is Not Defined For " + mateDesc + " Please contact BackOffice";
+                                        return resultMessage;
+                                    }
+
+                                    // rateCalcDesc = "B.R : " + tblBookingParitiesTO.BookingRate + "|";
+                                    //if (isTaxInclusive == 1 && isTaxInclusiveWithTaxes == 0)
+                                    if (isTaxInclusive == 1 && isTaxInclusiveWithAllParam == 0)
+                                    {
+                                        //bookingPrice = bookingPrice / 1.18;
+
+                                        Double divisor = 100 + gstCodeDtlsTO.TaxPct;
+
+                                        divisor = divisor / 100;
+
+                                        bookingPrice = bookingPrice / divisor;
+                                        bookingPrice = Math.Round(bookingPrice, 2);
                                     }
                                     rateCalcDesc = "B.R : " + bookingPrice + "|";
                                     Double parityAmt = 0;
@@ -2638,7 +2717,8 @@ namespace ODLMWebAPI.BL {
                                     Double bvcAmt = 0;
                                     //TblParitySummaryTO parityTO = null; Sudhir[23-MARCH-2018] Commented Code
                                     TblParityDetailsTO parityDtlTO = null;
-                                    if (true) {
+                                    if (true)
+                                    {
                                         //Sudhir[23-MARCH-2018] Commented for New Parity Logic.
                                         /*var parityDtlTO = parityDetailsTOList.Where(m => m.MaterialId == tblLoadingSlipExtTO.MaterialId
                                                                 && m.ProdCatId == tblLoadingSlipExtTO.ProdCatId
@@ -2646,10 +2726,11 @@ namespace ODLMWebAPI.BL {
                                                                  && m.BrandId == tblLoadingSlipExtTO.BrandId).FirstOrDefault();*/
 
                                         //Get Latest To Based On -materialId, Date And Time Check Condition Actual TIme < = First Object.
-                                        TblAddressTO addrTO = _iTblAddressDAO.SelectOrgAddressWrtAddrType (tblBookingsTO.DealerOrgId, Constants.AddressTypeE.OFFICE_ADDRESS, conn, tran);
+                                        TblAddressTO addrTO = _iTblAddressDAO.SelectOrgAddressWrtAddrType(tblBookingsTO.DealerOrgId, Constants.AddressTypeE.OFFICE_ADDRESS, conn, tran);
 
-                                        parityDtlTO = _iTblParityDetailsBL.SelectParityDetailToListOnBooking (tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.BrandId, addrTO.StateId, tblBookingsTO.BookingDatetime);
-                                        if (parityDtlTO != null) {
+                                        parityDtlTO = _iTblParityDetailsBL.SelectParityDetailToListOnBooking(tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.BrandId, addrTO.StateId, tblBookingsTO.BookingDatetime);
+                                        if (parityDtlTO != null)
+                                        {
                                             parityAmt = parityDtlTO.ParityAmt;
                                             if (tblLoadingSlipTO.IsConfirmed != 1)
                                                 priceSetOff = parityDtlTO.NonConfParityAmt;
@@ -2657,9 +2738,11 @@ namespace ODLMWebAPI.BL {
                                                 priceSetOff = 0;
 
                                             tblLoadingSlipExtTO.ParityDtlId = parityDtlTO.IdParityDtl;
-                                        } else {
-                                            tran.Rollback ();
-                                            resultMessage.DefaultBehaviour ();
+                                        }
+                                        else
+                                        {
+                                            tran.Rollback();
+                                            resultMessage.DefaultBehaviour();
                                             resultMessage.Text = "Error : ParityTO Not Found";
                                             string mateDesc = tblLoadingSlipExtTO.DisplayName;
                                             //[05-09-2018] : Vijaymala commented code to set display  name for item for other and regular
@@ -2689,12 +2772,10 @@ namespace ODLMWebAPI.BL {
                                         paritySettingAmt = parityDtlTO.BaseValCorAmt + parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
                                         bvcAmt = parityDtlTO.BaseValCorAmt;
                                         rateCalcDesc += "BVC Amt :" + parityDtlTO.BaseValCorAmt + "|" + "Exp Amt :" + parityDtlTO.ExpenseAmt + "|" + " Other :" + parityDtlTO.OtherAmt + "|";
-                                    } else {
-                                        tran.Rollback ();
-                                        resultMessage.DefaultBehaviour ();
-                                        resultMessage.Text = "Error : ParityTO Not Found";
-                                        resultMessage.DisplayMessage = "Warning : Parity Details Not Found, Please contact BackOffice";
-                                        return resultMessage;
+                                    }
+                                    else
+                                    {
+
                                     }
 
                                     Double cdApplicableAmt = 0;
@@ -2705,61 +2786,68 @@ namespace ODLMWebAPI.BL {
                                     if (tblLoadingSlipTO.IsConfirmed == 1)
                                         cdApplicableAmt += parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
 
+
+                                    //if (isTaxInclusiveWithAllParam == 1)
+                                    //{
+                                    //    Double divisor = 100 + gstCodeDtlsTO.TaxPct;
+
+                                    //    divisor = divisor / 100;
+
+                                    //    cdApplicableAmt = cdApplicableAmt / divisor;
+                                    //    cdApplicableAmt = Math.Round(cdApplicableAmt, 2);
+                                    //}
+
+
                                     Double cdAmt = 0;
                                     Double orgCdAmt = 0;
                                     //Vijaymala added[22-06-2018]
-                                    DropDownTO dropDownTO = _iDimensionDAO.SelectCDDropDown (tblLoadingSlipTO.CdStructureId);
+                                    DropDownTO dropDownTO = _iDimensionDAO.SelectCDDropDown(tblLoadingSlipTO.CdStructureId);
 
-                                    if (isBalajiClient == 1) {
 
-                                    } else {
-                                        if (tblLoadingSlipTO.CdStructure >= 0) {
-                                            //Priyanka [23-07-2018] Added if cdstructure is 0
-                                            Int32 isRsValue = Convert.ToInt32 (dropDownTO.Text);
-                                            if (isRsValue == (int) Constants.CdType.IsRs) {
+                                    if (tblLoadingSlipTO.CdStructure >= 0)
+                                    {
+                                        //Priyanka [23-07-2018] Added if cdstructure is 0
+                                        Int32 isRsValue = Convert.ToInt32(dropDownTO.Text);
+                                        if (isRsValue == (int)Constants.CdType.IsRs)
+                                        {
 
-                                                orgCdAmt = cdAmt = tblLoadingSlipTO.CdStructure;
-                                                cdAmt = cdAmt + tblLoadingSlipTO.AddDiscAmt; //Priyanka [09-07-18]
-                                            } else {
+                                            orgCdAmt = cdAmt = tblLoadingSlipTO.CdStructure;
+                                            cdAmt = cdAmt + tblLoadingSlipTO.AddDiscAmt;        //Priyanka [09-07-18]
+                                        }
+                                        else
+                                        {
 
-                                                orgCdAmt = cdAmt = (cdApplicableAmt * tblLoadingSlipTO.CdStructure) / 100;
-                                                cdAmt = cdAmt + tblLoadingSlipTO.AddDiscAmt; //Priyanka [09-07-18]
-                                            }
+                                            orgCdAmt = cdAmt = (cdApplicableAmt * tblLoadingSlipTO.CdStructure) / 100;
+                                            cdAmt = cdAmt + tblLoadingSlipTO.AddDiscAmt;        //Priyanka [09-07-18]
                                         }
                                     }
 
-                                    rateCalcDesc += "CD :" + Math.Round (cdAmt, 2) + "|";
+
+                                    rateCalcDesc += "CD :" + Math.Round(cdAmt, 2) + "|";
                                     Double basicRateTaxIncl = cdApplicableAmt - cdAmt + freightPerMT;
+                                    //Double basicRateTaxIncl = cdApplicableAmt   + freightPerMT;
                                     Double rateAfterCD = cdApplicableAmt - cdAmt;
+                                    //Double rateAfterCD = cdApplicableAmt;// - cdAmt;
 
                                     Double gstApplicableAmt = 0;
                                     Double gstAmt = 0;
                                     Double finalRate = 0;
 
-                                    TblGstCodeDtlsTO gstCodeDtlsTO = _iTblGstCodeDtlsDAO.SelectGstCodeDtlsTO (tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdItemId, conn, tran);
-                                    if (gstCodeDtlsTO == null) {
-                                        tran.Rollback ();
-                                        resultMessage.DefaultBehaviour ();
-                                        resultMessage.Text = "Error : GST Code Not Found";
-                                        string mateDesc = tblLoadingSlipExtTO.DisplayName;
-                                        //[05-09-2018] : Vijaymala commented code to set display  name for item for other and regular
-                                        //tblLoadingSlipExtTO.MaterialDesc + " " + tblLoadingSlipExtTO.ProdCatDesc + "-" + tblLoadingSlipExtTO.ProdSpecDesc;
-                                        resultMessage.DisplayMessage = "Warning : GST Code Is Not Defined For " + mateDesc + " Please contact BackOffice";
-                                        return resultMessage;
-                                    }
-
-                                    if (isTaxInclusiveWithTaxes == 0 || isTaxInclusive == 0) {
+                                    //if (isTaxInclusiveWithTaxes == 0 || isTaxInclusive == 0)
+                                    if (isTaxInclusive == 0)
+                                    {
                                         if (tblLoadingSlipTO.IsConfirmed == 1)
                                             //gstApplicableAmt = rateAfterCD + freightPerMT + parityTO.ExpenseAmt + parityTO.OtherAmt;
                                             gstApplicableAmt = rateAfterCD + freightPerMT;
                                         else
                                             gstApplicableAmt = rateAfterCD;
-                                        if (isSez) {
+                                        if (isSez)
+                                        {
                                             gstCodeDtlsTO.TaxPct = 0;
                                         }
 
                                         gstAmt = (gstApplicableAmt * gstCodeDtlsTO.TaxPct) / 100;
-                                        gstAmt = Math.Round (gstAmt, 2);
+                                        gstAmt = Math.Round(gstAmt, 2);
 
                                         if (tblLoadingSlipTO.IsConfirmed == 1)
                                             finalRate = gstApplicableAmt + gstAmt;
@@ -2767,43 +2855,77 @@ namespace ODLMWebAPI.BL {
                                         //finalRate = gstApplicableAmt + gstAmt + freightPerMT + parityTO.ExpenskeAmt + parityTO.OtherAmt; Sudhir[23-MARCH-2018] Commented
                                         else
                                             finalRate = gstApplicableAmt + gstAmt + freightPerMT + parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
-                                    } else {
-                                        if (isSez) {
-                                            gstCodeDtlsTO.TaxPct = 0;
-                                        }
-                                        Double taxToDivide = 100 + gstCodeDtlsTO.TaxPct;
-
-                                        gstAmt = basicRateTaxIncl - ((basicRateTaxIncl / taxToDivide) * 100);
-                                        gstAmt = Math.Round (gstAmt, 2);
-
-                                        gstApplicableAmt = basicRateTaxIncl - gstAmt;
-                                        finalRate = basicRateTaxIncl;
-                                        cdApplicableAmt = gstApplicableAmt + cdAmt;
                                     }
+                                    else
+                                    {
+                                        if (isTaxInclusiveWithAllParam == 0)
+                                        {
+                                            if (isSez)
+                                            {
+                                                gstCodeDtlsTO.TaxPct = 0;
+                                            }
+                                            Double taxToDivide = 100 + gstCodeDtlsTO.TaxPct;
+
+                                            gstAmt = basicRateTaxIncl - ((basicRateTaxIncl / taxToDivide) * 100);
+                                            gstAmt = Math.Round(gstAmt, 2);
+                                            gstApplicableAmt = basicRateTaxIncl - gstAmt;
+                                            finalRate = basicRateTaxIncl;
+                                            cdApplicableAmt = gstApplicableAmt + cdAmt;
+                                        }
+                                        //Rate Calculation for A1 Ispaat- All param will less from declared rate expect Freight
+                                        else if (isTaxInclusiveWithAllParam == 1)
+                                        {
+                                            if (isSez)
+                                            {
+                                                gstCodeDtlsTO.TaxPct = 0;
+                                            }
+                                            Double taxToDivide = 100 + gstCodeDtlsTO.TaxPct;
+
+                                            double reverseGstBasicAmt = (bookingPrice - cdAmt - orcAmtPerTon + parityAmt + priceSetOff + bvcAmt) + freightPerMT;
+                                            gstAmt = reverseGstBasicAmt - ((reverseGstBasicAmt / taxToDivide) * 100);
+                                            gstAmt = Math.Round(gstAmt, 2);
+                                            gstApplicableAmt = reverseGstBasicAmt - gstAmt;
+                                            finalRate = reverseGstBasicAmt;
+                                            cdApplicableAmt = gstApplicableAmt + cdAmt;
+
+                                            if (dontShowCdOnInvoice == 1)  //For A1
+                                            {
+                                                cdApplicableAmt = gstApplicableAmt;
+                                            }
+                                        }
+
+                                    }
+
+
+
 
                                     tblLoadingSlipExtTO.TaxableRateMT = gstApplicableAmt;
                                     tblLoadingSlipExtTO.RatePerMT = finalRate;
-                                    if (isRateRounded) {
-                                        cdApplicableAmt = Math.Round (cdApplicableAmt);
+                                    if (isRateRounded)
+                                    {
+                                        cdApplicableAmt = Math.Round(cdApplicableAmt);
                                     }
                                     tblLoadingSlipExtTO.CdApplicableAmt = cdApplicableAmt;
                                     //tblLoadingSlipExtTO.FreExpOtherAmt = freightPerMT + parityTO.ExpenseAmt + parityTO.OtherAmt; Sudhir[23-MARCH-2018] Commented
                                     tblLoadingSlipExtTO.FreExpOtherAmt = freightPerMT + parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
 
-                                    TblConfigParamsTO tblConfigParamsTempTO = _iTblConfigParamsBL.SelectTblConfigParamsTO (Constants.CP_HIDE_NOT_CONFIRM_OPTION);
+                                    TblConfigParamsTO tblConfigParamsTempTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_HIDE_NOT_CONFIRM_OPTION);
 
                                     Int32 isHideCorNC = 0;
-                                    if (tblConfigParamsTempTO != null) {
-                                        isHideCorNC = Convert.ToInt32 (tblConfigParamsTempTO.ConfigParamVal);
+                                    if (tblConfigParamsTempTO != null)
+                                    {
+                                        isHideCorNC = Convert.ToInt32(tblConfigParamsTempTO.ConfigParamVal);
                                     }
 
                                     string isNCAmt = string.Empty;
-                                    if (isHideCorNC == 0) {
+                                    if (isHideCorNC == 0)
+                                    {
                                         isNCAmt = " NC Amt :" + priceSetOff + "|";
                                     }
                                     rateCalcDesc += " ORC :" + orcAmtPerTon + "|" + " Parity :" + parityAmt + "|" + isNCAmt + " Freight :" + freightPerMT + "|" + " GST :" + gstAmt + "|";
                                     tblLoadingSlipExtTO.RateCalcDesc = rateCalcDesc;
                                     #endregion
+
 
                                 }
                             }
@@ -2821,9 +2943,12 @@ namespace ODLMWebAPI.BL {
                 resultMessage.Tag = tblLoadingTO;
                 return resultMessage;
 
-            } catch (Exception ex) {
+
+            }
+            catch (Exception ex)
+            {
                 if (tran.Connection.State == ConnectionState.Open)
-                    tran.Rollback ();
+                    tran.Rollback();
 
                 resultMessage.MessageType = ResultMessageE.Error;
                 resultMessage.Text = "Exception Error In Method CalculateLoadingValuesRate";
@@ -2831,8 +2956,10 @@ namespace ODLMWebAPI.BL {
                 resultMessage.Result = -1;
                 resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
                 return resultMessage;
-            } finally {
-                conn.Close ();
+            }
+            finally
+            {
+                conn.Close();
             }
         }
 
@@ -9500,5 +9627,306 @@ namespace ODLMWebAPI.BL {
             }
         }
         #endregion
+        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, DateTime loadingDate)
+        {
+            return _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(vehicleNo, loadingDate);
+        }
+
+        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo)
+        {
+            return _iTblLoadingDAO.SelectAllLoadingListByVehicleNo(vehicleNo);
+        }
+        public List<TblLoadingTO> SelectLoadingTOWithDetailsByLoadingNoForSupport(string loadingSlipNo)
+        {
+            return _iTblLoadingDAO.SelectLoadingTOWithDetailsByLoadingNoForSupport(loadingSlipNo);
+        }
+
+        public ResultMessage PrintReport(int idLoading, bool isPrinted)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+
+            try
+            {
+                TblLoadingTO LoadingTO = SelectLoadingTOWithDetails(idLoading);
+                if (LoadingTO != null)
+                {
+                    DataSet printDataSet = new DataSet();
+
+                    //headerDT
+                    DataTable headerDT = new DataTable();
+                    DataTable addressDT = new DataTable();
+                    DataTable loadingDT = new DataTable();
+                    DataTable loadingItemDT = new DataTable();
+                    DataTable itemFooterDetailsDT = new DataTable();
+
+                    DataTable multipleInvoiceCopyDT = new DataTable();
+                    headerDT.TableName = "headerDT";
+                    loadingDT.TableName = "loadingDT";
+                    addressDT.TableName = "addressDT";
+                    loadingItemDT.TableName = "loadingItemDT";
+                    itemFooterDetailsDT.TableName = "itemFooterDetailsDT";
+
+                    headerDT.Columns.Add("CreatedOnStr");
+                    headerDT.Columns.Add("CnfOrgName");
+                    headerDT.Columns.Add("TransporterOrgName");
+                    headerDT.Columns.Add("DriverName");
+                    headerDT.Columns.Add("ContactNo");
+                    headerDT.Columns.Add("LoadingSlipNo");
+                    headerDT.Columns.Add("DealerOrgName");
+                    headerDT.Columns.Add("VehicleNo");
+                    headerDT.Columns.Add("LoadingId");
+                    headerDT.Columns.Add("BookingRate");
+                    headerDT.Columns.Add("CdStructure");
+                    headerDT.Columns.Add("IsConfirmed");
+                    headerDT.Columns.Add("FreightAmt");
+                    headerDT.Columns.Add("BillingName");
+                    headerDT.Columns.Add("ConsigneeName");
+                    headerDT.Columns.Add("BillingAddress");
+                    headerDT.Columns.Add("ConsigneeAddress");
+                    headerDT.Columns.Add("BillingGstNo");
+                    headerDT.Columns.Add("ConsigneeGstNo");
+                    headerDT.Columns.Add("ShippingTo");
+                    headerDT.Columns.Add("ShippingAddress");
+                    headerDT.Columns.Add("LoadingSlipId");
+                    headerDT.Columns.Add("LoadingLayerDesc");
+                    headerDT.Columns.Add("DriverContactNo");
+                    headerDT.Columns.Add("PreparedBy");
+                    headerDT.Columns.Add("Comment");
+
+
+                    loadingItemDT.Columns.Add("DisplayName");
+                    loadingItemDT.Columns.Add("MaterialDesc");
+                    loadingItemDT.Columns.Add("ProdItemDesc");
+                    loadingItemDT.Columns.Add("LoadingQty");
+                    loadingItemDT.Columns.Add("Bundles");
+                    loadingItemDT.Columns.Add("LoadedWeight");
+                    loadingItemDT.Columns.Add("MstLoadedBundles");
+                    loadingItemDT.Columns.Add("LoadedBundles");
+                    loadingItemDT.Columns.Add("RatePerMT");
+                    loadingItemDT.Columns.Add("LoadingSlipId");
+                    loadingItemDT.Columns.Add("BrandDesc");
+                    loadingItemDT.Columns.Add("ProdSpecDesc");
+                    loadingItemDT.Columns.Add("ProdcatDesc");
+                    loadingItemDT.Columns.Add("ItemName");
+                    loadingItemDT.Columns.Add("DisplayField");
+
+                    if (LoadingTO.LoadingSlipList != null && LoadingTO.LoadingSlipList.Count > 0)
+                    {
+                        for (int i = 0; i < LoadingTO.LoadingSlipList.Count; i++)
+                        {
+                            TblLoadingSlipTO loadingSlipTo = LoadingTO.LoadingSlipList[i];
+                            headerDT.Rows.Add();
+                            Int32 loadHeaderDTCount = headerDT.Rows.Count - 1;
+
+                            headerDT.Rows[loadHeaderDTCount]["CreatedOnStr"] = LoadingTO.CreatedOnStr;
+                            headerDT.Rows[loadHeaderDTCount]["CnfOrgName"] = LoadingTO.CnfOrgName;
+                            headerDT.Rows[loadHeaderDTCount]["TransporterOrgName"] = LoadingTO.TransporterOrgName;
+                            headerDT.Rows[loadHeaderDTCount]["DriverName"] = LoadingTO.DriverName;
+                            headerDT.Rows[loadHeaderDTCount]["LoadingSlipNo"] = loadingSlipTo.LoadingSlipNo;
+                            headerDT.Rows[loadHeaderDTCount]["DealerOrgName"] = loadingSlipTo.DealerOrgName;
+                            headerDT.Rows[loadHeaderDTCount]["VehicleNo"] = LoadingTO.VehicleNo;
+                            headerDT.Rows[loadHeaderDTCount]["LoadingId"] = loadingSlipTo.LoadingId;
+                            headerDT.Rows[loadHeaderDTCount]["BookingRate"] = loadingSlipTo.TblLoadingSlipDtlTO.BookingRate;
+                            headerDT.Rows[loadHeaderDTCount]["CdStructure"] = loadingSlipTo.CdStructure;
+                            headerDT.Rows[loadHeaderDTCount]["Comment"] = loadingSlipTo.Comment;
+                            headerDT.Rows[loadHeaderDTCount]["PreparedBy"] = LoadingTO.CreatedByUserName;
+                            headerDT.Rows[loadHeaderDTCount]["LoadingSlipId"] = loadingSlipTo.IdLoadingSlip;
+                            headerDT.Rows[loadHeaderDTCount]["DriverContactNo"] = LoadingTO.ContactNo;
+
+                            if (loadingSlipTo.IsConfirmed == 1)
+                            {
+                                headerDT.Rows[loadHeaderDTCount]["IsConfirmed"] = "Confirmed";
+
+                            }
+                            else
+                            {
+                                headerDT.Rows[loadHeaderDTCount]["IsConfirmed"] = "-";
+
+                            }
+                            if (loadingSlipTo.IsFreightIncluded == 1)
+                            {
+                                headerDT.Rows[loadHeaderDTCount]["FreightAmt"] = loadingSlipTo.FreightAmt + " (Included)";
+                            }
+                            else
+                            {
+                                headerDT.Rows[loadHeaderDTCount]["FreightAmt"] = loadingSlipTo.FreightAmt + " (NotIncluded)";
+                            }
+
+                            if (loadingSlipTo.DeliveryAddressTOList.Count > 0)
+                            {
+                                TblLoadingSlipAddressTO addressTO = loadingSlipTo.DeliveryAddressTOList.Where(w => w.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS).FirstOrDefault();
+                                if (addressTO != null)
+                                {
+                                    headerDT.Rows[loadHeaderDTCount]["BillingName"] = addressTO.BillingName;
+                                    headerDT.Rows[loadHeaderDTCount]["BillingAddress"] = addressTO.Address;
+                                    headerDT.Rows[loadHeaderDTCount]["BillingGstNo"] = addressTO.GstNo;
+                                    headerDT.Rows[loadHeaderDTCount]["ContactNo"] = addressTO.ContactNo;
+
+                                }
+
+                                TblLoadingSlipAddressTO addressTOC = loadingSlipTo.DeliveryAddressTOList.Where(w => w.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.CONSIGNEE_ADDRESS).FirstOrDefault();
+                                if (addressTOC != null)
+                                {
+                                    headerDT.Rows[loadHeaderDTCount]["ConsigneeName"] = addressTOC.BillingName;
+                                    headerDT.Rows[loadHeaderDTCount]["ConsigneeAddress"] = addressTOC.Address;
+                                    headerDT.Rows[loadHeaderDTCount]["ConsigneeGstNo"] = addressTOC.GstNo;
+                                }
+
+                                TblLoadingSlipAddressTO addressTOs = loadingSlipTo.DeliveryAddressTOList.Where(w => w.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.SHIPPING_ADDRESS).FirstOrDefault();
+                                if (addressTOs != null)
+                                {
+
+                                    headerDT.Rows[loadHeaderDTCount]["ShippingTo"] = addressTOs.BillingName;
+                                    headerDT.Rows[loadHeaderDTCount]["ShippingAddress"] = addressTOs.Address;
+                                }
+                            }
+
+
+                            for (int j = 0; j < loadingSlipTo.LoadingSlipExtTOList.Count; j++)
+                            {
+                                TblLoadingSlipExtTO tblLoadingSlipExtTO = loadingSlipTo.LoadingSlipExtTOList[j];
+                                loadingItemDT.Rows.Add();
+                                Int32 loadItemDTCount = loadingItemDT.Rows.Count - 1;
+
+                                loadingItemDT.Rows[loadItemDTCount]["DisplayName"] = tblLoadingSlipExtTO.DisplayName;
+
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["DisplayField"] = tblLoadingSlipExtTO.MaterialDesc;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["DisplayField"] = tblLoadingSlipExtTO.ItemName;
+                                }
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["MaterialDesc"] = tblLoadingSlipExtTO.MaterialDesc;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["MaterialDesc"] = "";
+                                }
+
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ItemName))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ItemName"] = tblLoadingSlipExtTO.ItemName;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ItemName"] = "";
+                                }
+
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ProdCatDesc))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ProdCatDesc"] = tblLoadingSlipExtTO.ProdCatDesc;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ProdCatDesc"] = "";
+
+                                }
+
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ProdSpecDesc))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ProdSpecDesc"] = tblLoadingSlipExtTO.ProdSpecDesc;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["ProdSpecDesc"] = "";
+
+                                }
+                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.BrandDesc))
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["BrandDesc"] = tblLoadingSlipExtTO.BrandDesc;
+                                }
+                                else
+                                {
+                                    loadingItemDT.Rows[loadItemDTCount]["BrandDesc"] = "";
+
+                                }
+
+                                loadingItemDT.Rows[loadItemDTCount]["ProdItemDesc"] = tblLoadingSlipExtTO.ProdItemDesc;
+                                loadingItemDT.Rows[loadItemDTCount]["LoadingQty"] = tblLoadingSlipExtTO.LoadingQty;
+                                loadingItemDT.Rows[loadItemDTCount]["Bundles"] = tblLoadingSlipExtTO.Bundles;
+                                loadingItemDT.Rows[loadItemDTCount]["LoadedWeight"] = tblLoadingSlipExtTO.LoadedWeight;
+                                loadingItemDT.Rows[loadItemDTCount]["MstLoadedBundles"] = tblLoadingSlipExtTO.MstLoadedBundles;
+                                loadingItemDT.Rows[loadItemDTCount]["LoadedBundles"] = tblLoadingSlipExtTO.LoadedBundles;
+                                loadingItemDT.Rows[loadItemDTCount]["RatePerMT"] = tblLoadingSlipExtTO.RatePerMT;
+                                loadingItemDT.Rows[loadItemDTCount]["LoadingSlipId"] = tblLoadingSlipExtTO.LoadingSlipId;
+                                headerDT.Rows[loadHeaderDTCount]["LoadingLayerDesc"] = tblLoadingSlipExtTO.LoadingLayerDesc;
+
+                            }
+
+                        }
+                    }
+
+                    //headerDT = loadingDT.Copy();
+                    headerDT.TableName = "headerDT";
+
+                    printDataSet.Tables.Add(headerDT);
+                    loadingItemDT.TableName = "loadingItemDT";
+                    printDataSet.Tables.Add(loadingItemDT);
+
+                    //creating template'''''''''''''''''
+                    string templateName = "LoadingSlip";
+                    String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
+                    String fileName = "Bill-" + DateTime.Now.Ticks;
+
+                    //download location for rewrite  template file
+                    String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
+                    // RunReport runReport = new RunReport();
+                    Boolean IsProduction = true;
+
+                    TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName("IS_PRODUCTION_ENVIRONMENT_ACTIVE");
+                    if (tblConfigParamsTO != null)
+                    {
+                        if (Convert.ToInt32(tblConfigParamsTO.ConfigParamVal) == 0)
+                        {
+                            IsProduction = false;
+                        }
+                    }
+                    resultMessage = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePath, saveLocation, Constants.ReportE.PDF_DONT_OPEN, IsProduction);
+                    if (resultMessage.MessageType == ResultMessageE.Information)
+                    {
+                        String filePath = String.Empty;
+                        if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
+                        {
+                            filePath = resultMessage.Tag.ToString();
+                        }
+                        String fileName1 = Path.GetFileName(saveLocation);
+                        Byte[] bytes = File.ReadAllBytes(filePath);
+                        if (bytes != null && bytes.Length > 0)
+                        {
+                            resultMessage.Tag = bytes;
+                            string resFname = Path.GetFileNameWithoutExtension(saveLocation);
+                            string directoryName;
+                            directoryName = Path.GetDirectoryName(saveLocation);
+                            string[] fileEntries = Directory.GetFiles(directoryName, "*Bill*");
+                            string[] filesList = Directory.GetFiles(directoryName, "*Bill*");
+
+                            foreach (string file in filesList)
+                            {
+                                //if (file.ToUpper().Contains(resFname.ToUpper()))
+                                {
+                                    File.Delete(file);
+                                }
+                            }
+                        }
+                        if (resultMessage.MessageType == ResultMessageE.Information)
+                        {
+                            resultMessage.DefaultSuccessBehaviour();
+                        }
+                    }
+                }
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "");
+                return resultMessage;
+            }
+
+        }
+
     }
 }
