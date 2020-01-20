@@ -32,5 +32,7 @@ namespace ODLMWebAPI.BL.Interfaces
         int DeleteTblParityDetails(Int32 idParityDtl);
         int DeleteTblParityDetails(Int32 idParityDtl, SqlConnection conn, SqlTransaction tran);
         ResultMessage GetParityDetialsForCopyBrand(Int32 brandId, List<DropDownToForParity> selectedBrands, List<DropDownToForParity> selectedStates);
+        TblParityDetailsTO GetTblParityDetails(TblParityDetailsTO parityDetailsTO);
+
     }
 }

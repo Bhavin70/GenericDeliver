@@ -34,5 +34,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeactivateAllParityDetailsForUpdate(TblParityDetailsTO tblParityDetailsTO, SqlConnection conn, SqlTransaction tran);
         List<TblParityDetailsTO> SelectParityDetailsForBrand(Int32 fromBrand, Int32 toBrand, Int32 currencyId, Int32 categoryId, Int32 stateId);
         List<TblParityDetailsTO> GetParityDetailsForBrand(Int32 brandId);
+        TblParityDetailsTO GetTblParityDetails(TblParityDetailsTO parityDetailsTO);
+
     }
 }

@@ -25,7 +25,10 @@ namespace ODLMWebAPI.BL
             _iConnectionString = iConnectionString;
         }
         #region Selection
-
+        public TblParityDetailsTO GetTblParityDetails(TblParityDetailsTO parityDetailsTO)
+        {
+            return _iTblParityDetailsDAO.GetTblParityDetails(parityDetailsTO);
+        }
         public List<TblParityDetailsTO> SelectAllTblParityDetailsList(Int32 parityId, Int32 prodSpecId, Int32 stateId, Int32 brandId)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));

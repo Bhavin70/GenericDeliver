@@ -47,6 +47,47 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Selection
+        public TblParityDetailsTO GetTblParityDetails(TblParityDetailsTO parityDetailsTO)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader sqlReader = null;
+            String WhereCondition = String.Empty;
+            try
+            {
+
+                WhereCondition = "WHERE ISNULL(parity.prodCatId,0)=" + parityDetailsTO.ProdCatId + " AND ISNULL(parity.prodSpecId,0)="
+               + parityDetailsTO.ProdSpecId + " AND ISNULL(parity.materialId,0)=" + parityDetailsTO.MaterialId +
+               " AND ISNULL(parity.brandId,0)=" + parityDetailsTO.BrandId + 
+               " AND ISNULL(parity.stateId,0)=" + parityDetailsTO.StateId +
+               " AND ISNULL(parity.prodItemId,0)=" + parityDetailsTO.ProdItemId +
+               " AND parity.isActive=1";
+
+
+                conn.Open();
+                cmdSelect.CommandText = SqlSelectQuery() + WhereCondition;
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblParityDetailsTO> list = ConvertDTToList(sqlReader);
+                if (list != null && list.Count == 1)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (sqlReader != null)
+                    sqlReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
         public List<TblParityDetailsTO> SelectAllTblParityDetails(int parityId, Int32 prodSpecId, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();

@@ -43,6 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="bin\Debug\netcoreapp2.0\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
