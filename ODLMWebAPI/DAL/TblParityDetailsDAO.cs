@@ -22,14 +22,13 @@ namespace ODLMWebAPI.DAL
         public String SqlSelectQuery()
         {
             String sqlSelectQry = " SELECT parity.* ,  prodCat.prodCateDesc ,prodSpec.prodSpecDesc, material.materialSubType as materialDesc," +
-                " ,brandDesc='', itemName='',displayName='' " +
+                " brandDesc='', itemName='',displayName='' " +
                                   " ,tblParitySummary.brandId " +
                                   " FROM[tblParityDetails] parity" +
                                   " LEFT JOIN dimProdCat prodCat ON parity.prodCatId = prodCat.idProdCat" +
                                   " LEFT JOIN dimProdSpec prodSpec ON parity.prodSpecId = prodSpec.idProdSpec" +
                                   " LEFT JOIN tblMaterial material ON parity.materialId=material.idMaterial" +
                                   " LEFT JOIN tblParitySummary tblParitySummary ON parity.parityId=tblParitySummary.idParity";
-
             return sqlSelectQry;
         }
 
@@ -56,13 +55,11 @@ namespace ODLMWebAPI.DAL
             String WhereCondition = String.Empty;
             try
             {
-
-                WhereCondition = "WHERE ISNULL(parity.prodCatId,0)=" + parityDetailsTO.ProdCatId + " AND ISNULL(parity.prodSpecId,0)="
-               + parityDetailsTO.ProdSpecId + " AND ISNULL(parity.materialId,0)=" + parityDetailsTO.MaterialId +
-               " AND ISNULL(parity.brandId,0)=" + parityDetailsTO.BrandId + 
-               " AND ISNULL(parity.stateId,0)=" + parityDetailsTO.StateId +
-               " AND ISNULL(parity.prodItemId,0)=" + parityDetailsTO.ProdItemId +
-               " AND parity.isActive=1";
+                WhereCondition = " WHERE ISNULL(parity.prodCatId,0)=" + parityDetailsTO.ProdCatId + " AND ISNULL(parity.prodSpecId,0)="
+                   + parityDetailsTO.ProdSpecId + " AND ISNULL(parity.materialId,0)=" + parityDetailsTO.MaterialId +
+                   " AND ISNULL(parity.brandId,0)=" + parityDetailsTO.BrandId + " AND ISNULL(parity.prodItemId,0)=" + parityDetailsTO.ProdItemId +
+                   " AND ISNULL(parity.stateId,0)=" + parityDetailsTO.StateId +
+                   " AND parity.isActive=1";
 
 
                 conn.Open();
