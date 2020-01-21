@@ -1406,6 +1406,44 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@addDiscAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.AddDiscAmt); //Priyanka [05-07-2018] 
             return cmdUpdate.ExecuteNonQuery();
         }
+
+        public int UpdateTblLoadingById(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+                String sqlQuery = @" UPDATE [tempLoading] SET " +
+                            "  [statusId]= @StatusId" +
+                            " ,[statusDate]= @StatusDate" +
+                            " ,[loadingDatetime]= @LoadingDatetime" +
+                            " ,[statusReason]= @StatusReason" +
+                            " ,[statusReasonId]= @statusReasonId" +
+                            " WHERE [idLoading]= @idLoading ";
+
+                cmdUpdate.CommandText = sqlQuery;
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+
+                cmdUpdate.Parameters.Add("@StatusId", System.Data.SqlDbType.Int).Value = tblLoadingTO.StatusId;
+                cmdUpdate.Parameters.Add("@StatusDate", System.Data.SqlDbType.DateTime).Value = tblLoadingTO.StatusDate;
+                cmdUpdate.Parameters.Add("@LoadingDatetime", System.Data.SqlDbType.DateTime).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.LoadingDatetime);
+                cmdUpdate.Parameters.Add("@StatusReason", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.StatusReason);
+                cmdUpdate.Parameters.Add("@idLoading", System.Data.SqlDbType.Int).Value = tblLoadingTO.IdLoading;
+                cmdUpdate.Parameters.Add("@statusReasonId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.StatusReasonId);
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
+
+
         #endregion
 
         #region Deletion
