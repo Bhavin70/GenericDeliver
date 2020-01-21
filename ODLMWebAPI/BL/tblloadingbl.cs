@@ -1448,6 +1448,7 @@ namespace ODLMWebAPI.BL {
 
                                         tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingId = tblBookingTO.IdBooking;
                                         tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingRate = tblBookingTO.BookingRate;
+                                        tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingDisplayNo = tblBookingTO.BookingDisplayNo;
                                         if (distBookingScheduleTO.DeliveryAddressLst != null && distBookingScheduleTO.DeliveryAddressLst.Count > 0)
                                         {
                                             List<TblBookingDelAddrTO> tblBookingDelAddrTOList = distBookingScheduleTO.DeliveryAddressLst;
@@ -1583,6 +1584,7 @@ namespace ODLMWebAPI.BL {
             tblLoadingSlipTO.DeliveryAddressTOList = new List<TblLoadingSlipAddressTO> ();
             tblLoadingSlipTO.LoadingSlipExtTOList = new List<TblLoadingSlipExtTO> ();
             tblLoadingSlipTO.PaymentTermOptionRelationTOLst = tblBookingTO.PaymentTermOptionRelationTOLst;
+            tblLoadingSlipTO.BookingDisplayNo = tblBookingTO.BookingDisplayNo;
             return tblLoadingSlipTO;
         }
 
@@ -1865,7 +1867,7 @@ namespace ODLMWebAPI.BL {
                             }
                         }
                     }
-                   // int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                    // int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
                     if (list.Count == count)
                     {
                         tblLoadingTO = SelectLoadingTOWithDetails(tblLoadingSlipTOselect.LoadingId);
@@ -1876,7 +1878,13 @@ namespace ODLMWebAPI.BL {
                             tran.Rollback();
                             resultMessage.DefaultBehaviour("tblLoadingTO Found NULL"); return resultMessage;
                         }
-                        
+
+                        tblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH);
+                        tblLoadingTO.StatusReason = "Invoice Generated and ready for dispach";
+                        tblLoadingTO.StatusDate = _iCommon.ServerDateTime;
+                        tblLoadingTO.IdLoading = tblLoadingSlipTOselect.LoadingId;
+                        invoiceTO.VehicleNo = tblLoadingTO.VehicleNo;
+
                         if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
                         {
                             //tblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.LOADING_IN_PROGRESS);
@@ -1884,25 +1892,43 @@ namespace ODLMWebAPI.BL {
                             tblLoadingTO.StatusReason = "Loading Confirmed";
                         }
                         TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_WEIGHING_SCALE, conn, tran);
-                        if (configParamsTO != null)
+
+                        if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT || weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.BOTH)
                         {
-                            if (Convert.ToInt32(configParamsTO.ConfigParamVal) == 1)
+
+                            if (configParamsTO != null)
                             {
-                                DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus(Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH), conn, tran);
-                                if (statusTO == null || statusTO.IotStatusId == 0)
+                                if (Convert.ToInt32(configParamsTO.ConfigParamVal) == 1)
                                 {
-                                    resultMessage.DefaultBehaviour("iot status id not found for loading to pass at gate iot");
-                                    return resultMessage;
-                                }
-                                object[] statusframeTO = new object[2] { tblLoadingTO.ModbusRefId, statusTO.IotStatusId };
-                                result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(tblLoadingTO, statusframeTO);
-                                if (result != 1)
-                                {
-                                    resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
-                                    return resultMessage;
+                                    DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus(Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH), conn, tran);
+                                    if (statusTO == null || statusTO.IotStatusId == 0)
+                                    {
+                                        resultMessage.DefaultBehaviour("iot status id not found for loading to pass at gate iot");
+                                        return resultMessage;
+                                    }
+
+                                    object[] statusframeTO = new object[2] { tblLoadingTO.ModbusRefId, statusTO.IotStatusId };
+                                    result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(tblLoadingTO, statusframeTO);
+                                    if (result != 1)
+                                    {
+                                        resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
+                                        return resultMessage;
+                                    }
                                 }
                             }
                         }
+                        else
+                        {
+                            result = _iTblLoadingSlipDAO.UpdateTblLoadingById(tblLoadingTO, conn, tran);
+                            if (result <= 0)
+                            {
+                                tran.Rollback();
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                resultMessage.Text = "Error While UpdateTblLoading In Method UpdateStatusForLoading";
+                                return resultMessage;
+                            }
+                        }
+
                         resultMessage = RightDataFromIotToDB(tblLoadingTO.IdLoading, tblLoadingTO, conn, tran);
                         if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
                         {

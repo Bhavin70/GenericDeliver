@@ -1257,7 +1257,7 @@ namespace ODLMWebAPI.DAL
             {
                 //sqlQuery = SqlSelectQuery() + " WHERE loading.vehicleNo ='" + vehicleNo + "'" + " AND loading.statusId NOT IN(" + statusIds + ")";
                 sqlQuery = " SELECT * FROM ("+ SqlSelectQuery() + ")sq1 WHERE sq1.vehicleNo ='" + vehicleNo + "'"+
-                           " AND sq1.statusId = " + (int)Constants.TranStatusE.LOADING_COMPLETED + "";
+                           " AND sq1.statusId = " + (int)Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH + "";
 
 
 

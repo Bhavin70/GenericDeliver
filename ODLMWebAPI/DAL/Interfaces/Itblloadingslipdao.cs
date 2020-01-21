@@ -41,5 +41,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         //Aniket [22-8-2019] 
         Dictionary<Int32, TblLoadingTO> SelectModbusRefIdByLoadingSlipIdDCT(string loadingSlipNos);
 
+        Int32 UpdateTblLoadingById(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran);
+
     }
 }
