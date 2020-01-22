@@ -109,6 +109,39 @@ namespace ODLMWebAPI.IoT
             }
 
         }
+        public string ReadWeightFromWeightIoT(TblWeighingMachineTO machineTO)
+        {
+            lock (GatebalanceLock)
+            {
+                GateIoTResult gateIoTResult = new GateIoTResult();
+                try
+                {
+                    var queryString = "?portNumber=" + machineTO.PortNumber;
+                    queryString += "&machineIP=" + machineTO.MachineIP;
+                    //var sendportInfo = new SendPortToIoT();
+                    //sendportInfo.ModBusRefId = tblLoadingTO.ModbusRefId.ToString();
+                    //sendportInfo.PortNumber = tblLoadingTO.PortNumber.ToString();
+                    //sendportInfo.MachineIP = tblLoadingTO.MachineIP.ToString();
+                    var request = WebRequest.Create(machineTO.IoTUrl + "ReadWeight" + queryString) as HttpWebRequest;
+                    string result;
+                    //WebRequest request = WebRequest.Create(url);
+                    request.Method = "GET";
+                    request.Timeout = 5000;
+                    var response = (HttpWebResponse)request.GetResponseAsync().Result;
+                    using (StreamReader sr = new StreamReader(response.GetResponseStream()))
+                    {
+                        result = sr.ReadToEnd();
+                        sr.Dispose();
+                    }
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    return "0";
+                }
+            }
+        }
+
 
         public GateIoTResult GetLoadingStatusHistoryDataFromGateIoT(TblLoadingTO tblLoadingTO)
         {

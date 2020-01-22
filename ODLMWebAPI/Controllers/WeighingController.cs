@@ -104,9 +104,9 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetLatestWeightByMachineIp")]
         [HttpGet]
-        public TblWeighingTO GetLatestWeightByMachineIp(string ipAddr)
+        public TblWeighingTO GetLatestWeightByMachineIp(string ipAddr, int machineId = 0)
         {
-            return _iTblWeighingBL.SelectTblWeighingByMachineIp(ipAddr);
+            return _iTblWeighingBL.SelectTblWeighingByMachineIp(ipAddr, machineId);
         }
 
         
