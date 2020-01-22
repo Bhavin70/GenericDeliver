@@ -9,17 +9,24 @@ using ODLMWebAPI.DAL;
 using ODLMWebAPI.StaticStuff;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
+using ODLMWebAPI.IoT.Interfaces;
 
 namespace ODLMWebAPI.BL
 {
     public class TblWeighingBL : ITblWeighingBL
     {
         private readonly ITblWeighingDAO _iTblWeighingDAO;
+        private readonly ITblWeighingMachineDAO _iTblWeighingMachineDAO;
+        private readonly IGateCommunication _iGateCommunication;
+        private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
         private readonly ICommon _iCommon;
-        public TblWeighingBL(ICommon iCommon, ITblWeighingDAO iTblWeighingDAO)
+        public TblWeighingBL(ICommon iCommon, ITblWeighingDAO iTblWeighingDAO, ITblConfigParamsDAO iTblConfigParamsDAO, ITblWeighingMachineDAO iTblWeighingMachineDAO, IGateCommunication iGateCommunication)
         {
             _iTblWeighingDAO = iTblWeighingDAO;
             _iCommon = iCommon;
+            _iTblWeighingMachineDAO = iTblWeighingMachineDAO;
+            _iGateCommunication = iGateCommunication;
+            _iTblConfigParamsDAO = iTblConfigParamsDAO;
         }
 
         #region Selection
@@ -35,9 +42,47 @@ namespace ODLMWebAPI.BL
             return _iTblWeighingDAO.SelectTblWeighing(idWeighing);
         }
 
-        public TblWeighingTO SelectTblWeighingByMachineIp(string ipAddr)
+        public TblWeighingTO SelectTblWeighingByMachineIp(string ipAddr, int machineId)
         {
+            //TblWeighingTO tblWeighingTO = new TblWeighingTO();
+            //DateTime serverDateTime = _iCommon.ServerDateTime;
+            //DateTime defaultTime1 = serverDateTime.AddHours(15);
+            //tblWeighingTO = _iTblWeighingDAO.SelectTblWeighingByMachineIp(ipAddr, defaultTime1);
+            //if (tblWeighingTO == null)
+            //{
+            //    return null;
+            //}
+            ////DateTime dt = DateTime.Now.AddMinutes(-10);
+            //TimeSpan CurrentdateTime = serverDateTime.TimeOfDay;
+            //TimeSpan weighingTime = tblWeighingTO.TimeStamp.TimeOfDay;
+            ////TimeSpan diffTime = CurrentdateTime - toDateTime;
+            //TimeSpan defaultTime = CurrentdateTime.Add(new TimeSpan(-2, -30, -30));
+            //if (weighingTime == TimeSpan.Zero || weighingTime < defaultTime)
+            //{
+            //    return null;
+            //}
+            //else
+            //{
+            //    DeleteTblWeighingByByMachineIp(ipAddr);
+            //}
+
+            //return tblWeighingTO;
+
             TblWeighingTO tblWeighingTO = new TblWeighingTO();
+            int confiqId = _iTblConfigParamsDAO.IoTSetting();
+            if (machineId > 0 && confiqId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
+            {
+                TblWeighingMachineTO tblWeighingMachineTO = _iTblWeighingMachineDAO.SelectTblWeighingMachine(machineId);
+                if (tblWeighingMachineTO == null)
+                {
+                    return null;
+                }
+                string weight = _iGateCommunication.ReadWeightFromWeightIoT(tblWeighingMachineTO);
+                tblWeighingTO.Measurement = weight;
+                tblWeighingTO.MachineIp = tblWeighingMachineTO.MachineIP;
+                tblWeighingTO.TimeStamp = _iCommon.ServerDateTime;
+                return tblWeighingTO;
+            }
             DateTime serverDateTime = _iCommon.ServerDateTime;
             DateTime defaultTime1 = serverDateTime.AddHours(15);
             tblWeighingTO = _iTblWeighingDAO.SelectTblWeighingByMachineIp(ipAddr, defaultTime1);
@@ -45,10 +90,8 @@ namespace ODLMWebAPI.BL
             {
                 return null;
             }
-            //DateTime dt = DateTime.Now.AddMinutes(-10);
             TimeSpan CurrentdateTime = serverDateTime.TimeOfDay;
             TimeSpan weighingTime = tblWeighingTO.TimeStamp.TimeOfDay;
-            //TimeSpan diffTime = CurrentdateTime - toDateTime;
             TimeSpan defaultTime = CurrentdateTime.Add(new TimeSpan(-2, -30, -30));
             if (weighingTime == TimeSpan.Zero || weighingTime < defaultTime)
             {
@@ -58,7 +101,7 @@ namespace ODLMWebAPI.BL
             {
                 DeleteTblWeighingByByMachineIp(ipAddr);
             }
-           
+
             return tblWeighingTO;
 
         }
