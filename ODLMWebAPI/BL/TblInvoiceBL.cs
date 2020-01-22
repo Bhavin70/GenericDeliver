@@ -2188,6 +2188,9 @@ namespace ODLMWebAPI.BL
                             invToUpdateTO.UpdatedBy = invoiceTO.CreatedBy;
                             invToUpdateTO.UpdatedOn = _iCommon.ServerDateTime;
                             invToUpdateTO.InvFromOrgFreeze = 1;
+
+                            RemoveIotFieldsFromDB(invToUpdateTO);
+
                             result = UpdateTblInvoice(invToUpdateTO, conn, tran);
                             if (result != 1)
                             {
@@ -2297,6 +2300,8 @@ namespace ODLMWebAPI.BL
                                 for (int i = 0; i < tblInvoiceTOList.Count; i++)
                                 {
                                     tblInvoiceTOList[i].InvFromOrgFreeze = 1;
+
+                                    RemoveIotFieldsFromDB(tblInvoiceTOList[i]);
 
                                     resultMsg = SaveNewInvoice(tblInvoiceTOList[i], conn, tran);
                                     if (resultMsg.MessageType != ResultMessageE.Information)

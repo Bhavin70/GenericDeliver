@@ -508,6 +508,8 @@ namespace ODLMWebAPI.IoT
                 return 102 + "";
             if (statusIds.Equals("15,16"))
                 return 102 + "";
+            if (statusIds.Equals("15,16,26"))
+                return 102 + "";
             if (statusIds.Equals("15,24"))
                 return 103 + "";
             if (statusIds.Equals("0"))
