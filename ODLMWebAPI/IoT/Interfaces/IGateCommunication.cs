@@ -23,5 +23,7 @@ namespace ODLMWebAPI.IoT.Interfaces
         int PostGateApiCalls(TblLoadingTO tblLoadingTO, object[] writeData, HttpWebRequest tRequest);
 
         int PostGateAPIDataToModbusTcpApiForLoadingSlip(TblLoadingTO tblLoadingTO, Object[] writeData);
+
+        string ReadWeightFromWeightIoT(TblWeighingMachineTO machineTO);
     }
 }
