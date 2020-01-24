@@ -1828,6 +1828,17 @@ namespace ODLMWebAPI.BL {
                     resultMessage.DisplayMessage = "Invoice No #" + invoiceTO.InvoiceNo + " is already Generated";
                     return resultMessage;
                 }
+
+
+                if (invoiceTO.InvoiceModeId == Convert.ToInt32(Constants.InvoiceModeE.MANUAL_INVOICE))
+                {
+                    tran.Commit();
+                    resultMessage.DefaultSuccessBehaviour();
+                    resultMessage.DisplayMessage = "Success..Invoice authorized and #" + invoiceTO.InvoiceNo + " is generated";
+                    resultMessage.Tag = invoiceTO;
+                    return resultMessage;
+                }
+
                 Int32 count = 0;
                 TblLoadingSlipTO tblLoadingSlipTOselect = _iTblLoadingSlipDAO.SelectTblLoadingSlip(invoiceTO.LoadingSlipId, conn, tran);
                 if (tblLoadingSlipTOselect == null)
@@ -2008,6 +2019,7 @@ namespace ODLMWebAPI.BL {
                         }
 
                     }
+
                 }
                
                 #endregion
