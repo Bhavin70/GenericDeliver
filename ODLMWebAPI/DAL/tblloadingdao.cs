@@ -1729,12 +1729,14 @@ namespace ODLMWebAPI.DAL
                 String sqlQuery = " SELECT loading.* ,org.digitalSign, org.firmName as cnfOrgName,transOrg.firmName as transporterOrgName ," +
                                   " dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,createdUser.userDisplayName " +
+                                  " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
                                   " FROM tempLoading loading " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = loading.cnfOrgId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = loading.statusId " +
                                   " LEFT JOIN tblSupervisor superwisor ON superwisor.idSupervisor=loading.superwisorId " +
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
+                                  " LEFT JOIN tblGate tblGate ON tblGate.idGate=loading.gateId " +
                                   " LEFT JOIN tblUser createdUser ON createdUser.idUser=loading.createdBy WHERE loading.statusId IN " +
                                   " ( " + (int)Constants.TranStatusE.LOADING_COMPLETED + "," + (int)Constants.TranStatusE.LOADING_DELIVERED + "," + (int)Constants.TranStatusE.LOADING_CANCEL + ")" +
                                   " AND  CONVERT (DATE,statusDate,103) <= @StatusDate " +
