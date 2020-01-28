@@ -451,7 +451,7 @@ namespace ODLMWebAPI.DAL
 
                
                 conn.Open();
-                cmdSelect.CommandText = " SELECT * FROM (" + sqlSelectQry + ")sq1 " + areConfJoin + cnfwhereCond;
+                cmdSelect.CommandText = " SELECT * FROM (" + SqlSelectQuery() + ")sq1 " + areConfJoin + cnfwhereCond;
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
                 cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.DateTime).Value = fromDate.Date.ToString(Constants.AzureDateFormat);
