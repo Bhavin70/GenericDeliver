@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ODLMWebAPI.StaticStuff;
 
 namespace ODLMWebAPI.Models
 {
@@ -15,6 +16,8 @@ namespace ODLMWebAPI.Models
         Double consumptionQty;
         String weightTolerance;
         String remark;
+        String statusName;
+        String userDisplayName;
         #endregion
 
         #region Constructor
@@ -64,6 +67,21 @@ namespace ODLMWebAPI.Models
         {
             get { return remark; }
             set { remark = value; }
+        }
+
+        public String StatusName
+        {
+            get { return statusName; }
+            set { statusName = value; }
+        }
+        public String UserDisplayName
+        {
+            get { return userDisplayName; }
+            set { userDisplayName = value; }
+        }
+        public String CreatedOnStr
+        {
+            get { return createdOn.ToString(Constants.DefaultDateFormat); }
         }
         #endregion
     }
