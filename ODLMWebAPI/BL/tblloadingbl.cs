@@ -1832,201 +1832,198 @@ namespace ODLMWebAPI.BL {
                 }
 
 
-                if (invoiceTO.InvoiceModeId == Convert.ToInt32(Constants.InvoiceModeE.MANUAL_INVOICE))
+                if (invoiceTO.InvoiceModeId != Convert.ToInt32(Constants.InvoiceModeE.MANUAL_INVOICE))
                 {
-                    tran.Commit();
-                    resultMessage.DefaultSuccessBehaviour();
-                    resultMessage.DisplayMessage = "Success..Invoice authorized and #" + invoiceTO.InvoiceNo + " is generated";
-                    resultMessage.Tag = invoiceTO;
-                    return resultMessage;
-                }
 
-                Int32 count = 0;
-                TblLoadingSlipTO tblLoadingSlipTOselect = _iTblLoadingSlipDAO.SelectTblLoadingSlip(invoiceTO.LoadingSlipId, conn, tran);
-                if (tblLoadingSlipTOselect == null)
-                {
-                    tran.Rollback();
-                    resultMessage.Text = "";
-                    resultMessage.MessageType = ResultMessageE.Error;
-                    resultMessage.Result = 0;
-                    return resultMessage;
-                }
-                List<TblLoadingSlipTO> list = _iTblLoadingSlipDAO.SelectAllTblLoadingSlip(tblLoadingSlipTOselect.LoadingId, conn, tran);
-                TblLoadingTO tblLoadingTO = new TblLoadingTO();
-                if (list == null)
-                {
-                    tran.Rollback();
-                    resultMessage.DefaultBehaviour("LoadingSlip Found NULL"); return resultMessage;
-                }
-                else
-                {
-                    for (int i = 0; i < list.Count; i++)
+
+                    Int32 count = 0;
+                    TblLoadingSlipTO tblLoadingSlipTOselect = _iTblLoadingSlipDAO.SelectTblLoadingSlip(invoiceTO.LoadingSlipId, conn, tran);
+                    if (tblLoadingSlipTOselect == null)
                     {
-
-                        List<TblInvoiceTO> invoiceTOselectList = _iTblInvoiceDAO.SelectInvoiceListFromLoadingSlipId(list[i].IdLoadingSlip, conn, tran);
-
-                        if (invoiceTOselectList != null)
+                        tran.Rollback();
+                        resultMessage.Text = "";
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Result = 0;
+                        return resultMessage;
+                    }
+                    List<TblLoadingSlipTO> list = _iTblLoadingSlipDAO.SelectAllTblLoadingSlip(tblLoadingSlipTOselect.LoadingId, conn, tran);
+                    TblLoadingTO tblLoadingTO = new TblLoadingTO();
+                    if (list == null)
+                    {
+                        tran.Rollback();
+                        resultMessage.DefaultBehaviour("LoadingSlip Found NULL"); return resultMessage;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < list.Count; i++)
                         {
-                            List<TblInvoiceTO> TblInvoiceTOTemp = invoiceTOselectList.Where(w => w.InvoiceStatusE == Constants.InvoiceStatusE.AUTHORIZED).ToList();
 
-                            //if (TblInvoiceTOTemp == null || TblInvoiceTOTemp.Count == 0)
-                            if (invoiceTOselectList != null && invoiceTOselectList.Count == TblInvoiceTOTemp.Count)
+                            List<TblInvoiceTO> invoiceTOselectList = _iTblInvoiceDAO.SelectInvoiceListFromLoadingSlipId(list[i].IdLoadingSlip, conn, tran);
+
+                            if (invoiceTOselectList != null)
                             {
-                                count++;
+                                List<TblInvoiceTO> TblInvoiceTOTemp = invoiceTOselectList.Where(w => w.InvoiceStatusE == Constants.InvoiceStatusE.AUTHORIZED).ToList();
+
+                                //if (TblInvoiceTOTemp == null || TblInvoiceTOTemp.Count == 0)
+                                if (invoiceTOselectList != null && invoiceTOselectList.Count == TblInvoiceTOTemp.Count)
+                                {
+                                    count++;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        //int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                        if (list.Count == count)
+                        {
+                            tblLoadingTO = SelectLoadingTOWithDetails(tblLoadingSlipTOselect.LoadingId);
+                            if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
+                            {
+                                // tblLoadingTO = TblLoadingBL.SelectTblLoadingTO(tblLoadingSlipTOselect.LoadingId, conn, tran);
+                                if (tblLoadingTO == null || tblLoadingTO.VehicleNo == null || tblLoadingTO.TransporterOrgId == 0)
+                                {
+                                    tran.Rollback();
+                                    resultMessage.DefaultBehaviour("tblLoadingTO Found NULL"); return resultMessage;
+                                }
+                            }
+
+                            tblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH);
+                            tblLoadingTO.StatusReason = "Invoice Generated and ready for dispach";
+                            tblLoadingTO.StatusDate = _iCommon.ServerDateTime;
+                            tblLoadingTO.IdLoading = tblLoadingSlipTOselect.LoadingId;
+                            invoiceTO.VehicleNo = tblLoadingTO.VehicleNo;
+
+                            if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
+                            {
+                                //tblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.LOADING_IN_PROGRESS);
+                                tblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.LOADING_CONFIRM);
+                                tblLoadingTO.StatusReason = "Loading Confirmed";
+                            }
+                            TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_WEIGHING_SCALE, conn, tran);
+
+                            if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT || weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.BOTH)
+                            {
+
+                                if (configParamsTO != null)
+                                {
+                                    if (Convert.ToInt32(configParamsTO.ConfigParamVal) == 1)
+                                    {
+                                        DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus(Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH), conn, tran);
+                                        if (statusTO == null || statusTO.IotStatusId == 0)
+                                        {
+                                            resultMessage.DefaultBehaviour("iot status id not found for loading to pass at gate iot");
+                                            return resultMessage;
+                                        }
+
+                                        object[] statusframeTO = new object[2] { tblLoadingTO.ModbusRefId, statusTO.IotStatusId };
+                                        result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(tblLoadingTO, statusframeTO);
+                                        if (result != 1)
+                                        {
+                                            resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
+                                            return resultMessage;
+                                        }
+                                    }
+                                }
                             }
                             else
                             {
-                                break;
-                            }
-                        }
-                    }
-                    //int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
-                    if (list.Count == count)
-                    {
-                        tblLoadingTO = SelectLoadingTOWithDetails(tblLoadingSlipTOselect.LoadingId);
-                        if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
-                        {
-                            // tblLoadingTO = TblLoadingBL.SelectTblLoadingTO(tblLoadingSlipTOselect.LoadingId, conn, tran);
-                            if (tblLoadingTO == null || tblLoadingTO.VehicleNo == null || tblLoadingTO.TransporterOrgId == 0)
-                            {
-                                tran.Rollback();
-                                resultMessage.DefaultBehaviour("tblLoadingTO Found NULL"); return resultMessage;
-                            }
-                        }
-
-                        tblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH);
-                        tblLoadingTO.StatusReason = "Invoice Generated and ready for dispach";
-                        tblLoadingTO.StatusDate = _iCommon.ServerDateTime;
-                        tblLoadingTO.IdLoading = tblLoadingSlipTOselect.LoadingId;
-                        invoiceTO.VehicleNo = tblLoadingTO.VehicleNo;
-
-                        if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
-                        {
-                            //tblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.LOADING_IN_PROGRESS);
-                            tblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.LOADING_CONFIRM);
-                            tblLoadingTO.StatusReason = "Loading Confirmed";
-                        }
-                        TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_WEIGHING_SCALE, conn, tran);
-
-                        if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT || weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.BOTH)
-                        {
-
-                            if (configParamsTO != null)
-                            {
-                                if (Convert.ToInt32(configParamsTO.ConfigParamVal) == 1)
-                                {
-                                    DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus(Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH), conn, tran);
-                                    if (statusTO == null || statusTO.IotStatusId == 0)
-                                    {
-                                        resultMessage.DefaultBehaviour("iot status id not found for loading to pass at gate iot");
-                                        return resultMessage;
-                                    }
-
-                                    object[] statusframeTO = new object[2] { tblLoadingTO.ModbusRefId, statusTO.IotStatusId };
-                                    result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(tblLoadingTO, statusframeTO);
-                                    if (result != 1)
-                                    {
-                                        resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
-                                        return resultMessage;
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            result = _iTblLoadingSlipDAO.UpdateTblLoadingById(tblLoadingTO, conn, tran);
-                            if (result <= 0)
-                            {
-                                tran.Rollback();
-                                resultMessage.MessageType = ResultMessageE.Error;
-                                resultMessage.Text = "Error While UpdateTblLoading In Method UpdateStatusForLoading";
-                                return resultMessage;
-                            }
-                        }
-
-                        resultMessage = RightDataFromIotToDB(tblLoadingTO.IdLoading, tblLoadingTO, conn, tran);
-                        if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
-                        {
-                            tran.Rollback();
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Text = "Error While Writng Data from DB";
-                            return resultMessage;
-                        }
-                    }
-                }
-
-                resultMessage = SpiltBookingAgainstInvoice(invoiceTO, tblLoadingTO, conn, tran);
-                if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
-                {
-                    return resultMessage;
-                }
-
-                #region Write Data to Invoice
-
-               
-                if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
-                {
-                    if (invoiceTO.IsConfirmed == 1)
-                    {
-                        invoiceTO = _iTblInvoiceBL.SelectTblInvoiceTOWithDetails(invoiceTO.IdInvoice, conn, tran);
-                        if (invoiceTO == null || invoiceTO.VehicleNo == null || invoiceTO.TransportOrgId == 0)
-                        {
-                            tran.Rollback();
-                            resultMessage.DefaultBehaviour("invoiceTO Found NULL OR VehicleNo Found NULL OR TransportOrgId Found NULL when write Data to Invoice"); return resultMessage;
-                        }
-
-                        var invoiceItemList = invoiceTO.InvoiceItemDetailsTOList.Where(w => w.LoadingSlipExtId > 0).ToList();
-                        if (invoiceItemList != null && invoiceItemList.Count > 0)
-                        {
-                            for (int s = 0; s < invoiceItemList.Count; s++)
-                            {
-                                if (invoiceItemList[s].InvoiceQty <= 0)
+                                result = _iTblLoadingSlipDAO.UpdateTblLoadingById(tblLoadingTO, conn, tran);
+                                if (result <= 0)
                                 {
                                     tran.Rollback();
-                                    resultMessage.DefaultBehaviour("Invoice Item Qty found zero when write Data to Invoice");
+                                    resultMessage.MessageType = ResultMessageE.Error;
+                                    resultMessage.Text = "Error While UpdateTblLoading In Method UpdateStatusForLoading";
                                     return resultMessage;
                                 }
                             }
+
+                            resultMessage = RightDataFromIotToDB(tblLoadingTO.IdLoading, tblLoadingTO, conn, tran);
+                            if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                            {
+                                tran.Rollback();
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                resultMessage.Text = "Error While Writng Data from DB";
+                                return resultMessage;
+                            }
                         }
+                    }
+
+                    resultMessage = SpiltBookingAgainstInvoice(invoiceTO, tblLoadingTO, conn, tran);
+                    if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                    {
+                        return resultMessage;
+                    }
+
+                    #region Write Data to Invoice
 
 
-                        Int32 statusId = invoiceTO.StatusId;
-
-                        invoiceTO.StatusId = (Int32)Constants.InvoiceStatusE.NEW;
-
-                        // TblInvoiceBL.SetGateAndWeightIotData(invoiceTO);
-
-                        invoiceTO.StatusId = statusId;
-
-                        result = _iTblInvoiceBL.UpdateTblInvoice(invoiceTO, conn, tran);
-                        if (result != 1)
+                    if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
+                    {
+                        if (invoiceTO.IsConfirmed == 1)
                         {
-                            tran.Rollback();
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Text = "Error While updating tblInvoiceTO";
-                            return resultMessage;
-                        }
+                            invoiceTO = _iTblInvoiceBL.SelectTblInvoiceTOWithDetails(invoiceTO.IdInvoice, conn, tran);
+                            if (invoiceTO == null || invoiceTO.VehicleNo == null || invoiceTO.TransportOrgId == 0)
+                            {
+                                tran.Rollback();
+                                resultMessage.DefaultBehaviour("invoiceTO Found NULL OR VehicleNo Found NULL OR TransportOrgId Found NULL when write Data to Invoice"); return resultMessage;
+                            }
 
-                        for (int p = 0; p < invoiceTO.InvoiceItemDetailsTOList.Count; p++)
-                        {
-                            TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = invoiceTO.InvoiceItemDetailsTOList[p];
+                            var invoiceItemList = invoiceTO.InvoiceItemDetailsTOList.Where(w => w.LoadingSlipExtId > 0).ToList();
+                            if (invoiceItemList != null && invoiceItemList.Count > 0)
+                            {
+                                for (int s = 0; s < invoiceItemList.Count; s++)
+                                {
+                                    if (invoiceItemList[s].InvoiceQty <= 0)
+                                    {
+                                        tran.Rollback();
+                                        resultMessage.DefaultBehaviour("Invoice Item Qty found zero when write Data to Invoice");
+                                        return resultMessage;
+                                    }
+                                }
+                            }
 
-                            result = _iTblInvoiceItemDetailsDAO.UpdateTblInvoiceItemDetails(tblInvoiceItemDetailsTO, conn, tran);
+
+                            Int32 statusId = invoiceTO.StatusId;
+
+                            invoiceTO.StatusId = (Int32)Constants.InvoiceStatusE.NEW;
+
+                            // TblInvoiceBL.SetGateAndWeightIotData(invoiceTO);
+
+                            invoiceTO.StatusId = statusId;
+
+                            result = _iTblInvoiceBL.UpdateTblInvoice(invoiceTO, conn, tran);
                             if (result != 1)
                             {
                                 tran.Rollback();
                                 resultMessage.MessageType = ResultMessageE.Error;
-                                resultMessage.Text = "Error While updating tblInvoiceItemTO";
+                                resultMessage.Text = "Error While updating tblInvoiceTO";
                                 return resultMessage;
+                            }
+
+                            for (int p = 0; p < invoiceTO.InvoiceItemDetailsTOList.Count; p++)
+                            {
+                                TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = invoiceTO.InvoiceItemDetailsTOList[p];
+
+                                result = _iTblInvoiceItemDetailsDAO.UpdateTblInvoiceItemDetails(tblInvoiceItemDetailsTO, conn, tran);
+                                if (result != 1)
+                                {
+                                    tran.Rollback();
+                                    resultMessage.MessageType = ResultMessageE.Error;
+                                    resultMessage.Text = "Error While updating tblInvoiceItemTO";
+                                    return resultMessage;
+                                }
+
                             }
 
                         }
 
                     }
 
+                    #endregion
+
                 }
-               
-                #endregion
                 tran.Commit();
                 resultMessage.DefaultSuccessBehaviour();
                 resultMessage.DisplayMessage = "Success..Invoice authorized and #" + invoiceTO.InvoiceNo + " is generated";
