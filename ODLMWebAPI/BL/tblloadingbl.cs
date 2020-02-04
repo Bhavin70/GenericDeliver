@@ -1878,16 +1878,18 @@ namespace ODLMWebAPI.BL {
                             }
                         }
                     }
-                    // int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                    //int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
                     if (list.Count == count)
                     {
                         tblLoadingTO = SelectLoadingTOWithDetails(tblLoadingSlipTOselect.LoadingId);
-
-                        // tblLoadingTO = TblLoadingBL.SelectTblLoadingTO(tblLoadingSlipTOselect.LoadingId, conn, tran);
-                        if (tblLoadingTO == null || tblLoadingTO.VehicleNo == null || tblLoadingTO.TransporterOrgId == 0)
+                        if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
                         {
-                            tran.Rollback();
-                            resultMessage.DefaultBehaviour("tblLoadingTO Found NULL"); return resultMessage;
+                            // tblLoadingTO = TblLoadingBL.SelectTblLoadingTO(tblLoadingSlipTOselect.LoadingId, conn, tran);
+                            if (tblLoadingTO == null || tblLoadingTO.VehicleNo == null || tblLoadingTO.TransporterOrgId == 0)
+                            {
+                                tran.Rollback();
+                                resultMessage.DefaultBehaviour("tblLoadingTO Found NULL"); return resultMessage;
+                            }
                         }
 
                         tblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH);
