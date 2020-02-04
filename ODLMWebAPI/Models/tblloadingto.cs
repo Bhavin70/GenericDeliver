@@ -48,6 +48,10 @@ namespace ODLMWebAPI.Models
         Int32 loadingType;
         Int32 currencyId; 
         Double currencyRate;
+
+        Int32 mergeLoadingId;
+        String mergeMessage;
+
         //Add For IoT
         int modbusRefId;
         List<int[]> dynamicItemList = new List<int[]>();
@@ -59,6 +63,7 @@ namespace ODLMWebAPI.Models
         Int32 isDBup;
         Int32 isBackup;
         List<TblLoadingStatusHistoryTO> loadingStatusHistoryTOList;
+        Int32 ignoreGrossWt;
 
         // Double orcAmt;
         //Saket [2018-02-21] Added.
@@ -380,7 +385,11 @@ namespace ODLMWebAPI.Models
             set { maxWeighingOty = value; }
         }
 
-     
+        public int MergeLoadingId { get => mergeLoadingId; set => mergeLoadingId = value; }
+        public string MergeMessage { get => mergeMessage; set => mergeMessage = value; }
+        public int IgnoreGrossWt { get => ignoreGrossWt; set => ignoreGrossWt = value; }
+
+
 
 
         #endregion

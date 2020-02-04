@@ -74,6 +74,8 @@ namespace ODLMWebAPI.Models
         Int32 transporterOrgId;
         String statusDesc;
         String bookingDisplayNo;
+        Int32 isMerge;
+
         #endregion
 
         #region Constructor
@@ -402,5 +404,6 @@ namespace ODLMWebAPI.Models
         public int TransporterOrgId { get => transporterOrgId; set => transporterOrgId = value; }
         public string StatusDesc { get => statusDesc; set => statusDesc = value; }
         public string BookingDisplayNo { get => bookingDisplayNo; set => bookingDisplayNo = value; }
+        public int IsMerge { get => isMerge; set => isMerge = value; }
     }
 }

@@ -29,12 +29,12 @@ namespace ODLMWebAPI.DAL
 
         #region Selection
         //Aniket [30-7-2019] added for IOT
-        public DimStatusTO SelectDimStatusTOByIotStatusId(Int32 iotStatusId, SqlConnection conn, SqlTransaction tran)
+        public DimStatusTO SelectDimStatusTOByIotStatusId(Int32 iotStatusId , Int32 txnTypeId , SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();
             try
             {
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE iotStatusId = " + iotStatusId + " ";
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE transactionTypeId = " + txnTypeId + " AND  iotStatusId = " + iotStatusId + " ";
                 cmdSelect.Connection = conn;
                 cmdSelect.Transaction = tran;
                 cmdSelect.CommandType = System.Data.CommandType.Text;

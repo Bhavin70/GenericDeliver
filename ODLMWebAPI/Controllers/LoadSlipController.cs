@@ -718,31 +718,7 @@ namespace ODLMWebAPI.Controllers
         [HttpGet]
         public ResultMessage IsThisVehicleDelivered(String vehicleNo)
         {
-            ResultMessage resultMessage = new ResultMessage();
-            List<TblLoadingTO> list = _iTblLoadingBL.SelectAllLoadingListByVehicleNo(vehicleNo, true,0);
-            if (list == null || list.Count == 0)
-            {
-                resultMessage.MessageType = ResultMessageE.Information;
-                resultMessage.Text = "Allowed , All Loadings Are Delivered";
-                resultMessage.Result = 1;
-            }
-            else
-            {
-                var lastObj = list.OrderByDescending(s => s.StatusDate).FirstOrDefault();
-                if (lastObj != null && lastObj.IsAllowNxtLoading == 1)
-                {
-                    resultMessage.MessageType = ResultMessageE.Information;
-                    resultMessage.Text = "Allowed ,  next Loadings is Allowed";
-                    resultMessage.Result = 1;
-                    return resultMessage;
-
-                }
-                resultMessage.MessageType = ResultMessageE.Error;
-                resultMessage.Text = "Not Allowed , Selected Vehicle :" + vehicleNo + " is not delivered . Last status is " + lastObj.StatusDesc;
-                resultMessage.Result = 0;
-            }
-
-            return resultMessage;
+            return _iTblLoadingBL.IsThisVehicleDelivered(vehicleNo);
         }
 
 
@@ -1045,8 +1021,11 @@ namespace ODLMWebAPI.Controllers
                     resultMessage.Text = "LoadingSlipList Found NULL";
                     return resultMessage;
                 }
+                resultMessage = _iTblLoadingBL.CalculateLoadingValuesRate(tblLoadingTO);
 
-                return _iTblLoadingBL.CalculateLoadingValuesRate(tblLoadingTO);
+                _iTblLoadingBL.IsLoadingShouldMerge(tblLoadingTO);
+
+                return resultMessage;
 
             }
             catch (Exception ex)

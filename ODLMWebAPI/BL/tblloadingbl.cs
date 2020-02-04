@@ -83,13 +83,14 @@ namespace ODLMWebAPI.BL {
         private readonly IRunReport _iRunReport;
         private readonly IDimReportTemplateBL _iDimReportTemplateBL;
         private readonly ITblPaymentTermsForBookingDAO _iTblPaymentTermsForBookingDAO;
+        private readonly IDimStatusBL _iDimStatusBL;
         public TblLoadingBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO, IWeighingCommunication iWeighingCommunication, IModbusRefConfig iModbusRefConfig,ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblInvoiceHistoryDAO iTblInvoiceHistoryDAO, ITblWeighingMachineDAO iTblWeighingMachineDAO, IGateCommunication iGateCommunication, IIotCommunication iIotCommunication, ITblGateBL iTblGateBL
             , ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO
             , ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO
             , ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO
             , ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO
             , ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL
-            , ITblGroupItemDAO iTblGroupItemDAO, ITblGlobalRateDAO iTblGlobalRateDAO, IRunReport iRunReport, IDimReportTemplateBL iDimReportTemplateBL, ITblPaymentTermsForBookingDAO iTblPaymentTermsForBookingDAO
+            , ITblGroupItemDAO iTblGroupItemDAO, ITblGlobalRateDAO iTblGlobalRateDAO, IRunReport iRunReport, IDimReportTemplateBL iDimReportTemplateBL, ITblPaymentTermsForBookingDAO iTblPaymentTermsForBookingDAO, IDimStatusBL iDimStatusBL
             )
         
        // public TblLoadingBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL)
@@ -158,6 +159,7 @@ namespace ODLMWebAPI.BL {
             _iTblAlertDefinitionDAO = iTblAlertDefinitionDAO;
             _iTblGroupItemDAO = iTblGroupItemDAO;
             _iTblGlobalRateDAO = iTblGlobalRateDAO;
+            _iDimStatusBL = iDimStatusBL;
         }
         #region Selection
 
@@ -305,7 +307,7 @@ namespace ODLMWebAPI.BL {
         //Aniket [30-7-2019] added for IOT
         public List<TblLoadingTO> SetLoadingStatusData (String loadingStatusId, bool isEncoded, int configId, List<TblLoadingTO> tblLoadingTOList) {
             if (configId == Convert.ToInt32 (Constants.WeighingDataSourceE.IoT)) {
-                List<DimStatusTO> statusList = _iDimStatusDAO.SelectAllDimStatus ();
+                List<DimStatusTO> statusList = _iDimStatusDAO.SelectAllDimStatus ((Int32)Constants.TransactionTypeE.LOADING);
                 //GateIoTResult gateIoTResult = IoT.IotCommunication.GetLoadingSlipsByStatusFromIoTByStatusId(loadingStatusId.ToString());
 
                 List<TblLoadingTO> distGate = tblLoadingTOList.GroupBy (g => g.GateId).Select (s => s.FirstOrDefault ()).ToList ();
@@ -2484,6 +2486,138 @@ namespace ODLMWebAPI.BL {
             return _iTblLoadingDAO.InsertTblLoading (tblLoadingTO, conn, tran);
         }
 
+        public ResultMessage IsLoadingShouldMerge(TblLoadingTO tblLoadingTO)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+
+            if (tblLoadingTO != null)
+            {
+                ResultMessage r = IsThisVehicleDelivered(tblLoadingTO.VehicleNo, 1);
+                if (r.Tag != null && r.Tag.GetType() == typeof(TblLoadingTO))
+                {
+                    //tblLoadingTO = ((TblLoadingTO)r.Tag);
+                    tblLoadingTO.MergeLoadingId = ((TblLoadingTO)r.Tag).IdLoading;
+                    tblLoadingTO.MergeMessage = r.DisplayMessage;
+                }
+
+                return r;
+            }
+
+            resultMessage.DefaultSuccessBehaviour();
+            return resultMessage;
+        }
+
+        public ResultMessage IsThisVehicleDelivered(String vehicleNo, Int32 checkOnDevice = 0)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+
+            if (String.IsNullOrEmpty(vehicleNo))
+            {
+                return resultMessage;
+            }
+
+            int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+           
+            List<TblLoadingTO> list = SelectAllLoadingListByVehicleNo(vehicleNo, true, 0);
+            if (list == null || list.Count == 0)
+            {
+                resultMessage.MessageType = ResultMessageE.Information;
+                resultMessage.Text = "Allowed , All Loadings Are Delivered";
+                resultMessage.DisplayMessage = "";
+                resultMessage.Result = 1;
+            }
+            else
+            {
+                var lastObj = list.OrderByDescending(s => s.StatusDate).FirstOrDefault();
+                if (lastObj != null && lastObj.IsAllowNxtLoading == 1)
+                {
+                    resultMessage.MessageType = ResultMessageE.Information;
+                    resultMessage.Text = "Allowed ,  next Loadings is Allowed";
+                    resultMessage.DisplayMessage = "";
+                    resultMessage.Result = 1;
+                    return resultMessage;
+
+                }
+                resultMessage.Result = 0;
+                //resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.MessageType = ResultMessageE.Information;
+                resultMessage.Text = "Not Allowed , Selected Vehicle :" + vehicleNo + " is not delivered . Last status is " + lastObj.StatusDesc;
+                resultMessage.DisplayMessage = "Selected Vehicle: " + vehicleNo + " is not delivered . Last status is " + lastObj.StatusDesc +
+                                               " Current loading slip will merge with existing slip No - " + lastObj.LoadingSlipNo;
+                resultMessage.Result = 1;
+                resultMessage.Tag = lastObj;
+            }
+            
+
+            if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+            {
+                if (checkOnDevice == 1)
+                {
+
+                    List<TblGateTO> tblGateTOList = _iTblGateBL.SelectAllTblGateList(Constants.ActiveSelectionTypeE.Active);
+
+                    GateIoTResult gateIoTResult = new GateIoTResult();
+
+                    if (tblGateTOList != null && tblGateTOList.Count > 0)
+                    {
+                        tblGateTOList = tblGateTOList.Where(W => W.ModuleId == Constants.DefaultModuleID).ToList();
+
+                        for (int g = 0; g < tblGateTOList.Count; g++)
+                        {
+                            //TblLoadingTO tblLoadingTOTemp = distGate[g];
+                            TblGateTO tblGateTO = tblGateTOList[g];
+                            GateIoTResult temp = _iIotCommunication.GetLoadingSlipsByStatusFromIoTByStatusId("101", tblGateTO);
+                            if (temp != null && temp.Data != null)
+                            {
+                                gateIoTResult.Data.AddRange(temp.Data);
+                            }
+
+                            temp = _iIotCommunication.GetLoadingSlipsByStatusFromIoTByStatusId("102", tblGateTO);
+                            if (temp != null && temp.Data != null)
+                            {
+                                gateIoTResult.Data.AddRange(temp.Data);
+                            }
+
+
+                        }
+                    }
+                    if (gateIoTResult != null && gateIoTResult.Data != null && gateIoTResult.Data.Count > 0)
+                    {
+                        for (int i = 0; i < gateIoTResult.Data.Count; i++)
+                        {
+                            if (gateIoTResult.Data[i] != null)
+                            {
+                                Int32 modBusLoadingRefId = Convert.ToInt32(gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.LoadingId]);
+
+                                if (gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.VehicleNo].ToString() == vehicleNo)
+                                {
+                                    TblLoadingTO tblLoadingTO = SelectTblLoadingTOByModBusRefId(modBusLoadingRefId);
+
+                                    Int32 iotStatusId = Convert.ToInt32(gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.StatusId]);
+                                    DimStatusTO dimStatusTO = _iDimStatusBL.SelectDimStatusTOByIotStatusId(iotStatusId, (Int32)StaticStuff.Constants.TransactionTypeE.LOADING);
+                                    if (dimStatusTO != null)
+                                    {
+                                        tblLoadingTO.StatusDesc = dimStatusTO.StatusName;
+                                    }
+
+                                    resultMessage.MessageType = ResultMessageE.Information;
+                                    resultMessage.Text = "Not Allowed , Selected Vehicle :" + vehicleNo + " is not delivered . Last status is " + tblLoadingTO.StatusDesc;
+                                    resultMessage.DisplayMessage = "Selected Vehicle: " + vehicleNo + " is not delivered . Last status is " + tblLoadingTO.StatusDesc +
+                                                                   " Current loading slip will merge with existing slip No - " + tblLoadingTO.LoadingSlipNo;
+                                    resultMessage.Result = 1;
+                                    resultMessage.Tag = tblLoadingTO;
+                                    return resultMessage;
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            return resultMessage;
+        }
+
         public ResultMessage CalculateLoadingValuesRate(TblLoadingTO tblLoadingTO)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
@@ -3119,6 +3253,274 @@ namespace ODLMWebAPI.BL {
             }
         }
 
+        public ResultMessage CheckMergeCondition(TblLoadingTO tblLoadingTO)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            TblLoadingTO tblLoadingTOTemp = new TblLoadingTO();
+            tblLoadingTOTemp.VehicleNo = tblLoadingTO.VehicleNo;
+
+            resultMessage = IsLoadingShouldMerge(tblLoadingTOTemp);
+            if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+            {
+                return resultMessage;
+            }
+            TblLoadingTO mergeToLoaingTO = null;
+            if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(TblLoadingTO))
+            {
+                mergeToLoaingTO = (TblLoadingTO)resultMessage.Tag;
+            }
+
+            if (tblLoadingTOTemp.MergeLoadingId > 0)
+            {
+                if (tblLoadingTO.MergeLoadingId == 0)
+                {
+                    resultMessage.MessageType = ResultMessageE.Error;
+                    resultMessage.Text = "Current Loading slip will merge with existing please try again.";
+                    resultMessage.DisplayMessage = resultMessage.Text;
+                    return resultMessage;
+                }
+                if (tblLoadingTO.MergeLoadingId != tblLoadingTOTemp.MergeLoadingId)
+                {
+                    resultMessage.MessageType = ResultMessageE.Error;
+                    resultMessage.Text = "Given Loading slip not match with current existing merge loading slip";
+                    resultMessage.DisplayMessage = resultMessage.Text;
+                    return resultMessage;
+                }
+
+                resultMessage = MergerLoadingToExisting(tblLoadingTO);
+                if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                {
+                    return resultMessage;
+                }
+                else
+                {
+                    resultMessage.DefaultSuccessBehaviour();
+                    resultMessage.DisplayMessage = "Loading Slip Merge to existing- " + mergeToLoaingTO.LoadingSlipNo;
+                    resultMessage.Text = resultMessage.DisplayMessage;
+                    resultMessage.Result = 2;
+                    return resultMessage; ;
+                }
+
+
+            }
+
+
+            resultMessage = new StaticStuff.ResultMessage();
+            resultMessage.DefaultSuccessBehaviour();
+            return resultMessage;
+
+        }
+
+        public ResultMessage MergerLoadingToExisting(TblLoadingTO tblLoadingTO)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            int result = 0;
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            resultMessage.MessageType = ResultMessageE.None;
+            resultMessage.Text = "Not Entered In The Loop";
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+
+                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+
+                TblLoadingTO exitingTblLoadingTO = SelectLoadingTOWithDetails(tblLoadingTO.MergeLoadingId);
+
+                if (exitingTblLoadingTO == null)
+                {
+                    resultMessage.DefaultBehaviour("Loading TO not found against - " + exitingTblLoadingTO);
+                    return resultMessage;
+                }
+
+                if (exitingTblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_CANCEL || exitingTblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_DELIVERED)
+                {
+                    resultMessage.DefaultBehaviour("Existing loading Id - " + exitingTblLoadingTO.IdLoading + " status is - " + exitingTblLoadingTO.StatusDesc);
+                    return resultMessage;
+                }
+
+                //exitingTblLoadingTO.IsJointDelivery = 1;
+
+                if (tblLoadingTO.LoadingSlipList != null && tblLoadingTO.LoadingSlipList.Count > 0)
+                {
+                    for (int u = 0; u < tblLoadingTO.LoadingSlipList.Count; u++)
+                    {
+                        TblLoadingSlipTO tblLoadingSlipTO = tblLoadingTO.LoadingSlipList[u];
+                        TblLoadingSlipTO temp = exitingTblLoadingTO.LoadingSlipList.Where(w => w.DealerOrgId == tblLoadingSlipTO.DealerOrgId).FirstOrDefault();
+                        if (temp == null)
+                        {
+                            exitingTblLoadingTO.IsJointDelivery = 1;
+                        }
+                    }
+
+                }
+
+                List<TblLoadingSlipExtTO> allTblLoadingSlipExtTOList = new List<TblLoadingSlipExtTO>();
+                Int32 itemModBusRefId = 0;
+
+                for (int u = 0; u < exitingTblLoadingTO.LoadingSlipList.Count; u++)
+                {
+                    allTblLoadingSlipExtTOList.AddRange(exitingTblLoadingTO.LoadingSlipList[u].LoadingSlipExtTOList);
+                }
+                itemModBusRefId = allTblLoadingSlipExtTOList.Max(s => s.ModbusRefId);
+
+                Double existingLoadingQty = exitingTblLoadingTO.TotalLoadingQty;
+                Double finalLoadQty = 0;
+                exitingTblLoadingTO.LoadingSlipList = tblLoadingTO.LoadingSlipList;
+
+                tblLoadingTO.TotalLoadingQty = 0;
+                for (int c1 = 0; c1 < tblLoadingTO.LoadingSlipList.Count; c1++)
+                {
+                    TblLoadingSlipTO tblLoadingSlipTO = tblLoadingTO.LoadingSlipList[c1];
+
+                    tblLoadingSlipTO.IsMerge = 1;
+
+                    for (int c2 = 0; c2 < tblLoadingSlipTO.LoadingSlipExtTOList.Count; c2++)
+                    {
+                        tblLoadingTO.TotalLoadingQty += tblLoadingSlipTO.LoadingSlipExtTOList[c2].LoadingQty;
+                        tblLoadingSlipTO.LoadingSlipExtTOList[c2].LoadingLayerid = (int)Constants.LoadingLayerE.TOP;
+
+                    }
+                }
+
+                exitingTblLoadingTO.TotalLoadingQty += existingLoadingQty + tblLoadingTO.TotalLoadingQty;
+
+                Int32 changeStatustoDevice = 0;
+
+                if (exitingTblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_COMPLETED || exitingTblLoadingTO.TranStatusE == Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH)
+                {
+                    //Update status & delete gross weight entry against loading
+
+                    if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                    {
+                        changeStatustoDevice = 1;  //device not supporting connection trancaton so add flag.
+                        exitingTblLoadingTO.IgnoreGrossWt = 1;
+
+                    }
+                    else
+                    {
+                        exitingTblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_GATE_IN;
+                        exitingTblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_GATE_IN;
+                        exitingTblLoadingTO.StatusReason = "Vehicle Entered In The Premises";
+
+                        List<TblWeighingMeasuresTO> tblWeighingMeasuresTOList = _iTblWeighingMeasuresDAO.SelectAllTblWeighingMeasuresListByLoadingId(exitingTblLoadingTO.IdLoading, conn, tran);
+                        if (tblWeighingMeasuresTOList != null && tblWeighingMeasuresTOList.Count > 0)
+                        {
+                            for (int r = 0; r < tblWeighingMeasuresTOList.Count; r++)
+                            {
+                                TblWeighingMeasuresTO tblWeighingMeasuresTO = tblWeighingMeasuresTOList[r];
+
+                                if (tblWeighingMeasuresTO.WeightMeasurTypeId == (Int32)Constants.TransMeasureTypeE.GROSS_WEIGHT)
+                                {
+                                    result = _iTblWeighingMeasuresDAO.DeleteTblWeighingMeasures(tblWeighingMeasuresTO.IdWeightMeasure, conn, tran);
+                                    if (result != 1)
+                                    {
+                                        resultMessage.MessageType = ResultMessageE.Error;
+                                        resultMessage.Text = "Error While deleting tblWeighingMeasuresTO.IdWeightMeasure - " + tblWeighingMeasuresTO.IdWeightMeasure;
+                                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                                        return resultMessage;
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+                resultMessage = SaveLoadingSlipDetails(exitingTblLoadingTO, conn, tran, weightSourceConfigId, itemModBusRefId);
+                if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                {
+                    return resultMessage;
+                }
+
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                {
+                    //Write Status On IOT.
+                    exitingTblLoadingTO.VehicleNo = "";
+                    exitingTblLoadingTO.TransporterOrgId = 0;
+                    exitingTblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
+                    exitingTblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
+                    //exitingTblLoadingTO.StatusReason = "Loading Scheduled";
+                }
+
+                result = UpdateTblLoading(exitingTblLoadingTO, conn, tran);
+                if (result != 1)
+                {
+                    resultMessage.MessageType = ResultMessageE.Error;
+                    resultMessage.Text = "Error While UpdateTblLoading";
+                    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                    return resultMessage;
+                }
+
+                //Update Individual Loading Slip statuses
+                result = _iTblLoadingSlipBL.UpdateTblLoadingSlip(exitingTblLoadingTO, conn, tran);
+                if (result <= 0)
+                {
+                    tran.Rollback();
+                    resultMessage.MessageType = ResultMessageE.Error;
+                    resultMessage.Text = "Error While UpdateTblLoadingSlip In Method SaveNewLoadingSlip";
+                    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                    return resultMessage;
+                }
+
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                {
+                    if (changeStatustoDevice == 1)
+                    {
+                        exitingTblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_GATE_IN;
+                        exitingTblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_GATE_IN;
+
+                        DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus(exitingTblLoadingTO.StatusId, conn, tran);
+                        if (statusTO == null || statusTO.IotStatusId == 0)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("iot status id not found for loading to pass at gate iot");
+                            return resultMessage;
+                        }
+                        exitingTblLoadingTO.StatusReason = statusTO.StatusDesc;
+
+                        List<object[]> frameList = _iIotCommunication.GenerateGateIoTStatusFrameData(exitingTblLoadingTO, statusTO.IotStatusId);
+                        if (frameList != null && frameList.Count > 0)
+                        {
+                            for (int f = 0; f < frameList.Count; f++)
+                            {
+                                result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(exitingTblLoadingTO, frameList[f]);
+                                if (result != 1)
+                                {
+                                    resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
+                                    return resultMessage;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            resultMessage.DefaultBehaviour("frameList Found Null Or Empty while PostGateAPIDataToModbusTcpApi");
+                            return resultMessage;
+                        }
+                    }
+                }
+                tran.Commit();
+                return resultMessage;
+
+            }
+            catch (Exception ex)
+            {
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Text = "Exception Error In Method SaveNewLoadingSlip";
+                resultMessage.Exception = ex;
+                resultMessage.Result = -1;
+                resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                return resultMessage;
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+
+        }
+
         public ResultMessage SaveNewLoadingSlip (TblLoadingTO tblLoadingTO) {
             SqlConnection conn = new SqlConnection (_iConnectionString.GetConnectionString (Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -3126,9 +3528,25 @@ namespace ODLMWebAPI.BL {
             ResultMessage resultMessage = new StaticStuff.ResultMessage ();
             resultMessage.MessageType = ResultMessageE.None;
             resultMessage.Text = "Not Entered In The Loop";
-            try {
-                conn.Open ();
-                tran = conn.BeginTransaction ();
+            try
+            {
+                #region Check Merge Condition
+
+                resultMessage = CheckMergeCondition(tblLoadingTO);
+                if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                {
+                    return resultMessage;
+                }
+                else if (resultMessage.MessageType == ResultMessageE.Information && resultMessage.Result == 2)
+                {
+                    resultMessage.Result = 1;
+                    return resultMessage;
+                }
+
+                #endregion
+
+                conn.Open();
+                tran = conn.BeginTransaction();
 
                 #region 1. Save New Main Loading Slip
 
@@ -3137,9 +3555,10 @@ namespace ODLMWebAPI.BL {
                 //String loadingSlipNo = tblLoadingTO.CreatedOn.Year +""+ tblLoadingTO.CreatedOn.Month+"" + tblLoadingTO.CreatedOn.Day + "/" + earlierCount;
 
                 // Vaibhav [30-Jan-2018] Commented and added to generate loading count.
-                TblEntityRangeTO loadingEntityRangeTO = SelectEntityRangeForLoadingCount (Constants.ENTITY_RANGE_LOADING_COUNT, conn, tran);
-                if (loadingEntityRangeTO == null) {
-                    tran.Rollback ();
+                TblEntityRangeTO loadingEntityRangeTO = SelectEntityRangeForLoadingCount(Constants.ENTITY_RANGE_LOADING_COUNT, conn, tran);
+                if (loadingEntityRangeTO == null)
+                {
+                    tran.Rollback();
                     resultMessage.MessageType = ResultMessageE.Error;
                     resultMessage.Text = "Error : loadingEntityRangeTO is null";
                     resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
@@ -3149,10 +3568,12 @@ namespace ODLMWebAPI.BL {
                 String loadingSlipNo = tblLoadingTO.CreatedOn.Day + "" + tblLoadingTO.CreatedOn.Month + "" + tblLoadingTO.CreatedOn.Year + "/" + loadingEntityRangeTO.EntityPrevValue;
                 #region IOT related code added
                 //Hrushikesh [30-7-2019] added code for IOT
-                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting ();
-                if (weightSourceConfigId == (int) StaticStuff.Constants.WeighingDataSourceE.IoT) {
-                    tblLoadingTO.ModbusRefId = _iCommon.GetNextAvailableModRefIdNew ();
-                    if (tblLoadingTO.ModbusRefId == 0) {
+                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                if (weightSourceConfigId == (int)StaticStuff.Constants.WeighingDataSourceE.IoT)
+                {
+                    tblLoadingTO.ModbusRefId = _iCommon.GetNextAvailableModRefIdNew();
+                    if (tblLoadingTO.ModbusRefId == 0)
+                    {
                         resultMessage.MessageType = ResultMessageE.Error;
                         resultMessage.Text = "Error : ModbusRef List gretter than 255 or Number not found Or Dublicate number found";
                         resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
@@ -3161,9 +3582,10 @@ namespace ODLMWebAPI.BL {
                 }
                 #endregion
                 loadingEntityRangeTO.EntityPrevValue++;
-                result = _iTblEntityRangeDAO.UpdateTblEntityRange (loadingEntityRangeTO, conn, tran);
-                if (result != 1) {
-                    tran.Rollback ();
+                result = _iTblEntityRangeDAO.UpdateTblEntityRange(loadingEntityRangeTO, conn, tran);
+                if (result != 1)
+                {
+                    tran.Rollback();
                     resultMessage.MessageType = ResultMessageE.Error;
                     resultMessage.Text = "Error : While UpdateTblEntityRange";
                     resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
@@ -3172,28 +3594,34 @@ namespace ODLMWebAPI.BL {
 
                 //Vijaymala [2018-06-20] Added 
                 Int32 isAutoGateInVehicle = 0;
-                TblConfigParamsTO tblConfigParamsTOAutoGateIn = _iTblConfigParamsBL.SelectTblConfigParamsTO (Constants.CP_AUTO_GATE_IN_VEHICLE, conn, tran);
-                if (tblConfigParamsTOAutoGateIn != null) {
-                    isAutoGateInVehicle = Convert.ToInt32 (tblConfigParamsTOAutoGateIn.ConfigParamVal);
+                TblConfigParamsTO tblConfigParamsTOAutoGateIn = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_AUTO_GATE_IN_VEHICLE, conn, tran);
+                if (tblConfigParamsTOAutoGateIn != null)
+                {
+                    isAutoGateInVehicle = Convert.ToInt32(tblConfigParamsTOAutoGateIn.ConfigParamVal);
                 }
 
-                Boolean isBoyondLoadingQuota = false;
+                //Boolean isBoyondLoadingQuota = false;
                 Double finalLoadQty = 0;
+                tblLoadingTO.TotalLoadingQty = 0;
                 tblLoadingTO.LoadingSlipNo = loadingSlipNo;
                 //Vijaymala added[22-06-2018]
-                if (isAutoGateInVehicle == 1) {
+                if (isAutoGateInVehicle == 1)
+                {
                     if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
                     {
                         tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
                         tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
                         tblLoadingTO.StatusReason = "Loading Scheduled";
-                    } else
+                    }
+                    else
                     {
                         tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_GATE_IN;
                         tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_GATE_IN;
                         tblLoadingTO.StatusReason = "Vehicle Entered In The Premises";
                     }
-                } else {
+                }
+                else
+                {
                     tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_NEW;
                     tblLoadingTO.StatusReason = "Loading Scheduled";
                 }
@@ -3204,16 +3632,19 @@ namespace ODLMWebAPI.BL {
 
                 int transporterId = tblLoadingTO.TransporterOrgId;
                 string vehicleNumber = tblLoadingTO.VehicleNo;
-                if (weightSourceConfigId == (int) Constants.WeighingDataSourceE.IoT) {
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                {
                     tblLoadingTO.TransporterOrgId = 0;
                     tblLoadingTO.VehicleNo = string.Empty;
                 }
 
                 #region Assign default Gate
 
-                if (tblLoadingTO.GateId == 0) {
-                    TblGateTO tblGateTO = _iTblGateBL.GetDefaultTblGateTO ();
-                    if (tblGateTO != null) {
+                if (tblLoadingTO.GateId == 0)
+                {
+                    TblGateTO tblGateTO = _iTblGateBL.GetDefaultTblGateTO();
+                    if (tblGateTO != null)
+                    {
                         tblLoadingTO.GateId = tblGateTO.IdGate;
                         tblLoadingTO.PortNumber = tblGateTO.PortNumber;
                         tblLoadingTO.IoTUrl = tblGateTO.IoTUrl;
@@ -3223,9 +3654,10 @@ namespace ODLMWebAPI.BL {
 
                 #endregion
 
-                result = InsertTblLoading (tblLoadingTO, conn, tran);
-                if (result != 1) {
-                    tran.Rollback ();
+                result = InsertTblLoading(tblLoadingTO, conn, tran);
+                if (result != 1)
+                {
+                    tran.Rollback();
                     resultMessage.MessageType = ResultMessageE.Error;
                     resultMessage.Text = "Error in InsertTblLoading";
                     resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
@@ -3236,378 +3668,16 @@ namespace ODLMWebAPI.BL {
 
                 #region 2. Save Individual Loading Slips and Its Qty Details
 
-                if (tblLoadingTO.LoadingSlipList == null || tblLoadingTO.LoadingSlipList.Count == 0) {
-                    tran.Rollback ();
-                    resultMessage.MessageType = ResultMessageE.Error;
-                    resultMessage.Text = "Error : LoadingSlipList Found Empty Or Null";
-                    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                resultMessage = SaveLoadingSlipDetails(tblLoadingTO, conn, tran, weightSourceConfigId);
+                if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                {
                     return resultMessage;
                 }
-                //Vijaymala added[26-04-2018]:commented that code to get freight from loading slip layerwise
-
-                Double freightPerMT = 0;
-
-                //Vijaymala added[26-04-2018]:commented that code to get freight from loading slip layerwise
-                //if (tblLoadingTO.IsFreightIncluded == 1)
-                //{
-                //    freightPerMT = tblLoadingTO.FreightAmt;// CalculateFreightAmtPerTon(tblLoadingTO.LoadingSlipList, tblLoadingTO.FreightAmt);
-                //    //freightPerMT = CalculateFreightAmtPerTon(tblLoadingTO.LoadingSlipList, tblLoadingTO.FreightAmt);
-                //    if(freightPerMT < 0)
-                //    {
-                //        tran.Rollback();
-                //        resultMessage.MessageType = ResultMessageE.Error;
-                //        resultMessage.Text = "Error : Freight Calculations is less than 0. Please check the calculations immediatly";
-                //        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                //        return resultMessage;
-                //    }
-                //}
-
-                #region Splitting of loadingslip itemwise
-
-                //Saket [2018-02-13] Added 
-
-                Int32 isBrandWiseLoading = 1;
-
-                TblConfigParamsTO tblConfigParamsTOBrandWise = _iTblConfigParamsBL.SelectTblConfigParamsTO (Constants.CP_BRAND_WISE_INVOICE, conn, tran);
-                if (tblConfigParamsTOBrandWise != null) {
-                    isBrandWiseLoading = Convert.ToInt32 (tblConfigParamsTOBrandWise.ConfigParamVal);
-                }
-
-                if (isBrandWiseLoading == 1) {
-                    if (tblLoadingTO.LoadingSlipList != null && tblLoadingTO.LoadingSlipList.Count > 0) {
-                        List<TblLoadingSlipTO> splitLoadingSlipList = new List<TblLoadingSlipTO> ();
-
-                        for (int i = 0; i < tblLoadingTO.LoadingSlipList.Count; i++) {
-                            TblLoadingSlipTO tblLoadingSlipTO = tblLoadingTO.LoadingSlipList[i];
-                            if (tblLoadingSlipTO.LoadingSlipExtTOList != null && tblLoadingSlipTO.LoadingSlipExtTOList.Count > 0) {
-
-                                List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = tblLoadingSlipTO.LoadingSlipExtTOList;
-
-                                List<TblLoadingSlipExtTO> distinctBrandList = tblLoadingSlipExtTOList.GroupBy (w => w.BrandId).Select (s => s.FirstOrDefault ()).ToList ();
-
-                                if (distinctBrandList != null && distinctBrandList.Count > 1) //Greater than 1 condtion if brand is distinct then only separate the loading slip.
-                                {
-                                    for (int k = 0; k < distinctBrandList.Count; k++) {
-                                        TblLoadingSlipExtTO tblLoadingSlipExtTOBrand = distinctBrandList[k];
-                                        if (k == 0) {
-                                            tblLoadingSlipTO.LoadingSlipExtTOList = tblLoadingSlipExtTOList.Where (w => w.BrandId == tblLoadingSlipExtTOBrand.BrandId).ToList ();
-                                        } else {
-
-                                            TblLoadingSlipTO tblLoadingSlipTOTemp = tblLoadingSlipTO.DeepCopy (); // Create Clone
-                                            tblLoadingSlipTOTemp.LoadingSlipExtTOList = tblLoadingSlipExtTOList.Where (w => w.BrandId == tblLoadingSlipExtTOBrand.BrandId).ToList ();
-                                            splitLoadingSlipList.Add (tblLoadingSlipTOTemp);
-                                        }
-                                    }
-                                }
-
-                            }
-                        }
-
-                        tblLoadingTO.LoadingSlipList.AddRange (splitLoadingSlipList);
-                    }
-
-                }
-
-                #endregion
-
-                //Aniket [30-7-2019] added for IOT
-
-                int modbusRefIdInc = 0;
-                for (int i = 0; i < tblLoadingTO.LoadingSlipList.Count; i++) {
-                    TblLoadingSlipTO tblLoadingSlipTO = tblLoadingTO.LoadingSlipList[i];
-                    tblLoadingSlipTO.LoadingId = tblLoadingTO.IdLoading;
-                    //Aniket [30-7-2019] added for IOT
-                    if (weightSourceConfigId == (int) Constants.WeighingDataSourceE.IoT) {
-                        tblLoadingSlipTO.VehicleNo = string.Empty;
-                    } else
-                        tblLoadingSlipTO.VehicleNo = tblLoadingTO.VehicleNo;
-
-                    //Vijaymala added[22-06-2018]
-                    if (isAutoGateInVehicle == 1) {
-                        if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
-                        {
-                            tblLoadingSlipTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
-                            tblLoadingSlipTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
-                            tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
-                            tblLoadingTO.StatusReason = "Loading Scheduled";
-                        }
-                        else
-                        {
-                            tblLoadingSlipTO.TranStatusE = Constants.TranStatusE.LOADING_GATE_IN;
-                            tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_GATE_IN;
-                        }
-
-                    } else {
-                        tblLoadingSlipTO.TranStatusE = Constants.TranStatusE.LOADING_NEW;
-
-                    }
-                    tblLoadingSlipTO.CreatedBy = tblLoadingTO.CreatedBy;
-                    tblLoadingSlipTO.CreatedOn = tblLoadingTO.CreatedOn;
-                    tblLoadingSlipTO.NoOfDeliveries = tblLoadingTO.NoOfDeliveries;
-                    tblLoadingSlipTO.StatusDate = tblLoadingTO.StatusDate;
-                    tblLoadingSlipTO.StatusReason = tblLoadingTO.StatusReason;
-                    tblLoadingSlipTO.ContactNo = tblLoadingTO.ContactNo;
-                    tblLoadingSlipTO.DriverName = tblLoadingTO.DriverName;
-                    tblLoadingSlipTO.AddDiscAmt = tblLoadingSlipTO.AddDiscAmt;
-                    //tblLoadingSlipTO.OrcAmt = tblLoadingTO.OrcAmt;
-
-                    //Vijaymala added[26-04-2018]:to done calculation using  freight from loading slip 
-                    if (tblLoadingSlipTO.IsFreightIncluded == 1) {
-                        freightPerMT = tblLoadingSlipTO.FreightAmt; // CalculateFreightAmtPerTon(tblLoadingTO.LoadingSlipList, tblLoadingTO.FreightAmt);
-                        //freightPerMT = CalculateFreightAmtPerTon(tblLoadingTO.LoadingSlipList, tblLoadingTO.FreightAmt);
-                        //if (freightPerMT < 0)
-                        //{
-                        //    tran.Rollback();
-                        //    resultMessage.MessageType = ResultMessageE.Error;
-                        //    resultMessage.Text = "Error : Freight Calculations is less than 0. Please check the calculations immediatly";
-                        //    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                        //    return resultMessage;
-                        //}
-                    }
-
-                    Int64 slipCnt = _iTblLoadingSlipDAO.SelectCountOfLoadingSlips (tblLoadingTO.CreatedOn, tblLoadingSlipTO.IsConfirmed, conn, tran);
-                    slipCnt++;
-                    String slipNo = string.Empty;
-                    if (tblLoadingSlipTO.IsConfirmed == 1) {
-                        //slipNo = tblLoadingTO.CreatedOn.Year.ToString() + "" + tblLoadingTO.CreatedOn.Month.ToString() + "" + tblLoadingTO.CreatedOn.Day.ToString() + "/" + slipCnt;
-
-                        // Vaibhav [30-Jan-2018] Commented and added to generate confirm loading slip count.
-                        TblEntityRangeTO entityRangeTO = SelectEntityRangeForLoadingCount (Constants.ENTITY_RANGE_C_LOADINGSLIP_COUNT, conn, tran);
-                        if (entityRangeTO == null) {
-                            tran.Rollback ();
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Text = "Error : entityRangeTO is null";
-                            resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                            return resultMessage;
-                        }
-
-                        slipNo = tblLoadingTO.CreatedOn.Day.ToString () + "" + tblLoadingTO.CreatedOn.Month.ToString () + "" + tblLoadingTO.CreatedOn.Year.ToString () + "/" + entityRangeTO.EntityPrevValue;
-
-                        entityRangeTO.EntityPrevValue++;
-                        result = _iTblEntityRangeDAO.UpdateTblEntityRange (entityRangeTO, conn, tran);
-                        if (result != 1) {
-                            tran.Rollback ();
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Text = "Error : While UpdateTblEntityRange";
-                            resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                            return resultMessage;
-                        }
-                    } else {
-                        //slipNo = tblLoadingTO.CreatedOn.Year.ToString() + "" + tblLoadingTO.CreatedOn.Month.ToString() + "" + tblLoadingTO.CreatedOn.Day.ToString() + "" + "NC/" + slipCnt;
-
-                        // Vaibhav [10-Jan-2018] Commented and added to generate nc loading slip count.
-                        TblEntityRangeTO entityRangeTO = SelectEntityRangeForLoadingCount (Constants.ENTITY_RANGE_NC_LOADINGSLIP_COUNT, conn, tran);
-                        if (entityRangeTO == null) {
-                            tran.Rollback ();
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Text = "Error : entityRangeTO is null";
-                            resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                            return resultMessage;
-                        }
-
-                        slipNo = tblLoadingTO.CreatedOn.Day.ToString () + "" + tblLoadingTO.CreatedOn.Month.ToString () + "" + tblLoadingTO.CreatedOn.Year.ToString () + "" + "NC/" + entityRangeTO.EntityPrevValue;
-
-                        entityRangeTO.EntityPrevValue++;
-                        result = _iTblEntityRangeDAO.UpdateTblEntityRange (entityRangeTO, conn, tran);
-                        if (result != 1) {
-                            tran.Rollback ();
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Text = "Error : While UpdateTblEntityRange";
-                            resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                            return resultMessage;
-                        }
-                    }
-                    tblLoadingSlipTO.LoadingSlipNo = slipNo;
-                    
-                    result = _iTblLoadingSlipBL.InsertTblLoadingSlip (tblLoadingSlipTO, conn, tran);
-                    if (result != 1) {
-                        tran.Rollback ();
-                        resultMessage.MessageType = ResultMessageE.Error;
-                        resultMessage.Text = "Error : While inserting into InsertTblLoadingSlip";
-                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                        return resultMessage;
-                    }
-                    #region Insert PaymentTerm Option Relation
-                    if (tblLoadingSlipTO.PaymentTermOptionRelationTOLst != null && tblLoadingSlipTO.PaymentTermOptionRelationTOLst.Count > 0) {
-                        TblPaymentTermOptionRelationTO tblPaymentTermOptionRelationTO = new TblPaymentTermOptionRelationTO ();
-
-                        for (int j = 0; j < tblLoadingSlipTO.PaymentTermOptionRelationTOLst.Count; j++) {
-                            tblPaymentTermOptionRelationTO = tblLoadingSlipTO.PaymentTermOptionRelationTOLst[j];
-                            tblPaymentTermOptionRelationTO.CreatedBy = tblLoadingSlipTO.CreatedBy;
-                            tblPaymentTermOptionRelationTO.CreatedOn = _iCommon.ServerDateTime;
-                            tblPaymentTermOptionRelationTO.BookingId = 0;
-                            tblPaymentTermOptionRelationTO.LoadingId = tblLoadingSlipTO.IdLoadingSlip;
-
-                            result = _iTblPaymentTermOptionRelationDAO.InsertTblPaymentTermOptionRelation (tblPaymentTermOptionRelationTO, conn, tran);
-                            if (result != 1) {
-                                tran.Rollback ();
-                                resultMessage.Text = "Sorry..Record Could not be saved.";
-                                resultMessage.DisplayMessage = "Error while insert into TblPaymentTermOptionRelation";
-                                resultMessage.Result = 0;
-                                resultMessage.MessageType = ResultMessageE.Error;
-                                return resultMessage;
-                            }
-                        }
-                    }
-                    #endregion
-
-                    #region Loading Slip Order And Qty Details
-
-                    TblBookingsTO tblBookingsTO = new Models.TblBookingsTO ();
-
-                    List<TblBookingExtTO> tblBookingExtTOList = new List<TblBookingExtTO> ();
-
-                    if (tblLoadingTO.LoadingType != (int) Constants.LoadingTypeE.OTHER) {
-                        if (tblLoadingSlipTO.TblLoadingSlipDtlTO == null) {
-                            tran.Rollback ();
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Text = "Error : LoadingSlipDtlTOList Found Empty Or Null";
-                            resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                            return resultMessage;
-                        }
-
-                        TblLoadingSlipDtlTO tblLoadingSlipDtlTO = tblLoadingSlipTO.TblLoadingSlipDtlTO;
-                        tblLoadingSlipDtlTO.LoadingSlipId = tblLoadingSlipTO.IdLoadingSlip;
-                        tblLoadingSlipDtlTO.BookingId = tblLoadingSlipDtlTO.IdBooking;
-                        result = _iTblLoadingSlipDtlDAO.InsertTblLoadingSlipDtl (tblLoadingSlipDtlTO, conn, tran);
-                        if (result != 1) {
-                            tran.Rollback ();
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Text = "Error : While inserting into InsertTblLoadingSlipDtl";
-                            resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                            return resultMessage;
-                        }
-
-                        finalLoadQty += tblLoadingSlipDtlTO.LoadingQty;
-
-                        //Call to update pending booking qty for loading
-
-                        tblBookingsTO = _iTblBookingsDAO.SelectTblBookings (tblLoadingSlipDtlTO.BookingId, conn, tran);
-                        if (tblBookingsTO == null) {
-                            tran.Rollback ();
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Text = "Error :tblBookingsTO Found NUll Or Empty";
-                            resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                            return resultMessage;
-                        }
-
-                        if (tblBookingsTO.DealerOrgId != tblLoadingSlipTO.DealerOrgId) {
-                            tran.Rollback ();
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Text = "Error : Loading Slip Dealer and Respective Booking Dealer Not Matches";
-                            resultMessage.DisplayMessage = "Error - 01 : Record Could Not Be Saved. Dealer Info from booking and Loading not matches";
-                            return resultMessage;
-                        }
-                        double totalLoadedBundles = 0;
-                        tblLoadingSlipTO.LoadingSlipExtTOList.ForEach (ele => {
-                            totalLoadedBundles += ele.Bundles;
-                        });
-                        tblBookingsTO.IdBooking = tblLoadingSlipDtlTO.BookingId;
-                        tblBookingsTO.PendingQty = tblBookingsTO.PendingQty - tblLoadingSlipDtlTO.LoadingQty;
-                        tblBookingsTO.PendingUomQty = tblBookingsTO.PendingUomQty - totalLoadedBundles;
-                        tblBookingsTO.UpdatedBy = tblLoadingSlipTO.CreatedBy;
-                        tblBookingsTO.UpdatedOn = _iCommon.ServerDateTime;
-                        tblLoadingSlipTO.BookingType = tblBookingsTO.BookingType;
-                        if (tblBookingsTO.PendingQty < 0) {
-                            tran.Rollback ();
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Text = "Error : tblBookingsTO.PendingQty gone less than 0";
-                            resultMessage.DisplayMessage = "Error - 01 : Record Could Not Be Saved. Pending Qty Of Selected Booking #" + tblBookingsTO.BookingDisplayNo + " is less then loading Qty" + Environment.NewLine + " Please recreate the loading slip";
-                            return resultMessage;
-                        }
-
-                        //Check for Weight Tolerance . If pending Qty is within weight tolerance then mark the booking status as closed.
-                        TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO (Constants.CP_WEIGHT_TOLERANCE_IN_KGS, conn, tran);
-                        if (tblConfigParamsTO != null) {
-                            Double wtToleranceKgs = Convert.ToDouble (tblConfigParamsTO.ConfigParamVal);
-                            Double pendingQtyInKgs = tblBookingsTO.PendingQty * 1000;
-                            if (pendingQtyInKgs > 0 && pendingQtyInKgs <= wtToleranceKgs) {
-                                TblBookingQtyConsumptionTO bookingQtyConsumptionTO = new TblBookingQtyConsumptionTO ();
-                                bookingQtyConsumptionTO.BookingId = tblBookingsTO.IdBooking;
-                                bookingQtyConsumptionTO.ConsumptionQty = tblBookingsTO.PendingQty;
-                                bookingQtyConsumptionTO.CreatedBy = tblBookingsTO.UpdatedBy;
-                                bookingQtyConsumptionTO.CreatedOn = tblBookingsTO.UpdatedOn;
-                                bookingQtyConsumptionTO.StatusId = (int) tblBookingsTO.TranStatusE;
-                                bookingQtyConsumptionTO.WeightTolerance = tblConfigParamsTO.ConfigParamVal + " KGs";
-                                bookingQtyConsumptionTO.Remark = "Booking Pending Qty is Within Weight Tolerance Limit and Auto Closed";
-
-                                result = _iTblBookingQtyConsumptionDAO.InsertTblBookingQtyConsumption (bookingQtyConsumptionTO, conn, tran);
-                                if (result != 1) {
-                                    tran.Rollback ();
-                                    resultMessage.MessageType = ResultMessageE.Error;
-                                    resultMessage.Text = "Error While InsertTblBookingQtyConsumption";
-                                    resultMessage.Tag = bookingQtyConsumptionTO;
-                                    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                                    return resultMessage;
-                                }
-                                //commented by aniket [25-6-2019] 
-                                //tblBookingsTO.PendingQty = 0;
-                            }
-                        }
-
-                        result = _iTblBookingsDAO.UpdateBookingPendingQty (tblBookingsTO, conn, tran);
-                        if (result != 1) {
-                            tran.Rollback ();
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Text = "Error : While UpdateBookingPendingQty Against Booking";
-                            resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                            return resultMessage;
-                        }
-
-                        tblBookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt (tblBookingsTO.IdBooking, conn, tran);
-                        if (tblBookingExtTOList != null && tblBookingExtTOList.Count > 0) {
-                            tblBookingExtTOList = tblBookingExtTOList.OrderBy (o => o.ScheduleDate).ToList ();
-                        }
-                    }
-
-                    #endregion
-
-                    #region LoadingSlip Layer Material Details.
-
-                    resultMessage = InsertLoadingExtDetails (tblLoadingTO, conn, tran, ref isBoyondLoadingQuota, ref finalLoadQty, tblLoadingSlipTO, tblBookingsTO, tblBookingExtTOList, ref modbusRefIdInc);
-                    if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information) {
-                        return resultMessage;
-                    }
-
-                    #endregion
-
-                    #region Save Loading Slip Layerwise Adress Details
-
-                    if (tblLoadingSlipTO.DeliveryAddressTOList != null && tblLoadingSlipTO.DeliveryAddressTOList.Count > 0) {
-                        for (int a = 0; a < tblLoadingSlipTO.DeliveryAddressTOList.Count; a++) {
-                            TblLoadingSlipAddressTO deliveryAddressTO = tblLoadingSlipTO.DeliveryAddressTOList[a];
-                            if (deliveryAddressTO.LoadingLayerId > 0) {
-                                deliveryAddressTO.LoadingSlipId = tblLoadingSlipTO.IdLoadingSlip;
-
-                                if (string.IsNullOrEmpty (deliveryAddressTO.Country))
-                                    deliveryAddressTO.Country = Constants.DefaultCountry;
-
-                                result = _iTblLoadingSlipAddressDAO.InsertTblLoadingSlipAddress (deliveryAddressTO, conn, tran);
-                                if (result != 1) {
-                                    tran.Rollback ();
-                                    resultMessage.MessageType = ResultMessageE.Error;
-                                    resultMessage.Text = "Error : While InsertTblLoadingSlipAddress Against LoadingSlip";
-                                    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                                    return resultMessage;
-                                }
-                            }
-                        }
-                    } else {
-                        //Delivery Address will not be compulsory while loading
-                        //tran.Rollback();
-                        //resultMessage.MessageType = ResultMessageE.Error;
-                        //resultMessage.Text = "Error : LoadingSlipAddressTOList(Loading Address Details) Found Null Or Empty";
-                        //return resultMessage;
-                    }
-
-                    #endregion
-                }
-
                 #endregion
 
                 #region 3. Prepare A History Record
 
-                TblLoadingStatusHistoryTO tblLoadingStatusHistoryTO = tblLoadingTO.GetLoadingStatusHistoryTO ();
+                TblLoadingStatusHistoryTO tblLoadingStatusHistoryTO = tblLoadingTO.GetLoadingStatusHistoryTO();
                 //Sanjay [2017-07-28] Condition Added As Proper history were not getting maintain
                 //if (isBoyondLoadingQuota)
                 //{
@@ -3625,9 +3695,10 @@ namespace ODLMWebAPI.BL {
                 tblLoadingStatusHistoryTO.TranStatusE = tblLoadingTO.TranStatusE;
                 tblLoadingStatusHistoryTO.StatusRemark = tblLoadingTO.StatusReason;
 
-                result = _iTblLoadingStatusHistoryDAO.InsertTblLoadingStatusHistory (tblLoadingStatusHistoryTO, conn, tran);
-                if (result != 1) {
-                    tran.Rollback ();
+                result = _iTblLoadingStatusHistoryDAO.InsertTblLoadingStatusHistory(tblLoadingStatusHistoryTO, conn, tran);
+                if (result != 1)
+                {
+                    tran.Rollback();
                     resultMessage.MessageType = ResultMessageE.Error;
                     resultMessage.Text = "Error in InsertTblLoadingStatusHistory";
                     resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
@@ -3636,20 +3707,24 @@ namespace ODLMWebAPI.BL {
                 #endregion
 
                 #region to set loading depend on other booking as other loading slip
-                if (tblLoadingTO.LoadingType != (int) Constants.LoadingTypeE.OTHER) {
+                if (tblLoadingTO.LoadingType != (int)Constants.LoadingTypeE.OTHER)
+                {
                     Int32 changeType = 1;
 
-                    for (int k = 0; k < tblLoadingTO.LoadingSlipList.Count; k++) {
+                    for (int k = 0; k < tblLoadingTO.LoadingSlipList.Count; k++)
+                    {
                         TblLoadingSlipTO tempLoadingSlipTo = tblLoadingTO.LoadingSlipList[k];
 
-                        if (tempLoadingSlipTo.BookingType != (int) Constants.BookingType.IsOther) {
+                        if (tempLoadingSlipTo.BookingType != (int)Constants.BookingType.IsOther)
+                        {
                             changeType = 0;
                             break;
                         }
                     }
 
-                    if (changeType == 1) {
-                        tblLoadingTO.LoadingType = (int) Constants.LoadingTypeE.OTHER;
+                    if (changeType == 1)
+                    {
+                        tblLoadingTO.LoadingType = (int)Constants.LoadingTypeE.OTHER;
                     }
 
                 }
@@ -3657,8 +3732,17 @@ namespace ODLMWebAPI.BL {
                 #endregion
 
                 #region 4. Finally Update the Total Loading Qty And Its Status based on loading quota consumption
+                tblLoadingTO.TotalLoadingQty = 0;
+                for (int c1 = 0; c1 < tblLoadingTO.LoadingSlipList.Count; c1++)
+                {
+                    for (int c2 = 0; c2 < tblLoadingTO.LoadingSlipList[c1].LoadingSlipExtTOList.Count; c2++)
+                    {
+                        tblLoadingTO.TotalLoadingQty += tblLoadingTO.LoadingSlipList[c1].LoadingSlipExtTOList[c2].LoadingQty;
+                    }
+                } 
 
-                tblLoadingTO.TotalLoadingQty = finalLoadQty;
+
+                //tblLoadingTO.TotalLoadingQty = finalLoadQty;
                 tblLoadingTO.UpdatedBy = tblLoadingTO.CreatedBy;
                 tblLoadingTO.UpdatedOn = tblLoadingTO.CreatedOn;
                 //if (isBoyondLoadingQuota)
@@ -3673,15 +3757,18 @@ namespace ODLMWebAPI.BL {
                 //    tblLoadingTO.StatusReason = "Loading Scheduled & Confirmed";
                 //}
                 //Vijaymala added[22-06-2018]
-                if (isAutoGateInVehicle == 1) {
+                if (isAutoGateInVehicle == 1)
+                {
                     if (weightSourceConfigId != (int)Constants.WeighingDataSourceE.IoT)
                     {
                         tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_GATE_IN;
                         tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_GATE_IN;
                         tblLoadingTO.StatusReason = "Vehicle Entered In The Premises";
                     }
-                } else {
-                    
+                }
+                else
+                {
+
                     tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_NOT_CONFIRM;
                     tblLoadingTO.StatusReason = "Apporval Needed";
                 }
@@ -3691,9 +3778,10 @@ namespace ODLMWebAPI.BL {
                     tblLoadingTO.VehicleNo = vehicleNumber;
                     tblLoadingTO.TransporterOrgId = transporterId;
                 }
-               
-                result = UpdateTblLoading (tblLoadingTO, conn, tran);
-                if (result != 1) {
+
+                result = UpdateTblLoading(tblLoadingTO, conn, tran);
+                if (result != 1)
+                {
                     resultMessage.MessageType = ResultMessageE.Error;
                     resultMessage.Text = "Error While UpdateTblLoading";
                     resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
@@ -3701,9 +3789,10 @@ namespace ODLMWebAPI.BL {
                 }
 
                 //Update Individual Loading Slip statuses
-                result = _iTblLoadingSlipBL.UpdateTblLoadingSlip (tblLoadingTO, conn, tran);
-                if (result <= 0) {
-                    tran.Rollback ();
+                result = _iTblLoadingSlipBL.UpdateTblLoadingSlip(tblLoadingTO, conn, tran);
+                if (result <= 0)
+                {
+                    tran.Rollback();
                     resultMessage.MessageType = ResultMessageE.Error;
                     resultMessage.Text = "Error While UpdateTblLoadingSlip In Method SaveNewLoadingSlip";
                     resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
@@ -3716,23 +3805,26 @@ namespace ODLMWebAPI.BL {
                 //if (!isBoyondLoadingQuota)
                 //Vijaymala added[03-05-2018]to change loading slip notification with party name
                 String dealerOrgNames = String.Empty;
-                if (tblLoadingTO.LoadingSlipList != null && tblLoadingTO.LoadingSlipList.Count > 1) {
+                if (tblLoadingTO.LoadingSlipList != null && tblLoadingTO.LoadingSlipList.Count > 1)
+                {
                     List<TblLoadingSlipTO> loadingSlipList = tblLoadingTO.LoadingSlipList;
-                    List<TblLoadingSlipTO> distinctLoadingSlipList = loadingSlipList.GroupBy (w => w.DealerOrgId).Select (s => s.FirstOrDefault ()).ToList ();
-                    if (distinctLoadingSlipList != null && distinctLoadingSlipList.Count > 0) {
-                        distinctLoadingSlipList.ForEach (f => f.DealerOrgName = f.DealerOrgName.Replace (',', ' '));
-                        dealerOrgNames = String.Join (" , ", distinctLoadingSlipList.Select (s => s.DealerOrgName.ToString ()).ToArray ());
+                    List<TblLoadingSlipTO> distinctLoadingSlipList = loadingSlipList.GroupBy(w => w.DealerOrgId).Select(s => s.FirstOrDefault()).ToList();
+                    if (distinctLoadingSlipList != null && distinctLoadingSlipList.Count > 0)
+                    {
+                        distinctLoadingSlipList.ForEach(f => f.DealerOrgName = f.DealerOrgName.Replace(',', ' '));
+                        dealerOrgNames = String.Join(" , ", distinctLoadingSlipList.Select(s => s.DealerOrgName.ToString()).ToArray());
                     }
 
                 }
-                TblConfigParamsTO dealerNameConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO (Constants.CP_ADD_DEALER_IN_NOTIFICATION, conn, tran);
+                TblConfigParamsTO dealerNameConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_ADD_DEALER_IN_NOTIFICATION, conn, tran);
                 Int32 dealerNameActive = 0;
                 if (dealerNameConfTO != null)
-                    dealerNameActive = Convert.ToInt32 (dealerNameConfTO.ConfigParamVal);
+                    dealerNameActive = Convert.ToInt32(dealerNameConfTO.ConfigParamVal);
 
-                if (true) {
-                    TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO ();
-                    tblAlertInstanceTO.AlertDefinitionId = (int) NotificationConstants.NotificationsE.LOADING_SLIP_CONFIRMATION_REQUIRED;
+                if (true)
+                {
+                    TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
+                    tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.LOADING_SLIP_CONFIRMATION_REQUIRED;
                     tblAlertInstanceTO.AlertAction = "LOADING_SLIP_CONFIRMATION_REQUIRED";
 
                     tblAlertInstanceTO.AlertComment = "Loading slip  " + tblLoadingTO.LoadingSlipNo + "  is awaiting for confirmation";
@@ -3742,7 +3834,7 @@ namespace ODLMWebAPI.BL {
                         tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ")."; //      
                     }
                     tblAlertInstanceTO.EffectiveFromDate = tblLoadingTO.CreatedOn;
-                    tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours (12);
+                    tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(12);
                     tblAlertInstanceTO.IsActive = 1;
                     tblAlertInstanceTO.SourceDisplayId = "LOADING_SLIP_CONFIRMATION_REQUIRED";
                     tblAlertInstanceTO.SourceEntityId = tblLoadingTO.IdLoading;
@@ -3750,9 +3842,10 @@ namespace ODLMWebAPI.BL {
                     tblAlertInstanceTO.RaisedOn = tblLoadingTO.CreatedOn;
                     tblAlertInstanceTO.IsAutoReset = 0;
 
-                    ResultMessage rMessage = _iTblAlertInstanceBL.SaveNewAlertInstance (tblAlertInstanceTO, conn, tran);
-                    if (rMessage.MessageType != ResultMessageE.Information) {
-                        tran.Rollback ();
+                    ResultMessage rMessage = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
+                    if (rMessage.MessageType != ResultMessageE.Information)
+                    {
+                        tran.Rollback();
                         resultMessage.MessageType = ResultMessageE.Error;
                         resultMessage.Text = "Error While SaveNewAlertInstance";
                         resultMessage.Tag = tblAlertInstanceTO;
@@ -3764,16 +3857,19 @@ namespace ODLMWebAPI.BL {
                 #endregion
                 #region @KKM [10-Dec-2018] Call To IoT To write the vehicle details
 
-                if (weightSourceConfigId == (int) Constants.WeighingDataSourceE.IoT || weightSourceConfigId == (int) Constants.WeighingDataSourceE.BOTH) {
-                    if (tblLoadingTO.StatusId == (Int32) Constants.TranStatusE.LOADING_CONFIRM || tblLoadingTO.StatusId == (Int32)Constants.TranStatusE.LOADING_NEW) {
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT || weightSourceConfigId == (int)Constants.WeighingDataSourceE.BOTH)
+                {
+                    if (tblLoadingTO.StatusId == (Int32)Constants.TranStatusE.LOADING_CONFIRM || tblLoadingTO.StatusId == (Int32)Constants.TranStatusE.LOADING_NEW)
+                    {
                         if (isAutoGateInVehicle == 1)
                         {
                             tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_GATE_IN;
                             tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_GATE_IN;
                             tblLoadingTO.StatusReason = "Vehicle Entered In The Premises";
                         }
-                        int res = WriteDataOnIOT (tblLoadingTO, conn, tran, vehicleNumber, transporterId);
-                        if (res == 0) {
+                        int res = WriteDataOnIOT(tblLoadingTO, conn, tran, vehicleNumber, transporterId);
+                        if (res == 0)
+                        {
                             tran.Rollback();
                             resultMessage.MessageType = ResultMessageE.Error;
                             resultMessage.Text = "Network Error, Please Try Again";
@@ -3785,23 +3881,29 @@ namespace ODLMWebAPI.BL {
 
                 #endregion
 
-                tran.Commit ();
+                //tran.Commit();
+
                 resultMessage.MessageType = ResultMessageE.Information;
 
                 resultMessage.Text = "Success, New Loading Slip # - " + tblLoadingTO.LoadingSlipNo + " is generated but approval needed.";
                 resultMessage.DisplayMessage = "Success, New Loading Slip # - " + tblLoadingTO.LoadingSlipNo + " is generated but approval needed.";
                 //Vijaymala added[22-06-2018]
-                if (isAutoGateInVehicle == 1) {
+                if (isAutoGateInVehicle == 1)
+                {
                     resultMessage.Text = "Success, New Loading Slip # - " + tblLoadingTO.LoadingSlipNo + " is generated and ready for weighing.";
                     resultMessage.DisplayMessage = "Success, New Loading Slip # - " + tblLoadingTO.LoadingSlipNo + " is generated and ready for weighing.";
-                } else {
+                }
+                else
+                {
 
                     //Saket [2018-02-13] Added 
-                    TblConfigParamsTO tblConfigParamsTOApproval = _iTblConfigParamsBL.SelectTblConfigParamsTO (Constants.CP_SKIP_LOADING_APPROVAL, conn, tran);
-                    if (tblConfigParamsTOApproval != null) {
-                        Int32 skiploadingApproval = Convert.ToInt32 (tblConfigParamsTOApproval.ConfigParamVal);
-                        if (skiploadingApproval == 1) {
-                            tblLoadingTO.StatusId = (Int32) Constants.TranStatusE.LOADING_CONFIRM;
+                    TblConfigParamsTO tblConfigParamsTOApproval = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_SKIP_LOADING_APPROVAL, conn, tran);
+                    if (tblConfigParamsTOApproval != null)
+                    {
+                        Int32 skiploadingApproval = Convert.ToInt32(tblConfigParamsTOApproval.ConfigParamVal);
+                        if (skiploadingApproval == 1)
+                        {
+                            tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
                             tblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
                             tblLoadingTO.StatusReason = "Loading Slip Auto Approved";
 
@@ -3809,7 +3911,12 @@ namespace ODLMWebAPI.BL {
                             tblLoadingTO.StatusDate = _iCommon.ServerDateTime;
                             tblLoadingTO.UpdatedOn = tblLoadingTO.StatusDate;
 
-                            return UpdateDeliverySlipConfirmations (tblLoadingTO);
+                            //return UpdateDeliverySlipConfirmations(tblLoadingTO);
+                            resultMessage = UpdateDeliverySlipConfirmations(tblLoadingTO, conn, tran);
+                            if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                            {
+                                return resultMessage;
+                            }
 
                         }
                     }
@@ -3825,10 +3932,14 @@ namespace ODLMWebAPI.BL {
                     //    resultMessage.DisplayMessage = "Sucess, New Loading Slip # - " + tblLoadingTO.LoadingSlipNo + " is generated and approved.";
                     //}
                 }
+
+                tran.Commit();
+
                 resultMessage.Tag = tblLoadingTO.IdLoading;
                 resultMessage.Result = 1;
                 return resultMessage;
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 if (tran.Connection.State == ConnectionState.Open)
                     tran.Rollback ();
 
@@ -3842,6 +3953,436 @@ namespace ODLMWebAPI.BL {
                 conn.Close ();
             }
         }
+
+        public ResultMessage SaveLoadingSlipDetails(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran, int weightSourceConfigId , Int32 startModBusRefId = 0)
+        {
+
+            Int32 result = 0;
+            ResultMessage resultMessage = new ResultMessage();
+            Boolean isBoyondLoadingQuota = false;
+            if (tblLoadingTO.LoadingSlipList == null || tblLoadingTO.LoadingSlipList.Count == 0)
+            {
+                tran.Rollback();
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Text = "Error : LoadingSlipList Found Empty Or Null";
+                resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                return resultMessage;
+            }
+            //Vijaymala added[26-04-2018]:commented that code to get freight from loading slip layerwise
+
+            Double freightPerMT = 0;
+
+            //Vijaymala added[26-04-2018]:commented that code to get freight from loading slip layerwise
+            //if (tblLoadingTO.IsFreightIncluded == 1)
+            //{
+            //    freightPerMT = tblLoadingTO.FreightAmt;// CalculateFreightAmtPerTon(tblLoadingTO.LoadingSlipList, tblLoadingTO.FreightAmt);
+            //    //freightPerMT = CalculateFreightAmtPerTon(tblLoadingTO.LoadingSlipList, tblLoadingTO.FreightAmt);
+            //    if(freightPerMT < 0)
+            //    {
+            //        tran.Rollback();
+            //        resultMessage.MessageType = ResultMessageE.Error;
+            //        resultMessage.Text = "Error : Freight Calculations is less than 0. Please check the calculations immediatly";
+            //        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+            //        return resultMessage;
+            //    }
+            //}
+
+            #region Splitting of loadingslip itemwise
+
+            //Saket [2018-02-13] Added 
+
+            Int32 isBrandWiseLoading = 1;
+
+            TblConfigParamsTO tblConfigParamsTOBrandWise = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_BRAND_WISE_INVOICE, conn, tran);
+            if (tblConfigParamsTOBrandWise != null)
+            {
+                isBrandWiseLoading = Convert.ToInt32(tblConfigParamsTOBrandWise.ConfigParamVal);
+            }
+
+            if (isBrandWiseLoading == 1)
+            {
+                if (tblLoadingTO.LoadingSlipList != null && tblLoadingTO.LoadingSlipList.Count > 0)
+                {
+                    List<TblLoadingSlipTO> splitLoadingSlipList = new List<TblLoadingSlipTO>();
+
+                    for (int i = 0; i < tblLoadingTO.LoadingSlipList.Count; i++)
+                    {
+                        TblLoadingSlipTO tblLoadingSlipTO = tblLoadingTO.LoadingSlipList[i];
+                        if (tblLoadingSlipTO.LoadingSlipExtTOList != null && tblLoadingSlipTO.LoadingSlipExtTOList.Count > 0)
+                        {
+
+                            List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = tblLoadingSlipTO.LoadingSlipExtTOList;
+
+                            List<TblLoadingSlipExtTO> distinctBrandList = tblLoadingSlipExtTOList.GroupBy(w => w.BrandId).Select(s => s.FirstOrDefault()).ToList();
+
+                            if (distinctBrandList != null && distinctBrandList.Count > 1) //Greater than 1 condtion if brand is distinct then only separate the loading slip.
+                            {
+                                for (int k = 0; k < distinctBrandList.Count; k++)
+                                {
+                                    TblLoadingSlipExtTO tblLoadingSlipExtTOBrand = distinctBrandList[k];
+                                    if (k == 0)
+                                    {
+                                        tblLoadingSlipTO.LoadingSlipExtTOList = tblLoadingSlipExtTOList.Where(w => w.BrandId == tblLoadingSlipExtTOBrand.BrandId).ToList();
+                                    }
+                                    else
+                                    {
+
+                                        TblLoadingSlipTO tblLoadingSlipTOTemp = tblLoadingSlipTO.DeepCopy(); // Create Clone
+                                        tblLoadingSlipTOTemp.LoadingSlipExtTOList = tblLoadingSlipExtTOList.Where(w => w.BrandId == tblLoadingSlipExtTOBrand.BrandId).ToList();
+                                        splitLoadingSlipList.Add(tblLoadingSlipTOTemp);
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+
+                    tblLoadingTO.LoadingSlipList.AddRange(splitLoadingSlipList);
+                }
+
+            }
+
+            #endregion
+
+            //Aniket [30-7-2019] added for IOT
+
+            int modbusRefIdInc = startModBusRefId;
+            for (int i = 0; i < tblLoadingTO.LoadingSlipList.Count; i++)
+            {
+                TblLoadingSlipTO tblLoadingSlipTO = tblLoadingTO.LoadingSlipList[i];
+                tblLoadingSlipTO.LoadingId = tblLoadingTO.IdLoading;
+                //Aniket [30-7-2019] added for IOT
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                {
+                    tblLoadingSlipTO.VehicleNo = string.Empty;
+                }
+                else
+                    tblLoadingSlipTO.VehicleNo = tblLoadingTO.VehicleNo;
+
+                //Vijaymala added[22-06-2018]
+                //if (isAutoGateInVehicle == 1)
+                //{
+                //    if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                //    {
+                //        tblLoadingSlipTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
+                //        tblLoadingSlipTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
+                //        tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
+                //        tblLoadingTO.StatusReason = "Loading Scheduled";
+                //    }
+                //    else
+                //    {
+                //        tblLoadingSlipTO.TranStatusE = Constants.TranStatusE.LOADING_GATE_IN;
+                //        tblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_GATE_IN;
+                //    }
+
+                //}
+                //else
+                //{
+                //    tblLoadingSlipTO.TranStatusE = Constants.TranStatusE.LOADING_NEW;
+
+                //}
+
+
+                tblLoadingSlipTO.TranStatusE = tblLoadingTO.TranStatusE;
+                tblLoadingSlipTO.StatusId = tblLoadingTO.StatusId;
+
+                tblLoadingSlipTO.CreatedBy = tblLoadingTO.CreatedBy;
+                tblLoadingSlipTO.CreatedOn = tblLoadingTO.CreatedOn;
+                tblLoadingSlipTO.NoOfDeliveries = tblLoadingTO.NoOfDeliveries;
+                tblLoadingSlipTO.StatusDate = tblLoadingTO.StatusDate;
+                tblLoadingSlipTO.StatusReason = tblLoadingTO.StatusReason;
+                tblLoadingSlipTO.ContactNo = tblLoadingTO.ContactNo;
+                tblLoadingSlipTO.DriverName = tblLoadingTO.DriverName;
+                tblLoadingSlipTO.AddDiscAmt = tblLoadingSlipTO.AddDiscAmt;
+                //tblLoadingSlipTO.OrcAmt = tblLoadingTO.OrcAmt;
+
+                //Vijaymala added[26-04-2018]:to done calculation using  freight from loading slip 
+                if (tblLoadingSlipTO.IsFreightIncluded == 1)
+                {
+                    freightPerMT = tblLoadingSlipTO.FreightAmt; // CalculateFreightAmtPerTon(tblLoadingTO.LoadingSlipList, tblLoadingTO.FreightAmt);
+                                                                //freightPerMT = CalculateFreightAmtPerTon(tblLoadingTO.LoadingSlipList, tblLoadingTO.FreightAmt);
+                                                                //if (freightPerMT < 0)
+                                                                //{
+                                                                //    tran.Rollback();
+                                                                //    resultMessage.MessageType = ResultMessageE.Error;
+                                                                //    resultMessage.Text = "Error : Freight Calculations is less than 0. Please check the calculations immediatly";
+                                                                //    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                                                                //    return resultMessage;
+                                                                //}
+                }
+
+                Int64 slipCnt = _iTblLoadingSlipDAO.SelectCountOfLoadingSlips(tblLoadingTO.CreatedOn, tblLoadingSlipTO.IsConfirmed, conn, tran);
+                slipCnt++;
+                String slipNo = string.Empty;
+                if (tblLoadingSlipTO.IsConfirmed == 1)
+                {
+                    //slipNo = tblLoadingTO.CreatedOn.Year.ToString() + "" + tblLoadingTO.CreatedOn.Month.ToString() + "" + tblLoadingTO.CreatedOn.Day.ToString() + "/" + slipCnt;
+
+                    // Vaibhav [30-Jan-2018] Commented and added to generate confirm loading slip count.
+                    TblEntityRangeTO entityRangeTO = SelectEntityRangeForLoadingCount(Constants.ENTITY_RANGE_C_LOADINGSLIP_COUNT, conn, tran);
+                    if (entityRangeTO == null)
+                    {
+                        tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Text = "Error : entityRangeTO is null";
+                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                        return resultMessage;
+                    }
+
+                    slipNo = tblLoadingTO.CreatedOn.Day.ToString() + "" + tblLoadingTO.CreatedOn.Month.ToString() + "" + tblLoadingTO.CreatedOn.Year.ToString() + "/" + entityRangeTO.EntityPrevValue;
+
+                    entityRangeTO.EntityPrevValue++;
+                    result = _iTblEntityRangeDAO.UpdateTblEntityRange(entityRangeTO, conn, tran);
+                    if (result != 1)
+                    {
+                        tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Text = "Error : While UpdateTblEntityRange";
+                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                        return resultMessage;
+                    }
+                }
+                else
+                {
+                    //slipNo = tblLoadingTO.CreatedOn.Year.ToString() + "" + tblLoadingTO.CreatedOn.Month.ToString() + "" + tblLoadingTO.CreatedOn.Day.ToString() + "" + "NC/" + slipCnt;
+
+                    // Vaibhav [10-Jan-2018] Commented and added to generate nc loading slip count.
+                    TblEntityRangeTO entityRangeTO = SelectEntityRangeForLoadingCount(Constants.ENTITY_RANGE_NC_LOADINGSLIP_COUNT, conn, tran);
+                    if (entityRangeTO == null)
+                    {
+                        tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Text = "Error : entityRangeTO is null";
+                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                        return resultMessage;
+                    }
+
+                    slipNo = tblLoadingTO.CreatedOn.Day.ToString() + "" + tblLoadingTO.CreatedOn.Month.ToString() + "" + tblLoadingTO.CreatedOn.Year.ToString() + "" + "NC/" + entityRangeTO.EntityPrevValue;
+
+                    entityRangeTO.EntityPrevValue++;
+                    result = _iTblEntityRangeDAO.UpdateTblEntityRange(entityRangeTO, conn, tran);
+                    if (result != 1)
+                    {
+                        tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Text = "Error : While UpdateTblEntityRange";
+                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                        return resultMessage;
+                    }
+                }
+                tblLoadingSlipTO.LoadingSlipNo = slipNo;
+
+                result = _iTblLoadingSlipBL.InsertTblLoadingSlip(tblLoadingSlipTO, conn, tran);
+                if (result != 1)
+                {
+                    tran.Rollback();
+                    resultMessage.MessageType = ResultMessageE.Error;
+                    resultMessage.Text = "Error : While inserting into InsertTblLoadingSlip";
+                    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                    return resultMessage;
+                }
+                #region Insert PaymentTerm Option Relation
+                if (tblLoadingSlipTO.PaymentTermOptionRelationTOLst != null && tblLoadingSlipTO.PaymentTermOptionRelationTOLst.Count > 0)
+                {
+                    TblPaymentTermOptionRelationTO tblPaymentTermOptionRelationTO = new TblPaymentTermOptionRelationTO();
+
+                    for (int j = 0; j < tblLoadingSlipTO.PaymentTermOptionRelationTOLst.Count; j++)
+                    {
+                        tblPaymentTermOptionRelationTO = tblLoadingSlipTO.PaymentTermOptionRelationTOLst[j];
+                        tblPaymentTermOptionRelationTO.CreatedBy = tblLoadingSlipTO.CreatedBy;
+                        tblPaymentTermOptionRelationTO.CreatedOn = _iCommon.ServerDateTime;
+                        tblPaymentTermOptionRelationTO.BookingId = 0;
+                        tblPaymentTermOptionRelationTO.LoadingId = tblLoadingSlipTO.IdLoadingSlip;
+
+                        result = _iTblPaymentTermOptionRelationDAO.InsertTblPaymentTermOptionRelation(tblPaymentTermOptionRelationTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.Text = "Sorry..Record Could not be saved.";
+                            resultMessage.DisplayMessage = "Error while insert into TblPaymentTermOptionRelation";
+                            resultMessage.Result = 0;
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            return resultMessage;
+                        }
+                    }
+                }
+                #endregion
+
+                #region Loading Slip Order And Qty Details
+
+                TblBookingsTO tblBookingsTO = new Models.TblBookingsTO();
+
+                List<TblBookingExtTO> tblBookingExtTOList = new List<TblBookingExtTO>();
+
+                if (tblLoadingTO.LoadingType != (int)Constants.LoadingTypeE.OTHER)
+                {
+                    if (tblLoadingSlipTO.TblLoadingSlipDtlTO == null)
+                    {
+                        tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Text = "Error : LoadingSlipDtlTOList Found Empty Or Null";
+                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                        return resultMessage;
+                    }
+
+                    TblLoadingSlipDtlTO tblLoadingSlipDtlTO = tblLoadingSlipTO.TblLoadingSlipDtlTO;
+                    tblLoadingSlipDtlTO.LoadingSlipId = tblLoadingSlipTO.IdLoadingSlip;
+                    tblLoadingSlipDtlTO.BookingId = tblLoadingSlipDtlTO.IdBooking;
+                    result = _iTblLoadingSlipDtlDAO.InsertTblLoadingSlipDtl(tblLoadingSlipDtlTO, conn, tran);
+                    if (result != 1)
+                    {
+                        tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Text = "Error : While inserting into InsertTblLoadingSlipDtl";
+                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                        return resultMessage;
+                    }
+
+                    //finalLoadQty += tblLoadingSlipDtlTO.LoadingQty;
+
+                    //Call to update pending booking qty for loading
+
+                    tblBookingsTO = _iTblBookingsDAO.SelectTblBookings(tblLoadingSlipDtlTO.BookingId, conn, tran);
+                    if (tblBookingsTO == null)
+                    {
+                        tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Text = "Error :tblBookingsTO Found NUll Or Empty";
+                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                        return resultMessage;
+                    }
+
+                    if (tblBookingsTO.DealerOrgId != tblLoadingSlipTO.DealerOrgId)
+                    {
+                        tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Text = "Error : Loading Slip Dealer and Respective Booking Dealer Not Matches";
+                        resultMessage.DisplayMessage = "Error - 01 : Record Could Not Be Saved. Dealer Info from booking and Loading not matches";
+                        return resultMessage;
+                    }
+                    double totalLoadedBundles = 0;
+                    tblLoadingSlipTO.LoadingSlipExtTOList.ForEach(ele =>
+                    {
+                        totalLoadedBundles += ele.Bundles;
+                    });
+                    tblBookingsTO.IdBooking = tblLoadingSlipDtlTO.BookingId;
+                    tblBookingsTO.PendingQty = tblBookingsTO.PendingQty - tblLoadingSlipDtlTO.LoadingQty;
+                    tblBookingsTO.PendingUomQty = tblBookingsTO.PendingUomQty - totalLoadedBundles;
+                    tblBookingsTO.UpdatedBy = tblLoadingSlipTO.CreatedBy;
+                    tblBookingsTO.UpdatedOn = _iCommon.ServerDateTime;
+                    tblLoadingSlipTO.BookingType = tblBookingsTO.BookingType;
+                    if (tblBookingsTO.PendingQty < 0)
+                    {
+                        tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Text = "Error : tblBookingsTO.PendingQty gone less than 0";
+                        resultMessage.DisplayMessage = "Error - 01 : Record Could Not Be Saved. Pending Qty Of Selected Booking #" + tblBookingsTO.BookingDisplayNo + " is less then loading Qty" + Environment.NewLine + " Please recreate the loading slip";
+                        return resultMessage;
+                    }
+
+                    //Check for Weight Tolerance . If pending Qty is within weight tolerance then mark the booking status as closed.
+                    TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_WEIGHT_TOLERANCE_IN_KGS, conn, tran);
+                    if (tblConfigParamsTO != null)
+                    {
+                        Double wtToleranceKgs = Convert.ToDouble(tblConfigParamsTO.ConfigParamVal);
+                        Double pendingQtyInKgs = tblBookingsTO.PendingQty * 1000;
+                        if (pendingQtyInKgs > 0 && pendingQtyInKgs <= wtToleranceKgs)
+                        {
+                            TblBookingQtyConsumptionTO bookingQtyConsumptionTO = new TblBookingQtyConsumptionTO();
+                            bookingQtyConsumptionTO.BookingId = tblBookingsTO.IdBooking;
+                            bookingQtyConsumptionTO.ConsumptionQty = tblBookingsTO.PendingQty;
+                            bookingQtyConsumptionTO.CreatedBy = tblBookingsTO.UpdatedBy;
+                            bookingQtyConsumptionTO.CreatedOn = tblBookingsTO.UpdatedOn;
+                            bookingQtyConsumptionTO.StatusId = (int)tblBookingsTO.TranStatusE;
+                            bookingQtyConsumptionTO.WeightTolerance = tblConfigParamsTO.ConfigParamVal + " KGs";
+                            bookingQtyConsumptionTO.Remark = "Booking Pending Qty is Within Weight Tolerance Limit and Auto Closed";
+
+                            result = _iTblBookingQtyConsumptionDAO.InsertTblBookingQtyConsumption(bookingQtyConsumptionTO, conn, tran);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                resultMessage.Text = "Error While InsertTblBookingQtyConsumption";
+                                resultMessage.Tag = bookingQtyConsumptionTO;
+                                resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                                return resultMessage;
+                            }
+                            //commented by aniket [25-6-2019] 
+                            //tblBookingsTO.PendingQty = 0;
+                        }
+                    }
+
+                    result = _iTblBookingsDAO.UpdateBookingPendingQty(tblBookingsTO, conn, tran);
+                    if (result != 1)
+                    {
+                        tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Text = "Error : While UpdateBookingPendingQty Against Booking";
+                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                        return resultMessage;
+                    }
+
+                    tblBookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(tblBookingsTO.IdBooking, conn, tran);
+                    if (tblBookingExtTOList != null && tblBookingExtTOList.Count > 0)
+                    {
+                        tblBookingExtTOList = tblBookingExtTOList.OrderBy(o => o.ScheduleDate).ToList();
+                    }
+                }
+
+                #endregion
+
+                #region LoadingSlip Layer Material Details.
+                Double finalLoadQty = 0;
+                resultMessage = InsertLoadingExtDetails(tblLoadingTO, conn, tran, ref isBoyondLoadingQuota, ref finalLoadQty, tblLoadingSlipTO, tblBookingsTO, tblBookingExtTOList, ref modbusRefIdInc);
+                if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                {
+                    return resultMessage;
+                }
+
+                #endregion
+
+                #region Save Loading Slip Layerwise Adress Details
+
+                if (tblLoadingSlipTO.DeliveryAddressTOList != null && tblLoadingSlipTO.DeliveryAddressTOList.Count > 0)
+                {
+                    for (int a = 0; a < tblLoadingSlipTO.DeliveryAddressTOList.Count; a++)
+                    {
+                        TblLoadingSlipAddressTO deliveryAddressTO = tblLoadingSlipTO.DeliveryAddressTOList[a];
+                        if (deliveryAddressTO.LoadingLayerId > 0)
+                        {
+                            deliveryAddressTO.LoadingSlipId = tblLoadingSlipTO.IdLoadingSlip;
+
+                            if (string.IsNullOrEmpty(deliveryAddressTO.Country))
+                                deliveryAddressTO.Country = Constants.DefaultCountry;
+
+                            result = _iTblLoadingSlipAddressDAO.InsertTblLoadingSlipAddress(deliveryAddressTO, conn, tran);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                resultMessage.Text = "Error : While InsertTblLoadingSlipAddress Against LoadingSlip";
+                                resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                                return resultMessage;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //Delivery Address will not be compulsory while loading
+                    //tran.Rollback();
+                    //resultMessage.MessageType = ResultMessageE.Error;
+                    //resultMessage.Text = "Error : LoadingSlipAddressTOList(Loading Address Details) Found Null Or Empty";
+                    //return resultMessage;
+                }
+
+                #endregion
+            }
+
+            resultMessage.DefaultSuccessBehaviour();
+            return resultMessage;
+        }
+
         //Aniket [7-8-2019] added to write data on IOT
         public int WriteDataOnIOT (TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran, String vehicleNumber, int transporterId) {
             int result = 0;
@@ -3929,7 +4470,7 @@ namespace ODLMWebAPI.BL {
                 Int32 result = 0;
                 //Get Data from IOT
                 //start vipul[16/04/2019] read existing data from gate
-                List<DimStatusTO> dimStatusTOList = _iDimStatusDAO.SelectAllDimStatus ();
+                List<DimStatusTO> dimStatusTOList = _iDimStatusDAO.SelectAllDimStatus ((Int32)Constants.TransactionTypeE.LOADING);
                 TblLoadingSlipTO loadingslip = new TblLoadingSlipTO ();
                 loadingslip.LoadingId = existingTblLoadingTO.IdLoading;
                 existingTblLoadingTO = _iIotCommunication.GetItemDataFromIotAndMerge (existingTblLoadingTO, false, true); //TblLoadingSlipBL.GetVehicalHistoryDataFromIoT(existingTblLoadingTO, loadingslip, dimStatusTOList);

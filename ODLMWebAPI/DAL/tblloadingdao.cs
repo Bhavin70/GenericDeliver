@@ -1498,6 +1498,8 @@ namespace ODLMWebAPI.DAL
                         tblLoadingTONew.MachineIP = Convert.ToString(tblLoadingTODT["machineIP"]);
                     if (tblLoadingTODT["isDBup"] != DBNull.Value)
                         tblLoadingTONew.IsDBup = Convert.ToInt32(tblLoadingTODT["isDBup"]);
+                    if (tblLoadingTODT["ignoreGrossWt"] != DBNull.Value)
+                        tblLoadingTONew.IgnoreGrossWt = Convert.ToInt32(tblLoadingTODT["ignoreGrossWt"]);
 
                     tblLoadingTOList.Add(tblLoadingTONew);
                 }
@@ -1877,6 +1879,7 @@ namespace ODLMWebAPI.DAL
                                 " ,[maxWeighingOty]" +
                                   ",[modbusRefId]" +
                                 ",[gateId]" +
+                                ",[ignoreGrossWt]" +
                                 " )" +
                     " VALUES (" +
                                 "  @IsJointDelivery " +
@@ -1910,6 +1913,7 @@ namespace ODLMWebAPI.DAL
                                 " ,@maxWeighingOty"+
                                   " ,@ModbusRefId" +
                                 " ,@GateId" +
+                                " ,@IgnoreGrossWt" +
                                 " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -1948,7 +1952,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@maxWeighingOty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.MaxWeighingOty);
             cmdInsert.Parameters.Add("@ModbusRefId", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.ModbusRefId);
             cmdInsert.Parameters.Add("@GateId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.GateId);
-
+            cmdInsert.Parameters.Add("@IgnoreGrossWt", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.IgnoreGrossWt);
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = Constants.IdentityColumnQuery;
@@ -1960,6 +1964,36 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Updation
+
+        public int UpdateTblLoadingIgnoreGrossWTFlag(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+                //return ExecuteUpdationCommand(tblLoadingTO, cmdUpdate);
+                cmdUpdate.CommandText = "UPDATE tempLoading SET " +
+                                        "[ignoreGrossWt]=@IgnoreGrossWt" +
+                                        " WHERE [idLoading] = @IdLoading ";
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+                cmdUpdate.Parameters.Add("@IdLoading", System.Data.SqlDbType.Int).Value = tblLoadingTO.IdLoading;
+                cmdUpdate.Parameters.Add("@IgnoreGrossWt", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.IgnoreGrossWt);
+
+                return cmdUpdate.ExecuteNonQuery();
+
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
+
+
         public int UpdateTblLoading(TblLoadingTO tblLoadingTO)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -2051,7 +2085,7 @@ namespace ODLMWebAPI.DAL
                             ",[modbusRefId]=@ModbusRefId" +
                             ",[gateId]=@GateId" +
                             ",[isDBup]=@IsDBup" +
-
+                            ",[ignoreGrossWt]=@IgnoreGrossWt" +
                             " WHERE [idLoading] = @IdLoading ";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -2086,6 +2120,7 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@ModbusRefId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.ModbusRefId);
             cmdUpdate.Parameters.Add("@GateId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.GateId);
             cmdUpdate.Parameters.Add("@IsDBup", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.IsDBup);
+            cmdUpdate.Parameters.Add("@IgnoreGrossWt", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.IgnoreGrossWt);
             return cmdUpdate.ExecuteNonQuery();
         }
         #endregion
