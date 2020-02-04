@@ -548,6 +548,21 @@ namespace ODLMWebAPI.BL
                     }
                     if (tblWeighingMeasuresTO.IsLoadingCompleted == 1)
                     {
+                        //Saket [2020-02-03] Added
+                        if (loadingTO.IgnoreGrossWt > 0)
+                        {
+                            loadingTO.IgnoreGrossWt = 0;
+                            result = _iTblLoadingDAO.UpdateTblLoadingIgnoreGrossWTFlag(loadingTO, conn, tran);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
+                                resultMessage.Text = "";
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                resultMessage.Result = 0;
+                                return resultMessage;
+                            }
+                        }
+
 
                         //@Added By Kiran For Final gross weight(IoT) 16/06/2019
                         if ((configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT) ||

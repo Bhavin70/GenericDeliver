@@ -398,7 +398,7 @@ namespace ODLMWebAPI.BL
         {
             if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
             {
-                List<DimStatusTO> statusList = _iDimStatusDAO.SelectAllDimStatus();
+                List<DimStatusTO> statusList = _iDimStatusDAO.SelectAllDimStatus((Int32)Constants.TransactionTypeE.LOADING);
                 //GateIoTResult gateIoTResult = IoT.IotCommunication.GetLoadingSlipsByStatusFromIoTByStatusId(loadingStatusId.ToString());
 
                 List<TblLoadingSlipTO> distGate = tblLoadingTOList.GroupBy(g => g.GateId).Select(s => s.FirstOrDefault()).ToList();
