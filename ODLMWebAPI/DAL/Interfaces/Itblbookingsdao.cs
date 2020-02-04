@@ -51,6 +51,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblBookingsTO> SelectTblBookingsRef(Int32 BookingRefId, SqlConnection conn, SqlTransaction tran);
         TblBookingsTO SelectBookingsDetailsFromInVoiceId(Int32 invoiceId, SqlConnection conn, SqlTransaction tran);
 
+        int UpdatePendingQuantity(TblBookingsTO tblBookingsTO, SqlConnection conn, SqlTransaction tran);
+
 
     }
 }

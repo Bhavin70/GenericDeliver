@@ -38,11 +38,12 @@ namespace ODLMWebAPI.Controllers
         private readonly ICommon _iCommon;
         private readonly ICircularDependencyBL _iCircularDependencyBL;
         private readonly ITblPaymentTermsForBookingBL _iTblPaymentTermsForBookingBL;
+        private readonly ITblBookingQtyConsumptionBL _iTblBookingQtyConsumptionBL;
         #endregion
 
         #region Constructor
 
-        public BookingController(ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblEntityRangeBL iTblEntityRangeBL, IDimensionBL iDimensionBL, ITblBookingScheduleBL iTblBookingScheduleBL, ITblBookingOpngBalBL iTblBookingOpngBalBL, ITblBookingExtBL iTblBookingExtBL, ITblBookingDelAddrBL iTblBookingDelAddrBL, ITblBookingBeyondQuotaBL iTblBookingBeyondQuotaBL, ICircularDependencyBL iCircularDependencyBL, ITblBookingsBL iTblBookingsBL, ICommon iCommon, ILogger<BookingController> logger, ITblBookingActionsBL iTblBookingActionsBL, ITblConfigParamsBL iTblConfigParamsBL)
+        public BookingController(ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblEntityRangeBL iTblEntityRangeBL, IDimensionBL iDimensionBL, ITblBookingScheduleBL iTblBookingScheduleBL, ITblBookingOpngBalBL iTblBookingOpngBalBL, ITblBookingExtBL iTblBookingExtBL, ITblBookingDelAddrBL iTblBookingDelAddrBL, ITblBookingBeyondQuotaBL iTblBookingBeyondQuotaBL, ICircularDependencyBL iCircularDependencyBL, ITblBookingsBL iTblBookingsBL, ICommon iCommon, ILogger<BookingController> logger, ITblBookingActionsBL iTblBookingActionsBL, ITblConfigParamsBL iTblConfigParamsBL, ITblBookingQtyConsumptionBL iTblBookingQtyConsumptionBL)
         {
             loggerObj = logger;
             _iTblBookingActionsBL = iTblBookingActionsBL; 
@@ -58,6 +59,7 @@ namespace ODLMWebAPI.Controllers
             _iTblPaymentTermsForBookingBL = iTblPaymentTermsForBookingBL;
             _iDimensionBL = iDimensionBL;
             _iTblEntityRangeBL = iTblEntityRangeBL;
+            _iTblBookingQtyConsumptionBL = iTblBookingQtyConsumptionBL;
             Constants.LoggerObj = logger;
         }
 
@@ -625,6 +627,13 @@ namespace ODLMWebAPI.Controllers
             return _iTblPaymentTermsForBookingBL.SelectAllTblPaymentTermsForBookingFromBookingId(bookingId, invoiceId);
         }
 
+        [Route("GetConsumptionQuantityDetailsByBookingId")]
+        [HttpGet]
+        public List<TblBookingQtyConsumptionTO> GetConsumptionQuantityDetailsByBookingId(int bookingId)
+        {
+            return _iTblBookingQtyConsumptionBL.SelectTblBookingQtyConsumptionTOByBookingId(bookingId);
+        }
+
         #endregion
 
         #region Post
@@ -948,7 +957,34 @@ namespace ODLMWebAPI.Controllers
             }
         }
 
-       
+        [Route("PostCloseQuantity")]
+        [HttpPost]
+        public ResultMessage PostCloseQuantity([FromBody] JObject data)
+        {
+
+            ResultMessage resultMessage = new ResultMessage();
+
+            try
+            {
+                //TblBookingsTO tblBookingsTO = JsonConvert.DeserializeObject<TblBookingsTO>(data.ToString());
+                var idBooking = data["bookingId"].ToString();
+                var remark = data["statusRemark"].ToString();
+                var createdByuserId = data["createdById"].ToString();
+                TblBookingQtyConsumptionTO tblBookingQtyConsumptionTO = new TblBookingQtyConsumptionTO();
+                tblBookingQtyConsumptionTO.BookingId = Convert.ToInt32(idBooking);
+                tblBookingQtyConsumptionTO.Remark = remark;
+                tblBookingQtyConsumptionTO.CreatedBy = Convert.ToInt32(createdByuserId);
+                return _iTblBookingsBL.UpdatePendingQuantity(tblBookingQtyConsumptionTO);
+
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultBehaviour();
+                return resultMessage;
+            }
+
+        }
+
         #endregion
 
         #region Put
