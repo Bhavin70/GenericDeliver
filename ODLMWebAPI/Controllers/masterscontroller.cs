@@ -281,8 +281,6 @@ namespace ODLMWebAPI.Controllers
 
         }
 
-
-
         /// <summary>
         /// Kiran[16-08-2018] To get module Communication List using moduleId and entityId
         /// </summary>
