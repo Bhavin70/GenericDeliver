@@ -99,7 +99,7 @@ namespace ODLMWebAPI.Models
         int stateId;
 
         Double creditLimit;
-
+        int otherNewBooking;
         #endregion
 
         #region Constructor
@@ -508,6 +508,7 @@ namespace ODLMWebAPI.Models
         public int StateId { get => stateId; set => stateId = value; }
         public List<TblBookingExtTO> OrderDetailsLstForItemWise { get => orderDetailsLstForItemWise; set => orderDetailsLstForItemWise = value; }
         public double CreditLimit { get => creditLimit; set => creditLimit = value; }
+        public int OtherNewBooking { get => otherNewBooking; set => otherNewBooking = value; }
 
 
         #endregion

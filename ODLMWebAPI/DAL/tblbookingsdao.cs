@@ -1844,6 +1844,9 @@ namespace ODLMWebAPI.DAL
                     if (tblBookingsTODT["creditLimit"] != DBNull.Value)
                         tblBookingsTONew.CreditLimit = Convert.ToDouble(tblBookingsTODT["creditLimit"]);
 
+                    if (tblBookingsTODT["otherNewBooking"] != DBNull.Value)
+                        tblBookingsTONew.OtherNewBooking = Convert.ToInt32(tblBookingsTODT["otherNewBooking"]); 
+
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }
             }
@@ -2173,6 +2176,7 @@ namespace ODLMWebAPI.DAL
                             " ,[pendingUomQty]" +  // Aniket [4-6-2019]
                             " ,[isInUom]" +  //Aniket[13-6-2019]
                             " ,[isItemized]" + //Aniket[13-6-2019]
+                            " ,[otherNewBooking]" + //Aniket[13-6-2019]
                             " )" +
                 " VALUES (" +
                             "  @CnFOrgId " +
@@ -2223,6 +2227,7 @@ namespace ODLMWebAPI.DAL
                             " ,@pendingUomQty" +
                             " ,@isInUom" +
                             " ,@isItemized" +
+                            " ,@OtherNewBooking" +
                              " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -2279,6 +2284,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@pendingUomQty", System.Data.SqlDbType.Decimal).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.PendingUomQty);
             cmdInsert.Parameters.Add("@isInUom", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.IsInUom);
             cmdInsert.Parameters.Add("@isItemized", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.IsItemized);
+            cmdInsert.Parameters.Add("@OtherNewBooking", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.OtherNewBooking);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {

@@ -346,6 +346,23 @@ namespace ODLMWebAPI.DAL
                         tblBookingExtTONew.UomQty = Convert.ToDouble(tblBookingExtTODT["uomQty"]);
                     if (tblBookingExtTODT["pendingUomQty"] != DBNull.Value)
                         tblBookingExtTONew.PendingUomQty = Convert.ToDouble(tblBookingExtTODT["pendingUomQty"]);
+                    if (tblBookingExtTODT["parityAmt"] != DBNull.Value)
+                        tblBookingExtTONew.ParityAmt = Convert.ToDouble(tblBookingExtTODT["parityAmt"]);
+                    if (tblBookingExtTODT["bookingRate"] != DBNull.Value)
+                        tblBookingExtTONew.BookingRate = Convert.ToDouble(tblBookingExtTODT["bookingRate"]);
+
+
+                    if (tblBookingExtTODT["isProcessReq"] != DBNull.Value)
+                        tblBookingExtTONew.IsProcessReq = Convert.ToInt32(tblBookingExtTODT["isProcessReq"]);
+                    if (tblBookingExtTODT["processCharge"] != DBNull.Value)
+                        tblBookingExtTONew.ProcessCharge = Convert.ToDouble(tblBookingExtTODT["processCharge"]);
+                    if (tblBookingExtTODT["length"] != DBNull.Value)
+                        tblBookingExtTONew.Length = Convert.ToDouble(tblBookingExtTODT["length"]);
+                    if (tblBookingExtTODT["width"] != DBNull.Value)
+                        tblBookingExtTONew.Width = Convert.ToDouble(tblBookingExtTODT["width"]);
+                    if (tblBookingExtTODT["prodClassId"] != DBNull.Value)
+                        tblBookingExtTONew.ProdClassId = Convert.ToInt32(tblBookingExtTODT["prodClassId"]);
+
                     tblBookingExtTOList.Add(tblBookingExtTONew);
                 }
             }
@@ -474,8 +491,16 @@ namespace ODLMWebAPI.DAL
                             " ,[discount]" +
                             " ,[uomQty]" +
                             " ,[pendingUomQty]" +
-                            //" ,[loadingLayerId]" +
-                            " )" +
+                            " ,[bookingRate]" +
+                            " ,[parityAmt]" +
+                            " ,[isProcessReq]" +
+                            " ,[processCharge]" +
+                            " ,[length]" +
+                            " ,[width]" +
+                            " ,[prodClassId] " +
+
+            //" ,[loadingLayerId]" +
+            " )" +
                 " VALUES (" +
                             "  @BookingId " +
                             " ,@MaterialId " +
@@ -490,6 +515,13 @@ namespace ODLMWebAPI.DAL
                             " ,@discount " +
                             " ,@uomQty " +
                             " ,@pendingUomQty " +
+                            " ,@BookingRate " +
+                            " ,@ParityAmt " +
+                            " ,@IsProcessReq " +
+                            " ,@ProcessCharge " +
+                            " ,@Length " +
+                            " ,@Width " +
+                            " ,@ProdClassId " +
                             //" ,@LoadingLayerId" +
                             " )";
 
@@ -511,7 +543,14 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@discount", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.Discount);
             cmdInsert.Parameters.Add("@uomQty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.UomQty);
             cmdInsert.Parameters.Add("@pendingUomQty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.PendingUomQty);
+            cmdInsert.Parameters.Add("@ParityAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.ParityAmt);
+            cmdInsert.Parameters.Add("@BookingRate", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.BookingRate);
 
+            cmdInsert.Parameters.Add("@IsProcessReq", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.IsProcessReq);
+            cmdInsert.Parameters.Add("@ProcessCharge", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.ProcessCharge);
+            cmdInsert.Parameters.Add("@Length", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.Length);
+            cmdInsert.Parameters.Add("@Width", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.Width);
+            cmdInsert.Parameters.Add("@ProdClassId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.ProdClassId);
             //cmdInsert.Parameters.Add("@LoadingLayerId", System.Data.SqlDbType.Int).Value = tblBookingExtTO.LoadingLayerId;
 
             if (cmdInsert.ExecuteNonQuery() == 1)
@@ -582,6 +621,13 @@ namespace ODLMWebAPI.DAL
                             " ,[discount] = @discount" +
                             " ,[uomQty] = @uomQty" +
                             " ,[pendingUomQty] = @pendingUomQty" +
+                            " ,[bookingRate] = @BookingRate" +
+                            " ,[parityAmt] = @ParityAmt" +
+                            " ,[isProcessReq] = @IsProcessReq" +
+                            " ,[processCharge] = @ProcessCharge" +
+                            " ,[length] = @Length" +
+                            " ,[width] = @Width" +
+                            " ,[prodClassId] = @ProdClassId" +
                             //" ,[loadingLayerId] = @LoadingLayerId" +
                             " WHERE [idBookingExt] = @IdBookingExt ";
 
@@ -602,8 +648,14 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@discount", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.Discount);
             cmdUpdate.Parameters.Add("@uomQty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.UomQty);
             cmdUpdate.Parameters.Add("@pendingUomQty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.PendingUomQty);
-
+            cmdUpdate.Parameters.Add("@ParityAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.ParityAmt);
+            cmdUpdate.Parameters.Add("@BookingRate", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.BookingRate);
             //cmdUpdate.Parameters.Add("@LoadingLayerId", System.Data.SqlDbType.Int).Value = tblBookingExtTO.LoadingLayerId;
+            cmdUpdate.Parameters.Add("@IsProcessReq", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.IsProcessReq);
+            cmdUpdate.Parameters.Add("@ProcessCharge", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.ProcessCharge);
+            cmdUpdate.Parameters.Add("@Length", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.Length);
+            cmdUpdate.Parameters.Add("@Width", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.Width);
+            cmdUpdate.Parameters.Add("@ProdClassId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.ProdClassId);
 
             return cmdUpdate.ExecuteNonQuery();
         }

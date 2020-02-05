@@ -51,6 +51,14 @@ namespace ODLMWebAPI.Models
         double parityAmt;
         double itemWiseRate;
         double totalAmt;
+
+        double bookingRate;
+        int isProcessReq;
+        Double processCharge;
+        Double length;
+        Double width;
+        Int32 prodClassId;
+
         #endregion
 
         #region Constructor
@@ -186,6 +194,12 @@ namespace ODLMWebAPI.Models
         public double ParityAmt { get => parityAmt; set => parityAmt = value; }
         public double ItemWiseRate { get => itemWiseRate; set => itemWiseRate = value; }
         public double TotalAmt { get => totalAmt; set => totalAmt = value; }
+        public double BookingRate { get => bookingRate; set => bookingRate = value; }
+        public int IsProcessReq { get => isProcessReq; set => isProcessReq = value; }
+        public double ProcessCharge { get => processCharge; set => processCharge = value; }
+        public double Length { get => length; set => length = value; }
+        public double Width { get => width; set => width = value; }
+        public int ProdClassId { get => prodClassId; set => prodClassId = value; }
 
 
 

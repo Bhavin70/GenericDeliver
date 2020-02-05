@@ -1595,11 +1595,15 @@ namespace ODLMWebAPI.BL
                                 TblBookingExtTO tblBookingExtTO = tblBookingScheduleTO.OrderDetailsLst[j];
                                 tblBookingExtTO.BookingId = tblBookingsTO.IdBooking;
                                 //if(isBalajiClient==0)
-                                tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
                                 tblBookingExtTO.ScheduleId = tblBookingScheduleTO.IdSchedule;
-                                if (!isRegular)
+
+                                if (tblBookingsTO.OtherNewBooking == 0)
                                 {
-                                    tblBookingExtTO.BrandId = dimBrandTO.IdBrand;
+                                    tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
+                                    if (!isRegular)
+                                    {
+                                        tblBookingExtTO.BrandId = dimBrandTO.IdBrand;
+                                    }
                                 }
                                 result = _iTblBookingExtDAO.InsertTblBookingExt(tblBookingExtTO, conn, tran);
                                 if (result != 1)
