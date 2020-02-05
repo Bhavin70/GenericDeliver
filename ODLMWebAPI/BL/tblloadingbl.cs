@@ -3383,7 +3383,7 @@ namespace ODLMWebAPI.BL {
                     }
                 }
 
-                exitingTblLoadingTO.TotalLoadingQty += existingLoadingQty + tblLoadingTO.TotalLoadingQty;
+                exitingTblLoadingTO.TotalLoadingQty = existingLoadingQty + tblLoadingTO.TotalLoadingQty;
 
                 Int32 changeStatustoDevice = 0;
 
