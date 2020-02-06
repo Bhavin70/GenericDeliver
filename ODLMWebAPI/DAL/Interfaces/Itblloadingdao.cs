@@ -38,6 +38,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblLoadingTO> SelectAllTempLoadingOnStatus(SqlConnection conn, SqlTransaction tran, DateTime migrateBeforeDate);
         List<TblLoadingTO> SelectLoadingListByVehicleNo(string vehicleNo);
         int InsertTblLoading(TblLoadingTO tblLoadingTO);
+        int UpdateTblLoadingIgnoreGrossWTFlag(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran);
         int InsertTblLoading(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran);
         int ExecuteInsertionCommand(TblLoadingTO tblLoadingTO, SqlCommand cmdInsert);
         int UpdateTblLoading(TblLoadingTO tblLoadingTO);

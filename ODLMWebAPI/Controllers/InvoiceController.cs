@@ -126,13 +126,11 @@ namespace ODLMWebAPI.Controllers
             {
                 string historyDetails= string.Empty;
                 TblInvoiceTO invoiceTO = _iTblInvoiceBL.SelectTblInvoiceTO(invoiceId);
-                TblLoadingSlipTO tblLoadingSlipTO = _iTblLoadingSlipBL.SelectTblLoadingSlipTO(invoiceTO.LoadingSlipId);
-                tblLoadingSlipTO=_iTblLoadingSlipBL.SelectAllLoadingSlipWithDetails(tblLoadingSlipTO.IdLoadingSlip);
-                int configId = _iTblConfigParamsBL.IotSetting();
                 if (invoiceTO != null)
                 {
                     invoiceTO.InvoiceAddressTOList = _iTblInvoiceAddressBL.SelectAllTblInvoiceAddressList(invoiceId);
                     List<TblInvoiceItemDetailsTO> itemList = _iTblInvoiceItemDetailsBL.SelectAllTblInvoiceItemDetailsList(invoiceId);
+                    invoiceTO.InvoiceItemDetailsTOList = itemList;
                     if (itemList != null)
                     {
                         for (int i = 0; i < itemList.Count; i++)
@@ -140,37 +138,53 @@ namespace ODLMWebAPI.Controllers
                             itemList[i].InvoiceItemTaxDtlsTOList = _iTblInvoiceItemTaxDtlsBL.SelectAllTblInvoiceItemTaxDtlsList(itemList[i].IdInvoiceItem);
 
                         }
-                        //add Iot settings
-                        
-                        
-                      // _iIotCommunication.GetItemDataFromIotForGivenLoadingSlip(tblLoadingSlipTO);
-                       // invoiceTO.VehicleNo = tblLoadingSlipTO.VehicleNo;
-                        
-                        for (int i = 0; i < itemList.Count; i++)
+
+                        if (invoiceTO.InvoiceModeE != InvoiceModeE.MANUAL_INVOICE)
                         {
-                            for (int j = 0; j < tblLoadingSlipTO.LoadingSlipExtTOList.Count; j++)
-                            {
-                                if(itemList[i].LoadingSlipExtId== tblLoadingSlipTO.LoadingSlipExtTOList[j].IdLoadingSlipExt)
-                                {
-                                    itemList[i].Bundles = tblLoadingSlipTO.LoadingSlipExtTOList[j].Bundles.ToString();
-                                    itemList[i].InvoiceQty = Math.Round(tblLoadingSlipTO.LoadingSlipExtTOList[j].LoadedWeight * 0.001, 3);
-                                    
-                                }
-                            }
-                        }
-                        invoiceTO.InvoiceItemDetailsTOList = itemList;
-                        /*GJ@20170929 : To get the History Details for Approval and Acceptance*/
-                        //if (invoiceTO.StatusId == (int)Constants.InvoiceStatusE.PENDING_FOR_AUTHORIZATION || invoiceTO.StatusId == (int)Constants.InvoiceStatusE.PENDING_FOR_ACCEPTANCE)
-                        //{
+
+                            //TblLoadingSlipTO tblLoadingSlipTO = _iTblLoadingSlipBL.SelectTblLoadingSlipTO(invoiceTO.LoadingSlipId);
+                            //tblLoadingSlipTO = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetails(tblLoadingSlipTO.IdLoadingSlip);
+
+                            //int configId = _iTblConfigParamsBL.IotSetting();
+
+                            
+                            ////add Iot settings
+
+
+                            //// _iIotCommunication.GetItemDataFromIotForGivenLoadingSlip(tblLoadingSlipTO);
+                            //// invoiceTO.VehicleNo = tblLoadingSlipTO.VehicleNo;
+
+                            //for (int i = 0; i < itemList.Count; i++)
+                            //{
+                            //    if (tblLoadingSlipTO != null && tblLoadingSlipTO.LoadingSlipExtTOList != null)
+                            //    {
+                            //        for (int j = 0; j < tblLoadingSlipTO.LoadingSlipExtTOList.Count; j++)
+                            //        {
+                            //            if (itemList[i].LoadingSlipExtId == tblLoadingSlipTO.LoadingSlipExtTOList[j].IdLoadingSlipExt)
+                            //            {
+                            //                itemList[i].Bundles = tblLoadingSlipTO.LoadingSlipExtTOList[j].Bundles.ToString();
+                            //                itemList[i].InvoiceQty = Math.Round(tblLoadingSlipTO.LoadingSlipExtTOList[j].LoadedWeight * 0.001, 3);
+
+                            //            }
+                            //        }
+                            //    }
+                            //}
+                            /*GJ@20170929 : To get the History Details for Approval and Acceptance*/
+                            //if (invoiceTO.StatusId == (int)Constants.InvoiceStatusE.PENDING_FOR_AUTHORIZATION || invoiceTO.StatusId == (int)Constants.InvoiceStatusE.PENDING_FOR_ACCEPTANCE)
+                            //{
                             if (invoiceTO.InvoiceModeE != InvoiceModeE.MANUAL_INVOICE)
                             {
                                 //Sanjay [30-May-2019] Conditions added for auth invoice. If type is firm and auth then data wil be written to DB else on IoT
                                 if (invoiceTO.IsConfirmed == 0)
-                                _iTblInvoiceBL.SetGateAndWeightIotData(invoiceTO, 0);
-                            else if (invoiceTO.InvoiceStatusE != InvoiceStatusE.AUTHORIZED && invoiceTO.InvoiceStatusE != InvoiceStatusE.CANCELLED)
-                                _iTblInvoiceBL.SetGateAndWeightIotData(invoiceTO, 0);
+                                    _iTblInvoiceBL.SetGateAndWeightIotData(invoiceTO, 0);
+                                else if (invoiceTO.InvoiceStatusE != InvoiceStatusE.AUTHORIZED && invoiceTO.InvoiceStatusE != InvoiceStatusE.CANCELLED)
+                                    _iTblInvoiceBL.SetGateAndWeightIotData(invoiceTO, 0);
 
+                            }
                         }
+
+                        //invoiceTO.InvoiceItemDetailsTOList = itemList;
+
                         //Saket [2017-11-21]
                         String strProdGstCode = String.Join(",", invoiceTO.InvoiceItemDetailsTOList.Select(s => s.ProdGstCodeId.ToString()).ToArray());
 
@@ -198,10 +212,10 @@ namespace ODLMWebAPI.Controllers
                         {
                             for (int i = 0; i < InvoiceHistoryTOList.Count; i++)
                             {
-                                string editedBy = string.Empty;                                
+                                string editedBy = string.Empty;
                                 TblInvoiceHistoryTO element = InvoiceHistoryTOList[i];
                                 TblUserTO tblUserTo = _iTblUserBL.SelectTblUserTO(element.CreatedBy);
-                                if(tblUserTo != null)
+                                if (tblUserTo != null)
                                 {
                                     editedBy = tblUserTo.UserDisplayName;
                                 }
@@ -209,7 +223,7 @@ namespace ODLMWebAPI.Controllers
                                 {
                                     if (string.IsNullOrEmpty(historyDetails))
                                     {
-                                        historyDetails = "Billing Address " + "!" + editedBy + "!"  + element.OldBillingAddr + "!" + element.NewBillingAddr;
+                                        historyDetails = "Billing Address " + "!" + editedBy + "!" + element.OldBillingAddr + "!" + element.NewBillingAddr;
                                     }
                                     else
                                     {
@@ -252,11 +266,11 @@ namespace ODLMWebAPI.Controllers
                                             itemList[i].ChangeIn = itemList[i].ChangeIn == "" || string.IsNullOrEmpty(itemList[i].ChangeIn) ? "Rate" : itemList[i].ChangeIn + "|" + "Rate";
                                             if (string.IsNullOrEmpty(historyDetails))
                                             {
-                                                historyDetails = itemList[i].ProdItemDesc  + " (Rate)" + "!" + editedBy + "!" + element.OldUnitRate + "!" + element.NewUnitRate;
+                                                historyDetails = itemList[i].ProdItemDesc + " (Rate)" + "!" + editedBy + "!" + element.OldUnitRate + "!" + element.NewUnitRate;
                                             }
                                             else
                                             {
-                                                historyDetails += "::" + itemList[i].ProdItemDesc  + " (Rate)" + "!" + editedBy + "!" + element.OldUnitRate + "!" + element.NewUnitRate;
+                                                historyDetails += "::" + itemList[i].ProdItemDesc + " (Rate)" + "!" + editedBy + "!" + element.OldUnitRate + "!" + element.NewUnitRate;
                                             }
                                         }
                                         if (element.OldCdStructureId != 0 && element.NewCdStructureId != 0)
@@ -268,7 +282,7 @@ namespace ODLMWebAPI.Controllers
 
                                             if (string.IsNullOrEmpty(historyDetails))
                                             {
-                                                historyDetails = itemList[i].ProdItemDesc  + " (CD)" + "!" + editedBy + "!" + (vOldRes.Count > 0 ? vOldRes[0].Text : "0") + "!" + (vNewRes.Count > 0 ? vNewRes[0].Text : "0");
+                                                historyDetails = itemList[i].ProdItemDesc + " (CD)" + "!" + editedBy + "!" + (vOldRes.Count > 0 ? vOldRes[0].Text : "0") + "!" + (vNewRes.Count > 0 ? vNewRes[0].Text : "0");
                                             }
                                             else
                                             {

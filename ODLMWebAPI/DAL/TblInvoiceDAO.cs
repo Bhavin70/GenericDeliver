@@ -1808,7 +1808,7 @@ namespace ODLMWebAPI.DAL
             {
                 cmdSelect.CommandText =
 
-                    " SELECT tempLoadingSlip.* ,tblOrganization.firmName as dealerOrgName,tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tempLoadSlipdtl.loadingQty, cnfOrg.firmName as cnfOrgName ,dimStat.statusName " +
+                    " SELECT tempLoadingSlip.* ,tmploading.modbusRefId,tmploading.gateId,tblgate.portNumber,tblgate.ioTUrl,tblgate.machineIP,tmploading.isDBup,tblOrganization.firmName as dealerOrgName,tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tempLoadSlipdtl.loadingQty, cnfOrg.firmName as cnfOrgName ,dimStat.statusName " +
                                   " FROM tempLoadingSlip " +
                                   " LEFT JOIN tblOrganization " +
                                   " ON tblOrganization.idOrganization = tempLoadingSlip.dealerOrgId " +
@@ -1818,6 +1818,8 @@ namespace ODLMWebAPI.DAL
                                   " ON dimStat.idStatus = tempLoadingSlip.statusId "+
                                   " INNER JOIN tempLoadingSlipInvoice loadingSlipInvoice ON tempLoadingSlip.idLoadingSlip = loadingSlipInvoice.loadingSlipId " +
                                   //Saket [2018-06-09] Added.
+                                  " LEFT JOIN tempLoading tmploading ON  tempLoadingSlip.loadingId = tmploading.idLoading" +
+                                  " LEFT JOIN tblGate tblgate ON tmploading.gateId = tblgate.idGate " +
                                   " LEFT JOIN tempLoadingSlipDtl tempLoadSlipdtl ON tempLoadSlipdtl.loadingSlipId = tempLoadingSlip.idLoadingSlip " +
                                    " Left Join tblBookings tblBookings ON tempLoadSlipdtl.bookingId = tblBookings.idbooking " +
                                   " WHERE loadingSlipInvoice.invoiceId = " + invoiceId; 

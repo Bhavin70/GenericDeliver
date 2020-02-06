@@ -23,6 +23,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblBookingQtyConsumption(Int32 idBookQtyConsuption);
         int DeleteTblBookingQtyConsumption(Int32 idBookQtyConsuption, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idBookQtyConsuption, SqlCommand cmdDelete);
+        List<TblBookingQtyConsumptionTO> SelectTblBookingQtyConsumptionTOByBookingId(Int32 bookingId);
 
     }
 }

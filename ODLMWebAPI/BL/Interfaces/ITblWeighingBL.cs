@@ -11,7 +11,7 @@ namespace ODLMWebAPI.BL.Interfaces
     {
         List<TblWeighingTO> SelectAllTblWeighing();
         TblWeighingTO SelectTblWeighingTO(Int32 idWeighing);
-        TblWeighingTO SelectTblWeighingByMachineIp(string ipAddr);
+        TblWeighingTO SelectTblWeighingByMachineIp(string ipAddr, int machineId);
         int InsertTblWeighing(TblWeighingTO tblWeighingTO);
         int InsertTblWeighing(TblWeighingTO tblWeighingTO, SqlConnection conn, SqlTransaction tran);
         int UpdateTblWeighing(TblWeighingTO tblWeighingTO);

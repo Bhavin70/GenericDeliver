@@ -106,5 +106,8 @@ namespace ODLMWebAPI.BL.Interfaces
 
         ResultMessage DeleteLoadingData(Int32 loadingId, SqlConnection conn, SqlTransaction tran);
         ResultMessage PrintReport(int idLoading, bool isPrinted);
+
+        ResultMessage IsThisVehicleDelivered(String vehicleNo, Int32 checkOnDevice = 0);
+        ResultMessage IsLoadingShouldMerge(TblLoadingTO tblLoadingTO);
     }
 }

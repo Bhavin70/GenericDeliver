@@ -1257,7 +1257,7 @@ namespace ODLMWebAPI.DAL
             {
                 //sqlQuery = SqlSelectQuery() + " WHERE loading.vehicleNo ='" + vehicleNo + "'" + " AND loading.statusId NOT IN(" + statusIds + ")";
                 sqlQuery = " SELECT * FROM ("+ SqlSelectQuery() + ")sq1 WHERE sq1.vehicleNo ='" + vehicleNo + "'"+
-                           " AND sq1.statusId = " + (int)Constants.TranStatusE.LOADING_COMPLETED + "";
+                           " AND sq1.statusId = " + (int)Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH + "";
 
 
 
@@ -1498,6 +1498,8 @@ namespace ODLMWebAPI.DAL
                         tblLoadingTONew.MachineIP = Convert.ToString(tblLoadingTODT["machineIP"]);
                     if (tblLoadingTODT["isDBup"] != DBNull.Value)
                         tblLoadingTONew.IsDBup = Convert.ToInt32(tblLoadingTODT["isDBup"]);
+                    if (tblLoadingTODT["ignoreGrossWt"] != DBNull.Value)
+                        tblLoadingTONew.IgnoreGrossWt = Convert.ToInt32(tblLoadingTODT["ignoreGrossWt"]);
 
                     tblLoadingTOList.Add(tblLoadingTONew);
                 }
@@ -1729,12 +1731,14 @@ namespace ODLMWebAPI.DAL
                 String sqlQuery = " SELECT loading.* ,org.digitalSign, org.firmName as cnfOrgName,transOrg.firmName as transporterOrgName ," +
                                   " dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,createdUser.userDisplayName " +
+                                  " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
                                   " FROM tempLoading loading " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = loading.cnfOrgId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = loading.statusId " +
                                   " LEFT JOIN tblSupervisor superwisor ON superwisor.idSupervisor=loading.superwisorId " +
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
+                                  " LEFT JOIN tblGate tblGate ON tblGate.idGate=loading.gateId " +
                                   " LEFT JOIN tblUser createdUser ON createdUser.idUser=loading.createdBy WHERE loading.statusId IN " +
                                   " ( " + (int)Constants.TranStatusE.LOADING_COMPLETED + "," + (int)Constants.TranStatusE.LOADING_DELIVERED + "," + (int)Constants.TranStatusE.LOADING_CANCEL + ")" +
                                   " AND  CONVERT (DATE,statusDate,103) <= @StatusDate " +
@@ -1875,6 +1879,7 @@ namespace ODLMWebAPI.DAL
                                 " ,[maxWeighingOty]" +
                                   ",[modbusRefId]" +
                                 ",[gateId]" +
+                                ",[ignoreGrossWt]" +
                                 " )" +
                     " VALUES (" +
                                 "  @IsJointDelivery " +
@@ -1908,6 +1913,7 @@ namespace ODLMWebAPI.DAL
                                 " ,@maxWeighingOty"+
                                   " ,@ModbusRefId" +
                                 " ,@GateId" +
+                                " ,@IgnoreGrossWt" +
                                 " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -1946,7 +1952,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@maxWeighingOty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.MaxWeighingOty);
             cmdInsert.Parameters.Add("@ModbusRefId", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.ModbusRefId);
             cmdInsert.Parameters.Add("@GateId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.GateId);
-
+            cmdInsert.Parameters.Add("@IgnoreGrossWt", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.IgnoreGrossWt);
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = Constants.IdentityColumnQuery;
@@ -1958,6 +1964,36 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Updation
+
+        public int UpdateTblLoadingIgnoreGrossWTFlag(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+                //return ExecuteUpdationCommand(tblLoadingTO, cmdUpdate);
+                cmdUpdate.CommandText = "UPDATE tempLoading SET " +
+                                        "[ignoreGrossWt]=@IgnoreGrossWt" +
+                                        " WHERE [idLoading] = @IdLoading ";
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+                cmdUpdate.Parameters.Add("@IdLoading", System.Data.SqlDbType.Int).Value = tblLoadingTO.IdLoading;
+                cmdUpdate.Parameters.Add("@IgnoreGrossWt", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.IgnoreGrossWt);
+
+                return cmdUpdate.ExecuteNonQuery();
+
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
+
+
         public int UpdateTblLoading(TblLoadingTO tblLoadingTO)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -2049,7 +2085,7 @@ namespace ODLMWebAPI.DAL
                             ",[modbusRefId]=@ModbusRefId" +
                             ",[gateId]=@GateId" +
                             ",[isDBup]=@IsDBup" +
-
+                            ",[ignoreGrossWt]=@IgnoreGrossWt" +
                             " WHERE [idLoading] = @IdLoading ";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -2084,6 +2120,7 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@ModbusRefId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.ModbusRefId);
             cmdUpdate.Parameters.Add("@GateId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.GateId);
             cmdUpdate.Parameters.Add("@IsDBup", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.IsDBup);
+            cmdUpdate.Parameters.Add("@IgnoreGrossWt", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.IgnoreGrossWt);
             return cmdUpdate.ExecuteNonQuery();
         }
         #endregion

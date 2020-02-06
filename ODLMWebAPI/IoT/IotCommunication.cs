@@ -64,7 +64,7 @@ namespace ODLMWebAPI.IoT
 
                     Int32 statusId = Convert.ToInt32(gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.StatusId]);
 
-                    DimStatusTO dimStatusTO = _iDimStatusBL.SelectDimStatusTOByIotStatusId(statusId);
+                    DimStatusTO dimStatusTO = _iDimStatusBL.SelectDimStatusTOByIotStatusId(statusId, (Int32)StaticStuff.Constants.TransactionTypeE.LOADING);
                     tblLoadingTO.StatusDate = IoTDateTimeStringToDate(statusDate);
 
                     if (dimStatusTO != null)
@@ -83,7 +83,7 @@ namespace ODLMWebAPI.IoT
                     {
                         tblLoadingTO.LoadingStatusHistoryTOList = new List<TblLoadingStatusHistoryTO>();
 
-                        List<DimStatusTO> statuslist = _iDimStatusBL.SelectAllDimStatusList();
+                        List<DimStatusTO> statuslist = _iDimStatusBL.SelectAllDimStatusList((Int32)StaticStuff.Constants.TransactionTypeE.LOADING);
 
                         for (int j = 0; j < gateIoTResult.Data.Count; j++)
                         {
@@ -163,6 +163,24 @@ namespace ODLMWebAPI.IoT
                                         }
                                         else
                                         {
+
+                                            if (tblLoadingTO.IgnoreGrossWt == 1)
+                                            {
+                                                if (itemList.Data != null && itemList.Data.Count > 0)
+                                                {
+                                                    for (int f = 0; f < itemList.Data.Count; f++)
+                                                    {
+                                                        var typeId = itemList.Data[f][(int)IoTConstants.WeightIotColE.WeighTypeId];
+                                                        if (typeId == (Int32)StaticStuff.Constants.TransMeasureTypeE.GROSS_WEIGHT)
+                                                        {
+                                                            //itemList.Data.Remove(it)
+                                                            itemList.Data.RemoveAt(f);
+                                                            f--;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
                                             if (tblLoadingTO.DynamicItemListDCT.ContainsKey(distinctWeighingMachineList[mc].IdWeighingMachine))
                                                 tblLoadingTO.DynamicItemListDCT[distinctWeighingMachineList[mc].IdWeighingMachine].AddRange(itemList.Data);
                                             else
@@ -330,7 +348,7 @@ namespace ODLMWebAPI.IoT
             //Int32 maxRecordPerCylce = 24;
             Int32 maxRecordPerCylce = 83;
 
-            List<DimStatusTO> dimStatusTOList = _iDimStatusBL.SelectAllDimStatusList();
+            List<DimStatusTO> dimStatusTOList = _iDimStatusBL.SelectAllDimStatusList((Int32)StaticStuff.Constants.TransactionTypeE.LOADING);
 
             GateIoTResult gateIoTResult = new GateIoTResult();
             try
@@ -507,6 +525,8 @@ namespace ODLMWebAPI.IoT
             if (statusIds.Equals("15,16,25,24"))
                 return 102 + "";
             if (statusIds.Equals("15,16"))
+                return 102 + "";
+            if (statusIds.Equals("15,16,26"))
                 return 102 + "";
             if (statusIds.Equals("15,24"))
                 return 103 + "";
