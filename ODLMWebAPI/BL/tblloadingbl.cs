@@ -2588,7 +2588,7 @@ namespace ODLMWebAPI.BL {
                             {
                                 Int32 modBusLoadingRefId = Convert.ToInt32(gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.LoadingId]);
 
-                                if (gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.VehicleNo].ToString() == vehicleNo)
+                                if (gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.VehicleNo].ToString().ToUpper() == vehicleNo.ToUpper())
                                 {
                                     TblLoadingTO tblLoadingTO = SelectTblLoadingTOByModBusRefId(modBusLoadingRefId);
 
