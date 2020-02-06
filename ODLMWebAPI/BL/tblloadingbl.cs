@@ -3435,11 +3435,15 @@ namespace ODLMWebAPI.BL {
 
                 if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
                 {
-                    //Write Status On IOT.
-                    exitingTblLoadingTO.VehicleNo = "";
-                    exitingTblLoadingTO.TransporterOrgId = 0;
-                    exitingTblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
-                    exitingTblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
+
+                    if (exitingTblLoadingTO.TranStatusE != Constants.TranStatusE.LOADING_NOT_CONFIRM)
+                    {
+                        //Write Status On IOT.
+                        exitingTblLoadingTO.VehicleNo = "";
+                        exitingTblLoadingTO.TransporterOrgId = 0;
+                        exitingTblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
+                        exitingTblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
+                    }
                     //exitingTblLoadingTO.StatusReason = "Loading Scheduled";
                 }
 
