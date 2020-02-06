@@ -4741,17 +4741,24 @@ namespace ODLMWebAPI.BL
                 // printDataSet.Tables.Add(shippingAddressDT);
                 //creating template'''''''''''''''''
 
-                
+                int isMultipleTemplateByCorNc = 0;
+
                 string templateName = "";
                 if (isPrinted)
                 {
                     int val = 0;
+                    //int isMultipleTemplateByCorNc = 0;
                     TblConfigParamsTO configParamsTOTemp = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.MULTIPLE_TEMPLATE_FOR_PRINTED_INVOICE);
+                    TblConfigParamsTO configParamsTOTempC_NC = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.MULTIPLE_TEMPLATE_FOR_PRINTED_INVOICE_BY_CONFIRM);
+
                     if (configParamsTOTemp != null)
                     {
                         val = Convert.ToInt16(configParamsTOTemp.ConfigParamVal);
                     }
-
+                    if (configParamsTOTempC_NC != null)
+                    {
+                        isMultipleTemplateByCorNc = Convert.ToInt16(configParamsTOTemp.ConfigParamVal);
+                    }
                     if (val == 0)
                     {
                         templateName = "InvoiceVoucherPrinted";
@@ -4760,14 +4767,32 @@ namespace ODLMWebAPI.BL
                     {
                         templateName = "InvoiceVoucherPrePrinted_" + tblInvoiceTO.InvFromOrgId;
                     }
-
+                    if (isMultipleTemplateByCorNc == 1)
+                    {
+                        string IsConfirmedC_NC = null;
+                        if (tblInvoiceTO.IsConfirmed == 1)
+                        {
+                            IsConfirmedC_NC = "_C";
+                        }
+                        else
+                        {
+                            IsConfirmedC_NC = "_NC";
+                        }
+                        templateName += IsConfirmedC_NC;
+                    }
                 }
                 else {
                     int val = 0;
                     TblConfigParamsTO configParamsTOTemp = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.MULTIPLE_TEMPLATE_FOR_PLAIN_INVOICE);
+                    TblConfigParamsTO configParamsTOTempC_NC = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.MULTIPLE_TEMPLATE_FOR_PLAIN_INVOICE_BY_CONFIRM);
+
                     if (configParamsTOTemp != null)
                     {
                         val = Convert.ToInt16(configParamsTOTemp.ConfigParamVal);
+                    }
+                    if (configParamsTOTempC_NC != null)
+                    {
+                        isMultipleTemplateByCorNc = Convert.ToInt16(configParamsTOTemp.ConfigParamVal);
                     }
 
                     if (val == 0)
@@ -4777,6 +4802,20 @@ namespace ODLMWebAPI.BL
                     else
                     {
                         templateName = "InvoiceVoucherPlain_" + tblInvoiceTO.InvFromOrgId;
+                    }
+                    if (isMultipleTemplateByCorNc == 1)
+                    {
+                        string IsConfirmedC_NC = null;
+                        if (tblInvoiceTO.IsConfirmed == 1)
+                        {
+                            IsConfirmedC_NC = "_C";
+                        }
+                        // tblInvoiceTO.IsConfirmedC_NC = "C";
+                        else
+                        {
+                            IsConfirmedC_NC = "_NC";
+                        }
+                        templateName += IsConfirmedC_NC;
                     }
                 }
                 String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
