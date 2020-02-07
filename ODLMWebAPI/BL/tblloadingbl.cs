@@ -1860,7 +1860,7 @@ namespace ODLMWebAPI.BL {
 
                             List<TblInvoiceTO> invoiceTOselectList = _iTblInvoiceDAO.SelectInvoiceListFromLoadingSlipId(list[i].IdLoadingSlip, conn, tran);
 
-                            if (invoiceTOselectList != null)
+                            if (invoiceTOselectList != null && invoiceTOselectList.Count > 0)
                             {
                                 List<TblInvoiceTO> TblInvoiceTOTemp = invoiceTOselectList.Where(w => w.InvoiceStatusE == Constants.InvoiceStatusE.AUTHORIZED).ToList();
 
