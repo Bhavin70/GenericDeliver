@@ -1300,6 +1300,8 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+
+
         public TblBookingsTO SelectBookingsTOWithDetails(Int32 idBooking)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -2516,7 +2518,41 @@ namespace ODLMWebAPI.DAL
 
             return cmdUpdate.ExecuteNonQuery();
         }
-       
+
+        public int UpdatePendingQuantity(TblBookingsTO tblBookingsTO, SqlConnection conn, SqlTransaction tran)
+        {
+            //String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            //SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdUpdate = new SqlCommand();
+
+            try
+            {
+
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+
+                String sqlQuery = @" UPDATE [tblBookings] SET " +
+                                " [pendingQty] = 0" +
+                                " WHERE idBooking = @IdBooking ";
+
+                cmdUpdate.CommandText = sqlQuery;
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+
+                cmdUpdate.Parameters.Add("@IdBooking", System.Data.SqlDbType.Int).Value = tblBookingsTO.IdBooking;
+                cmdUpdate.Parameters.Add("@PendingQty", System.Data.SqlDbType.NVarChar).Value = tblBookingsTO.PendingQty;
+
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
+
         #endregion
 
         #region Deletion

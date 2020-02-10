@@ -21,7 +21,10 @@ namespace ODLMWebAPI.DAL
         #region Methods
         public String SqlSelectQuery()
         {
-            String sqlSelectQry = " SELECT * FROM [tblBookingQtyConsumption]"; 
+            String sqlSelectQry = " SELECT tblBookingQtyConsumption.*, dimStatus.statusName, tblUserCreatedBy.userDisplayName " +
+                                     "FROM tblBookingQtyConsumption tblBookingQtyConsumption " +
+                                     "LEFT JOIN dimStatus dimStatus on tblBookingQtyConsumption.statusId = dimStatus.idStatus " +
+                                     "LEFT JOIN tblUser tblUserCreatedBy on tblUserCreatedBy.idUser = tblBookingQtyConsumption.createdBy";
             return sqlSelectQry;
         }
         #endregion
@@ -140,10 +143,45 @@ namespace ODLMWebAPI.DAL
                         tblBookingQtyConsumptionTONew.WeightTolerance = Convert.ToString(tblBookingQtyConsumptionTODT["weightTolerance"].ToString());
                     if (tblBookingQtyConsumptionTODT["remark"] != DBNull.Value)
                         tblBookingQtyConsumptionTONew.Remark = Convert.ToString(tblBookingQtyConsumptionTODT["remark"].ToString());
+                    if (tblBookingQtyConsumptionTODT["statusName"] != DBNull.Value)
+                        tblBookingQtyConsumptionTONew.StatusName = Convert.ToString(tblBookingQtyConsumptionTODT["statusName"].ToString());
+                    if (tblBookingQtyConsumptionTODT["userDisplayName"] != DBNull.Value)
+                        tblBookingQtyConsumptionTONew.UserDisplayName = Convert.ToString(tblBookingQtyConsumptionTODT["userDisplayName"].ToString());
                     tblBookingQtyConsumptionTOList.Add(tblBookingQtyConsumptionTONew);
                 }
             }
             return tblBookingQtyConsumptionTOList;
+        }
+
+        public List<TblBookingQtyConsumptionTO> SelectTblBookingQtyConsumptionTOByBookingId(Int32 bookingId)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE bookingId = " + bookingId + " AND consumptionQty > 0";
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblBookingQtyConsumptionTO> list = ConvertDTToList(reader);
+                reader.Dispose();
+                return list;
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (reader != null)
+                    reader.Dispose(); conn.Close();
+                cmdSelect.Dispose();
+            }
         }
 
         #endregion

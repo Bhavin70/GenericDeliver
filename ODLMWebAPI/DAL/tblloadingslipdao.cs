@@ -1183,6 +1183,7 @@ namespace ODLMWebAPI.DAL
                             " ,[forAmount]" +
                             " ,[isForAmountIncluded]" +
                             " ,[addDiscAmt]" +          //Priyanka [05-07-2018]
+                            " ,[isMerge]" +     
                             " )" +
                 " VALUES (" +
                             "  @DealerOrgId " +
@@ -1215,6 +1216,7 @@ namespace ODLMWebAPI.DAL
                             " ,@forAmount" +
                             " ,@isForAmountIncluded" +
                             " ,@addDiscAmt" +           //Priyanka [05-07-2018]
+                            " ,@IsMerge " +
                             " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -1252,6 +1254,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@forAmount", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.ForAmount);
             cmdInsert.Parameters.Add("@isForAmountIncluded", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.IsForAmountIncluded);
             cmdInsert.Parameters.Add("@addDiscAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.AddDiscAmt); //Priyanka [05-07-2018] 
+            cmdInsert.Parameters.Add("@IsMerge", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.IsMerge);
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = sqlSelectIdentityQry;
@@ -1371,6 +1374,7 @@ namespace ODLMWebAPI.DAL
                             " ,[forAmount] = @forAmount " +
                             " ,[isForAmountIncluded] = @isForAmountIncluded" +
                             " ,[addDiscAmt] = @addDiscAmt" +                //Priyanka [05-07-2018]
+                            " ,[isMerge] = @IsMerge " + 
                             " WHERE [idLoadingSlip] = @IdLoadingSlip ";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -1404,6 +1408,8 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@forAmount", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.ForAmount);
             cmdUpdate.Parameters.Add("@isForAmountIncluded", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.IsForAmountIncluded);
             cmdUpdate.Parameters.Add("@addDiscAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.AddDiscAmt); //Priyanka [05-07-2018] 
+            cmdUpdate.Parameters.Add("@IsMerge", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.IsMerge);
+
             return cmdUpdate.ExecuteNonQuery();
         }
 

@@ -767,6 +767,13 @@ namespace ODLMWebAPI.BL
             return _iTblBookingsDAO.SelectBookingListForGraph(OrganizationId, tblUserRoleTO, dealerId);
 
         }
+
+        public TblBookingsTO SelectBookingsTOWithDetails(Int32 idBooking)
+        {
+            return _iTblBookingsDAO.SelectBookingsTOWithDetails(idBooking);
+
+        }
+
         #endregion
 
         #region Insertion
@@ -1384,6 +1391,7 @@ namespace ODLMWebAPI.BL
                 if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count>0)
                 {
                     var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleDate);
+                    //var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleGroupId);
                     tblBookingsTO.NoOfDeliveries = res.Count();
                 }
                
@@ -3935,7 +3943,70 @@ namespace ODLMWebAPI.BL
 
             return 1;
         }
+        public ResultMessage UpdatePendingQuantity(TblBookingQtyConsumptionTO tblBookingQtyConsumption)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlTransaction tran = null;
+            ResultMessage resultMessage = new ResultMessage();
+            DateTime serverDate = _iCommon.ServerDateTime;
 
+            int result = 0;
+            try
+            {
+
+                conn.Open();
+                tran = conn.BeginTransaction();
+                TblBookingsTO tblBookingsTO = new TblBookingsTO();
+
+                tblBookingsTO = SelectBookingsTOWithDetails(tblBookingQtyConsumption.BookingId);
+                if (tblBookingsTO == null)
+                {
+                    resultMessage.DefaultBehaviour("booking TO not found against bookingId-" + tblBookingQtyConsumption.BookingId);
+                    return resultMessage;
+                }
+
+                if (tblBookingsTO.PendingQty == 0)
+                {
+                    resultMessage.DefaultBehaviour("Quantity Already done");
+                    return resultMessage;
+                }
+
+                tblBookingQtyConsumption.ConsumptionQty = tblBookingsTO.PendingQty;
+                tblBookingsTO.PendingQty = 0;
+
+                result = _iTblBookingsDAO.UpdatePendingQuantity(tblBookingsTO, conn, tran);
+                if (result != 1)
+                {
+                    resultMessage.DefaultBehaviour("Error while Updating Quantity");
+                    return resultMessage;
+                }
+                tblBookingQtyConsumption.BookingId = tblBookingsTO.IdBooking;
+                tblBookingQtyConsumption.CreatedOn = serverDate;
+                tblBookingQtyConsumption.StatusId = (int)tblBookingsTO.TranStatusE;
+                tblBookingQtyConsumption.WeightTolerance = null;
+                result = _iTblBookingQtyConsumptionDAO.InsertTblBookingQtyConsumption(tblBookingQtyConsumption, conn, tran);
+                if (result != 1)
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("Error while InsertTblBookingQtyConsumption");
+                    return resultMessage;
+                }
+                tran.Commit();
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "PostCloseQuantity");
+                return resultMessage;
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+        }
 
         #endregion
 

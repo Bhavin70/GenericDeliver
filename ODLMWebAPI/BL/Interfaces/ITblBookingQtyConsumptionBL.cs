@@ -17,5 +17,7 @@ namespace ODLMWebAPI.BL.Interfaces
         int UpdateTblBookingQtyConsumption(TblBookingQtyConsumptionTO tblBookingQtyConsumptionTO, SqlConnection conn, SqlTransaction tran);
         int DeleteTblBookingQtyConsumption(Int32 idBookQtyConsuption);
         int DeleteTblBookingQtyConsumption(Int32 idBookQtyConsuption, SqlConnection conn, SqlTransaction tran);
+
+        List<TblBookingQtyConsumptionTO> SelectTblBookingQtyConsumptionTOByBookingId(Int32 bookingid);
     }
 }

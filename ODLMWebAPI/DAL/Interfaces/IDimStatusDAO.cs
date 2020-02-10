@@ -26,6 +26,6 @@ namespace ODLMWebAPI.DAL.Interfaces
          DimStatusTO SelectDimStatusOnOrgId(int orgId);
 
         //Aniket [30-7-2019] added for IOT
-        DimStatusTO SelectDimStatusTOByIotStatusId(Int32 iotStatusId, SqlConnection conn, SqlTransaction tran);
+        DimStatusTO SelectDimStatusTOByIotStatusId(Int32 iotStatusId, Int32 txnTypeId, SqlConnection conn, SqlTransaction tran);
     }
 }
