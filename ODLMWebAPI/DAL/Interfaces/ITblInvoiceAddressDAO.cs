@@ -25,7 +25,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblInvoiceAddress(Int32 idInvoiceAddr, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idInvoiceAddr, SqlCommand cmdDelete);
         //Aniket [22-4-2019]
-        List<TblInvoiceAddressTO> SelectTblInvoiceAddressByDealerId(Int32 dealerOrgId, String txnAddrTypeIdtemp);
+        List<TblInvoiceAddressTO> SelectTblInvoiceAddressByDealerId(Int32 dealerOrgId, String txnAddrTypeIdtemp,Int32 topRecordcnt);
 
     }
 }

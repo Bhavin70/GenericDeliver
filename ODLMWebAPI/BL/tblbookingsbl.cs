@@ -1391,6 +1391,7 @@ namespace ODLMWebAPI.BL
                 if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count>0)
                 {
                     var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleDate);
+                    //var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleGroupId);
                     tblBookingsTO.NoOfDeliveries = res.Count();
                 }
                

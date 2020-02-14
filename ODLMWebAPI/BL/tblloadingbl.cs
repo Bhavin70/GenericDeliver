@@ -328,7 +328,9 @@ namespace ODLMWebAPI.BL {
                     for (int d = 0; d < tblLoadingTOList.Count; d++) {
                         var data = gateIoTResult.Data.Where (w => Convert.ToInt32 (w[0]) == tblLoadingTOList[d].ModbusRefId).FirstOrDefault ();
                         if (data != null) {
-                            tblLoadingTOList[d].VehicleNo = Convert.ToString (data[(int) IoTConstants.GateIoTColE.VehicleNo]);
+                         //   tblLoadingTOList[d].VehicleNo = Convert.ToString (data[(int) IoTConstants.GateIoTColE.VehicleNo]);
+                         //chetan[10-feb-2020] added add old vehicle on IOT
+                            tblLoadingTOList[d].VehicleNo = _iIotCommunication.GetVehicleNumbers(Convert.ToString(data[(int)IoTConstants.GateIoTColE.VehicleNo]), true);
                             if (data.Length > 3)
                                 tblLoadingTOList[d].TransporterOrgId = Convert.ToInt32 (data[(int) IoTConstants.GateIoTColE.TransportorId]);
                             DimStatusTO dimStatusTO = statusList.Where (w => w.IotStatusId == Convert.ToInt32 (data[(int) IoTConstants.GateIoTColE.StatusId])).FirstOrDefault ();
@@ -1120,7 +1122,8 @@ namespace ODLMWebAPI.BL {
                         var data = list.Where (w => w.ModbusRefId == Convert.ToInt32 (gateIoTResult.Data[j][0])).FirstOrDefault ();
                         if (data != null) {
                             dropDownTo.Value = data.IdLoading;
-                            dropDownTo.Text = Convert.ToString (gateIoTResult.Data[j][1]);
+                            //  dropDownTo.Text =  Convert.ToString (gateIoTResult.Data[j][1]);
+                            dropDownTo.Text = _iIotCommunication.GetVehicleNumbers(Convert.ToString(gateIoTResult.Data[j][1]), true);//chetan[11-feb-2020] added for select old vehicle number
                             dropDownList.Add (dropDownTo);
                         }
                     }
@@ -1692,7 +1695,14 @@ namespace ODLMWebAPI.BL {
                     }
                     #endregion
 
-                    if (invoiceTO.IsConfirmed == 1)
+                    Int32 generateNCInvoice = 0;
+                    TblConfigParamsTO generateNCInvoiceTblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_GENERATE_INVOICE_NO_FOR_NC, conn, tran);
+                    if (generateNCInvoiceTblConfigParamsTO != null)
+                    {
+                        generateNCInvoice = Convert.ToInt32(generateNCInvoiceTblConfigParamsTO.ConfigParamVal);
+                    }
+
+                    if (invoiceTO.IsConfirmed == 1 || generateNCInvoice == 1)
                     {
                         //Added By hrushikesh for default org id 09/10/2019
                         TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID, conn, tran);
@@ -1704,22 +1714,60 @@ namespace ODLMWebAPI.BL {
                             resultMessage.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
                             return resultMessage;
                         }
+
+                        Int32 brandWiseInvoiceSetting = Convert.ToInt32(tblConfigParamsTOForBrand.ConfigParamVal);
+
                         Int32 defualtOrgId = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
                         TblEntityRangeTO entityRangeTO = null;
-                        if (Convert.ToInt32(tblConfigParamsTOForBrand.ConfigParamVal) == 1)
+                        //if (Convert.ToInt32(tblConfigParamsTOForBrand.ConfigParamVal) == 1)
+                        //{
+                        //    DimBrandTO dimBrandTO = _iDimBrandDAO.SelectDimBrand(invoiceTO.BrandId);
+                        //    entityRangeString += dimBrandTO.IdBrand.ToString();
+                        //    entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(entityRangeString, invoiceTO.FinYearId, conn, tran);
+                        //}
+                        ////Hrushikesh added get entity Range organizationwise
+                        //else if (invoiceTO.InvFromOrgId != defualtOrgId)
+                        //{
+                        //    string orgstr = Constants.ENTITY_RANGE_REGULAR_TAX_INTERNALORG + invoiceTO.InvFromOrgId;
+                        //    entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(orgstr, invoiceTO.FinYearId, conn, tran);
+                        //}
+                        //else
+                        //    entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(invoiceTO.InvoiceTypeId, invoiceTO.FinYearId, conn, tran);
+
+
+                        String entityName = _iDimensionDAO.SelectInvoiceEntityNameByInvoiceTypeId(invoiceTO.InvoiceTypeId);
+                        if (String.IsNullOrEmpty(entityName))
                         {
-                            DimBrandTO dimBrandTO = _iDimBrandDAO.SelectDimBrand(invoiceTO.BrandId);
-                            entityRangeString += dimBrandTO.IdBrand.ToString();
-                            entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(entityRangeString, invoiceTO.FinYearId, conn, tran);
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("entityRangeTO Found NULL. Entity Range Not Defined"); return resultMessage;
                         }
-                        //Hrushikesh added get entity Range organizationwise
-                        else if (invoiceTO.InvFromOrgId != defualtOrgId)
+                        if (invoiceTO.InvFromOrgId != defualtOrgId)   //For NC invoice this condition will false.
                         {
-                            string orgstr = Constants.ENTITY_RANGE_REGULAR_TAX_INTERNALORG + invoiceTO.InvFromOrgId;
-                            entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(orgstr, invoiceTO.FinYearId, conn, tran);
+                            entityName += "_ORG_" + invoiceTO.InvFromOrgId;
                         }
-                        else
-                            entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(invoiceTO.InvoiceTypeId, invoiceTO.FinYearId, conn, tran);
+
+                        if (brandWiseInvoiceSetting == 1)
+                        {
+                            entityName += "_BRAND_" + invoiceTO.BrandId;
+                        }
+                        if (invoiceTO.IsConfirmed == 0)
+                        {
+                            entityName += "_NC";
+
+                            Int32 generateNCInvoiceDaily = 0;
+                            TblConfigParamsTO generateNCInvoiceDailyTblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_GENERATE_INVOICE_NO_FOR_NC_DAILY, conn, tran);
+                            if (generateNCInvoiceDailyTblConfigParamsTO != null)
+                            {
+                                generateNCInvoiceDaily = Convert.ToInt32(generateNCInvoiceDailyTblConfigParamsTO.ConfigParamVal);
+                            }
+                            if (generateNCInvoiceDaily == 1)
+                            {
+                                entityRangeTO = SelectEntityRangeForLoadingCount(entityName, conn, tran, invoiceTO.FinYearId, 0);
+                            }
+
+                        }
+
+                        entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(entityName, invoiceTO.FinYearId, conn, tran);
 
                         if (entityRangeTO == null)
                         {
@@ -8108,62 +8156,98 @@ namespace ODLMWebAPI.BL {
         /// </summary>
         /// <param name="LoadingTO"></param>
         /// <returns></returns>
-        public ResultMessage UpdateVehicleDetails (TblLoadingTO LoadingTO) {
-            SqlConnection conn = new SqlConnection (_iConnectionString.GetConnectionString (Constants.CONNECTION_STRING));
+        public ResultMessage UpdateVehicleDetails(TblLoadingTO LoadingTO)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
-            ResultMessage resultMessage = new StaticStuff.ResultMessage ();
-            try {
-                conn.Open ();
-                tran = conn.BeginTransaction ();
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                //chetan[07-Feb-2020] added for updaate vehicle No on IOT
+                string vehicleNumber = LoadingTO.VehicleNo;
+                int transporterId = LoadingTO.TransporterOrgId;
+
+                conn.Open();
+                tran = conn.BeginTransaction();
                 int result = 0;
 
                 #region 1.Update Vehicle Number In Loading Details
-                TblLoadingTO tblLoadingTO = SelectTblLoadingTO (LoadingTO.IdLoading, conn, tran);
-                if (tblLoadingTO == null) {
-                    tran.Rollback ();
-                    resultMessage.DefaultBehaviour ("tblLoadingTO found null");
+                TblLoadingTO tblLoadingTO = SelectTblLoadingTO(LoadingTO.IdLoading, conn, tran);
+                if (tblLoadingTO == null)
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("tblLoadingTO found null");
                     return resultMessage;
                 }
+                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                {
 
+                    LoadingTO.VehicleNo = string.Empty;
+                    LoadingTO.TransporterOrgId = 0;
+                }
+                else
+                {
+                    tblLoadingTO.VehicleNo = LoadingTO.VehicleNo;
+                    tblLoadingTO.TransporterOrgId = LoadingTO.TransporterOrgId;
+                }
                 tblLoadingTO.UpdatedBy = LoadingTO.UpdatedBy;
                 tblLoadingTO.UpdatedOn = LoadingTO.UpdatedOn;
-                tblLoadingTO.VehicleNo = LoadingTO.VehicleNo;
 
-                result = UpdateTblLoading (tblLoadingTO, conn, tran);
-                if (result != 1) {
-                    tran.Rollback ();
-                    resultMessage.DefaultBehaviour ("error while update UpdateVehicleDetails");
+                result = UpdateTblLoading(tblLoadingTO, conn, tran);
+                if (result != 1)
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("error while update UpdateVehicleDetails");
                     return resultMessage;
                 }
                 #endregion
 
                 #region 2. Update Vehicle In loading slip details
-                List<TblLoadingSlipTO> loadindingSlipList = _iCircularDependencyBL.SelectAllLoadingSlipListWithDetails (tblLoadingTO.IdLoading, conn, tran);
-                if (loadindingSlipList == null || loadindingSlipList.Count == 0) {
-                    tran.Rollback ();
-                    resultMessage.DefaultBehaviour ("error while update UpdateTblLoading");
+                List<TblLoadingSlipTO> loadindingSlipList = _iCircularDependencyBL.SelectAllLoadingSlipListWithDetails(tblLoadingTO.IdLoading, conn, tran);
+                if (loadindingSlipList == null || loadindingSlipList.Count == 0)
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("error while update UpdateTblLoading");
                     return resultMessage;
                 }
-                foreach (var loadindingSlip in loadindingSlipList) {
+                foreach (var loadindingSlip in loadindingSlipList)
+                {
                     loadindingSlip.VehicleNo = LoadingTO.VehicleNo;
+                    loadindingSlip.TransporterOrgId = LoadingTO.TransporterOrgId;
 
-                    result = _iTblLoadingSlipBL.UpdateTblLoadingSlip (loadindingSlip, conn, tran);
-                    if (result != 1) {
-                        tran.Rollback ();
-                        resultMessage.DefaultBehaviour ("error while update loadindingSlip");
+                    result = _iTblLoadingSlipBL.UpdateTblLoadingSlip(loadindingSlip, conn, tran);
+                    if (result != 1)
+                    {
+                        tran.Rollback();
+                        resultMessage.DefaultBehaviour("error while update loadindingSlip");
                         return resultMessage;
                     }
                 }
                 #endregion
-
-                tran.Commit ();
-                resultMessage.DefaultSuccessBehaviour ();
+                //chetan[07-feb-2020] added for update vehicle no on IOT
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                {
+                    int res = WriteDataOnIOT(LoadingTO, conn, tran, vehicleNumber, transporterId);
+                    if (result != 1)
+                    {
+                        tran.Rollback();
+                        resultMessage.DefaultBehaviour("error while update loadindingSlip");
+                        return resultMessage;
+                    }
+                }
+                tran.Commit();
+                resultMessage.DefaultSuccessBehaviour();
                 return resultMessage;
-            } catch (Exception ex) {
-                resultMessage.DefaultExceptionBehaviour (ex, "Error in UpdateVehicleDetails");
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "Error in UpdateVehicleDetails");
                 return resultMessage;
-            } finally {
-                conn.Close ();
+            }
+            finally
+            {
+                conn.Close();
             }
         }
 
@@ -8268,16 +8352,22 @@ namespace ODLMWebAPI.BL {
         #region Methods
 
         // Vaibhav [30-Jan-2018] Added to update entity range for loading and loadingslip count.
-        private TblEntityRangeTO SelectEntityRangeForLoadingCount (string entityName, SqlConnection conn, SqlTransaction tran) {
+        private TblEntityRangeTO SelectEntityRangeForLoadingCount(string entityName, SqlConnection conn, SqlTransaction tran, Int32 finYearId = 0, Int32 newSeq = 1) {
             try {
-                TblEntityRangeTO entityRangeTO = _iTblEntityRangeDAO.SelectTblEntityRangeByEntityName (entityName, Constants.FinYear, conn, tran);
+
+                if (finYearId == 0)
+                {
+                    finYearId = Constants.FinYear;
+                }
+
+                TblEntityRangeTO entityRangeTO = _iTblEntityRangeDAO.SelectTblEntityRangeByEntityName (entityName, finYearId, conn, tran);
                 if (entityRangeTO == null) {
                     return null;
                 }
 
                 if (_iCommon.ServerDateTime.Date != entityRangeTO.CreatedOn.Date) {
                     entityRangeTO.CreatedOn = _iCommon.ServerDateTime;
-                    entityRangeTO.EntityPrevValue = 1;
+                    entityRangeTO.EntityPrevValue = newSeq;
 
                     int result = _iTblEntityRangeDAO.UpdateTblEntityRange (entityRangeTO, conn, tran);
                     if (result != 1) {

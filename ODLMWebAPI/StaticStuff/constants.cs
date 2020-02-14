@@ -662,6 +662,11 @@ namespace ODLMWebAPI.StaticStuff
         public static string CP_VIEW_ALL_PENDING_ENQUIRIES = "VIEW_ALL_PENDING_ENQUIRIES";
 
 
+        //Saket [2020-14-02] Added.
+        public static string CP_GENERATE_INVOICE_NO_FOR_NC = "GENERATE_INVOICE_NO_FOR_NC";
+        public static string CP_GENERATE_INVOICE_NO_FOR_NC_DAILY = "GENERATE_INVOICE_NO_FOR_NC_DAILY";
+
+
         //Pandurang[2018-09-10] added for Stop web services
         public static string STOP_WEB_API_SERVICE_KEYS = "STOP_WEB_API_SERVICE_KEYS";
         public static string STOP_WEB_GUI_SERVICE_KEYS = "STOP_WEB_GUI_SERVICE_KEYS";

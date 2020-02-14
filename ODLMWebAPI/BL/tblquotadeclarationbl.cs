@@ -175,6 +175,30 @@ namespace ODLMWebAPI.BL
         {
             return _iTblQuotaDeclarationDAO.GetBookingQuotaAgainstCNF(cnfOrgId, brandId);
         }
+
+        public List<TblQuotaDeclarationTO> GetLatestRateInfo(Int32 cnfId, DateTime date, Boolean isQuotaDeclaration)
+        {
+            List<TblQuotaDeclarationTO> list = SelectLatestQuotaDeclaration(cnfId, date, isQuotaDeclaration);
+
+            List<TblUserBrandTO> tblUserBrandTOList = _iTblUserBrandBL.SelectAllTblUserBrandByCnfId(cnfId);
+
+            if (list != null && list.Count > 0)
+            {
+                if (tblUserBrandTOList != null && tblUserBrandTOList.Count > 0)
+                {
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        var temp = tblUserBrandTOList.Where(w => w.BrandId == list[i].BrandId).FirstOrDefault();
+                        if (temp == null)
+                        {
+                            list.Remove(list[i]);
+                            i--;
+                        }
+                    }
+                }
+            }
+            return list;
+        }
         #endregion
 
         #region Insertion
