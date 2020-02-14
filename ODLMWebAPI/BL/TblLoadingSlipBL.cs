@@ -424,7 +424,8 @@ namespace ODLMWebAPI.BL
                         var data = gateIoTResult.Data.Where(w => Convert.ToInt32(w[0]) == tblLoadingTOList[d].ModbusRefId).FirstOrDefault();
                         if (data != null)
                         {
-                            tblLoadingTOList[d].VehicleNo = Convert.ToString(data[(int)IoTConstants.GateIoTColE.VehicleNo]);
+                            // tblLoadingTOList[d].VehicleNo = Convert.ToString(data[(int)IoTConstants.GateIoTColE.VehicleNo]);
+                            tblLoadingTOList[d].VehicleNo = _iIotCommunication.GetVehicleNumbers(Convert.ToString(data[(int)IoTConstants.GateIoTColE.VehicleNo]),true);
                             if (data.Length > 3)
                                 tblLoadingTOList[d].TransporterOrgId = Convert.ToInt32(data[(int)IoTConstants.GateIoTColE.TransportorId]);
                             DimStatusTO dimStatusTO = statusList.Where(w => w.IotStatusId == Convert.ToInt32(data[(int)IoTConstants.GateIoTColE.StatusId])).FirstOrDefault();

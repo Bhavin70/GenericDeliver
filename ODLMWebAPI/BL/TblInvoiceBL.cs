@@ -223,7 +223,8 @@ namespace ODLMWebAPI.BL
                                 var data = gateIoTResult.Data.Where(w => Convert.ToInt32(w[0]) == modRefId).FirstOrDefault();
                                 if (data == null)
                                     continue;
-                                string vehicleNo = (string)data[(int)IoTConstants.GateIoTColE.VehicleNo];
+                                //  string vehicleNo = (string)data[(int)IoTConstants.GateIoTColE.VehicleNo];
+                                string vehicleNo = _iIotCommunication.GetVehicleNumbers((string)data[(int)IoTConstants.GateIoTColE.VehicleNo], true);//chetan[11-feb-2020] added for formatting old vehicle number.
                                 //int transporterOrgId = Convert.ToInt32(data[(int)IoTConstants.GateIoTColE.TransportorId]);
                                 //String transporterName = TblOrganizationBL.GetFirmNameByOrgId(transporterOrgId);
 
@@ -295,7 +296,8 @@ namespace ODLMWebAPI.BL
 
                             if (gateIoTResult != null && gateIoTResult.Data != null && gateIoTResult.Data.Count > 0)
                             {
-                                string vehicleNo = (string)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.VehicleNo];
+                                // string vehicleNo = (string)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.VehicleNo];
+                                string vehicleNo = _iIotCommunication.GetVehicleNumbers((string)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.VehicleNo], true);//chetan[12-feb-2020] added for formating old vehicle
                                 int transporterOrgId = Convert.ToInt32(gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.TransportorId]);
                                 String transporterName = _iTblOrganizationBL.GetFirmNameByOrgId(transporterOrgId);
 
@@ -566,36 +568,36 @@ namespace ODLMWebAPI.BL
         /// Vijaymala[15-09-2017] Added To Get Invoice List To Generate Report
         /// </summary>
         /// <returns></returns>
-        public List<TblInvoiceRptTO> SelectAllRptInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm)
+        public List<TblInvoiceRptTO> SelectAllRptInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm,int fromOrgId)
         {
-            return _iTblInvoiceDAO.SelectAllRptInvoiceList(frmDt, toDt, isConfirm);
+            return _iTblInvoiceDAO.SelectAllRptInvoiceList(frmDt, toDt, isConfirm, fromOrgId);
         }
 
         /// <summary>
         /// Vijaymala[06-10-2017] Added To Get Invoice List To Generate Invoice Excel
         /// </summary>
         /// <returns></returns>
-        public List<TblInvoiceRptTO> SelectInvoiceExportList(DateTime frmDt, DateTime toDt, int isConfirm)
+        public List<TblInvoiceRptTO> SelectInvoiceExportList(DateTime frmDt, DateTime toDt, int isConfirm,int fromOrgId)
         {
-            return _iTblInvoiceDAO.SelectInvoiceExportList(frmDt, toDt, isConfirm);
+            return _iTblInvoiceDAO.SelectInvoiceExportList(frmDt, toDt, isConfirm, fromOrgId);
         }
 
         /// <summary>
         /// Vijaymala[07-10-2017] Added To Get Invoice List To Generate Invoice Excel
         /// </summary>
         /// <returns></returns>
-        public List<TblInvoiceRptTO> SelectHsnExportList(DateTime frmDt, DateTime toDt, int isConfirm)
+        public List<TblInvoiceRptTO> SelectHsnExportList(DateTime frmDt, DateTime toDt, int isConfirm,int fromOrgId)
         {
-            return _iTblInvoiceDAO.SelectHsnExportList(frmDt, toDt, isConfirm);
+            return _iTblInvoiceDAO.SelectHsnExportList(frmDt, toDt, isConfirm, fromOrgId);
         }
 
         /// <summary>
         /// Vijaymala[11-01-2018] Added To Get Sales Invoice List To Generate Report
         /// </summary>
         /// <returns></returns>
-        public List<TblInvoiceRptTO> SelectSalesInvoiceListForReport(DateTime frmDt, DateTime toDt, int isConfirm)
+        public List<TblInvoiceRptTO> SelectSalesInvoiceListForReport(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId)
         {
-            return _iTblInvoiceDAO.SelectSalesInvoiceListForReport(frmDt, toDt, isConfirm);
+            return _iTblInvoiceDAO.SelectSalesInvoiceListForReport(frmDt, toDt, isConfirm,fromOrgId);
         }
 
         // Vaibhav [14-Nov-2017] added to select invoice details by loading id
@@ -763,9 +765,9 @@ namespace ODLMWebAPI.BL
         /// Vijaymala added [09-05-2018]:To get notified invoices list
         /// </summary>
         /// <returns></returns>
-        public List<TblInvoiceTO> SelectAllTNotifiedblInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm)
+        public List<TblInvoiceTO> SelectAllTNotifiedblInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId)
         {
-            return _iTblInvoiceDAO.SelectAllTNotifiedblInvoiceList(frmDt, toDt, isConfirm);
+            return _iTblInvoiceDAO.SelectAllTNotifiedblInvoiceList(frmDt, toDt, isConfirm,fromOrgId);
         }
         #endregion
 
@@ -6846,7 +6848,7 @@ namespace ODLMWebAPI.BL
         //Aniket [22-4-2019]
         public List<TblInvoiceAddressTO> SelectTblInvoiceAddressByDealerId(Int32 dealerOrgId, String txnAddrTypeId)
         {
-            Int32 cnt = 0;
+            Int32 topRecordcnt = 0;
             String txnAddrTypeIdtemp = String.Empty;
 
             if (!String.IsNullOrEmpty(txnAddrTypeId))
@@ -6857,30 +6859,30 @@ namespace ODLMWebAPI.BL
             TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_EXISTING_ADDRESS_COUNT_FOR_BOOKING);
             if (tblConfigParamsTO != null)
             {
-                cnt = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+                topRecordcnt = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
             }
 
-            List<TblInvoiceAddressTO> tblInvoiceDelAddrTOList = new List<TblInvoiceAddressTO>();
+            //List<TblInvoiceAddressTO> tblInvoiceDelAddrTOList = new List<TblInvoiceAddressTO>();
             try
             {
-                List<TblInvoiceAddressTO> tblInvoiceDelAddrTOListtemp = new List<TblInvoiceAddressTO>();
-                 tblInvoiceDelAddrTOList= _iTblInvoiceAddressDAO.SelectTblInvoiceAddressByDealerId(dealerOrgId, txnAddrTypeIdtemp);
+                //List<TblInvoiceAddressTO> tblInvoiceDelAddrTOListtemp = new List<TblInvoiceAddressTO>();
+                List<TblInvoiceAddressTO>  tblInvoiceDelAddrTOList = _iTblInvoiceAddressDAO.SelectTblInvoiceAddressByDealerId(dealerOrgId, txnAddrTypeIdtemp, topRecordcnt);
                 //tblBookingDelAddrTOList = _iTblBookingDelAddrDAO.SelectTblBookingsByDealerOrgId(dealerOrgId, txnAddrTypeIdtemp);
                 //tblBookingDelAddrTOList = tblBookingDelAddrTOList.Where(ele => ele.BillingName != null || ele.Address != null).ToList();
                 //tblBookingDelAddrTOList = tblBookingDelAddrTOList.GroupBy(c => new { c.BillingName, c.Address }).Select(s => s.FirstOrDefault()).ToList();
-                if (cnt > tblInvoiceDelAddrTOList.Count)
-                {
-                    tblInvoiceDelAddrTOListtemp = tblInvoiceDelAddrTOList;
-                }
-                else
-                {
-                    for (int i = 0; i < cnt; i++)
-                    {
-                        TblInvoiceAddressTO tblInvoiceDelAddrTO = tblInvoiceDelAddrTOList[i];
-                        tblInvoiceDelAddrTOListtemp.Add(tblInvoiceDelAddrTO);
-                    }
-                }
-                return tblInvoiceDelAddrTOListtemp;
+                //if (cnt > tblInvoiceDelAddrTOList.Count)
+                //{
+                //    tblInvoiceDelAddrTOListtemp = tblInvoiceDelAddrTOList;
+                //}
+                //else
+                //{
+                //    for (int i = 0; i < cnt; i++)
+                //    {
+                //        TblInvoiceAddressTO tblInvoiceDelAddrTO = tblInvoiceDelAddrTOList[i];
+                //        tblInvoiceDelAddrTOListtemp.Add(tblInvoiceDelAddrTO);
+                //    }
+                //}
+                return tblInvoiceDelAddrTOList;
             }
 
             catch (Exception ex)
@@ -8320,9 +8322,9 @@ namespace ODLMWebAPI.BL
 
         #region Reports
 
-        public List<TblOtherTaxRpt> SelectOtherTaxDetailsReport(DateTime frmDt, DateTime toDt, int isConfirm, Int32 otherTaxId)
+        public List<TblOtherTaxRpt> SelectOtherTaxDetailsReport(DateTime frmDt, DateTime toDt, int isConfirm, Int32 otherTaxId, int fromOrgId)
         {
-            return _iTblInvoiceDAO.SelectOtherTaxDetailsReport(frmDt, toDt, isConfirm, otherTaxId);
+            return _iTblInvoiceDAO.SelectOtherTaxDetailsReport(frmDt, toDt, isConfirm, otherTaxId,fromOrgId);
         }
 
         public int UpdateIdentityFinalTables(SqlConnection conn, SqlTransaction tran)
