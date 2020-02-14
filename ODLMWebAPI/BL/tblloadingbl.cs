@@ -328,7 +328,9 @@ namespace ODLMWebAPI.BL {
                     for (int d = 0; d < tblLoadingTOList.Count; d++) {
                         var data = gateIoTResult.Data.Where (w => Convert.ToInt32 (w[0]) == tblLoadingTOList[d].ModbusRefId).FirstOrDefault ();
                         if (data != null) {
-                            tblLoadingTOList[d].VehicleNo = Convert.ToString (data[(int) IoTConstants.GateIoTColE.VehicleNo]);
+                         //   tblLoadingTOList[d].VehicleNo = Convert.ToString (data[(int) IoTConstants.GateIoTColE.VehicleNo]);
+                         //chetan[10-feb-2020] added add old vehicle on IOT
+                            tblLoadingTOList[d].VehicleNo = _iIotCommunication.GetVehicleNumbers(Convert.ToString(data[(int)IoTConstants.GateIoTColE.VehicleNo]), true);
                             if (data.Length > 3)
                                 tblLoadingTOList[d].TransporterOrgId = Convert.ToInt32 (data[(int) IoTConstants.GateIoTColE.TransportorId]);
                             DimStatusTO dimStatusTO = statusList.Where (w => w.IotStatusId == Convert.ToInt32 (data[(int) IoTConstants.GateIoTColE.StatusId])).FirstOrDefault ();
@@ -1120,7 +1122,8 @@ namespace ODLMWebAPI.BL {
                         var data = list.Where (w => w.ModbusRefId == Convert.ToInt32 (gateIoTResult.Data[j][0])).FirstOrDefault ();
                         if (data != null) {
                             dropDownTo.Value = data.IdLoading;
-                            dropDownTo.Text = Convert.ToString (gateIoTResult.Data[j][1]);
+                            //  dropDownTo.Text =  Convert.ToString (gateIoTResult.Data[j][1]);
+                            dropDownTo.Text = _iIotCommunication.GetVehicleNumbers(Convert.ToString(gateIoTResult.Data[j][1]), true);//chetan[11-feb-2020] added for select old vehicle number
                             dropDownList.Add (dropDownTo);
                         }
                     }
@@ -8104,62 +8107,98 @@ namespace ODLMWebAPI.BL {
         /// </summary>
         /// <param name="LoadingTO"></param>
         /// <returns></returns>
-        public ResultMessage UpdateVehicleDetails (TblLoadingTO LoadingTO) {
-            SqlConnection conn = new SqlConnection (_iConnectionString.GetConnectionString (Constants.CONNECTION_STRING));
+        public ResultMessage UpdateVehicleDetails(TblLoadingTO LoadingTO)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
-            ResultMessage resultMessage = new StaticStuff.ResultMessage ();
-            try {
-                conn.Open ();
-                tran = conn.BeginTransaction ();
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                //chetan[07-Feb-2020] added for updaate vehicle No on IOT
+                string vehicleNumber = LoadingTO.VehicleNo;
+                int transporterId = LoadingTO.TransporterOrgId;
+
+                conn.Open();
+                tran = conn.BeginTransaction();
                 int result = 0;
 
                 #region 1.Update Vehicle Number In Loading Details
-                TblLoadingTO tblLoadingTO = SelectTblLoadingTO (LoadingTO.IdLoading, conn, tran);
-                if (tblLoadingTO == null) {
-                    tran.Rollback ();
-                    resultMessage.DefaultBehaviour ("tblLoadingTO found null");
+                TblLoadingTO tblLoadingTO = SelectTblLoadingTO(LoadingTO.IdLoading, conn, tran);
+                if (tblLoadingTO == null)
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("tblLoadingTO found null");
                     return resultMessage;
                 }
+                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                {
 
+                    LoadingTO.VehicleNo = string.Empty;
+                    LoadingTO.TransporterOrgId = 0;
+                }
+                else
+                {
+                    tblLoadingTO.VehicleNo = LoadingTO.VehicleNo;
+                    tblLoadingTO.TransporterOrgId = LoadingTO.TransporterOrgId;
+                }
                 tblLoadingTO.UpdatedBy = LoadingTO.UpdatedBy;
                 tblLoadingTO.UpdatedOn = LoadingTO.UpdatedOn;
-                tblLoadingTO.VehicleNo = LoadingTO.VehicleNo;
 
-                result = UpdateTblLoading (tblLoadingTO, conn, tran);
-                if (result != 1) {
-                    tran.Rollback ();
-                    resultMessage.DefaultBehaviour ("error while update UpdateVehicleDetails");
+                result = UpdateTblLoading(tblLoadingTO, conn, tran);
+                if (result != 1)
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("error while update UpdateVehicleDetails");
                     return resultMessage;
                 }
                 #endregion
 
                 #region 2. Update Vehicle In loading slip details
-                List<TblLoadingSlipTO> loadindingSlipList = _iCircularDependencyBL.SelectAllLoadingSlipListWithDetails (tblLoadingTO.IdLoading, conn, tran);
-                if (loadindingSlipList == null || loadindingSlipList.Count == 0) {
-                    tran.Rollback ();
-                    resultMessage.DefaultBehaviour ("error while update UpdateTblLoading");
+                List<TblLoadingSlipTO> loadindingSlipList = _iCircularDependencyBL.SelectAllLoadingSlipListWithDetails(tblLoadingTO.IdLoading, conn, tran);
+                if (loadindingSlipList == null || loadindingSlipList.Count == 0)
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("error while update UpdateTblLoading");
                     return resultMessage;
                 }
-                foreach (var loadindingSlip in loadindingSlipList) {
+                foreach (var loadindingSlip in loadindingSlipList)
+                {
                     loadindingSlip.VehicleNo = LoadingTO.VehicleNo;
+                    loadindingSlip.TransporterOrgId = LoadingTO.TransporterOrgId;
 
-                    result = _iTblLoadingSlipBL.UpdateTblLoadingSlip (loadindingSlip, conn, tran);
-                    if (result != 1) {
-                        tran.Rollback ();
-                        resultMessage.DefaultBehaviour ("error while update loadindingSlip");
+                    result = _iTblLoadingSlipBL.UpdateTblLoadingSlip(loadindingSlip, conn, tran);
+                    if (result != 1)
+                    {
+                        tran.Rollback();
+                        resultMessage.DefaultBehaviour("error while update loadindingSlip");
                         return resultMessage;
                     }
                 }
                 #endregion
-
-                tran.Commit ();
-                resultMessage.DefaultSuccessBehaviour ();
+                //chetan[07-feb-2020] added for update vehicle no on IOT
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                {
+                    int res = WriteDataOnIOT(LoadingTO, conn, tran, vehicleNumber, transporterId);
+                    if (result != 1)
+                    {
+                        tran.Rollback();
+                        resultMessage.DefaultBehaviour("error while update loadindingSlip");
+                        return resultMessage;
+                    }
+                }
+                tran.Commit();
+                resultMessage.DefaultSuccessBehaviour();
                 return resultMessage;
-            } catch (Exception ex) {
-                resultMessage.DefaultExceptionBehaviour (ex, "Error in UpdateVehicleDetails");
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "Error in UpdateVehicleDetails");
                 return resultMessage;
-            } finally {
-                conn.Close ();
+            }
+            finally
+            {
+                conn.Close();
             }
         }
 
