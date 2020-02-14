@@ -1863,7 +1863,7 @@ namespace ODLMWebAPI.BL {
 
                             List<TblInvoiceTO> invoiceTOselectList = _iTblInvoiceDAO.SelectInvoiceListFromLoadingSlipId(list[i].IdLoadingSlip, conn, tran);
 
-                            if (invoiceTOselectList != null)
+                            if (invoiceTOselectList != null && invoiceTOselectList.Count > 0)
                             {
                                 List<TblInvoiceTO> TblInvoiceTOTemp = invoiceTOselectList.Where(w => w.InvoiceStatusE == Constants.InvoiceStatusE.AUTHORIZED).ToList();
 
@@ -2591,7 +2591,7 @@ namespace ODLMWebAPI.BL {
                             {
                                 Int32 modBusLoadingRefId = Convert.ToInt32(gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.LoadingId]);
 
-                                if (gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.VehicleNo].ToString() == vehicleNo)
+                                if (gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.VehicleNo].ToString().ToUpper() == vehicleNo.ToUpper())
                                 {
                                     TblLoadingTO tblLoadingTO = SelectTblLoadingTOByModBusRefId(modBusLoadingRefId);
 
@@ -3386,7 +3386,7 @@ namespace ODLMWebAPI.BL {
                     }
                 }
 
-                exitingTblLoadingTO.TotalLoadingQty += existingLoadingQty + tblLoadingTO.TotalLoadingQty;
+                exitingTblLoadingTO.TotalLoadingQty = existingLoadingQty + tblLoadingTO.TotalLoadingQty;
 
                 Int32 changeStatustoDevice = 0;
 
@@ -3438,11 +3438,15 @@ namespace ODLMWebAPI.BL {
 
                 if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
                 {
-                    //Write Status On IOT.
-                    exitingTblLoadingTO.VehicleNo = "";
-                    exitingTblLoadingTO.TransporterOrgId = 0;
-                    exitingTblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
-                    exitingTblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
+
+                    if (exitingTblLoadingTO.TranStatusE != Constants.TranStatusE.LOADING_NOT_CONFIRM)
+                    {
+                        //Write Status On IOT.
+                        exitingTblLoadingTO.VehicleNo = "";
+                        exitingTblLoadingTO.TransporterOrgId = 0;
+                        exitingTblLoadingTO.StatusId = (Int32)Constants.TranStatusE.LOADING_CONFIRM;
+                        exitingTblLoadingTO.TranStatusE = Constants.TranStatusE.LOADING_CONFIRM;
+                    }
                     //exitingTblLoadingTO.StatusReason = "Loading Scheduled";
                 }
 
