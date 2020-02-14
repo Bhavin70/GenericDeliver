@@ -1692,7 +1692,14 @@ namespace ODLMWebAPI.BL {
                     }
                     #endregion
 
-                    if (invoiceTO.IsConfirmed == 1)
+                    Int32 generateNCInvoice = 0;
+                    TblConfigParamsTO generateNCInvoiceTblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_GENERATE_INVOICE_NO_FOR_NC, conn, tran);
+                    if (generateNCInvoiceTblConfigParamsTO != null)
+                    {
+                        generateNCInvoice = Convert.ToInt32(generateNCInvoiceTblConfigParamsTO.ConfigParamVal);
+                    }
+
+                    if (invoiceTO.IsConfirmed == 1 || generateNCInvoice == 1)
                     {
                         //Added By hrushikesh for default org id 09/10/2019
                         TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID, conn, tran);
@@ -1704,22 +1711,60 @@ namespace ODLMWebAPI.BL {
                             resultMessage.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
                             return resultMessage;
                         }
+
+                        Int32 brandWiseInvoiceSetting = Convert.ToInt32(tblConfigParamsTOForBrand.ConfigParamVal);
+
                         Int32 defualtOrgId = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
                         TblEntityRangeTO entityRangeTO = null;
-                        if (Convert.ToInt32(tblConfigParamsTOForBrand.ConfigParamVal) == 1)
+                        //if (Convert.ToInt32(tblConfigParamsTOForBrand.ConfigParamVal) == 1)
+                        //{
+                        //    DimBrandTO dimBrandTO = _iDimBrandDAO.SelectDimBrand(invoiceTO.BrandId);
+                        //    entityRangeString += dimBrandTO.IdBrand.ToString();
+                        //    entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(entityRangeString, invoiceTO.FinYearId, conn, tran);
+                        //}
+                        ////Hrushikesh added get entity Range organizationwise
+                        //else if (invoiceTO.InvFromOrgId != defualtOrgId)
+                        //{
+                        //    string orgstr = Constants.ENTITY_RANGE_REGULAR_TAX_INTERNALORG + invoiceTO.InvFromOrgId;
+                        //    entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(orgstr, invoiceTO.FinYearId, conn, tran);
+                        //}
+                        //else
+                        //    entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(invoiceTO.InvoiceTypeId, invoiceTO.FinYearId, conn, tran);
+
+
+                        String entityName = _iDimensionDAO.SelectInvoiceEntityNameByInvoiceTypeId(invoiceTO.InvoiceTypeId);
+                        if (String.IsNullOrEmpty(entityName))
                         {
-                            DimBrandTO dimBrandTO = _iDimBrandDAO.SelectDimBrand(invoiceTO.BrandId);
-                            entityRangeString += dimBrandTO.IdBrand.ToString();
-                            entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(entityRangeString, invoiceTO.FinYearId, conn, tran);
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("entityRangeTO Found NULL. Entity Range Not Defined"); return resultMessage;
                         }
-                        //Hrushikesh added get entity Range organizationwise
-                        else if (invoiceTO.InvFromOrgId != defualtOrgId)
+                        if (invoiceTO.InvFromOrgId != defualtOrgId)   //For NC invoice this condition will false.
                         {
-                            string orgstr = Constants.ENTITY_RANGE_REGULAR_TAX_INTERNALORG + invoiceTO.InvFromOrgId;
-                            entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(orgstr, invoiceTO.FinYearId, conn, tran);
+                            entityName += "_ORG_" + invoiceTO.InvFromOrgId;
                         }
-                        else
-                            entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(invoiceTO.InvoiceTypeId, invoiceTO.FinYearId, conn, tran);
+
+                        if (brandWiseInvoiceSetting == 1)
+                        {
+                            entityName += "_BRAND_" + invoiceTO.BrandId;
+                        }
+                        if (invoiceTO.IsConfirmed == 0)
+                        {
+                            entityName += "_NC";
+
+                            Int32 generateNCInvoiceDaily = 0;
+                            TblConfigParamsTO generateNCInvoiceDailyTblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_GENERATE_INVOICE_NO_FOR_NC_DAILY, conn, tran);
+                            if (generateNCInvoiceDailyTblConfigParamsTO != null)
+                            {
+                                generateNCInvoiceDaily = Convert.ToInt32(generateNCInvoiceDailyTblConfigParamsTO.ConfigParamVal);
+                            }
+                            if (generateNCInvoiceDaily == 1)
+                            {
+                                entityRangeTO = SelectEntityRangeForLoadingCount(entityName, conn, tran, invoiceTO.FinYearId, 0);
+                            }
+
+                        }
+
+                        entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(entityName, invoiceTO.FinYearId, conn, tran);
 
                         if (entityRangeTO == null)
                         {
@@ -8268,16 +8313,22 @@ namespace ODLMWebAPI.BL {
         #region Methods
 
         // Vaibhav [30-Jan-2018] Added to update entity range for loading and loadingslip count.
-        private TblEntityRangeTO SelectEntityRangeForLoadingCount (string entityName, SqlConnection conn, SqlTransaction tran) {
+        private TblEntityRangeTO SelectEntityRangeForLoadingCount(string entityName, SqlConnection conn, SqlTransaction tran, Int32 finYearId = 0, Int32 newSeq = 1) {
             try {
-                TblEntityRangeTO entityRangeTO = _iTblEntityRangeDAO.SelectTblEntityRangeByEntityName (entityName, Constants.FinYear, conn, tran);
+
+                if (finYearId == 0)
+                {
+                    finYearId = Constants.FinYear;
+                }
+
+                TblEntityRangeTO entityRangeTO = _iTblEntityRangeDAO.SelectTblEntityRangeByEntityName (entityName, finYearId, conn, tran);
                 if (entityRangeTO == null) {
                     return null;
                 }
 
                 if (_iCommon.ServerDateTime.Date != entityRangeTO.CreatedOn.Date) {
                     entityRangeTO.CreatedOn = _iCommon.ServerDateTime;
-                    entityRangeTO.EntityPrevValue = 1;
+                    entityRangeTO.EntityPrevValue = newSeq;
 
                     int result = _iTblEntityRangeDAO.UpdateTblEntityRange (entityRangeTO, conn, tran);
                     if (result != 1) {
