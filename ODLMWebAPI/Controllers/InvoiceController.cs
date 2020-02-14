@@ -344,7 +344,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetRptInvoiceList")]
         [HttpGet]
-        public List<TblInvoiceRptTO> GetRptInvoiceList(string fromDate, string toDate, int isConfirm)
+        public List<TblInvoiceRptTO> GetRptInvoiceList(string fromDate, string toDate, int isConfirm,int fromOrgId)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -362,7 +362,7 @@ namespace ODLMWebAPI.Controllers
                 frmDt = _iCommon.ServerDateTime.Date;
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date;
-            return _iTblInvoiceBL.SelectAllRptInvoiceList(frmDt, toDt, isConfirm);
+            return _iTblInvoiceBL.SelectAllRptInvoiceList(frmDt, toDt, isConfirm, fromOrgId);
         }
 
         /// <summary>
@@ -372,7 +372,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetInvoiceExportList")]
         [HttpGet]
-        public List<TblInvoiceRptTO> GetInvoiceExportList(string fromDate, string toDate, int isConfirm)
+        public List<TblInvoiceRptTO> GetInvoiceExportList(string fromDate, string toDate, int isConfirm,int fromOrgId)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -392,7 +392,7 @@ namespace ODLMWebAPI.Controllers
                 toDt = _iCommon.ServerDateTime.Date;
 
 
-            return _iTblInvoiceBL.SelectInvoiceExportList(frmDt, toDt, isConfirm);
+            return _iTblInvoiceBL.SelectInvoiceExportList(frmDt, toDt, isConfirm, fromOrgId);
         }
 
         /// <summary>
@@ -402,7 +402,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetHsnExportList")]
         [HttpGet]
-        public List<TblInvoiceRptTO> GetHsnExportList(string fromDate, string toDate, int isConfirm)
+        public List<TblInvoiceRptTO> GetHsnExportList(string fromDate, string toDate, int isConfirm,int fromOrgId)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -420,7 +420,7 @@ namespace ODLMWebAPI.Controllers
                 frmDt = _iCommon.ServerDateTime.Date;
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date;
-            return _iTblInvoiceBL.SelectHsnExportList(frmDt, toDt, isConfirm);
+            return _iTblInvoiceBL.SelectHsnExportList(frmDt, toDt, isConfirm, fromOrgId);
         }
 
 
@@ -431,7 +431,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetSalesInvoiceListForReport")]
         [HttpGet]
-        public List<TblInvoiceRptTO> GetSalesInvoiceListForReport(string fromDate, string toDate, int isConfirm)
+        public List<TblInvoiceRptTO> GetSalesInvoiceListForReport(string fromDate, string toDate, int isConfirm, int fromOrgId)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -449,13 +449,13 @@ namespace ODLMWebAPI.Controllers
                 frmDt = _iCommon.ServerDateTime.Date;
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date;
-            return _iTblInvoiceBL.SelectSalesInvoiceListForReport(frmDt, toDt, isConfirm);
+            return _iTblInvoiceBL.SelectSalesInvoiceListForReport(frmDt, toDt, isConfirm, fromOrgId);
         }
 
 
         [Route("GetOtherItemListForReport")]
         [HttpGet]
-        public List<TblOtherTaxRpt> GetOtherItemListForReport(string fromDate, string toDate, int isConfirm, int otherTaxId)
+        public List<TblOtherTaxRpt> GetOtherItemListForReport(string fromDate, string toDate, int isConfirm, int otherTaxId,int fromOrgId)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -473,7 +473,7 @@ namespace ODLMWebAPI.Controllers
                 frmDt = _iCommon.ServerDateTime.Date;
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date;
-            return _iTblInvoiceBL.SelectOtherTaxDetailsReport(frmDt, toDt, isConfirm, otherTaxId);
+            return _iTblInvoiceBL.SelectOtherTaxDetailsReport(frmDt, toDt, isConfirm, otherTaxId, fromOrgId);
         }
 
 
@@ -558,7 +558,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetAllTNotifiedblInvoiceList")]
         [HttpGet]
-        public List<TblInvoiceTO> GetAllTNotifiedblInvoiceList(string fromDate, string toDate,  int isConfirm)
+        public List<TblInvoiceTO> GetAllTNotifiedblInvoiceList(string fromDate, string toDate,  int isConfirm, int fromOrgId)
         {
             try
             {
@@ -578,7 +578,7 @@ namespace ODLMWebAPI.Controllers
                 if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                     toDt = _iCommon.ServerDateTime.Date;
 
-                return _iTblInvoiceBL.SelectAllTNotifiedblInvoiceList(frmDt, toDt,isConfirm);
+                return _iTblInvoiceBL.SelectAllTNotifiedblInvoiceList(frmDt, toDt,isConfirm, fromOrgId);
             }
             catch (Exception ex)
             {

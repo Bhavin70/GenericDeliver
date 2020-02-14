@@ -49,6 +49,8 @@ namespace ODLMWebAPI.IoT.Interfaces
         string GetIotDecodedStatusIdsForGivenStatus(string statusIds);
 
         GateIoTResult GetDecryptedLoadingId(string dataFrame, string methodName, string URL);
-        
+       string GetVehicleNumbers(string vehicleNo, Boolean isForSelect);//chetan[10-feb-2020] added for allow Old vehicle on Iot
+
+
     }
 }

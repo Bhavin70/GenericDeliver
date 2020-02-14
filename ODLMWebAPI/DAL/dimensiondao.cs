@@ -1140,6 +1140,43 @@ namespace ODLMWebAPI.DAL
 
         }
 
+        public String SelectInvoiceEntityNameByInvoiceTypeId(Int32 idInvoiceType)
+        {
+
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            SqlDataReader dateReader = null;
+            try
+            {
+                conn.Open();
+                String aqlQuery = "SELECT entityName FROM dimInvoiceTypes WHERE  isActive=1 AND idInvoiceType = " + idInvoiceType;
+
+                cmdSelect = new SqlCommand(aqlQuery, conn);
+                dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DropDownTO> dropDownTOList = new List<Models.DropDownTO>();
+                String entityName = String.Empty;
+                while (dateReader.Read())
+                {
+                    if (dateReader["entityName"] != DBNull.Value)
+                        entityName = Convert.ToString(dateReader["entityName"].ToString());
+                }
+                return entityName;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                dateReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+
+        }
+
+
         public List<DropDownTO> SelectInvoiceModeForDropDown()
         {
 
