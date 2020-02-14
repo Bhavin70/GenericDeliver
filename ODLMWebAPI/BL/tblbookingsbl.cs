@@ -1794,6 +1794,12 @@ namespace ODLMWebAPI.BL
                 //Aniket [31-7-2019] added to set sms text dynamically
                 List<TblAlertDefinitionTO> tblAlertDefinitionTOList = _iTblAlertDefinitionDAO.SelectAllTblAlertDefinition();
 
+                //AmolG[2020-Feb-11]
+                //Check and generate alert if the size is changes when update booking. This is SRJ requirement
+
+                String errorMsg = String.Empty;
+                AnalyzeDifferentSizes(null, tblBookingsTO, true, tblAlertDefinitionTOList, ref errorMsg, conn, tran);
+              
                 // if booking withing quota then send notification to dealer confirming order detail
                 // else send notification for approval of booking
 
@@ -2040,6 +2046,191 @@ namespace ODLMWebAPI.BL
             {
                 conn.Close();
             }
+        }
+
+        /// <summary>
+        /// AmolG[2020-Feb-11]
+        /// This function is used to find the changes in sizes when we add new booking to Update existing booking
+        /// </summary>
+        /// <param name="tblBookingsTOPrev">Old booking TO</param>
+        /// <param name="tblBookingsTOCurr">Save/Update booking TO</param>
+        /// <param name="isGenerateAlert">True is used to raise the size change alert</param>
+        /// <param name="tblAlertDefinitionTOList">ALter defination list</param>
+        /// <param name="errorMsg">Return Error message if any exception occures in function</param>
+        /// <returns></returns>
+        private Boolean AnalyzeDifferentSizes(TblBookingsTO tblBookingsTOPrev, TblBookingsTO tblBookingsTOCurr, Boolean isGenerateAlert
+            , List<TblAlertDefinitionTO> tblAlertDefinitionTOList, ref string errorMsg, SqlConnection conn, SqlTransaction tran)
+        {
+            try
+            {
+                TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.IS_SIZE_CHANGE_ALERT_GENERATE);
+                if (Convert.ToBoolean(tblConfigParamsTO.ConfigParamVal))
+                {
+                    if (tblBookingsTOCurr.IdBooking > 0)
+                    {
+                        List<TblBookingExtTO> tblBookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(tblBookingsTOCurr.IdBooking);
+                        if (tblBookingExtTOList != null)
+                        {
+                            var lstBook = from lst in tblBookingExtTOList
+                                          where lst.BalanceQty > 0
+                                          select lst;
+                            if (lstBook != null && lstBook.Any())
+                            {
+                                tblBookingExtTOList = lstBook.ToList();
+                            }
+                            else
+                            {
+                                tblBookingExtTOList = new List<TblBookingExtTO>();
+                            }
+                            tblBookingsTOPrev = new TblBookingsTO();
+                            tblBookingsTOPrev.IdBooking = tblBookingsTOCurr.IdBooking;
+                            tblBookingsTOPrev.BookingScheduleTOLst = new List<TblBookingScheduleTO>();
+                            TblBookingScheduleTO tblBookingScheduleTO = new TblBookingScheduleTO();
+                            tblBookingsTOPrev.BookingScheduleTOLst.Add(tblBookingScheduleTO);
+                            tblBookingScheduleTO.OrderDetailsLst = tblBookingExtTOList;
+                        }
+                    }
+
+                    String alertMsg = String.Empty;
+                    Boolean isSizeChanged = false;
+                    if (tblBookingsTOPrev == null || tblBookingsTOPrev.IdBooking == 0)
+                    {
+                        if (tblBookingsTOCurr != null && tblBookingsTOCurr.BookingScheduleTOLst != null && tblBookingsTOCurr.BookingScheduleTOLst.Count > 0)
+                        {
+                            Dictionary<String, Double> materialDCT = GetMaterialList(tblBookingsTOCurr, ref alertMsg);
+                            if (materialDCT != null && materialDCT.Count > 0)
+                                isSizeChanged = true;
+                        }
+                    }
+                    else
+                    {
+                        String alert = String.Empty;
+                        Dictionary<String, Double> materialDCT =  GetMaterialList(tblBookingsTOCurr, ref alertMsg);
+                        if (materialDCT != null && materialDCT.Count > 0)
+                        {
+                            Dictionary<String, Double> materialPrevDCT = GetMaterialList(tblBookingsTOPrev, ref alert);
+
+                            alertMsg = String.Empty;
+
+                            foreach (String itemId in materialDCT.Keys)
+                            {
+                                if (materialPrevDCT.ContainsKey(itemId))
+                                {
+                                    if (materialPrevDCT[itemId] != materialDCT[itemId])
+                                    {
+                                        alertMsg += itemId + ", ";
+                                        isSizeChanged = true;
+                                    }
+                                }
+                                else
+                                {
+                                    alertMsg += itemId + ", ";
+                                    isSizeChanged = true;
+                                }
+                            }
+                            alertMsg = alertMsg.TrimEnd(',');
+                        }
+                        else
+                        {
+                            alertMsg = "All sizes are removed";
+                            isSizeChanged = true;
+                        }
+                    }
+
+                    if (isGenerateAlert && isSizeChanged)
+                    {
+                        if (tblAlertDefinitionTOList == null || tblAlertDefinitionTOList.Count == 0)
+                        {
+                            TblAlertDefinitionTO tblAlertDefinitionLocalTO = _iTblAlertDefinitionDAO.SelectTblAlertDefinition((int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING, conn, tran);
+                            if (tblAlertDefinitionTOList != null)
+                                tblAlertDefinitionTOList.Add(tblAlertDefinitionLocalTO);
+                            else
+                            {
+                                tblAlertDefinitionTOList = new List<TblAlertDefinitionTO>();
+                                tblAlertDefinitionTOList.Add(tblAlertDefinitionLocalTO);
+                            }
+                        }
+                        //Raise alert here
+                        TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING);
+                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING;
+                        tblAlertInstanceTO.AlertAction = "Size_Changes_In_Booking";
+
+                        tblAlertInstanceTO.AlertComment = tblAlertDefinitionTO.DefaultAlertTxt.Replace("@SizeStr", alertMsg).Replace("@BookingIdStr", tblBookingsTOCurr.BookingDisplayNo);
+
+                        tblAlertInstanceTO.EffectiveFromDate = _iCommon.ServerDateTime;
+                        tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(10);
+                        tblAlertInstanceTO.IsActive = 1;
+                        tblAlertInstanceTO.SourceDisplayId = "Size Change";
+                        tblAlertInstanceTO.SourceEntityId = tblBookingsTOCurr.IdBooking;
+                        tblAlertInstanceTO.RaisedBy = tblBookingsTOCurr.CreatedBy;
+                        tblAlertInstanceTO.RaisedOn = _iCommon.ServerDateTime;
+                        tblAlertInstanceTO.IsAutoReset = 1;
+
+                        ResultMessage rMessage = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
+
+                        if (rMessage.MessageType != ResultMessageE.Information)
+                        {
+                            errorMsg = "Error While Generating Notification";
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorMsg = "Ex : " + ex.GetBaseException().ToString() + ". StackTrace : " + ex.StackTrace;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// AmolG[2020-Feb-11]
+        /// Return all unique sizes in the given booking 
+        /// </summary>
+        /// <param name="tblBookingsTO"></param>
+        /// <param name="alertMsg"></param>
+        /// <returns></returns>
+        private Dictionary<String, Double> GetMaterialList(TblBookingsTO tblBookingsTO, ref string alertMsg)
+        {
+            //List<Int32> materialIdList = new List<int>();
+            Dictionary<String, Double> materialDCT = new Dictionary<String, double>();
+            try
+            {
+                if (tblBookingsTO != null && tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
+                {
+                    for (int iSch = 0; iSch < tblBookingsTO.BookingScheduleTOLst.Count; iSch++)
+                    {
+                        TblBookingScheduleTO tblBookingScheduleTO = tblBookingsTO.BookingScheduleTOLst[iSch];
+                        if (tblBookingScheduleTO.OrderDetailsLst != null && tblBookingScheduleTO.OrderDetailsLst.Count > 0)
+                        {
+                            for (int iOrder = 0; iOrder < tblBookingScheduleTO.OrderDetailsLst.Count; iOrder++)
+                            {
+                                if (!materialDCT.ContainsKey(tblBookingScheduleTO.OrderDetailsLst[iOrder].MaterialSubType)
+                                    && tblBookingScheduleTO.OrderDetailsLst[iOrder].BalanceQty > 0)
+                                {
+                                    materialDCT.Add(tblBookingScheduleTO.OrderDetailsLst[iOrder].MaterialSubType, tblBookingScheduleTO.OrderDetailsLst[iOrder].BookedQty);
+                                    alertMsg += tblBookingScheduleTO.OrderDetailsLst[iOrder].MaterialSubType + " ,";
+                                }
+                                else
+                                {
+                                    materialDCT[tblBookingScheduleTO.OrderDetailsLst[iOrder].MaterialSubType] += tblBookingScheduleTO.OrderDetailsLst[iOrder].BookedQty;
+                                }
+                            }
+                        }
+                    }
+
+                    alertMsg = alertMsg.TrimEnd(',');
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                
+            }
+            return materialDCT;
         }
 
         #endregion
@@ -3249,6 +3440,15 @@ namespace ODLMWebAPI.BL
                     resultMessage.Tag = tblBookingBeyondQuotaTO;
                     return resultMessage;
                 }
+
+                #endregion
+
+                #region 1.1 For Size Change Alert
+                //AmolG[2020-Feb-11]
+                //Check and generate alert if the size is changes when update booking. This is SRJ requirement
+                //Below method is used without transaction
+                string errorMsg = string.Empty;
+                AnalyzeDifferentSizes(null, tblBookingsTO, true, null, ref errorMsg, conn, tran);
 
                 #endregion
 
