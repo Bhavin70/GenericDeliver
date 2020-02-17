@@ -243,6 +243,34 @@ namespace ODLMWebAPI.BL
         {
             return _iTblBookingsDAO.SelectBookingsDetailsFromInVoiceId(inInvoice, conn, tran);
         }
+        //chetan[14-feb-2020] added for get booking detai without connection transcation
+
+        public TblBookingsTO SelectBookingsDetailsFromInVoiceId(Int32 inInvoice)
+        {
+            string sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING); 
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlTransaction tran = null;
+            TblBookingsTO tblBookingsTO = null;
+
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+                tblBookingsTO =  _iTblBookingsDAO.SelectBookingsDetailsFromInVoiceId(inInvoice, conn, tran);
+                tran.Commit();
+            }
+            catch (Exception)
+            {
+                tran.Rollback();
+                return null;
+            }    
+            finally
+            {
+                conn.Close();
+            }
+            return tblBookingsTO;
+        }
+
         public List<TblBookingsTO> SelectAllBookingsListFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran)
         {
             return _iTblBookingsDAO.SelectAllBookingsListFromLoadingSlipId(loadingSlipId, conn, tran);

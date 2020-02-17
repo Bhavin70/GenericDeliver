@@ -102,6 +102,7 @@ namespace ODLMWebAPI.Models
 
 
         Double creditLimit;
+        Int32 enquiryId;
 
         #endregion
 
@@ -278,6 +279,14 @@ namespace ODLMWebAPI.Models
             get { return isDeleted; }
             set { isDeleted = value; }
         }
+        public Int32 EnquiryId
+        {
+            get { return enquiryId; }
+            set { enquiryId = value; }
+        }
+
+        
+
         /// <summary>
         /// Sanjay [2017-02-11] To Get data In Post action
         /// </summary>
