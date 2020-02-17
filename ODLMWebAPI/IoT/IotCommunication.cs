@@ -33,7 +33,7 @@ namespace ODLMWebAPI.IoT
 
 
 
-        public IotCommunication(ITblLoadingDAO iTblLoadingDAO,IWeighingCommunication iWeighingCommunication, ICommon iCommon, IGateCommunication iGateCommunication, IDimStatusBL iDimStatusBL, ITblOrganizationBL iTblOrganizationBL, ITblWeighingMachineDAO iTblWeighingMachineDAO
+        public IotCommunication(ITblLoadingDAO iTblLoadingDAO, IWeighingCommunication iWeighingCommunication, ICommon iCommon, IGateCommunication iGateCommunication, IDimStatusBL iDimStatusBL, ITblOrganizationBL iTblOrganizationBL, ITblWeighingMachineDAO iTblWeighingMachineDAO
              )
         {
             _iGateCommunication = iGateCommunication;
@@ -58,7 +58,8 @@ namespace ODLMWebAPI.IoT
                 GateIoTResult gateIoTResult = _iGateCommunication.GetLoadingStatusHistoryDataFromGateIoT(tblLoadingTO);
                 if (gateIoTResult != null && gateIoTResult.Data != null && gateIoTResult.Data.Count != 0)
                 {
-                    tblLoadingTO.VehicleNo = (string)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.VehicleNo];
+                    //tblLoadingTO.VehicleNo = (string)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.VehicleNo];
+                    tblLoadingTO.VehicleNo = GetVehicleNumbers((string)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.VehicleNo],true);//chetan[10-feb-2020] add for write old vehicle on IOT
                     tblLoadingTO.TransporterOrgId = Convert.ToInt32(gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.TransportorId]);
                     String statusDate = (String)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.StatusDate];
 
@@ -215,7 +216,7 @@ namespace ODLMWebAPI.IoT
             return tblLoadingTO;
         }
 
-        
+
 
         public DateTime IoTDateTimeStringToDate(string statusDate)
         {
@@ -249,7 +250,7 @@ namespace ODLMWebAPI.IoT
             return tblLoadingTOList;
         }
 
-       
+
 
         public int PostGateAPIDataToModbusTcpApi(TblLoadingTO tblLoadingTO, Object[] writeData)
         {
@@ -430,6 +431,7 @@ namespace ODLMWebAPI.IoT
         public List<object[]> GenerateGateIoTFrameData(TblLoadingTO loadingTO, string vehicleNo, Int32 statusId, Int32 transportorId)
         {
             List<object[]> frameList = new List<object[]>();
+            vehicleNo = GetVehicleNumbers(vehicleNo,false);//chetan[10-feb-2020] add for write old vehicle on IOT
             FormatStdGateIoTFrameToWrite(loadingTO, vehicleNo, statusId, transportorId, frameList);
             return frameList;
         }
@@ -617,9 +619,11 @@ namespace ODLMWebAPI.IoT
                     GateIoTResult gateIoTResult = _iGateCommunication.GetLoadingStatusHistoryDataFromGateIoT(loadingTO);
                     if (gateIoTResult != null && gateIoTResult.Data != null && gateIoTResult.Data.Count != 0)
                     {
-                        tblLoadingSlipTO.VehicleNo = (string)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.VehicleNo];
+                        // tblLoadingSlipTO.VehicleNo = (string)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.VehicleNo];
+                        tblLoadingSlipTO.VehicleNo = GetVehicleNumbers((string)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.VehicleNo],true);
+
                         tblLoadingSlipTO.TransporterOrgId = Convert.ToInt32(gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.TransportorId]);
-                     }
+                    }
 
                     //var layerList = totalLoadingSlipExtList.GroupBy(x => x.LoadingLayerid).ToList();
                     //List<int> totalLayerList = new List<int>();
@@ -674,6 +678,45 @@ namespace ODLMWebAPI.IoT
                     //}
                 }
             }
+        }
+        //chetan[10-feb-2020] added for allow old vehicle on IOT
+        public string GetVehicleNumbers(string vehicleNo, Boolean isForSelect)
+        {
+            string oldAndNewVehicleNo = vehicleNo;
+            string[] splitVehicleNoArr = vehicleNo.Split(" ");
+            if (splitVehicleNoArr.Length == 4)
+            {
+                string stateCodeStr = Convert.ToString(splitVehicleNoArr[0]);
+                string stateCodeInt = Convert.ToString(splitVehicleNoArr[1]);
+                string numberStr = Convert.ToString(splitVehicleNoArr[2]);
+                string numberInt = Convert.ToString(splitVehicleNoArr[3]);
+
+                if (isForSelect)
+                {
+                    int stateCodeConvertInInt = Convert.ToInt32(stateCodeInt);
+                    if(stateCodeConvertInInt==0)
+                    {
+                        oldAndNewVehicleNo = string.Empty;
+                        oldAndNewVehicleNo = stateCodeStr + numberStr.Substring(0, 1) + " - - " + numberInt;
+                    }
+                }
+                else
+                {
+                    if (stateCodeInt.Contains("-") || stateCodeStr.Length == 3 || numberStr.Length == 3)
+                    {
+                        oldAndNewVehicleNo = string.Empty;
+                        if (stateCodeStr.Length == 3)
+                        {
+                            oldAndNewVehicleNo = stateCodeStr.Substring(0, 2) + " 00 " + stateCodeStr.Substring(2) + "- " + numberInt;
+                        }
+                        else if (numberStr.Length == 3)
+                        {
+                            oldAndNewVehicleNo = numberStr.Substring(0, 2) + " 00 " + numberStr.Substring(2, 1) + " -" + numberInt;
+                        }
+                    }
+                }
+            }
+            return oldAndNewVehicleNo;
         }
     }
 }

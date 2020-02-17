@@ -90,7 +90,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-        public List<TblInvoiceAddressTO> SelectTblInvoiceAddressByDealerId(Int32 dealerOrgId, String addrSrcTypeString)
+        public List<TblInvoiceAddressTO> SelectTblInvoiceAddressByDealerId(Int32 dealerOrgId, String addrSrcTypeString,Int32 topRecordcnt)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -103,14 +103,25 @@ namespace ODLMWebAPI.DAL
                 //{
                 //    addrTypeCon = " AND txnAddrTypeId IN (" + addrSrcTypeString + ")";
                 //}
-                cmdSelect.CommandText = " select addr.* from tempInvoiceAddress addr where addr.billingOrgId=@dealerOrgId and addr.txnAddrTypeId in("+ addrSrcTypeString+") "+
-                "  order by addr.invoiceId desc";
+                //chetan[12-feb-2020] added for get disting address
+                if (topRecordcnt > 0)
+                {
+                    cmdSelect.CommandText = "select top("+ topRecordcnt + ") billingName,gstinNo,panNo,aadharNo,contactNo,[address],taluka,talukaId,district,districtId,[state],stateId, "+
+                                             " pinCode,CountryId,village from tempInvoiceAddress addr where addr.billingOrgId = @dealerOrgId and addr.txnAddrTypeId in("+ addrSrcTypeString + " )"+
+                                             " group by billingName, gstinNo, panNo, aadharNo, contactNo,[address], taluka, talukaId, district, districtId,[state], "+
+                                             " stateId,  pinCode, CountryId, village ";
+                }
+                else
+                {
+                    cmdSelect.CommandText = " select addr.* from tempInvoiceAddress addr where addr.billingOrgId=@dealerOrgId and addr.txnAddrTypeId in(" + addrSrcTypeString + ") " +
+                    "  order by addr.invoiceId desc";
+                }
                 cmdSelect.Parameters.AddWithValue("@dealerOrgId",DbType.Int32).Value=dealerOrgId;
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
                 SqlDataReader sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
-                List<TblInvoiceAddressTO> list = ConvertDTToList(sqlReader);
+                List<TblInvoiceAddressTO> list = ConvertInvoiceAddressDTToList(sqlReader);
                 return list;
             }
             catch (Exception ex)
@@ -150,6 +161,70 @@ namespace ODLMWebAPI.DAL
                 if (reader != null) reader.Dispose();
                 cmdSelect.Dispose();
             }
+        }
+
+        public List<TblInvoiceAddressTO> ConvertInvoiceAddressDTToList(SqlDataReader tblInvoiceAddressTODT)
+        {
+            List<TblInvoiceAddressTO> tblInvoiceAddressTOList = new List<TblInvoiceAddressTO>();
+            if (tblInvoiceAddressTODT != null)
+            {
+                while (tblInvoiceAddressTODT.Read())
+                {
+                    TblInvoiceAddressTO tblInvoiceAddressTONew = new TblInvoiceAddressTO();
+                    //if (tblInvoiceAddressTODT["idInvoiceAddr"] != DBNull.Value)
+                    //    tblInvoiceAddressTONew.IdInvoiceAddr = Convert.ToInt32(tblInvoiceAddressTODT["idInvoiceAddr"].ToString());
+                    //if (tblInvoiceAddressTODT["invoiceId"] != DBNull.Value)
+                    //    tblInvoiceAddressTONew.InvoiceId = Convert.ToInt32(tblInvoiceAddressTODT["invoiceId"].ToString());
+                    //if (tblInvoiceAddressTODT["txnAddrTypeId"] != DBNull.Value)
+                    //    tblInvoiceAddressTONew.TxnAddrTypeId = Convert.ToInt32(tblInvoiceAddressTODT["txnAddrTypeId"].ToString());
+                    //if (tblInvoiceAddressTODT["billingOrgId"] != DBNull.Value)
+                    //    tblInvoiceAddressTONew.BillingOrgId = Convert.ToInt32(tblInvoiceAddressTODT["billingOrgId"].ToString());
+                    if (tblInvoiceAddressTODT["talukaId"] != DBNull.Value)
+                        tblInvoiceAddressTONew.TalukaId = Convert.ToInt32(tblInvoiceAddressTODT["talukaId"].ToString());
+                    if (tblInvoiceAddressTODT["districtId"] != DBNull.Value)
+                        tblInvoiceAddressTONew.DistrictId = Convert.ToInt32(tblInvoiceAddressTODT["districtId"].ToString());
+                    if (tblInvoiceAddressTODT["stateId"] != DBNull.Value)
+                        tblInvoiceAddressTONew.StateId = Convert.ToInt32(tblInvoiceAddressTODT["stateId"].ToString());
+                    if (tblInvoiceAddressTODT["countryId"] != DBNull.Value)
+                        tblInvoiceAddressTONew.CountryId = Convert.ToInt32(tblInvoiceAddressTODT["countryId"].ToString());
+                    if (tblInvoiceAddressTODT["billingName"] != DBNull.Value)
+                        tblInvoiceAddressTONew.BillingName = Convert.ToString(tblInvoiceAddressTODT["billingName"].ToString());
+                    if (tblInvoiceAddressTODT["gstinNo"] != DBNull.Value)
+                        tblInvoiceAddressTONew.GstinNo = Convert.ToString(tblInvoiceAddressTODT["gstinNo"].ToString());
+                    if (tblInvoiceAddressTODT["panNo"] != DBNull.Value)
+                        tblInvoiceAddressTONew.PanNo = Convert.ToString(tblInvoiceAddressTODT["panNo"].ToString());
+
+                    //Saket [2019-09-26] Added
+                    if (!String.IsNullOrEmpty(tblInvoiceAddressTONew.GstinNo))
+                        tblInvoiceAddressTONew.GstinNo = tblInvoiceAddressTONew.GstinNo.ToUpper();
+                    if (!String.IsNullOrEmpty(tblInvoiceAddressTONew.PanNo))
+                        tblInvoiceAddressTONew.PanNo = tblInvoiceAddressTONew.PanNo.ToUpper();
+
+                    if (tblInvoiceAddressTODT["aadharNo"] != DBNull.Value)
+                        tblInvoiceAddressTONew.AadharNo = Convert.ToString(tblInvoiceAddressTODT["aadharNo"].ToString());
+                    if (tblInvoiceAddressTODT["contactNo"] != DBNull.Value)
+                        tblInvoiceAddressTONew.ContactNo = Convert.ToString(tblInvoiceAddressTODT["contactNo"].ToString());
+                    if (tblInvoiceAddressTODT["address"] != DBNull.Value)
+                        tblInvoiceAddressTONew.Address = Convert.ToString(tblInvoiceAddressTODT["address"].ToString());
+                    if (tblInvoiceAddressTODT["taluka"] != DBNull.Value)
+                        tblInvoiceAddressTONew.Taluka = Convert.ToString(tblInvoiceAddressTODT["taluka"].ToString());
+                    if (tblInvoiceAddressTODT["district"] != DBNull.Value)
+                        tblInvoiceAddressTONew.District = Convert.ToString(tblInvoiceAddressTODT["district"].ToString());
+                    if (tblInvoiceAddressTODT["state"] != DBNull.Value)
+                        tblInvoiceAddressTONew.State = Convert.ToString(tblInvoiceAddressTODT["state"].ToString());
+                    if (tblInvoiceAddressTODT["pinCode"] != DBNull.Value)
+                        tblInvoiceAddressTONew.PinCode = Convert.ToString(tblInvoiceAddressTODT["pinCode"].ToString());
+                    //if (tblInvoiceAddressTODT["addrSourceTypeId"] != DBNull.Value)
+                    //    tblInvoiceAddressTONew.AddrSourceTypeId = Convert.ToInt32(tblInvoiceAddressTODT["addrSourceTypeId"]);
+
+                    //Sanjay 17-09-2019 Prev village was not included in master.
+                    if (tblInvoiceAddressTODT["village"] != DBNull.Value)
+                        tblInvoiceAddressTONew.VillageName = Convert.ToString(tblInvoiceAddressTODT["village"].ToString());
+
+                    tblInvoiceAddressTOList.Add(tblInvoiceAddressTONew);
+                }
+            }
+            return tblInvoiceAddressTOList;
         }
 
         public List<TblInvoiceAddressTO> ConvertDTToList(SqlDataReader tblInvoiceAddressTODT)
