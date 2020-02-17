@@ -3801,7 +3801,9 @@ namespace ODLMWebAPI.BL
 
                 invoiceDT.Columns.Add("TotalTaxAmt", typeof(double));
                 invoiceDT.Columns.Add("TotalTaxAmtWordStr");
-
+                //chetan[14-feb-2020] added
+                invoiceDT.Columns.Add("BookingCDPct", typeof(double));
+                invoiceDT.Columns.Add("BookingBasicRate", typeof(double));
 
                 TblAddressTO tblAddressTO = _iTblAddressBL.SelectOrgAddressWrtAddrType(organizationTO.IdOrganization, Constants.AddressTypeE.OFFICE_ADDRESS);
                 List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
@@ -3817,8 +3819,14 @@ namespace ODLMWebAPI.BL
                     invoiceDT.Rows[0]["orgWebsite"] = organizationTO.Website;
                     invoiceDT.Rows[0]["orgEmailAddr"] = organizationTO.EmailAddr;
                 }
-
-                List<TblPaymentTermsForBookingTO> tblPaymentTermsForBookingTOList = _iTblPaymentTermsForBookingBL.SelectAllTblPaymentTermsForBookingFromBookingId(0, invoiceId);
+                //chetan[14-feb-2020]
+                TblBookingsTO tblBookingsTO = _iTblBookingsBL.SelectBookingsDetailsFromInVoiceId(tblInvoiceTO.IdInvoice);
+                if(tblBookingsTO!=null)
+                {
+                    invoiceDT.Rows[0]["BookingCDPct"] = tblBookingsTO.CdStructure;
+                    invoiceDT.Rows[0]["BookingBasicRate"] = tblBookingsTO.BookingRate;
+                }
+                List <TblPaymentTermsForBookingTO> tblPaymentTermsForBookingTOList = _iTblPaymentTermsForBookingBL.SelectAllTblPaymentTermsForBookingFromBookingId(0, invoiceId);
                 if (tblPaymentTermsForBookingTOList != null)
                 {
                     foreach (var item in tblPaymentTermsForBookingTOList)
