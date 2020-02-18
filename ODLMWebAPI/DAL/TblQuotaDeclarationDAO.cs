@@ -705,12 +705,13 @@ namespace ODLMWebAPI.DAL
             {
                 cmdUpdate.Connection = conn;
                 cmdUpdate.Transaction = tran;
-
+                cmdUpdate.CommandTimeout = 60;
                 String sqlQuery = @" UPDATE [tblQuotaDeclaration] SET " +
                                   "  [isActive] = @isActive " +
                                   " ,[updatedBy] = @updatedBy " +
                                   " ,[validUpto] = @validUpto " +
-                                  " ,[updatedOn] = @updatedOn ";
+                                  " ,[updatedOn] = @updatedOn " +
+                                  "  WHERE isActive = 1 ";
 
                 cmdUpdate.CommandText = sqlQuery;
                 cmdUpdate.CommandType = System.Data.CommandType.Text;
