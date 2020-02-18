@@ -2093,118 +2093,120 @@ namespace ODLMWebAPI.BL
             try
             {
                 TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.IS_SIZE_CHANGE_ALERT_GENERATE);
-                if (Convert.ToBoolean(tblConfigParamsTO.ConfigParamVal))
+                if (tblConfigParamsTO == null || Convert.ToInt32(tblConfigParamsTO.ConfigParamVal) == 0)
                 {
-                    if (tblBookingsTOCurr.IdBooking > 0)
+                    return false;
+                }
+                if (tblBookingsTOCurr.IdBooking > 0)
+                {
+                    List<TblBookingExtTO> tblBookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(tblBookingsTOCurr.IdBooking);
+                    if (tblBookingExtTOList != null)
                     {
-                        List<TblBookingExtTO> tblBookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(tblBookingsTOCurr.IdBooking);
-                        if (tblBookingExtTOList != null)
+                        var lstBook = from lst in tblBookingExtTOList
+                                      where lst.BalanceQty > 0
+                                      select lst;
+                        if (lstBook != null && lstBook.Any())
                         {
-                            var lstBook = from lst in tblBookingExtTOList
-                                          where lst.BalanceQty > 0
-                                          select lst;
-                            if (lstBook != null && lstBook.Any())
-                            {
-                                tblBookingExtTOList = lstBook.ToList();
-                            }
-                            else
-                            {
-                                tblBookingExtTOList = new List<TblBookingExtTO>();
-                            }
-                            tblBookingsTOPrev = new TblBookingsTO();
-                            tblBookingsTOPrev.IdBooking = tblBookingsTOCurr.IdBooking;
-                            tblBookingsTOPrev.BookingScheduleTOLst = new List<TblBookingScheduleTO>();
-                            TblBookingScheduleTO tblBookingScheduleTO = new TblBookingScheduleTO();
-                            tblBookingsTOPrev.BookingScheduleTOLst.Add(tblBookingScheduleTO);
-                            tblBookingScheduleTO.OrderDetailsLst = tblBookingExtTOList;
+                            tblBookingExtTOList = lstBook.ToList();
                         }
+                        else
+                        {
+                            tblBookingExtTOList = new List<TblBookingExtTO>();
+                        }
+                        tblBookingsTOPrev = new TblBookingsTO();
+                        tblBookingsTOPrev.IdBooking = tblBookingsTOCurr.IdBooking;
+                        tblBookingsTOPrev.BookingScheduleTOLst = new List<TblBookingScheduleTO>();
+                        TblBookingScheduleTO tblBookingScheduleTO = new TblBookingScheduleTO();
+                        tblBookingsTOPrev.BookingScheduleTOLst.Add(tblBookingScheduleTO);
+                        tblBookingScheduleTO.OrderDetailsLst = tblBookingExtTOList;
                     }
+                }
 
-                    String alertMsg = String.Empty;
-                    Boolean isSizeChanged = false;
-                    if (tblBookingsTOPrev == null || tblBookingsTOPrev.IdBooking == 0)
+                String alertMsg = String.Empty;
+                Boolean isSizeChanged = false;
+                if (tblBookingsTOPrev == null || tblBookingsTOPrev.IdBooking == 0)
+                {
+                    if (tblBookingsTOCurr != null && tblBookingsTOCurr.BookingScheduleTOLst != null && tblBookingsTOCurr.BookingScheduleTOLst.Count > 0)
                     {
-                        if (tblBookingsTOCurr != null && tblBookingsTOCurr.BookingScheduleTOLst != null && tblBookingsTOCurr.BookingScheduleTOLst.Count > 0)
-                        {
-                            Dictionary<String, Double> materialDCT = GetMaterialList(tblBookingsTOCurr, ref alertMsg);
-                            if (materialDCT != null && materialDCT.Count > 0)
-                                isSizeChanged = true;
-                        }
-                    }
-                    else
-                    {
-                        String alert = String.Empty;
-                        Dictionary<String, Double> materialDCT =  GetMaterialList(tblBookingsTOCurr, ref alertMsg);
+                        Dictionary<String, Double> materialDCT = GetMaterialList(tblBookingsTOCurr, ref alertMsg);
                         if (materialDCT != null && materialDCT.Count > 0)
+                            isSizeChanged = true;
+                    }
+                }
+                else
+                {
+                    String alert = String.Empty;
+                    Dictionary<String, Double> materialDCT = GetMaterialList(tblBookingsTOCurr, ref alertMsg);
+                    if (materialDCT != null && materialDCT.Count > 0)
+                    {
+                        Dictionary<String, Double> materialPrevDCT = GetMaterialList(tblBookingsTOPrev, ref alert);
+
+                        alertMsg = String.Empty;
+
+                        foreach (String itemId in materialDCT.Keys)
                         {
-                            Dictionary<String, Double> materialPrevDCT = GetMaterialList(tblBookingsTOPrev, ref alert);
-
-                            alertMsg = String.Empty;
-
-                            foreach (String itemId in materialDCT.Keys)
+                            if (materialPrevDCT.ContainsKey(itemId))
                             {
-                                if (materialPrevDCT.ContainsKey(itemId))
-                                {
-                                    if (materialPrevDCT[itemId] != materialDCT[itemId])
-                                    {
-                                        alertMsg += itemId + ", ";
-                                        isSizeChanged = true;
-                                    }
-                                }
-                                else
+                                if (materialPrevDCT[itemId] != materialDCT[itemId])
                                 {
                                     alertMsg += itemId + ", ";
                                     isSizeChanged = true;
                                 }
                             }
-                            alertMsg = alertMsg.TrimEnd(',');
-                        }
-                        else
-                        {
-                            alertMsg = "All sizes are removed";
-                            isSizeChanged = true;
-                        }
-                    }
-
-                    if (isGenerateAlert && isSizeChanged)
-                    {
-                        if (tblAlertDefinitionTOList == null || tblAlertDefinitionTOList.Count == 0)
-                        {
-                            TblAlertDefinitionTO tblAlertDefinitionLocalTO = _iTblAlertDefinitionDAO.SelectTblAlertDefinition((int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING, conn, tran);
-                            if (tblAlertDefinitionTOList != null)
-                                tblAlertDefinitionTOList.Add(tblAlertDefinitionLocalTO);
                             else
                             {
-                                tblAlertDefinitionTOList = new List<TblAlertDefinitionTO>();
-                                tblAlertDefinitionTOList.Add(tblAlertDefinitionLocalTO);
+                                alertMsg += itemId + ", ";
+                                isSizeChanged = true;
                             }
                         }
-                        //Raise alert here
-                        TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
-                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING);
-                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING;
-                        tblAlertInstanceTO.AlertAction = "Size_Changes_In_Booking";
-
-                        tblAlertInstanceTO.AlertComment = tblAlertDefinitionTO.DefaultAlertTxt.Replace("@SizeStr", alertMsg).Replace("@BookingIdStr", tblBookingsTOCurr.BookingDisplayNo);
-
-                        tblAlertInstanceTO.EffectiveFromDate = _iCommon.ServerDateTime;
-                        tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(10);
-                        tblAlertInstanceTO.IsActive = 1;
-                        tblAlertInstanceTO.SourceDisplayId = "Size Change";
-                        tblAlertInstanceTO.SourceEntityId = tblBookingsTOCurr.IdBooking;
-                        tblAlertInstanceTO.RaisedBy = tblBookingsTOCurr.CreatedBy;
-                        tblAlertInstanceTO.RaisedOn = _iCommon.ServerDateTime;
-                        tblAlertInstanceTO.IsAutoReset = 1;
-
-                        ResultMessage rMessage = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
-
-                        if (rMessage.MessageType != ResultMessageE.Information)
-                        {
-                            errorMsg = "Error While Generating Notification";
-                            return false;
-                        }
+                        alertMsg = alertMsg.TrimEnd(',');
+                    }
+                    else
+                    {
+                        alertMsg = "All sizes are removed";
+                        isSizeChanged = true;
                     }
                 }
+
+                if (isGenerateAlert && isSizeChanged)
+                {
+                    if (tblAlertDefinitionTOList == null || tblAlertDefinitionTOList.Count == 0)
+                    {
+                        TblAlertDefinitionTO tblAlertDefinitionLocalTO = _iTblAlertDefinitionDAO.SelectTblAlertDefinition((int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING, conn, tran);
+                        if (tblAlertDefinitionTOList != null)
+                            tblAlertDefinitionTOList.Add(tblAlertDefinitionLocalTO);
+                        else
+                        {
+                            tblAlertDefinitionTOList = new List<TblAlertDefinitionTO>();
+                            tblAlertDefinitionTOList.Add(tblAlertDefinitionLocalTO);
+                        }
+                    }
+                    //Raise alert here
+                    TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
+                    var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING);
+                    tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING;
+                    tblAlertInstanceTO.AlertAction = "Size_Changes_In_Booking";
+
+                    tblAlertInstanceTO.AlertComment = tblAlertDefinitionTO.DefaultAlertTxt.Replace("@SizeStr", alertMsg).Replace("@BookingIdStr", tblBookingsTOCurr.BookingDisplayNo);
+
+                    tblAlertInstanceTO.EffectiveFromDate = _iCommon.ServerDateTime;
+                    tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(10);
+                    tblAlertInstanceTO.IsActive = 1;
+                    tblAlertInstanceTO.SourceDisplayId = "Size Change";
+                    tblAlertInstanceTO.SourceEntityId = tblBookingsTOCurr.IdBooking;
+                    tblAlertInstanceTO.RaisedBy = tblBookingsTOCurr.CreatedBy;
+                    tblAlertInstanceTO.RaisedOn = _iCommon.ServerDateTime;
+                    tblAlertInstanceTO.IsAutoReset = 1;
+
+                    ResultMessage rMessage = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
+
+                    if (rMessage.MessageType != ResultMessageE.Information)
+                    {
+                        errorMsg = "Error While Generating Notification";
+                        return false;
+                    }
+                }
+
                 return true;
             }
             catch (Exception ex)
