@@ -2739,8 +2739,19 @@ namespace ODLMWebAPI.BL
                         tblInvoiceItemTaxDtlsTO.TaxPct = taxRateTo.TaxPct;
                         tblInvoiceItemTaxDtlsTO.TaxRatePct = (gstCodeDtlsTO.TaxPct * taxRateTo.TaxPct) / 100;
                         tblInvoiceItemTaxDtlsTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
+
+                        //Saket [2020-02-18] Added SEZ conditons.
+                        if (tblInvoiceTO.InvoiceTypeE == Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+                        {
+                            tblInvoiceItemTaxDtlsTO.TaxRatePct = 0;
+                            tblInvoiceItemTaxDtlsTO.TaxableAmt = 0;
+                        }
+
                         tblInvoiceItemTaxDtlsTO.TaxAmt = (tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100;
                         tblInvoiceItemTaxDtlsTO.TaxTypeId = taxRateTo.TaxTypeId;
+
+                       
+
                         if (billingStateId == ofcAddrTO.StateId)
                         {
                             if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.CGST)

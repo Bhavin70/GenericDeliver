@@ -2560,6 +2560,10 @@ namespace ODLMWebAPI.BL {
 
             if (String.IsNullOrEmpty(vehicleNo))
             {
+                resultMessage.MessageType = ResultMessageE.Information;
+                resultMessage.Text = "Vehicle No not found";
+                resultMessage.DisplayMessage = "Vehicle No not found";
+                resultMessage.Result = 1;
                 return resultMessage;
             }
 
