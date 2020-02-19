@@ -4189,23 +4189,24 @@ namespace ODLMWebAPI.BL
                             invoiceItemDT.Rows[invoiceItemDTCount]["srNo"] = i + 1;
                             invoiceItemDT.Rows[invoiceItemDTCount]["prodItemDesc"] = tblInvoiceItemDetailsTO.ProdItemDesc;
                             invoiceItemDT.Rows[invoiceItemDTCount]["bundles"] = tblInvoiceItemDetailsTO.Bundles;
-                          
+                            invoiceItemDT.Rows[invoiceItemDTCount]["invoiceQty"] = Math.Round(tblInvoiceItemDetailsTO.InvoiceQty, 3);
+
                             if (isMathRoundoff == 1)
                             {
-                                invoiceItemDT.Rows[invoiceItemDTCount]["invoiceQty"] = tblInvoiceItemDetailsTO.InvoiceQty;
-                                invoiceItemDT.Rows[invoiceItemDTCount]["rate"] = tblInvoiceItemDetailsTO.Rate;
-                                invoiceItemDT.Rows[invoiceItemDTCount]["basicTotal"] = tblInvoiceItemDetailsTO.BasicTotal;
-                                invoiceItemDT.Rows[invoiceItemDTCount]["GrandTotal"] = tblInvoiceItemDetailsTO.GrandTotal;
-                              //  invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = tblInvoiceItemDetailsTO.GrandTotal/ tblInvoiceItemDetailsTO.InvoiceQty;
+                                //invoiceItemDT.Rows[invoiceItemDTCount]["invoiceQty"] = tblInvoiceItemDetailsTO.InvoiceQty;
+                                invoiceItemDT.Rows[invoiceItemDTCount]["rate"] = Math.Round(tblInvoiceItemDetailsTO.Rate);
+                                invoiceItemDT.Rows[invoiceItemDTCount]["basicTotal"] = Math.Round(tblInvoiceItemDetailsTO.BasicTotal);
+                                invoiceItemDT.Rows[invoiceItemDTCount]["GrandTotal"] = Math.Round(tblInvoiceItemDetailsTO.GrandTotal);
+                                invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = Math.Round((tblInvoiceItemDetailsTO.GrandTotal / tblInvoiceItemDetailsTO.InvoiceQty));
+                                //  invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = tblInvoiceItemDetailsTO.GrandTotal/ tblInvoiceItemDetailsTO.InvoiceQty;
                             }
                             else
                             {
-                                invoiceItemDT.Rows[invoiceItemDTCount]["invoiceQty"] = Math.Round(tblInvoiceItemDetailsTO.InvoiceQty, 3);
                                 invoiceItemDT.Rows[invoiceItemDTCount]["rate"] = Math.Round(tblInvoiceItemDetailsTO.Rate, 2);
                                 invoiceItemDT.Rows[invoiceItemDTCount]["basicTotal"] = Math.Round(tblInvoiceItemDetailsTO.BasicTotal, 2);
                                 invoiceItemDT.Rows[invoiceItemDTCount]["GrandTotal"] = Math.Round(tblInvoiceItemDetailsTO.GrandTotal, 2);
+                                invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = Math.Round((tblInvoiceItemDetailsTO.GrandTotal / tblInvoiceItemDetailsTO.InvoiceQty), 2);
                             }
-                            invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = Math.Round((tblInvoiceItemDetailsTO.GrandTotal / tblInvoiceItemDetailsTO.InvoiceQty));
 
                             invoiceItemDT.Rows[invoiceItemDTCount]["hsn"] = tblInvoiceItemDetailsTO.GstinCodeNo;
                         }
