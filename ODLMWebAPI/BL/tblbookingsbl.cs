@@ -2183,7 +2183,7 @@ namespace ODLMWebAPI.BL
                             isSizeChanged = true;
                             if (isFromEditBooking == 1)
                             {
-                                alertMsg = "deleted";
+                                alertMsg = "(deleted)";
                                 isSizeChanged = true;
                             }
                             else
