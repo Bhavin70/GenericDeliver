@@ -4793,7 +4793,7 @@ namespace ODLMWebAPI.BL
                     }
                     if (configParamsTOTempC_NC != null)
                     {
-                        isMultipleTemplateByCorNc = Convert.ToInt16(configParamsTOTemp.ConfigParamVal);
+                        isMultipleTemplateByCorNc = Convert.ToInt16(configParamsTOTempC_NC.ConfigParamVal);
                     }
                     if (val == 0)
                     {
@@ -4828,7 +4828,7 @@ namespace ODLMWebAPI.BL
                     }
                     if (configParamsTOTempC_NC != null)
                     {
-                        isMultipleTemplateByCorNc = Convert.ToInt16(configParamsTOTemp.ConfigParamVal);
+                        isMultipleTemplateByCorNc = Convert.ToInt16(configParamsTOTempC_NC.ConfigParamVal);
                     }
 
                     if (val == 0)
