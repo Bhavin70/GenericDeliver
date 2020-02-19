@@ -6362,7 +6362,7 @@ namespace ODLMWebAPI.BL
                         {
                             tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
                             tempTxt = tempTxt.Replace("@InvoiceIdStr", tblInvoiceTO.IdInvoice.ToString());
-                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblInvoiceTO.DealerName);
 
                             tblAlertInstanceTO.AlertComment = tempTxt;
                         }
