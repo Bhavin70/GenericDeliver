@@ -2739,8 +2739,19 @@ namespace ODLMWebAPI.BL
                         tblInvoiceItemTaxDtlsTO.TaxPct = taxRateTo.TaxPct;
                         tblInvoiceItemTaxDtlsTO.TaxRatePct = (gstCodeDtlsTO.TaxPct * taxRateTo.TaxPct) / 100;
                         tblInvoiceItemTaxDtlsTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
+
+                        //Saket [2020-02-18] Added SEZ conditons.
+                        if (tblInvoiceTO.InvoiceTypeE == Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+                        {
+                            tblInvoiceItemTaxDtlsTO.TaxRatePct = 0;
+                            tblInvoiceItemTaxDtlsTO.TaxableAmt = 0;
+                        }
+
                         tblInvoiceItemTaxDtlsTO.TaxAmt = (tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100;
                         tblInvoiceItemTaxDtlsTO.TaxTypeId = taxRateTo.TaxTypeId;
+
+                       
+
                         if (billingStateId == ofcAddrTO.StateId)
                         {
                             if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.CGST)
@@ -4165,6 +4176,10 @@ namespace ODLMWebAPI.BL
                         invoiceItemDT.Columns.Add("invoiceQty", typeof(double));
                         invoiceItemDT.Columns.Add("rate", typeof(double));
                         invoiceItemDT.Columns.Add("basicTotal", typeof(double));
+                        //chetan[18-feb-2020] added for display GrandTotal on template
+                        //invoiceItemDT.Columns.Add("GrandTotal", typeof(double));
+                        invoiceItemDT.Columns.Add("RateWithTax", typeof(double));
+
                         invoiceItemDT.Columns.Add("hsn");
                         for (int i = 0; i < invoiceItemlist.Count; i++)
                         {
@@ -4174,18 +4189,23 @@ namespace ODLMWebAPI.BL
                             invoiceItemDT.Rows[invoiceItemDTCount]["srNo"] = i + 1;
                             invoiceItemDT.Rows[invoiceItemDTCount]["prodItemDesc"] = tblInvoiceItemDetailsTO.ProdItemDesc;
                             invoiceItemDT.Rows[invoiceItemDTCount]["bundles"] = tblInvoiceItemDetailsTO.Bundles;
+                          
                             if (isMathRoundoff == 1)
                             {
                                 invoiceItemDT.Rows[invoiceItemDTCount]["invoiceQty"] = tblInvoiceItemDetailsTO.InvoiceQty;
                                 invoiceItemDT.Rows[invoiceItemDTCount]["rate"] = tblInvoiceItemDetailsTO.Rate;
                                 invoiceItemDT.Rows[invoiceItemDTCount]["basicTotal"] = tblInvoiceItemDetailsTO.BasicTotal;
+                            //    invoiceItemDT.Rows[invoiceItemDTCount]["GrandTotal"] = tblInvoiceItemDetailsTO.GrandTotal;
+                              //  invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = tblInvoiceItemDetailsTO.GrandTotal/ tblInvoiceItemDetailsTO.InvoiceQty;
                             }
                             else
                             {
                                 invoiceItemDT.Rows[invoiceItemDTCount]["invoiceQty"] = Math.Round(tblInvoiceItemDetailsTO.InvoiceQty, 3);
                                 invoiceItemDT.Rows[invoiceItemDTCount]["rate"] = Math.Round(tblInvoiceItemDetailsTO.Rate, 2);
                                 invoiceItemDT.Rows[invoiceItemDTCount]["basicTotal"] = Math.Round(tblInvoiceItemDetailsTO.BasicTotal, 2);
+                             //   invoiceItemDT.Rows[invoiceItemDTCount]["GrandTotal"] = Math.Round(tblInvoiceItemDetailsTO.GrandTotal, 2);
                             }
+                            invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = Math.Round((tblInvoiceItemDetailsTO.GrandTotal / tblInvoiceItemDetailsTO.InvoiceQty));
 
                             invoiceItemDT.Rows[invoiceItemDTCount]["hsn"] = tblInvoiceItemDetailsTO.GstinCodeNo;
                         }
