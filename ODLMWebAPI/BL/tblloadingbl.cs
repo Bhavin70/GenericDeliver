@@ -2074,7 +2074,10 @@ namespace ODLMWebAPI.BL {
                 }
                 tran.Commit();
                 resultMessage.DefaultSuccessBehaviour();
-                resultMessage.DisplayMessage = "Success..Invoice authorized and #" + invoiceTO.InvoiceNo + " is generated";
+                if(invoiceTO.IsConfirmed==1)
+                     resultMessage.DisplayMessage = "Success..Invoice authorized and #" + invoiceTO.InvoiceNo + " is generated";
+                else
+                    resultMessage.DisplayMessage = "Success..DC authorized and #" + invoiceTO.InvoiceNo + " is generated";
                 resultMessage.Tag = invoiceTO;
                 return resultMessage;
             }

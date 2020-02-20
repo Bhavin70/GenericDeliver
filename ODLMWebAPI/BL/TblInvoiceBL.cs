@@ -1715,26 +1715,33 @@ namespace ODLMWebAPI.BL
                     tblInvoiceItemDetailsTO.Rate = loadingSlipExtTo.CdApplicableAmt;
 
                     //[05-03-2018]Vijaymala:Changes the code to change prodItemDesc as per Kalika and SRJ requirement 
-                    Int32 a = 0;
-                    // Int32 isHide = 0;
-                    TblConfigParamsTO regulartemp = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DISPLAY_BRAND_ON_INVOICE, conn, tran);
-                    if (regulartemp != null)
+                    //cnetan[20-feb-2020] added for display brand name in report on setting base.
+                    Int32 isCPDisplayBrandOnInvoice = 0;
+                    Int32 isHideBrandNameOnNC = 0;
+                    TblConfigParamsTO cPDisplayBrandOnInvoiceTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DISPLAY_BRAND_ON_INVOICE, conn, tran);
+                    if (cPDisplayBrandOnInvoiceTO != null)
                     {
-                        a = Convert.ToInt32(regulartemp.ConfigParamVal);
-
+                        isCPDisplayBrandOnInvoice = Convert.ToInt32(cPDisplayBrandOnInvoiceTO.ConfigParamVal);
                     }
                     //Aniket [18-9-2019] commented the code
-                    //TblConfigParamsTO isHideBrandNameOnNC = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.HIDE_BRAND_NAME_ON_NC_INVOICE, conn, tran);
-                    //if(isHideBrandNameOnNC!=null)
-                    //{
-                    //    isHide = Convert.ToInt32(isHideBrandNameOnNC.ConfigParamVal);
-                    //}
+                    TblConfigParamsTO hideBrandNameOnNCInvoiceTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.HIDE_BRAND_NAME_ON_NC_INVOICE, conn, tran);
+                    if (hideBrandNameOnNCInvoiceTO != null)
+                    {
+                        isHideBrandNameOnNC = Convert.ToInt32(hideBrandNameOnNCInvoiceTO.ConfigParamVal);
+                    }
                     //[05-09-2018] : Vijaymala added to set product item display for other booking in invoice
                     if (loadingSlipExtTo.ProdItemId == 0)
                     {
-                        if (a == 1)
+                        if (isCPDisplayBrandOnInvoice == 1)
                         {
-                            tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.BrandDesc + " " + loadingSlipExtTo.ProdCatDesc + " " + loadingSlipExtTo.ProdSpecDesc + " " + loadingSlipExtTo.MaterialDesc;
+                            if (tblInvoiceTO.IsConfirmed ==0 && isHideBrandNameOnNC == 1)
+                            {
+                                tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.ProdCatDesc + " " + loadingSlipExtTo.ProdSpecDesc + " " + loadingSlipExtTo.MaterialDesc;
+                            }
+                            else
+                            {
+                                tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.BrandDesc + " " + loadingSlipExtTo.ProdCatDesc + " " + loadingSlipExtTo.ProdSpecDesc + " " + loadingSlipExtTo.MaterialDesc;
+                            }
                         }
                         else
                         {
@@ -2083,7 +2090,7 @@ namespace ODLMWebAPI.BL
             //double finalGrandTotal = Math.Round(grandTotal);
             //tblInvoiceTO.GrandTotal = finalGrandTotal;
             //tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);
-            
+
 
 
             tblInvoiceTO.InvoiceItemDetailsTOList = tblInvoiceItemDetailsTOList;
@@ -2093,7 +2100,7 @@ namespace ODLMWebAPI.BL
                 RemoveIotFieldsFromDB(tblInvoiceTO);
             }
             return tblInvoiceTO;
-            
+
             #endregion
         }
         private  void RemoveIotFieldsFromDB(TblInvoiceTO tblInvoiceTO)
