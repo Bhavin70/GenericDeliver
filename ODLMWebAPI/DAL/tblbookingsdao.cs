@@ -248,7 +248,7 @@ namespace ODLMWebAPI.DAL
             SqlDataReader tblBookingsTODT = null;
             try
             {
-                cmdSelect.CommandText = "select booking.idBooking,booking.bookingRate,booking.brandId  from tempLoadingSlipDtl detl " +
+                cmdSelect.CommandText = "select booking.idBooking,booking.bookingRate,booking.brandId,booking.cdStructure  from tempLoadingSlipDtl detl " +
                     " left join tempInvoice invoice ON detl.loadingSlipId = invoice.loadingSlipId" +
                     " left join tblBookings booking ON detl.bookingId = booking.idbooking " +
                     "where idInvoice =" + invoiceId;
@@ -269,6 +269,9 @@ namespace ODLMWebAPI.DAL
                             tblBookingsTONew.BrandId = Convert.ToInt32(tblBookingsTODT["brandId"].ToString());
                         if (tblBookingsTODT["idBooking"] != DBNull.Value)
                             tblBookingsTONew.IdBooking = Convert.ToInt32(tblBookingsTODT["idBooking"].ToString());
+                        if (tblBookingsTODT["cdStructure"] != DBNull.Value)
+                            tblBookingsTONew.CdStructure = Convert.ToDouble(tblBookingsTODT["cdStructure"].ToString());
+                        
                     }
                  
                 }

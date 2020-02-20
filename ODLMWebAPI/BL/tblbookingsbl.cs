@@ -243,6 +243,34 @@ namespace ODLMWebAPI.BL
         {
             return _iTblBookingsDAO.SelectBookingsDetailsFromInVoiceId(inInvoice, conn, tran);
         }
+        //chetan[14-feb-2020] added for get booking detai without connection transcation
+
+        public TblBookingsTO SelectBookingsDetailsFromInVoiceId(Int32 inInvoice)
+        {
+            string sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING); 
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlTransaction tran = null;
+            TblBookingsTO tblBookingsTO = null;
+
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+                tblBookingsTO =  _iTblBookingsDAO.SelectBookingsDetailsFromInVoiceId(inInvoice, conn, tran);
+                tran.Commit();
+            }
+            catch (Exception)
+            {
+                tran.Rollback();
+                return null;
+            }    
+            finally
+            {
+                conn.Close();
+            }
+            return tblBookingsTO;
+        }
+
         public List<TblBookingsTO> SelectAllBookingsListFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran)
         {
             return _iTblBookingsDAO.SelectAllBookingsListFromLoadingSlipId(loadingSlipId, conn, tran);
@@ -1800,7 +1828,7 @@ namespace ODLMWebAPI.BL
                 //Check and generate alert if the size is changes when update booking. This is SRJ requirement
 
                 String errorMsg = String.Empty;
-                AnalyzeDifferentSizes(null, tblBookingsTO, true, tblAlertDefinitionTOList, ref errorMsg, conn, tran);
+                AnalyzeDifferentSizes(null, tblBookingsTO, true, tblAlertDefinitionTOList, ref errorMsg, 0, conn, tran);
               
                 // if booking withing quota then send notification to dealer confirming order detail
                 // else send notification for approval of booking
@@ -2059,42 +2087,60 @@ namespace ODLMWebAPI.BL
         /// <param name="isGenerateAlert">True is used to raise the size change alert</param>
         /// <param name="tblAlertDefinitionTOList">ALter defination list</param>
         /// <param name="errorMsg">Return Error message if any exception occures in function</param>
+        /// <param name="isFromEditBooking">if 1 then check diff Otherwise send current sizes</param>
         /// <returns></returns>
         private Boolean AnalyzeDifferentSizes(TblBookingsTO tblBookingsTOPrev, TblBookingsTO tblBookingsTOCurr, Boolean isGenerateAlert
-            , List<TblAlertDefinitionTO> tblAlertDefinitionTOList, ref string errorMsg, SqlConnection conn, SqlTransaction tran)
+            , List<TblAlertDefinitionTO> tblAlertDefinitionTOList, ref string errorMsg, Int32 isFromEditBooking ,SqlConnection conn, SqlTransaction tran)
         {
             try
             {
-                TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.IS_SIZE_CHANGE_ALERT_GENERATE);
-                if (Convert.ToBoolean(tblConfigParamsTO.ConfigParamVal))
+                //Saket [2020-02-18] Added conditions
+                if (tblBookingsTOCurr.TranStatusE != Constants.TranStatusE.BOOKING_APPROVED_FINANCE && tblBookingsTOCurr.TranStatusE != Constants.TranStatusE.BOOKING_APPROVED && tblBookingsTOCurr.TranStatusE != Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR)
                 {
-                    if (tblBookingsTOCurr.IdBooking > 0)
-                    {
-                        List<TblBookingExtTO> tblBookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(tblBookingsTOCurr.IdBooking);
-                        if (tblBookingExtTOList != null)
-                        {
-                            var lstBook = from lst in tblBookingExtTOList
-                                          where lst.BalanceQty > 0
-                                          select lst;
-                            if (lstBook != null && lstBook.Any())
-                            {
-                                tblBookingExtTOList = lstBook.ToList();
-                            }
-                            else
-                            {
-                                tblBookingExtTOList = new List<TblBookingExtTO>();
-                            }
-                            tblBookingsTOPrev = new TblBookingsTO();
-                            tblBookingsTOPrev.IdBooking = tblBookingsTOCurr.IdBooking;
-                            tblBookingsTOPrev.BookingScheduleTOLst = new List<TblBookingScheduleTO>();
-                            TblBookingScheduleTO tblBookingScheduleTO = new TblBookingScheduleTO();
-                            tblBookingsTOPrev.BookingScheduleTOLst.Add(tblBookingScheduleTO);
-                            tblBookingScheduleTO.OrderDetailsLst = tblBookingExtTOList;
-                        }
-                    }
+                    return false;
+                }
 
-                    String alertMsg = String.Empty;
-                    Boolean isSizeChanged = false;
+                TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.IS_SIZE_CHANGE_ALERT_GENERATE);
+                if (tblConfigParamsTO == null || Convert.ToInt32(tblConfigParamsTO.ConfigParamVal) == 0)
+                {
+                    return false;
+                }
+                if (tblBookingsTOCurr.IdBooking > 0)
+                {
+                    List<TblBookingExtTO> tblBookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(tblBookingsTOCurr.IdBooking);
+                    if (tblBookingExtTOList != null)
+                    {
+                        var lstBook = from lst in tblBookingExtTOList
+                                      where lst.BalanceQty > 0
+                                      select lst;
+                        if (lstBook != null && lstBook.Any())
+                        {
+                            tblBookingExtTOList = lstBook.ToList();
+                        }
+                        else
+                        {
+                            tblBookingExtTOList = new List<TblBookingExtTO>();
+                        }
+                        tblBookingsTOPrev = new TblBookingsTO();
+                        tblBookingsTOPrev.IdBooking = tblBookingsTOCurr.IdBooking;
+                        tblBookingsTOPrev.BookingScheduleTOLst = new List<TblBookingScheduleTO>();
+                        TblBookingScheduleTO tblBookingScheduleTO = new TblBookingScheduleTO();
+                        tblBookingsTOPrev.BookingScheduleTOLst.Add(tblBookingScheduleTO);
+                        tblBookingScheduleTO.OrderDetailsLst = tblBookingExtTOList;
+                    }
+                }
+
+                String alertMsg = String.Empty;
+                Boolean isSizeChanged = false;
+
+                if (isFromEditBooking == 0)
+                {
+                    Dictionary<String, Double> materialDCT = GetMaterialList(tblBookingsTOPrev, ref alertMsg);
+                    if (materialDCT != null && materialDCT.Count > 0)
+                        isSizeChanged = true;
+                }
+                else
+                {
                     if (tblBookingsTOPrev == null || tblBookingsTOPrev.IdBooking == 0)
                     {
                         if (tblBookingsTOCurr != null && tblBookingsTOCurr.BookingScheduleTOLst != null && tblBookingsTOCurr.BookingScheduleTOLst.Count > 0)
@@ -2107,7 +2153,7 @@ namespace ODLMWebAPI.BL
                     else
                     {
                         String alert = String.Empty;
-                        Dictionary<String, Double> materialDCT =  GetMaterialList(tblBookingsTOCurr, ref alertMsg);
+                        Dictionary<String, Double> materialDCT = GetMaterialList(tblBookingsTOCurr, ref alertMsg);
                         if (materialDCT != null && materialDCT.Count > 0)
                         {
                             Dictionary<String, Double> materialPrevDCT = GetMaterialList(tblBookingsTOPrev, ref alert);
@@ -2134,50 +2180,68 @@ namespace ODLMWebAPI.BL
                         }
                         else
                         {
-                            alertMsg = "All sizes are removed";
+                            alertMsg = "Not Found";
                             isSizeChanged = true;
-                        }
-                    }
-
-                    if (isGenerateAlert && isSizeChanged)
-                    {
-                        if (tblAlertDefinitionTOList == null || tblAlertDefinitionTOList.Count == 0)
-                        {
-                            TblAlertDefinitionTO tblAlertDefinitionLocalTO = _iTblAlertDefinitionDAO.SelectTblAlertDefinition((int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING, conn, tran);
-                            if (tblAlertDefinitionTOList != null)
-                                tblAlertDefinitionTOList.Add(tblAlertDefinitionLocalTO);
+                            if (isFromEditBooking == 1)
+                            {
+                                alertMsg = "(deleted)";
+                                isSizeChanged = true;
+                            }
                             else
                             {
-                                tblAlertDefinitionTOList = new List<TblAlertDefinitionTO>();
-                                tblAlertDefinitionTOList.Add(tblAlertDefinitionLocalTO);
+                                return false;
                             }
-                        }
-                        //Raise alert here
-                        TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
-                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING);
-                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING;
-                        tblAlertInstanceTO.AlertAction = "Size_Changes_In_Booking";
-
-                        tblAlertInstanceTO.AlertComment = tblAlertDefinitionTO.DefaultAlertTxt.Replace("@SizeStr", alertMsg).Replace("@BookingIdStr", tblBookingsTOCurr.BookingDisplayNo);
-
-                        tblAlertInstanceTO.EffectiveFromDate = _iCommon.ServerDateTime;
-                        tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(10);
-                        tblAlertInstanceTO.IsActive = 1;
-                        tblAlertInstanceTO.SourceDisplayId = "Size Change";
-                        tblAlertInstanceTO.SourceEntityId = tblBookingsTOCurr.IdBooking;
-                        tblAlertInstanceTO.RaisedBy = tblBookingsTOCurr.CreatedBy;
-                        tblAlertInstanceTO.RaisedOn = _iCommon.ServerDateTime;
-                        tblAlertInstanceTO.IsAutoReset = 1;
-
-                        ResultMessage rMessage = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
-
-                        if (rMessage.MessageType != ResultMessageE.Information)
-                        {
-                            errorMsg = "Error While Generating Notification";
-                            return false;
                         }
                     }
                 }
+                if (isGenerateAlert && isSizeChanged)
+                {
+                    if (tblAlertDefinitionTOList == null || tblAlertDefinitionTOList.Count == 0)
+                    {
+                        TblAlertDefinitionTO tblAlertDefinitionLocalTO = _iTblAlertDefinitionDAO.SelectTblAlertDefinition((int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING, conn, tran);
+                        if (tblAlertDefinitionTOList != null)
+                            tblAlertDefinitionTOList.Add(tblAlertDefinitionLocalTO);
+                        else
+                        {
+                            tblAlertDefinitionTOList = new List<TblAlertDefinitionTO>();
+                            tblAlertDefinitionTOList.Add(tblAlertDefinitionLocalTO);
+                        }
+                    }
+                    //Raise alert here
+                    TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
+                    var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING);
+                    tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING;
+                    tblAlertInstanceTO.AlertAction = "Size_Changes_In_Booking";
+
+                    tblAlertInstanceTO.AlertComment = tblAlertDefinitionTO.DefaultAlertTxt.Replace("@SizeStr", alertMsg).Replace("@BookingIdStr", tblBookingsTOCurr.BookingDisplayNo);
+
+                    tblAlertInstanceTO.EffectiveFromDate = _iCommon.ServerDateTime;
+                    tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(10);
+                    tblAlertInstanceTO.IsActive = 1;
+                    tblAlertInstanceTO.SourceDisplayId = "Size Change";
+                    tblAlertInstanceTO.SourceEntityId = tblBookingsTOCurr.IdBooking;
+                    tblAlertInstanceTO.RaisedBy = tblBookingsTOCurr.CreatedBy;
+                    tblAlertInstanceTO.RaisedOn = _iCommon.ServerDateTime;
+                    tblAlertInstanceTO.IsAutoReset = 1;
+
+
+                    ResetAlertInstanceTO reset = new ResetAlertInstanceTO();
+
+                    reset.SourceEntityTxnId = tblBookingsTOCurr.IdBooking;
+                    reset.AlertDefinitionId = tblAlertInstanceTO.AlertDefinitionId;
+                    tblAlertInstanceTO.AlertsToReset = new AlertsToReset();
+                    tblAlertInstanceTO.AlertsToReset.ResetAlertInstanceTOList = new List<ResetAlertInstanceTO>();
+                    tblAlertInstanceTO.AlertsToReset.ResetAlertInstanceTOList.Add(reset);
+
+                    ResultMessage rMessage = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
+
+                    if (rMessage.MessageType != ResultMessageE.Information)
+                    {
+                        errorMsg = "Error While Generating Notification";
+                        return false;
+                    }
+                }
+
                 return true;
             }
             catch (Exception ex)
@@ -2807,6 +2871,17 @@ namespace ODLMWebAPI.BL
                 //}
 
                 //#endregion
+
+
+                //Saket [2020-02-18] Added
+                String errorMsg = String.Empty;
+                AnalyzeDifferentSizes(null, tblBookingsTO, true, null, ref errorMsg, 0, conn, tran);
+                if (!String.IsNullOrEmpty(errorMsg))
+                {
+                    tran.Rollback();
+                    resultMessage.DisplayMessage = errorMsg;
+                    return resultMessage;
+                }
 
                 tran.Commit();
                 resultMessage.MessageType = ResultMessageE.Information;
@@ -3450,7 +3525,7 @@ namespace ODLMWebAPI.BL
                 //Check and generate alert if the size is changes when update booking. This is SRJ requirement
                 //Below method is used without transaction
                 string errorMsg = string.Empty;
-                AnalyzeDifferentSizes(null, tblBookingsTO, true, null, ref errorMsg, conn, tran);
+                AnalyzeDifferentSizes(null, tblBookingsTO, true, null, ref errorMsg, 1, conn, tran);
 
                 #endregion
 

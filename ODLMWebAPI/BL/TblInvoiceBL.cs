@@ -2739,8 +2739,19 @@ namespace ODLMWebAPI.BL
                         tblInvoiceItemTaxDtlsTO.TaxPct = taxRateTo.TaxPct;
                         tblInvoiceItemTaxDtlsTO.TaxRatePct = (gstCodeDtlsTO.TaxPct * taxRateTo.TaxPct) / 100;
                         tblInvoiceItemTaxDtlsTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
+
+                        //Saket [2020-02-18] Added SEZ conditons.
+                        if (tblInvoiceTO.InvoiceTypeE == Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+                        {
+                            tblInvoiceItemTaxDtlsTO.TaxRatePct = 0;
+                            tblInvoiceItemTaxDtlsTO.TaxableAmt = 0;
+                        }
+
                         tblInvoiceItemTaxDtlsTO.TaxAmt = (tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100;
                         tblInvoiceItemTaxDtlsTO.TaxTypeId = taxRateTo.TaxTypeId;
+
+                       
+
                         if (billingStateId == ofcAddrTO.StateId)
                         {
                             if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.CGST)
@@ -3801,7 +3812,9 @@ namespace ODLMWebAPI.BL
 
                 invoiceDT.Columns.Add("TotalTaxAmt", typeof(double));
                 invoiceDT.Columns.Add("TotalTaxAmtWordStr");
-
+                //chetan[14-feb-2020] added
+                invoiceDT.Columns.Add("BookingCDPct", typeof(double));
+                invoiceDT.Columns.Add("BookingBasicRate", typeof(double));
 
                 TblAddressTO tblAddressTO = _iTblAddressBL.SelectOrgAddressWrtAddrType(organizationTO.IdOrganization, Constants.AddressTypeE.OFFICE_ADDRESS);
                 List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
@@ -3817,8 +3830,14 @@ namespace ODLMWebAPI.BL
                     invoiceDT.Rows[0]["orgWebsite"] = organizationTO.Website;
                     invoiceDT.Rows[0]["orgEmailAddr"] = organizationTO.EmailAddr;
                 }
-
-                List<TblPaymentTermsForBookingTO> tblPaymentTermsForBookingTOList = _iTblPaymentTermsForBookingBL.SelectAllTblPaymentTermsForBookingFromBookingId(0, invoiceId);
+                //chetan[14-feb-2020]
+                TblBookingsTO tblBookingsTO = _iTblBookingsBL.SelectBookingsDetailsFromInVoiceId(tblInvoiceTO.IdInvoice);
+                if(tblBookingsTO!=null)
+                {
+                    invoiceDT.Rows[0]["BookingCDPct"] = tblBookingsTO.CdStructure;
+                    invoiceDT.Rows[0]["BookingBasicRate"] = tblBookingsTO.BookingRate;
+                }
+                List <TblPaymentTermsForBookingTO> tblPaymentTermsForBookingTOList = _iTblPaymentTermsForBookingBL.SelectAllTblPaymentTermsForBookingFromBookingId(0, invoiceId);
                 if (tblPaymentTermsForBookingTOList != null)
                 {
                     foreach (var item in tblPaymentTermsForBookingTOList)
@@ -4157,6 +4176,10 @@ namespace ODLMWebAPI.BL
                         invoiceItemDT.Columns.Add("invoiceQty", typeof(double));
                         invoiceItemDT.Columns.Add("rate", typeof(double));
                         invoiceItemDT.Columns.Add("basicTotal", typeof(double));
+                        //chetan[18-feb-2020] added for display GrandTotal on template
+                        invoiceItemDT.Columns.Add("GrandTotal", typeof(double));
+                        invoiceItemDT.Columns.Add("RateWithTax", typeof(double));
+
                         invoiceItemDT.Columns.Add("hsn");
                         for (int i = 0; i < invoiceItemlist.Count; i++)
                         {
@@ -4166,17 +4189,23 @@ namespace ODLMWebAPI.BL
                             invoiceItemDT.Rows[invoiceItemDTCount]["srNo"] = i + 1;
                             invoiceItemDT.Rows[invoiceItemDTCount]["prodItemDesc"] = tblInvoiceItemDetailsTO.ProdItemDesc;
                             invoiceItemDT.Rows[invoiceItemDTCount]["bundles"] = tblInvoiceItemDetailsTO.Bundles;
+                            invoiceItemDT.Rows[invoiceItemDTCount]["invoiceQty"] = Math.Round(tblInvoiceItemDetailsTO.InvoiceQty, 3);
+
                             if (isMathRoundoff == 1)
                             {
-                                invoiceItemDT.Rows[invoiceItemDTCount]["invoiceQty"] = tblInvoiceItemDetailsTO.InvoiceQty;
-                                invoiceItemDT.Rows[invoiceItemDTCount]["rate"] = tblInvoiceItemDetailsTO.Rate;
-                                invoiceItemDT.Rows[invoiceItemDTCount]["basicTotal"] = tblInvoiceItemDetailsTO.BasicTotal;
+                                //invoiceItemDT.Rows[invoiceItemDTCount]["invoiceQty"] = tblInvoiceItemDetailsTO.InvoiceQty;
+                                invoiceItemDT.Rows[invoiceItemDTCount]["rate"] = Math.Round(tblInvoiceItemDetailsTO.Rate);
+                                invoiceItemDT.Rows[invoiceItemDTCount]["basicTotal"] = Math.Round(tblInvoiceItemDetailsTO.BasicTotal);
+                                invoiceItemDT.Rows[invoiceItemDTCount]["GrandTotal"] = Math.Round(tblInvoiceItemDetailsTO.GrandTotal);
+                                invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = Math.Round((tblInvoiceItemDetailsTO.GrandTotal / tblInvoiceItemDetailsTO.InvoiceQty));
+                                //  invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = tblInvoiceItemDetailsTO.GrandTotal/ tblInvoiceItemDetailsTO.InvoiceQty;
                             }
                             else
                             {
-                                invoiceItemDT.Rows[invoiceItemDTCount]["invoiceQty"] = Math.Round(tblInvoiceItemDetailsTO.InvoiceQty, 3);
                                 invoiceItemDT.Rows[invoiceItemDTCount]["rate"] = Math.Round(tblInvoiceItemDetailsTO.Rate, 2);
                                 invoiceItemDT.Rows[invoiceItemDTCount]["basicTotal"] = Math.Round(tblInvoiceItemDetailsTO.BasicTotal, 2);
+                                invoiceItemDT.Rows[invoiceItemDTCount]["GrandTotal"] = Math.Round(tblInvoiceItemDetailsTO.GrandTotal, 2);
+                                invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = Math.Round((tblInvoiceItemDetailsTO.GrandTotal / tblInvoiceItemDetailsTO.InvoiceQty), 2);
                             }
 
                             invoiceItemDT.Rows[invoiceItemDTCount]["hsn"] = tblInvoiceItemDetailsTO.GstinCodeNo;
@@ -4764,7 +4793,7 @@ namespace ODLMWebAPI.BL
                     }
                     if (configParamsTOTempC_NC != null)
                     {
-                        isMultipleTemplateByCorNc = Convert.ToInt16(configParamsTOTemp.ConfigParamVal);
+                        isMultipleTemplateByCorNc = Convert.ToInt16(configParamsTOTempC_NC.ConfigParamVal);
                     }
                     if (val == 0)
                     {
@@ -4799,7 +4828,7 @@ namespace ODLMWebAPI.BL
                     }
                     if (configParamsTOTempC_NC != null)
                     {
-                        isMultipleTemplateByCorNc = Convert.ToInt16(configParamsTOTemp.ConfigParamVal);
+                        isMultipleTemplateByCorNc = Convert.ToInt16(configParamsTOTempC_NC.ConfigParamVal);
                     }
 
                     if (val == 0)
@@ -6333,7 +6362,7 @@ namespace ODLMWebAPI.BL
                         {
                             tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
                             tempTxt = tempTxt.Replace("@InvoiceIdStr", tblInvoiceTO.IdInvoice.ToString());
-                            tempTxt = tempTxt.Replace("@DealerNameStr", "");
+                            tempTxt = tempTxt.Replace("@DealerNameStr", tblInvoiceTO.DealerName);
 
                             tblAlertInstanceTO.AlertComment = tempTxt;
                         }
