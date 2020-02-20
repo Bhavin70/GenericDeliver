@@ -1421,7 +1421,8 @@ namespace ODLMWebAPI.BL
                     //Prajakta[2020-02-19] Commented and added as per disscussion with saket
                     //var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleDate);
                     var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleGroupId);
-                    tblBookingsTO.NoOfDeliveries = res.Count();
+                    if(res != null)
+                        tblBookingsTO.NoOfDeliveries = res.Count();
                 }
                
                 result = InsertTblBookings(tblBookingsTO, conn, tran);
