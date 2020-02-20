@@ -9042,7 +9042,11 @@ namespace ODLMWebAPI.BL {
 
                 Boolean isBoyondLoadingQuota = false;
                 Double finalLoadQty = 0;
-                int modbusRefIdInc = tblLoadingSlipExtTOListAll.Max(w=>w.ModbusRefId);
+                int modbusRefIdInc = 0;
+                if (tblLoadingSlipExtTOListAll != null && tblLoadingSlipExtTOListAll.Count > 0)
+                {
+                    modbusRefIdInc = tblLoadingSlipExtTOListAll.Max(w => w.ModbusRefId);
+                }
                 resultMessage = InsertLoadingExtDetails(tblLoadingTO, conn, tran, ref isBoyondLoadingQuota, ref finalLoadQty, tblLoadingSlipTO, tblBookingsTO, new List<TblBookingExtTO>(),ref modbusRefIdInc);//added by Aniket last parameter modbusRefIdInc is modbusRefId needs to change logic 
                 if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
                 {
