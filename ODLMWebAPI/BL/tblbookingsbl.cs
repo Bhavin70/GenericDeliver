@@ -1390,8 +1390,9 @@ namespace ODLMWebAPI.BL
                 //Aniket [24-7-2019] added to check scheduled NoOfDeliveries against booking
                 if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count>0)
                 {
-                    var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleDate);
-                    //var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleGroupId);
+                    //Prajakta[2020-02-19] Commented and added as per disscussion with saket
+                    //var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleDate);
+                    var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleGroupId);
                     tblBookingsTO.NoOfDeliveries = res.Count();
                 }
                
