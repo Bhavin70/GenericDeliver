@@ -70,6 +70,7 @@ namespace ODLMWebAPI.Models
         //Aniket [30-7-2019] added for IOT
         Int32 modbusRefId;
         Int32 weighingSequenceNumber;
+        string bookingDisplayNo;
         #endregion
 
         #region Constructor
@@ -421,6 +422,7 @@ namespace ODLMWebAPI.Models
         public double AvgBundleWt { get => avgBundleWt; set => avgBundleWt = value; }
         public int ModbusRefId { get => modbusRefId; set => modbusRefId = value; }
         public int WeighingSequenceNumber { get => weighingSequenceNumber; set => weighingSequenceNumber = value; }
+        public string BookingDisplayNo { get => bookingDisplayNo; set => bookingDisplayNo = value; }
 
 
         //    public String DisplayLoadedBundles

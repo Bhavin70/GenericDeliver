@@ -557,6 +557,7 @@ namespace ODLMWebAPI.Models
         double totalBookedQty;
         string cnfName;
         double pendingQty;
+        string bookingDisplayNo;
         List<Dictionary<int, double>> bookingDictionaryList = new List<Dictionary<int, double>>();
         List<Dictionary<int, double>> loadingDictionaryList = new List<Dictionary<int, double>>();
         List<Dictionary<string, string>> finalDictionaryList = new List<Dictionary<string, string>>();
@@ -574,6 +575,7 @@ namespace ODLMWebAPI.Models
         public double TotalBookedQty { get => totalBookedQty; set => totalBookedQty = value; }
         public string CnfName { get => cnfName; set => cnfName = value; }
         public double PendingQty { get => pendingQty; set => pendingQty = value; }
+        public string BookingDisplayNo { get => bookingDisplayNo; set => bookingDisplayNo = value; }
 
         #endregion
     }
