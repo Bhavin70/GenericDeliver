@@ -4013,6 +4013,7 @@ namespace ODLMWebAPI.BL
                     //headerDT.Columns.Add("lrNumber");
                     invoiceDT.Columns.Add("vehicleNo");
                     invoiceDT.Columns.Add("transporterName");
+                    invoiceDT.Columns.Add("Narration");
                     invoiceDT.Columns.Add("deliveryLocation");
                     invoiceDT.Columns.Add("lrNumber");
                     invoiceDT.Columns.Add("disPer", typeof(double));
@@ -4124,6 +4125,7 @@ namespace ODLMWebAPI.BL
                     invoiceDT.Rows[0]["netWeight"] = Math.Round(tblInvoiceTO.NetWeight / 1000, 3);
 
                     invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
+                    invoiceDT.Rows[0]["Narration"] = tblInvoiceTO.Narration;
 
                     if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
                     {
@@ -5403,7 +5405,7 @@ namespace ODLMWebAPI.BL
             if (resInvoiceTO.DiscountAmt > 0 && resInvoiceTO.BasicAmt > 0)
             {
                 discountPer = resInvoiceTO.DiscountAmt * 100 / resInvoiceTO.BasicAmt;
-
+                discountPer = Math.Round(discountPer, 2);
             }
             return discountPer;
 

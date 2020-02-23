@@ -988,7 +988,7 @@ namespace ODLMWebAPI.DAL
                 {
                     if (flag == 0)
                     {
-                        sqlSelectQueryTemp = " Select dimStatus.statusName, cnfOrg.firmName As cnfName, tblBookings.idBooking, tempLoadSlipdtl.bookingId," +
+                        sqlSelectQueryTemp = " Select dimStatus.statusName, cnfOrg.firmName As cnfName, tblBookings.idBooking, tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId," +
                          " tempLoadSlipdtl.loadingQty, loading.callFlag,tblOrganization.firmName + ', ' + CASE WHEN tblOrganization.addrId IS NULL THEN '' " +
                          " Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN " +
                          " vAddr.districtName IS NOT NULL THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  Dealer, tblLoadingSlip.createdOn,  " +
@@ -1003,7 +1003,7 @@ namespace ODLMWebAPI.DAL
                          " LEFT JOIN tempLoadingSlipDtl tempLoadSlipdtl ON tblLoadingSlip.idLoadingSlip = tempLoadSlipdtl.loadingSlipId " +
                          " LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = tblOrganization.addrId"; //Aniket K[4-jan-19] added for to display villagename agaist Dealer
 
-                        sqlSelectQueryFinal = " Select dimStatus.statusName, cnfOrg.firmName AS cnfName, tblBookings.idBooking, tblOrganization.firmName+', '+ finalLoadSlipdtl.bookingId, finalLoadSlipdtl.loadingQty, loading.callFlag, " +
+                        sqlSelectQueryFinal = " Select dimStatus.statusName, cnfOrg.firmName AS cnfName, tblBookings.idBooking, tblBookings.bookingDisplayNo, tblOrganization.firmName+', '+ finalLoadSlipdtl.bookingId, finalLoadSlipdtl.loadingQty, loading.callFlag, " +
                         " CASE WHEN tblOrganization.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName "+
                         " ELSE CASE WHEN vAddr.districtName IS NOT NULL THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  Dealer, tblLoadingSlip.createdOn, tblBookings.bookingQty,tblBookings.bookingRate, "+
 		                " tblLoadingSlip.comment,tblLoadingSlip.orcAmt, tblLoadingSlip.orcMeasure,  tblLoadingSlipExt.rateCalcDesc from finalLoadingSlip tblLoadingSlip "+
@@ -1024,7 +1024,7 @@ namespace ODLMWebAPI.DAL
                     else
                     {
                         FinalSqlSelectQuery = "Select dimStatus.statusName ,cnfOrg.firmName As cnfName,tblOrganization.firmName+', '+CASE WHEN tblOrganization.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  Dealer ," +
-                                          " tblBookings.idBooking,tblBookings.createdOn, tblBookings.bookingQty, " +
+                                          " tblBookings.idBooking,tblBookings.bookingDisplayNo,tblBookings.createdOn, tblBookings.bookingQty, " +
                                           " tblBookings.bookingRate,tblBookings.comments AS comment,tblBookings.orcAmt , " +
                                           " tblBookings.orcMeasure, '' AS rateCalcDesc from tblBookings tblBookings " +
                                           " LEFT Join tblOrganization tblOrganization ON tblBookings.dealerOrgId = tblOrganization.idOrganization " +
@@ -1082,6 +1082,8 @@ namespace ODLMWebAPI.DAL
                         tblORCReportTONew.StatusName = Convert.ToString(tblORCReportTODT["statusName"].ToString());
                     if (tblORCReportTODT["idBooking"] != DBNull.Value)
                         tblORCReportTONew.IdBooking = Convert.ToInt32(tblORCReportTODT["idBooking"].ToString());
+                    if (tblORCReportTODT["bookingDisplayNo"] != DBNull.Value)
+                        tblORCReportTONew.BookingDisplayNo = Convert.ToString(tblORCReportTODT["bookingDisplayNo"].ToString());
                     if (tblORCReportTODT["createdOn"] != DBNull.Value)
                         tblORCReportTONew.CreatedOn = Convert.ToDateTime(tblORCReportTODT["createdOn"].ToString());
                     if (tblORCReportTODT["bookingQty"] != DBNull.Value)

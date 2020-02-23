@@ -1446,7 +1446,7 @@ namespace ODLMWebAPI.BL {
                                             tblBookingExtTO.ProdSpecDesc = listTo.ProdSpecDesc;
                                             tblBookingExtTO.BrandDesc = listTo.BrandDesc;
                                             tblBookingExtTO.DisplayName = listTo.DisplayName;
-                                            distBookingScheduleTO.OrderDetailsLst.Add (tblBookingExtTO);
+                                            distBookingScheduleTO.OrderDetailsLst.Add(tblBookingExtTO);
                                         }
 
                                         TblLoadingSlipTO tblLoadingSlipTO = selectLoadingSlipTO (tblBookingTO);
@@ -1518,6 +1518,7 @@ namespace ODLMWebAPI.BL {
                                                 tblLoadingSlipExtTO.BrandDesc = tblBookingExtTO.BrandDesc;
                                                 tblLoadingSlipExtTO.BookingId = tblBookingTO.IdBooking;
                                                 tblLoadingSlipExtTO.LoadingLayerDesc = distBookingScheduleTO.LoadingLayerDesc;
+                                                tblLoadingSlipExtTO.BookingDisplayNo = tblBookingTO.BookingDisplayNo;
                                                 tblLoadingSlipTO.LoadingSlipExtTOList.Add (tblLoadingSlipExtTO);
                                             }
                                             if (bookQty >= totLayerQty) {

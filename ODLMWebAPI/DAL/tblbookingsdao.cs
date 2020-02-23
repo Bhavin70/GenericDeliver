@@ -1701,7 +1701,10 @@ namespace ODLMWebAPI.DAL
                         tblBookingsTONew.IsInUom = Convert.ToInt32(tblBookingsTODT["isInUom"]);
                     if (tblBookingsTODT["isItemized"] != DBNull.Value)
                         tblBookingsTONew.IsItemized = Convert.ToInt32(tblBookingsTODT["isItemized"]);
-                   
+
+                    if (tblBookingsTODT["bookingDisplayNo"] != DBNull.Value)
+                        tblBookingsTONew.BookingDisplayNo = Convert.ToString(tblBookingsTODT["bookingDisplayNo"]);
+
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }
             }

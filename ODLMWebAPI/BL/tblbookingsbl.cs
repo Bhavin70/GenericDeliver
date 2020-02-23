@@ -137,6 +137,7 @@ namespace ODLMWebAPI.BL
                         tblBookingTOList.ForEach(x => x.StatusId = a);
                     }
                     tblBookingPendingRptTO.IdBooking = tblBookingTOList[i].IdBooking;
+                    tblBookingPendingRptTO.BookingDisplayNo = tblBookingTOList[i].BookingDisplayNo;
                     tblBookingPendingRptTO.DealerId = tblBookingTOList[i].DealerOrgId;
                     tblBookingPendingRptTO.DealerName = tblBookingTOList[i].DealerName;
                     tblBookingPendingRptTO.TotalBookedQty = tblBookingTOList[i].BookingQty;
@@ -2095,11 +2096,12 @@ namespace ODLMWebAPI.BL
         {
             try
             {
+                //Saket [2020-02-21] As per discussion with Amol Kularni SRJ - No need to send notifcation on approval instead send on add/edit.
                 //Saket [2020-02-18] Added conditions
-                if (tblBookingsTOCurr.TranStatusE != Constants.TranStatusE.BOOKING_APPROVED_FINANCE && tblBookingsTOCurr.TranStatusE != Constants.TranStatusE.BOOKING_APPROVED && tblBookingsTOCurr.TranStatusE != Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR)
-                {
-                    return false;
-                }
+                //if (tblBookingsTOCurr.TranStatusE != Constants.TranStatusE.BOOKING_APPROVED_FINANCE && tblBookingsTOCurr.TranStatusE != Constants.TranStatusE.BOOKING_APPROVED && tblBookingsTOCurr.TranStatusE != Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR)
+                //{
+                //    return false;
+                //}
 
                 TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.IS_SIZE_CHANGE_ALERT_GENERATE);
                 if (tblConfigParamsTO == null || Convert.ToInt32(tblConfigParamsTO.ConfigParamVal) == 0)
@@ -2155,10 +2157,17 @@ namespace ODLMWebAPI.BL
                     {
                         String alert = String.Empty;
                         Dictionary<String, Double> materialDCT = GetMaterialList(tblBookingsTOCurr, ref alertMsg);
+                        
+                        Dictionary<String, Double> materialPrevDCT = GetMaterialList(tblBookingsTOPrev, ref alert);
+
+                        if ((materialDCT == null || materialDCT.Count == 0) && (materialPrevDCT == null || materialPrevDCT.Count == 0))
+                        {
+                            //Nothing change 
+                            return false;
+                        }
+
                         if (materialDCT != null && materialDCT.Count > 0)
                         {
-                            Dictionary<String, Double> materialPrevDCT = GetMaterialList(tblBookingsTOPrev, ref alert);
-
                             alertMsg = String.Empty;
 
                             foreach (String itemId in materialDCT.Keys)
@@ -2181,17 +2190,17 @@ namespace ODLMWebAPI.BL
                         }
                         else
                         {
-                            alertMsg = "Not Found";
+                            alertMsg = "(deleted)";
                             isSizeChanged = true;
-                            if (isFromEditBooking == 1)
-                            {
-                                alertMsg = "(deleted)";
-                                isSizeChanged = true;
-                            }
-                            else
-                            {
-                                return false;
-                            }
+                            //if (isFromEditBooking == 1)
+                            //{
+                            //    alertMsg = "(deleted)";
+                            //    isSizeChanged = true;
+                            //}
+                            //else
+                            //{
+                            //    return false;
+                            //}
                         }
                     }
                 }
@@ -2226,13 +2235,14 @@ namespace ODLMWebAPI.BL
                     tblAlertInstanceTO.IsAutoReset = 1;
 
 
-                    ResetAlertInstanceTO reset = new ResetAlertInstanceTO();
+                    //Saket [2020-02-21] As per discussion with Amol Kularni - SRJ no need to reset notifcation.
+                    //ResetAlertInstanceTO reset = new ResetAlertInstanceTO();
 
-                    reset.SourceEntityTxnId = tblBookingsTOCurr.IdBooking;
-                    reset.AlertDefinitionId = tblAlertInstanceTO.AlertDefinitionId;
-                    tblAlertInstanceTO.AlertsToReset = new AlertsToReset();
-                    tblAlertInstanceTO.AlertsToReset.ResetAlertInstanceTOList = new List<ResetAlertInstanceTO>();
-                    tblAlertInstanceTO.AlertsToReset.ResetAlertInstanceTOList.Add(reset);
+                    //reset.SourceEntityTxnId = tblBookingsTOCurr.IdBooking;
+                    //reset.AlertDefinitionId = tblAlertInstanceTO.AlertDefinitionId;
+                    //tblAlertInstanceTO.AlertsToReset = new AlertsToReset();
+                    //tblAlertInstanceTO.AlertsToReset.ResetAlertInstanceTOList = new List<ResetAlertInstanceTO>();
+                    //tblAlertInstanceTO.AlertsToReset.ResetAlertInstanceTOList.Add(reset);
 
                     ResultMessage rMessage = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
 
@@ -2874,16 +2884,19 @@ namespace ODLMWebAPI.BL
                 //#endregion
 
 
-                //Saket [2020-02-18] Added
-                String errorMsg = String.Empty;
-                AnalyzeDifferentSizes(null, tblBookingsTO, true, null, ref errorMsg, 0, conn, tran);
-                if (!String.IsNullOrEmpty(errorMsg))
+                //Saket [2020-02-21] As per discussion with Amol Kularni SRJ - No need to send notifcation on approval instead send on add/edit.
+                if (false)
                 {
-                    tran.Rollback();
-                    resultMessage.DisplayMessage = errorMsg;
-                    return resultMessage;
+                    //Saket [2020-02-18] Added
+                    String errorMsg = String.Empty;
+                    AnalyzeDifferentSizes(null, tblBookingsTO, true, null, ref errorMsg, 0, conn, tran);
+                    if (!String.IsNullOrEmpty(errorMsg))
+                    {
+                        tran.Rollback();
+                        resultMessage.DisplayMessage = errorMsg;
+                        return resultMessage;
+                    }
                 }
-
                 tran.Commit();
                 resultMessage.MessageType = ResultMessageE.Information;
                 resultMessage.Text = resultMessage.DisplayMessage = "Record Updated Sucessfully";
