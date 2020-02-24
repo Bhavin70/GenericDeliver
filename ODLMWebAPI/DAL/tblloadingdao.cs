@@ -30,6 +30,7 @@ namespace ODLMWebAPI.DAL
                                   //",org.digitalSign" +
                                   ", org.firmName as cnfOrgName,transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName " +
+                                   " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
                                   " FROM tempLoading loading " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = loading.cnfOrgId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = loading.statusId " +
@@ -38,15 +39,16 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
                                 
                                   " LEFT JOIN tblUser ON idUser=loading.createdBy " +
-                                  
+                                   " LEFT JOIN tblGate tblGate ON tblGate.idGate=loading.gateId " +
 
-                                  // Vaibhav [09-Jan-2018] added to select from finalLoading
-            " UNION ALL " +
+                                    // Vaibhav [09-Jan-2018] added to select from finalLoading
+                                    " UNION ALL " +
 
                                   " SELECT loading.* " +
                                   //",org.digitalSign" +
                                   ", org.firmName as cnfOrgName,transOrg.firmName as transporterOrgName,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName"+
+                                   " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
                                   " FROM finalLoading loading " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = loading.cnfOrgId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = loading.statusId " +
@@ -54,13 +56,138 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
                                   
-                                  " LEFT JOIN tblUser ON idUser=loading.createdBy";
-
+                                  " LEFT JOIN tblUser ON idUser=loading.createdBy" +
+                                  " LEFT JOIN tblGate tblGate ON tblGate.idGate=loading.gateId "; 
             return sqlSelectQry;
         }
         #endregion
 
         #region Selection
+        public tblUserMachineMappingTo SelectUserMachineTo(int userId, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader sqlReader = null;
+            try
+            {
+                cmdSelect.CommandText = " SELECT * FROM tblusermachinemapping where userId = " + userId;
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                tblUserMachineMappingTo MachineMappingTo = new tblUserMachineMappingTo();
+                if (sqlReader != null)
+                {
+                    while (sqlReader.Read())
+                    {
+                        if (sqlReader["idUserMachineMapping"] != DBNull.Value)
+                            MachineMappingTo.IdUserMachineMapping = Convert.ToInt32(sqlReader["idUserMachineMapping"].ToString());
+                        if (sqlReader["userId"] != DBNull.Value)
+                            MachineMappingTo.UserId = Convert.ToInt32(sqlReader["userId"].ToString());
+                        if (sqlReader["gateId"] != DBNull.Value)
+                            MachineMappingTo.GateId = Convert.ToInt32(sqlReader["gateId"].ToString());
+                    }
+                }
+                return MachineMappingTo;
+            }
+            catch (Exception ex)
+            {
+
+                return null;
+            }
+            finally
+            {
+                sqlReader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
+
+        //Hrushikesh Added for IOT for non multi tenancy Config
+        //this method is purposely kept static refer GeModRefMaxData() for its non static version.
+         public static List<int> GeModRefMaxDataNonMulti()
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            String sqlConnStr = Startup.ConnectionString;
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlDataReader sqlReader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = " SELECT TOP 255 modbusRefId FROM tempLoading WHERE modbusRefId IS NOT NULL ORDER BY modbusRefId DESC";
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Connection = conn;
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<int> list = new List<int>();
+                if (sqlReader != null)
+                {
+                    while (sqlReader.Read())
+                    {
+                        int modRefId = 0;
+                        if (sqlReader["modbusRefId"] != DBNull.Value)
+                            modRefId = Convert.ToInt32(sqlReader["modbusRefId"].ToString());
+                        if (modRefId > 0)
+                            list.Add(modRefId);
+                    }
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                sqlReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        } 
+
+
+        //Aniket [30-7-2019] added for IOT
+        public List<int> GeModRefMaxData()
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlDataReader sqlReader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = " SELECT TOP 255 modbusRefId FROM tempLoading WHERE modbusRefId IS NOT NULL ORDER BY modbusRefId DESC";
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Connection = conn;
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<int> list = new List<int>();
+                if (sqlReader != null)
+                {
+                    while (sqlReader.Read())
+                    {
+                        int modRefId = 0;
+                        if (sqlReader["modbusRefId"] != DBNull.Value)
+                            modRefId = Convert.ToInt32(sqlReader["modbusRefId"].ToString());
+                        if (modRefId > 0)
+                            list.Add(modRefId);
+                    }
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                sqlReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+
+       
         public List<TblLoadingTO> SelectAllTblLoading()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -119,6 +246,42 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+
+
+        public TblLoadingTO SelectTblLoadingTOByModBusRefId(Int32 modBusRefId, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                cmdSelect.CommandText = " SELECT * FROM (" + SqlSelectQuery() + ")sq1 WHERE idLoading in ( select loadingId from tempLoadingSlip where modbusRefId =" + modBusRefId + ") " +
+
+                                      // Vaibhav [20-Nov-2017] Added to select from finalLoadingSlip
+
+                                      " UNION ALL " + " SELECT * FROM (" + SqlSelectQuery() + ")sq1 WHERE idLoading in ( select loadingId from finalLoadingSlip where modbusRefId =" + modBusRefId + ") ";
+
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblLoadingTO> list = ConvertDTToList(reader);
+                if (list != null && list.Count == 1)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                reader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
+
         public List<TblLoadingTO> SelectAllTblloadingList(DateTime fromDate, DateTime toDate)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -186,13 +349,17 @@ namespace ODLMWebAPI.DAL
 
 
 
-        public List<TblLoadingTO> SelectAllLoadingListByStatus(string statusId, SqlConnection conn, SqlTransaction tran)
+        public List<TblLoadingTO> SelectAllLoadingListByStatus(string statusId, SqlConnection conn, SqlTransaction tran,Int32 gateId=0)
         {
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader sqlReader = null;
             try
             {
-                cmdSelect.CommandText = " SELECT * FROM ("+ SqlSelectQuery() + ")sq1 WHERE sq1.statusId IN(" + statusId + ")";
+                if (gateId == 0)
+                    cmdSelect.CommandText = " SELECT * FROM (" + SqlSelectQuery() + ")sq1 WHERE sq1.statusId IN(" + statusId + ")";
+                else
+                cmdSelect.CommandText = " SELECT * FROM ("+ SqlSelectQuery() + ")sq1 WHERE sq1.statusId IN(" + statusId + ") AND sq1.gateId = " + gateId; 
+
                 cmdSelect.Connection = conn;
                 cmdSelect.Transaction = tran;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
@@ -303,26 +470,28 @@ namespace ODLMWebAPI.DAL
                 // Vaibhav [09-Jan-2018] Commented and added to select from finalLoading
                 String sqlQuery = " SELECT loading.* ,org.digitalSign, org.firmName as cnfOrgName,transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName  " +
+                                  " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
                                   " FROM tempLoading loading " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = loading.cnfOrgId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = loading.statusId " +
                                   " LEFT JOIN tblSupervisor superwisor ON superwisor.idSupervisor=loading.superwisorId " +
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
-                                 
+                                  " LEFT JOIN tblGate tblGate ON tblGate.idGate = loading.gateId " +
                                   " LEFT JOIN tblUser ON idUser=loading.createdBy " + areConfJoin + whereCond + wherecnfIdTemp + whereisConTemp + whereSupCond+
                                   
                                   " UNION ALL " +
 
                                   " SELECT loading.* ,org.digitalSign, org.firmName as cnfOrgName,transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName " +
+                                   " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
                                   " FROM finalLoading loading " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = loading.cnfOrgId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = loading.statusId " +
                                   " LEFT JOIN tblSupervisor superwisor ON superwisor.idSupervisor=loading.superwisorId " +
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
-                                  
+                                  " LEFT JOIN tblGate tblGate ON tblGate.idGate = loading.gateId " +
                                   " LEFT JOIN tblUser ON idUser=loading.createdBy " + areConfJoin + whereCond + wherecnfIdFinal + whereisConFinal  +whereSupCond;
 
 
@@ -461,7 +630,37 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-
+        //Aniket [22-8-2019] added for without connnection trans
+        //requirement for IoT
+        public TblLoadingTO SelectTblLoading(Int32 idLoading)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = " SELECT * FROM (" + SqlSelectQuery() + ")sq1 WHERE idLoading = " + idLoading + " ";
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Connection = conn;
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblLoadingTO> list = ConvertDTToList(reader);
+                if (list != null && list.Count == 1)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                reader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
         public TblLoadingTO SelectTblLoading(Int32 idLoading, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();
@@ -503,6 +702,7 @@ namespace ODLMWebAPI.DAL
 
                   string sqlQuery=" SELECT loading.* ,org.digitalSign, org.firmName as cnfOrgName,transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName " +
+                                  " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
                                   " FROM tempLoading loading " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = loading.cnfOrgId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = loading.statusId " +
@@ -510,12 +710,14 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
                                   " LEFT JOIN tblUser ON idUser=loading.createdBy " +
+                                  " LEFT JOIN tblGate tblGate ON tblGate.idGate = loading.gateId " +
                                   " WHERE idLoading in ( select loadingId from temploadingslip where idLoadingSlip =" + loadingSlipId + ") " +
 
                                   " UNION ALL " +
 
                                   " SELECT loading.* ,org.digitalSign, org.firmName as cnfOrgName,transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName " +
+                                   " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
                                   " FROM finalLoading loading " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = loading.cnfOrgId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = loading.statusId " +
@@ -523,6 +725,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
                                   " LEFT JOIN tblUser ON idUser=loading.createdBy " +
+                                  " LEFT JOIN tblGate tblGate ON tblGate.idGate = loading.gateId " +
                                   " WHERE idLoading in ( select loadingId from finalloadingslip where idLoadingSlip =" + loadingSlipId + ") ";
 
                 cmdSelect.CommandText = sqlQuery;
@@ -977,8 +1180,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-
-        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading,SqlConnection conn,SqlTransaction tran)
+        public List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading,int loadingId,SqlConnection conn,SqlTransaction tran)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlCommand cmdSelect = new SqlCommand();
@@ -992,9 +1194,18 @@ namespace ODLMWebAPI.DAL
             try
             {
                 //sqlQuery = SqlSelectQuery() + " WHERE loading.vehicleNo ='" + vehicleNo + "'" + " AND loading.statusId NOT IN(" + statusIds + ")";
-                sqlQuery = " SELECT * FROM ("+ SqlSelectQuery() + ")sq1 WHERE sq1.vehicleNo ='" + vehicleNo + "'";
-             //           " AND loading.statusId = " + statusIds;
-
+                //Aniket [13-8-2019] Commented for change vehical number condition
+                // sqlQuery = " SELECT * FROM ("+ SqlSelectQuery() + ")sq1 WHERE sq1.vehicleNo ='" + vehicleNo + "'";
+                //           " AND loading.statusId = " + statusIds;
+                //Aniket [16-8-2019] Added for change vehical number condition to lodingId
+                if (loadingId == 0)
+                {
+                    sqlQuery = " SELECT * FROM (" + SqlSelectQuery() + ")sq1 WHERE sq1.vehicleNo ='" + vehicleNo + "'"; //sq1.idLoading = 35834--
+                }
+                else
+                {
+                    sqlQuery = " SELECT * FROM (" + SqlSelectQuery() + ")sq1 WHERE sq1.idLoading = " + loadingId;//--
+                }
 
                 if (isAllowNxtLoading)
                 {
@@ -1046,6 +1257,46 @@ namespace ODLMWebAPI.DAL
             {
                 //sqlQuery = SqlSelectQuery() + " WHERE loading.vehicleNo ='" + vehicleNo + "'" + " AND loading.statusId NOT IN(" + statusIds + ")";
                 sqlQuery = " SELECT * FROM ("+ SqlSelectQuery() + ")sq1 WHERE sq1.vehicleNo ='" + vehicleNo + "'"+
+                           " AND sq1.statusId = " + (int)Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH + "";
+
+
+
+                cmdSelect.CommandText = sqlQuery;
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblLoadingTO> list = ConvertDTToList(sqlReader);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (sqlReader != null)
+                    sqlReader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
+
+        //Aniket [19-8-2019] added for IOT
+        public List<TblLoadingTO> SelectAllLoadingListByVehicleNoForDelOut(int loadingId, SqlConnection conn, SqlTransaction tran)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader sqlReader = null;
+            string sqlQuery = null;
+            /*GJ@20170822 : changes in Status Ids and allow generate loading slip against completed Loading Slips : START*/
+            //String statusIds = (int)Constants.TranStatusE.LOADING_CANCEL + "," + (int)Constants.TranStatusE.LOADING_DELIVERED;
+            string statusIdsForIn = (int)Constants.TranStatusE.LOADING_COMPLETED + "";
+            /*GJ@20170822 : changes in Status Ids and allow generate loading slip against completed Loading Slips : END*/
+            try
+            {
+                //sqlQuery = SqlSelectQuery() + " WHERE loading.vehicleNo ='" + vehicleNo + "'" + " AND loading.statusId NOT IN(" + statusIds + ")";
+                sqlQuery = " SELECT * FROM (" + SqlSelectQuery() + ")sq1 WHERE sq1.idLoading ='" + loadingId + "'" +
                            " AND sq1.statusId = " + (int)Constants.TranStatusE.LOADING_COMPLETED + "";
 
 
@@ -1070,6 +1321,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+
 
         public List<TblLoadingTO> SelectAllInLoadingListByVehicleNo(string vehicleNo)
         {
@@ -1234,7 +1486,21 @@ namespace ODLMWebAPI.DAL
 
                     if (tblLoadingTODT["maxWeighingOty"] != DBNull.Value)
                         tblLoadingTONew.MaxWeighingOty = Convert.ToDouble(tblLoadingTODT["maxWeighingOty"]);
-                   
+                    if (tblLoadingTODT["modbusRefId"] != DBNull.Value)
+                        tblLoadingTONew.ModbusRefId = Convert.ToInt32(tblLoadingTODT["modbusRefId"]);
+                    if (tblLoadingTODT["gateId"] != DBNull.Value)
+                        tblLoadingTONew.GateId = Convert.ToInt32(tblLoadingTODT["gateId"]);
+                    if (tblLoadingTODT["portNumber"] != DBNull.Value)
+                        tblLoadingTONew.PortNumber = Convert.ToString(tblLoadingTODT["portNumber"]);
+                    if (tblLoadingTODT["ioTUrl"] != DBNull.Value)
+                        tblLoadingTONew.IoTUrl = Convert.ToString(tblLoadingTODT["ioTUrl"]);
+                    if (tblLoadingTODT["machineIP"] != DBNull.Value)
+                        tblLoadingTONew.MachineIP = Convert.ToString(tblLoadingTODT["machineIP"]);
+                    if (tblLoadingTODT["isDBup"] != DBNull.Value)
+                        tblLoadingTONew.IsDBup = Convert.ToInt32(tblLoadingTODT["isDBup"]);
+                    if (tblLoadingTODT["ignoreGrossWt"] != DBNull.Value)
+                        tblLoadingTONew.IgnoreGrossWt = Convert.ToInt32(tblLoadingTODT["ignoreGrossWt"]);
+
                     tblLoadingTOList.Add(tblLoadingTONew);
                 }
             }
@@ -1465,12 +1731,14 @@ namespace ODLMWebAPI.DAL
                 String sqlQuery = " SELECT loading.* ,org.digitalSign, org.firmName as cnfOrgName,transOrg.firmName as transporterOrgName ," +
                                   " dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,createdUser.userDisplayName " +
+                                  " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
                                   " FROM tempLoading loading " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = loading.cnfOrgId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = loading.statusId " +
                                   " LEFT JOIN tblSupervisor superwisor ON superwisor.idSupervisor=loading.superwisorId " +
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
+                                  " LEFT JOIN tblGate tblGate ON tblGate.idGate=loading.gateId " +
                                   " LEFT JOIN tblUser createdUser ON createdUser.idUser=loading.createdBy WHERE loading.statusId IN " +
                                   " ( " + (int)Constants.TranStatusE.LOADING_COMPLETED + "," + (int)Constants.TranStatusE.LOADING_DELIVERED + "," + (int)Constants.TranStatusE.LOADING_CANCEL + ")" +
                                   " AND  CONVERT (DATE,statusDate,103) <= @StatusDate " +
@@ -1609,6 +1877,9 @@ namespace ODLMWebAPI.DAL
                                 " ,[currencyId]" +
                                 " ,[currencyRate]" +
                                 " ,[maxWeighingOty]" +
+                                  ",[modbusRefId]" +
+                                ",[gateId]" +
+                                ",[ignoreGrossWt]" +
                                 " )" +
                     " VALUES (" +
                                 "  @IsJointDelivery " +
@@ -1640,6 +1911,9 @@ namespace ODLMWebAPI.DAL
                                 " ,@currencyId " +
                                 " ,@currencyRate " +
                                 " ,@maxWeighingOty"+
+                                  " ,@ModbusRefId" +
+                                " ,@GateId" +
+                                " ,@IgnoreGrossWt" +
                                 " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -1676,7 +1950,9 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@currencyRate", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.CurrencyRate);
 
             cmdInsert.Parameters.Add("@maxWeighingOty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.MaxWeighingOty);
-
+            cmdInsert.Parameters.Add("@ModbusRefId", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.ModbusRefId);
+            cmdInsert.Parameters.Add("@GateId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.GateId);
+            cmdInsert.Parameters.Add("@IgnoreGrossWt", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.IgnoreGrossWt);
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = Constants.IdentityColumnQuery;
@@ -1688,6 +1964,36 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Updation
+
+        public int UpdateTblLoadingIgnoreGrossWTFlag(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+                //return ExecuteUpdationCommand(tblLoadingTO, cmdUpdate);
+                cmdUpdate.CommandText = "UPDATE tempLoading SET " +
+                                        "[ignoreGrossWt]=@IgnoreGrossWt" +
+                                        " WHERE [idLoading] = @IdLoading ";
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+                cmdUpdate.Parameters.Add("@IdLoading", System.Data.SqlDbType.Int).Value = tblLoadingTO.IdLoading;
+                cmdUpdate.Parameters.Add("@IgnoreGrossWt", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.IgnoreGrossWt);
+
+                return cmdUpdate.ExecuteNonQuery();
+
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
+
+
         public int UpdateTblLoading(TblLoadingTO tblLoadingTO)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -1776,7 +2082,10 @@ namespace ODLMWebAPI.DAL
                             " ,[loadingType] = @loadingType " +
                             " ,[currencyId] = @currencyId " +
                             " ,[currencyRate] = @currencyRate " +
-
+                            ",[modbusRefId]=@ModbusRefId" +
+                            ",[gateId]=@GateId" +
+                            ",[isDBup]=@IsDBup" +
+                            ",[ignoreGrossWt]=@IgnoreGrossWt" +
                             " WHERE [idLoading] = @IdLoading ";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -1808,7 +2117,10 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@loadingType", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.LoadingType);
             cmdUpdate.Parameters.Add("@currencyId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.CurrencyId);
             cmdUpdate.Parameters.Add("@currencyRate", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.CurrencyRate);
-
+            cmdUpdate.Parameters.Add("@ModbusRefId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.ModbusRefId);
+            cmdUpdate.Parameters.Add("@GateId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.GateId);
+            cmdUpdate.Parameters.Add("@IsDBup", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.IsDBup);
+            cmdUpdate.Parameters.Add("@IgnoreGrossWt", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.IgnoreGrossWt);
             return cmdUpdate.ExecuteNonQuery();
         }
         #endregion

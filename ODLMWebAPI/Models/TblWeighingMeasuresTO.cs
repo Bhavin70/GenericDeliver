@@ -108,4 +108,50 @@ namespace ODLMWebAPI.Models
         public bool IsUpdateTareWt { get => isUpdateTareWt; set => isUpdateTareWt = value; }
         #endregion
     }
+
+    public class TblWeghingMessureDtlsTO
+    {
+        #region Declarations
+        Int32 idWeightMeasure;
+        Int32 weighingMachineId;
+        Int32 loadingId;
+        Int32 weightMeasurTypeId;
+        Int32 layerId;
+        #endregion
+
+        #region Constructor
+        public TblWeghingMessureDtlsTO()
+        {
+        }
+
+        #endregion
+
+        #region GetSet
+        public Int32 IdWeightMeasure
+        {
+            get { return idWeightMeasure; }
+            set { idWeightMeasure = value; }
+        }
+        public Int32 WeighingMachineId
+        {
+            get { return weighingMachineId; }
+            set { weighingMachineId = value; }
+        }
+        public Int32 LoadingId
+        {
+            get { return loadingId; }
+            set { loadingId = value; }
+        }
+        public Int32 WeightMeasurTypeId
+        {
+            get { return weightMeasurTypeId; }
+            set { weightMeasurTypeId = value; }
+        }
+        public Int32 LayerId
+        {
+            get { return layerId; }
+            set { layerId = value; }
+        }
+        #endregion
+    }
 }

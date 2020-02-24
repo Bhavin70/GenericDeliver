@@ -25,6 +25,9 @@ using ODLMWebAPI.BL;
 using ODLMWebAPI.DAL;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.Authentication;
+using ODLMWebAPI.IoT;
+using ODLMWebAPI.IoT.Interfaces;
+using Newtonsoft.Json.Linq;
 
 namespace ODLMWebAPI
 {
@@ -35,7 +38,18 @@ namespace ODLMWebAPI
         public static string RequestOriginString { get; set; }
         public static string AzureConnectionStr { get; set; }
         public static string NewConnectionString { get; private set; }
+
+        public static JObject ConnectionJsonFile { get; private set; }
         public static string DeliverUrl { get; private set; }
+
+        //Aniket [30-7-2019] added for IOT
+        public static Int32 WeighingSrcConfig { get; private set; }
+
+        public static string IoTBackUpConnectionString { get; private set; }
+        public static List<int> AvailableModbusRefList { get; set; }
+
+        public static string GateIotApiURL { get; set; }
+
         public static String SapConnectivityErrorCode { get; private set; }
         public static SAPbobsCOM.Company CompanyObject { get; private set; }
 
@@ -116,6 +130,8 @@ namespace ODLMWebAPI
            }
        });
 
+                //Hrushikesh added for IOT Configuration
+             services.AddScoped<IModbusRefConfig, ModbusRefConfig>();
             services.AddScoped<IDimBrandBL, DimBrandBL>();
             services.AddScoped<IDimDistrictBL, DimDistrictBL>();
             services.AddScoped<IDimensionBL, DimensionBL>();
@@ -496,6 +512,13 @@ namespace ODLMWebAPI
             services.AddScoped<IDimConfigurePageBL, DimConfigurePageBL>();
             services.AddScoped<IDimConfigurePageDAO, DimConfigurePageDAO>();
             services.AddScoped<InotificationDAO, notificationDAO>();
+            services.AddScoped<IGateCommunication, GateCommunication>();
+            services.AddScoped<IIotCommunication, IotCommunication>();
+            services.AddScoped<IWeighingCommunication, WeighingCommunication>();
+            services.AddScoped<ITblGateBL, TblGateBL>();
+            services.AddScoped<ITblGateDAO, TblGateDAO>();
+
+
             services.AddScoped<ITblInvoiceChangeOrgHistoryDAO, TblInvoiceChangeOrgHistoryDAO>();
 
 
@@ -505,6 +528,9 @@ namespace ODLMWebAPI
             RequestOriginString = Configuration.GetSection("Data:RequestOriginString").Value.ToString();
             NewConnectionString = Configuration.GetSection("Data:NewDefaultConnection").Value.ToString();
             DeliverUrl = Configuration.GetSection("Data:DeliverUrl").Value.ToString();
+
+
+            ConnectionJsonFile = JObject.Parse(System.IO.File.ReadAllText(@".\connection.json"));
 
             //TblConfigParamsTO tblConfigParamsTO = BL.TblConfigParamsBL.SelectTblConfigParamsValByName(StaticStuff.Constants.CP_AZURE_CONNECTIONSTRING_FOR_DOCUMENTATION);
             //if (tblConfigParamsTO != null)
@@ -634,6 +660,9 @@ namespace ODLMWebAPI
                     }
                 });
 
+                //setting up multiTenant modbusRefLists
+                //Hrushikesh
+                ModbusRefConfig.setModbusRef();
 
         }
     }

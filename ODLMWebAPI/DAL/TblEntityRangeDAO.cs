@@ -250,6 +250,38 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public TblEntityRangeTO SelectTblEntityRangeByEntityName(string entityName, int finYearId)
+        {
+            SqlDataReader reader = null;
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                conn.Open();
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE finYearId=" + finYearId + " AND entityName = '" + entityName + "'";
+
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblEntityRangeTO> list = ConvertDTToList(reader);
+                if (list != null && list.Count == 1)
+                    return list[0];
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
         #endregion
 
         #region Insertion

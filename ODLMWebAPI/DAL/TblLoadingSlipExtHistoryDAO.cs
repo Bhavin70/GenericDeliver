@@ -401,11 +401,7 @@ namespace ODLMWebAPI.DAL
             return cmdDelete.ExecuteNonQuery();
         }
 
-
-
-
-
-
+        
         public int DeleteLoadingSlipExtHistoryForItem(Int32 loadingSlipExtId, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdDelete = new SqlCommand();

@@ -166,7 +166,8 @@ namespace ODLMWebAPI.StaticStuff
             UNLOADING_COMPLETED = 22,
             UNLOADING_CANCELED = 23,
             BOOKING_PENDING_FOR_DIRECTOR_APPROVAL = 24,  //Sanjay [2017-12-19] New Status when Finance Forward Booking to Director Approval.
-            BOOKING_HOLD_BY_ADMIN_OR_DIRECTOR = 25                            //Priyanka [2018-30-07] Added for adding new status in booking.
+            BOOKING_HOLD_BY_ADMIN_OR_DIRECTOR = 25  ,                          //Priyanka [2018-30-07] Added for adding new status in booking.
+            INVOICE_GENERATED_AND_READY_FOR_DISPACH = 26,
         }
 
         public enum LoadingLayerE
@@ -450,11 +451,25 @@ namespace ODLMWebAPI.StaticStuff
             READ = 1,
             DELETE = 2
         }
-
+        //Aniket [30-7-2019] : Added enum for modBusTCP.
+        public enum WeighingDataSourceE
+        {
+            DB = 1,
+            IoT = 2,
+            BOTH = 3
+        }
+        public enum ActiveSelectionTypeE
+        {
+            Both = 1,
+            Active = 2,
+            NonActive = 3
+        }
         #endregion
 
         #region Constants Or Static Strings
         public static String Local_URL = "http://localhost:4200";
+        //Added by Kiran for set current module id as per tblmodule sequence
+        public static Int32 DefaultModuleID = 1;
         public static Boolean Local_API = true;
         public static String CONNECTION_STRING = "ConnectionString";
         public static String AZURE_CONNECTION_STRING = "AzureConnectionStr";
@@ -479,8 +494,8 @@ namespace ODLMWebAPI.StaticStuff
         // Vaibhav [17-Dec-2017] Added to file encrypt descrypt and upload to azure
         //public static string AzureConnectionStr = "DefaultEndpointsProtocol=https;AccountName=apkupdates;AccountKey=IvC+sc8RLDl3DeH8uZ97A4jX978v78bVFHRQk/qxg2C/J8w/DRslJlLsK7JTF+KhOM0MNUZg443GCVXe3jIanA==";
         //public static string EncryptDescryptKey = "MAKV2SPBNI99212";
-        public static string AzureSourceContainerName = "kalikaextract";
-        public static string AzureTargetContainerName = "newdocuments";
+        public static string AzureSourceContainerName = "srjdocuments";
+        public static string AzureTargetContainerName = "srjnewdocuments";
         public static string ExcelSheetName = "TranData";
         public static string ExcelFileName = "Tran";
         public static int LoadingCountForDataExtraction = 50;
@@ -647,6 +662,11 @@ namespace ODLMWebAPI.StaticStuff
         public static string CP_VIEW_ALL_PENDING_ENQUIRIES = "VIEW_ALL_PENDING_ENQUIRIES";
 
 
+        //Saket [2020-14-02] Added.
+        public static string CP_GENERATE_INVOICE_NO_FOR_NC = "GENERATE_INVOICE_NO_FOR_NC";
+        public static string CP_GENERATE_INVOICE_NO_FOR_NC_DAILY = "GENERATE_INVOICE_NO_FOR_NC_DAILY";
+
+
         //Pandurang[2018-09-10] added for Stop web services
         public static string STOP_WEB_API_SERVICE_KEYS = "STOP_WEB_API_SERVICE_KEYS";
         public static string STOP_WEB_GUI_SERVICE_KEYS = "STOP_WEB_GUI_SERVICE_KEYS";
@@ -740,6 +760,15 @@ namespace ODLMWebAPI.StaticStuff
         public static string ROUND_OFF_TAX_INVOICE_VALUES = "ROUND_OFF_TAX_INVOICE_VALUES";
         //Aniket [18-9-2019]
         public static string SHOW_DELIVERY_LOCATION_ON_INVOICE = "SHOW_DELIVERY_LOCATION_ON_INVOICE";
+        //@KKM [30-7-2019] added for IOT
+        public static string CP_WEIGHING_MEASURE_SOURCE_ID = "WEIGHING_MEASURE_SOURCE_ID";
+        public static String REGULAR_BOOKING = "REGULAR_BOOKING";
+
+        public static string MULTIPLE_TEMPLATE_FOR_PRINTED_INVOICE_BY_CONFIRM = "MULTIPLE_TEMPLATE_FOR_PRINTED_INVOICE_BY_CONFIRM";
+        public static string MULTIPLE_TEMPLATE_FOR_PLAIN_INVOICE_BY_CONFIRM = "MULTIPLE_TEMPLATE_FOR_PLAIN_INVOICE_BY_CONFIRM";
+
+        public static string IS_SIZE_CHANGE_ALERT_GENERATE = "IS_SIZE_CHANGE_ALERT_GENERATE";
+
         #endregion
 
 

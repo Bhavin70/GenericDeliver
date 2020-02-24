@@ -24,10 +24,10 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblInvoiceTO> SelectInvoiceTOListFromLoadingSlipId(Int32 loadingSlipId);
         List<TblInvoiceTO> SelectInvoiceListFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran);
         List<TblInvoiceTO> SelectInvoiceListFromLoadingSlipIds(String loadingSlipIds, SqlConnection conn, SqlTransaction tran);
-        List<TblInvoiceRptTO> SelectAllRptInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm);
-        List<TblInvoiceRptTO> SelectInvoiceExportList(DateTime frmDt, DateTime toDt, int isConfirm);
-        List<TblInvoiceRptTO> SelectHsnExportList(DateTime frmDt, DateTime toDt, int isConfirm);
-        List<TblInvoiceRptTO> SelectSalesInvoiceListForReport(DateTime frmDt, DateTime toDt, int isConfirm);
+        List<TblInvoiceRptTO> SelectAllRptInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
+        List<TblInvoiceRptTO> SelectInvoiceExportList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
+        List<TblInvoiceRptTO> SelectHsnExportList(DateTime frmDt, DateTime toDt, int isConfirm,int fromOrgId);
+        List<TblInvoiceRptTO> SelectSalesInvoiceListForReport(DateTime frmDt, DateTime toDt, int isConfirm,int fromOrgId);
         List<TblInvoiceTO> SelectTempInvoiceTOList(Int32 loadingSlipId);
         List<TblInvoiceTO> SelectTempInvoiceTOList(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran);
         Boolean CheckInvoiceDetailsAccToState(TblInvoiceTO tblInvoiceTO, ref String errorMsg);
@@ -35,14 +35,15 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblInvoiceTO> SelectInvoiceListFromInvoiceIds(String invoiceIds);
         List<TblInvoiceTO> SelectAllFinalInvoiceList(SqlConnection conn, SqlTransaction tran);
         List<TblLoadingSlipTO> SelectLoadingSlipDetailsByInvoiceId(int invoiceId, SqlConnection conn, SqlTransaction tran);
-        List<TblInvoiceTO> SelectAllTNotifiedblInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm);
+        List<TblInvoiceTO> SelectAllTNotifiedblInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
         //ResultMessage CreateIntermediateInvoiceAgainstLoading(String loadingIds, Int32 userId);
         ResultMessage InsertTblInvoice(TblInvoiceTO tblInvoiceTO);
         ResultMessage SaveNewInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
         int InsertTblInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
-        ResultMessage PrepareAndSaveNewTaxInvoice(TblLoadingTO loadingTO, SqlConnection conn, SqlTransaction tran);
-       ResultMessage PrepareAndSaveInternalTaxInvoices(TblInvoiceTO invoiceTO, int invoiceGenerateModeE,int fromOrgId,int toOrgId ,int isCalculateWithBaseRate,TblInvoiceChangeOrgHistoryTO changeHisTO,SqlConnection conn, SqlTransaction tran);
+     
+        ResultMessage PrepareAndSaveInternalTaxInvoices(TblInvoiceTO invoiceTO, int invoiceGenerateModeE,int fromOrgId,int toOrgId ,int isCalculateWithBaseRate,TblInvoiceChangeOrgHistoryTO changeHisTO,SqlConnection conn, SqlTransaction tran);
         ResultMessage PrepareNewInvoiceObjectList(TblInvoiceTO invoiceTO, List<TblInvoiceItemDetailsTO> invoiceItemTOList, List<TblInvoiceAddressTO> invoiceAddressTOList, int invoiceGenerateModeE,int fromOrgId,int toOrgId ,int isCalculateWithBaseRate, SqlConnection conn, SqlTransaction tran,int swap=1);
+        ResultMessage PrepareAndSaveNewTaxInvoice(TblLoadingTO loadingTO, List<TblLoadingSlipExtTO> lastItemList, SqlConnection conn, SqlTransaction tran);
         ResultMessage ComposeInvoice(List<Int32> invoiceIdsList, Int32 loginUserId);
         ResultMessage DecomposeInvoice(List<Int32> invoiceIdsList, Int32 loginUserId);
         ResultMessage SaveInvoiceDocumentDetails(TblInvoiceTO invoiceTO, List<TblDocumentDetailsTO> tblDocumentDetailsTOList, Int32 loginUserId);
@@ -61,6 +62,7 @@ namespace ODLMWebAPI.BL.Interfaces
         TblInvoiceTO updateInvoiceToCalc(TblInvoiceTO tblInvoiceTo, SqlConnection conn, SqlTransaction tran, Boolean isCheckHist = true);
         ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm,Int32 invGenModeId,int fromOrgId,int toOrgId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0, String invComment = "");
         ResultMessage exchangeInvoice(Int32 invoiceId,  Int32 invGenModeId,int fromOrgId,int toOrgId , int isCalculateWithBaseRate);
+        //ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0);
         ResultMessage UpdateInvoiceNonCommercialDetails(TblInvoiceTO tblInvoiceTO);
         //ResultMessage UpdateInvoiceConfrimNonConfirmDetails(TblInvoiceTO tblInvoiceTO, Int32 loginUserId);
         ResultMessage UpdateInvoiceAfterloadingSlipOut(Int32 loadingId, SqlConnection conn, SqlTransaction tran);
@@ -72,14 +74,19 @@ namespace ODLMWebAPI.BL.Interfaces
         //ResultMessage ExtractEnquiryData();
         //ResultMessage DeleteDispatchData();
         int sendInvoiceFromMail(SendMail sendMail);
-        List<TblOtherTaxRpt> SelectOtherTaxDetailsReport(DateTime frmDt, DateTime toDt, int isConfirm, Int32 otherTaxId);
+        List<TblOtherTaxRpt> SelectOtherTaxDetailsReport(DateTime frmDt, DateTime toDt, int isConfirm, Int32 otherTaxId,int fromOrgId);
         int UpdateIdentityFinalTables(SqlConnection conn, SqlTransaction tran);
         TblInvoiceTO PrepareInvoiceAgainstLoadingSlip(TblLoadingTO loadingTO, SqlConnection conn, SqlTransaction tran, int internalOrgId, TblAddressTO ofcAddrTO, TblConfigParamsTO rcmConfigParamsTO, TblConfigParamsTO invoiceDateConfigTO, TblLoadingSlipTO loadingSlipTo);
         TblEntityRangeTO GenerateInvoiceNumberFromEntityRange(Int32 idInvoice);
 
         //Aniket [22-4-2019]
         List<TblInvoiceAddressTO> SelectTblInvoiceAddressByDealerId(Int32 dealerOrgId, String addrSourceType);
+        void SetGateAndWeightIotData(TblInvoiceTO tblInvoiceTO, int IsExtractionAllowed);
 
+        void SetGateAndWeightIotData(List<TblInvoiceTO> tblInvoiceTOList, int IsExtractionAllowed);
+        void SetGateIotDataToInvoiceTO(List<TblInvoiceTO> list);
+
+        ResultMessage SetWeightIotDateToInvoiceTO(TblInvoiceTO tblInvoice, int IsExtractionAllowed);
 
     }
 }

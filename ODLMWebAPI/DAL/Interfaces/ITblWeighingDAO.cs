@@ -26,5 +26,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblWeighing(Int32 idWeighing, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idWeighing, SqlCommand cmdDelete);
         int ExecuteDeletionCommandByMachineIp(string ipAddr, SqlCommand cmdDelete);
+
+       
     }
 }

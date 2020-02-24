@@ -45,5 +45,8 @@ namespace ODLMWebAPI.BL.Interfaces
         int DeleteTblOrganization(Int32 idOrganization);
         int DeleteTblOrganization(Int32 idOrganization, SqlConnection conn, SqlTransaction tran);
         List<DropDownTO> SelectSalesEngineerListForDropDown(Int32 orgId);
+
+        //Aniket [30-7-2019] added for IOT
+        String GetFirmNameByOrgId(Int32 orgId);
     }
 }

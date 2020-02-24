@@ -293,6 +293,8 @@ cmdSelect.CommandText ="select count(currentModuleId) as noOfActiveLicenseCnt,cu
                         tblModuleTONew.NoOfConfiguredLicenseCnt = Convert.ToInt32(tblModuleTODT["noOfConfiguredLicenseCnt"].ToString());
                     if (tblModuleTODT["noOfActiveLicenseCnt"] != DBNull.Value)
                         tblModuleTONew.NoOfActiveLicenseCnt = Convert.ToInt32(tblModuleTODT["noOfActiveLicenseCnt"].ToString());
+                    if (tblModuleTODT["iotconfigSetting"] != DBNull.Value)
+                        tblModuleTONew.IotconfigSetting = Convert.ToInt32(tblModuleTODT["iotconfigSetting"].ToString());
 
                     if (tblModuleTONew.IsSubscribe == 1)
                         tblModuleTONew.IsSubscribeBit = true;

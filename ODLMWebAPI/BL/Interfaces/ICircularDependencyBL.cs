@@ -13,7 +13,7 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblBookingScheduleTO> SelectBookingScheduleByBookingId(Int32 bookingId);
         List<TblLoadingSlipTO> SelectAllLoadingSlipListWithDetails(Int32 loadingId, SqlConnection conn, SqlTransaction tran);
         List<TblWeighingMeasuresTO> SelectAllTblWeighingMeasuresListByLoadingId(int loadingId);
-        ResultMessage CheckInvoiceNoGeneratedByVehicleNo(string vehicleNo, SqlConnection conn, SqlTransaction tran, Boolean isForOutOnly = false);
+        ResultMessage CheckInvoiceNoGeneratedByVehicleNo(string vehicleNo, SqlConnection conn, SqlTransaction tran,int loadingId, Boolean isForOutOnly = false);
         List<TblWeighingMeasuresTO> SelectAllTblWeighingMeasuresListByLoadingId(int loadingId, SqlConnection conn, SqlTransaction tran);
         TblBookingsTO SelectBookingsTOWithDetails(Int32 idBooking);
         //ResultMessage UploadDocumentWithConnTran(List<TblDocumentDetailsTO> tblDocumentDetailsTOList, SqlConnection conn, SqlTransaction tran);

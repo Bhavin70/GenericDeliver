@@ -30,6 +30,7 @@ Int32 impPersonCount;
         int noOfConfiguredLicenseCnt;
         int noOfActiveLicenseCnt;
         Boolean isSubscribeBit;
+        int iotconfigSetting;
 
         #endregion
 
@@ -104,6 +105,8 @@ Int32 impPersonCount;
         public int IsImpPerson { get => isImpPerson; set => isImpPerson = value; }
         public int ImpPersonCount { get => impPersonCount; set => impPersonCount = value; }
         public int IsLogin { get => isLogin; set => isLogin = value; }
+
+        public int IotconfigSetting { get => iotconfigSetting; set => iotconfigSetting = value; }
         #endregion
     }
 }

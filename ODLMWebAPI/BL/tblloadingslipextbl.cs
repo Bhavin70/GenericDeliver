@@ -351,7 +351,7 @@ namespace ODLMWebAPI.BL
             TblConfigParamsTO postponeConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_LOADING_SLIPS_AUTO_POSTPONED_STATUS_ID, conn, tran);
             //Sanjay [2017-07-18] The vehicles which are gate in ,loading completed or postponed
             //List<TblLoadingTO> loadingTOToPostponeList = _iTblLoadingDAO.SelectAllLoadingListByStatus((int)Constants.TranStatusE.LOADING_POSTPONED + "", conn, tran);
-            List<TblLoadingTO> loadingTOToPostponeList = _iTblLoadingDAO.SelectAllLoadingListByStatus(postponeConfigParamsTO.ConfigParamVal, conn, tran);
+            List<TblLoadingTO> loadingTOToPostponeList = _iTblLoadingDAO.SelectAllLoadingListByStatus(postponeConfigParamsTO.ConfigParamVal, conn, tran,0);
             if (loadingTOToPostponeList != null)
             {
                 postponeList = new List<TblLoadingSlipExtTO>();

@@ -10,6 +10,7 @@ using ODLMWebAPI.StaticStuff;
 using Newtonsoft.Json;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
+using ODLMWebAPI.IoT.Interfaces;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -26,7 +27,8 @@ namespace ODLMWebAPI.Controllers
         private readonly ITblMachineCalibrationBL _iTblMachineCalibrationBL;
         private readonly ICommon _iCommon;
         private readonly ICircularDependencyBL _iCircularDependencyBL;
-        public WeighingController(ITblWeighingMeasuresBL iTblWeighingMeasuresBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, ITblMachineCalibrationBL iTblMachineCalibrationBL,ITblWeighingBL iTblWeighingBL,ITblWeighingMachineBL iTblWeighingMachineBL)
+        private readonly IIotCommunication _iIotCommunication;
+        public WeighingController(IIotCommunication iIotCommunication,ITblWeighingMeasuresBL iTblWeighingMeasuresBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, ITblMachineCalibrationBL iTblMachineCalibrationBL,ITblWeighingBL iTblWeighingBL,ITblWeighingMachineBL iTblWeighingMachineBL)
         {
             _iTblWeighingMachineBL = iTblWeighingMachineBL;
             _iTblWeighingMeasuresBL = iTblWeighingMeasuresBL;
@@ -34,6 +36,7 @@ namespace ODLMWebAPI.Controllers
             _iTblMachineCalibrationBL = iTblMachineCalibrationBL;
             _iCommon = iCommon;
             _iCircularDependencyBL = iCircularDependencyBL;
+            _iIotCommunication = iIotCommunication;
         }
         #region GET
 
@@ -101,9 +104,9 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetLatestWeightByMachineIp")]
         [HttpGet]
-        public TblWeighingTO GetLatestWeightByMachineIp(string ipAddr)
+        public TblWeighingTO GetLatestWeightByMachineIp(string ipAddr, int machineId = 0)
         {
-            return _iTblWeighingBL.SelectTblWeighingByMachineIp(ipAddr);
+            return _iTblWeighingBL.SelectTblWeighingByMachineIp(ipAddr, machineId);
         }
 
         
@@ -253,6 +256,8 @@ namespace ODLMWebAPI.Controllers
                 tblWeighingMeasuresTO.CreatedOn = _iCommon.ServerDateTime;
                
                 resMsg = _iTblWeighingMeasuresBL.SaveNewWeighinMachineMeasurement(tblWeighingMeasuresTO, tblLoadingSlipExtTOList, tblUnLoadingItemDetTOList);
+                resMsg.Tag= _iIotCommunication.GetDateToTimestap();
+                resMsg.Tag = resMsg.Tag + "|" + tblWeighingMeasuresTO.IsLoadingCompleted;
                 return resMsg;
             }
             catch (Exception ex)

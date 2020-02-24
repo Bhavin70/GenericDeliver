@@ -310,6 +310,74 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Insertion
+        //Aniket [13-8-2019] added for IOT
+        public int InsertTblWeghingMessureDtls(TblWeghingMessureDtlsTO tblWeghingMessureDtlsTO, SqlConnection conn, SqlTransaction tran)
+        {
+            // String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            // SqlConnection conn = conn;//new SqlConnection(sqlConnStr);
+            SqlCommand cmdInsert = new SqlCommand();
+            try
+            {
+                //conn.Open();
+                cmdInsert.Connection = conn;
+                cmdInsert.Transaction = tran;
+                return ExecuteInsertionCommandForDtls(tblWeghingMessureDtlsTO, cmdInsert);
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                //conn.Close();
+                cmdInsert.Dispose();
+            }
+        }
+        public int ExecuteInsertionCommandForDtls(TblWeghingMessureDtlsTO tblWeghingMessureDtlsTO, SqlCommand cmdInsert)
+        {
+            String sqlQuery = @" INSERT INTO [tblWeghingMessureDtls]( " +
+            // "  [idWeightMeasure]" +
+            "[weighingMachineId]" +
+            " ,[loadingId]" +
+            " ,[weightMeasurTypeId]" +
+            " ,[layerId]" +
+            " )" +
+" VALUES (" +
+            //"  @IdWeightMeasure " +
+            " @WeighingMachineId " +
+            " ,@LoadingId " +
+            " ,@WeightMeasurTypeId " +
+            " ,@LayerId " +
+            " )";
+            cmdInsert.CommandText = sqlQuery;
+            cmdInsert.CommandType = System.Data.CommandType.Text;
+
+            //cmdInsert.Parameters.Add("@IdWeightMeasure", System.Data.SqlDbType.Int).Value = tblWeghingMessureDtlsTO.IdWeightMeasure;
+            cmdInsert.Parameters.Add("@WeighingMachineId", System.Data.SqlDbType.Int).Value = tblWeghingMessureDtlsTO.WeighingMachineId;
+            cmdInsert.Parameters.Add("@LoadingId", System.Data.SqlDbType.Int).Value = tblWeghingMessureDtlsTO.LoadingId;
+            cmdInsert.Parameters.Add("@WeightMeasurTypeId", System.Data.SqlDbType.Int).Value = tblWeghingMessureDtlsTO.WeightMeasurTypeId;
+            cmdInsert.Parameters.Add("@LayerId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblWeghingMessureDtlsTO.LayerId);
+            return cmdInsert.ExecuteNonQuery();
+        }
+
+        public  int InsertTblWeighingMeasures(TblWeighingMeasuresTO tblWeighingMeasuresTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdInsert = new SqlCommand();
+            try
+            {
+                cmdInsert.Connection = conn;
+                cmdInsert.Transaction = tran;
+                return ExecuteInsertionCommand(tblWeighingMeasuresTO, cmdInsert);
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdInsert.Dispose();
+            }
+        }
         public int InsertTblWeighingMeasures(TblWeighingMeasuresTO tblWeighingMeasuresTO)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -332,24 +400,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public int InsertTblWeighingMeasures(TblWeighingMeasuresTO tblWeighingMeasuresTO, SqlConnection conn, SqlTransaction tran)
-        {
-            SqlCommand cmdInsert = new SqlCommand();
-            try
-            {
-                cmdInsert.Connection = conn;
-                cmdInsert.Transaction = tran;
-                return ExecuteInsertionCommand(tblWeighingMeasuresTO, cmdInsert);
-            }
-            catch (Exception ex)
-            {
-                return -1;
-            }
-            finally
-            {
-                cmdInsert.Dispose();
-            }
-        }
+      
 
         public int ExecuteInsertionCommand(TblWeighingMeasuresTO tblWeighingMeasuresTO, SqlCommand cmdInsert)
         {

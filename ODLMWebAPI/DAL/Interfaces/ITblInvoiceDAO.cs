@@ -18,17 +18,17 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblInvoiceTO> SelectInvoiceListFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn = null, SqlTransaction tran = null);
         List<TblInvoiceTO> SelectInvoiceListFromLoadingSlipIds(String loadingSlipIds, SqlConnection conn, SqlTransaction tran);
         List<TblInvoiceTO> ConvertDTToList(SqlDataReader tblInvoiceTODT);
-        List<TblInvoiceRptTO> SelectAllRptInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm);
+        List<TblInvoiceRptTO> SelectAllRptInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm,int fromOrgId);
         List<TblInvoiceRptTO> ConvertDTToListForRPTInvoice(SqlDataReader tblInvoiceRptTODT);
-        List<TblInvoiceRptTO> SelectInvoiceExportList(DateTime frmDt, DateTime toDt, int isConfirm);
-        List<TblInvoiceRptTO> SelectHsnExportList(DateTime frmDt, DateTime toDt, int isConfirm);
+        List<TblInvoiceRptTO> SelectInvoiceExportList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
+        List<TblInvoiceRptTO> SelectHsnExportList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
         List<TblInvoiceTO> SelectAllTempInvoice(Int32 loadingSlipId);
-        List<TblInvoiceRptTO> SelectSalesInvoiceListForReport(DateTime frmDt, DateTime toDt, int isConfirm);
+        List<TblInvoiceRptTO> SelectSalesInvoiceListForReport(DateTime frmDt, DateTime toDt, int isConfirm,int fromOrgId);
         List<TblInvoiceTO> SelectAllTempInvoice(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran);
         List<TblInvoiceTO> SelectInvoiceListFromInvoiceIds(String invoiceIds);
         List<TblInvoiceTO> SelectAllFinalInvoice(SqlConnection conn, SqlTransaction tran);
         List<TblLoadingSlipTO> SelectLoadingDetailsByInvoiceId(int invoiceId, SqlConnection conn, SqlTransaction tran);
-        List<TblInvoiceTO> SelectAllTNotifiedblInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm);
+        List<TblInvoiceTO> SelectAllTNotifiedblInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
         int InsertTblInvoice(TblInvoiceTO tblInvoiceTO);
         int InsertTblInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
         int ExecuteInsertionCommand(TblInvoiceTO tblInvoiceTO, SqlCommand cmdInsert);
@@ -41,8 +41,10 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblInvoice(Int32 idInvoice);
         int DeleteTblInvoice(Int32 idInvoice, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idInvoice, SqlCommand cmdDelete);
-        List<TblOtherTaxRpt> SelectOtherTaxDetailsReport(DateTime frmDt, DateTime toDt, int isConfirm, Int32 otherTaxId);
+        List<TblOtherTaxRpt> SelectOtherTaxDetailsReport(DateTime frmDt, DateTime toDt, int isConfirm, Int32 otherTaxId,int fromOrgId);
         List<TblOtherTaxRpt> ConvertDTToOtherTaxRptTOList(SqlDataReader tblInvoiceRptTODT);
         TblInvoiceTO SelectAllTblInvoice(string taxInvoiceNumber, int finYearId);
+
+        double GetTareWeightFromInvoice(String lodingSlipIds, SqlConnection conn, SqlTransaction tran);
     }
 }

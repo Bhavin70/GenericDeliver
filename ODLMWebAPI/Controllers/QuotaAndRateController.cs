@@ -188,6 +188,35 @@ namespace ODLMWebAPI.Controllers
             return _iTblQuotaDeclarationBL.SelectQuotaAndRateDashboardInfoList(roleTypeId, orgId, sysDate);
         }
 
+        //Prajakta[2020-02-05] Added to get always latest rate
+        [Route("GetLatestRateInfo")]
+        [HttpGet]
+        public List<TblQuotaDeclarationTO> GetLatestRateInfo(Int32 cnfId, DateTime sysDate, Boolean isQuotaDeclaration)
+        {
+            if (sysDate == DateTime.MinValue)
+                sysDate = _iCommon.ServerDateTime;
+
+            List<TblQuotaDeclarationTO> list = _iTblQuotaDeclarationBL.GetLatestRateInfo(cnfId, sysDate, isQuotaDeclaration);
+            if (list != null)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (list[i].ValidUpto > 0)
+                    {
+                        if (!_iTblQuotaDeclarationBL.CheckForValidityAndReset(list[i]))
+                        {
+                            list.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                }
+
+                return list;
+            }
+            return null;
+        }
+
+
         [Route("GetMinAndMaxValueConfigForRate")]
         [HttpGet]
         public String GetMinAndMaxValueConfigForRate()

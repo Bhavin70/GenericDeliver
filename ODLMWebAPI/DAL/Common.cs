@@ -14,16 +14,65 @@ using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.StaticStuff;
 using System.Dynamic;
 using ODLMWebAPI.Models;
+using ODLMWebAPI.IoT;
 
 namespace ODLMWebAPI.DAL
 { 
     public class Common : ICommon
     {
         private readonly IConnectionString _iConnectionString;
-        public Common(IConnectionString iConnectionString)
+        private readonly IModbusRefConfig _iModbusRefConfig;
+
+        public Common(IConnectionString iConnectionString, IModbusRefConfig iModbusRefConfig)
         {
             _iConnectionString = iConnectionString;
+         _iModbusRefConfig =iModbusRefConfig;
         }
+
+     
+        #region GetNextAvailableModRefIdNew
+        //Aniket [30-7-2019]  added for IOT
+        public int GetNextAvailableModRefIdNew()
+        {
+            int modRefNumber = 0;
+            List<int> list = _iModbusRefConfig.getModbusRefList();
+            if (list != null && list.Count > 0)
+            {
+               int maxNumber = 1;
+               modRefNumber = GetAvailNumber(list, maxNumber);
+            }
+            else
+            {
+               modRefNumber = 1;
+            }
+            bool isInList = list.Contains(modRefNumber);
+            if (isInList)
+               return 0;
+            else
+               list.Add(modRefNumber);
+        //     Random num = new Random();
+        //    modRefNumber= num.Next(1, 255);
+            return modRefNumber;
+        }
+
+
+        public int GetAvailNumber(List<int> list, int maxNumber)
+        {
+            if (list.Contains(maxNumber))
+            {
+                if (maxNumber > 255)
+                {
+                    return 0;
+                }
+                maxNumber++;
+                return GetAvailNumber(list, maxNumber);
+            }
+            else
+            {
+                return maxNumber;
+            }
+        }
+        #endregion
 
         public System.DateTime SelectServerDateTime()
         {
@@ -35,14 +84,14 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 /*To get Server Date Time for Local DB*/
-                String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
+                //String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
 
                 //To get Server Date Time for Azure Server DB
-                //string sqlQuery = " declare @dfecha as datetime " +
-                //                  " declare @d as datetimeoffset " +
-                //                  " set @dfecha= sysdatetime()   " +
-                //                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
-                //                  " select convert(datetime, @d)";
+                string sqlQuery = " declare @dfecha as datetime " +
+                                  " declare @d as datetimeoffset " +
+                                  " set @dfecha= sysdatetime()   " +
+                                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
+                                  " select convert(datetime, @d)";
 
                 cmdSelect = new SqlCommand(sqlQuery, conn);
 
@@ -206,6 +255,9 @@ namespace ODLMWebAPI.DAL
                 throw exc;
             }
         }
+
+
+
         public void PostSnoozeAndroid(String RequestOriginString)
         {
             

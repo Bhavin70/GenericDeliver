@@ -95,6 +95,35 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+
+        public List<TblBookingsTO> SelectTblBookingsRef(Int32 BookingRefId, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE bookingRefId = " + BookingRefId + " ";
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblBookingsTO> list = ConvertDTToList(reader);
+                if (list != null && list.Count > 0)
+                    return list;
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                reader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
+
         public List<TblBookingsTO> SelectAllTblBookings()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -219,7 +248,7 @@ namespace ODLMWebAPI.DAL
             SqlDataReader tblBookingsTODT = null;
             try
             {
-                cmdSelect.CommandText = "select booking.idBooking,booking.bookingRate,booking.brandId  from tempLoadingSlipDtl detl " +
+                cmdSelect.CommandText = "select booking.idBooking,booking.bookingRate,booking.brandId,booking.cdStructure  from tempLoadingSlipDtl detl " +
                     " left join tempInvoice invoice ON detl.loadingSlipId = invoice.loadingSlipId" +
                     " left join tblBookings booking ON detl.bookingId = booking.idbooking " +
                     "where idInvoice =" + invoiceId;
@@ -240,6 +269,9 @@ namespace ODLMWebAPI.DAL
                             tblBookingsTONew.BrandId = Convert.ToInt32(tblBookingsTODT["brandId"].ToString());
                         if (tblBookingsTODT["idBooking"] != DBNull.Value)
                             tblBookingsTONew.IdBooking = Convert.ToInt32(tblBookingsTODT["idBooking"].ToString());
+                        if (tblBookingsTODT["cdStructure"] != DBNull.Value)
+                            tblBookingsTONew.CdStructure = Convert.ToDouble(tblBookingsTODT["cdStructure"].ToString());
+                        
                     }
                  
                 }
@@ -1271,6 +1303,8 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+
+
         public TblBookingsTO SelectBookingsTOWithDetails(Int32 idBooking)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -1667,7 +1701,10 @@ namespace ODLMWebAPI.DAL
                         tblBookingsTONew.IsInUom = Convert.ToInt32(tblBookingsTODT["isInUom"]);
                     if (tblBookingsTODT["isItemized"] != DBNull.Value)
                         tblBookingsTONew.IsItemized = Convert.ToInt32(tblBookingsTODT["isItemized"]);
-                   
+
+                    if (tblBookingsTODT["bookingDisplayNo"] != DBNull.Value)
+                        tblBookingsTONew.BookingDisplayNo = Convert.ToString(tblBookingsTODT["bookingDisplayNo"]);
+
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }
             }
@@ -1836,6 +1873,10 @@ namespace ODLMWebAPI.DAL
                         tblBookingsTONew.IsItemized = Convert.ToInt32(tblBookingsTODT["isItemized"]);
                     if (tblBookingsTODT["stateId"] != DBNull.Value)
                         tblBookingsTONew.StateId = Convert.ToInt32(tblBookingsTODT["stateId"]);
+                    if (tblBookingsTODT["bookingRefId"] != DBNull.Value)
+                        tblBookingsTONew.BookingRefId = Convert.ToInt32(tblBookingsTODT["bookingRefId"]);
+                    if (tblBookingsTODT["bookingDisplayNo"] != DBNull.Value)
+                        tblBookingsTONew.BookingDisplayNo = Convert.ToString(tblBookingsTODT["bookingDisplayNo"]);
                              if (tblBookingsTODT["dealerCat"] != DBNull.Value)
                         tblBookingsTONew.DealerCat = Convert.ToString(tblBookingsTODT["dealerCat"]);
                              if (tblBookingsTODT["colorCode"] != DBNull.Value)
@@ -2173,6 +2214,9 @@ namespace ODLMWebAPI.DAL
                             " ,[pendingUomQty]" +  // Aniket [4-6-2019]
                             " ,[isInUom]" +  //Aniket[13-6-2019]
                             " ,[isItemized]" + //Aniket[13-6-2019]
+                            " ,[bookingRefId]" + //kiran[06-09-2019]
+                            " ,[bookingDisplayNo]" + //kiran[06-09-2019]
+                            " ,[enquiryId]" + //kiran[06-09-2019]
                             " )" +
                 " VALUES (" +
                             "  @CnFOrgId " +
@@ -2223,6 +2267,9 @@ namespace ODLMWebAPI.DAL
                             " ,@pendingUomQty" +
                             " ,@isInUom" +
                             " ,@isItemized" +
+                            " ,@bookingRefId" +
+                            " ,@bookingDisplayNo" +
+                            " ,@enquiryId" +
                              " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -2279,6 +2326,9 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@pendingUomQty", System.Data.SqlDbType.Decimal).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.PendingUomQty);
             cmdInsert.Parameters.Add("@isInUom", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.IsInUom);
             cmdInsert.Parameters.Add("@isItemized", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.IsItemized);
+            cmdInsert.Parameters.Add("@bookingRefId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingRefId);
+            cmdInsert.Parameters.Add("@bookingDisplayNo", System.Data.SqlDbType.VarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingDisplayNo);
+            cmdInsert.Parameters.Add("@enquiryId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.EnquiryId);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
@@ -2416,6 +2466,9 @@ namespace ODLMWebAPI.DAL
                             " ,[pendingUomQty] = @pendingUomQty" +
                             " ,[isInUom] = @isInUom" +
                             " ,[isItemized] = @isItemized" +
+                            " ,[bookingRefId] = @bookingRefId" +
+                            " ,[bookingDisplayNo] = @bookingDisplayNo" +
+                            " ,[enquiryId] = @enquiryId" +
                             " WHERE  [idBooking] = @IdBooking";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -2469,11 +2522,48 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@pendingUomQty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.PendingUomQty);
             cmdUpdate.Parameters.Add("@isInUom", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.IsInUom);
             cmdUpdate.Parameters.Add("@isItemized", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.IsItemized);
+            cmdUpdate.Parameters.Add("@bookingRefId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingRefId);
+            cmdUpdate.Parameters.Add("@bookingDisplayNo", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingDisplayNo);
+            cmdUpdate.Parameters.Add("@enquiryId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.EnquiryId);
 
 
             return cmdUpdate.ExecuteNonQuery();
         }
-       
+
+        public int UpdatePendingQuantity(TblBookingsTO tblBookingsTO, SqlConnection conn, SqlTransaction tran)
+        {
+            //String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            //SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdUpdate = new SqlCommand();
+
+            try
+            {
+
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+
+                String sqlQuery = @" UPDATE [tblBookings] SET " +
+                                " [pendingQty] = 0" +
+                                " WHERE idBooking = @IdBooking ";
+
+                cmdUpdate.CommandText = sqlQuery;
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+
+                cmdUpdate.Parameters.Add("@IdBooking", System.Data.SqlDbType.Int).Value = tblBookingsTO.IdBooking;
+                cmdUpdate.Parameters.Add("@PendingQty", System.Data.SqlDbType.NVarChar).Value = tblBookingsTO.PendingQty;
+
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
+
         #endregion
 
         #region Deletion

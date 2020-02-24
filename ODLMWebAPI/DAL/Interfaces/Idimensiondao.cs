@@ -68,8 +68,14 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<DropDownTO> GetUserListDepartmentWise(string deptId);
         List<DropDownTO> SelectAllInvoiceCopyList();
 
+        List<DimFinYearTO> SelectAllMstFinYearList();
+
+        int InsertMstFinYear(DimFinYearTO newMstFinYearTO);
+
         List<TblProdGstCodeDtlsTO> GetSAPTaxCodeByIdProdGstCode(int idProdGstCode);
 
         Int64 GetProductItemIdFromGivenRMDetails(int prodCatId, int prodSpecId, int materialId, int brandId, int rmProdItemId);
+
+        String SelectInvoiceEntityNameByInvoiceTypeId(Int32 idInvoiceType);
     }
 }

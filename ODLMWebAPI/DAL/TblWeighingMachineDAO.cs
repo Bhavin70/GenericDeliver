@@ -27,6 +27,87 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Selection
+        //Aniket [30-7-2019] added for IOT
+        public List<TblWeighingMachineTO> SelectAllTblWeighingMachineOfWeighingList(int loadingId)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = "SELECT machine.*,dtls.layerId,dtls.weightMeasurTypeId,dtls.idWeightMeasure FROM [tblWeighingMachine] machine " +
+                    "left join tblWeghingMessureDtls dtls on machine.idWeighingMachine = dtls.weighingMachineId where isActive = 1 AND dtls.loadingId =" + loadingId;
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblWeighingMachineTO> list = ConvertDTToListDtls(reader);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+        //Aniket [30-7-2019] added for IOT
+        public List<TblWeighingMachineTO> ConvertDTToListDtls(SqlDataReader tblWeighingMachineTODT)
+        {
+            List<TblWeighingMachineTO> tblWeighingMachineTOList = new List<TblWeighingMachineTO>();
+            if (tblWeighingMachineTODT != null)
+            {
+                while (tblWeighingMachineTODT.Read())
+                {
+                    TblWeighingMachineTO tblWeighingMachineTONew = new TblWeighingMachineTO();
+                    if (tblWeighingMachineTODT["idWeighingMachine"] != DBNull.Value)
+                        tblWeighingMachineTONew.IdWeighingMachine = Convert.ToInt32(tblWeighingMachineTODT["idWeighingMachine"].ToString());
+                    if (tblWeighingMachineTODT["createdBy"] != DBNull.Value)
+                        tblWeighingMachineTONew.CreatedBy = Convert.ToInt32(tblWeighingMachineTODT["createdBy"].ToString());
+                    if (tblWeighingMachineTODT["updatedBy"] != DBNull.Value)
+                        tblWeighingMachineTONew.UpdatedBy = Convert.ToInt32(tblWeighingMachineTODT["updatedBy"].ToString());
+                    if (tblWeighingMachineTODT["createdOn"] != DBNull.Value)
+                        tblWeighingMachineTONew.CreatedOn = Convert.ToDateTime(tblWeighingMachineTODT["createdOn"].ToString());
+                    if (tblWeighingMachineTODT["updatedOn"] != DBNull.Value)
+                        tblWeighingMachineTONew.UpdatedOn = Convert.ToDateTime(tblWeighingMachineTODT["updatedOn"].ToString());
+                    if (tblWeighingMachineTODT["weighingCapMT"] != DBNull.Value)
+                        tblWeighingMachineTONew.WeighingCapMT = Convert.ToDouble(tblWeighingMachineTODT["weighingCapMT"].ToString());
+                    if (tblWeighingMachineTODT["machineName"] != DBNull.Value)
+                        tblWeighingMachineTONew.MachineName = Convert.ToString(tblWeighingMachineTODT["machineName"].ToString());
+                    if (tblWeighingMachineTODT["codeNumber"] != DBNull.Value)
+                        tblWeighingMachineTONew.CodeNumber = Convert.ToString(tblWeighingMachineTODT["codeNumber"].ToString());
+                    if (tblWeighingMachineTODT["machineDesc"] != DBNull.Value)
+                        tblWeighingMachineTONew.MachineDesc = Convert.ToString(tblWeighingMachineTODT["machineDesc"].ToString());
+                    if (tblWeighingMachineTODT["location"] != DBNull.Value)
+                        tblWeighingMachineTONew.Location = Convert.ToString(tblWeighingMachineTODT["location"].ToString());
+                    if (tblWeighingMachineTODT["deviceId"] != DBNull.Value)
+                        tblWeighingMachineTONew.DeviceId = Convert.ToString(tblWeighingMachineTODT["deviceId"].ToString());
+                    if (tblWeighingMachineTODT["machineIP"] != DBNull.Value)
+                        tblWeighingMachineTONew.MachineIP = Convert.ToString(tblWeighingMachineTODT["machineIP"].ToString());
+                    if (tblWeighingMachineTODT["portNumber"] != DBNull.Value)
+                        tblWeighingMachineTONew.PortNumber = Convert.ToString(tblWeighingMachineTODT["portNumber"].ToString());
+                    if (tblWeighingMachineTODT["IoTUrl"] != DBNull.Value)
+                        tblWeighingMachineTONew.IoTUrl = Convert.ToString(tblWeighingMachineTODT["IoTUrl"].ToString());
+                    if (tblWeighingMachineTODT["isActive"] != DBNull.Value)
+                        tblWeighingMachineTONew.IsActive = Convert.ToInt32(tblWeighingMachineTODT["isActive"].ToString());
+                    if (tblWeighingMachineTODT["layerId"] != DBNull.Value)
+                        tblWeighingMachineTONew.LayerId = Convert.ToInt32(tblWeighingMachineTODT["layerId"].ToString());
+                    if (tblWeighingMachineTODT["weightMeasurTypeId"] != DBNull.Value)
+                        tblWeighingMachineTONew.WeightMeasurTypeId = Convert.ToInt32(tblWeighingMachineTODT["weightMeasurTypeId"].ToString());
+                    if (tblWeighingMachineTODT["idWeightMeasure"] != DBNull.Value)
+                        tblWeighingMachineTONew.IdWeightMeasure = Convert.ToInt32(tblWeighingMachineTODT["idWeightMeasure"].ToString());
+
+                    tblWeighingMachineTOList.Add(tblWeighingMachineTONew);
+                }
+            }
+            return tblWeighingMachineTOList;
+        }
         public List<TblWeighingMachineTO> SelectAllTblWeighingMachine()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -36,7 +117,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = SqlSelectQuery();
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE isActive=1";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -65,9 +146,9 @@ namespace ODLMWebAPI.DAL
             string sqlQuery = null;
             try
             {
-                sqlQuery = "select idWeighingMachine, machineName, machineIP from tblWeighingMachine";
+                sqlQuery = "select idWeighingMachine, machineName,IoTUrl+'|'+machineIP +'|'+portNumber as machinedeatils from tblWeighingMachine WHERE isActive = 1";
                 conn.Open();
-                cmdSelect.CommandText = SqlSelectQuery();
+                cmdSelect.CommandText = sqlQuery;
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -82,8 +163,8 @@ namespace ODLMWebAPI.DAL
                             dropDownTO.Value = Convert.ToInt32(reader["idWeighingMachine"].ToString());
                         if (reader["machineName"] != DBNull.Value)
                             dropDownTO.Text = Convert.ToString(reader["machineName"].ToString());
-                        if (reader["machineIP"] != DBNull.Value)
-                            dropDownTO.Tag = Convert.ToString(reader["machineIP"].ToString());
+                        if (reader["machinedeatils"] != DBNull.Value)
+                            dropDownTO.Tag = Convert.ToString(reader["machinedeatils"].ToString());
                         dropDownTOList.Add(dropDownTO);
                     }
                 }
@@ -165,6 +246,14 @@ namespace ODLMWebAPI.DAL
                         tblWeighingMachineTONew.DeviceId = Convert.ToString(tblWeighingMachineTODT["deviceId"].ToString());
                     if (tblWeighingMachineTODT["machineIP"] != DBNull.Value)
                         tblWeighingMachineTONew.MachineIP = Convert.ToString(tblWeighingMachineTODT["machineIP"].ToString());
+                    if (tblWeighingMachineTODT["portNumber"] != DBNull.Value)
+                        tblWeighingMachineTONew.PortNumber = Convert.ToString(tblWeighingMachineTODT["portNumber"].ToString());
+                    if (tblWeighingMachineTODT["IoTUrl"] != DBNull.Value)
+                        tblWeighingMachineTONew.IoTUrl = Convert.ToString(tblWeighingMachineTODT["IoTUrl"].ToString());
+                    if (tblWeighingMachineTODT["isActive"] != DBNull.Value)
+                        tblWeighingMachineTONew.IsActive = Convert.ToInt32(tblWeighingMachineTODT["isActive"].ToString());
+                    if (tblWeighingMachineTODT["userIds"] != DBNull.Value)
+                        tblWeighingMachineTONew.UserIds = Convert.ToString(tblWeighingMachineTODT["userIds"].ToString());
                     tblWeighingMachineTOList.Add(tblWeighingMachineTONew);
                 }
             }

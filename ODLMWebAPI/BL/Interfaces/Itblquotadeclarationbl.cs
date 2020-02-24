@@ -31,7 +31,8 @@ namespace ODLMWebAPI.BL.Interfaces
         int DeleteTblQuotaDeclaration(Int32 idQuotaDeclaration, SqlConnection conn, SqlTransaction tran);
         //Aniket [30-9-2019]
         TblQuotaDeclarationTO GetBookingQuotaAgainstCNF(Int32 cnfOrgId, Int32 brandId);
+        List<TblQuotaDeclarationTO> GetLatestRateInfo(Int32 cnfId, DateTime date, Boolean isQuotaDeclaration);
 
-     
+
     }
 }

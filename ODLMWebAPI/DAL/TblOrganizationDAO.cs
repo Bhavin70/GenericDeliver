@@ -36,6 +36,42 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Selection
+        //Aniket [30-7-2019] added for IOT
+        public String GetFirmNameByOrgId(Int32 orgId)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = "SELECT firmName FROM tblOrganization where idOrganization = " + orgId;
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                SqlDataReader rdr = cmdSelect.ExecuteReader(CommandBehavior.Default);
+
+                if (rdr != null)
+                {
+                    while (rdr.Read())
+                    {
+                        if (rdr["firmName"] != DBNull.Value)
+                            return Convert.ToString(rdr["firmName"].ToString());
+                    }
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
         public List<TblOrganizationTO> SelectAllTblOrganization()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);

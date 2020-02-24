@@ -63,9 +63,28 @@ namespace ODLMWebAPI.BL
                 conn.Close();
             }
         }
-
+        //Aniket [30-7-2019] added for IOT
+        public  DimStatusTO SelectDimStatusTOByIotStatusId(Int32 iotStatusId,Int32 txnTypeId)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+                return _iDimStatusDAO.SelectDimStatusTOByIotStatusId(iotStatusId, txnTypeId, conn, tran);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
         #endregion
-        
+
         #region Insertion
         public int InsertDimStatus(DimStatusTO dimStatusTO)
         {

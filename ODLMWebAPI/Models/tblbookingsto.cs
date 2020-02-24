@@ -80,7 +80,7 @@ namespace ODLMWebAPI.Models
         Double sizesQty;                //Priyanka [21-06-2018] : Added for SHIVANGI.
         String directorRemark;          //Priyanka [25-06-2018]
         Int32 isOrgOverDue;             //Priyanka [24-07-2018]
-       
+
         Int32 statusBy;
         Int32 tranActionTypeId;         //Priyanka [10-08-2018]
 
@@ -88,7 +88,7 @@ namespace ODLMWebAPI.Models
 
         Int32 isSez;
         //Aniket
-       
+
         double uomQty;
         double pendingUomQty;
         int isInUom;
@@ -97,8 +97,12 @@ namespace ODLMWebAPI.Models
         List<TblPaymentTermOptionRelationTO> paymentTermOptionRelationTOLst;
         //Aniket [23-7-2019]
         int stateId;
+        Int32 bookingRefId;
+        String bookingDisplayNo;
+
 
         Double creditLimit;
+        Int32 enquiryId;
 
         #endregion
 
@@ -275,6 +279,14 @@ namespace ODLMWebAPI.Models
             get { return isDeleted; }
             set { isDeleted = value; }
         }
+        public Int32 EnquiryId
+        {
+            get { return enquiryId; }
+            set { enquiryId = value; }
+        }
+
+        
+
         /// <summary>
         /// Sanjay [2017-02-11] To Get data In Post action
         /// </summary>
@@ -509,6 +521,8 @@ namespace ODLMWebAPI.Models
         public List<TblBookingExtTO> OrderDetailsLstForItemWise { get => orderDetailsLstForItemWise; set => orderDetailsLstForItemWise = value; }
         public double CreditLimit { get => creditLimit; set => creditLimit = value; }
 
+        public int BookingRefId { get => bookingRefId; set => bookingRefId = value; }
+        public string BookingDisplayNo { get => bookingDisplayNo; set => bookingDisplayNo = value; }
 
         #endregion
 
@@ -543,6 +557,7 @@ namespace ODLMWebAPI.Models
         double totalBookedQty;
         string cnfName;
         double pendingQty;
+        string bookingDisplayNo;
         List<Dictionary<int, double>> bookingDictionaryList = new List<Dictionary<int, double>>();
         List<Dictionary<int, double>> loadingDictionaryList = new List<Dictionary<int, double>>();
         List<Dictionary<string, string>> finalDictionaryList = new List<Dictionary<string, string>>();
@@ -560,6 +575,7 @@ namespace ODLMWebAPI.Models
         public double TotalBookedQty { get => totalBookedQty; set => totalBookedQty = value; }
         public string CnfName { get => cnfName; set => cnfName = value; }
         public double PendingQty { get => pendingQty; set => pendingQty = value; }
+        public string BookingDisplayNo { get => bookingDisplayNo; set => bookingDisplayNo = value; }
 
         #endregion
     }

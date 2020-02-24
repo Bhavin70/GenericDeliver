@@ -29,10 +29,14 @@ namespace ODLMWebAPI.BL
             return  _iTblBookingQtyConsumptionDAO.SelectTblBookingQtyConsumption(idBookQtyConsuption);
         }
 
-        
+        public List<TblBookingQtyConsumptionTO> SelectTblBookingQtyConsumptionTOByBookingId(Int32 bookingId)
+        {
+            return _iTblBookingQtyConsumptionDAO.SelectTblBookingQtyConsumptionTOByBookingId(bookingId);
+        }
+
 
         #endregion
-        
+
         #region Insertion
         public int InsertTblBookingQtyConsumption(TblBookingQtyConsumptionTO tblBookingQtyConsumptionTO)
         {

@@ -10,7 +10,8 @@ using ODLMWebAPI.StaticStuff;
 using System.Linq;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
- 
+using ODLMWebAPI.IoT.Interfaces;
+
 namespace ODLMWebAPI.BL
 {  
     public class TblWeighingMeasuresBL : ITblWeighingMeasuresBL
@@ -32,7 +33,12 @@ namespace ODLMWebAPI.BL
         private readonly ITblAlertInstanceBL _iTblAlertInstanceBL;
         private readonly ICircularDependencyBL _iCircularDependencyBL;
         private readonly IConnectionString _iConnectionString;
-        public TblWeighingMeasuresBL(ITblInvoiceBL iTblInvoiceBL, ICircularDependencyBL iCircularDependencyBL, ITblAlertInstanceBL iTblAlertInstanceBL, ITblUserDAO iTblUserDAO, ITblOrganizationDAO iTblOrganizationDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblConfigParamsDAO iTblConfigParamsDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblProductItemDAO iTblProductItemDAO, IConnectionString iConnectionString, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblUnLoadingItemDetDAO iTblUnLoadingItemDetDAO)
+        private readonly IIotCommunication _iIotCommunication;
+        private readonly ITblWeighingMachineBL _iTblWeighingMachineBL;
+        private readonly IWeighingCommunication _iWeighingCommunication;
+        private readonly ITblLoadingBL _iTblLoadingBL;
+        private readonly IDimStatusDAO _iDimStatusDAO;
+        public TblWeighingMeasuresBL(IWeighingCommunication iWeighingCommunication, IDimStatusDAO iDimStatusDAO,ITblWeighingMachineBL iTblWeighingMachineBL,IIotCommunication iIotCommunication,ITblInvoiceBL iTblInvoiceBL, ICircularDependencyBL iCircularDependencyBL, ITblAlertInstanceBL iTblAlertInstanceBL, ITblUserDAO iTblUserDAO, ITblOrganizationDAO iTblOrganizationDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblConfigParamsDAO iTblConfigParamsDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblProductItemDAO iTblProductItemDAO, IConnectionString iConnectionString, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblUnLoadingItemDetDAO iTblUnLoadingItemDetDAO)
         {
             _iTblWeighingMeasuresDAO = iTblWeighingMeasuresDAO;
             _iTblLoadingSlipExtDAO = iTblLoadingSlipExtDAO;
@@ -51,6 +57,12 @@ namespace ODLMWebAPI.BL
             _iTblAlertInstanceBL = iTblAlertInstanceBL;
             _iCircularDependencyBL = iCircularDependencyBL;
             _iConnectionString = iConnectionString;
+            _iIotCommunication = iIotCommunication;
+            _iTblWeighingMachineBL = iTblWeighingMachineBL;
+            _iWeighingCommunication = iWeighingCommunication;
+            _iDimStatusDAO = iDimStatusDAO;
+
+
         }
         #region Selection
 
@@ -138,6 +150,7 @@ namespace ODLMWebAPI.BL
             resultMessage.MessageType = ResultMessageE.None;
             try
             {
+                Boolean isTareWeight = false;
                 conn.Open();
                 tran = conn.BeginTransaction();
                 if(tblWeighingMeasuresTO == null)
@@ -148,13 +161,21 @@ namespace ODLMWebAPI.BL
                     resultMessage.Result = 0;
                     return resultMessage;
                 }
+                int configId = _iTblConfigParamsDAO.IoTSetting();
+
+
                 #region 0. Check Tare taken againest machine Id
+                List<TblWeighingMeasuresTO> weighingMeasuresToList = new List<TblWeighingMeasuresTO>();
+                List<TblWeighingMachineTO> weighingMeasuresToListIot = new List<TblWeighingMachineTO>();
                 if (!tblWeighingMeasuresTO.IsUpdateTareWt)//Vijaymala added [10-04-2018]
                 {
                     if (tblWeighingMeasuresTO.WeightMeasurTypeId == (int)Constants.TransMeasureTypeE.TARE_WEIGHT)
                     {
-                        List<TblWeighingMeasuresTO> weighingMeasuresToList = new List<TblWeighingMeasuresTO>();
+                         weighingMeasuresToList = new List<TblWeighingMeasuresTO>();
                         // TblWeighingMeasuresTO tblWeighingMeasureTo = new TblWeighingMeasuresTO();
+                     if (configId == 1)
+                     {
+                        
                         weighingMeasuresToList = _iCircularDependencyBL.SelectAllTblWeighingMeasuresListByLoadingId(tblWeighingMeasuresTO.LoadingId, conn, tran);
 
 
@@ -177,7 +198,7 @@ namespace ODLMWebAPI.BL
                         {
                             var vRes = weighingMeasuresToList.Where(p => p.WeightMeasurTypeId == (int)Constants.TransMeasureTypeE.TARE_WEIGHT
                             && p.WeighingMachineId == tblWeighingMeasuresTO.WeighingMachineId).FirstOrDefault();
-                            if(vRes != null)
+                            if (vRes != null)
                             {
                                 tran.Rollback();
                                 resultMessage.DefaultBehaviour("Tare already occured this machine");
@@ -185,31 +206,39 @@ namespace ODLMWebAPI.BL
                                 return resultMessage;
                             }
                         }
+                        if (weighingMeasuresToList == null || weighingMeasuresToList.Count == 0)
+                        {
+                            isTareWeight = true;
+                        }
+                        }
+                        else
+                        {
+                             weighingMeasuresToListIot = _iTblWeighingMachineBL.SelectAllTblWeighingMachineOfWeighingList(tblWeighingMeasuresTO.LoadingId);
+                            if (weighingMeasuresToListIot.Count > 0)
+                            {
+                                var vRes = weighingMeasuresToListIot.Where(p => p.WeightMeasurTypeId == (int)Constants.TransMeasureTypeE.TARE_WEIGHT
+                                && p.IdWeighingMachine == tblWeighingMeasuresTO.WeighingMachineId).FirstOrDefault();
+                                if (vRes != null)
+                                {
+                                    tran.Rollback();
+                                    resultMessage.DefaultBehaviour("Tare already occured this machine");
+                                    resultMessage.DisplayMessage = "Tare weight already taken againest this Machine.";
+                                    return resultMessage;
+                                }
+                            }
+
+                            if (weighingMeasuresToListIot == null || weighingMeasuresToListIot.Count == 0)
+                            {
+                                isTareWeight = true;
+                            }
+                        }
                     }
                     #endregion
                     #region 1. Save the Weighing Machine Mesurement 
-
-                    result = _iTblWeighingMeasuresDAO.InsertTblWeighingMeasures(tblWeighingMeasuresTO, conn, tran);
-                    if (result < 0)
+                    if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.DB) ||
+                        configId == Convert.ToInt32(Constants.WeighingDataSourceE.BOTH) || tblWeighingMeasuresTO.UnLoadingId != 0)
                     {
-                        tran.Rollback();
-                        resultMessage.Text = "";
-                        resultMessage.MessageType = ResultMessageE.Error;
-                        resultMessage.Result = 0;
-                        return resultMessage;
-                    }
-                }
-
-                #endregion
-
-                #region 2. Update the Loading Slip Ext Weighing Machine Measurement
-                if (tblLoadingSlipExtTOList != null && tblLoadingSlipExtTOList.Count > 0)
-                {
-                    foreach (var tblLoadingSlipExtTo in tblLoadingSlipExtTOList)
-                    {
-                        tblLoadingSlipExtTo.WeightMeasureId = tblWeighingMeasuresTO.IdWeightMeasure;
-                        tblLoadingSlipExtTo.UpdatedBy = tblWeighingMeasuresTO.CreatedBy;
-                        result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExt(tblLoadingSlipExtTo, conn, tran);
+                        result = _iTblWeighingMeasuresDAO.InsertTblWeighingMeasures(tblWeighingMeasuresTO, conn, tran);
                         if (result < 0)
                         {
                             tran.Rollback();
@@ -219,6 +248,68 @@ namespace ODLMWebAPI.BL
                             return resultMessage;
                         }
                     }
+                    if ((configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT) ||
+                 configId == Convert.ToInt32(Constants.WeighingDataSourceE.BOTH)) && (tblWeighingMeasuresTO.UnLoadingId == 0))
+                    {
+                       
+                        TblWeghingMessureDtlsTO tblWeghingMessureDtlsTO = new TblWeghingMessureDtlsTO();
+                        var MeasurTypeId = tblWeighingMeasuresTO.WeightMeasurTypeId;
+                        var layerId = (MeasurTypeId == (int)Constants.TransMeasureTypeE.TARE_WEIGHT || MeasurTypeId == (int)Constants.TransMeasureTypeE.GROSS_WEIGHT) ? 0 : tblLoadingSlipExtTOList[0].LoadingLayerid;
+                        tblWeghingMessureDtlsTO.LoadingId = tblWeighingMeasuresTO.LoadingId;
+                        tblWeghingMessureDtlsTO.WeighingMachineId = tblWeighingMeasuresTO.WeighingMachineId;
+                        tblWeghingMessureDtlsTO.WeightMeasurTypeId = tblWeighingMeasuresTO.WeightMeasurTypeId;
+                        tblWeghingMessureDtlsTO.LayerId = layerId;
+                        result = _iTblWeighingMeasuresDAO.InsertTblWeghingMessureDtls(tblWeghingMessureDtlsTO, conn, tran);
+                        if (result < 0)
+                        {
+                            tran.Rollback();
+                            resultMessage.Text = "";
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            resultMessage.Result = 0;
+                            return resultMessage;
+                        }
+                    }
+
+                }
+
+                #endregion
+
+                #region 2. Update the Loading Slip Ext Weighing Machine Measurement
+                if (tblLoadingSlipExtTOList != null && tblLoadingSlipExtTOList.Count > 0)
+                {
+                    //@ModBusTCP : Priyanka[06-12-2018]
+                    if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.DB) ||
+                           configId == Convert.ToInt32(Constants.WeighingDataSourceE.BOTH))
+                    {
+                        foreach (var tblLoadingSlipExtTo in tblLoadingSlipExtTOList)
+                        {
+                            tblLoadingSlipExtTo.WeightMeasureId = tblWeighingMeasuresTO.IdWeightMeasure;
+                            tblLoadingSlipExtTo.UpdatedBy = tblWeighingMeasuresTO.CreatedBy;
+                            result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExt(tblLoadingSlipExtTo, conn, tran);
+                            if (result < 0)
+                            {
+                                tran.Rollback();
+                                resultMessage.Text = "";
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                resultMessage.Result = 0;
+                                return resultMessage;
+                            }
+                        }
+                    }
+                    //else if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT)) // Update only sequence number
+                    // {
+                    //    foreach (var tblLoadingSlipExtTo in tblLoadingSlipExtTOList)
+                    //    {
+
+                    //        result = _iTblLoadingSlipExtDAO.UpdateLoadingSlipExtSeqNumber(tblLoadingSlipExtTo, conn, tran);
+                    //        if (result <= 0)
+                    //        {
+                    //            tran.Rollback();
+                    //            resultMessage.DefaultBehaviour("Error While updating items weighing sequence in loadingslipext");
+                    //            return resultMessage;
+                    //        }
+                    //    }
+                    //}
                 }
                 #endregion
 
@@ -372,14 +463,16 @@ namespace ODLMWebAPI.BL
 
                 #endregion
 
-
+                TblLoadingTO loadingTO = _iTblLoadingDAO.SelectTblLoading(tblWeighingMeasuresTO.LoadingId, conn, tran);
                 //Sanjay [2017-09-17] Call For Auto Invoice
                 if (tblWeighingMeasuresTO.IsLoadingCompleted == 1)
                 {
-                    TblLoadingTO loadingTO = _iTblLoadingDAO.SelectTblLoading(tblWeighingMeasuresTO.LoadingId, conn, tran);
                     if (loadingTO != null)
                     {
-                        resultMessage = _iTblInvoiceBL.PrepareAndSaveNewTaxInvoice(loadingTO, conn, tran);
+
+
+
+                        resultMessage = _iTblInvoiceBL.PrepareAndSaveNewTaxInvoice(loadingTO,tblLoadingSlipExtTOList, conn, tran);
                         if (resultMessage.MessageType!= ResultMessageE.Information)
                         {
                             tran.Rollback();
@@ -415,11 +508,181 @@ namespace ODLMWebAPI.BL
                 //GJ [2017-09-30] Call for To check Invoice Number Generated Againest Vehicle No
                 if(tblWeighingMeasuresTO.IsCheckInvoiceGenerated == 1)
                 {
-                    resultMessage = _iCircularDependencyBL.CheckInvoiceNoGeneratedByVehicleNo(tblWeighingMeasuresTO.VehicleNo, conn, tran);
+                    resultMessage = _iCircularDependencyBL.CheckInvoiceNoGeneratedByVehicleNo(tblWeighingMeasuresTO.VehicleNo, conn, tran,tblWeighingMeasuresTO.LoadingId);
                     if (resultMessage.MessageType != ResultMessageE.Information)
                     {
                         tran.Rollback();
                         return resultMessage;
+                    }
+                }
+
+                #region Write Data To IoT Devices Based On Configuration
+
+                //@ModBusTCP : Priyanka[06-12-2018]
+                if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT) ||
+                    configId == Convert.ToInt32(Constants.WeighingDataSourceE.BOTH))
+                {
+                    List<int[]> frameList = _iIotCommunication.GenerateFrameData(loadingTO, tblWeighingMeasuresTO, tblLoadingSlipExtTOList);
+                    if (frameList != null && frameList.Count > 0)
+                    {
+                        for (int f = 0; f < frameList.Count; f++)
+                        {
+                            TblWeighingMachineTO machineTO = _iTblWeighingMachineBL.SelectTblWeighingMachineTO(tblWeighingMeasuresTO.WeighingMachineId);
+                            if (machineTO == null)
+                            {
+                                tran.Rollback();
+                                resultMessage.DefaultBehaviour("MachineTo or IoT not found ");
+                                return resultMessage;
+                            }
+                            result = _iWeighingCommunication.PostDataFrommodbusTcpApi(loadingTO, frameList[f], machineTO);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
+                                resultMessage.Text = "Error in PostDataFrommodbusTcpApi";
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                resultMessage.DisplayMessage = "Failed due to network error, Please try one more time";
+                                resultMessage.Result = 0;
+                                return resultMessage;
+                            }
+                        }
+                    }
+                    if (tblWeighingMeasuresTO.IsLoadingCompleted == 1)
+                    {
+                        //Saket [2020-02-03] Added
+                        if (loadingTO.IgnoreGrossWt > 0)
+                        {
+                            loadingTO.IgnoreGrossWt = 0;
+                            result = _iTblLoadingDAO.UpdateTblLoadingIgnoreGrossWTFlag(loadingTO, conn, tran);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
+                                resultMessage.Text = "";
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                resultMessage.Result = 0;
+                                return resultMessage;
+                            }
+                        }
+
+
+                        //@Added By Kiran For Final gross weight(IoT) 16/06/2019
+                        if ((configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT) ||
+                        configId == Convert.ToInt32(Constants.WeighingDataSourceE.BOTH)) && (tblWeighingMeasuresTO.UnLoadingId == 0))
+                        {
+                            TblWeghingMessureDtlsTO tblWeghingMessureDtlsTO = new TblWeghingMessureDtlsTO();
+                            var MeasurTypeId = tblWeighingMeasuresTO.WeightMeasurTypeId;
+                            var layerId = (int)Constants.TransMeasureTypeE.GROSS_WEIGHT;
+                            tblWeghingMessureDtlsTO.LoadingId = tblWeighingMeasuresTO.LoadingId;
+                            tblWeghingMessureDtlsTO.WeighingMachineId = tblWeighingMeasuresTO.WeighingMachineId;
+                            tblWeghingMessureDtlsTO.WeightMeasurTypeId = (int)Constants.TransMeasureTypeE.GROSS_WEIGHT;
+                            tblWeghingMessureDtlsTO.LayerId = layerId;
+                            result = _iTblWeighingMeasuresDAO.InsertTblWeghingMessureDtls(tblWeghingMessureDtlsTO, conn, tran);
+                            if (result < 0)
+                            {
+                                tran.Rollback();
+                                resultMessage.Text = "";
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                resultMessage.Result = 0;
+                                return resultMessage;
+                            }
+                        }
+                        List<TblLoadingSlipExtTO> tblLoadingSlipExtTOListForGross = new List<TblLoadingSlipExtTO>();
+                        TblWeighingMeasuresTO tblWeighingMeasuresTOForGross = new TblWeighingMeasuresTO();
+                        tblWeighingMeasuresTOForGross.WeightMeasurTypeId = (int)Constants.TransMeasureTypeE.GROSS_WEIGHT;
+                        tblWeighingMeasuresTOForGross.WeightMT = tblWeighingMeasuresTO.WeightMT;
+                        List<int[]> frameListForGross =_iIotCommunication.GenerateFrameData(loadingTO, tblWeighingMeasuresTOForGross, tblLoadingSlipExtTOListForGross);
+                        if (frameListForGross != null && frameListForGross.Count > 0)
+                        {
+                            TblWeighingMachineTO machineTOForGross = _iTblWeighingMachineBL.SelectTblWeighingMachineTO(tblWeighingMeasuresTO.WeighingMachineId);
+                            if (machineTOForGross == null)
+                            {
+                                tran.Rollback();
+                                resultMessage.DefaultBehaviour("MachineTo or IoT not found ");
+                                return resultMessage;
+                            }
+                            result = _iWeighingCommunication.PostDataFrommodbusTcpApi(loadingTO, frameListForGross[0], machineTOForGross);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
+                                resultMessage.Text = "Error in PostDataFrommodbusTcpApi When Write Gross Weight";
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                resultMessage.DisplayMessage = "Failed due to network error, Please try one more time";
+                                resultMessage.Result = 0;
+                                return resultMessage;
+                            }
+                        }
+                    }
+                }
+
+                #endregion
+                if (configId == (Int32)Constants.WeighingDataSourceE.IoT || configId == (Int32)Constants.WeighingDataSourceE.BOTH)
+                {
+                    TblConfigParamsTO configParamsTO = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_DEFAULT_WEIGHING_SCALE, conn, tran);
+                    if (configParamsTO != null)
+                    {
+                        if (Convert.ToInt32(configParamsTO.ConfigParamVal) == 2)
+                        {
+                            //@Kiran Added for Update status
+                            //List<TblWeighingMeasuresTO> weighingMeasuresToList = new List<TblWeighingMeasuresTO>();
+                            //weighingMeasuresToList = BL.TblWeighingMeasuresBL.SelectAllTblWeighingMeasuresListByLoadingId(tblWeighingMeasuresTO.LoadingId, conn, tran);
+                            weighingMeasuresToListIot = _iTblWeighingMachineBL.SelectAllTblWeighingMachineOfWeighingList(tblWeighingMeasuresTO.LoadingId);
+                            if (weighingMeasuresToList.Count > 0)
+                            {
+                                var vRes = weighingMeasuresToList.Where(p => p.WeightMeasurTypeId == (int)Constants.TransMeasureTypeE.GROSS_WEIGHT).ToList();
+                                if (vRes != null)
+                                {
+                                    vRes = vRes.GroupBy(g => g.WeighingMachineId).Select(s => s.FirstOrDefault()).ToList();
+                                    if (vRes != null && vRes.Count >= 2)
+                                    {
+                                        DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus(Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH), conn, tran);
+                                        if (statusTO == null || statusTO.IotStatusId == 0)
+                                        {
+                                            resultMessage.DefaultBehaviour("iot status id not found for loading to pass at gate iot");
+                                            return resultMessage;
+                                        }
+                                        object[] statusframeTO = new object[2] { loadingTO.ModbusRefId, statusTO.IotStatusId };
+                                        result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(loadingTO, statusframeTO);
+                                        if (result != 1)
+                                        {
+                                            resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
+                                            return resultMessage;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                //Aniket [21-8-2019]
+                if(tblWeighingMeasuresTO.IsLoadingCompleted==1)
+                {
+                    TblConfigParamsTO configParamsTO = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_DEFAULT_WEIGHING_SCALE, conn, tran);
+                    if (configId == (Int32)Constants.WeighingDataSourceE.IoT || configId == (Int32)Constants.WeighingDataSourceE.BOTH)
+                    {
+                        if (configParamsTO != null)
+                        {
+                            if (Convert.ToInt32(configParamsTO.ConfigParamVal) == 1)
+                            {
+                                // List<TblWeighingMeasuresTO> weighingMeasuresToList = new List<TblWeighingMeasuresTO>();
+                                List<TblWeighingMachineTO> weighingMeasuresList = _iTblWeighingMachineBL.SelectAllTblWeighingMachineOfWeighingList(loadingTO.IdLoading);
+                                if (weighingMeasuresToList.Count > 0)
+                                {
+                                    var vRes = weighingMeasuresList.Where(p => p.WeightMeasurTypeId == (int)Constants.TransMeasureTypeE.GROSS_WEIGHT).ToList();
+                                    if (vRes != null && vRes.Count == 1)
+                                    {
+                                        resultMessage = _iTblLoadingBL.UpdateLoadingStatusToGateIoT(loadingTO, conn, tran);
+                                        if (resultMessage.MessageType != ResultMessageE.Information)
+                                        {
+                                            tran.Rollback();
+                                            resultMessage.Text = "Error in UpdateLoadingStatusToGateIoT When update statusId";
+                                            resultMessage.MessageType = ResultMessageE.Error;
+                                            resultMessage.DisplayMessage = "Failed due to network error, Please try one more time";
+                                            resultMessage.Result = 0;
+                                            return resultMessage;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 tran.Commit();
@@ -642,6 +905,13 @@ namespace ODLMWebAPI.BL
                     resultMessage.MessageType = ResultMessageE.Error;
                     resultMessage.Result = 0;
                     return resultMessage;
+                }
+                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                if (weightSourceConfigId == (Int32)Constants.WeighingDataSourceE.IoT)
+                {
+                    tblLoadingSlipExtTO.LoadedBundles = 0;
+                    tblLoadingSlipExtTO.LoadedWeight = 0;
+                    tblLoadingSlipExtTO.CalcTareWeight = 0;
                 }
                 result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExt(tblLoadingSlipExtTO);
                 if (result < 0)

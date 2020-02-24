@@ -28,5 +28,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblWeighingMeasures(Int32 idWeightMeasure, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idWeightMeasure, SqlCommand cmdDelete);
 
+        //Aniket [13-8-2019]
+        int InsertTblWeghingMessureDtls(TblWeghingMessureDtlsTO tblWeghingMessureDtlsTO, SqlConnection conn, SqlTransaction tran);
+
     }
 }

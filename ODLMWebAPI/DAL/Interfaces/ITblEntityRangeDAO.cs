@@ -27,5 +27,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblEntityRange(Int32 idEntityRange, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idEntityRange, SqlCommand cmdDelete);
 
+        TblEntityRangeTO SelectTblEntityRangeByEntityName(string entityName, int finYearId);
+
     }
 }

@@ -26,7 +26,11 @@ namespace ODLMWebAPI.BL
             _iCommon = iCommon;
         }
         #region Selection
-
+        //Aniket [23-8-2019] added for IoT
+        public int IotSetting()
+        {
+            return _iTblConfigParamsDAO.IoTSetting();
+        }
         public List<TblConfigParamsTO> SelectAllTblConfigParamsList()
         {
             return _iTblConfigParamsDAO.SelectAllTblConfigParams();

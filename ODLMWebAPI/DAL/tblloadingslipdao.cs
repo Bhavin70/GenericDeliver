@@ -22,7 +22,8 @@ namespace ODLMWebAPI.DAL
         public String SqlSelectQuery()
         {
             String sqlSelectQry = " SELECT tempLoadingSlip.* ,tempLoadSlipdtl.loadingQty, " +
-                                  " cnfOrg.firmName as cnfOrgName ,dimStat.statusName ,tempLoadSlipdtl.bookingId,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
+                                  " cnfOrg.firmName as cnfOrgName ,dimStat.statusName ,tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
+                                  " ,loading.modbusRefId,loading.gateId,loading.isDBup,gate.portNumber,gate.IoTUrl,gate.machineIP "+
                                   " FROM tempLoadingSlip" +
                                   " LEFT JOIN tblOrganization " +
                                   " ON tblOrganization.idOrganization = tempLoadingSlip.dealerOrgId " +
@@ -31,14 +32,18 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN dimStatus dimStat " +
                                   " ON dimStat.idStatus = tempLoadingSlip.statusId " +
                                    " Left Join tempLoadingSlipDtl tempLoadSlipdtl ON tempLoadSlipdtl.loadingSlipId = tempLoadingSlip.idLoadingSlip " +
+                                    " Left Join tblBookings tblBookings ON tempLoadSlipdtl.bookingId = tblBookings.idbooking " +
                                    "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = tblOrganization.addrId" +   //Aniket K [03-Jan-2019] Added to show village name against dealer
+                                   " LEFT JOIN temploading loading on loading.idloading = tempLoadingSlip.loadingId "+
+                                   " LEFT JOIN tblGate gate on gate.idGate=loading.gateId "+
 
                                    // Vaibhav [09-Jan-2018] Added to select from  finalLoadingSlip
 
-                                  " UNION ALL " +
+            " UNION ALL " +
 
                                   " SELECT finalLoadingSlip.* , tempLoadSlipdtl.loadingQty, " +
-                                  " cnfOrg.firmName as cnfOrgName, dimStat.statusName, tempLoadSlipdtl.bookingId,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
+                                  " cnfOrg.firmName as cnfOrgName, dimStat.statusName, tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
+                                  " , loading.modbusRefId,loading.gateId,loading.isDBup,gate.portNumber,gate.IoTUrl,gate.machineIP "+
                                   " FROM finalLoadingSlip " +
                                   " LEFT JOIN tblOrganization " +
                                   " ON tblOrganization.idOrganization = finalLoadingSlip.dealerOrgId " +
@@ -47,14 +52,85 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN dimStatus dimStat " +
                                   " ON dimStat.idStatus = finalLoadingSlip.statusId " +
                                    " Left Join finalLoadingSlipDtl tempLoadSlipdtl ON tempLoadSlipdtl.loadingSlipId = finalLoadingSlip.idLoadingSlip " +
-                                   "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = tblOrganization.addrId";  //Aniket K [03-Jan-2019] Added to show village name against dealer
+                                   " Left Join tblBookings tblBookings ON tempLoadSlipdtl.bookingId = tblBookings.idbooking " +
+                                   "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = tblOrganization.addrId " +  //Aniket K [03-Jan-2019] Added to show village name against dealer
+                                    " LEFT JOIN temploading loading on loading.idloading = finalLoadingSlip.loadingId " +
+                                   " LEFT JOIN tblGate gate on gate.idGate=loading.gateId ";
 
             return sqlSelectQry;
         }
         #endregion
 
         #region Selection
-       public List<TblLoadingSlipTO> SelectAllTblLoadingSlip()
+        //Aniket [22-8-2019] added for IoT, to get PortNumber and machine IP
+        public  Dictionary<Int32, TblLoadingTO> SelectModbusRefIdByLoadingSlipIdDCT(string loadingSlipNos)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlDataReader tblLoadingSlipTODT = null;
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                conn.Open();
+                String sqlSelectQry = " SELECT idLoadingSlip, modbusRefId,gateId, tblgate.iotUrl,tblgate.portnumber,tblgate.machineIP FROM temploadingslip " +
+                              " INNER JOIN tempLoading tempLoading ON idLoading = loadingId " +
+                              "  left join tblgate tblgate on tblgate.idGate = tempLoading.gateId " +
+                              "   WHERE idLoadingSlip IN(" + loadingSlipNos + ") AND modbusRefId IS NOT NULL";
+
+                cmdSelect.CommandText = sqlSelectQry;
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                tblLoadingSlipTODT = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                //   Dictionary<int, int> DCT = new Dictionary<int, int>();
+                //  List<TblLoadingSlipTO> tblLoadingSlipTOList = new List<TblLoadingSlipTO>();
+
+                Dictionary<Int32, TblLoadingTO> tblLoadingTODct = new Dictionary<int, TblLoadingTO>();
+
+                //TblLoadingTO tblLoadingTO = new TblLoadingTO();
+                if (tblLoadingSlipTODT != null)
+                {
+                    while (tblLoadingSlipTODT.Read())
+                    {
+                        TblLoadingTO tblLoadingTO = new TblLoadingTO();
+                        int loadingslipId = 0, modRefId = 0;
+                        if (tblLoadingSlipTODT["idLoadingSlip"] != DBNull.Value)
+                            loadingslipId = Convert.ToInt32(tblLoadingSlipTODT["idLoadingSlip"].ToString());
+                        if (tblLoadingSlipTODT["modbusRefId"] != DBNull.Value)
+                            tblLoadingTO.ModbusRefId = Convert.ToInt32(tblLoadingSlipTODT["modbusRefId"].ToString());
+                        if (tblLoadingSlipTODT["iotUrl"] != DBNull.Value)
+                            tblLoadingTO.IoTUrl = tblLoadingSlipTODT["iotUrl"].ToString();
+                        if (tblLoadingSlipTODT["portnumber"] != DBNull.Value)
+                            tblLoadingTO.PortNumber = tblLoadingSlipTODT["portnumber"].ToString();
+                        if (tblLoadingSlipTODT["machineIP"] != DBNull.Value)
+                            tblLoadingTO.MachineIP = tblLoadingSlipTODT["machineIP"].ToString();
+                        if (tblLoadingSlipTODT["gateId"] != DBNull.Value)
+                            tblLoadingTO.GateId = Convert.ToInt32(tblLoadingSlipTODT["gateId"].ToString());
+
+                        if (!tblLoadingTODct.ContainsKey(loadingslipId))
+                        {
+                            tblLoadingTODct.Add(loadingslipId, tblLoadingTO);
+                        }
+
+
+                    }
+                }
+                //return list;
+                return tblLoadingTODct;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (tblLoadingSlipTODT != null)
+                    tblLoadingSlipTODT.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+        public List<TblLoadingSlipTO> SelectAllTblLoadingSlip()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -375,7 +451,7 @@ namespace ODLMWebAPI.DAL
 
                
                 conn.Open();
-                cmdSelect.CommandText = " SELECT * FROM (" + sqlSelectQry + ")sq1 " + areConfJoin + cnfwhereCond;
+                cmdSelect.CommandText = " SELECT * FROM (" + SqlSelectQuery() + ")sq1 " + areConfJoin + cnfwhereCond;
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
                 cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.DateTime).Value = fromDate.Date.ToString(Constants.AzureDateFormat);
@@ -570,6 +646,22 @@ namespace ODLMWebAPI.DAL
                     //Priyanka [05-09-2018]
                     if (tblLoadingSlipTODT["bookingId"] != DBNull.Value)
                         tblLoadingSlipTONew.BookingId = Convert.ToInt32(tblLoadingSlipTODT["bookingId"].ToString());
+
+                    if (tblLoadingSlipTODT["modbusRefId"] != DBNull.Value)
+                        tblLoadingSlipTONew.ModbusRefId = Convert.ToInt32(tblLoadingSlipTODT["modbusRefId"]);
+
+                    if (tblLoadingSlipTODT["gateId"] != DBNull.Value)
+                        tblLoadingSlipTONew.GateId = Convert.ToInt32(tblLoadingSlipTODT["gateId"]);
+                    if (tblLoadingSlipTODT["portNumber"] != DBNull.Value)
+                        tblLoadingSlipTONew.PortNumber = Convert.ToString(tblLoadingSlipTODT["portNumber"]);
+                    if (tblLoadingSlipTODT["ioTUrl"] != DBNull.Value)
+                        tblLoadingSlipTONew.IotUrl = Convert.ToString(tblLoadingSlipTODT["ioTUrl"]);
+                    if (tblLoadingSlipTODT["machineIP"] != DBNull.Value)
+                        tblLoadingSlipTONew.MachineIP = Convert.ToString(tblLoadingSlipTODT["machineIP"]);
+                    if (tblLoadingSlipTODT["isDBup"] != DBNull.Value)
+                        tblLoadingSlipTONew.IsDBup = Convert.ToInt32(tblLoadingSlipTODT["isDBup"]);
+                    if (tblLoadingSlipTODT["bookingDisplayNo"] != DBNull.Value)
+                        tblLoadingSlipTONew.BookingDisplayNo = Convert.ToString(tblLoadingSlipTODT["bookingDisplayNo"]);
                     tblLoadingSlipTOList.Add(tblLoadingSlipTONew);
                 }
             }
@@ -804,14 +896,17 @@ namespace ODLMWebAPI.DAL
                     whereisConFinal1 += " WHERE tblLoadingSlip.idLoadingSlip IN (select loadingSlipId from tempLoadingSlipExt where brandId = " + brandId + " ) ";
                 }
 
-                String sqlQuery = " SELECT tblLoadingSlip.* ,org.digitalSign, loading.loadingType, loading.superwisorId,org.firmName as cnfOrgName, tblLoadSlipdtl.loadingQty, tblOrganization.firmName " +
+                String sqlQuery = " SELECT tblLoadingSlip.* ,org.digitalSign,tblBookings.bookingDisplayNo, loading.loadingType, loading.superwisorId,org.firmName as cnfOrgName, tblLoadSlipdtl.loadingQty, tblOrganization.firmName " +
                                   " + ',' +  CASE WHEN tblOrganization.addrId IS NULL THEN '' Else case WHEN address.villageName IS NOT NULL " +
                                   " THEN address.villageName ELSE CASE WHEN address.talukaName IS NOT NULL THEN address.talukaName " +
                                   " ELSE CASE WHEN address.districtName IS NOT NULL THEN address.districtName ELSE address.stateName" +
                                   " END END END END AS  dealerOrgName,transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName, tblLoadSlipdtl.bookingId " +
+                                   " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
+                                   " , loading.modbusRefId, loading.gateId,loading.isDBup "+
                                   " FROM  tempLoadingSlip tblLoadingSlip " +
                                   " Left Join tempLoadingSlipDtl tblLoadSlipdtl ON tblLoadSlipdtl.loadingSlipId = tblLoadingSlip.idLoadingSlip " +
+                                  " Left Join tblBookings tblBookings ON tblLoadSlipdtl.bookingId = tblBookings.idbooking " +
                                   " LEFT JOIN tblOrganization ON tblOrganization.idOrganization = tblLoadingSlip.dealerOrgId " +
                                   " LEFT JOIN tempLoading loading ON loading.idLoading = tblLoadingSlip.loadingId " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = tblLoadingSlip.cnfOrgId " +
@@ -820,19 +915,23 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
                                   " LEFT JOIN tblUser ON idUser=loading.createdBy " +
+                                  " LEFT JOIN tblGate tblGate ON tblGate.idGate = loading.gateId " +
                                   " LEFT JOIN vAddressDetails address ON address.idAddr = tblOrganization.addrId  " + whereisConTemp1 +
 
                                   " UNION ALL " +
 
-                                  " SELECT tblLoadingSlip.* ,org.digitalSign,loading.loadingType,loading.superwisorId, org.firmName as cnfOrgName, tblLoadSlipdtl.loadingQty, tblOrganization.firmName " +
+                                  " SELECT tblLoadingSlip.* ,org.digitalSign,tblBookings.bookingDisplayNo, loading.loadingType,loading.superwisorId, org.firmName as cnfOrgName, tblLoadSlipdtl.loadingQty, tblOrganization.firmName " +
                                    " + ',' +  CASE WHEN tblOrganization.addrId IS NULL THEN '' Else case WHEN address.villageName IS NOT NULL " +
                                   " THEN address.villageName ELSE CASE WHEN address.talukaName IS NOT NULL THEN address.talukaName " +
                                   " ELSE CASE WHEN address.districtName IS NOT NULL THEN address.districtName ELSE address.stateName" +
                                   " END END END END AS  dealerOrgName , " +
                                   " transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName, tblLoadSlipdtl.bookingId " +
+                                  " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
+                                   " , loading.modbusRefId, loading.gateId,loading.isDBup " +
                                   " FROM finalLoadingSlip tblLoadingSlip  " +
                                   " Left Join finalLoadingSlipDtl tblLoadSlipdtl ON tblLoadSlipdtl.loadingSlipId = tblLoadingSlip.idLoadingSlip " +
+                                  " Left Join tblBookings tblBookings ON tblLoadSlipdtl.bookingId = tblBookings.idbooking " +
                                   " LEFT JOIN tblOrganization ON tblOrganization.idOrganization = tblLoadingSlip.dealerOrgId " +
                                   " LEFT JOIN finalLoading loading ON loading.idLoading = tblLoadingSlip.loadingId " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = tblLoadingSlip.cnfOrgId " +
@@ -841,6 +940,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
                                   " LEFT JOIN tblUser ON idUser=loading.createdBy " +
+                                   " LEFT JOIN tblGate tblGate ON tblGate.idGate = loading.gateId " +
                                   " LEFT JOIN vAddressDetails address ON address.idAddr = tblOrganization.addrId " + whereisConFinal1;
 
 
@@ -888,7 +988,7 @@ namespace ODLMWebAPI.DAL
                 {
                     if (flag == 0)
                     {
-                        sqlSelectQueryTemp = " Select dimStatus.statusName, cnfOrg.firmName As cnfName, tblBookings.idBooking, tempLoadSlipdtl.bookingId," +
+                        sqlSelectQueryTemp = " Select dimStatus.statusName, cnfOrg.firmName As cnfName, tblBookings.idBooking, tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId," +
                          " tempLoadSlipdtl.loadingQty, loading.callFlag,tblOrganization.firmName + ', ' + CASE WHEN tblOrganization.addrId IS NULL THEN '' " +
                          " Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN " +
                          " vAddr.districtName IS NOT NULL THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  Dealer, tblLoadingSlip.createdOn,  " +
@@ -903,7 +1003,7 @@ namespace ODLMWebAPI.DAL
                          " LEFT JOIN tempLoadingSlipDtl tempLoadSlipdtl ON tblLoadingSlip.idLoadingSlip = tempLoadSlipdtl.loadingSlipId " +
                          " LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = tblOrganization.addrId"; //Aniket K[4-jan-19] added for to display villagename agaist Dealer
 
-                        sqlSelectQueryFinal = " Select dimStatus.statusName, cnfOrg.firmName AS cnfName, tblBookings.idBooking, tblOrganization.firmName+', '+ finalLoadSlipdtl.bookingId, finalLoadSlipdtl.loadingQty, loading.callFlag, " +
+                        sqlSelectQueryFinal = " Select dimStatus.statusName, cnfOrg.firmName AS cnfName, tblBookings.idBooking, tblBookings.bookingDisplayNo, tblOrganization.firmName+', '+ finalLoadSlipdtl.bookingId, finalLoadSlipdtl.loadingQty, loading.callFlag, " +
                         " CASE WHEN tblOrganization.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName "+
                         " ELSE CASE WHEN vAddr.districtName IS NOT NULL THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  Dealer, tblLoadingSlip.createdOn, tblBookings.bookingQty,tblBookings.bookingRate, "+
 		                " tblLoadingSlip.comment,tblLoadingSlip.orcAmt, tblLoadingSlip.orcMeasure,  tblLoadingSlipExt.rateCalcDesc from finalLoadingSlip tblLoadingSlip "+
@@ -924,7 +1024,7 @@ namespace ODLMWebAPI.DAL
                     else
                     {
                         FinalSqlSelectQuery = "Select dimStatus.statusName ,cnfOrg.firmName As cnfName,tblOrganization.firmName+', '+CASE WHEN tblOrganization.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  Dealer ," +
-                                          " tblBookings.idBooking,tblBookings.createdOn, tblBookings.bookingQty, " +
+                                          " tblBookings.idBooking,tblBookings.bookingDisplayNo,tblBookings.createdOn, tblBookings.bookingQty, " +
                                           " tblBookings.bookingRate,tblBookings.comments AS comment,tblBookings.orcAmt , " +
                                           " tblBookings.orcMeasure, '' AS rateCalcDesc from tblBookings tblBookings " +
                                           " LEFT Join tblOrganization tblOrganization ON tblBookings.dealerOrgId = tblOrganization.idOrganization " +
@@ -982,6 +1082,8 @@ namespace ODLMWebAPI.DAL
                         tblORCReportTONew.StatusName = Convert.ToString(tblORCReportTODT["statusName"].ToString());
                     if (tblORCReportTODT["idBooking"] != DBNull.Value)
                         tblORCReportTONew.IdBooking = Convert.ToInt32(tblORCReportTODT["idBooking"].ToString());
+                    if (tblORCReportTODT["bookingDisplayNo"] != DBNull.Value)
+                        tblORCReportTONew.BookingDisplayNo = Convert.ToString(tblORCReportTODT["bookingDisplayNo"].ToString());
                     if (tblORCReportTODT["createdOn"] != DBNull.Value)
                         tblORCReportTONew.CreatedOn = Convert.ToDateTime(tblORCReportTODT["createdOn"].ToString());
                     if (tblORCReportTODT["bookingQty"] != DBNull.Value)
@@ -1083,6 +1185,7 @@ namespace ODLMWebAPI.DAL
                             " ,[forAmount]" +
                             " ,[isForAmountIncluded]" +
                             " ,[addDiscAmt]" +          //Priyanka [05-07-2018]
+                            " ,[isMerge]" +     
                             " )" +
                 " VALUES (" +
                             "  @DealerOrgId " +
@@ -1115,6 +1218,7 @@ namespace ODLMWebAPI.DAL
                             " ,@forAmount" +
                             " ,@isForAmountIncluded" +
                             " ,@addDiscAmt" +           //Priyanka [05-07-2018]
+                            " ,@IsMerge " +
                             " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -1152,6 +1256,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@forAmount", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.ForAmount);
             cmdInsert.Parameters.Add("@isForAmountIncluded", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.IsForAmountIncluded);
             cmdInsert.Parameters.Add("@addDiscAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.AddDiscAmt); //Priyanka [05-07-2018] 
+            cmdInsert.Parameters.Add("@IsMerge", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.IsMerge);
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = sqlSelectIdentityQry;
@@ -1215,6 +1320,7 @@ namespace ODLMWebAPI.DAL
                 String sqlQuery = @" UPDATE [tempLoadingSlip] SET " +
                             "  [statusId]= @StatusId" +
                             " ,[statusDate]= @StatusDate" +
+                            " ,[vehicleNo]= @VehicleNo" +
                             " ,[loadingDatetime]= @LoadingDatetime" +
                             " ,[statusReason]= @StatusReason" +
                             " ,[statusReasonId]= @statusReasonId" +
@@ -1229,6 +1335,7 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Parameters.Add("@StatusReason", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.StatusReason);
                 cmdUpdate.Parameters.Add("@LoadingId", System.Data.SqlDbType.Int).Value = tblLoadingTO.IdLoading;
                 cmdUpdate.Parameters.Add("@statusReasonId", System.Data.SqlDbType.Int).Value = tblLoadingTO.StatusReasonId;
+                cmdUpdate.Parameters.Add("@VehicleNo", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.VehicleNo);
                 return cmdUpdate.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -1269,6 +1376,7 @@ namespace ODLMWebAPI.DAL
                             " ,[forAmount] = @forAmount " +
                             " ,[isForAmountIncluded] = @isForAmountIncluded" +
                             " ,[addDiscAmt] = @addDiscAmt" +                //Priyanka [05-07-2018]
+                            " ,[isMerge] = @IsMerge " + 
                             " WHERE [idLoadingSlip] = @IdLoadingSlip ";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -1302,8 +1410,48 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@forAmount", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.ForAmount);
             cmdUpdate.Parameters.Add("@isForAmountIncluded", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.IsForAmountIncluded);
             cmdUpdate.Parameters.Add("@addDiscAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.AddDiscAmt); //Priyanka [05-07-2018] 
+            cmdUpdate.Parameters.Add("@IsMerge", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.IsMerge);
+
             return cmdUpdate.ExecuteNonQuery();
         }
+
+        public int UpdateTblLoadingById(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+                String sqlQuery = @" UPDATE [tempLoading] SET " +
+                            "  [statusId]= @StatusId" +
+                            " ,[statusDate]= @StatusDate" +
+                            " ,[loadingDatetime]= @LoadingDatetime" +
+                            " ,[statusReason]= @StatusReason" +
+                            " ,[statusReasonId]= @statusReasonId" +
+                            " WHERE [idLoading]= @idLoading ";
+
+                cmdUpdate.CommandText = sqlQuery;
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+
+                cmdUpdate.Parameters.Add("@StatusId", System.Data.SqlDbType.Int).Value = tblLoadingTO.StatusId;
+                cmdUpdate.Parameters.Add("@StatusDate", System.Data.SqlDbType.DateTime).Value = tblLoadingTO.StatusDate;
+                cmdUpdate.Parameters.Add("@LoadingDatetime", System.Data.SqlDbType.DateTime).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.LoadingDatetime);
+                cmdUpdate.Parameters.Add("@StatusReason", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.StatusReason);
+                cmdUpdate.Parameters.Add("@idLoading", System.Data.SqlDbType.Int).Value = tblLoadingTO.IdLoading;
+                cmdUpdate.Parameters.Add("@statusReasonId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.StatusReasonId);
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
+
+
         #endregion
 
         #region Deletion

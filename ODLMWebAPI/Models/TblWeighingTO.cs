@@ -43,4 +43,55 @@ namespace ODLMWebAPI.Models
         }
         #endregion
     }
+
+    public class TblMachineBackupTO
+    {
+        #region Declarations
+        DateTime backUpDate;
+        int idMachineBackup;
+        int transactionId;
+        int machinePortNumber;
+        String machinedata;
+        int machineType;
+        string globleIP;
+        #endregion
+
+        #region Constructor
+        public TblMachineBackupTO()
+        {
+        }
+
+        #endregion
+
+        #region GetSet
+        public DateTime BackUpDate
+        {
+            get { return backUpDate; }
+            set { backUpDate = value; }
+        }
+        public int IdMachineBackup
+        {
+            get { return idMachineBackup; }
+            set { idMachineBackup = value; }
+        }
+        public int TransactionId
+        {
+            get { return transactionId; }
+            set { transactionId = value; }
+        }
+        public int MachinePortNumber
+        {
+            get { return machinePortNumber; }
+            set { machinePortNumber = value; }
+        }
+        public String Machinedata
+        {
+            get { return machinedata; }
+            set { machinedata = value; }
+        }
+
+        public int MachineType { get => machineType; set => machineType = value; }
+        public string GlobleIP { get => globleIP; set => globleIP = value; }
+        #endregion
+    }
 }

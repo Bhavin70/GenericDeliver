@@ -70,5 +70,7 @@ namespace ODLMWebAPI.BL.Interfaces
         List<DropDownTO> SelectDistrictForDropDownAccToBooking(int countryId, DateTime fromDate, DateTime toDate);
         List<DropDownTO> GetUserListDepartmentWise(string deptId);
         List<DropDownTO> SelectInvoiceCopyList();
+
+        DimFinYearTO GetCurrentFinancialYear(DateTime curDate);
     }
 }
