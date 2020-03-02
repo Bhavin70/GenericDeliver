@@ -2644,7 +2644,9 @@ namespace ODLMWebAPI.BL {
                             {
                                 Int32 modBusLoadingRefId = Convert.ToInt32(gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.LoadingId]);
 
-                                if (gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.VehicleNo].ToString().ToUpper() == vehicleNo.ToUpper())
+                                String iotVehicleNo = gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.VehicleNo].ToString();
+                                iotVehicleNo = _iIotCommunication.GetVehicleNumbers(iotVehicleNo, true);
+                                if (iotVehicleNo.ToUpper() == vehicleNo.ToUpper())
                                 {
                                     TblLoadingTO tblLoadingTO = SelectTblLoadingTOByModBusRefId(modBusLoadingRefId);
 
@@ -9223,6 +9225,69 @@ namespace ODLMWebAPI.BL {
 
             }
         }
+
+
+        /// <summary>
+        /// Vijaymala[12-04-2017] :Added to get invoice list by using vehicle number
+        /// </summary>
+        /// <param name="vehicleNo"></param>
+        /// <returns></returns>
+        public List<TblInvoiceTO> SelectAllInvoiceListByVehicleNo(string vehicleNo, DateTime frmDt, DateTime toDt)
+        {
+            List<TblInvoiceTO> tblInvoiceTOList = new List<TblInvoiceTO>();
+
+            int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+            List<TblLoadingSlipTO> tblLoadingSlipTOList = new List<TblLoadingSlipTO>();
+
+            //DB
+            if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.DB)
+            {
+                tblLoadingSlipTOList = _iTblLoadingSlipBL.SelectAllLoadingListByVehicleNo(vehicleNo, frmDt, toDt);
+            }
+            else
+            {
+                Int32 loadingId = 0;
+                ResultMessage r = IsThisVehicleDelivered(vehicleNo, 1);
+                if (r.Tag != null && r.Tag.GetType() == typeof(TblLoadingTO))
+                {
+                    //tblLoadingTO = ((TblLoadingTO)r.Tag);
+                    loadingId = ((TblLoadingTO)r.Tag).IdLoading;
+                    //tblLoadingTO.MergeMessage = r.DisplayMessage;
+                }
+                else
+                {
+                    return tblInvoiceTOList;
+                }
+
+                tblLoadingSlipTOList = _iTblLoadingSlipDAO.SelectAllTblLoadingSlip(loadingId);
+
+            }
+
+            if (tblLoadingSlipTOList != null && tblLoadingSlipTOList.Count > 0)
+            {
+                String strLoadingSlipIds = String.Join(",", tblLoadingSlipTOList.Select(s => s.IdLoadingSlip.ToString()).ToArray());
+                if (!String.IsNullOrEmpty(strLoadingSlipIds))
+                {
+                    List<TempLoadingSlipInvoiceTO> tempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceDAO.SelectAllTempLoadingSlipInvoiceList(strLoadingSlipIds);
+                    String strInvoiceIds = String.Join(",", tempLoadingSlipInvoiceTOList.Select(s => s.InvoiceId.ToString()).ToArray());
+
+                    if (!String.IsNullOrEmpty(strInvoiceIds))
+                    {
+                        tblInvoiceTOList = _iTblInvoiceBL.SelectInvoiceListFromInvoiceIds(strInvoiceIds);
+                        if (tblInvoiceTOList != null && tblInvoiceTOList.Count > 0)
+                        {
+                            return tblInvoiceTOList;
+                        }
+                    }
+
+                }
+            }
+            return tblInvoiceTOList;
+
+        }
+
+
+
         public ResultMessage CreateIntermediateInvoiceAgainstLoading (String loadingIds, Int32 userId) {
             List<TblLoadingTO> tblLoadingTOList = SelectLoadingTOListWithDetails (loadingIds);
 

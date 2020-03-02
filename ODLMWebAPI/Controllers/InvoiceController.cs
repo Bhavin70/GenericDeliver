@@ -516,7 +516,7 @@ namespace ODLMWebAPI.Controllers
                 if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                     toDt = _iCommon.ServerDateTime.Date;
 
-                return _iTblInvoiceBL.SelectAllInvoiceListByVehicleNo(vehicleNo, frmDt , toDt);
+                return _iTblLoadingBL.SelectAllInvoiceListByVehicleNo(vehicleNo, frmDt , toDt);
                
             }
             catch (Exception ex)
