@@ -279,7 +279,23 @@ namespace ODLMWebAPI.BL
                     string commSepSlipIds = string.Empty;
                     for (int i = 0; i < nonAuthList.Count; i++)
                     {
-                        commSepSlipIds += nonAuthList[i].LoadingSlipId + ",";
+
+                        TblInvoiceTO tblInvoiceTOTemp = nonAuthList[i];
+
+                        //Sakeet [2020-03-02] not need as Composition should be against same loading on IOT mode.
+                        //List<TempLoadingSlipInvoiceTO> tempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceBL.SelectTempLoadingSlipInvoiceTOByInvoiceId(tblInvoiceTOTemp.IdInvoice);
+
+                        //if(tempLoadingSlipInvoiceTOList != null && tempLoadingSlipInvoiceTOList.Count > 0)
+                        //{
+                        //    for (int p = 0; p < tempLoadingSlipInvoiceTOList.Count; p++)
+                        //    {
+                        //        commSepSlipIds += tempLoadingSlipInvoiceTOList[p].LoadingSlipId + ",";
+                        //    }
+
+                        //}
+
+                        commSepSlipIds += tblInvoiceTOTemp.LoadingSlipId + ",";
+
                     }
                     commSepSlipIds = commSepSlipIds.TrimEnd(',');
                     Dictionary<Int32, TblLoadingTO> loadingSlipModBusRefDCT = _iTblLoadingSlipDAO.SelectModbusRefIdByLoadingSlipIdDCT(commSepSlipIds);
@@ -324,13 +340,36 @@ namespace ODLMWebAPI.BL
                     if (tblInvoice.LoadingSlipId != 0)
                     {
                         TblLoadingSlipTO tblLoadingSlipTO = new TblLoadingSlipTO();
-                        if (IsExtractionAllowed == 0)
+
+                        List<TempLoadingSlipInvoiceTO> tempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceBL.SelectTempLoadingSlipInvoiceTOByInvoiceId(tblInvoice.IdInvoice);
+
+                        for (int k = 0; k < tempLoadingSlipInvoiceTOList.Count; k++)
                         {
-                            tblLoadingSlipTO = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetails(tblInvoice.LoadingSlipId);
-                        }
-                        else
-                        {
-                            tblLoadingSlipTO = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsForExtract(tblInvoice.LoadingSlipId);
+                            TblLoadingSlipTO tblLoadingSlipTO1 = new TblLoadingSlipTO();
+
+                            TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO = tempLoadingSlipInvoiceTOList[k];
+                            if (tempLoadingSlipInvoiceTO.LoadingSlipId > 0)
+                            {
+                                if (IsExtractionAllowed == 0)
+                                {
+                                    //tblLoadingSlipTO1 = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetails(tblInvoice.LoadingSlipId);
+                                    tblLoadingSlipTO1 = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetails(tempLoadingSlipInvoiceTO.LoadingSlipId);
+                                }
+                                else
+                                {
+                                    //tblLoadingSlipTO1 = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsForExtract(tblInvoice.LoadingSlipId);
+                                    tblLoadingSlipTO1 = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsForExtract(tempLoadingSlipInvoiceTO.LoadingSlipId);
+                                }
+
+                                if (k == 0)
+                                {
+                                    tblLoadingSlipTO = tblLoadingSlipTO1;
+                                }
+                                else
+                                {
+                                    tblLoadingSlipTO.LoadingSlipExtTOList.AddRange(tblLoadingSlipTO1.LoadingSlipExtTOList);
+                                }
+                            }
                         }
                         for (int i = 0; i < tblInvoice.InvoiceItemDetailsTOList.Count; i++)
                         {
@@ -3119,7 +3158,8 @@ namespace ODLMWebAPI.BL
                                     }
                                 }
 
-
+                                finalInvoiceTO.InvoiceItemDetailsTOList = finalInvoiceItemDetailsTOList;
+                                RemoveIotFieldsFromDB(finalInvoiceTO);
 
                                 for (int j = 0; j < finalInvoiceItemDetailsTOList.Count; j++)
                                 {
@@ -3201,6 +3241,14 @@ namespace ODLMWebAPI.BL
                                             tblInvoiceItemTaxDtlsTO.TaxPct = taxRateTo.TaxPct;
                                             tblInvoiceItemTaxDtlsTO.TaxRatePct = (gstCodeDtlsTO.TaxPct * taxRateTo.TaxPct) / 100;
                                             tblInvoiceItemTaxDtlsTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
+
+                                            //Saket [2020-02-18] Added SEZ conditons.
+                                            if (finalInvoiceTO.InvoiceTypeE == Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+                                            {
+                                                tblInvoiceItemTaxDtlsTO.TaxRatePct = 0;
+                                                tblInvoiceItemTaxDtlsTO.TaxableAmt = 0;
+                                            }
+
                                             tblInvoiceItemTaxDtlsTO.TaxAmt = (tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100;
                                             tblInvoiceItemTaxDtlsTO.TaxTypeId = taxRateTo.TaxTypeId;
                                             if (isWithinState)
