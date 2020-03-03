@@ -2456,6 +2456,21 @@ namespace ODLMWebAPI.BL {
                     }
                 }
 
+                //AmolG[2020-Mar-03] Update Size Qty. This is used to show the color on UI based on Schedule Qty of booking. 
+                if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
+                {
+                    double sizeQty = tblBookingsTO.BookingScheduleTOLst.Sum(s => s.Qty);
+                    tblBookingsTO.SizesQty = sizeQty;
+                    result = _iTblBookingsDAO.UpdateSizeQuantity(tblBookingsTO, conn, tran);
+                    if (result != 1)
+                    {
+                        resultMessage.Text = "Error When Update Size Qty in Booking";
+                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                        resultMessage.Result = 0;
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        return resultMessage;
+                    }
+                }
 
                 #endregion
 
@@ -2464,6 +2479,7 @@ namespace ODLMWebAPI.BL {
                 tblBookingsTO.BookingRefId = Convert.ToInt32(tblBookingsTO.BookingDisplayNo);
                 tblBookingsTO.PendingQty = 0;
                 tblBookingsTO.BookingQty = splitQty;
+                tblBookingsTO.SizesQty = splitQty; // AmolG[2020-Mar-03] This is used to show the color on UI based on Schedule Qty of booking. 
                 tblBookingsTO.IdBooking = 0;
                 List<TblBookingsTO> List = _iTblBookingsDAO.SelectTblBookingsRef(tblBookingsTO.BookingRefId, conn, tran);
                 tblBookingsTO.BookingDisplayNo = List != null && List.Count > 0 ? tblBookingsTO.BookingDisplayNo + "/" + (Convert.ToInt32(List.Count) + Convert.ToInt32(1)) : tblBookingsTO.BookingDisplayNo + "/1";
@@ -2483,6 +2499,31 @@ namespace ODLMWebAPI.BL {
                 }
 
                 Int32 newBookingId = tblBookingsTO.IdBooking;
+
+                //AmolG[2020-Mar-03] Save new Schedule Entry for new booking
+                TblBookingScheduleTO tblBookingScheduleTO = null;
+                if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
+                {
+                    tblBookingScheduleTO = tblBookingsTO.BookingScheduleTOLst[0];
+                    tblBookingScheduleTO.BookingId = newBookingId;
+                    tblBookingScheduleTO.Qty = tblBookingsTO.BookingQty;
+                }
+                else
+                {
+                    tblBookingScheduleTO = new TblBookingScheduleTO();
+                    tblBookingScheduleTO.BookingId = newBookingId;
+                    tblBookingScheduleTO.ScheduleDate = tblBookingsTO.CreatedOn;
+                    tblBookingScheduleTO.CreatedBy = tblBookingsTO.CreatedBy;
+                    tblBookingScheduleTO.CreatedOn = tblBookingsTO.CreatedOn;
+                    tblBookingScheduleTO.Qty = tblBookingsTO.BookingQty;
+                }
+
+                result = _iTblBookingScheduleDAO.InsertTblBookingSchedule(tblBookingScheduleTO, conn, tran);
+                if (result != 1)
+                {
+                    throw new Exception("Error while inserting InsertTblBookingSchedule for BookingId - " + tblBookingScheduleTO.BookingId);
+                }
+
 
                 if (tblBookingsTO.DeliveryAddressLst != null && tblBookingsTO.DeliveryAddressLst.Count > 0)
                 {
