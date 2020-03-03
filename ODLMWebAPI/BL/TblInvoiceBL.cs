@@ -279,7 +279,23 @@ namespace ODLMWebAPI.BL
                     string commSepSlipIds = string.Empty;
                     for (int i = 0; i < nonAuthList.Count; i++)
                     {
-                        commSepSlipIds += nonAuthList[i].LoadingSlipId + ",";
+
+                        TblInvoiceTO tblInvoiceTOTemp = nonAuthList[i];
+
+                        //Sakeet [2020-03-02] not need as Composition should be against same loading on IOT mode.
+                        //List<TempLoadingSlipInvoiceTO> tempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceBL.SelectTempLoadingSlipInvoiceTOByInvoiceId(tblInvoiceTOTemp.IdInvoice);
+
+                        //if(tempLoadingSlipInvoiceTOList != null && tempLoadingSlipInvoiceTOList.Count > 0)
+                        //{
+                        //    for (int p = 0; p < tempLoadingSlipInvoiceTOList.Count; p++)
+                        //    {
+                        //        commSepSlipIds += tempLoadingSlipInvoiceTOList[p].LoadingSlipId + ",";
+                        //    }
+
+                        //}
+
+                        commSepSlipIds += tblInvoiceTOTemp.LoadingSlipId + ",";
+
                     }
                     commSepSlipIds = commSepSlipIds.TrimEnd(',');
                     Dictionary<Int32, TblLoadingTO> loadingSlipModBusRefDCT = _iTblLoadingSlipDAO.SelectModbusRefIdByLoadingSlipIdDCT(commSepSlipIds);
@@ -324,13 +340,36 @@ namespace ODLMWebAPI.BL
                     if (tblInvoice.LoadingSlipId != 0)
                     {
                         TblLoadingSlipTO tblLoadingSlipTO = new TblLoadingSlipTO();
-                        if (IsExtractionAllowed == 0)
+
+                        List<TempLoadingSlipInvoiceTO> tempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceBL.SelectTempLoadingSlipInvoiceTOByInvoiceId(tblInvoice.IdInvoice);
+
+                        for (int k = 0; k < tempLoadingSlipInvoiceTOList.Count; k++)
                         {
-                            tblLoadingSlipTO = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetails(tblInvoice.LoadingSlipId);
-                        }
-                        else
-                        {
-                            tblLoadingSlipTO = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsForExtract(tblInvoice.LoadingSlipId);
+                            TblLoadingSlipTO tblLoadingSlipTO1 = new TblLoadingSlipTO();
+
+                            TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO = tempLoadingSlipInvoiceTOList[k];
+                            if (tempLoadingSlipInvoiceTO.LoadingSlipId > 0)
+                            {
+                                if (IsExtractionAllowed == 0)
+                                {
+                                    //tblLoadingSlipTO1 = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetails(tblInvoice.LoadingSlipId);
+                                    tblLoadingSlipTO1 = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetails(tempLoadingSlipInvoiceTO.LoadingSlipId);
+                                }
+                                else
+                                {
+                                    //tblLoadingSlipTO1 = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsForExtract(tblInvoice.LoadingSlipId);
+                                    tblLoadingSlipTO1 = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsForExtract(tempLoadingSlipInvoiceTO.LoadingSlipId);
+                                }
+
+                                if (k == 0)
+                                {
+                                    tblLoadingSlipTO = tblLoadingSlipTO1;
+                                }
+                                else
+                                {
+                                    tblLoadingSlipTO.LoadingSlipExtTOList.AddRange(tblLoadingSlipTO1.LoadingSlipExtTOList);
+                                }
+                            }
                         }
                         for (int i = 0; i < tblInvoice.InvoiceItemDetailsTOList.Count; i++)
                         {
@@ -1715,26 +1754,33 @@ namespace ODLMWebAPI.BL
                     tblInvoiceItemDetailsTO.Rate = loadingSlipExtTo.CdApplicableAmt;
 
                     //[05-03-2018]Vijaymala:Changes the code to change prodItemDesc as per Kalika and SRJ requirement 
-                    Int32 a = 0;
-                    // Int32 isHide = 0;
-                    TblConfigParamsTO regulartemp = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DISPLAY_BRAND_ON_INVOICE, conn, tran);
-                    if (regulartemp != null)
+                    //cnetan[20-feb-2020] added for display brand name in report on setting base.
+                    Int32 isCPDisplayBrandOnInvoice = 0;
+                    Int32 isHideBrandNameOnNC = 0;
+                    TblConfigParamsTO cPDisplayBrandOnInvoiceTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DISPLAY_BRAND_ON_INVOICE, conn, tran);
+                    if (cPDisplayBrandOnInvoiceTO != null)
                     {
-                        a = Convert.ToInt32(regulartemp.ConfigParamVal);
-
+                        isCPDisplayBrandOnInvoice = Convert.ToInt32(cPDisplayBrandOnInvoiceTO.ConfigParamVal);
                     }
                     //Aniket [18-9-2019] commented the code
-                    //TblConfigParamsTO isHideBrandNameOnNC = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.HIDE_BRAND_NAME_ON_NC_INVOICE, conn, tran);
-                    //if(isHideBrandNameOnNC!=null)
-                    //{
-                    //    isHide = Convert.ToInt32(isHideBrandNameOnNC.ConfigParamVal);
-                    //}
+                    TblConfigParamsTO hideBrandNameOnNCInvoiceTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.HIDE_BRAND_NAME_ON_NC_INVOICE, conn, tran);
+                    if (hideBrandNameOnNCInvoiceTO != null)
+                    {
+                        isHideBrandNameOnNC = Convert.ToInt32(hideBrandNameOnNCInvoiceTO.ConfigParamVal);
+                    }
                     //[05-09-2018] : Vijaymala added to set product item display for other booking in invoice
                     if (loadingSlipExtTo.ProdItemId == 0)
                     {
-                        if (a == 1)
+                        if (isCPDisplayBrandOnInvoice == 1)
                         {
-                            tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.BrandDesc + " " + loadingSlipExtTo.ProdCatDesc + " " + loadingSlipExtTo.ProdSpecDesc + " " + loadingSlipExtTo.MaterialDesc;
+                            if (tblInvoiceTO.IsConfirmed ==0 && isHideBrandNameOnNC == 1)
+                            {
+                                tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.ProdCatDesc + " " + loadingSlipExtTo.ProdSpecDesc + " " + loadingSlipExtTo.MaterialDesc;
+                            }
+                            else
+                            {
+                                tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.BrandDesc + " " + loadingSlipExtTo.ProdCatDesc + " " + loadingSlipExtTo.ProdSpecDesc + " " + loadingSlipExtTo.MaterialDesc;
+                            }
                         }
                         else
                         {
@@ -2083,7 +2129,7 @@ namespace ODLMWebAPI.BL
             //double finalGrandTotal = Math.Round(grandTotal);
             //tblInvoiceTO.GrandTotal = finalGrandTotal;
             //tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);
-            
+
 
 
             tblInvoiceTO.InvoiceItemDetailsTOList = tblInvoiceItemDetailsTOList;
@@ -2093,7 +2139,7 @@ namespace ODLMWebAPI.BL
                 RemoveIotFieldsFromDB(tblInvoiceTO);
             }
             return tblInvoiceTO;
-            
+
             #endregion
         }
         private  void RemoveIotFieldsFromDB(TblInvoiceTO tblInvoiceTO)
@@ -3112,7 +3158,8 @@ namespace ODLMWebAPI.BL
                                     }
                                 }
 
-
+                                finalInvoiceTO.InvoiceItemDetailsTOList = finalInvoiceItemDetailsTOList;
+                                RemoveIotFieldsFromDB(finalInvoiceTO);
 
                                 for (int j = 0; j < finalInvoiceItemDetailsTOList.Count; j++)
                                 {
@@ -3194,6 +3241,14 @@ namespace ODLMWebAPI.BL
                                             tblInvoiceItemTaxDtlsTO.TaxPct = taxRateTo.TaxPct;
                                             tblInvoiceItemTaxDtlsTO.TaxRatePct = (gstCodeDtlsTO.TaxPct * taxRateTo.TaxPct) / 100;
                                             tblInvoiceItemTaxDtlsTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
+
+                                            //Saket [2020-02-18] Added SEZ conditons.
+                                            if (finalInvoiceTO.InvoiceTypeE == Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+                                            {
+                                                tblInvoiceItemTaxDtlsTO.TaxRatePct = 0;
+                                                tblInvoiceItemTaxDtlsTO.TaxableAmt = 0;
+                                            }
+
                                             tblInvoiceItemTaxDtlsTO.TaxAmt = (tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100;
                                             tblInvoiceItemTaxDtlsTO.TaxTypeId = taxRateTo.TaxTypeId;
                                             if (isWithinState)
@@ -4006,6 +4061,7 @@ namespace ODLMWebAPI.BL
                     //headerDT.Columns.Add("lrNumber");
                     invoiceDT.Columns.Add("vehicleNo");
                     invoiceDT.Columns.Add("transporterName");
+                    invoiceDT.Columns.Add("Narration");
                     invoiceDT.Columns.Add("deliveryLocation");
                     invoiceDT.Columns.Add("lrNumber");
                     invoiceDT.Columns.Add("disPer", typeof(double));
@@ -4117,6 +4173,7 @@ namespace ODLMWebAPI.BL
                     invoiceDT.Rows[0]["netWeight"] = Math.Round(tblInvoiceTO.NetWeight / 1000, 3);
 
                     invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
+                    invoiceDT.Rows[0]["Narration"] = tblInvoiceTO.Narration;
 
                     if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
                     {
@@ -5396,7 +5453,7 @@ namespace ODLMWebAPI.BL
             if (resInvoiceTO.DiscountAmt > 0 && resInvoiceTO.BasicAmt > 0)
             {
                 discountPer = resInvoiceTO.DiscountAmt * 100 / resInvoiceTO.BasicAmt;
-
+                discountPer = Math.Round(discountPer, 2);
             }
             return discountPer;
 

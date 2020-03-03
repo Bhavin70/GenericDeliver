@@ -22,6 +22,7 @@ namespace ODLMWebAPI.Models
         Double orcAmt;
         String orcMeasure;
         String rateCalcDesc;
+        String bookingDisplayNo;
 
         #endregion
 
@@ -106,6 +107,8 @@ namespace ODLMWebAPI.Models
                 rateCalcDesc = value;
             }
         }
+
+        public string BookingDisplayNo { get => bookingDisplayNo; set => bookingDisplayNo = value; }
 
         #endregion
     }
