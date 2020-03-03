@@ -411,8 +411,44 @@ namespace ODLMWebAPI.DAL
 
             return cmdUpdate.ExecuteNonQuery();
         }
+
+        /// <summary>
+        /// AmolG[2020-Feb-25] This will update the qty
+        /// </summary>
+        /// <param name="tblBookingScheduleTO"></param>
+        /// <param name="conn"></param>
+        /// <param name="tran"></param>
+        /// <returns></returns>
+        public int UpdateTblBookingSchedulePendingQty (TblBookingScheduleTO tblBookingScheduleTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+                String sqlQuery = @" UPDATE [tblBookingSchedule] SET " +
+                                 " [qty] = @Qty" +
+                                 " WHERE   [idSchedule] = @IdSchedule";
+
+                cmdUpdate.CommandText = sqlQuery;
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+
+                cmdUpdate.Parameters.Add("@IdSchedule", System.Data.SqlDbType.Int).Value = tblBookingScheduleTO.IdSchedule;
+                cmdUpdate.Parameters.Add("@Qty", System.Data.SqlDbType.NVarChar).Value = tblBookingScheduleTO.Qty;
+
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
         #endregion
-        
+
         #region Deletion
         public int DeleteTblBookingSchedule(Int32 idSchedule)
         {
