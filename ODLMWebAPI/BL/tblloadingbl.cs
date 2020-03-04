@@ -9549,6 +9549,8 @@ namespace ODLMWebAPI.BL {
 
                 tblLoadingSlipTOList = _iTblLoadingSlipDAO.SelectAllTblLoadingSlip(loadingId);
 
+                tblLoadingSlipTOList.ForEach(f => f.VehicleNo = vehicleNo);
+
             }
 
             if (tblLoadingSlipTOList != null && tblLoadingSlipTOList.Count > 0)
@@ -9564,6 +9566,12 @@ namespace ODLMWebAPI.BL {
                         tblInvoiceTOList = _iTblInvoiceBL.SelectInvoiceListFromInvoiceIds(strInvoiceIds);
                         if (tblInvoiceTOList != null && tblInvoiceTOList.Count > 0)
                         {
+
+                            if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                            {
+                                tblInvoiceTOList.ForEach(f => f.VehicleNo = vehicleNo);
+                            }
+
                             return tblInvoiceTOList;
                         }
                     }
