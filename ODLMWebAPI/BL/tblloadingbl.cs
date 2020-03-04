@@ -84,6 +84,8 @@ namespace ODLMWebAPI.BL {
         private readonly IDimReportTemplateBL _iDimReportTemplateBL;
         private readonly ITblPaymentTermsForBookingDAO _iTblPaymentTermsForBookingDAO;
         private readonly IDimStatusBL _iDimStatusBL;
+        //AmolG[2020-Feb-25] added for changing booking schedule qty
+        private readonly ITblBookingScheduleDAO _iTblBookingScheduleDAO;
         public TblLoadingBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO, IWeighingCommunication iWeighingCommunication, IModbusRefConfig iModbusRefConfig,ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblInvoiceHistoryDAO iTblInvoiceHistoryDAO, ITblWeighingMachineDAO iTblWeighingMachineDAO, IGateCommunication iGateCommunication, IIotCommunication iIotCommunication, ITblGateBL iTblGateBL
             , ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO
             , ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO
@@ -91,7 +93,7 @@ namespace ODLMWebAPI.BL {
             , ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO
             , ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL
             , ITblGroupItemDAO iTblGroupItemDAO, ITblGlobalRateDAO iTblGlobalRateDAO, IRunReport iRunReport, IDimReportTemplateBL iDimReportTemplateBL, ITblPaymentTermsForBookingDAO iTblPaymentTermsForBookingDAO, IDimStatusBL iDimStatusBL
-            )
+            , ITblBookingScheduleDAO iTblBookingScheduleDAO)
         
        // public TblLoadingBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblProductInfoDAO iTblProductInfoDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblProductItemDAO iTblProductItemDAO, ITblLocationDAO iTblLocationDAO, ITblStockDetailsDAO iTblStockDetailsDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, IDimensionDAO iDimensionDAO, ITblParityDetailsBL iTblParityDetailsBL, ITblAddressDAO iTblAddressDAO, IDimBrandDAO iDimBrandDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblConfigParamsBL iTblConfigParamsBL, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblLoadingSlipBL iTblLoadingSlipBL, ITblMaterialBL iTblMaterialBL, ITblOrganizationDAO iTblOrganizationDAO, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblLoadingDAO iTblLoadingDAO, ITblUserRoleBL iTblUserRoleBL)
         {
@@ -160,6 +162,7 @@ namespace ODLMWebAPI.BL {
             _iTblGroupItemDAO = iTblGroupItemDAO;
             _iTblGlobalRateDAO = iTblGlobalRateDAO;
             _iDimStatusBL = iDimStatusBL;
+            _iTblBookingScheduleDAO = iTblBookingScheduleDAO;
         }
         #region Selection
 
@@ -2250,13 +2253,21 @@ namespace ODLMWebAPI.BL {
                 //    throw new Exception("LoadingSlipList is null for LoadingSlipId");
                 //}
                 //TblLoadingSlipTO tblLoadingSlipTO = tblLoadingTO.LoadingSlipList.Where(w => w.IdLoadingSlip == tblInvoiceTO.LoadingSlipId).FirstOrDefault();
-
+                
                 TblLoadingSlipTO tblLoadingSlipTO = _iTblLoadingSlipDAO.SelectTblLoadingSlip(tblInvoiceTO.LoadingSlipId, conn, tran);
                 if (tblLoadingSlipTO == null)
                 {
                     throw new Exception("LoadingSlipList is null for LoadingSlipId");
                 }
                 tblLoadingSlipTO.TblLoadingSlipDtlTO = _iTblLoadingSlipDtlDAO.SelectLoadingSlipDtlTO(tblLoadingSlipTO.IdLoadingSlip, conn, tran);
+
+                //AmolG[2020-Feb-25] use existing list. If the list found empty then get data from the database.
+                if (tblLoadingTO.LoadingSlipList != null && tblLoadingTO.LoadingSlipList.Count > 0
+                    && tblLoadingTO.LoadingSlipList[0].LoadingSlipExtTOList != null && tblLoadingTO.LoadingSlipList[0].LoadingSlipExtTOList.Count > 0)
+                    tblLoadingSlipTO.LoadingSlipExtTOList = tblLoadingTO.LoadingSlipList[0].LoadingSlipExtTOList;
+                else
+                    tblLoadingSlipTO.LoadingSlipExtTOList = _iTblLoadingSlipExtDAO.SelectAllTblLoadingSlipExt(tblLoadingSlipTO.IdLoadingSlip, conn, tran);
+
                 //tblLoadingSlipTO.LoadingSlipExtTOList = BL.TblLoadingSlipExtBL.SelectAllTblLoadingSlipExtList(tblLoadingSlipTO.IdLoadingSlip, conn, tran);
                 //tblLoadingSlipTO.DeliveryAddressTOList = BL.TblLoadingSlipAddressBL.SelectAllTblLoadingSlipAddressList(tblLoadingSlipTO.IdLoadingSlip, conn, tran);
 
@@ -2341,6 +2352,15 @@ namespace ODLMWebAPI.BL {
                     throw new Exception("Error while updating tblBookingsTO for bookingId - " + tblBookingsTO.IdBooking);
                 }
 
+                //AmolG[2020-Feb-25] if the booking ext list is empty then get it from database
+                if (tblBookingsTO.OrderDetailsLst == null || tblBookingsTO.OrderDetailsLst.Count == 0)
+                    tblBookingsTO.OrderDetailsLst = _iTblBookingExtDAO.SelectAllTblBookingExt(tblBookingsTO.IdBooking, conn, tran);
+
+                if (tblBookingsTO.BookingScheduleTOLst == null || tblBookingsTO.BookingScheduleTOLst.Count == 0)
+                {
+                    tblBookingsTO.BookingScheduleTOLst = _iTblBookingScheduleDAO.SelectAllTblBookingScheduleList(tblBookingsTO.IdBooking, conn, tran);
+                }
+                
                 if (tblBookingsTO.OrderDetailsLst != null && tblBookingsTO.OrderDetailsLst.Count > 0)
                 {
 
@@ -2360,6 +2380,7 @@ namespace ODLMWebAPI.BL {
                             TblLoadingSlipExtTO tblLoadingSlipExtTO = tblLoadingSlipTO.LoadingSlipExtTOList[i];
 
                             Double adjustedQty = tblLoadingSlipExtTO.LoadingQty;
+                            Double adjustedBookQty = tblLoadingSlipExtTO.LoadingQty;
 
                             List<TblBookingExtTO> tblBookingExtTOList = tblBookingsTO.OrderDetailsLst.Where(w => w.ProdCatId == tblLoadingSlipExtTO.ProdCatId &&
                                                             w.ProdSpecId == tblLoadingSlipExtTO.ProdSpecId && w.MaterialId == tblLoadingSlipExtTO.MaterialId &&
@@ -2381,6 +2402,10 @@ namespace ODLMWebAPI.BL {
                                         diffQty -= adjustedQty;
 
                                         tblBookingExtTO.BookedQty -= adjustedQty;
+                                        
+                                        //AmolG[2020-Feb-25] Here upadte the schedule qty
+                                        UpdateBookingQty(ref adjustedBookQty, tblBookingsTO, tblBookingExtTO);
+
                                         adjustedQty = 0;
                                     }
                                     else
@@ -2389,6 +2414,8 @@ namespace ODLMWebAPI.BL {
 
                                         adjustedQty -= tblBookingExtTO.BookedQty;
                                         tblBookingExtTO.BookedQty = 0;
+                                        //AmolG[2020-Feb-25] Here upadte the schedule qty
+                                        UpdateBookingQty(ref adjustedBookQty, tblBookingsTO, tblBookingExtTO);
                                     }
 
                                     result = _iTblBookingExtDAO.UpdateTblBookingExt(tblBookingExtTO, conn, tran);
@@ -2403,12 +2430,47 @@ namespace ODLMWebAPI.BL {
                                     }
 
                                 }
-                            }
 
+                                if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
+                                {
+                                    for (int n = 0; n < tblBookingsTO.BookingScheduleTOLst.Count; n++)
+                                    {
+                                        if (tblBookingsTO.BookingScheduleTOLst[n].IsUpdated)
+                                        {
+                                            tblBookingsTO.BookingScheduleTOLst[n].IsUpdated = false;
+                                            result = _iTblBookingScheduleDAO.UpdateTblBookingSchedulePendingQty(tblBookingsTO.BookingScheduleTOLst[n], conn, tran);
+                                            if (result != 1)
+                                            {
+                                                tran.Rollback();
+                                                resultMessage.Text = "Sorry..Record Could not be saved. Error While Update Booking qty in Schedule table in Function UpdateTblBookingSchedule";
+                                                resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                                                resultMessage.Result = 0;
+                                                resultMessage.MessageType = ResultMessageE.Error;
+                                                return resultMessage;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
 
+                //AmolG[2020-Mar-03] Update Size Qty. This is used to show the color on UI based on Schedule Qty of booking. 
+                if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
+                {
+                    double sizeQty = tblBookingsTO.BookingScheduleTOLst.Sum(s => s.Qty);
+                    tblBookingsTO.SizesQty = sizeQty;
+                    result = _iTblBookingsDAO.UpdateSizeQuantity(tblBookingsTO, conn, tran);
+                    if (result != 1)
+                    {
+                        resultMessage.Text = "Error When Update Size Qty in Booking";
+                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                        resultMessage.Result = 0;
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        return resultMessage;
+                    }
+                }
 
                 #endregion
 
@@ -2417,6 +2479,7 @@ namespace ODLMWebAPI.BL {
                 tblBookingsTO.BookingRefId = Convert.ToInt32(tblBookingsTO.BookingDisplayNo);
                 tblBookingsTO.PendingQty = 0;
                 tblBookingsTO.BookingQty = splitQty;
+                tblBookingsTO.SizesQty = splitQty; // AmolG[2020-Mar-03] This is used to show the color on UI based on Schedule Qty of booking. 
                 tblBookingsTO.IdBooking = 0;
                 List<TblBookingsTO> List = _iTblBookingsDAO.SelectTblBookingsRef(tblBookingsTO.BookingRefId, conn, tran);
                 tblBookingsTO.BookingDisplayNo = List != null && List.Count > 0 ? tblBookingsTO.BookingDisplayNo + "/" + (Convert.ToInt32(List.Count) + Convert.ToInt32(1)) : tblBookingsTO.BookingDisplayNo + "/1";
@@ -2436,6 +2499,31 @@ namespace ODLMWebAPI.BL {
                 }
 
                 Int32 newBookingId = tblBookingsTO.IdBooking;
+
+                //AmolG[2020-Mar-03] Save new Schedule Entry for new booking
+                TblBookingScheduleTO tblBookingScheduleTO = null;
+                if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
+                {
+                    tblBookingScheduleTO = tblBookingsTO.BookingScheduleTOLst[0];
+                    tblBookingScheduleTO.BookingId = newBookingId;
+                    tblBookingScheduleTO.Qty = tblBookingsTO.BookingQty;
+                }
+                else
+                {
+                    tblBookingScheduleTO = new TblBookingScheduleTO();
+                    tblBookingScheduleTO.BookingId = newBookingId;
+                    tblBookingScheduleTO.ScheduleDate = tblBookingsTO.CreatedOn;
+                    tblBookingScheduleTO.CreatedBy = tblBookingsTO.CreatedBy;
+                    tblBookingScheduleTO.CreatedOn = tblBookingsTO.CreatedOn;
+                    tblBookingScheduleTO.Qty = tblBookingsTO.BookingQty;
+                }
+
+                result = _iTblBookingScheduleDAO.InsertTblBookingSchedule(tblBookingScheduleTO, conn, tran);
+                if (result != 1)
+                {
+                    throw new Exception("Error while inserting InsertTblBookingSchedule for BookingId - " + tblBookingScheduleTO.BookingId);
+                }
+
 
                 if (tblBookingsTO.DeliveryAddressLst != null && tblBookingsTO.DeliveryAddressLst.Count > 0)
                 {
@@ -2523,6 +2611,36 @@ namespace ODLMWebAPI.BL {
             {
                 resultMessage.DefaultExceptionBehaviour(ex, "");
                 return resultMessage;
+            }
+        }
+
+        /// <summary>
+        /// AmolG[2020-Feb-25]Update Booking Qty
+        /// </summary>
+        /// <param name="adjustedBookQty"></param>
+        /// <param name="tblBookingsTO"></param>
+        /// <param name="tblBookingExtTO"></param>
+        public void UpdateBookingQty(ref Double adjustedBookQty, TblBookingsTO tblBookingsTO, TblBookingExtTO tblBookingExtTO)
+        {
+            //AmolG[2020-Feb-25] Here upadte the schedule qty
+            if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
+            {
+                for (int n = 0; n < tblBookingsTO.BookingScheduleTOLst.Count; n++)
+                {
+                    if (tblBookingsTO.BookingScheduleTOLst[n].IdSchedule == tblBookingExtTO.ScheduleId
+                        && tblBookingsTO.BookingScheduleTOLst[n].Qty >= adjustedBookQty)
+                    {
+                        tblBookingsTO.BookingScheduleTOLst[n].Qty -= adjustedBookQty;
+                        tblBookingsTO.BookingScheduleTOLst[n].IsUpdated = true;
+                        adjustedBookQty = 0;
+                    }
+                    else if(tblBookingsTO.BookingScheduleTOLst[n].IdSchedule == tblBookingExtTO.ScheduleId)
+                    {
+                        adjustedBookQty = tblBookingsTO.BookingScheduleTOLst[n].Qty - adjustedBookQty;
+                        tblBookingsTO.BookingScheduleTOLst[n].Qty = 0;
+                        tblBookingsTO.BookingScheduleTOLst[n].IsUpdated = true;
+                    }
+                }
             }
         }
 
@@ -2644,7 +2762,9 @@ namespace ODLMWebAPI.BL {
                             {
                                 Int32 modBusLoadingRefId = Convert.ToInt32(gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.LoadingId]);
 
-                                if (gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.VehicleNo].ToString().ToUpper() == vehicleNo.ToUpper())
+                                String iotVehicleNo = gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.VehicleNo].ToString();
+                                iotVehicleNo = _iIotCommunication.GetVehicleNumbers(iotVehicleNo, true);
+                                if (iotVehicleNo.ToUpper() == vehicleNo.ToUpper())
                                 {
                                     TblLoadingTO tblLoadingTO = SelectTblLoadingTOByModBusRefId(modBusLoadingRefId);
 
@@ -6256,6 +6376,17 @@ namespace ODLMWebAPI.BL {
                                 return resultMessage;
                             }
 
+                            //AmolG[2020-Feb-20] Shifted this call from below
+                            List<TblLoadingSlipExtTO> loadingSlipExtTOList = _iTblLoadingSlipExtDAO.SelectAllLoadingSlipExtListFromLoadingId(tblLoadingTO.IdLoading.ToString(), conn, tran);
+                            if (loadingSlipExtTOList == null || loadingSlipExtTOList.Count == 0)
+                            {
+                                //tran.Rollback();
+                                resultMessage.DefaultBehaviour();
+                                resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                                resultMessage.Text = "loadingSlipExtTOList found null";
+                                return resultMessage;
+                            }
+
                             var distinctBookings = loadingSlipDtlTOList.GroupBy (b => b.BookingId).ToList ();
                             for (int i = 0; i < distinctBookings.Count; i++) {
                                 Int32 bookingId = distinctBookings[i].Key;
@@ -6293,26 +6424,39 @@ namespace ODLMWebAPI.BL {
                                     resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
                                     return resultMessage;
                                 }
+
+                                //AmolG[2020-Feb-20] Update Booking balance qty in Ext Table
+                                resultMessage = UpdateBookingQty(loadingSlipExtTOList, bookingId, conn, tran);
+                                if (resultMessage.MessageType == ResultMessageE.Error)
+                                {
+                                    resultMessage.MessageType = ResultMessageE.Error;
+                                    resultMessage.Text = "Error : While UpdateBookingExtPendingQty";
+                                    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                                    return resultMessage;
+                                }
                             }
                             #endregion
 
                             #region 2.2 Reverse Loading Quota Consumed , Stock and Mark a history Record
 
-                            List<TblLoadingSlipExtTO> loadingSlipExtTOList = _iTblLoadingSlipExtDAO.SelectAllLoadingSlipExtListFromLoadingId (tblLoadingTO.IdLoading.ToString (), conn, tran);
-                            if (loadingSlipExtTOList == null || loadingSlipExtTOList.Count == 0) {
-                                //tran.Rollback();
-                                resultMessage.DefaultBehaviour ();
-                                resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                                resultMessage.Text = "loadingSlipExtTOList found null";
-                                return resultMessage;
-                            }
+                            //AmolG[2020-Feb-20] Move this method Before Booking for loop
+                            //List<TblLoadingSlipExtTO> loadingSlipExtTOList = _iTblLoadingSlipExtDAO.SelectAllLoadingSlipExtListFromLoadingId (tblLoadingTO.IdLoading.ToString (), conn, tran);
+                            //if (loadingSlipExtTOList == null || loadingSlipExtTOList.Count == 0) {
+                            //    //tran.Rollback();
+                            //    resultMessage.DefaultBehaviour ();
+                            //    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                            //    resultMessage.Text = "loadingSlipExtTOList found null";
+                            //    return resultMessage;
+                            //}
 
                             //TblLoadingTO existingLoadingTO =SelectTblLoadingTO(tblLoadingTO.IdLoading, conn, tran);
-
+                            
                             for (int i = 0; i < loadingSlipExtTOList.Count; i++) {
                                 Int32 loadingSlipExtId = loadingSlipExtTOList[i].IdLoadingSlipExt;
                                 Int32 loadingQuotaId = loadingSlipExtTOList[i].LoadingQuotaId;
                                 Double quotaQty = loadingSlipExtTOList[i].LoadingQty;
+                                
+                                
 
                                 //TblLoadingQuotaDeclarationTO tblLoadingQuotaDeclarationTO = BL._iTblLoadingQuotaDeclarationBL.SelectTblLoadingQuotaDeclarationTO(loadingQuotaId, conn, tran);
                                 //if (tblLoadingQuotaDeclarationTO == null)
@@ -6926,6 +7070,131 @@ namespace ODLMWebAPI.BL {
                 return resultMessage;
             }
 
+        }
+
+        /// <summary>
+        /// AmolG[2020-Feb-20] Update Booking pending qty
+        /// </summary>
+        /// <param name="loadingSlipExtTOList"></param>
+        /// <param name="bookingId"></param>
+        /// <param name="conn"></param>
+        /// <param name="tran"></param>
+        /// <returns></returns>
+        private ResultMessage UpdateBookingQty(List<TblLoadingSlipExtTO> loadingSlipExtTOList, int bookingId, SqlConnection conn, SqlTransaction tran)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+
+            try
+            {
+                resultMessage.MessageType = ResultMessageE.Error;
+                int result = 0;
+                var localList = from lst in loadingSlipExtTOList
+                                where lst.BookingId == bookingId
+                                select lst;
+
+                if (localList != null && localList.Any())
+                {
+                    List<TblLoadingSlipExtTO> loadingSlipExtTOLocalList = localList.ToList();
+
+                    List<TblBookingExtTO> tblBookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(bookingId, conn, tran);
+
+                    for (int i = 0; i < loadingSlipExtTOLocalList.Count; i++)
+                    {
+                        var exist = from lst in tblBookingExtTOList
+                                    where lst.BrandId == loadingSlipExtTOLocalList[i].BrandId
+                                    && lst.ProdCatId == loadingSlipExtTOLocalList[i].ProdCatId
+                                    && lst.ProdItemId == loadingSlipExtTOLocalList[i].ProdItemId
+                                    && lst.ProdSpecId == loadingSlipExtTOLocalList[i].ProdSpecId
+                                    && lst.MaterialId == loadingSlipExtTOLocalList[i].MaterialId
+                                    select lst;
+
+                        if (exist != null && exist.Any())
+                        {
+                            List<TblBookingExtTO> tblBookingExtTOLocalList = null;
+                            double toBeAdjQty = loadingSlipExtTOLocalList[i].LoadingQty;
+                            if (toBeAdjQty > 0)
+                            {
+                                tblBookingExtTOLocalList = exist.OrderByDescending(x => x.IdBookingExt).ToList();
+                            }
+                            else
+                                tblBookingExtTOLocalList = exist.OrderBy(x => x.IdBookingExt).ToList();
+
+                            for (int n = 0; n < tblBookingExtTOLocalList.Count; n++)
+                            {
+                                TblBookingExtTO tblBookingExtTO = tblBookingExtTOLocalList[n];
+
+                                if (toBeAdjQty > 0)
+                                {
+                                    if (tblBookingExtTO.BalanceQty < tblBookingExtTO.BookedQty)
+                                    {
+                                        double balQty = tblBookingExtTO.BookedQty - tblBookingExtTO.BalanceQty;
+
+                                        if (balQty <= toBeAdjQty)
+                                        {
+                                            tblBookingExtTO.BalanceQty = tblBookingExtTO.BookedQty;
+                                            toBeAdjQty -= balQty;
+                                        }
+                                        else
+                                        {
+                                            tblBookingExtTO.BalanceQty += toBeAdjQty;
+                                            toBeAdjQty = 0;
+                                        }
+
+                                        result = _iTblBookingExtDAO.UpdateTblBookingExtBalanceQty(tblBookingExtTO, conn, tran);
+                                        if (result <= 0)
+                                        {
+                                            resultMessage.MessageType = ResultMessageE.Error;
+                                            resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                                            resultMessage.Text = "Error While Update Booking Balance Qty In Method UpdateTblBookingExtBalanceQty";
+                                            return resultMessage;
+                                        }
+
+                                        if (toBeAdjQty == 0)
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    if (tblBookingExtTO.BalanceQty > 0)
+                                    {
+                                        double absQty = Math.Abs(toBeAdjQty);
+                                        if(tblBookingExtTO.BalanceQty > absQty)
+                                        {
+                                            tblBookingExtTO.BalanceQty += toBeAdjQty;
+                                            toBeAdjQty = 0;
+                                        }
+                                        else
+                                        {
+                                            toBeAdjQty += tblBookingExtTO.BalanceQty;
+                                            tblBookingExtTO.BalanceQty = 0;
+                                        }
+
+                                        result = _iTblBookingExtDAO.UpdateTblBookingExtBalanceQty(tblBookingExtTO, conn, tran);
+                                        if (result <= 0)
+                                        {
+                                            resultMessage.MessageType = ResultMessageE.Error;
+                                            resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                                            resultMessage.Text = "Error While Update Booking Balance Qty In Method UpdateTblBookingExtBalanceQty";
+                                            return resultMessage;
+                                        }
+
+                                        if (toBeAdjQty == 0)
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Exception = ex;
+                return resultMessage;
+            }
         }
 
         //Aniket [30-7-2019] added for IOT
@@ -8506,6 +8775,16 @@ namespace ODLMWebAPI.BL {
                     return resultMessage;
                 }
 
+                //AmolG[2020-Feb-20] This Function should be used when Remove Item from the loading slip
+                List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = new List<TblLoadingSlipExtTO>();
+                tblLoadingSlipExtTOList.Add(tblLoadingSlipExtTO);
+                resultMessage = UpdateBookingQty(tblLoadingSlipExtTOList, tblLoadingSlipExtTO.BookingId, conn, tran);
+                if (resultMessage.MessageType == ResultMessageE.Error)
+                {
+                    return resultMessage;
+                }
+
+
                 #endregion
 
                 #region 4. Update the stock back and Add new record in tblStockConsumption for reverse stock entry
@@ -8637,6 +8916,7 @@ namespace ODLMWebAPI.BL {
                     resultMessage.Result = 0;
                     return resultMessage;
                 }
+
 
                 result = _iTblLoadingSlipExtDAO.DeleteTblLoadingSlipExt (tblLoadingSlipExtTO.IdLoadingSlipExt, conn, tran);
                 if (result != 1) {
@@ -8841,12 +9121,12 @@ namespace ODLMWebAPI.BL {
                 Int32 isForUpdate = 0;
 
                 //First remove item then add
+
+
                 if (tblLoadingSlipExtTO.IdLoadingSlipExt > 0) {
 
                     isForUpdate = 1;
-
                     TblLoadingSlipExtTO temp = tblLoadingSlipExtTO.DeepCopy ();
-
                     resultMessage = RemoveItemFromLoadingSlip (temp, 1, txnUserId, conn, tran);
                     if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information) {
                         return resultMessage;
@@ -9101,7 +9381,17 @@ namespace ODLMWebAPI.BL {
 
                 }
 
-                resultMessage.DefaultSuccessBehaviour ();
+                //AmolG[2020-Feb-24]
+                List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = new List<TblLoadingSlipExtTO>();
+                tblLoadingSlipExtTOList.Add(tblLoadingSlipExtTO);
+                tblLoadingSlipExtTO.LoadingQty *= -1;
+                resultMessage = UpdateBookingQty(tblLoadingSlipExtTOList, tblLoadingSlipExtTO.BookingId, conn, tran);
+                if (resultMessage.MessageType == ResultMessageE.Error)
+                {
+                    return resultMessage;
+                }
+
+                resultMessage.DefaultSuccessBehaviour();
                 return resultMessage;
 
             } catch (Exception ex) {
@@ -9223,6 +9513,69 @@ namespace ODLMWebAPI.BL {
 
             }
         }
+
+
+        /// <summary>
+        /// Vijaymala[12-04-2017] :Added to get invoice list by using vehicle number
+        /// </summary>
+        /// <param name="vehicleNo"></param>
+        /// <returns></returns>
+        public List<TblInvoiceTO> SelectAllInvoiceListByVehicleNo(string vehicleNo, DateTime frmDt, DateTime toDt)
+        {
+            List<TblInvoiceTO> tblInvoiceTOList = new List<TblInvoiceTO>();
+
+            int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+            List<TblLoadingSlipTO> tblLoadingSlipTOList = new List<TblLoadingSlipTO>();
+
+            //DB
+            if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.DB)
+            {
+                tblLoadingSlipTOList = _iTblLoadingSlipBL.SelectAllLoadingListByVehicleNo(vehicleNo, frmDt, toDt);
+            }
+            else
+            {
+                Int32 loadingId = 0;
+                ResultMessage r = IsThisVehicleDelivered(vehicleNo, 1);
+                if (r.Tag != null && r.Tag.GetType() == typeof(TblLoadingTO))
+                {
+                    //tblLoadingTO = ((TblLoadingTO)r.Tag);
+                    loadingId = ((TblLoadingTO)r.Tag).IdLoading;
+                    //tblLoadingTO.MergeMessage = r.DisplayMessage;
+                }
+                else
+                {
+                    return tblInvoiceTOList;
+                }
+
+                tblLoadingSlipTOList = _iTblLoadingSlipDAO.SelectAllTblLoadingSlip(loadingId);
+
+            }
+
+            if (tblLoadingSlipTOList != null && tblLoadingSlipTOList.Count > 0)
+            {
+                String strLoadingSlipIds = String.Join(",", tblLoadingSlipTOList.Select(s => s.IdLoadingSlip.ToString()).ToArray());
+                if (!String.IsNullOrEmpty(strLoadingSlipIds))
+                {
+                    List<TempLoadingSlipInvoiceTO> tempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceDAO.SelectAllTempLoadingSlipInvoiceList(strLoadingSlipIds);
+                    String strInvoiceIds = String.Join(",", tempLoadingSlipInvoiceTOList.Select(s => s.InvoiceId.ToString()).ToArray());
+
+                    if (!String.IsNullOrEmpty(strInvoiceIds))
+                    {
+                        tblInvoiceTOList = _iTblInvoiceBL.SelectInvoiceListFromInvoiceIds(strInvoiceIds);
+                        if (tblInvoiceTOList != null && tblInvoiceTOList.Count > 0)
+                        {
+                            return tblInvoiceTOList;
+                        }
+                    }
+
+                }
+            }
+            return tblInvoiceTOList;
+
+        }
+
+
+
         public ResultMessage CreateIntermediateInvoiceAgainstLoading (String loadingIds, Int32 userId) {
             List<TblLoadingTO> tblLoadingTOList = SelectLoadingTOListWithDetails (loadingIds);
 

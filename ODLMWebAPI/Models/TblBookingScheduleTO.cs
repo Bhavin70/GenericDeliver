@@ -27,6 +27,7 @@ namespace ODLMWebAPI.Models
         Int32 noOfLayers;
         Int32 scheduleGroupId;
         Int32 isItemized;
+        Boolean isUpdated;
 
         #endregion
 
@@ -127,6 +128,9 @@ namespace ODLMWebAPI.Models
         public int NoOfLayers { get => noOfLayers; set => noOfLayers = value; }
         public int ScheduleGroupId { get => scheduleGroupId; set => scheduleGroupId = value; }
         public int IsItemized { get => isItemized; set => isItemized = value; }
+
+        //AmolG[2020-Feb-25] For checking update
+        public bool IsUpdated { get => isUpdated; set => isUpdated = value; }
 
         #endregion
     }

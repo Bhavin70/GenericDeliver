@@ -694,10 +694,25 @@ namespace ODLMWebAPI.IoT
                 if (isForSelect)
                 {
                     int stateCodeConvertInInt = Convert.ToInt32(stateCodeInt);
-                    if(stateCodeConvertInInt==0)
+                    if (stateCodeConvertInInt == 0)
                     {
                         oldAndNewVehicleNo = string.Empty;
                         oldAndNewVehicleNo = stateCodeStr + numberStr.Substring(0, 1) + " - - " + numberInt;
+                    }
+                    else
+                    {
+                        if (stateCodeInt.Length == 1)
+                        {
+                            stateCodeInt = "0" + stateCodeInt;
+                        }
+                        if (numberInt.Length != 4)
+                        {
+                            for (int n = numberInt.Length; n < 4; n++)
+                            {
+                                numberInt = "0" + numberInt;
+                            }
+                        }
+                        oldAndNewVehicleNo = stateCodeStr + " " + stateCodeInt + " " + numberStr + " " + numberInt;
                     }
                 }
                 else

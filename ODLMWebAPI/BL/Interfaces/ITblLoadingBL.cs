@@ -109,5 +109,7 @@ namespace ODLMWebAPI.BL.Interfaces
 
         ResultMessage IsThisVehicleDelivered(String vehicleNo, Int32 checkOnDevice = 0);
         ResultMessage IsLoadingShouldMerge(TblLoadingTO tblLoadingTO);
+
+        List<TblInvoiceTO> SelectAllInvoiceListByVehicleNo(string vehicleNo, DateTime frmDt, DateTime toDt);
     }
 }

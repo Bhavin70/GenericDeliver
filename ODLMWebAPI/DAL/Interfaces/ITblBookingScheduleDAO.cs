@@ -25,5 +25,6 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblBookingSchedule(Int32 idSchedule);
         int DeleteTblBookingSchedule(Int32 idSchedule, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idSchedule, SqlCommand cmdDelete);
+        int UpdateTblBookingSchedulePendingQty(TblBookingScheduleTO tblBookingScheduleTO, SqlConnection conn, SqlTransaction tran);
     }
 }

@@ -2223,7 +2223,7 @@ namespace ODLMWebAPI.BL
                     tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.SIZE_CHANGES_IN_BOOKING;
                     tblAlertInstanceTO.AlertAction = "Size_Changes_In_Booking";
 
-                    tblAlertInstanceTO.AlertComment = tblAlertDefinitionTO.DefaultAlertTxt.Replace("@SizeStr", alertMsg).Replace("@BookingIdStr", tblBookingsTOCurr.BookingDisplayNo);
+                    tblAlertInstanceTO.AlertComment = tblAlertDefinitionTO.DefaultAlertTxt.Replace("@SizeStr", alertMsg).Replace("@BookingIdStr", tblBookingsTOCurr.BookingDisplayNo).Replace("@DealerNameStr", tblBookingsTOCurr.DealerName);
 
                     tblAlertInstanceTO.EffectiveFromDate = _iCommon.ServerDateTime;
                     tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(10);

@@ -53,6 +53,6 @@ namespace ODLMWebAPI.DAL.Interfaces
 
         int UpdatePendingQuantity(TblBookingsTO tblBookingsTO, SqlConnection conn, SqlTransaction tran);
 
-
+        int UpdateSizeQuantity(TblBookingsTO tblBookingsTO, SqlConnection conn, SqlTransaction tran);
     }
 }
