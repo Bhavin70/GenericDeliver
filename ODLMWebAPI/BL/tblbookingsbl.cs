@@ -2110,7 +2110,7 @@ namespace ODLMWebAPI.BL
                 }
                 if (tblBookingsTOCurr.IdBooking > 0)
                 {
-                    List<TblBookingExtTO> tblBookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(tblBookingsTOCurr.IdBooking);
+                    List<TblBookingExtTO> tblBookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(tblBookingsTOCurr.IdBooking, conn, tran);
                     if (tblBookingExtTOList != null)
                     {
                         var lstBook = from lst in tblBookingExtTOList
