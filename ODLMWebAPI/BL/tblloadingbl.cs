@@ -3361,13 +3361,13 @@ namespace ODLMWebAPI.BL {
                                                 }
                                             }
                                         } else {
-                                            resultMessage = _iTblLoadingSlipBL.ChangeLoadingSlipConfirmationStatus (tblLoadingSlipTO, loginUserId);
+                                            resultMessage = ChangeLoadingSlipConfirmationStatus (tblLoadingSlipTO, loginUserId);
                                             if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information) {
                                                 erroMsg += " Veh No - " + tblLoadingSlipTO.VehicleNo + " LoadingSlipNo - " + tblLoadingSlipTO.LoadingSlipNo + ", ";
                                             }
                                         }
                                     } else {
-                                        resultMessage = _iTblLoadingSlipBL.ChangeLoadingSlipConfirmationStatus (tblLoadingSlipTO, loginUserId);
+                                        resultMessage = ChangeLoadingSlipConfirmationStatus (tblLoadingSlipTO, loginUserId);
                                         if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information) {
                                             erroMsg += " Veh No - " + tblLoadingSlipTO.VehicleNo + " LoadingSlipNo - " + tblLoadingSlipTO.LoadingSlipNo + ", ";
                                         }
@@ -9645,6 +9645,91 @@ namespace ODLMWebAPI.BL {
             }
 
         }
+
+
+        public ResultMessage ChangeLoadingSlipConfirmationStatus(TblLoadingSlipTO tblLoadingSlipTO, Int32 loginUserId)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            ResultMessage resultMessage = new ResultMessage();
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+
+
+
+                TblLoadingTO tblLoadingTONew = new TblLoadingTO();
+                tblLoadingTONew = _iTblLoadingDAO.SelectTblLoadingByLoadingSlipId(tblLoadingSlipTO.IdLoadingSlip, conn, tran);
+                if (tblLoadingTONew == null)
+                {
+                    resultMessage.DefaultBehaviour("tblLoadingTONew  found NULL");
+                    return resultMessage;
+                }
+
+                //Slip To
+
+                //loadingSlipTO.LoadingSlipExtTOList;
+                //loadingSlipTO.TblLoadingSlipDtlTO;
+
+                TblLoadingSlipDtlTO tblLoadingSlipDtlTO = _iTblLoadingSlipDtlDAO.SelectLoadingSlipDtlTO(tblLoadingSlipTO.IdLoadingSlip, conn, tran);
+
+                tblLoadingSlipTO.TblLoadingSlipDtlTO = tblLoadingSlipDtlTO;
+                tblLoadingTONew.LoadingSlipList = new List<TblLoadingSlipTO>();
+
+                tblLoadingTONew.LoadingSlipList.Add(tblLoadingSlipTO);
+
+                Int32 lastConfirmationStatus = tblLoadingTONew.LoadingSlipList[0].IsConfirmed;
+                if (lastConfirmationStatus == 1)
+                    tblLoadingTONew.LoadingSlipList[0].IsConfirmed = 0;
+                else
+                    tblLoadingTONew.LoadingSlipList[0].IsConfirmed = 1;
+
+                resultMessage = CalculateLoadingValuesRate(tblLoadingTONew);
+                if (resultMessage.MessageType != ResultMessageE.Information)
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("Error While CalculateLoadingValuesRate");
+                    return resultMessage;
+                }
+
+                lastConfirmationStatus = tblLoadingTONew.LoadingSlipList[0].IsConfirmed;
+                if (lastConfirmationStatus == 1)
+                    tblLoadingTONew.LoadingSlipList[0].IsConfirmed = 0;
+                else
+                    tblLoadingTONew.LoadingSlipList[0].IsConfirmed = 1;
+
+
+
+
+                resultMessage = _iTblLoadingSlipBL.ChangeLoadingSlipConfirmationStatus(tblLoadingSlipTO, loginUserId, conn, tran);
+                if (resultMessage.MessageType != ResultMessageE.Information)
+                {
+                    tran.Rollback();
+                    return null;
+                }
+                //Priyanka [15-05-2018] added to commit the transaction.
+                tran.Commit();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "ChangeLoadingSlipConfirmationStatus");
+                return resultMessage;
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+
+
+        }
+
+
+
+
+
         public ResultMessage UpdateInvoiceConfrimNonConfirmDetails (TblInvoiceTO tblInvoiceTO, Int32 loginUserId) {
             SqlConnection conn = new SqlConnection (_iConnectionString.GetConnectionString (Constants.CONNECTION_STRING));
             SqlTransaction tran = null;

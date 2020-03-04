@@ -1830,7 +1830,7 @@ namespace ODLMWebAPI.Controllers
                     return resultMessage;
                 }
 
-                return _iTblLoadingSlipBL.ChangeLoadingSlipConfirmationStatus(loadingSlipTO, Convert.ToInt32(loginUserId));
+                return _iTblLoadingBL.ChangeLoadingSlipConfirmationStatus(loadingSlipTO, Convert.ToInt32(loginUserId));
             }
             catch (Exception ex)
             {

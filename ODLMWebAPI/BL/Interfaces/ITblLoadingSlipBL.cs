@@ -32,7 +32,7 @@ namespace ODLMWebAPI.BL.Interfaces
         int UpdateTblLoadingSlip(TblLoadingSlipTO tblLoadingSlipTO);
         int UpdateTblLoadingSlip(TblLoadingSlipTO tblLoadingSlipTO, SqlConnection conn, SqlTransaction tran);
         int UpdateTblLoadingSlip(TblLoadingTO tblLoadingSlipTO, SqlConnection conn, SqlTransaction tran);
-        ResultMessage ChangeLoadingSlipConfirmationStatus(TblLoadingSlipTO tblLoadingSlipTO, Int32 loginUserId);
+        //ResultMessage ChangeLoadingSlipConfirmationStatus(TblLoadingSlipTO tblLoadingSlipTO, Int32 loginUserId);
         ResultMessage ChangeLoadingSlipConfirmationStatus(TblLoadingSlipTO tblLoadingSlipTO, Int32 loginUserId, SqlConnection conn, SqlTransaction tran);
         ResultMessage OldChangeLoadingSlipConfirmationStatus(TblLoadingSlipTO tblLoadingSlipTO, Int32 loginUserId);
         ResultMessage OldChangeLoadingSlipConfirmationStatus(TblLoadingSlipTO tblLoadingSlipTO, Int32 loginUserId, SqlConnection conn, SqlTransaction tran);

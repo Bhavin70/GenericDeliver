@@ -695,38 +695,39 @@ namespace ODLMWebAPI.BL
             return _iTblLoadingSlipDAO.UpdateTblLoadingSlip(tblLoadingSlipTO, conn, tran);
         }
 
-        public ResultMessage ChangeLoadingSlipConfirmationStatus(TblLoadingSlipTO tblLoadingSlipTO,Int32 loginUserId)
-        {
-            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
-            SqlTransaction tran = null;
-            ResultMessage resultMessage = new ResultMessage();
-            try
-            {
-                conn.Open();
-                tran = conn.BeginTransaction();
-                resultMessage =ChangeLoadingSlipConfirmationStatus(tblLoadingSlipTO, loginUserId, conn, tran);
-                if(resultMessage.MessageType != ResultMessageE.Information)
-                {
-                    tran.Rollback();
-                    return null;
-                }
-                //Priyanka [15-05-2018] added to commit the transaction.
-                tran.Commit();         
-                return resultMessage;
-            }
-            catch (Exception ex)
-            {
-                 resultMessage.DefaultExceptionBehaviour(ex, "ChangeLoadingSlipConfirmationStatus");
-                return resultMessage;
-            }
-            finally
-            {
-                conn.Close();
-            }
+        //Saket [2020-04] Move to loading Bl
+        //public ResultMessage ChangeLoadingSlipConfirmationStatus(TblLoadingSlipTO tblLoadingSlipTO,Int32 loginUserId)
+        //{
+        //    SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+        //    SqlTransaction tran = null;
+        //    ResultMessage resultMessage = new ResultMessage();
+        //    try
+        //    {
+        //        conn.Open();
+        //        tran = conn.BeginTransaction();
+        //        resultMessage =ChangeLoadingSlipConfirmationStatus(tblLoadingSlipTO, loginUserId, conn, tran);
+        //        if(resultMessage.MessageType != ResultMessageE.Information)
+        //        {
+        //            tran.Rollback();
+        //            return null;
+        //        }
+        //        //Priyanka [15-05-2018] added to commit the transaction.
+        //        tran.Commit();         
+        //        return resultMessage;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //         resultMessage.DefaultExceptionBehaviour(ex, "ChangeLoadingSlipConfirmationStatus");
+        //        return resultMessage;
+        //    }
+        //    finally
+        //    {
+        //        conn.Close();
+        //    }
          
 
 
-        }
+        //}
 
         public ResultMessage ChangeLoadingSlipConfirmationStatus(TblLoadingSlipTO tblLoadingSlipTO, Int32 loginUserId, SqlConnection conn, SqlTransaction tran)
         {

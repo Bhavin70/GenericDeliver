@@ -111,5 +111,6 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage IsLoadingShouldMerge(TblLoadingTO tblLoadingTO);
 
         List<TblInvoiceTO> SelectAllInvoiceListByVehicleNo(string vehicleNo, DateTime frmDt, DateTime toDt);
+        ResultMessage ChangeLoadingSlipConfirmationStatus(TblLoadingSlipTO tblLoadingSlipTO, Int32 loginUserId);
     }
 }
