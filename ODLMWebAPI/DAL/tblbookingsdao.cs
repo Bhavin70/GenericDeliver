@@ -2564,6 +2564,43 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        /// <summary>
+        /// AmolG[2020-Mar-03] Update the given Size Qty 
+        /// </summary>
+        /// <param name="tblBookingsTO"></param>
+        /// <param name="conn"></param>
+        /// <param name="tran"></param>
+        /// <returns></returns>
+        public int UpdateSizeQuantity(TblBookingsTO tblBookingsTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+
+                String sqlQuery = @" UPDATE [tblBookings] SET " +
+                                " [sizesQty] = @SizeQty " +
+                                " WHERE idBooking = @IdBooking ";
+
+                cmdUpdate.CommandText = sqlQuery;
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+
+                cmdUpdate.Parameters.Add("@IdBooking", System.Data.SqlDbType.Int).Value = tblBookingsTO.IdBooking;
+                cmdUpdate.Parameters.Add("@SizeQty", System.Data.SqlDbType.NVarChar).Value = tblBookingsTO.SizesQty;
+
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
+
         #endregion
 
         #region Deletion

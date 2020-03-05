@@ -2456,6 +2456,21 @@ namespace ODLMWebAPI.BL {
                     }
                 }
 
+                //AmolG[2020-Mar-03] Update Size Qty. This is used to show the color on UI based on Schedule Qty of booking. 
+                if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
+                {
+                    double sizeQty = tblBookingsTO.BookingScheduleTOLst.Sum(s => s.Qty);
+                    tblBookingsTO.SizesQty = sizeQty;
+                    result = _iTblBookingsDAO.UpdateSizeQuantity(tblBookingsTO, conn, tran);
+                    if (result != 1)
+                    {
+                        resultMessage.Text = "Error When Update Size Qty in Booking";
+                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                        resultMessage.Result = 0;
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        return resultMessage;
+                    }
+                }
 
                 #endregion
 
@@ -2464,6 +2479,7 @@ namespace ODLMWebAPI.BL {
                 tblBookingsTO.BookingRefId = Convert.ToInt32(tblBookingsTO.BookingDisplayNo);
                 tblBookingsTO.PendingQty = 0;
                 tblBookingsTO.BookingQty = splitQty;
+                tblBookingsTO.SizesQty = splitQty; // AmolG[2020-Mar-03] This is used to show the color on UI based on Schedule Qty of booking. 
                 tblBookingsTO.IdBooking = 0;
                 List<TblBookingsTO> List = _iTblBookingsDAO.SelectTblBookingsRef(tblBookingsTO.BookingRefId, conn, tran);
                 tblBookingsTO.BookingDisplayNo = List != null && List.Count > 0 ? tblBookingsTO.BookingDisplayNo + "/" + (Convert.ToInt32(List.Count) + Convert.ToInt32(1)) : tblBookingsTO.BookingDisplayNo + "/1";
@@ -2483,6 +2499,31 @@ namespace ODLMWebAPI.BL {
                 }
 
                 Int32 newBookingId = tblBookingsTO.IdBooking;
+
+                //AmolG[2020-Mar-03] Save new Schedule Entry for new booking
+                TblBookingScheduleTO tblBookingScheduleTO = null;
+                if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
+                {
+                    tblBookingScheduleTO = tblBookingsTO.BookingScheduleTOLst[0];
+                    tblBookingScheduleTO.BookingId = newBookingId;
+                    tblBookingScheduleTO.Qty = tblBookingsTO.BookingQty;
+                }
+                else
+                {
+                    tblBookingScheduleTO = new TblBookingScheduleTO();
+                    tblBookingScheduleTO.BookingId = newBookingId;
+                    tblBookingScheduleTO.ScheduleDate = tblBookingsTO.CreatedOn;
+                    tblBookingScheduleTO.CreatedBy = tblBookingsTO.CreatedBy;
+                    tblBookingScheduleTO.CreatedOn = tblBookingsTO.CreatedOn;
+                    tblBookingScheduleTO.Qty = tblBookingsTO.BookingQty;
+                }
+
+                result = _iTblBookingScheduleDAO.InsertTblBookingSchedule(tblBookingScheduleTO, conn, tran);
+                if (result != 1)
+                {
+                    throw new Exception("Error while inserting InsertTblBookingSchedule for BookingId - " + tblBookingScheduleTO.BookingId);
+                }
+
 
                 if (tblBookingsTO.DeliveryAddressLst != null && tblBookingsTO.DeliveryAddressLst.Count > 0)
                 {
@@ -3320,13 +3361,13 @@ namespace ODLMWebAPI.BL {
                                                 }
                                             }
                                         } else {
-                                            resultMessage = _iTblLoadingSlipBL.ChangeLoadingSlipConfirmationStatus (tblLoadingSlipTO, loginUserId);
+                                            resultMessage = ChangeLoadingSlipConfirmationStatus (tblLoadingSlipTO, loginUserId);
                                             if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information) {
                                                 erroMsg += " Veh No - " + tblLoadingSlipTO.VehicleNo + " LoadingSlipNo - " + tblLoadingSlipTO.LoadingSlipNo + ", ";
                                             }
                                         }
                                     } else {
-                                        resultMessage = _iTblLoadingSlipBL.ChangeLoadingSlipConfirmationStatus (tblLoadingSlipTO, loginUserId);
+                                        resultMessage = ChangeLoadingSlipConfirmationStatus (tblLoadingSlipTO, loginUserId);
                                         if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information) {
                                             erroMsg += " Veh No - " + tblLoadingSlipTO.VehicleNo + " LoadingSlipNo - " + tblLoadingSlipTO.LoadingSlipNo + ", ";
                                         }
@@ -9508,6 +9549,8 @@ namespace ODLMWebAPI.BL {
 
                 tblLoadingSlipTOList = _iTblLoadingSlipDAO.SelectAllTblLoadingSlip(loadingId);
 
+                tblLoadingSlipTOList.ForEach(f => f.VehicleNo = vehicleNo);
+
             }
 
             if (tblLoadingSlipTOList != null && tblLoadingSlipTOList.Count > 0)
@@ -9523,6 +9566,12 @@ namespace ODLMWebAPI.BL {
                         tblInvoiceTOList = _iTblInvoiceBL.SelectInvoiceListFromInvoiceIds(strInvoiceIds);
                         if (tblInvoiceTOList != null && tblInvoiceTOList.Count > 0)
                         {
+
+                            if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                            {
+                                tblInvoiceTOList.ForEach(f => f.VehicleNo = vehicleNo);
+                            }
+
                             return tblInvoiceTOList;
                         }
                     }
@@ -9596,6 +9645,91 @@ namespace ODLMWebAPI.BL {
             }
 
         }
+
+
+        public ResultMessage ChangeLoadingSlipConfirmationStatus(TblLoadingSlipTO tblLoadingSlipTO, Int32 loginUserId)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            ResultMessage resultMessage = new ResultMessage();
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+
+
+
+                TblLoadingTO tblLoadingTONew = new TblLoadingTO();
+                tblLoadingTONew = _iTblLoadingDAO.SelectTblLoadingByLoadingSlipId(tblLoadingSlipTO.IdLoadingSlip, conn, tran);
+                if (tblLoadingTONew == null)
+                {
+                    resultMessage.DefaultBehaviour("tblLoadingTONew  found NULL");
+                    return resultMessage;
+                }
+
+                //Slip To
+
+                //loadingSlipTO.LoadingSlipExtTOList;
+                //loadingSlipTO.TblLoadingSlipDtlTO;
+
+                TblLoadingSlipDtlTO tblLoadingSlipDtlTO = _iTblLoadingSlipDtlDAO.SelectLoadingSlipDtlTO(tblLoadingSlipTO.IdLoadingSlip, conn, tran);
+
+                tblLoadingSlipTO.TblLoadingSlipDtlTO = tblLoadingSlipDtlTO;
+                tblLoadingTONew.LoadingSlipList = new List<TblLoadingSlipTO>();
+
+                tblLoadingTONew.LoadingSlipList.Add(tblLoadingSlipTO);
+
+                Int32 lastConfirmationStatus = tblLoadingTONew.LoadingSlipList[0].IsConfirmed;
+                if (lastConfirmationStatus == 1)
+                    tblLoadingTONew.LoadingSlipList[0].IsConfirmed = 0;
+                else
+                    tblLoadingTONew.LoadingSlipList[0].IsConfirmed = 1;
+
+                resultMessage = CalculateLoadingValuesRate(tblLoadingTONew);
+                if (resultMessage.MessageType != ResultMessageE.Information)
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("Error While CalculateLoadingValuesRate");
+                    return resultMessage;
+                }
+
+                lastConfirmationStatus = tblLoadingTONew.LoadingSlipList[0].IsConfirmed;
+                if (lastConfirmationStatus == 1)
+                    tblLoadingTONew.LoadingSlipList[0].IsConfirmed = 0;
+                else
+                    tblLoadingTONew.LoadingSlipList[0].IsConfirmed = 1;
+
+
+
+
+                resultMessage = _iTblLoadingSlipBL.ChangeLoadingSlipConfirmationStatus(tblLoadingSlipTO, loginUserId, conn, tran);
+                if (resultMessage.MessageType != ResultMessageE.Information)
+                {
+                    tran.Rollback();
+                    return null;
+                }
+                //Priyanka [15-05-2018] added to commit the transaction.
+                tran.Commit();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "ChangeLoadingSlipConfirmationStatus");
+                return resultMessage;
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+
+
+        }
+
+
+
+
+
         public ResultMessage UpdateInvoiceConfrimNonConfirmDetails (TblInvoiceTO tblInvoiceTO, Int32 loginUserId) {
             SqlConnection conn = new SqlConnection (_iConnectionString.GetConnectionString (Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
