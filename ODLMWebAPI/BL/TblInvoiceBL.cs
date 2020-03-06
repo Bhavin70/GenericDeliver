@@ -1258,9 +1258,10 @@ namespace ODLMWebAPI.BL
                 else
                 {
                     int weighingSourceId = _iTblConfigParamsDAO.IoTSetting();
-                    if(weighingSourceId==2)
+                    if(weighingSourceId== Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
                     {
-                        List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = tblLoadingSlipTOTemp.LoadingSlipExtTOList.Where(w => w.LoadedBundles == 0).ToList();
+                        //List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = tblLoadingSlipTOTemp.LoadingSlipExtTOList.Where(w => w.LoadedBundles == 0).ToList();
+                        List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = tblLoadingSlipTOTemp.LoadingSlipExtTOList.Where(w => w.LoadedWeight == 0).ToList();
                         if (tblLoadingSlipExtTOList != null && tblLoadingSlipExtTOList.Count > 0)
                         {
                             remove = true;
@@ -1292,19 +1293,31 @@ namespace ODLMWebAPI.BL
 
             if (loadingSlipTOList != null && loadingSlipTOList.Count > 0)
             {
-                String loadingSlipIds = String.Join(',', loadingSlipTOList.Select(s => s.IdLoadingSlip.ToString()).ToArray());
-                if (!String.IsNullOrEmpty(loadingSlipIds))
-                {
-                    List<TblInvoiceTO> tblInvoiceTOListTemp = SelectInvoiceListFromLoadingSlipIds(loadingSlipIds, conn, tran);
-                    if (tblInvoiceTOListTemp != null && tblInvoiceTOListTemp.Count > 0)
-                    {
-                        for (int t = 0; t < tblInvoiceTOListTemp.Count; t++)
-                        {
-                            loadingSlipTOList = loadingSlipTOList.Where(w => w.IdLoadingSlip != tblInvoiceTOListTemp[t].LoadingSlipId).ToList();
-                        }
-                    }
+                //String loadingSlipIds = String.Join(',', loadingSlipTOList.Select(s => s.IdLoadingSlip.ToString()).ToArray());
+                //if (!String.IsNullOrEmpty(loadingSlipIds))
+                //{
+                //    List<TblInvoiceTO> tblInvoiceTOListTemp = SelectInvoiceListFromLoadingSlipIds(loadingSlipIds, conn, tran);
+                //    if (tblInvoiceTOListTemp != null && tblInvoiceTOListTemp.Count > 0)
+                //    {
+                //        for (int t = 0; t < tblInvoiceTOListTemp.Count; t++)
+                //        {
+                //            loadingSlipTOList = loadingSlipTOList.Where(w => w.IdLoadingSlip != tblInvoiceTOListTemp[t].LoadingSlipId).ToList();
+                //        }
+                //    }
 
+                //}
+
+                //List<TempLoadingSlipInvoiceTO> TempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceBL.SelectTempLoadingSlipInvoiceTOListByLoadingSlip()
+                for (int r = 0; r < loadingSlipTOList.Count; r++)
+                {
+                    TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO = _iTempLoadingSlipInvoiceBL.SelectTempLoadingSlipInvoiceTOListByLoadingSlip(loadingSlipTOList[r].IdLoadingSlip, conn, tran);
+                    if (tempLoadingSlipInvoiceTO != null)
+                    {
+                        loadingSlipTOList.RemoveAt(r);
+                        r--;
+                    }
                 }
+
             }
 
             #endregion
