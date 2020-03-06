@@ -712,6 +712,12 @@ namespace ODLMWebAPI.IoT
                                 numberInt = "0" + numberInt;
                             }
                         }
+
+                        if(numberStr.Length == 1)
+                        {
+                            numberStr = "-" + numberStr;
+                        }
+
                         oldAndNewVehicleNo = stateCodeStr + " " + stateCodeInt + " " + numberStr + " " + numberInt;
                     }
                 }

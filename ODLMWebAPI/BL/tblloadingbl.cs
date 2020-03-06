@@ -2764,6 +2764,7 @@ namespace ODLMWebAPI.BL {
 
                                 String iotVehicleNo = gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.VehicleNo].ToString();
                                 iotVehicleNo = _iIotCommunication.GetVehicleNumbers(iotVehicleNo, true);
+                                vehicleNo = _iIotCommunication.GetVehicleNumbers(vehicleNo, true);
                                 if (iotVehicleNo.ToUpper() == vehicleNo.ToUpper())
                                 {
                                     TblLoadingTO tblLoadingTO = SelectTblLoadingTOByModBusRefId(modBusLoadingRefId);
