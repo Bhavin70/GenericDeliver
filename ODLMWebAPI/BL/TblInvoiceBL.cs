@@ -479,7 +479,12 @@ namespace ODLMWebAPI.BL
                 invoiceTO.InvoiceAddressTOList = _iTblInvoiceAddressBL.SelectAllTblInvoiceAddressList(invoiceTO.IdInvoice, conn, tran);
                 //invoiceTO.InvoiceTaxesTOList = BL.TblInvoiceTaxesBL.SelectAllTblInvoiceTaxesList(invoiceTO.IdInvoice, conn, tran);
             }
-            SetGateAndWeightIotData(invoiceTO, 0);
+
+            if (invoiceTO.IsConfirmed == 0 || invoiceTO.InvoiceStatusE != InvoiceStatusE.AUTHORIZED)
+            {
+                SetGateAndWeightIotData(invoiceTO, 0);
+            }
+            //SetGateAndWeightIotData(invoiceTO, 0);
             return invoiceTO;
         }
 
