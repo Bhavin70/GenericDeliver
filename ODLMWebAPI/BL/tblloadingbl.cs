@@ -2016,6 +2016,9 @@ namespace ODLMWebAPI.BL {
                         if (invoiceTO.IsConfirmed == 1)
                         {
                             invoiceTO = _iTblInvoiceBL.SelectTblInvoiceTOWithDetails(invoiceTO.IdInvoice, conn, tran);
+
+                            _iTblInvoiceBL.SetGateAndWeightIotData(invoiceTO, 0);
+
                             if (invoiceTO == null || invoiceTO.VehicleNo == null || invoiceTO.TransportOrgId == 0)
                             {
                                 tran.Rollback();
@@ -10416,6 +10419,13 @@ namespace ODLMWebAPI.BL {
                     resultMessage.MessageType = ResultMessageE.Information;
                     return resultMessage;
                 }
+
+                int configId = _iTblConfigParamsDAO.IoTSetting();
+                if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
+                {
+                    tempLoadingTOList = tempLoadingTOList.Where(w => w.ModbusRefId == 0).ToList();
+                }
+
                 if (tempLoadingTOList != null && tempLoadingTOList.Count > 0) {
 
                     foreach (var tempLoadingTO in tempLoadingTOList.ToList ()) {
