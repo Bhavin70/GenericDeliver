@@ -224,17 +224,33 @@ namespace ODLMWebAPI.BL
 
 
                 Int32 result = 0;
-                if (tblLoadingTO.LoadingType != (int)Constants.LoadingTypeE.OTHER)
+                //if (tblLoadingTO.LoadingType != (int)Constants.LoadingTypeE.OTHER)
+                //{
+
+                //    TblLoadingSlipDtlTO tblLoadingSlipDtlTO = _iTblLoadingSlipDtlDAO.SelectLoadingSlipDtlTO(loadingSlipId, conn, tran);
+                //    if (tblLoadingSlipDtlTO == null)
+                //    {
+                //        tran.Rollback();
+                //        resultMessage.DefaultBehaviour("Error : tblLoadingTo found null");
+                //        return resultMessage;
+                //    }
+
+                //    result = _iTblLoadingSlipDtlDAO.DeleteTblLoadingSlipDtl(tblLoadingSlipDtlTO.IdLoadSlipDtl, conn, tran);
+                //    if (result != 1)
+                //    {
+                //        tran.Rollback();
+                //        resultMessage.DefaultBehaviour("Error While Deleting Loading Slip Details.");
+                //        return resultMessage;
+                //    }
+                //}
+
+                TblLoadingSlipDtlTO tblLoadingSlipDtlTO = _iTblLoadingSlipDtlDAO.SelectLoadingSlipDtlTO(loadingSlipId, conn, tran);
+                if (tblLoadingSlipDtlTO != null)
                 {
-                    
-                    TblLoadingSlipDtlTO tblLoadingSlipDtlTO = _iTblLoadingSlipDtlDAO.SelectLoadingSlipDtlTO(loadingSlipId, conn, tran);
-                    if (tblLoadingSlipDtlTO == null)
-                    {
-                        tran.Rollback();
-                        resultMessage.DefaultBehaviour("Error : tblLoadingTo found null");
-                        return resultMessage;
-                    }
-                   
+                    //tran.Rollback();
+                    //resultMessage.DefaultBehaviour("Error : tblLoadingTo found null");
+                    //return resultMessage;
+
                     result = _iTblLoadingSlipDtlDAO.DeleteTblLoadingSlipDtl(tblLoadingSlipDtlTO.IdLoadSlipDtl, conn, tran);
                     if (result != 1)
                     {
@@ -242,7 +258,13 @@ namespace ODLMWebAPI.BL
                         resultMessage.DefaultBehaviour("Error While Deleting Loading Slip Details.");
                         return resultMessage;
                     }
+
                 }
+
+
+
+
+
                 //Delete Address
 
                 List<TblLoadingSlipAddressTO> tblLoadingSlipAddressTOList = _iTblLoadingSlipAddressBL.SelectAllTblLoadingSlipAddressList(loadingSlipId, conn, tran);

@@ -15,6 +15,7 @@ using ODLMWebAPI.StaticStuff;
 using System.Dynamic;
 using ODLMWebAPI.Models;
 using ODLMWebAPI.IoT;
+using System.Threading;
 
 namespace ODLMWebAPI.DAL
 { 
@@ -22,6 +23,8 @@ namespace ODLMWebAPI.DAL
     {
         private readonly IConnectionString _iConnectionString;
         private readonly IModbusRefConfig _iModbusRefConfig;
+
+        static readonly object uniqueModBusRefIdLock = new object();
 
         public Common(IConnectionString iConnectionString, IModbusRefConfig iModbusRefConfig)
         {
@@ -34,25 +37,29 @@ namespace ODLMWebAPI.DAL
         //Aniket [30-7-2019]  added for IOT
         public int GetNextAvailableModRefIdNew()
         {
-            int modRefNumber = 0;
-            List<int> list = _iModbusRefConfig.getModbusRefList();
-            if (list != null && list.Count > 0)
+
+            lock (uniqueModBusRefIdLock)
             {
-               int maxNumber = 1;
-               modRefNumber = GetAvailNumber(list, maxNumber);
+                int modRefNumber = 0;
+                List<int> list = _iModbusRefConfig.getModbusRefList();
+                if (list != null && list.Count > 0)
+                {
+                    int maxNumber = 1;
+                    modRefNumber = GetAvailNumber(list, maxNumber);
+                }
+                else
+                {
+                    modRefNumber = 1;
+                }
+                bool isInList = list.Contains(modRefNumber);
+                if (isInList)
+                    return 0;
+                else
+                    list.Add(modRefNumber);
+                //     Random num = new Random();
+                //    modRefNumber= num.Next(1, 255);
+                return modRefNumber;
             }
-            else
-            {
-               modRefNumber = 1;
-            }
-            bool isInList = list.Contains(modRefNumber);
-            if (isInList)
-               return 0;
-            else
-               list.Add(modRefNumber);
-        //     Random num = new Random();
-        //    modRefNumber= num.Next(1, 255);
-            return modRefNumber;
         }
 
 
@@ -84,14 +91,14 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 /*To get Server Date Time for Local DB*/
-                String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
+                //String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
 
                 ////To get Server Date Time for Azure Server DB
-                //string sqlQuery = " declare @dfecha as datetime " +
-                //                  " declare @d as datetimeoffset " +
-                //                  " set @dfecha= sysdatetime()   " +
-                //                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
-                //                  " select convert(datetime, @d)";
+                string sqlQuery = " declare @dfecha as datetime " +
+                                  " declare @d as datetimeoffset " +
+                                  " set @dfecha= sysdatetime()   " +
+                                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
+                                  " select convert(datetime, @d)";
 
                 cmdSelect = new SqlCommand(sqlQuery, conn);
 

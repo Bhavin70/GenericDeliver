@@ -479,7 +479,12 @@ namespace ODLMWebAPI.BL
                 invoiceTO.InvoiceAddressTOList = _iTblInvoiceAddressBL.SelectAllTblInvoiceAddressList(invoiceTO.IdInvoice, conn, tran);
                 //invoiceTO.InvoiceTaxesTOList = BL.TblInvoiceTaxesBL.SelectAllTblInvoiceTaxesList(invoiceTO.IdInvoice, conn, tran);
             }
-            SetGateAndWeightIotData(invoiceTO, 0);
+
+            if (invoiceTO.IsConfirmed == 0 || invoiceTO.InvoiceStatusE != InvoiceStatusE.AUTHORIZED)
+            {
+                SetGateAndWeightIotData(invoiceTO, 0);
+            }
+            //SetGateAndWeightIotData(invoiceTO, 0);
             return invoiceTO;
         }
 
@@ -1804,8 +1809,8 @@ namespace ODLMWebAPI.BL
                     else
                     {
                         //tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.DisplayName; // commented by Aniket As we need to display only ItemName
-                        tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.ProdItemDesc; // Aniket [4-02-2019]
-
+                        //tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.ProdItemDesc; // Aniket [4-02-2019]
+                        tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.ItemName;
                         //tblInvoiceItemDetailsTO.ProdItemDesc = loadingSlipExtTo.ProdCatDesc + " " + loadingSlipExtTo.ProdSpecDesc + " " + loadingSlipExtTo.MaterialDesc;
                     }
 
