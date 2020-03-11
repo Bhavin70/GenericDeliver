@@ -1208,6 +1208,29 @@ namespace ODLMWebAPI.Controllers
             }
         }
 
+        //09.03.2020 By Ashish Mishra add this function for Postr Sale Invoice details in SAP
+        [Route("PostSaleInvoiceToSAP")]
+        [HttpPost]
+        public ResultMessage PostSaleInvoiceToSAP([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                List<TblInvoiceTO> tblInvoiceTOList = JsonConvert.DeserializeObject<List<TblInvoiceTO>>(data["invoiceTO"].ToString());
+                if (tblInvoiceTOList == null && tblInvoiceTOList.Count == 0)
+                {
+                    resultMessage.DefaultBehaviour("Error : tblInvoiceTO Sale Invoice Details List Found Empty Or Null");
+                    return resultMessage;
+                }
+                return _iTblInvoiceBL.PostSaleInvoiceListToSAP(tblInvoiceTOList);
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "PostSaleInvoiceToSAP");
+                return resultMessage;
+            }
+        }
+
 
         // PUT api/values/5
         [HttpPut("{id}")]

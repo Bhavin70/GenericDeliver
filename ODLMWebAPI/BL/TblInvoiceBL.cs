@@ -7992,11 +7992,57 @@ namespace ODLMWebAPI.BL
         #endregion
 
         #region Post Invoice to SAP
-        public ResultMessage PostSalesInvoiceToSAP(TblInvoiceTO tblInvoiceTO)
+        //09.03.2020 By Ashish Mishra add this function for save Sale Invoice details in SAP
+        public ResultMessage PostSaleInvoiceListToSAP(List<TblInvoiceTO> tblInvoiceTOList)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            ResultMessage resultMessage = new ResultMessage();
+            try
+            {
+                if (tblInvoiceTOList == null && tblInvoiceTOList.Count == 0)
+                {
+                    resultMessage.DefaultBehaviour("Error : tblInvoiceTO Sale Invoice Details List Found Empty Or Null");
+                    return resultMessage;
+                }
+                conn.Open();
+                tran = conn.BeginTransaction();
+                for (int i = 0; i < tblInvoiceTOList.Count; i++)
+                {
+                    resultMessage = PostSalesInvoiceToSAP(tblInvoiceTOList[i], conn, tran);
+                    if (resultMessage.MessageType != ResultMessageE.Information)
+                    {
+                        tran.Rollback();
+                        return resultMessage;
+                    }
+                }
+                tran.Commit();
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "PostSaleInvoiceListToSAP");
+                return resultMessage;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+        public ResultMessage PostSalesInvoiceToSAP(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran)
         {
             ResultMessage resultMessage = new ResultMessage();
             try
             {
+                int sapMapIdResult = _iTblInvoiceDAO.GetsapMappedTxnIdFromInvoice(tblInvoiceTO, conn, tran);
+                if (sapMapIdResult != 0)
+                {
+                    //  resultMessage.DefaultSuccessBehaviour("Sale invoice details already saved in SAP DB For Invoce No " + tblInvoiceTO.InvoiceNo);
+                    resultMessage.DefaultSuccessBehaviour();
+                    return resultMessage;
+                }
+
                 if (Startup.CompanyObject == null)
                 {
                     resultMessage.DefaultBehaviour("SAP Company Object Found NULL");
@@ -8091,12 +8137,75 @@ namespace ODLMWebAPI.BL
 
                 #region 2. Do Stock Adjustment Against Invoice Items
 
+
                 #endregion
 
                 #region 3. Create Sale Invoice Against Above Order Ref
 
+                SAPbobsCOM.Documents generateSaleInvoiceDocument;
+
+                generateSaleInvoiceDocument = Startup.CompanyObject.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oInvoices);
+
+                generateSaleInvoiceDocument.CardCode = " ";// which property in tblInvoiceTO is need to set as Card Code property             
+
+                generateSaleInvoiceDocument.DocType = SAPbobsCOM.BoDocumentTypes.dDocument_Items;
+
+                generateSaleInvoiceDocument.DocObjectCode = SAPbobsCOM.BoObjectTypes.oInvoices;
+
+                generateSaleInvoiceDocument.DocumentSubType = SAPbobsCOM.BoDocumentSubType.bod_None;
+
+                generateSaleInvoiceDocument.DocDate = _iCommon.ServerDateTime;
+
+                generateSaleInvoiceDocument.SalesPersonCode = tblInvoiceTO.CreatedBy;// need to confirm which one is SalePersonCode in tblInvoiceTO   
+
+                generateSaleInvoiceDocument.DocObjectCodeEx = "13";
+
+                generateSaleInvoiceDocument.HandWritten = SAPbobsCOM.BoYesNoEnum.tNO;
+
+                for (int i = 0; i < tblInvoiceTO.InvoiceItemDetailsTOList.Count; i++)
+                {
+                    generateSaleInvoiceDocument.Lines.Add();
+
+                    generateSaleInvoiceDocument.Lines.SetCurrentLine(i);
+
+                    generateSaleInvoiceDocument.Lines.SetCurrentLine(i);
+
+                    generateSaleInvoiceDocument.Lines.ItemCode = " ";//item code property not got in tblInvoiceTO
+
+                    generateSaleInvoiceDocument.Lines.Quantity = tblInvoiceTO.InvoiceItemDetailsTOList[i].InvoiceQty;
+
+                    generateSaleInvoiceDocument.Lines.AccountCode = " ";//Account Code property not got in tblInvoiceTO
+                }
+                result = generateSaleInvoiceDocument.Add();
+
+                #region 3. Update Invoice Ref no of SAP to simpliDELIVER for further transaction events	
+
+                //06.03.2020 By Ashish Mishra
+                if (result != 0)
+                {
+                    string errorMsg = Startup.CompanyObject.GetLastErrorDescription();
+                    resultMessage.DefaultBehaviour(errorMsg);
+                    resultMessage.DisplayMessage = errorMsg;
+                }
+                else
+                {
+                    string sapMappedTxnId = Startup.CompanyObject.GetNewObjectKey();
+                    tblInvoiceTO.SapMappedSalesInvoiceNo = sapMappedTxnId;
+                    resultMessage.DefaultSuccessBehaviour();
+                }
+                result = _iTblInvoiceDAO.UpdateSapMappedTxnIdInSimpliDeliverDB(tblInvoiceTO, conn, tran);
+                if (result == -1)
+                {
+                    tran.Rollback();
+                    resultMessage.DefaultBehaviour("Error While UpdateSapMappedTxnIdInSimpliDeliverDB");
+                    return resultMessage;
+                }
+
                 #endregion
 
+                #endregion
+
+                tran.Commit();
                 resultMessage.DefaultSuccessBehaviour();
                 return resultMessage;
             }

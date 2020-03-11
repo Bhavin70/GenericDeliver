@@ -54,6 +54,28 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Selection
+        //06.03.2020 By Ashish Mishra add this function for Get SapMappedTxnId from simpliDeliver DB to check is it generated or not against invoice.
+        public int GetsapMappedTxnIdFromInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                cmdSelect.CommandText = "SELECT sapMappedTxnId FROM tempinvoice  WHERE idInvoice=@IdInvoice";
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Parameters.Add("@IdInvoice", System.Data.SqlDbType.Int).Value = tblInvoiceTO.IdInvoice;
+                return Convert.ToInt32(cmdSelect.ExecuteScalar());
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+            finally
+            {
+                cmdSelect.Dispose();
+            }
+        }
         public List<TblInvoiceTO> SelectAllTblInvoice()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -2397,7 +2419,46 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Dispose();
             }
         }
-        
+        //06.03.2020 By Ashish Mishra add this function for save SapMappedTxnId in simpliDeliver DB
+        public int UpdateSapMappedTxnIdInSimpliDeliverDB(TblInvoiceTO tblInvoiceTO, SqlConnection con, SqlTransaction tran)
+        {
+            // String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            // SqlConnection conn =new SqlConnection(sqlConnStr);
+
+            SqlCommand cmdUpdate = new SqlCommand();
+            cmdUpdate.Connection = con;
+            cmdUpdate.Transaction = tran;
+
+            try
+            {
+                //06.03.2020 By Ashish Mishra
+                //1. Need to add sapMappedTxnId field in tempInvoice tabel.
+                //conn.Open();
+                //cmdUpdate.Connection = conn;
+
+                String sqlQuery = @" UPDATE [tempInvoice] SET " +
+
+                 "  [sapMappedTxnId] = @sapMappedTxnId " +
+                 " WHERE [idInvoice] = @IdInvoice ";
+
+                cmdUpdate.CommandText = sqlQuery;
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+
+                cmdUpdate.Parameters.Add("@IdInvoice", System.Data.SqlDbType.Int).Value = tblInvoiceTO.IdInvoice;
+                cmdUpdate.Parameters.Add("@sapMappedTxnId", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.SapMappedSalesInvoiceNo;
+
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                //conn.Close();
+                cmdUpdate.Dispose();
+            }
+        }
         #endregion
 
         #region Deletion

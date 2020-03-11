@@ -44,5 +44,9 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblOtherTaxRpt> SelectOtherTaxDetailsReport(DateTime frmDt, DateTime toDt, int isConfirm, Int32 otherTaxId);
         List<TblOtherTaxRpt> ConvertDTToOtherTaxRptTOList(SqlDataReader tblInvoiceRptTODT);
         TblInvoiceTO SelectAllTblInvoice(string taxInvoiceNumber, int finYearId);
+
+        //06.03.2020 By Ashish Mishra add this function for save SapMappedTxnId in simpliDeliver DB
+        int UpdateSapMappedTxnIdInSimpliDeliverDB(TblInvoiceTO tblInvoiceTO, SqlConnection con, SqlTransaction tran);
+        int GetsapMappedTxnIdFromInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
     }
 }

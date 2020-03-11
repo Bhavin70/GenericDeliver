@@ -80,6 +80,8 @@ namespace ODLMWebAPI.BL.Interfaces
         //Aniket [22-4-2019]
         List<TblInvoiceAddressTO> SelectTblInvoiceAddressByDealerId(Int32 dealerOrgId, String addrSourceType);
 
+        //09.03.2020 By Ashish Mishra add this function for save Sale Invoice details in SAP
+        ResultMessage PostSaleInvoiceListToSAP(List<TblInvoiceTO> tblInvoiceTOList);
 
     }
 }
