@@ -5467,6 +5467,8 @@ namespace ODLMWebAPI.BL {
                                                 tblBookingExtTO.BalanceQty = 0;
                                             }
 
+                                            tblBookingExtTO.BalanceQty = Math.Round(tblBookingExtTO.BalanceQty, 3);
+
                                             result = _iTblBookingExtDAO.UpdateTblBookingExt (tblBookingExtTO, conn, tran);
                                             if (result != 1) {
                                                 tran.Rollback ();
