@@ -20,7 +20,7 @@ namespace ODLMWebAPI.IoT
 {
     public class WeighingCommunication : IWeighingCommunication
     {
-        private readonly object WeightbalanceLock = new object();
+        private static readonly object WeightbalanceLock = new object();
 
         public int PostDataFrommodbusTcpApi(TblLoadingTO tblLoadingTO, int[] writeData, TblWeighingMachineTO machineTO)
         {

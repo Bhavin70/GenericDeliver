@@ -21,7 +21,7 @@ namespace ODLMWebAPI.IoT
     public class GateCommunication : IGateCommunication
     {
 
-        private readonly object GatebalanceLock = new object();
+        private static readonly object GatebalanceLock = new object();
         public int PostGateAPIDataToModbusTcpApiForLoadingSlip(TblLoadingTO tblLoadingTO, Object[] writeData)
         {
             lock (GatebalanceLock)

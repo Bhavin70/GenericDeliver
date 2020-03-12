@@ -78,6 +78,12 @@ namespace ODLMWebAPI.BL
                 List<TblStockConfigTO> tblStockConfigTOList = _iTblStockConfigDAO.SelectAllTblStockConfigTOList();
 
                 List<TblLoadingSlipTO> list = _iTblLoadingSlipDAO.SelectAllTblLoadingSlip(loadingId);
+
+                if (list != null && list.Count > 0)
+                {
+                    list = list.OrderBy(o => o.IdLoadingSlip).ToList();
+                }
+
                 for (int i = 0; i < list.Count; i++)
                 {
                     list[i].TblLoadingSlipDtlTO = _iTblLoadingSlipDtlDAO.SelectLoadingSlipDtlTO(list[i].IdLoadingSlip);
