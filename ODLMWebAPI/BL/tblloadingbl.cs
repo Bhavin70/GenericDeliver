@@ -409,10 +409,10 @@ namespace ODLMWebAPI.BL {
             }
             //Startup.AvailableModbusRefList = DAL.TblLoadingDAO.GeModRefMaxData();
             //Added for remove or update current modbus ref List
-            List<int> list = _iTblLoadingDAO.GeModRefMaxData();
-            if (list == null)
-                throw new Exception("Failed to get ModbusRefList");
-            _iModbusRefConfig.setModbusRefList(list);
+            //List<int> list = _iTblLoadingDAO.GeModRefMaxData();
+            //if (list == null)
+            //    throw new Exception("Failed to get ModbusRefList");
+            //_iModbusRefConfig.setModbusRefList(list);
             resultMessage.DefaultSuccessBehaviour();
             return resultMessage;
         }
@@ -7037,10 +7037,10 @@ namespace ODLMWebAPI.BL {
                             }
                             //  Startup.AvailableModbusRefList = _iTblLoadingDAO.GeModRefMaxData();
                             //Hrushikesh added for Multitenant changes with IOT
-                            List<int> list = _iTblLoadingDAO.GeModRefMaxData ();
-                            if (list == null)
-                                throw new Exception ("Failed to get ModbusRefList");
-                            _iModbusRefConfig.setModbusRefList (list);
+                            //List<int> list = _iTblLoadingDAO.GeModRefMaxData ();
+                            //if (list == null)
+                            //    throw new Exception ("Failed to get ModbusRefList");
+                            //_iModbusRefConfig.setModbusRefList (list);
                             tblLoadingTO.ModbusRefId = 0;
                         }
                     }
@@ -9044,10 +9044,10 @@ namespace ODLMWebAPI.BL {
                             }
                             //  Startup.AvailableModbusRefList = _iTblLoadingDAO.GeModRefMaxData();
                             //Hrushikesh added for Multitenant changes with IOT
-                            List<int> list = _iTblLoadingDAO.GeModRefMaxData();
-                            if (list == null)
-                                throw new Exception("Failed to get ModbusRefList");
-                            _iModbusRefConfig.setModbusRefList(list);
+                            //List<int> list = _iTblLoadingDAO.GeModRefMaxData();
+                            //if (list == null)
+                            //    throw new Exception("Failed to get ModbusRefList");
+                            //_iModbusRefConfig.setModbusRefList(list);
                         }
 
                         #endregion

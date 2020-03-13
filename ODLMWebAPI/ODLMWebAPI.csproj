@@ -66,6 +66,8 @@
   <ItemGroup>
     <Reference Include="Interop.SAPbobsCOM">
       <HintPath>..\..\..\..\..\..\it29\Projects\SAP\New Ref Dll\Interop.SAPbobsCOM.dll</HintPath>
+      <Private>true</Private>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
     </Reference>
   </ItemGroup>
 

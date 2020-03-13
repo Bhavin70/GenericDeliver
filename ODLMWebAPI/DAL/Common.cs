@@ -32,7 +32,46 @@ namespace ODLMWebAPI.DAL
          _iModbusRefConfig =iModbusRefConfig;
         }
 
-     
+        public List<int> GeModRefMaxData()
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlDataReader sqlReader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = " SELECT TOP 255 modbusRefId FROM tempLoading WHERE modbusRefId IS NOT NULL ORDER BY modbusRefId DESC";
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Connection = conn;
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<int> list = new List<int>();
+                if (sqlReader != null)
+                {
+                    while (sqlReader.Read())
+                    {
+                        int modRefId = 0;
+                        if (sqlReader["modbusRefId"] != DBNull.Value)
+                            modRefId = Convert.ToInt32(sqlReader["modbusRefId"].ToString());
+                        if (modRefId > 0)
+                            list.Add(modRefId);
+                    }
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                sqlReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
         #region GetNextAvailableModRefIdNew
         //Aniket [30-7-2019]  added for IOT
         public int GetNextAvailableModRefIdNew()
@@ -41,7 +80,7 @@ namespace ODLMWebAPI.DAL
             lock (uniqueModBusRefIdLock)
             {
                 int modRefNumber = 0;
-                List<int> list = _iModbusRefConfig.getModbusRefList();
+                List<int> list = GeModRefMaxData();
                 if (list != null && list.Count > 0)
                 {
                     int maxNumber = 1;
