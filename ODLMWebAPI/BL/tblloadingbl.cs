@@ -376,6 +376,8 @@ namespace ODLMWebAPI.BL {
 
             List<TblGateTO> tblGateTOList = _iTblGateBL.SelectAllTblGateList(Constants.ActiveSelectionTypeE.Active);
 
+            tblGateTOList = tblGateTOList.Where(w => w.ModuleId == Constants.DefaultModuleID).ToList();
+
             for (int g = 0; g < tblGateTOList.Count; g++)
             {
 
@@ -542,6 +544,14 @@ namespace ODLMWebAPI.BL {
                                     tblInvoiceTO.TareWeight = invoiceTareWt;
                                     tblInvoiceTO.GrossWeight = tblInvoiceTO.TareWeight + tblInvoiceTO.NetWeight;
 
+                                    if (tblInvoiceTO.UpdatedOn == new DateTime())
+                                    {
+                                        tblInvoiceTO.UpdatedOn = _iCommon.ServerDateTime;
+                                    }
+                                    if (tblInvoiceTO.UpdatedBy == 0)
+                                    {
+                                        tblInvoiceTO.UpdatedBy = tblInvoiceTO.CreatedBy;
+                                    }
                                     Int32 result = _iTblInvoiceDAO.UpdateTblInvoice(tblInvoiceTO, conn, tran);
                                     if (result == -1)
                                     {
@@ -2771,6 +2781,12 @@ namespace ODLMWebAPI.BL {
                                 if (iotVehicleNo.ToUpper() == vehicleNo.ToUpper())
                                 {
                                     TblLoadingTO tblLoadingTO = SelectTblLoadingTOByModBusRefId(modBusLoadingRefId);
+
+                                    if (tblLoadingTO == null)
+                                    {
+                                        resultMessage.DefaultBehaviour("tblLoadingTO Found null against modBusRefId - " + modBusLoadingRefId);
+                                        return resultMessage;
+                                    }
 
                                     Int32 iotStatusId = Convert.ToInt32(gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.StatusId]);
                                     DimStatusTO dimStatusTO = _iDimStatusBL.SelectDimStatusTOByIotStatusId(iotStatusId, (Int32)StaticStuff.Constants.TransactionTypeE.LOADING);
