@@ -48,6 +48,7 @@ namespace ODLMWebAPI.Models
         double pendingUomQty;
         double avgBundleWt;
 
+        double nonConfParityAmt;
         double parityAmt;
         double itemWiseRate;
         double totalAmt;
@@ -192,6 +193,8 @@ namespace ODLMWebAPI.Models
         //public string LayerDesc { get => layerDesc; set => layerDesc = value; }
 
         public double ParityAmt { get => parityAmt; set => parityAmt = value; }
+        public double NonConfParityAmt { get => nonConfParityAmt; set => nonConfParityAmt = value; }
+
         public double ItemWiseRate { get => itemWiseRate; set => itemWiseRate = value; }
         public double TotalAmt { get => totalAmt; set => totalAmt = value; }
         public double BookingRate { get => bookingRate; set => bookingRate = value; }

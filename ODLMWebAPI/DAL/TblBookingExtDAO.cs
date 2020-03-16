@@ -348,6 +348,10 @@ namespace ODLMWebAPI.DAL
                         tblBookingExtTONew.PendingUomQty = Convert.ToDouble(tblBookingExtTODT["pendingUomQty"]);
                     if (tblBookingExtTODT["parityAmt"] != DBNull.Value)
                         tblBookingExtTONew.ParityAmt = Convert.ToDouble(tblBookingExtTODT["parityAmt"]);
+
+                    if (tblBookingExtTODT["nonConfParityAmt"] != DBNull.Value)
+                        tblBookingExtTONew.NonConfParityAmt = Convert.ToDouble(tblBookingExtTODT["nonConfParityAmt"]);
+
                     if (tblBookingExtTODT["bookingRate"] != DBNull.Value)
                         tblBookingExtTONew.BookingRate = Convert.ToDouble(tblBookingExtTODT["bookingRate"]);
 
@@ -493,6 +497,7 @@ namespace ODLMWebAPI.DAL
                             " ,[pendingUomQty]" +
                             " ,[bookingRate]" +
                             " ,[parityAmt]" +
+                            " ,[nonConfParityAmt]" + 
                             " ,[isProcessReq]" +
                             " ,[processCharge]" +
                             " ,[length]" +
@@ -517,6 +522,7 @@ namespace ODLMWebAPI.DAL
                             " ,@pendingUomQty " +
                             " ,@BookingRate " +
                             " ,@ParityAmt " +
+                            " ,@NonConfParityAmt " +
                             " ,@IsProcessReq " +
                             " ,@ProcessCharge " +
                             " ,@Length " +
@@ -544,6 +550,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@uomQty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.UomQty);
             cmdInsert.Parameters.Add("@pendingUomQty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.PendingUomQty);
             cmdInsert.Parameters.Add("@ParityAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.ParityAmt);
+            cmdInsert.Parameters.Add("@NonConfParityAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.NonConfParityAmt);
             cmdInsert.Parameters.Add("@BookingRate", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.BookingRate);
 
             cmdInsert.Parameters.Add("@IsProcessReq", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.IsProcessReq);
@@ -623,6 +630,7 @@ namespace ODLMWebAPI.DAL
                             " ,[pendingUomQty] = @pendingUomQty" +
                             " ,[bookingRate] = @BookingRate" +
                             " ,[parityAmt] = @ParityAmt" +
+                            " ,[nonConfParityAmt] = @NonConfParityAmt" +
                             " ,[isProcessReq] = @IsProcessReq" +
                             " ,[processCharge] = @ProcessCharge" +
                             " ,[length] = @Length" +
@@ -649,6 +657,7 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@uomQty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.UomQty);
             cmdUpdate.Parameters.Add("@pendingUomQty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.PendingUomQty);
             cmdUpdate.Parameters.Add("@ParityAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.ParityAmt);
+            cmdUpdate.Parameters.Add("@NonConfParityAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.NonConfParityAmt);
             cmdUpdate.Parameters.Add("@BookingRate", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.BookingRate);
             //cmdUpdate.Parameters.Add("@LoadingLayerId", System.Data.SqlDbType.Int).Value = tblBookingExtTO.LoadingLayerId;
             cmdUpdate.Parameters.Add("@IsProcessReq", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.IsProcessReq);
