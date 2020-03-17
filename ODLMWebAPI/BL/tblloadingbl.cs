@@ -2450,6 +2450,9 @@ namespace ODLMWebAPI.BL {
                                     {
                                         if (tblBookingsTO.BookingScheduleTOLst[n].IsUpdated)
                                         {
+
+                                            tblBookingsTO.BookingScheduleTOLst[n].Qty = Math.Round(tblBookingsTO.BookingScheduleTOLst[n].Qty, 3);
+
                                             tblBookingsTO.BookingScheduleTOLst[n].IsUpdated = false;
                                             result = _iTblBookingScheduleDAO.UpdateTblBookingSchedulePendingQty(tblBookingsTO.BookingScheduleTOLst[n], conn, tran);
                                             if (result != 1)
@@ -2644,6 +2647,9 @@ namespace ODLMWebAPI.BL {
                         && tblBookingsTO.BookingScheduleTOLst[n].Qty >= adjustedBookQty)
                     {
                         tblBookingsTO.BookingScheduleTOLst[n].Qty -= adjustedBookQty;
+
+                        tblBookingsTO.BookingScheduleTOLst[n].Qty = Math.Round(tblBookingsTO.BookingScheduleTOLst[n].Qty, 3);
+
                         tblBookingsTO.BookingScheduleTOLst[n].IsUpdated = true;
                         adjustedBookQty = 0;
                     }
