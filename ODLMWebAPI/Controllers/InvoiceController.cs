@@ -1256,6 +1256,48 @@ namespace ODLMWebAPI.Controllers
             }
         }
 
+        [Route("SendInvoiceEmail")]
+        [HttpPost]
+        public ResultMessage SendInvoiceEmail([FromBody] JObject data)
+        {
+            try
+            {
+                ResultMessage resultMessage = new StaticStuff.ResultMessage();
+                string emailSendToList = data["emailSendToList"].ToString();
+                Int32 isSendEmailForInvoice = Convert.ToInt32(data["isInvoicemail"].ToString());
+                Int32 isSendEmailForWeighment = Convert.ToInt32(data["isWeighmentmail"].ToString());
+                Int32 invoiceId = Convert.ToInt32(data["invoiceId"].ToString());
+
+
+                if(invoiceId <= 0)
+                {
+                    resultMessage.DefaultBehaviour("invoiceId Found NULL");
+                    return resultMessage;
+                }
+
+                if(string.IsNullOrEmpty(emailSendToList))
+                {
+                    resultMessage.DefaultBehaviour("emailSendToList Found NULL");
+                    return resultMessage;
+                }
+
+               
+             return _iTblInvoiceBL.SendInvoiceEmail(emailSendToList, isSendEmailForInvoice, isSendEmailForWeighment, invoiceId);
+                
+
+               
+            }
+
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+
+            }
+        }
+
 
         // PUT api/values/5
         [HttpPut("{id}")]

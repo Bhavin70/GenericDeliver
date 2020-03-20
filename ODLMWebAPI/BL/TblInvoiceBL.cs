@@ -3777,7 +3777,7 @@ namespace ODLMWebAPI.BL
         /// </summary>
         /// <param name="invoiceId"></param>
         /// <returns></returns>
-        public ResultMessage PrintReport(Int32 invoiceId,Boolean isPrinted=false)
+        public ResultMessage PrintReport(Int32 invoiceId,Boolean isPrinted=false ,Boolean isSendEmailForInvoice = false)
         {
             ResultMessage resultMessage = new ResultMessage();
 
@@ -5060,9 +5060,40 @@ namespace ODLMWebAPI.BL
             }
         }
 
+        public ResultMessage SendInvoiceEmail(string emailSendToList,Int32 isSendEmailForInvoice,Int32 isSendEmailForWeighment,Int32 invoiceId)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+
+            try
+            {
+                if(isSendEmailForInvoice == 1)
+                {
+                    resultMessage = PrintReport(invoiceId , false, true);
+                    if(resultMessage.MessageType != ResultMessageE.Information)
+                    {
+                        return resultMessage;
+                    }
+                }
+
+                if(isSendEmailForWeighment == 1)
+                {
+                    resultMessage = PrintWeighingReport(invoiceId,true);
+                }
+
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "Error in  SendInvoiceEmail(string emailSendToList,Int32 isSendEmailForInvoice,Int32 isSendEmailForWeighment,Int32 invoiceId)");
+                return resultMessage;
 
 
-        public ResultMessage PrintWeighingReport(Int32 invoiceId)
+            }
+        }
+
+
+        public ResultMessage PrintWeighingReport(Int32 invoiceId,Boolean isSendEmailForWeighment = false)
         {
             ResultMessage resultMessage = new ResultMessage();
 
@@ -5265,6 +5296,13 @@ namespace ODLMWebAPI.BL
                         String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
                         String fileName = "Bill-" + DateTime.Now.Ticks;
 
+                        if(isSendEmailForWeighment)
+                        {
+                            templateName = "WeighingSlipNonConfirm";
+                            templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
+                            fileName = "Bill-" + DateTime.Now.Ticks;
+                        }
+
                         //download location for rewrite  template file
                         String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
                         // RunReport runReport = new RunReport();
@@ -5281,27 +5319,30 @@ namespace ODLMWebAPI.BL
                         resultMessage = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePath, saveLocation, Constants.ReportE.PDF_DONT_OPEN, IsProduction);
                         if (resultMessage.MessageType == ResultMessageE.Information)
                         {
-                            String filePath = String.Empty;
-                            if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
+                            if(!isSendEmailForWeighment)
                             {
-                                filePath = resultMessage.Tag.ToString();
-                            }
-                            String fileName1 = Path.GetFileName(saveLocation);
-                            Byte[] bytes = File.ReadAllBytes(filePath);
-                            if (bytes != null && bytes.Length > 0)
-                            {
-                                resultMessage.Tag = bytes;
-                                string resFname = Path.GetFileNameWithoutExtension(saveLocation);
-                                string directoryName;
-                                directoryName = Path.GetDirectoryName(saveLocation);
-                                string[] fileEntries = Directory.GetFiles(directoryName, "*Bill*");
-                                string[] filesList = Directory.GetFiles(directoryName, "*Bill*");
-
-                                foreach (string file in filesList)
+                                String filePath = String.Empty;
+                                if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
                                 {
-                                    //if (file.ToUpper().Contains(resFname.ToUpper()))
+                                    filePath = resultMessage.Tag.ToString();
+                                }
+                                String fileName1 = Path.GetFileName(saveLocation);
+                                Byte[] bytes = File.ReadAllBytes(filePath);
+                                if (bytes != null && bytes.Length > 0)
+                                {
+                                    resultMessage.Tag = bytes;
+                                    string resFname = Path.GetFileNameWithoutExtension(saveLocation);
+                                    string directoryName;
+                                    directoryName = Path.GetDirectoryName(saveLocation);
+                                    string[] fileEntries = Directory.GetFiles(directoryName, "*Bill*");
+                                    string[] filesList = Directory.GetFiles(directoryName, "*Bill*");
+
+                                    foreach (string file in filesList)
                                     {
-                                        File.Delete(file);
+                                        //if (file.ToUpper().Contains(resFname.ToUpper()))
+                                        {
+                                            File.Delete(file);
+                                        }
                                     }
                                 }
                             }
