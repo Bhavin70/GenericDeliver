@@ -1264,8 +1264,8 @@ namespace ODLMWebAPI.Controllers
             {
                 ResultMessage resultMessage = new StaticStuff.ResultMessage();
                 string emailSendToList = data["emailSendToList"].ToString();
-                Int32 isSendEmailForInvoice = Convert.ToInt32(data["isInvoicemail"].ToString());
-                Int32 isSendEmailForWeighment = Convert.ToInt32(data["isWeighmentmail"].ToString());
+                Boolean isSendEmailForInvoice = Convert.ToBoolean(data["isInvoicemail"].ToString());
+                Boolean isSendEmailForWeighment = Convert.ToBoolean(data["isWeighmentmail"].ToString());
                 Int32 invoiceId = Convert.ToInt32(data["invoiceId"].ToString());
 
 

@@ -50,7 +50,7 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage InsertInvoiceDocumentDetails(TblInvoiceTO tblInvoiceTO, List<TblDocumentDetailsTO> tblDocumentDetailsTOList, Int32 loginUserId, SqlConnection conn, SqlTransaction tran);
         ResultMessage PrintReport(Int32 invoiceId,Boolean isPrinted=false,Boolean isSendEmailForInvoice = false);
         ResultMessage PrintWeighingReport(Int32 invoiceId,Boolean isSendEmailForWeighment = false);
-        ResultMessage SendInvoiceEmail(string emailSendToList, Int32 isSendEmailForInvoice, Int32 isSendEmailForWeighment, Int32 invoiceId);
+        ResultMessage SendInvoiceEmail(string emailSendToList, Boolean isSendEmailForInvoice, Boolean isSendEmailForWeighment, Int32 invoiceId);
         String currencyTowords(Double amount, Int32 currencyId);
         string ConvertNumbertoWords(long number);
         Double getDiscountPerct(TblInvoiceTO resInvoiceTO);

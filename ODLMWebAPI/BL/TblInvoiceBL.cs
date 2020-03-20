@@ -5060,24 +5060,24 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        public ResultMessage SendInvoiceEmail(string emailSendToList,Int32 isSendEmailForInvoice,Int32 isSendEmailForWeighment,Int32 invoiceId)
+        public ResultMessage SendInvoiceEmail(string emailSendToList,Boolean isSendEmailForInvoice, Boolean isSendEmailForWeighment,Int32 invoiceId)
         {
             ResultMessage resultMessage = new ResultMessage();
 
             try
             {
-                if(isSendEmailForInvoice == 1)
+                if(isSendEmailForInvoice)
                 {
-                    resultMessage = PrintReport(invoiceId , false, true);
+                    resultMessage = PrintReport(invoiceId , false, isSendEmailForInvoice);
                     if(resultMessage.MessageType != ResultMessageE.Information)
                     {
                         return resultMessage;
                     }
                 }
 
-                if(isSendEmailForWeighment == 1)
+                if(isSendEmailForWeighment)
                 {
-                    resultMessage = PrintWeighingReport(invoiceId,true);
+                    resultMessage = PrintWeighingReport(invoiceId, isSendEmailForWeighment);
                 }
 
                 resultMessage.DefaultSuccessBehaviour();
