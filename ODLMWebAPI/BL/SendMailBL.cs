@@ -136,14 +136,18 @@ namespace ODLMWebAPI.DAL
 
                 if (!String.IsNullOrEmpty(tblsendTO.Message))
                 {
+                    //Byte[] bytes = File.ReadAllBytes(tblsendTO.Message);
                     byte[] bytes = System.Convert.FromBase64String(tblsendTO.Message.Replace("data:application/pdf;base64,", String.Empty));
                     bodybuilder.Attachments.Add("Invoice.pdf", bytes, ContentType.Parse("application/pdf"));
+                    //bodybuilder.Attachments.Add(@tblsendTO.Message);
+
                 }
 
                 if (tblsendTO.IsWeighmentSlipAttach == true)
                 {
                     byte[] weighmentbytes = System.Convert.FromBase64String(tblsendTO.WeighmentSlip.Replace("data:application/pdf;base64,", String.Empty));
                     bodybuilder.Attachments.Add("WeighmentSlip.pdf", weighmentbytes, ContentType.Parse("application/pdf"));
+                    //bodybuilder.Attachments.Add(@tblsendTO.WeighmentSlip);
                 }
                 mimeMessage.Body = bodybuilder.ToMessageBody();
                 //WebRequest.DefaultWebProxy = new WebProxy(("smtp.bizmail.yahoo.com"));

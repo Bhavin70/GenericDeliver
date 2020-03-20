@@ -4965,40 +4965,17 @@ namespace ODLMWebAPI.BL
 
                     if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
                     {
-
                         filePath = resultMessage.Tag.ToString();
-
                     }
-
-
-
-                    //driveName + path;
-                    String fileName1 = Path.GetFileName(saveLocation);
-                    Byte[] bytes = File.ReadAllBytes(filePath);
-                    if (bytes != null && bytes.Length > 0)
-                    {
-                        resultMessage.Tag = bytes;
-
-                        string resFname = Path.GetFileNameWithoutExtension(saveLocation);
-                        string directoryName;
-
-
-
-                        directoryName = Path.GetDirectoryName(saveLocation);
-                        string[] fileEntries = Directory.GetFiles(directoryName, "*Bill*");
-                        string[] filesList = Directory.GetFiles(directoryName, "*Bill*");
-
-                        foreach (string file in filesList)
+                  
+                        //driveName + path;
+                        Byte[] bytes = DeleteFile(saveLocation, filePath);
+                        if (bytes != null && bytes.Length > 0)
                         {
-                            //if (file.ToUpper().Contains(resFname.ToUpper()))
-                            {
-                                File.Delete(file);
-                            }
+                            resultMessage.Tag = Convert.ToBase64String(bytes);
                         }
-
-
-
-                    }
+                    
+                    
                     //List<IFormFile> files = new List<IFormFile>();
                     //TblDocumentDetailsTO tblDocumentDetailsTO = new TblDocumentDetailsTO();
                     //tblDocumentDetailsTO.IsActive = 1;
@@ -5060,24 +5037,78 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        public ResultMessage SendInvoiceEmail(string emailSendToList,Boolean isSendEmailForInvoice, Boolean isSendEmailForWeighment,Int32 invoiceId)
+        public Byte[] DeleteFile(string saveLocation,string filePath)
+        {
+            String fileName1 = Path.GetFileName(saveLocation);
+            Byte[] bytes = File.ReadAllBytes(filePath);
+            if (bytes != null && bytes.Length > 0)
+            {
+
+                string resFname = Path.GetFileNameWithoutExtension(saveLocation);
+                string directoryName;
+
+                directoryName = Path.GetDirectoryName(saveLocation);
+                string[] fileEntries = Directory.GetFiles(directoryName, "*Bill*");
+                string[] filesList = Directory.GetFiles(directoryName, "*Bill*");
+
+                foreach (string file in filesList)
+                {
+                    //if (file.ToUpper().Contains(resFname.ToUpper()))
+                    {
+                        File.Delete(file);
+                    }
+                }
+            }
+            return bytes;
+        }
+
+        public ResultMessage SendInvoiceEmail(SendMail mailInformationTo)
         {
             ResultMessage resultMessage = new ResultMessage();
 
             try
             {
-                if(isSendEmailForInvoice)
+                if(mailInformationTo.IsSendEmailForInvoice)
                 {
-                    resultMessage = PrintReport(invoiceId , false, isSendEmailForInvoice);
-                    if(resultMessage.MessageType != ResultMessageE.Information)
+                    resultMessage = PrintReport(mailInformationTo.InvoiceId, false, true);
+                    if(resultMessage.MessageType == ResultMessageE.Information)
                     {
+                        if(resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(string))
+                        {
+                            mailInformationTo.IsInvoiceAttach = true;
+                            mailInformationTo.Message = resultMessage.Tag.ToString();
+                        }
+                    }
+                    else
+                    {
+                        resultMessage.DefaultBehaviour();
                         return resultMessage;
                     }
                 }
 
-                if(isSendEmailForWeighment)
+                if(mailInformationTo.IsSendEmailForWeighment)
                 {
-                    resultMessage = PrintWeighingReport(invoiceId, isSendEmailForWeighment);
+                    resultMessage = PrintWeighingReport(mailInformationTo.InvoiceId, true);
+                    if (resultMessage.MessageType == ResultMessageE.Information)
+                    {
+                        if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(string))
+                        {
+                            mailInformationTo.IsWeighmentSlipAttach = true;
+                            mailInformationTo.WeighmentSlip = resultMessage.Tag.ToString();
+                        }
+                    }
+                    else
+                    {
+                        resultMessage.DefaultBehaviour();
+                        return resultMessage;
+                    }
+                }
+
+                Int32 result = sendInvoiceFromMail(mailInformationTo);
+                if (result <= 0)
+                {
+                    resultMessage.DefaultBehaviour();
+                    return resultMessage;
                 }
 
                 resultMessage.DefaultSuccessBehaviour();
@@ -5085,7 +5116,7 @@ namespace ODLMWebAPI.BL
             }
             catch (Exception ex)
             {
-                resultMessage.DefaultExceptionBehaviour(ex, "Error in  SendInvoiceEmail(string emailSendToList,Int32 isSendEmailForInvoice,Int32 isSendEmailForWeighment,Int32 invoiceId)");
+                resultMessage.DefaultExceptionBehaviour(ex, "Error in  SendInvoiceEmail(SendMail mailInformationTo)");
                 return resultMessage;
 
 
@@ -5298,7 +5329,7 @@ namespace ODLMWebAPI.BL
 
                         if(isSendEmailForWeighment)
                         {
-                            templateName = "WeighingSlipNonConfirm";
+                            templateName = "WeighmentSlip";
                             templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
                             fileName = "Bill-" + DateTime.Now.Ticks;
                         }
@@ -5319,33 +5350,18 @@ namespace ODLMWebAPI.BL
                         resultMessage = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePath, saveLocation, Constants.ReportE.PDF_DONT_OPEN, IsProduction);
                         if (resultMessage.MessageType == ResultMessageE.Information)
                         {
-                            if(!isSendEmailForWeighment)
+                            String filePath = String.Empty;
+                            if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
                             {
-                                String filePath = String.Empty;
-                                if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
-                                {
-                                    filePath = resultMessage.Tag.ToString();
-                                }
-                                String fileName1 = Path.GetFileName(saveLocation);
-                                Byte[] bytes = File.ReadAllBytes(filePath);
-                                if (bytes != null && bytes.Length > 0)
-                                {
-                                    resultMessage.Tag = bytes;
-                                    string resFname = Path.GetFileNameWithoutExtension(saveLocation);
-                                    string directoryName;
-                                    directoryName = Path.GetDirectoryName(saveLocation);
-                                    string[] fileEntries = Directory.GetFiles(directoryName, "*Bill*");
-                                    string[] filesList = Directory.GetFiles(directoryName, "*Bill*");
-
-                                    foreach (string file in filesList)
-                                    {
-                                        //if (file.ToUpper().Contains(resFname.ToUpper()))
-                                        {
-                                            File.Delete(file);
-                                        }
-                                    }
-                                }
+                                filePath = resultMessage.Tag.ToString();
                             }
+
+                            Byte[] bytes = DeleteFile(saveLocation, filePath);
+                            if (bytes != null && bytes.Length > 0)
+                            {
+                                resultMessage.Tag = Convert.ToBase64String(bytes);
+                            }
+
                             if (resultMessage.MessageType == ResultMessageE.Information)
                             {
                                 resultMessage.DefaultSuccessBehaviour();
@@ -8302,15 +8318,15 @@ namespace ODLMWebAPI.BL
                 }
                 if (sendMail.IsWeighmentSlipAttach == true && sendMail.IsInvoiceAttach==true)
                 {
-                    sendMail.Subject = "Invoice-"+sendMail.InvoiceNumber+" and Weighment Slip";
+                    sendMail.Subject = "Invoice and Weighment Slip -" + sendMail.InvoiceId + "-" + sendMail.InvoiceNumber+" ";
                 }
                 else if (sendMail.IsWeighmentSlipAttach == false && sendMail.IsInvoiceAttach == true)
                 {
-                    sendMail.Subject = "Invoice-" + sendMail.InvoiceNumber;
+                    sendMail.Subject = "Invoice-"+ sendMail.InvoiceId + "-" + sendMail.InvoiceNumber;
                 }
                 else
                 {
-                    sendMail.Subject = "Weighment Slip";
+                    sendMail.Subject = "Weighment Slip-" + sendMail.InvoiceId + "-" +  sendMail.InvoiceNumber;
                 }
                 result = _iSendMailBL.SendEmail(sendMail);
                 if (result != 1)

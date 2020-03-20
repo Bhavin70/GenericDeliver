@@ -846,6 +846,7 @@ namespace ODLMWebAPI.Controllers
         public ResultMessage PostInvoiceFromMail([FromBody] JObject data)
         {
             ResultMessage resultMessage = new StaticStuff.ResultMessage();
+
             try
             {
                 SendMail SendMailTo = JsonConvert.DeserializeObject<SendMail>(data["mailInformationTo"].ToString());
@@ -1263,28 +1264,16 @@ namespace ODLMWebAPI.Controllers
             try
             {
                 ResultMessage resultMessage = new StaticStuff.ResultMessage();
-                string emailSendToList = data["emailSendToList"].ToString();
-                Boolean isSendEmailForInvoice = Convert.ToBoolean(data["isInvoicemail"].ToString());
-                Boolean isSendEmailForWeighment = Convert.ToBoolean(data["isWeighmentmail"].ToString());
-                Int32 invoiceId = Convert.ToInt32(data["invoiceId"].ToString());
 
+                SendMail mailInformationTo = JsonConvert.DeserializeObject<SendMail>(data["mailInformationTo"].ToString());
 
-                if(invoiceId <= 0)
+                if(mailInformationTo == null)
                 {
-                    resultMessage.DefaultBehaviour("invoiceId Found NULL");
+                    resultMessage.DefaultBehaviour("mailInformationTo Found NULL");
                     return resultMessage;
                 }
-
-                if(string.IsNullOrEmpty(emailSendToList))
-                {
-                    resultMessage.DefaultBehaviour("emailSendToList Found NULL");
-                    return resultMessage;
-                }
-
                
-             return _iTblInvoiceBL.SendInvoiceEmail(emailSendToList, isSendEmailForInvoice, isSendEmailForWeighment, invoiceId);
-                
-
+             return _iTblInvoiceBL.SendInvoiceEmail(mailInformationTo);
                
             }
 
