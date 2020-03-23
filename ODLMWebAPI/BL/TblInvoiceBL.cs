@@ -3777,7 +3777,7 @@ namespace ODLMWebAPI.BL
         /// </summary>
         /// <param name="invoiceId"></param>
         /// <returns></returns>
-        public ResultMessage PrintReport(Int32 invoiceId,Boolean isPrinted=false)
+        public ResultMessage PrintReport(Int32 invoiceId,Boolean isPrinted=false ,Boolean isSendEmailForInvoice = false)
         {
             ResultMessage resultMessage = new ResultMessage();
 
@@ -4965,40 +4965,17 @@ namespace ODLMWebAPI.BL
 
                     if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
                     {
-
                         filePath = resultMessage.Tag.ToString();
-
                     }
-
-
-
-                    //driveName + path;
-                    String fileName1 = Path.GetFileName(saveLocation);
-                    Byte[] bytes = File.ReadAllBytes(filePath);
-                    if (bytes != null && bytes.Length > 0)
-                    {
-                        resultMessage.Tag = bytes;
-
-                        string resFname = Path.GetFileNameWithoutExtension(saveLocation);
-                        string directoryName;
-
-
-
-                        directoryName = Path.GetDirectoryName(saveLocation);
-                        string[] fileEntries = Directory.GetFiles(directoryName, "*Bill*");
-                        string[] filesList = Directory.GetFiles(directoryName, "*Bill*");
-
-                        foreach (string file in filesList)
+                  
+                        //driveName + path;
+                        Byte[] bytes = DeleteFile(saveLocation, filePath);
+                        if (bytes != null && bytes.Length > 0)
                         {
-                            //if (file.ToUpper().Contains(resFname.ToUpper()))
-                            {
-                                File.Delete(file);
-                            }
+                            resultMessage.Tag = Convert.ToBase64String(bytes);
                         }
-
-
-
-                    }
+                    
+                    
                     //List<IFormFile> files = new List<IFormFile>();
                     //TblDocumentDetailsTO tblDocumentDetailsTO = new TblDocumentDetailsTO();
                     //tblDocumentDetailsTO.IsActive = 1;
@@ -5060,9 +5037,94 @@ namespace ODLMWebAPI.BL
             }
         }
 
+        public Byte[] DeleteFile(string saveLocation,string filePath)
+        {
+            String fileName1 = Path.GetFileName(saveLocation);
+            Byte[] bytes = File.ReadAllBytes(filePath);
+            if (bytes != null && bytes.Length > 0)
+            {
+
+                string resFname = Path.GetFileNameWithoutExtension(saveLocation);
+                string directoryName;
+
+                directoryName = Path.GetDirectoryName(saveLocation);
+                string[] fileEntries = Directory.GetFiles(directoryName, "*Bill*");
+                string[] filesList = Directory.GetFiles(directoryName, "*Bill*");
+
+                foreach (string file in filesList)
+                {
+                    //if (file.ToUpper().Contains(resFname.ToUpper()))
+                    {
+                        File.Delete(file);
+                    }
+                }
+            }
+            return bytes;
+        }
+
+        public ResultMessage SendInvoiceEmail(SendMail mailInformationTo)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+
+            try
+            {
+                if(mailInformationTo.IsSendEmailForInvoice)
+                {
+                    resultMessage = PrintReport(mailInformationTo.InvoiceId, false, true);
+                    if(resultMessage.MessageType == ResultMessageE.Information)
+                    {
+                        if(resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(string))
+                        {
+                            mailInformationTo.IsInvoiceAttach = true;
+                            mailInformationTo.Message = resultMessage.Tag.ToString();
+                        }
+                    }
+                    else
+                    {
+                        resultMessage.DefaultBehaviour();
+                        return resultMessage;
+                    }
+                }
+
+                if(mailInformationTo.IsSendEmailForWeighment)
+                {
+                    resultMessage = PrintWeighingReport(mailInformationTo.InvoiceId, true);
+                    if (resultMessage.MessageType == ResultMessageE.Information)
+                    {
+                        if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(string))
+                        {
+                            mailInformationTo.IsWeighmentSlipAttach = true;
+                            mailInformationTo.WeighmentSlip = resultMessage.Tag.ToString();
+                        }
+                    }
+                    else
+                    {
+                        resultMessage.DefaultBehaviour();
+                        return resultMessage;
+                    }
+                }
+
+                Int32 result = sendInvoiceFromMail(mailInformationTo);
+                if (result <= 0)
+                {
+                    resultMessage.DefaultBehaviour();
+                    return resultMessage;
+                }
+
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "Error in  SendInvoiceEmail(SendMail mailInformationTo)");
+                return resultMessage;
 
 
-        public ResultMessage PrintWeighingReport(Int32 invoiceId)
+            }
+        }
+
+
+        public ResultMessage PrintWeighingReport(Int32 invoiceId,Boolean isSendEmailForWeighment = false)
         {
             ResultMessage resultMessage = new ResultMessage();
 
@@ -5265,6 +5327,13 @@ namespace ODLMWebAPI.BL
                         String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
                         String fileName = "Bill-" + DateTime.Now.Ticks;
 
+                        if(isSendEmailForWeighment)
+                        {
+                            templateName = "WeighmentSlip";
+                            templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
+                            fileName = "Bill-" + DateTime.Now.Ticks;
+                        }
+
                         //download location for rewrite  template file
                         String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
                         // RunReport runReport = new RunReport();
@@ -5286,25 +5355,13 @@ namespace ODLMWebAPI.BL
                             {
                                 filePath = resultMessage.Tag.ToString();
                             }
-                            String fileName1 = Path.GetFileName(saveLocation);
-                            Byte[] bytes = File.ReadAllBytes(filePath);
+
+                            Byte[] bytes = DeleteFile(saveLocation, filePath);
                             if (bytes != null && bytes.Length > 0)
                             {
-                                resultMessage.Tag = bytes;
-                                string resFname = Path.GetFileNameWithoutExtension(saveLocation);
-                                string directoryName;
-                                directoryName = Path.GetDirectoryName(saveLocation);
-                                string[] fileEntries = Directory.GetFiles(directoryName, "*Bill*");
-                                string[] filesList = Directory.GetFiles(directoryName, "*Bill*");
-
-                                foreach (string file in filesList)
-                                {
-                                    //if (file.ToUpper().Contains(resFname.ToUpper()))
-                                    {
-                                        File.Delete(file);
-                                    }
-                                }
+                                resultMessage.Tag = Convert.ToBase64String(bytes);
                             }
+
                             if (resultMessage.MessageType == ResultMessageE.Information)
                             {
                                 resultMessage.DefaultSuccessBehaviour();
@@ -8261,15 +8318,15 @@ namespace ODLMWebAPI.BL
                 }
                 if (sendMail.IsWeighmentSlipAttach == true && sendMail.IsInvoiceAttach==true)
                 {
-                    sendMail.Subject = "Invoice-"+sendMail.InvoiceNumber+" and Weighment Slip";
+                    sendMail.Subject = "Invoice and Weighment Slip -" + sendMail.InvoiceId + "-" + sendMail.InvoiceNumber+" ";
                 }
                 else if (sendMail.IsWeighmentSlipAttach == false && sendMail.IsInvoiceAttach == true)
                 {
-                    sendMail.Subject = "Invoice-" + sendMail.InvoiceNumber;
+                    sendMail.Subject = "Invoice-"+ sendMail.InvoiceId + "-" + sendMail.InvoiceNumber;
                 }
                 else
                 {
-                    sendMail.Subject = "Weighment Slip";
+                    sendMail.Subject = "Weighment Slip-" + sendMail.InvoiceId + "-" +  sendMail.InvoiceNumber;
                 }
                 result = _iSendMailBL.SendEmail(sendMail);
                 if (result != 1)

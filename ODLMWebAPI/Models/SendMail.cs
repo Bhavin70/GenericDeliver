@@ -38,6 +38,11 @@ namespace ODLMWebAPI.Models
         bool isWeighmentSlipAttach;
         string invoiceNumber;
         bool isInvoiceAttach;
+
+        Boolean isSendEmailForInvoice;
+        Boolean isSendEmailForWeighment;
+        Int32 invoiceId;
+
         #endregion
 
         #region Constructor for the mail sending Date: 2/10/2017 by vinod thorat 
@@ -159,7 +164,15 @@ namespace ODLMWebAPI.Models
         public bool IsInvoiceAttach { get => isInvoiceAttach; set => isInvoiceAttach = value; }
         public string InvoiceNumber { get => invoiceNumber; set => invoiceNumber = value; }
 
+        public Boolean IsSendEmailForInvoice { get => isSendEmailForInvoice; set => isSendEmailForInvoice = value; }
+
+        public Boolean IsSendEmailForWeighment { get => isSendEmailForWeighment; set => isSendEmailForWeighment = value; }
+
+        public Int32 InvoiceId { get => invoiceId; set => invoiceId = value; }
+
         #endregion
+
+
 
     }
 
