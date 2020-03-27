@@ -86,6 +86,10 @@ namespace ODLMWebAPI.BL {
         private readonly IDimStatusBL _iDimStatusBL;
         //AmolG[2020-Feb-25] added for changing booking schedule qty
         private readonly ITblBookingScheduleDAO _iTblBookingScheduleDAO;
+
+        //Saket [2020-03-26] Locker object added.
+        private static readonly object generateInvoiceNoLock = new object();
+
         public TblLoadingBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO, IWeighingCommunication iWeighingCommunication, IModbusRefConfig iModbusRefConfig,ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblInvoiceHistoryDAO iTblInvoiceHistoryDAO, ITblWeighingMachineDAO iTblWeighingMachineDAO, IGateCommunication iGateCommunication, IIotCommunication iIotCommunication, ITblGateBL iTblGateBL
             , ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, ITblInvoiceBL iTblInvoiceBL, IFinalEnquiryData iFinalEnquiryData, IFinalBookingData iFinalBookingData, ITblConfigParamsDAO iTblConfigParamsDAO, ITblAddressBL iTblAddressBL, ITblInvoiceDAO iTblInvoiceDAO, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO
             , ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingSlipRemovedItemsDAO iTblLoadingSlipRemovedItemsDAO, ITblTransportSlipDAO iTblTransportSlipDAO, IDimStatusDAO iDimStatusDAO, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ITblUserDAO iTblUserDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConsumptionDAO iTblLoadingQuotaConsumptionDAO
@@ -1716,157 +1720,165 @@ namespace ODLMWebAPI.BL {
                         generateNCInvoice = Convert.ToInt32(generateNCInvoiceTblConfigParamsTO.ConfigParamVal);
                     }
 
-                    if (invoiceTO.IsConfirmed == 1 || generateNCInvoice == 1)
+
+                    //Saket [2020-03-26]
+                    lock (generateInvoiceNoLock)
                     {
-                        //Added By hrushikesh for default org id 09/10/2019
-                        TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID, conn, tran);
-                        // Aniket [05-02-2019] check manual branswise invoice no generate or not
-                        TblConfigParamsTO tblConfigParamsTOForBrand = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.GENERATE_MANUALLY_BRANDWISE_INVOICENO, conn, tran);
-                        if (tblConfigParamsTO == null)
+
+                        if (invoiceTO.IsConfirmed == 1 || generateNCInvoice == 1)
                         {
-                            tran.Rollback();
-                            resultMessage.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
-                            return resultMessage;
-                        }
-
-                        Int32 brandWiseInvoiceSetting = Convert.ToInt32(tblConfigParamsTOForBrand.ConfigParamVal);
-
-                        Int32 defualtOrgId = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
-                        TblEntityRangeTO entityRangeTO = null;
-                        //if (Convert.ToInt32(tblConfigParamsTOForBrand.ConfigParamVal) == 1)
-                        //{
-                        //    DimBrandTO dimBrandTO = _iDimBrandDAO.SelectDimBrand(invoiceTO.BrandId);
-                        //    entityRangeString += dimBrandTO.IdBrand.ToString();
-                        //    entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(entityRangeString, invoiceTO.FinYearId, conn, tran);
-                        //}
-                        ////Hrushikesh added get entity Range organizationwise
-                        //else if (invoiceTO.InvFromOrgId != defualtOrgId)
-                        //{
-                        //    string orgstr = Constants.ENTITY_RANGE_REGULAR_TAX_INTERNALORG + invoiceTO.InvFromOrgId;
-                        //    entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(orgstr, invoiceTO.FinYearId, conn, tran);
-                        //}
-                        //else
-                        //    entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(invoiceTO.InvoiceTypeId, invoiceTO.FinYearId, conn, tran);
 
 
-                        String entityName = _iDimensionDAO.SelectInvoiceEntityNameByInvoiceTypeId(invoiceTO.InvoiceTypeId);
-                        if (String.IsNullOrEmpty(entityName))
-                        {
-                            tran.Rollback();
-                            resultMessage.DefaultBehaviour("entityRangeTO Found NULL. Entity Range Not Defined"); return resultMessage;
-                        }
-                        if (invoiceTO.InvFromOrgId != defualtOrgId)   //For NC invoice this condition will false.
-                        {
-                            entityName += "_ORG_" + invoiceTO.InvFromOrgId;
-                        }
-
-                        if (brandWiseInvoiceSetting == 1)
-                        {
-                            entityName += "_BRAND_" + invoiceTO.BrandId;
-                        }
-                        if (invoiceTO.IsConfirmed == 0)
-                        {
-                            entityName += "_NC";
-
-                            Int32 generateNCInvoiceDaily = 0;
-                            TblConfigParamsTO generateNCInvoiceDailyTblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_GENERATE_INVOICE_NO_FOR_NC_DAILY, conn, tran);
-                            if (generateNCInvoiceDailyTblConfigParamsTO != null)
+                            //Added By hrushikesh for default org id 09/10/2019
+                            TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID, conn, tran);
+                            // Aniket [05-02-2019] check manual branswise invoice no generate or not
+                            TblConfigParamsTO tblConfigParamsTOForBrand = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.GENERATE_MANUALLY_BRANDWISE_INVOICENO, conn, tran);
+                            if (tblConfigParamsTO == null)
                             {
-                                generateNCInvoiceDaily = Convert.ToInt32(generateNCInvoiceDailyTblConfigParamsTO.ConfigParamVal);
-                            }
-                            if (generateNCInvoiceDaily == 1)
-                            {
-                                entityRangeTO = SelectEntityRangeForLoadingCount(entityName, conn, tran, invoiceTO.FinYearId, 0);
-                            }
-
-                        }
-
-                        entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(entityName, invoiceTO.FinYearId, conn, tran);
-
-                        if (entityRangeTO == null)
-                        {
-                            tran.Rollback();
-                            resultMessage.DefaultBehaviour("entityRangeTO Found NULL. Entity Range Not Defined"); return resultMessage;
-                        }
-                        Int32 entityPrevVal = 0;
-                        bool isInvoicePresent = false;
-                        int newTaxNumber = 0;
-                        //Aniket [17-jan-2019] to check invoice number should generate manually or automatically
-                        if (String.IsNullOrEmpty(taxInvoiceNumber))
-                        {
-
-                            entityPrevVal = entityRangeTO.EntityPrevValue;
-                            entityPrevVal++;
-                            if (String.IsNullOrEmpty(entityRangeTO.Suffix))
-                            {
-                                invoiceTO.InvoiceNo = entityRangeTO.Prefix + entityPrevVal.ToString();
-                            }
-                            else
-                            {
-                                invoiceTO.InvoiceNo = entityRangeTO.Prefix + entityPrevVal.ToString() + entityRangeTO.Suffix;
-                            }
-
-                        }
-                        else
-                        {
-
-                            TblInvoiceTO tblInvoiceTO = _iTblInvoiceDAO.SelectAllTblInvoice(taxInvoiceNumber, invoiceTO.FinYearId);
-                            // List<TblInvoiceTO> tempList = list.Where(x => x.FinYearId == invoiceTO.FinYearId).ToList();
-                            // List<TblInvoiceTO> existInvoiceList = new List<TblInvoiceTO>();
-                            // if (tempList != null && tempList.Count > 0)
-                            //  {
-                            //   existInvoiceList = tempList.Where(ele => ele.InvoiceNo == taxInvoiceNumber).ToList();
-                            if (!String.IsNullOrEmpty(tblInvoiceTO.InvoiceNo))
-                            {
-
-                                isInvoicePresent = true;
-                                resultMessage.DefaultBehaviour(taxInvoiceNumber + " Invoice number has been already generated against Id  " + tblInvoiceTO.IdInvoice);
+                                tran.Rollback();
+                                resultMessage.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
                                 return resultMessage;
+                            }
+
+                            Int32 brandWiseInvoiceSetting = Convert.ToInt32(tblConfigParamsTOForBrand.ConfigParamVal);
+
+                            Int32 defualtOrgId = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+                            TblEntityRangeTO entityRangeTO = null;
+                            //if (Convert.ToInt32(tblConfigParamsTOForBrand.ConfigParamVal) == 1)
+                            //{
+                            //    DimBrandTO dimBrandTO = _iDimBrandDAO.SelectDimBrand(invoiceTO.BrandId);
+                            //    entityRangeString += dimBrandTO.IdBrand.ToString();
+                            //    entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(entityRangeString, invoiceTO.FinYearId, conn, tran);
+                            //}
+                            ////Hrushikesh added get entity Range organizationwise
+                            //else if (invoiceTO.InvFromOrgId != defualtOrgId)
+                            //{
+                            //    string orgstr = Constants.ENTITY_RANGE_REGULAR_TAX_INTERNALORG + invoiceTO.InvFromOrgId;
+                            //    entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(orgstr, invoiceTO.FinYearId, conn, tran);
+                            //}
+                            //else
+                            //    entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(invoiceTO.InvoiceTypeId, invoiceTO.FinYearId, conn, tran);
+
+
+                            String entityName = _iDimensionDAO.SelectInvoiceEntityNameByInvoiceTypeId(invoiceTO.InvoiceTypeId);
+                            if (String.IsNullOrEmpty(entityName))
+                            {
+                                tran.Rollback();
+                                resultMessage.DefaultBehaviour("entityRangeTO Found NULL. Entity Range Not Defined"); return resultMessage;
+                            }
+                            if (invoiceTO.InvFromOrgId != defualtOrgId)   //For NC invoice this condition will false.
+                            {
+                                entityName += "_ORG_" + invoiceTO.InvFromOrgId;
+                            }
+
+                            if (brandWiseInvoiceSetting == 1)
+                            {
+                                entityName += "_BRAND_" + invoiceTO.BrandId;
+                            }
+                            if (invoiceTO.IsConfirmed == 0)
+                            {
+                                entityName += "_NC";
+
+                                Int32 generateNCInvoiceDaily = 0;
+                                TblConfigParamsTO generateNCInvoiceDailyTblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_GENERATE_INVOICE_NO_FOR_NC_DAILY, conn, tran);
+                                if (generateNCInvoiceDailyTblConfigParamsTO != null)
+                                {
+                                    generateNCInvoiceDaily = Convert.ToInt32(generateNCInvoiceDailyTblConfigParamsTO.ConfigParamVal);
+                                }
+                                if (generateNCInvoiceDaily == 1)
+                                {
+                                    entityRangeTO = SelectEntityRangeForLoadingCount(entityName, conn, tran, invoiceTO.FinYearId, 0);
+                                }
 
                             }
-                            if (String.IsNullOrEmpty(entityRangeTO.Suffix))
+
+                            entityRangeTO = _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(entityName, invoiceTO.FinYearId, conn, tran);
+
+                            if (entityRangeTO == null)
                             {
-                                invoiceTO.InvoiceNo = taxInvoiceNumber;
+                                tran.Rollback();
+                                resultMessage.DefaultBehaviour("entityRangeTO Found NULL. Entity Range Not Defined"); return resultMessage;
+                            }
+                            Int32 entityPrevVal = 0;
+                            bool isInvoicePresent = false;
+                            int newTaxNumber = 0;
+                            //Aniket [17-jan-2019] to check invoice number should generate manually or automatically
+                            if (String.IsNullOrEmpty(taxInvoiceNumber))
+                            {
+
+                                entityPrevVal = entityRangeTO.EntityPrevValue;
+                                entityPrevVal++;
+                                if (String.IsNullOrEmpty(entityRangeTO.Suffix))
+                                {
+                                    invoiceTO.InvoiceNo = entityRangeTO.Prefix + entityPrevVal.ToString();
+                                }
+                                else
+                                {
+                                    invoiceTO.InvoiceNo = entityRangeTO.Prefix + entityPrevVal.ToString() + entityRangeTO.Suffix;
+                                }
+
                             }
                             else
                             {
-                                invoiceTO.InvoiceNo = taxInvoiceNumber + entityRangeTO.Suffix;
+
+                                TblInvoiceTO tblInvoiceTO = _iTblInvoiceDAO.SelectAllTblInvoice(taxInvoiceNumber, invoiceTO.FinYearId);
+                                // List<TblInvoiceTO> tempList = list.Where(x => x.FinYearId == invoiceTO.FinYearId).ToList();
+                                // List<TblInvoiceTO> existInvoiceList = new List<TblInvoiceTO>();
+                                // if (tempList != null && tempList.Count > 0)
+                                //  {
+                                //   existInvoiceList = tempList.Where(ele => ele.InvoiceNo == taxInvoiceNumber).ToList();
+                                if (!String.IsNullOrEmpty(tblInvoiceTO.InvoiceNo))
+                                {
+
+                                    isInvoicePresent = true;
+                                    resultMessage.DefaultBehaviour(taxInvoiceNumber + " Invoice number has been already generated against Id  " + tblInvoiceTO.IdInvoice);
+                                    return resultMessage;
+
+                                }
+                                if (String.IsNullOrEmpty(entityRangeTO.Suffix))
+                                {
+                                    invoiceTO.InvoiceNo = taxInvoiceNumber;
+                                }
+                                else
+                                {
+                                    invoiceTO.InvoiceNo = taxInvoiceNumber + entityRangeTO.Suffix;
+                                }
+
+
+                                newTaxNumber = manualinvoiceno;
+                                //  }
                             }
 
-
-                            newTaxNumber = manualinvoiceno;
-                            //  }
+                            result = _iTblInvoiceBL.UpdateTblInvoice(invoiceTO, conn, tran);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
+                                resultMessage.DefaultBehaviour("Error While Updating Invoice Number After Entity Range"); return resultMessage;
+                            }
+                            if (String.IsNullOrEmpty(taxInvoiceNumber))
+                            {
+                                entityRangeTO.EntityPrevValue = entityPrevVal;
+                            }
+                            else
+                            {
+                                entityRangeTO.EntityPrevValue = newTaxNumber;
+                            }
+                            result = _iTblEntityRangeDAO.UpdateTblEntityRange(entityRangeTO, conn, tran);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
+                                resultMessage.DefaultBehaviour("Error While UpdateTblEntityRange"); return resultMessage;
+                            }
                         }
 
-                        result = _iTblInvoiceBL.UpdateTblInvoice(invoiceTO, conn, tran);
-                        if (result != 1)
-                        {
-                            tran.Rollback();
-                            resultMessage.DefaultBehaviour("Error While Updating Invoice Number After Entity Range"); return resultMessage;
-                        }
-                        if (String.IsNullOrEmpty(taxInvoiceNumber))
-                        {
-                            entityRangeTO.EntityPrevValue = entityPrevVal;
-                        }
                         else
                         {
-                            entityRangeTO.EntityPrevValue = newTaxNumber;
-                        }
-                        result = _iTblEntityRangeDAO.UpdateTblEntityRange(entityRangeTO, conn, tran);
-                        if (result != 1)
-                        {
-                            tran.Rollback();
-                            resultMessage.DefaultBehaviour("Error While UpdateTblEntityRange"); return resultMessage;
-                        }
-                    }
-
-                    else
-                    {
-                        result = _iTblInvoiceBL.UpdateTblInvoice(invoiceTO, conn, tran);
-                        if (result != 1)
-                        {
-                            tran.Rollback();
-                            resultMessage.DefaultBehaviour("Error While Updating Invoice Number After Entity Range"); return resultMessage;
+                            result = _iTblInvoiceBL.UpdateTblInvoice(invoiceTO, conn, tran);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
+                                resultMessage.DefaultBehaviour("Error While Updating Invoice Number After Entity Range"); return resultMessage;
+                            }
                         }
                     }
 
@@ -1896,7 +1908,7 @@ namespace ODLMWebAPI.BL {
 
                 if (invoiceTO.InvoiceModeId != Convert.ToInt32(Constants.InvoiceModeE.MANUAL_INVOICE))
                 {
-
+                    Boolean changeStatusOnGate = false;
 
                     Int32 count = 0;
                     TblLoadingSlipTO tblLoadingSlipTOselect = _iTblLoadingSlipDAO.SelectTblLoadingSlip(invoiceTO.LoadingSlipId, conn, tran);
@@ -1972,20 +1984,7 @@ namespace ODLMWebAPI.BL {
                                 {
                                     if (Convert.ToInt32(configParamsTO.ConfigParamVal) == 1)
                                     {
-                                        DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus(Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH), conn, tran);
-                                        if (statusTO == null || statusTO.IotStatusId == 0)
-                                        {
-                                            resultMessage.DefaultBehaviour("iot status id not found for loading to pass at gate iot");
-                                            return resultMessage;
-                                        }
-
-                                        object[] statusframeTO = new object[2] { tblLoadingTO.ModbusRefId, statusTO.IotStatusId };
-                                        result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(tblLoadingTO, statusframeTO);
-                                        if (result != 1)
-                                        {
-                                            resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
-                                            return resultMessage;
-                                        }
+                                        changeStatusOnGate = true;
                                     }
                                 }
                             }
@@ -2087,6 +2086,30 @@ namespace ODLMWebAPI.BL {
                     }
 
                     #endregion
+
+
+                    #region Write Invoice Generate & Ready For dispatch on Device
+
+                    if (changeStatusOnGate)
+                    {
+                        DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus(Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH), conn, tran);
+                        if (statusTO == null || statusTO.IotStatusId == 0)
+                        {
+                            resultMessage.DefaultBehaviour("iot status id not found for loading to pass at gate iot");
+                            return resultMessage;
+                        }
+
+                        object[] statusframeTO = new object[2] { tblLoadingTO.ModbusRefId, statusTO.IotStatusId };
+                        result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(tblLoadingTO, statusframeTO);
+                        if (result != 1)
+                        {
+                            resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
+                            return resultMessage;
+                        }
+                    }
+
+                    #endregion
+
 
                 }
                 tran.Commit();
