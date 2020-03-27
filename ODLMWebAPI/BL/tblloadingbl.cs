@@ -2099,6 +2099,12 @@ namespace ODLMWebAPI.BL {
                             return resultMessage;
                         }
 
+                        if (tblLoadingTO == null || tblLoadingTO.ModbusRefId == 0)
+                        {
+                            resultMessage.DefaultBehaviour("ModbusRefId == 0 while marking status invoice generated and ready for dispatch");
+                            return resultMessage;
+                        }
+
                         object[] statusframeTO = new object[2] { tblLoadingTO.ModbusRefId, statusTO.IotStatusId };
                         result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(tblLoadingTO, statusframeTO);
                         if (result != 1)
