@@ -60,6 +60,10 @@ namespace ODLMWebAPI.Models
         Double width;
         Int32 prodClassId;
 
+        String weightMeasurUnitDesc;
+        String conversionUnitOfMeasure;
+        Int32 bookingType;
+        Int32 otherNewBooking;
         #endregion
 
         #region Constructor
@@ -203,7 +207,19 @@ namespace ODLMWebAPI.Models
         public double Length { get => length; set => length = value; }
         public double Width { get => width; set => width = value; }
         public int ProdClassId { get => prodClassId; set => prodClassId = value; }
-
+        public String WeightMeasureUnitDesc
+        {
+            get { return weightMeasurUnitDesc; }
+            set { weightMeasurUnitDesc = value; }
+        }
+        public String ConversionUnitOfMeasure
+        {
+            get { return conversionUnitOfMeasure; }
+            set { conversionUnitOfMeasure = value; }
+        }
+        public Int32 BookingType { get => bookingType; set => bookingType = value; }
+        public Int32 OtherNewBooking { get => otherNewBooking; set => otherNewBooking = value; }
+        public string BrandName { get => brandDesc; set => brandDesc = value; }
 
 
         #endregion

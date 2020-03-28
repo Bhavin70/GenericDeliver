@@ -740,6 +740,9 @@ namespace ODLMWebAPI.StaticStuff
         public static string ROUND_OFF_TAX_INVOICE_VALUES = "ROUND_OFF_TAX_INVOICE_VALUES";
         //Aniket [18-9-2019]
         public static string SHOW_DELIVERY_LOCATION_ON_INVOICE = "SHOW_DELIVERY_LOCATION_ON_INVOICE";
+
+        public static string DEFAULT_OVERDUE_EXISTS_VALUE_OTHER_NEW_BOOKING = "DEFAULT_OVERDUE_EXISTS_VALUE_OTHER_NEW_BOOKING";
+        
         #endregion
 
 

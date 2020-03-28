@@ -255,7 +255,16 @@ namespace ODLMWebAPI.BL
                                 tblLoadingSlipExtTO.MaterialDesc = bookingExtTo.MaterialSubType;
                                 tblLoadingSlipExtTO.BrandId = bookingExtTo.BrandId;
 
-                                otherItemList.Add(tblLoadingSlipExtTO);
+                                tblLoadingSlipExtTO.BrandDesc = bookingExtTo.BrandDesc;
+                                tblLoadingSlipExtTO.ConversionUnitOfMeasure = bookingExtTo.ConversionUnitOfMeasure;
+                                tblLoadingSlipExtTO.WeightMeasureUnitDesc = bookingExtTo.WeightMeasureUnitDesc;
+                                tblLoadingSlipExtTO.UomQty = bookingExtTo.UomQty;
+                                tblLoadingSlipExtTO.BookedQty = bookingExtTo.BookedQty;
+                                tblLoadingSlipExtTO.BookingRate = bookingExtTo.BookingRate;
+                                tblLoadingSlipExtTO.Rate = bookingExtTo.Rate;
+                                tblLoadingSlipExtTO.Discount = bookingExtTo.Discount;
+
+                            otherItemList.Add(tblLoadingSlipExtTO);
                             //}
 
                         }

@@ -1385,7 +1385,22 @@ namespace ODLMWebAPI.BL
                     var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleDate);
                     tblBookingsTO.NoOfDeliveries = res.Count();
                 }
-               
+
+                #region//Sameeksha: code done to make Overdue exists(Block/Unblock) by default ON for OtherNewBooking
+                if (!isRegular)
+                {
+                    TblConfigParamsTO tblConfigParamsTOOverDueExists = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.DEFAULT_OVERDUE_EXISTS_VALUE_OTHER_NEW_BOOKING, conn, tran);
+                    if (tblConfigParamsTOOverDueExists != null)
+                    {
+                        Int32 defaultOverdueExists = Convert.ToInt32(tblConfigParamsTOOverDueExists.ConfigParamVal);
+                        if (defaultOverdueExists == 1)
+                        {
+                            tblBookingsTO.IsOverdueExist = 1;
+                        }
+                    }
+                }
+                #endregion
+
                 result = InsertTblBookings(tblBookingsTO, conn, tran);
                 if (result != 1)
                 {
@@ -4232,7 +4247,7 @@ namespace ODLMWebAPI.BL
         //        cmdDelete.Dispose();
         //    }
         //}
-
+       
         #endregion
 
     }

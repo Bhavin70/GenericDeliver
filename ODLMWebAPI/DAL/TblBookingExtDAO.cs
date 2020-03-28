@@ -24,6 +24,7 @@ namespace ODLMWebAPI.DAL
             String sqlSelectQry = " SELECT  bookingDtl.* ,material.materialSubType,booking.bookingDatetime,isConfirmed,isJointDelivery,cdStructure,noOfDeliveries " +
                                   " , prodCat.prodCateDesc AS prodCatDesc ,prodSpec.prodSpecDesc,booking.brandId, tblBookingSchedule.scheduleDate," +
                                   "  brand.brandName AS brandDesc ,item.itemName,prodClass.displayName,tblBookingSchedule.loadingLayerId ,item.conversionFactor " +
+                                   " ,uom.weightMeasurUnitDesc,conversionuom.weightMeasurUnitDesc as conversionweightMeasurUnitDesc,booking.bookingType,booking.otherNewBooking " +
                                   //" , loadingLayer.layerDesc 
                                   " FROM tblBookingExt bookingDtl " +
                                   " LEFT JOIN tblBookings booking " +
@@ -36,8 +37,11 @@ namespace ODLMWebAPI.DAL
                                   //" LEFT JOIN  dimLoadingLayers loadingLayer ON loadingLayer.idLoadingLayer=bookingDtl.loadinglayerId" +
                                   " LEFT JOIN [tblBookingSchedule] tblBookingSchedule ON tblBookingSchedule.idSchedule=bookingDtl.scheduleId" +
                                   " LEFT JOIN tblProductItem item ON item.idProdItem = bookingDtl.prodItemId " +
-                                   " LEFT JOIN tblProdClassification prodClass ON item.prodClassId = prodClass.idProdClass ";
-                                  
+                                   " LEFT JOIN tblProdClassification prodClass ON item.prodClassId = prodClass.idProdClass " +
+                                    " LEFT JOIN dimunitmeasures uom on uom.idWeightMeasurUnit = item.weightMeasureUnitId" +
+                                    " LEFT JOIN dimunitmeasures conversionuom on conversionuom.idWeightMeasurUnit = item.conversionUnitOfMeasure";
+
+
 
             return sqlSelectQry;
         }
@@ -328,8 +332,17 @@ namespace ODLMWebAPI.DAL
                     if (tblBookingExtTODT["displayName"] != DBNull.Value)
                         tblBookingExtTONew.DisplayName = Convert.ToString(tblBookingExtTODT["displayName"].ToString());
 
-                    if (tblBookingExtTONew.ProdItemId > 0)
+                    if (tblBookingExtTODT["length"] != DBNull.Value)
+                        tblBookingExtTONew.Length = Convert.ToDouble(tblBookingExtTODT["length"]);
+                    if (tblBookingExtTODT["width"] != DBNull.Value)
+                        tblBookingExtTONew.Width = Convert.ToDouble(tblBookingExtTODT["width"]);
+                    if (tblBookingExtTODT["isProcessReq"] != DBNull.Value)
+                        tblBookingExtTONew.IsProcessReq = Convert.ToInt32(tblBookingExtTODT["isProcessReq"]);
+                        if (tblBookingExtTONew.ProdItemId > 0)
                     {
+                        if(tblBookingExtTONew.IsProcessReq == 1)
+                            tblBookingExtTONew.DisplayName = tblBookingExtTONew.DisplayName + "-" + tblBookingExtTONew.ItemName + "(" + tblBookingExtTONew.Length + "*" + tblBookingExtTONew.Width + ")";
+                        else
                         tblBookingExtTONew.DisplayName = tblBookingExtTONew.DisplayName + "-" + tblBookingExtTONew.ItemName;
                     }
                     else
@@ -356,16 +369,22 @@ namespace ODLMWebAPI.DAL
                         tblBookingExtTONew.BookingRate = Convert.ToDouble(tblBookingExtTODT["bookingRate"]);
 
 
-                    if (tblBookingExtTODT["isProcessReq"] != DBNull.Value)
-                        tblBookingExtTONew.IsProcessReq = Convert.ToInt32(tblBookingExtTODT["isProcessReq"]);
+                    
                     if (tblBookingExtTODT["processCharge"] != DBNull.Value)
                         tblBookingExtTONew.ProcessCharge = Convert.ToDouble(tblBookingExtTODT["processCharge"]);
-                    if (tblBookingExtTODT["length"] != DBNull.Value)
-                        tblBookingExtTONew.Length = Convert.ToDouble(tblBookingExtTODT["length"]);
-                    if (tblBookingExtTODT["width"] != DBNull.Value)
-                        tblBookingExtTONew.Width = Convert.ToDouble(tblBookingExtTODT["width"]);
+                   
                     if (tblBookingExtTODT["prodClassId"] != DBNull.Value)
                         tblBookingExtTONew.ProdClassId = Convert.ToInt32(tblBookingExtTODT["prodClassId"]);
+
+
+                    if (tblBookingExtTODT["weightMeasurUnitDesc"] != DBNull.Value)
+                        tblBookingExtTONew.WeightMeasureUnitDesc = Convert.ToString(tblBookingExtTODT["weightMeasurUnitDesc"].ToString());
+                    if (tblBookingExtTODT["conversionweightMeasurUnitDesc"] != DBNull.Value)
+                        tblBookingExtTONew.ConversionUnitOfMeasure = Convert.ToString(tblBookingExtTODT["conversionweightMeasurUnitDesc"].ToString());
+                    if (tblBookingExtTODT["bookingType"] != DBNull.Value)
+                        tblBookingExtTONew.BookingType = Convert.ToInt32(tblBookingExtTODT["bookingType"]);
+                    if (tblBookingExtTODT["otherNewBooking"] != DBNull.Value)
+                        tblBookingExtTONew.OtherNewBooking = Convert.ToInt32(tblBookingExtTODT["otherNewBooking"]);
 
                     tblBookingExtTOList.Add(tblBookingExtTONew);
                 }

@@ -67,8 +67,13 @@ namespace ODLMWebAPI.Models
         Int32 sequenceNo;
         double conversionFactor;
         double avgBundleWt;
-     
-
+        String conversionUnitOfMeasure;
+        String weightMeasurUnitDesc;
+        double uomQty;
+        double bookedQty;
+        double bookingRate;
+        double rate;
+        double discount;
         #endregion
 
         #region Constructor
@@ -418,7 +423,29 @@ namespace ODLMWebAPI.Models
         public int SequenceNo { get => sequenceNo; set => sequenceNo = value; }
         public double ConversionFactor { get => conversionFactor; set => conversionFactor = value; }
         public double AvgBundleWt { get => avgBundleWt; set => avgBundleWt = value; }
-
+        public String ConversionUnitOfMeasure
+        {
+            get { return conversionUnitOfMeasure; }
+            set { conversionUnitOfMeasure = value; }
+        }
+        public String WeightMeasureUnitDesc
+        {
+            get { return weightMeasurUnitDesc; }
+            set { weightMeasurUnitDesc = value; }
+        }
+        public double UomQty { get => uomQty; set => uomQty = value; }
+        public Double BookedQty
+        {
+            get { return bookedQty; }
+            set { bookedQty = value; }
+        }
+        public double BookingRate { get => bookingRate; set => bookingRate = value; }
+        public Double Rate
+        {
+            get { return rate; }
+            set { rate = value; }
+        }
+        public double Discount { get => discount; set => discount = value; }
 
         //    public String DisplayLoadedBundles
         //   {
