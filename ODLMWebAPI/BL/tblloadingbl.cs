@@ -1507,55 +1507,64 @@ namespace ODLMWebAPI.BL
                                     //rateCalcDesc = "B.R : " + tblBookingsTO.BookingRate + "|";
                                     //Double bookingPrice = tblBookingsTO.BookingRate;
 
-                                    TblBookingParitiesTO tblBookingParitiesTO = tblBookingParitiesTOList.Where(w => w.BrandId == tblLoadingSlipExtTO.BrandId).FirstOrDefault();
-                                    if (tblBookingParitiesTO == null || tblBookingParitiesTO.BookingRate == 0)
-                                    {
-                                        tran.Rollback();
-                                        resultMessage.DefaultBehaviour();
-                                        resultMessage.Text = "Error : Rate not found against brand - " + tblLoadingSlipExtTO.BrandDesc;
-                                        resultMessage.DisplayMessage = "Error : Rate not found against brand - " + tblLoadingSlipExtTO.BrandDesc;
-                                        return resultMessage;
-                                    }
-
-
                                     String rateCalcDesc = string.Empty;
                                     Double bookingPrice;
-                                    List<TblBookingExtTO> bookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(tblBookingParitiesTO.BookingId);
-                                    //Aniket [24-9-2019]
-                                    TblGlobalRateTO rateTO = null;
-                                    TblGroupItemTO tblGroupItemTO = _iTblGroupItemDAO.SelectTblGroupItemDetails(tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.MaterialId);
-                                    if (tblGroupItemTO != null)
+
+                                    if (tblBookingsTO.OtherNewBooking == 0)
                                     {
-                                        rateTO = new TblGlobalRateTO();
-                                        Dictionary<Int32, Int32> rateDCT = _iTblGlobalRateDAO.SelectLatestGroupAndRateDCT(tblBookingsTO.CreatedOn.ToString("yyyy-MM-dd"));
-                                        if (rateDCT != null)
+                                        TblBookingParitiesTO tblBookingParitiesTO = tblBookingParitiesTOList.Where(w => w.BrandId == tblLoadingSlipExtTO.BrandId).FirstOrDefault();
+                                        if (tblBookingParitiesTO == null || tblBookingParitiesTO.BookingRate == 0)
                                         {
-                                            if (rateDCT.ContainsKey(tblGroupItemTO.GroupId))
+                                            tran.Rollback();
+                                            resultMessage.DefaultBehaviour();
+                                            resultMessage.Text = "Error : Rate not found against brand - " + tblLoadingSlipExtTO.BrandDesc;
+                                            resultMessage.DisplayMessage = "Error : Rate not found against brand - " + tblLoadingSlipExtTO.BrandDesc;
+                                            return resultMessage;
+                                        }
+
+                                        List<TblBookingExtTO> bookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(tblBookingParitiesTO.BookingId);
+                                        //Aniket [24-9-2019]
+                                        TblGlobalRateTO rateTO = null;
+                                        TblGroupItemTO tblGroupItemTO = _iTblGroupItemDAO.SelectTblGroupItemDetails(tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.MaterialId);
+                                        if (tblGroupItemTO != null)
+                                        {
+                                            rateTO = new TblGlobalRateTO();
+                                            Dictionary<Int32, Int32> rateDCT = _iTblGlobalRateDAO.SelectLatestGroupAndRateDCT(tblBookingsTO.CreatedOn.ToString("yyyy-MM-dd"));
+                                            if (rateDCT != null)
                                             {
-                                                Int32 rateID = rateDCT[tblGroupItemTO.GroupId];
-                                                rateTO = _iTblGlobalRateDAO.SelectTblGlobalRate(rateID);
+                                                if (rateDCT.ContainsKey(tblGroupItemTO.GroupId))
+                                                {
+                                                    Int32 rateID = rateDCT[tblGroupItemTO.GroupId];
+                                                    rateTO = _iTblGlobalRateDAO.SelectTblGlobalRate(rateID);
+                                                }
                                             }
                                         }
-                                    }
-                                    if (rateTO != null)
-                                        bookingPrice = rateTO.Rate;
-                                    else
-                                        bookingPrice = tblBookingParitiesTO.BookingRate;
-                                    // Aniket [18-6-2019]
-                                    // added to reduce item wise discount from bookingprice
-                                    if (tblBookingsTO.IsItemized == 1)
-                                    {
-                                        if (bookingExtTOList != null && bookingExtTOList.Count > 0)
+                                        if (rateTO != null)
+                                            bookingPrice = rateTO.Rate;
+                                        else
+                                            bookingPrice = tblBookingParitiesTO.BookingRate;
+
+                                        // Aniket [18-6-2019]
+                                        // added to reduce item wise discount from bookingprice
+                                        if (tblBookingsTO.IsItemized == 1)
                                         {
-                                            foreach (TblBookingExtTO item in bookingExtTOList)
+                                            if (bookingExtTOList != null && bookingExtTOList.Count > 0)
                                             {
-                                                if (item.ProdCatId == tblLoadingSlipExtTO.ProdCatId && item.ProdSpecId == tblLoadingSlipExtTO.ProdSpecId && item.BrandId == tblLoadingSlipExtTO.BrandId && item.MaterialId == tblLoadingSlipExtTO.MaterialId && item.ProdItemId == tblLoadingSlipExtTO.ProdItemId)
+                                                foreach (TblBookingExtTO item in bookingExtTOList)
                                                 {
-                                                    bookingPrice = bookingPrice - (item.Discount * item.BookedQty * 1000);
+                                                    if (item.ProdCatId == tblLoadingSlipExtTO.ProdCatId && item.ProdSpecId == tblLoadingSlipExtTO.ProdSpecId && item.BrandId == tblLoadingSlipExtTO.BrandId && item.MaterialId == tblLoadingSlipExtTO.MaterialId && item.ProdItemId == tblLoadingSlipExtTO.ProdItemId)
+                                                    {
+                                                        bookingPrice = bookingPrice - (item.Discount * item.BookedQty * 1000);
+                                                    }
                                                 }
                                             }
                                         }
                                     }
+                                    else
+                                    {
+                                        bookingPrice = tblLoadingSlipExtTO.Rate;
+                                    }
+
 
                                     TblGstCodeDtlsTO gstCodeDtlsTO = _iTblGstCodeDtlsDAO.SelectGstCodeDtlsTO(tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdItemId, conn, tran);
                                     if (gstCodeDtlsTO == null)
@@ -1589,8 +1598,13 @@ namespace ODLMWebAPI.BL
                                     Double paritySettingAmt = 0;
                                     Double bvcAmt = 0;
                                     //TblParitySummaryTO parityTO = null; Sudhir[23-MARCH-2018] Commented Code
-                                    TblParityDetailsTO parityDtlTO = null;
-                                    if (true)
+
+                                    //Saket [2020-03-31] Addedn for easyDELIVER
+                                    TblParityDetailsTO parityDtlTO = new TblParityDetailsTO();
+                                    //TblParityDetailsTO parityDtlTO = null;
+
+                                    if (tblBookingsTO.OtherNewBooking == 0)
+                                    //if (true)
                                     {
                                         //Sudhir[23-MARCH-2018] Commented for New Parity Logic.
                                         /*var parityDtlTO = parityDetailsTOList.Where(m => m.MaterialId == tblLoadingSlipExtTO.MaterialId

@@ -287,13 +287,7 @@ namespace ODLMWebAPI.Models
                 ratePerMT = value;
             }
         }
-        public int IsProcessed
-
-        {
-            get { return isProcessed; }
-            set { isProcessed = value; }
-        }
-
+        
         /// <summary>
         /// Saket [2017-12-19] Added to show total amount on loading slip confirmations 
         /// RatePerMT * LoadingQty;

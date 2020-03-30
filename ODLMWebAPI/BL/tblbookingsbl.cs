@@ -55,10 +55,11 @@ namespace ODLMWebAPI.BL
         private readonly ITblPaymentTermsForBookingBL _iTblPaymentTermsForBookingBL;
         private readonly IDimReportTemplateBL _iDimReportTemplateBL;
         private readonly IRunReport _iRunReport;
+        private readonly ITblConfigParamsBL _iTblConfigParamsBL;
 
 
 
-        public TblBookingsBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, IDimReportTemplateBL iDimReportTemplateBL, IRunReport iRunReport, ITblMaterialDAO iTblMaterialDAO, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, IDimensionDAO iDimensionDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblOrgOverdueHistoryDAO iTblOrgOverdueHistoryDAO, ITblUserDAO iTblUserDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblQuotaConsumHistoryDAO iTblQuotaConsumHistoryDAO, ITblBookingBeyondQuotaDAO iTblBookingBeyondQuotaDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblSysElementsBL iTblSysElementsBL, IDimBrandDAO iDimBrandDAO, ITblOrganizationDAO iTblOrganizationDAO, ITblGlobalRateDAO iTblGlobalRateDAO, ITblQuotaDeclarationBL iTblQuotaDeclarationBL, ITblBookingActionsDAO iTblBookingActionsDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblBookingOpngBalDAO iTblBookingOpngBalDAO, ITblUserAreaAllocationBL iTblUserAreaAllocationBL, ICircularDependencyBL iCircularDependencyBL, ITblConfigParamsDAO iTblConfigParamsDAO, ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingScheduleDAO iTblBookingScheduleDAO, ITblUserRoleBL iTblUserRoleBL, ITblEnquiryDtlDAO iTblEnquiryDtlDAO, ITblOverdueDtlDAO iTblOverdueDtlDAO, ITblBookingsDAO iTblBookingsDAO, ICommon iCommon, IConnectionString iConnectionString)
+        public TblBookingsBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, IDimReportTemplateBL iDimReportTemplateBL, IRunReport iRunReport, ITblMaterialDAO iTblMaterialDAO, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, IDimensionDAO iDimensionDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblOrgOverdueHistoryDAO iTblOrgOverdueHistoryDAO, ITblUserDAO iTblUserDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblQuotaConsumHistoryDAO iTblQuotaConsumHistoryDAO, ITblBookingBeyondQuotaDAO iTblBookingBeyondQuotaDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblSysElementsBL iTblSysElementsBL, IDimBrandDAO iDimBrandDAO, ITblOrganizationDAO iTblOrganizationDAO, ITblGlobalRateDAO iTblGlobalRateDAO, ITblQuotaDeclarationBL iTblQuotaDeclarationBL, ITblBookingActionsDAO iTblBookingActionsDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblBookingOpngBalDAO iTblBookingOpngBalDAO, ITblUserAreaAllocationBL iTblUserAreaAllocationBL, ICircularDependencyBL iCircularDependencyBL, ITblConfigParamsDAO iTblConfigParamsDAO, ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingScheduleDAO iTblBookingScheduleDAO, ITblUserRoleBL iTblUserRoleBL, ITblEnquiryDtlDAO iTblEnquiryDtlDAO, ITblOverdueDtlDAO iTblOverdueDtlDAO, ITblBookingsDAO iTblBookingsDAO, ICommon iCommon, IConnectionString iConnectionString, ITblConfigParamsBL iTblConfigParamsBL)
         {
             _iTblBookingsDAO = iTblBookingsDAO;
             _iTblOverdueDtlDAO = iTblOverdueDtlDAO;
@@ -96,6 +97,7 @@ namespace ODLMWebAPI.BL
             _iDimReportTemplateBL = iDimReportTemplateBL;
             _iRunReport = iRunReport;
             _iTblPaymentTermsForBookingBL = iTblPaymentTermsForBookingBL;
+            _iTblConfigParamsBL = iTblConfigParamsBL;
 
         }
         #region Selection
@@ -2663,28 +2665,6 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        //Rupali jadhav
-
-        public TblBookingsTO SelectTblBookingTOWithDetails(Int32 bookingId)
-        {
-            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
-            SqlTransaction tran = null;
-            try
-            {
-                conn.Open();
-                tran = conn.BeginTransaction();
-                return SelectTblBookingTOWithDetails(bookingId, conn, tran);
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-            finally
-            {
-                conn.Close();
-            }
-        }
-
         //public List<TblBookingExtTO> SelectTblBookingExtTOWithDetails(Int32 bookingId)
         //{
         //    SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
@@ -2704,35 +2684,31 @@ namespace ODLMWebAPI.BL
         //        conn.Close();
         //    }
         //}
-        public TblBookingsTO SelectTblBookingTOWithDetails(Int32 bookingId, SqlConnection conn, SqlTransaction tran)
-        {
-            TblBookingsTO bookingsTO = _iTblBookingsDAO.SelectTblBookingsPrint(bookingId);
-
-            return bookingsTO;
-
-        }
 
         public DataTable ToDataTable<T>(List<T> items)
         {
-            DataTable dataTable = new DataTable(typeof(T).Name);
-            //Get all the properties by using reflection   
-            PropertyInfo[] Props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            foreach (PropertyInfo prop in Props)
+            DataTable dataTable = new DataTable();
+            if (items != null)
             {
-                //Setting column names as Property names  
-                dataTable.Columns.Add(prop.Name);
-            }
-            foreach (T item in items)
-            {
-                var values = new object[Props.Length];
-                for (int i = 0; i < Props.Length; i++)
+                dataTable = new DataTable(typeof(T).Name);
+                //Get all the properties by using reflection   
+                PropertyInfo[] Props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                foreach (PropertyInfo prop in Props)
                 {
-
-                    values[i] = Props[i].GetValue(item, null);
+                    //Setting column names as Property names  
+                    dataTable.Columns.Add(prop.Name, prop.PropertyType);
                 }
-                dataTable.Rows.Add(values);
-            }
+                foreach (T item in items)
+                {
+                    var values = new object[Props.Length];
+                    for (int i = 0; i < Props.Length; i++)
+                    {
 
+                        values[i] = Props[i].GetValue(item, null);
+                    }
+                    dataTable.Rows.Add(values);
+                }
+            }
             return dataTable;
         }
 
@@ -2742,39 +2718,84 @@ namespace ODLMWebAPI.BL
             try
             {
 
-                TblBookingsTO tblbookingsto = SelectTblBookingTOWithDetails(bookingId);
+                TblBookingsTO tblBookingsTO = _iCircularDependencyBL.SelectBookingsTOWithDetails(bookingId);
+
+                if(tblBookingsTO == null)
+                {
+                    throw new Exception("bookingTO not found - bookingId " + bookingId);
+                }
+
                 DataTable itemDT = new DataTable();
                 DataTable bookingDT = new DataTable();
+                DataTable scheduleDT = new DataTable();
+                DataTable scheduleAddrDT = new DataTable();
                 DataSet printDataSet = new DataSet();
 
-              
-                bookingDT.TableName = "bookingDT";
+
                 //HeaderDT 
-                bookingDT.Columns.Add("idBooking");
-                bookingDT.Columns.Add("billingName");
-                bookingDT.Columns.Add("bookingDatetime");
+                //bookingDT.Columns.Add("idBooking");
+                //bookingDT.Columns.Add("billingName");
+                //bookingDT.Columns.Add("bookingDatetime");
 
-                bookingDT.Columns.Add("bookingRate");
-                bookingDT.Columns.Add("bookingQty");
-                bookingDT.Columns.Add("noOfDeliveries");
-                bookingDT.Columns.Add("uomQty");
-                bookingDT.Columns.Add("brandId");
+                //bookingDT.Columns.Add("bookingRate");
+                //bookingDT.Columns.Add("bookingQty");
+                //bookingDT.Columns.Add("noOfDeliveries");
+                //bookingDT.Columns.Add("uomQty");
+                //bookingDT.Columns.Add("brandId");
+                //bookingDT.Columns.Add("PaymentTermAll");
 
-                if (tblbookingsto != null)
+                //if (tblbookingsto != null)
+                //{
+                //    bookingDT.Rows.Add();
+                //    bookingDT.Rows[0]["idBooking"] = tblbookingsto.IdBooking;
+                //    bookingDT.Rows[0]["billingName"] = tblbookingsto.BillingName;
+                //    bookingDT.Rows[0]["bookingDatetime"] = tblbookingsto.BookingDatetime;
+                //    bookingDT.Rows[0]["bookingRate"] = tblbookingsto.BookingRate;
+                //    bookingDT.Rows[0]["bookingQty"] = tblbookingsto.BookingQty;
+                //    bookingDT.Rows[0]["noOfDeliveries"] = tblbookingsto.NoOfDeliveries;
+                //    bookingDT.Rows[0]["uomQty"] = tblbookingsto.UomQty;
+                //    bookingDT.Rows[0]["brandId"] = tblbookingsto.BrandName;
+                //}
+
+
+                List<TblBookingsTO> tempList = new List<TblBookingsTO>();
+                tempList.Add(tblBookingsTO);
+                bookingDT = ToDataTable(tempList);
+                bookingDT.TableName = "bookingDT";
+
+                scheduleDT = ToDataTable(tblBookingsTO.BookingScheduleTOLst);
+                scheduleDT.TableName = "scheduleDT";
+
+                List<TblBookingExtTO> tblBookingExtTOList = new List<TblBookingExtTO>();
+                List<TblBookingDelAddrTO> tblBookingDelAddrTOLst = new List<TblBookingDelAddrTO>();
+
+
+                if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
                 {
-                    bookingDT.Rows.Add();
-                    bookingDT.Rows[0]["idBooking"] = tblbookingsto.IdBooking;
-                    bookingDT.Rows[0]["billingName"] = tblbookingsto.BillingName;
-                    bookingDT.Rows[0]["bookingDatetime"] = tblbookingsto.BookingDatetime;
-                    bookingDT.Rows[0]["bookingRate"] = tblbookingsto.BookingRate;
-                    bookingDT.Rows[0]["bookingQty"] = tblbookingsto.BookingQty;
-                    bookingDT.Rows[0]["noOfDeliveries"] = tblbookingsto.NoOfDeliveries;
-                    bookingDT.Rows[0]["uomQty"] = tblbookingsto.UomQty;
-                    bookingDT.Rows[0]["brandId"] = tblbookingsto.BrandName;
+                    for (int s = 0; s < tblBookingsTO.BookingScheduleTOLst.Count; s++)
+                    {
+                        TblBookingScheduleTO tblBookingScheduleTO = tblBookingsTO.BookingScheduleTOLst[s];
+
+                        if (tblBookingScheduleTO.OrderDetailsLst != null && tblBookingScheduleTO.OrderDetailsLst.Count > 0)
+                        {
+                            tblBookingExtTOList.AddRange(tblBookingScheduleTO.OrderDetailsLst);
+                        }
+
+                        if (tblBookingScheduleTO.DeliveryAddressLst != null && tblBookingScheduleTO.DeliveryAddressLst.Count > 0)
+                        {
+                            tblBookingDelAddrTOLst.AddRange(tblBookingScheduleTO.DeliveryAddressLst);
+                        }
+
+                    }
                 }
-                List<TblBookingExtTO> tblBookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(bookingId);
-                 itemDT =this.ToDataTable(tblBookingExtTOList);
+                
+                itemDT = ToDataTable(tblBookingExtTOList);
                 itemDT.TableName = "itemDT";
+
+
+                scheduleAddrDT = ToDataTable(tblBookingDelAddrTOLst);
+                scheduleAddrDT.TableName = "scheduleAddrDT";
+
                 //itemDT.Columns.Add("displayName");
                 //if(tblBookingExtTOList.Count != 0)
                 //{
@@ -2829,16 +2850,23 @@ namespace ODLMWebAPI.BL
                 {
                     paymentTermAllCommaSeparated = paymentTermAllCommaSeparated.TrimEnd(',');
                 }
+
                 printDataSet.Tables.Add(bookingDT);
                 printDataSet.Tables.Add(itemDT);
 
-
-                string templateName = "BookingPrint";
+                string templateName = Constants.BookingPrint;
 
                 Boolean IsProduction = true;
-
+                TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_PRODUCTION_ENVIRONMENT_ACTIVE);
+                if (tblConfigParamsTO != null)
+                {
+                    if (Convert.ToInt32(tblConfigParamsTO.ConfigParamVal) == 0)
+                    {
+                        IsProduction = false;
+                    }
+                }
                 String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
-                String fileName = "Bill-" + DateTime.Now.Ticks;
+                String fileName = "booking-" + DateTime.Now.Ticks;
                 //download location for rewrite  template file
                 String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
                 resultMessage = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePath, saveLocation, Constants.ReportE.PDF_DONT_OPEN, IsProduction);
@@ -2869,8 +2897,8 @@ namespace ODLMWebAPI.BL
 
 
                         directoryName = Path.GetDirectoryName(saveLocation);
-                        string[] fileEntries = Directory.GetFiles(directoryName, "*Bill*");
-                        string[] filesList = Directory.GetFiles(directoryName, "*Bill*");
+                        string[] fileEntries = Directory.GetFiles(directoryName, "*booking*");
+                        string[] filesList = Directory.GetFiles(directoryName, "*booking*");
 
                         foreach (string file in filesList)
                         {

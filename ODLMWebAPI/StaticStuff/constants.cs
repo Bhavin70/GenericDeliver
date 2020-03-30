@@ -509,6 +509,12 @@ namespace ODLMWebAPI.StaticStuff
         public static string DEFAULT_FETCH_SUCCESS_MSG = "Record Fetch Succesfully";
 
         public static string DEFAULT_NOTFOUND_MSG = " Record Could not be found";
+
+        public static string IS_PRODUCTION_ENVIRONMENT_ACTIVE = "IS_PRODUCTION_ENVIRONMENT_ACTIVE";
+        public static string BookingPrint = "BookingPrint";
+
+
+
         #endregion
 
         #region Configuration Sections
