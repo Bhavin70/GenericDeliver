@@ -74,7 +74,8 @@ namespace ODLMWebAPI.Models
         double bookingRate;
         double rate;
         double discount;
-        int isProcessed;
+        Int32 isProcessReq;
+        double totalAmt;
         #endregion
 
         #region Constructor
@@ -454,6 +455,9 @@ namespace ODLMWebAPI.Models
         }
         public double Discount { get => discount; set => discount = value; }
 
+        public int IsProcessReq { get => isProcessReq; set => isProcessReq = value; }
+
+        public double TotalAmount { get => totalAmt; set => totalAmt = value; }
         //    public String DisplayLoadedBundles
         //   {
         //       get { return displayLoadedBundles; }

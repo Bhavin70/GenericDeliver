@@ -386,6 +386,7 @@ namespace ODLMWebAPI.DAL
                     if (tblBookingExtTODT["otherNewBooking"] != DBNull.Value)
                         tblBookingExtTONew.OtherNewBooking = Convert.ToInt32(tblBookingExtTODT["otherNewBooking"]);
 
+                    tblBookingExtTONew.TotalAmount = Math.Round(tblBookingExtTONew.Rate * tblBookingExtTONew.BookedQty,2);
                     tblBookingExtTOList.Add(tblBookingExtTONew);
                 }
             }
