@@ -29,7 +29,7 @@ namespace ODLMWebAPI.DAL
         public String SqlSelectQuery(Int32 loginUserId = 0)
         {
             
-            String sqlSelectQry = "SELECT bookings.*,dimStat.statusName as dealerCat,dimStat.colorCode,orgDealer.creditLimit ,userCreatedBy.userDisplayName As createdByName,userUpdatedBy.userDisplayName As updatedByName, " +
+            String sqlSelectQry = "SELECT bookings.*,tblCRMEnquiry.enqDisplayNo,dimStat.statusName as dealerCat,dimStat.colorCode,orgDealer.creditLimit ,userCreatedBy.userDisplayName As createdByName,userUpdatedBy.userDisplayName As updatedByName, " +
                                   "orgCnf.firmName as cnfName,orgDealer.isOverdueExist  as isOrgOverDue, tblTranAction.tranActionTypeId As tranActionTypeId," +
                                   " orgDealer.firmName + ',' + " +
                                   " CASE WHEN orgDealer.addrId IS NULL THEN '' Else case WHEN address.villageName IS NOT NULL THEN address.villageName " +
@@ -48,7 +48,8 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN dimBrand brandDtl ON brandDtl.idBrand = bookings.brandId " +
                                   //" LEFT JOIN tblUserAreaAllocation userAreaAlloc on userAreaAlloc.cnfOrgId = bookings.cnFOrgId "+
                                   //" AND userAreaAlloc.userId = "+ RMId +
-                                  " LEFT JOIN vAddressDetails address ON address.idAddr = orgDealer.addrId ";
+                                  " LEFT JOIN vAddressDetails address ON address.idAddr = orgDealer.addrId " +
+                                  " LEFT JOIN tblCRMEnquiry tblCRMEnquiry ON tblCRMEnquiry.idEnquiry = bookings.enquiryId ";
 
 
             //String sqlSelectQry = " SELECT bookings.*, orgCnf.firmName as cnfName,orgDealer.firmName as dealerName, dimStatus.statusName" +
@@ -1884,6 +1885,9 @@ namespace ODLMWebAPI.DAL
 
                     if (tblBookingsTODT["creditLimit"] != DBNull.Value)
                         tblBookingsTONew.CreditLimit = Convert.ToDouble(tblBookingsTODT["creditLimit"]);
+
+                    if (tblBookingsTODT["enqDisplayNo"] != DBNull.Value)
+                        tblBookingsTONew.EnqDisplayNo = Convert.ToString(tblBookingsTODT["enqDisplayNo"]);
 
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }
