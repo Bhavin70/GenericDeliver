@@ -50,7 +50,13 @@ namespace ODLMWebAPI.BL
         private readonly ITblMaterialDAO _iTblMaterialDAO;
         private readonly ITblLoadingSlipExtDAO _iTblLoadingSlipExtDAO;
         private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
-        public TblBookingsBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblMaterialDAO iTblMaterialDAO, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, IDimensionDAO iDimensionDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblOrgOverdueHistoryDAO iTblOrgOverdueHistoryDAO, ITblUserDAO iTblUserDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblQuotaConsumHistoryDAO iTblQuotaConsumHistoryDAO, ITblBookingBeyondQuotaDAO iTblBookingBeyondQuotaDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblSysElementsBL iTblSysElementsBL, IDimBrandDAO iDimBrandDAO, ITblOrganizationDAO iTblOrganizationDAO, ITblGlobalRateDAO iTblGlobalRateDAO, ITblQuotaDeclarationBL iTblQuotaDeclarationBL, ITblBookingActionsDAO iTblBookingActionsDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblBookingOpngBalDAO iTblBookingOpngBalDAO, ITblUserAreaAllocationBL iTblUserAreaAllocationBL, ICircularDependencyBL iCircularDependencyBL, ITblConfigParamsDAO iTblConfigParamsDAO, ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingScheduleDAO iTblBookingScheduleDAO, ITblUserRoleBL iTblUserRoleBL, ITblEnquiryDtlDAO iTblEnquiryDtlDAO, ITblOverdueDtlDAO iTblOverdueDtlDAO, ITblBookingsDAO iTblBookingsDAO, ICommon iCommon, IConnectionString iConnectionString)
+        private readonly IDimensionBL _iDimensionBL;
+        private readonly ITblEntityRangeBL _iTblEntityRangeBL;
+
+        //Saket [2020-03-26] Locker object added.
+        private static readonly object bookingNoLock = new object();
+
+        public TblBookingsBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblMaterialDAO iTblMaterialDAO, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, IDimensionDAO iDimensionDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblOrgOverdueHistoryDAO iTblOrgOverdueHistoryDAO, ITblUserDAO iTblUserDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblQuotaConsumHistoryDAO iTblQuotaConsumHistoryDAO, ITblBookingBeyondQuotaDAO iTblBookingBeyondQuotaDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblSysElementsBL iTblSysElementsBL, IDimBrandDAO iDimBrandDAO, ITblOrganizationDAO iTblOrganizationDAO, ITblGlobalRateDAO iTblGlobalRateDAO, ITblQuotaDeclarationBL iTblQuotaDeclarationBL, ITblBookingActionsDAO iTblBookingActionsDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblBookingOpngBalDAO iTblBookingOpngBalDAO, ITblUserAreaAllocationBL iTblUserAreaAllocationBL, ICircularDependencyBL iCircularDependencyBL, ITblConfigParamsDAO iTblConfigParamsDAO, ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingScheduleDAO iTblBookingScheduleDAO, ITblUserRoleBL iTblUserRoleBL, ITblEnquiryDtlDAO iTblEnquiryDtlDAO, ITblOverdueDtlDAO iTblOverdueDtlDAO, ITblBookingsDAO iTblBookingsDAO, ICommon iCommon, IConnectionString iConnectionString, ITblEntityRangeBL iTblEntityRangeBL, IDimensionBL iDimensionBL)
         {
             _iTblBookingsDAO = iTblBookingsDAO;
             _iTblOverdueDtlDAO = iTblOverdueDtlDAO;
@@ -85,6 +91,8 @@ namespace ODLMWebAPI.BL
             _iTblMaterialDAO = iTblMaterialDAO;
             _iTblLoadingSlipExtDAO = iTblLoadingSlipExtDAO;
             _iTblAlertDefinitionDAO = iTblAlertDefinitionDAO;
+            _iDimensionBL = iDimensionBL;
+            _iTblEntityRangeBL = iTblEntityRangeBL;
         }
         #region Selection
         public List<TblBookingPendingRptTO> SelectBookingPendingQryRpt(DateTime fromDate, DateTime toDate, int reportType)
@@ -908,8 +916,48 @@ namespace ODLMWebAPI.BL
             int restrictBeyondQuota = 0;
             try
             {
+
                 conn.Open();
                 tran = conn.BeginTransaction();
+
+
+                #region entity range 
+
+                //Saket [2020-03-26]
+                lock (bookingNoLock)
+                {
+
+                    DimFinYearTO curFinYearTO = _iDimensionBL.GetCurrentFinancialYear(tblBookingsTO.CreatedOn);
+                    if (curFinYearTO == null)
+                    {
+                        resultMessage.Text = "Current Fin Year Object Not Found";
+                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        return resultMessage;
+                    }
+                    TblEntityRangeTO entityRangeTO = _iTblEntityRangeBL.SelectTblEntityRangeTOByEntityName(Constants.REGULAR_BOOKING, curFinYearTO.IdFinYear);
+                    if (entityRangeTO == null)
+                    {
+                        resultMessage.Text = "entity range not found in Function SaveNewBooking";
+                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        return resultMessage;
+                    }
+                    entityRangeTO.EntityPrevValue = entityRangeTO.EntityPrevValue + 1;
+                    var result1 = _iTblEntityRangeBL.UpdateTblEntityRange(entityRangeTO);
+                    if (result1 != 1)
+                    {
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Text = "Error : While UpdateTblEntityRange";
+                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                        return resultMessage;
+                    }
+                    tblBookingsTO.BookingDisplayNo = entityRangeTO.EntityPrevValue.ToString();
+                }
+                #endregion
+
+
+
                 // Aniket [27-02-2019] added to check whether CNF has sufficient balance quota against current booking
                 #region
                 TblConfigParamsTO tblConfigParamTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.ANNOUNCE_RATE_WITH_RATEBAND_CURRENT_QUOTA);

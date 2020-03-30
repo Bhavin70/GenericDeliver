@@ -103,6 +103,7 @@ namespace ODLMWebAPI.Models
 
         Double creditLimit;
         Int32 enquiryId;
+        string enqDisplayNo;
 
         #endregion
 
@@ -283,6 +284,11 @@ namespace ODLMWebAPI.Models
         {
             get { return enquiryId; }
             set { enquiryId = value; }
+        }
+        public string EnqDisplayNo
+        {
+            get { return enqDisplayNo; }
+            set { enqDisplayNo = value; }
         }
 
         
