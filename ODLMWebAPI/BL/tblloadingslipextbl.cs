@@ -133,7 +133,13 @@ namespace ODLMWebAPI.BL
                             tblLoadingSlipExtTO.AvgBundleWt= bookingList[i].AvgBundleWt;
                             tblLoadingSlipExtTO.SchedulelayerId = tblBookingScheduleTO.LoadingLayerId;
                             tblLoadingSlipExtTO.Bundles = bookingList[i].PendingUomQty;
-                            if(matchedAvgWt.Count>0 && matchedAvgWt!=null)
+                            // Added by Rupali Jadhav for display Bookingrate, Uomqty,WeightMeasureUnitDesc,ConversionUnitOfMeasure in OherNewBooking schedule booking.
+                            tblLoadingSlipExtTO.BookingRate = bookingList[i].BookingRate;
+                            tblLoadingSlipExtTO.UomQty = bookingList[i].UomQty;
+                            tblLoadingSlipExtTO.IsProcessed = bookingList[i].IsProcessReq;
+                            tblLoadingSlipExtTO.WeightMeasureUnitDesc = bookingList[i].WeightMeasureUnitDesc;
+                            tblLoadingSlipExtTO.ConversionUnitOfMeasure = bookingList[i].ConversionUnitOfMeasure;
+                            if (matchedAvgWt.Count>0 && matchedAvgWt!=null)
                             tblLoadingSlipExtTO.AvgBundleWt = matchedAvgWt[0].AvgBundleWt;
                             list[k].LoadingSlipExtTOList.Add(tblLoadingSlipExtTO);
                         }

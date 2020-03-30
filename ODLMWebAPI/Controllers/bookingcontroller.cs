@@ -370,6 +370,13 @@ namespace ODLMWebAPI.Controllers
             return _iTblBookingsBL.GetOrderwiseDealerList();
         }
 
+        [Route("PrintBookingDetails")]
+        [HttpGet]
+        public ResultMessage PrintBookingDetails(int bookingId)
+        {
+            return _iTblBookingsBL.PrintBooking(Convert.ToInt32(bookingId));
+
+        }
         /// <summary>
         /// Priyanka [11-06-2018] : Added for post the overdue status from booking for SHIVANGI.
         /// </summary>
@@ -916,7 +923,6 @@ namespace ODLMWebAPI.Controllers
             }
         }
 
-       
         #endregion
 
         #region Put

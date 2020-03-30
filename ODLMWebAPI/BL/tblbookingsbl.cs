@@ -12,6 +12,8 @@ using System.Linq;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.BL;
+using System.IO;
+using System.Reflection;
 
 namespace ODLMWebAPI.BL
 {
@@ -50,7 +52,13 @@ namespace ODLMWebAPI.BL
         private readonly ITblMaterialDAO _iTblMaterialDAO;
         private readonly ITblLoadingSlipExtDAO _iTblLoadingSlipExtDAO;
         private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
-        public TblBookingsBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblMaterialDAO iTblMaterialDAO, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, IDimensionDAO iDimensionDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblOrgOverdueHistoryDAO iTblOrgOverdueHistoryDAO, ITblUserDAO iTblUserDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblQuotaConsumHistoryDAO iTblQuotaConsumHistoryDAO, ITblBookingBeyondQuotaDAO iTblBookingBeyondQuotaDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblSysElementsBL iTblSysElementsBL, IDimBrandDAO iDimBrandDAO, ITblOrganizationDAO iTblOrganizationDAO, ITblGlobalRateDAO iTblGlobalRateDAO, ITblQuotaDeclarationBL iTblQuotaDeclarationBL, ITblBookingActionsDAO iTblBookingActionsDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblBookingOpngBalDAO iTblBookingOpngBalDAO, ITblUserAreaAllocationBL iTblUserAreaAllocationBL, ICircularDependencyBL iCircularDependencyBL, ITblConfigParamsDAO iTblConfigParamsDAO, ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingScheduleDAO iTblBookingScheduleDAO, ITblUserRoleBL iTblUserRoleBL, ITblEnquiryDtlDAO iTblEnquiryDtlDAO, ITblOverdueDtlDAO iTblOverdueDtlDAO, ITblBookingsDAO iTblBookingsDAO, ICommon iCommon, IConnectionString iConnectionString)
+        private readonly ITblPaymentTermsForBookingBL _iTblPaymentTermsForBookingBL;
+        private readonly IDimReportTemplateBL _iDimReportTemplateBL;
+        private readonly IRunReport _iRunReport;
+
+
+
+        public TblBookingsBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, IDimReportTemplateBL iDimReportTemplateBL, IRunReport iRunReport, ITblMaterialDAO iTblMaterialDAO, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, IDimensionDAO iDimensionDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblOrgOverdueHistoryDAO iTblOrgOverdueHistoryDAO, ITblUserDAO iTblUserDAO, ITblAlertInstanceBL iTblAlertInstanceBL, ITblQuotaConsumHistoryDAO iTblQuotaConsumHistoryDAO, ITblBookingBeyondQuotaDAO iTblBookingBeyondQuotaDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblSysElementsBL iTblSysElementsBL, IDimBrandDAO iDimBrandDAO, ITblOrganizationDAO iTblOrganizationDAO, ITblGlobalRateDAO iTblGlobalRateDAO, ITblQuotaDeclarationBL iTblQuotaDeclarationBL, ITblBookingActionsDAO iTblBookingActionsDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblBookingQtyConsumptionDAO iTblBookingQtyConsumptionDAO, ITblBookingOpngBalDAO iTblBookingOpngBalDAO, ITblUserAreaAllocationBL iTblUserAreaAllocationBL, ICircularDependencyBL iCircularDependencyBL, ITblConfigParamsDAO iTblConfigParamsDAO, ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblBookingExtDAO iTblBookingExtDAO, ITblBookingScheduleDAO iTblBookingScheduleDAO, ITblUserRoleBL iTblUserRoleBL, ITblEnquiryDtlDAO iTblEnquiryDtlDAO, ITblOverdueDtlDAO iTblOverdueDtlDAO, ITblBookingsDAO iTblBookingsDAO, ICommon iCommon, IConnectionString iConnectionString)
         {
             _iTblBookingsDAO = iTblBookingsDAO;
             _iTblOverdueDtlDAO = iTblOverdueDtlDAO;
@@ -85,6 +93,10 @@ namespace ODLMWebAPI.BL
             _iTblMaterialDAO = iTblMaterialDAO;
             _iTblLoadingSlipExtDAO = iTblLoadingSlipExtDAO;
             _iTblAlertDefinitionDAO = iTblAlertDefinitionDAO;
+            _iDimReportTemplateBL = iDimReportTemplateBL;
+            _iRunReport = iRunReport;
+            _iTblPaymentTermsForBookingBL = iTblPaymentTermsForBookingBL;
+
         }
         #region Selection
         public List<TblBookingPendingRptTO> SelectBookingPendingQryRpt(DateTime fromDate, DateTime toDate, int reportType)
@@ -2329,28 +2341,32 @@ namespace ODLMWebAPI.BL
                     }
                 }
                 //Aniket [23-9-2019] added to update booking rate in bookings parities table 
+              
                 int updateBookingparityResult;
-                List<TblBookingParitiesTO> tblBookingParitiesTOList = _iTblBookingParitiesDAO.SelectTblBookingParitiesByBookingId(tblBookingsTO.IdBooking, conn, tran);
-                TblBookingParitiesTO tblBookingParitiesTO = new TblBookingParitiesTO();
-                if(tblBookingParitiesTOList!=null && tblBookingParitiesTOList.Count>0)
+                if (tblBookingsTO.OtherNewBooking == 0)
                 {
-                    tblBookingParitiesTOList.ForEach(x =>
+                    List<TblBookingParitiesTO> tblBookingParitiesTOList = _iTblBookingParitiesDAO.SelectTblBookingParitiesByBookingId(tblBookingsTO.IdBooking, conn, tran);
+                    TblBookingParitiesTO tblBookingParitiesTO = new TblBookingParitiesTO();
+                    if (tblBookingParitiesTOList != null && tblBookingParitiesTOList.Count > 0)
                     {
-                        if (x.BookingId==tblBookingsTO.IdBooking && x.BrandId==tblBookingsTO.BrandId)
+                        tblBookingParitiesTOList.ForEach(x =>
                         {
-                            tblBookingParitiesTO = x;
-                        }
-                    });
-                }
-                if(tblBookingParitiesTO!=null)
-                {
-                    tblBookingParitiesTO.BookingRate = tblBookingsTO.BookingRate;
-                    updateBookingparityResult =  _iTblBookingParitiesDAO.UpdateTblBookingParities(tblBookingParitiesTO, conn, tran);
-                    if(updateBookingparityResult!=1)
+                            if (x.BookingId == tblBookingsTO.IdBooking && x.BrandId == tblBookingsTO.BrandId)
+                            {
+                                tblBookingParitiesTO = x;
+                            }
+                        });
+                    }
+                    if (tblBookingParitiesTO != null)
                     {
-                        tran.Rollback();
-                        resultMessage.DisplayMessage = "Error while update in Booking parities ";
-                        return resultMessage;
+                        tblBookingParitiesTO.BookingRate = tblBookingsTO.BookingRate;
+                        updateBookingparityResult = _iTblBookingParitiesDAO.UpdateTblBookingParities(tblBookingParitiesTO, conn, tran);
+                        if (updateBookingparityResult != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.DisplayMessage = "Error while update in Booking parities ";
+                            return resultMessage;
+                        }
                     }
                 }
                 //#region Notifications & SMSs
@@ -2646,6 +2662,251 @@ namespace ODLMWebAPI.BL
                 conn.Close();
             }
         }
+
+        //Rupali jadhav
+
+        public TblBookingsTO SelectTblBookingTOWithDetails(Int32 bookingId)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+                return SelectTblBookingTOWithDetails(bookingId, conn, tran);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+        //public List<TblBookingExtTO> SelectTblBookingExtTOWithDetails(Int32 bookingId)
+        //{
+        //    SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+        //    SqlTransaction tran = null;
+        //    try
+        //    {
+        //        conn.Open();
+        //        tran = conn.BeginTransaction();
+        //        return SelectTblBookingExtTOWithDetails(bookingId, conn, tran);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return null;
+        //    }
+        //    finally
+        //    {
+        //        conn.Close();
+        //    }
+        //}
+        public TblBookingsTO SelectTblBookingTOWithDetails(Int32 bookingId, SqlConnection conn, SqlTransaction tran)
+        {
+            TblBookingsTO bookingsTO = _iTblBookingsDAO.SelectTblBookingsPrint(bookingId);
+
+            return bookingsTO;
+
+        }
+
+        public DataTable ToDataTable<T>(List<T> items)
+        {
+            DataTable dataTable = new DataTable(typeof(T).Name);
+            //Get all the properties by using reflection   
+            PropertyInfo[] Props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            foreach (PropertyInfo prop in Props)
+            {
+                //Setting column names as Property names  
+                dataTable.Columns.Add(prop.Name);
+            }
+            foreach (T item in items)
+            {
+                var values = new object[Props.Length];
+                for (int i = 0; i < Props.Length; i++)
+                {
+
+                    values[i] = Props[i].GetValue(item, null);
+                }
+                dataTable.Rows.Add(values);
+            }
+
+            return dataTable;
+        }
+
+        public ResultMessage PrintBooking(Int32 bookingId)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            try
+            {
+
+                TblBookingsTO tblbookingsto = SelectTblBookingTOWithDetails(bookingId);
+                DataTable itemDT = new DataTable();
+                DataTable bookingDT = new DataTable();
+                DataSet printDataSet = new DataSet();
+
+              
+                bookingDT.TableName = "bookingDT";
+                //HeaderDT 
+                bookingDT.Columns.Add("idBooking");
+                bookingDT.Columns.Add("billingName");
+                bookingDT.Columns.Add("bookingDatetime");
+
+                bookingDT.Columns.Add("bookingRate");
+                bookingDT.Columns.Add("bookingQty");
+                bookingDT.Columns.Add("noOfDeliveries");
+                bookingDT.Columns.Add("uomQty");
+                bookingDT.Columns.Add("brandId");
+
+                if (tblbookingsto != null)
+                {
+                    bookingDT.Rows.Add();
+                    bookingDT.Rows[0]["idBooking"] = tblbookingsto.IdBooking;
+                    bookingDT.Rows[0]["billingName"] = tblbookingsto.BillingName;
+                    bookingDT.Rows[0]["bookingDatetime"] = tblbookingsto.BookingDatetime;
+                    bookingDT.Rows[0]["bookingRate"] = tblbookingsto.BookingRate;
+                    bookingDT.Rows[0]["bookingQty"] = tblbookingsto.BookingQty;
+                    bookingDT.Rows[0]["noOfDeliveries"] = tblbookingsto.NoOfDeliveries;
+                    bookingDT.Rows[0]["uomQty"] = tblbookingsto.UomQty;
+                    bookingDT.Rows[0]["brandId"] = tblbookingsto.BrandName;
+                }
+                List<TblBookingExtTO> tblBookingExtTOList = _iTblBookingExtDAO.SelectAllTblBookingExt(bookingId);
+                 itemDT =this.ToDataTable(tblBookingExtTOList);
+                itemDT.TableName = "itemDT";
+                //itemDT.Columns.Add("displayName");
+                //if(tblBookingExtTOList.Count != 0)
+                //{
+                //    for(int i=0;i<= tblBookingExtTOList.Count;i++)
+                //    {
+                //        itemDT.Rows.Add();
+                //        itemDT.Rows[0]["displayName"] = tblBookingExtTOList.
+
+                //    }
+                //}
+
+
+                string paymentTermAllCommaSeparated = "";
+
+                List<TblPaymentTermsForBookingTO> tblPaymentTermsForBookingTOList = _iTblPaymentTermsForBookingBL.SelectAllTblPaymentTermsForBookingFromBookingId(bookingId, 0);
+                if (tblPaymentTermsForBookingTOList != null)
+                {
+                    foreach (var item in tblPaymentTermsForBookingTOList)
+                    {
+
+                        bookingDT.Columns.Add(item.PaymentTerm);
+                        //headerDT.Columns.Add(item.PaymentTerm);
+
+                        if (item.PaymentTermOptionList != null && item.PaymentTermOptionList.Count > 0)
+                        {
+                            foreach (var x in item.PaymentTermOptionList)
+                            {
+                                if (x.IsSelected == 1)
+                                {
+
+                                    String tempPayment = x.PaymentTermOption;
+                                    if (x.IsDescriptive == 1)
+                                    {
+                                        tempPayment = x.PaymentTermsDescription;
+                                    }
+
+
+                                    paymentTermAllCommaSeparated += tempPayment + ",";
+
+                                    bookingDT.Rows[0][item.PaymentTerm] = tempPayment;
+                                    //headerDT.Rows[0][item.PaymentTerm] = x.PaymentTermOption;
+                                }
+                            }
+
+                        }
+
+
+                    }
+                }
+                // TblAddressTO
+                if (!String.IsNullOrEmpty(paymentTermAllCommaSeparated))
+                {
+                    paymentTermAllCommaSeparated = paymentTermAllCommaSeparated.TrimEnd(',');
+                }
+                printDataSet.Tables.Add(bookingDT);
+                printDataSet.Tables.Add(itemDT);
+
+
+                string templateName = "BookingPrint";
+
+                Boolean IsProduction = true;
+
+                String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
+                String fileName = "Bill-" + DateTime.Now.Ticks;
+                //download location for rewrite  template file
+                String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
+                resultMessage = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePath, saveLocation, Constants.ReportE.PDF_DONT_OPEN, IsProduction);
+
+                if (resultMessage.MessageType == ResultMessageE.Information)
+                {
+
+                    String filePath = String.Empty;
+
+                    if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
+                    {
+
+                        filePath = resultMessage.Tag.ToString();
+
+                    }
+
+
+                    //driveName + path;
+                    String fileName1 = Path.GetFileName(saveLocation);
+                    Byte[] bytes = File.ReadAllBytes(filePath);
+                    if (bytes != null && bytes.Length > 0)
+                    {
+                        resultMessage.Tag = bytes;
+
+                        string resFname = Path.GetFileNameWithoutExtension(saveLocation);
+                        string directoryName;
+
+
+
+                        directoryName = Path.GetDirectoryName(saveLocation);
+                        string[] fileEntries = Directory.GetFiles(directoryName, "*Bill*");
+                        string[] filesList = Directory.GetFiles(directoryName, "*Bill*");
+
+                        foreach (string file in filesList)
+                        {
+                            //if (file.ToUpper().Contains(resFname.ToUpper()))
+                            {
+                                File.Delete(file);
+                            }
+                        }
+                    }
+                    if (resultMessage.MessageType == ResultMessageE.Information)
+                    {
+
+                        resultMessage.DefaultSuccessBehaviour();
+                    }
+
+                }
+                else
+                {
+                    resultMessage.Text = "Something wents wrong please try again";
+                    resultMessage.DisplayMessage = "Something wents wrong please try again";
+                    resultMessage.Result = 0;
+                }
+                return resultMessage;
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "");
+                return resultMessage;
+            }
+
+        }
+
         /// <summary>
         /// Vijaymala added to send booking notification [29-11-2018]
         /// </summary>

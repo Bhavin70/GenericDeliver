@@ -74,6 +74,7 @@ namespace ODLMWebAPI.Models
         double bookingRate;
         double rate;
         double discount;
+        int isProcessed;
         #endregion
 
         #region Constructor
@@ -284,6 +285,12 @@ namespace ODLMWebAPI.Models
             {
                 ratePerMT = value;
             }
+        }
+        public int IsProcessed
+
+        {
+            get { return isProcessed; }
+            set { isProcessed = value; }
         }
 
         /// <summary>
