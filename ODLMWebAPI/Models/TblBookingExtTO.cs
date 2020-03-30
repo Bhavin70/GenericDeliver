@@ -221,7 +221,7 @@ namespace ODLMWebAPI.Models
         public Int32 OtherNewBooking { get => otherNewBooking; set => otherNewBooking = value; }
         public string BrandName { get => brandDesc; set => brandDesc = value; }
 
-
+        public double TotalAmount { get => totalAmt; set => totalAmt = value; }
         #endregion
     }
 }
