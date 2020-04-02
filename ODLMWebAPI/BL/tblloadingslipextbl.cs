@@ -143,6 +143,9 @@ namespace ODLMWebAPI.BL
                             tblLoadingSlipExtTO.Rate = bookingList[i].Rate;
                             tblLoadingSlipExtTO.TotalAmount = bookingList[i].TotalAmount;
                             tblLoadingSlipExtTO.Discount = bookingList[i].Discount;
+                            tblLoadingSlipExtTO.ProdItemDesc = bookingList[i].DisplayName;
+
+
                             if (matchedAvgWt.Count>0 && matchedAvgWt!=null)
                             tblLoadingSlipExtTO.AvgBundleWt = matchedAvgWt[0].AvgBundleWt;
                             list[k].LoadingSlipExtTOList.Add(tblLoadingSlipExtTO);
