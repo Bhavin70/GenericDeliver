@@ -1779,6 +1779,8 @@ namespace ODLMWebAPI.BL
                                             {
                                                 cdApplicableAmt = gstApplicableAmt;
                                             }
+
+                                            cdApplicableAmt = Math.Round(cdApplicableAmt);
                                         }
 
                                     }

@@ -207,7 +207,7 @@ namespace ODLMWebAPI.DAL
                 //}
 
                 //Priyanka [17-08-2018]
-                String whereCondition = " WHERE CAST(invoice.statusDate AS DATETIME) BETWEEN @fromDate AND @toDate";//AND isConfirmed IN(" + isConfirm + ")";
+                String whereCondition = " WHERE CAST(invoice.statusDate AS DATETIME) BETWEEN @fromDate AND @toDate AND isConfirmed IN(" + isConfirm + ")";
                 if (invoiceId > 0)
                 {
                     whereCondition = " WHERE invoice.idInvoice =" + invoiceId; 
