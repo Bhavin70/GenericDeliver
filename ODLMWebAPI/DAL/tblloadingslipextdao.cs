@@ -25,7 +25,7 @@ namespace ODLMWebAPI.DAL
         {
             String sqlSelectQry = " SELECT loadDtl.* ,loadLayers.layerDesc,material.materialSubType " +
                                   " , prodCat.prodCateDesc AS prodCatDesc ,prodSpec.prodSpecDesc,brand.brandName as brandDesc, prodSpec.isWeighingAllow " +
-                                  " ,item.itemName,prodClass.displayName FROM tempLoadingSlipExt loadDtl  " +
+                                  " ,item.itemName,prodClass.displayName,bookings.bookingType, bookings.otherNewBooking FROM tempLoadingSlipExt loadDtl  " +
                                   "  LEFT JOIN dimLoadingLayers loadLayers " +
                                   "  ON loadDtl.loadingLayerid = loadLayers.idLoadingLayer " +
                                   "  LEFT JOIN tblMaterial material " +
@@ -34,6 +34,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN  dimProdSpec prodSpec ON prodSpec.idProdSpec=loadDtl.prodSpecId" +
                                   " LEFT JOIN dimBrand brand ON brand.idBrand = loadDtl.brandId " +
                                   " LEFT JOIN tblProductItem item ON item.idProdItem = loadDtl.prodItemId " +
+                                   "LEFT JOIN  tblBookings bookings ON loadDtl.bookingid = bookings.idBooking " +
                                   " LEFT JOIN tblProdClassification prodClass ON item.prodClassId = prodClass.idProdClass " +
 
             // Vaibhav [20-Nov-2017] Added to select from finalLoadingSlipExt
@@ -42,7 +43,7 @@ namespace ODLMWebAPI.DAL
 
                                   " SELECT loadDtl.* ,loadLayers.layerDesc,material.materialSubType " +
                                   " , prodCat.prodCateDesc AS prodCatDesc ,prodSpec.prodSpecDesc,brand.brandName as brandDesc, prodSpec.isWeighingAllow " +
-                                  " ,item.itemName,prodClass.displayName  FROM finalLoadingSlipExt loadDtl  " +
+                                  " ,item.itemName,prodClass.displayName,bookings.bookingType, bookings.otherNewBooking  FROM finalLoadingSlipExt loadDtl  " +
                                   "  LEFT JOIN dimLoadingLayers loadLayers " +
                                   "  ON loadDtl.loadingLayerid = loadLayers.idLoadingLayer " +
                                   "  LEFT JOIN tblMaterial material " +
@@ -51,7 +52,36 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN  dimProdSpec prodSpec ON prodSpec.idProdSpec=loadDtl.prodSpecId" +
                                   " LEFT JOIN dimBrand brand ON brand.idBrand = loadDtl.brandId " +
                                   " LEFT JOIN tblProductItem item ON item.idProdItem = loadDtl.prodItemId " +
+                                   "LEFT JOIN  tblBookings bookings ON loadDtl.bookingid = bookings.idBooking " +
                                   " LEFT JOIN tblProdClassification prodClass ON item.prodClassId = prodClass.idProdClass ";
+
+          //  String sqlSelectQry = "SELECT distinct loadDtl.* , loadLayers.layerDesc, material.materialSubType, prodCat.prodCateDesc " +
+          //                   "AS prodCatDesc, prodSpec.prodSpecDesc, brand.brandName as brandDesc, prodSpec.isWeighingAllow, item.itemName, prodClass.displayName, " +
+          //                   "bookings.bookingType, bookings.otherNewBooking,bookingsExt.isProcessReq FROM tempLoadingSlipExt loadDtl " +
+          //                   "LEFT JOIN dimLoadingLayers loadLayers   ON loadDtl.loadingLayerid = loadLayers.idLoadingLayer " +
+          //                   "LEFT JOIN tblMaterial material   ON material.idMaterial = loadDtl.materialId " +
+          //                   "LEFT JOIN  dimProdCat prodCat ON prodCat.idProdCat = loadDtl.prodCatId " +
+          //                   "LEFT JOIN  dimProdSpec prodSpec ON prodSpec.idProdSpec = loadDtl.prodSpecId " +
+          //                   "LEFT JOIN dimBrand brand ON brand.idBrand = loadDtl.brandId " +
+          //                   "LEFT JOIN tblProductItem item ON item.idProdItem = loadDtl.prodItemId " +
+          //                   "LEFT JOIN tblBookingExt bookingsExt ON bookingsExt.bookingId = loadDtl.bookingId   " +
+          //                   "LEFT JOIN  tblBookings bookings ON loadDtl.bookingid = bookings.idBooking " +
+          //                   "LEFT JOIN tblProdClassification prodClass ON bookingsExt.prodClassId = prodClass.idProdClass " +
+          //
+          //                   "UNION ALL " +
+          //
+          //                   "SELECT distinct loadDtl.* , loadLayers.layerDesc, material.materialSubType, prodCat.prodCateDesc AS prodCatDesc, " +
+          //                   "prodSpec.prodSpecDesc, brand.brandName as brandDesc, prodSpec.isWeighingAllow, item.itemName, prodClass.displayName, bookings.bookingType, " +
+          //                   "bookings.otherNewBooking,bookingsExt.isProcessReq  FROM finalLoadingSlipExt loadDtl " +
+          //                   "LEFT JOIN dimLoadingLayers loadLayers   ON loadDtl.loadingLayerid = loadLayers.idLoadingLayer " +
+          //                   "LEFT JOIN tblMaterial material   ON material.idMaterial = loadDtl.materialId " +
+          //                   "LEFT JOIN  dimProdCat prodCat ON prodCat.idProdCat = loadDtl.prodCatId " +
+          //                   "LEFT JOIN  dimProdSpec prodSpec ON prodSpec.idProdSpec = loadDtl.prodSpecId " +
+          //                   "LEFT JOIN dimBrand brand ON brand.idBrand = loadDtl.brandId " +
+          //                   "LEFT JOIN tblProductItem item ON item.idProdItem = loadDtl.prodItemId " +
+          //                   "LEFT JOIN tblBookingExt bookingsExt ON bookingsExt.bookingId = loadDtl.bookingId   " +
+          //                   "LEFT JOIN  tblBookings bookings ON loadDtl.bookingid = bookings.idBooking " +
+          //                   "LEFT JOIN tblProdClassification prodClass ON bookingsExt.prodClassId = prodClass.idProdClass ";
 
             return sqlSelectQry;
         }
@@ -662,6 +692,14 @@ namespace ODLMWebAPI.DAL
                     //[05-09-2018]Vijaymala added to set regular or other item name 
                     if (tblLoadingSlipExtTODT["itemName"] != DBNull.Value)
                         tblLoadingSlipExtTONew.ItemName = Convert.ToString(tblLoadingSlipExtTODT["itemName"].ToString());
+
+                   //  [02-04-2020] Sameeksha added to get bookingType,OtherNewBookiing and isProcessReq
+                    if (tblLoadingSlipExtTODT["bookingType"] != DBNull.Value)
+                        tblLoadingSlipExtTONew.BookingType = Convert.ToInt32(tblLoadingSlipExtTODT["bookingType"]);
+                    if (tblLoadingSlipExtTODT["otherNewBooking"] != DBNull.Value)
+                        tblLoadingSlipExtTONew.OtherNewBooking = Convert.ToInt32(tblLoadingSlipExtTODT["otherNewBooking"]);
+                    //if (tblLoadingSlipExtTODT["isProcessReq"] != DBNull.Value)
+                    //    tblLoadingSlipExtTONew.IsProcessReq = Convert.ToInt32(tblLoadingSlipExtTODT["isProcessReq"]);
 
                     if (tblLoadingSlipExtTODT["displayName"] != DBNull.Value)
                         tblLoadingSlipExtTONew.DisplayName = Convert.ToString(tblLoadingSlipExtTODT["displayName"].ToString());
