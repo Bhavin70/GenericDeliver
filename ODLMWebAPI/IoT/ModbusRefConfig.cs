@@ -26,52 +26,52 @@ namespace ODLMWebAPI.IoT {
         private static Dictionary<string, List<int>> modbusRefDict;
         //hrushikesh
         //on startup create client wise Lists
-        public static void setModbusRef () {
-            if (!Constants.Local_API) {
-                JObject o1 = JObject.Parse (System.IO.File.ReadAllText (@".\connection.json"));
-                //Thread is created so main thread can continue on starting API at startup
-                //Hrushikesh
-                Thread thread = new Thread(delegate ()
-                {
-                foreach (var property in o1) {
-                    string key = property.Key;
-                    List<int> modbusRefList = getModbusRefList ((string) o1[key][Constants.REQUEST_ORIGIN_STRING]);
-                    if(modbusRefDict == null)
-                    {
-                        modbusRefDict = new Dictionary<string,List<int>>();
-                    }                   
-                    modbusRefDict.Add (key, modbusRefList);
-                }
-                });
-                thread.Start();
+        //public static void setModbusRef () {
+        //    if (!Constants.Local_API) {
+        //        JObject o1 = JObject.Parse (System.IO.File.ReadAllText (@".\connection.json"));
+        //        //Thread is created so main thread can continue on starting API at startup
+        //        //Hrushikesh
+        //        Thread thread = new Thread(delegate ()
+        //        {
+        //        foreach (var property in o1) {
+        //            string key = property.Key;
+        //            List<int> modbusRefList = getModbusRefList ((string) o1[key][Constants.REQUEST_ORIGIN_STRING]);
+        //            if(modbusRefDict == null)
+        //            {
+        //                modbusRefDict = new Dictionary<string,List<int>>();
+        //            }                   
+        //            modbusRefDict.Add (key, modbusRefList);
+        //        }
+        //        });
+        //        thread.Start();
 
-            } else {
-                Startup.AvailableModbusRefList = TblLoadingDAO.GeModRefMaxDataNonMulti ();
-            }
-        }
+        //    } else {
+        //        //Startup.AvailableModbusRefList = TblLoadingDAO.GeModRefMaxDataNonMulti ();
+        //    }
+        //}
 
 
         //Hrushikesh
         //added to set list on backup process 
-        public void setModbusRefList (List<int> list) {
-            if (!Constants.Local_API) {
-                 string domainName = _iConnectionString.GetSubDomain ();
-                    modbusRefDict[domainName] = list;
-            } else {
-                Startup.AvailableModbusRefList = list;
-            }
-        }
+        //public void setModbusRefList (List<int> list) {
+        //    if (!Constants.Local_API) {
+        //         string domainName = _iConnectionString.GetSubDomain ();
+        //            modbusRefDict[domainName] = list;
+        //    } else {
+        //        Startup.AvailableModbusRefList = list;
+        //    }
+        //}
 
         //Hrushikesh added to return particular client's modbus List
-        public List<int> getModbusRefList () {
-        if (!Constants.Local_API) {
-            string domainName = _iConnectionString.GetSubDomain();
-                return modbusRefDict[domainName];
-            } else {
-                return Startup.AvailableModbusRefList;
-            }
+        //public List<int> getModbusRefList () {
+        //if (!Constants.Local_API) {
+        //    string domainName = _iConnectionString.GetSubDomain();
+        //        return modbusRefDict[domainName];
+        //    } else {
+        //        return Startup.AvailableModbusRefList;
+        //    }
 
-        }
+        //}
 
         //IOT
         //hrushikesh added to read all multitenant modbusList from Backup

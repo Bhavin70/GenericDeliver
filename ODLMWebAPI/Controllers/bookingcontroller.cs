@@ -32,8 +32,6 @@ namespace ODLMWebAPI.Controllers
         private readonly ITblBookingDelAddrBL _iTblBookingDelAddrBL;
         private readonly ITblBookingExtBL _iTblBookingExtBL;
         private readonly ITblBookingOpngBalBL _iTblBookingOpngBalBL;
-        private readonly IDimensionBL _iDimensionBL;
-        private readonly ITblEntityRangeBL _iTblEntityRangeBL;
         private readonly ITblBookingScheduleBL _iTblBookingScheduleBL;
         private readonly ICommon _iCommon;
         private readonly ICircularDependencyBL _iCircularDependencyBL;
@@ -43,7 +41,7 @@ namespace ODLMWebAPI.Controllers
 
         #region Constructor
 
-        public BookingController(ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblEntityRangeBL iTblEntityRangeBL, IDimensionBL iDimensionBL, ITblBookingScheduleBL iTblBookingScheduleBL, ITblBookingOpngBalBL iTblBookingOpngBalBL, ITblBookingExtBL iTblBookingExtBL, ITblBookingDelAddrBL iTblBookingDelAddrBL, ITblBookingBeyondQuotaBL iTblBookingBeyondQuotaBL, ICircularDependencyBL iCircularDependencyBL, ITblBookingsBL iTblBookingsBL, ICommon iCommon, ILogger<BookingController> logger, ITblBookingActionsBL iTblBookingActionsBL, ITblConfigParamsBL iTblConfigParamsBL, ITblBookingQtyConsumptionBL iTblBookingQtyConsumptionBL)
+        public BookingController(ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblBookingScheduleBL iTblBookingScheduleBL, ITblBookingOpngBalBL iTblBookingOpngBalBL, ITblBookingExtBL iTblBookingExtBL, ITblBookingDelAddrBL iTblBookingDelAddrBL, ITblBookingBeyondQuotaBL iTblBookingBeyondQuotaBL, ICircularDependencyBL iCircularDependencyBL, ITblBookingsBL iTblBookingsBL, ICommon iCommon, ILogger<BookingController> logger, ITblBookingActionsBL iTblBookingActionsBL, ITblConfigParamsBL iTblConfigParamsBL, ITblBookingQtyConsumptionBL iTblBookingQtyConsumptionBL)
         {
             loggerObj = logger;
             _iTblBookingActionsBL = iTblBookingActionsBL; 
@@ -57,8 +55,6 @@ namespace ODLMWebAPI.Controllers
             _iCommon = iCommon;
             _iCircularDependencyBL = iCircularDependencyBL;
             _iTblPaymentTermsForBookingBL = iTblPaymentTermsForBookingBL;
-            _iDimensionBL = iDimensionBL;
-            _iTblEntityRangeBL = iTblEntityRangeBL;
             _iTblBookingQtyConsumptionBL = iTblBookingQtyConsumptionBL;
             Constants.LoggerObj = logger;
         }
@@ -714,34 +710,6 @@ namespace ODLMWebAPI.Controllers
                 tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_NEW;
                 tblBookingsTO.StatusDate = tblBookingsTO.CreatedOn;
                 tblBookingsTO.BookingDatetime = tblBookingsTO.CreatedOn;
-                #region entity range 
-                DimFinYearTO curFinYearTO = _iDimensionBL.GetCurrentFinancialYear(tblBookingsTO.CreatedOn);
-                if (curFinYearTO == null)
-                {
-                    resultMessage.Text = "Current Fin Year Object Not Found";
-                    resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
-                    resultMessage.MessageType = ResultMessageE.Error;
-                    return resultMessage;
-                }
-                TblEntityRangeTO entityRangeTO = _iTblEntityRangeBL.SelectTblEntityRangeTOByEntityName(Constants.REGULAR_BOOKING, curFinYearTO.IdFinYear);
-                if (entityRangeTO == null)
-                {
-                    resultMessage.Text = "entity range not found in Function SaveNewBooking";
-                    resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
-                    resultMessage.MessageType = ResultMessageE.Error;
-                    return resultMessage;
-                }
-                entityRangeTO.EntityPrevValue = entityRangeTO.EntityPrevValue + 1;
-                var result = _iTblEntityRangeBL.UpdateTblEntityRange(entityRangeTO);
-                if (result != 1)
-                {
-                    resultMessage.MessageType = ResultMessageE.Error;
-                    resultMessage.Text = "Error : While UpdateTblEntityRange";
-                    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                    return resultMessage;
-                }
-                tblBookingsTO.BookingDisplayNo = entityRangeTO.EntityPrevValue.ToString();
-                #endregion
                 return _iTblBookingsBL.SaveNewBooking(tblBookingsTO);
 
             }

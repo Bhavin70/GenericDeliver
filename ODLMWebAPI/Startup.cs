@@ -46,7 +46,7 @@ namespace ODLMWebAPI
         public static Int32 WeighingSrcConfig { get; private set; }
 
         public static string IoTBackUpConnectionString { get; private set; }
-        public static List<int> AvailableModbusRefList { get; set; }
+        //public static List<int> AvailableModbusRefList { get; set; }
 
         public static string GateIotApiURL { get; set; }
 
@@ -662,7 +662,7 @@ namespace ODLMWebAPI
 
                 //setting up multiTenant modbusRefLists
                 //Hrushikesh
-                ModbusRefConfig.setModbusRef();
+                //ModbusRefConfig.setModbusRef();
 
         }
     }

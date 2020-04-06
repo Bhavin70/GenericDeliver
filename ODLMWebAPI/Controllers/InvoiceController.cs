@@ -846,6 +846,7 @@ namespace ODLMWebAPI.Controllers
         public ResultMessage PostInvoiceFromMail([FromBody] JObject data)
         {
             ResultMessage resultMessage = new StaticStuff.ResultMessage();
+
             try
             {
                 SendMail SendMailTo = JsonConvert.DeserializeObject<SendMail>(data["mailInformationTo"].ToString());
@@ -1244,6 +1245,36 @@ namespace ODLMWebAPI.Controllers
                     resultMessage.DefaultBehaviour("tempInvoiceDocumentDetailsTO Found NULL");
                     return resultMessage;
                 }
+            }
+
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+
+            }
+        }
+
+        [Route("SendInvoiceEmail")]
+        [HttpPost]
+        public ResultMessage SendInvoiceEmail([FromBody] JObject data)
+        {
+            try
+            {
+                ResultMessage resultMessage = new StaticStuff.ResultMessage();
+
+                SendMail mailInformationTo = JsonConvert.DeserializeObject<SendMail>(data["mailInformationTo"].ToString());
+
+                if(mailInformationTo == null)
+                {
+                    resultMessage.DefaultBehaviour("mailInformationTo Found NULL");
+                    return resultMessage;
+                }
+               
+             return _iTblInvoiceBL.SendInvoiceEmail(mailInformationTo);
+               
             }
 
             catch (Exception ex)
