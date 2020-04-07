@@ -15,7 +15,7 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblWeighingMeasuresTO> SelectAllTblWeighingMeasuresListByLoadingId(int loadingId);
         ResultMessage CheckInvoiceNoGeneratedByVehicleNo(string vehicleNo, SqlConnection conn, SqlTransaction tran, Boolean isForOutOnly = false);
         List<TblWeighingMeasuresTO> SelectAllTblWeighingMeasuresListByLoadingId(int loadingId, SqlConnection conn, SqlTransaction tran);
-        TblBookingsTO SelectBookingsTOWithDetails(Int32 idBooking);
+        TblBookingsTO SelectBookingsTOWithDetails(Int32 idBooking);  //Rupali and Sameeksha
         //ResultMessage UploadDocumentWithConnTran(List<TblDocumentDetailsTO> tblDocumentDetailsTOList, SqlConnection conn, SqlTransaction tran);
     }
 }

@@ -52,6 +52,7 @@ namespace ODLMWebAPI.BL
         private readonly ITblMaterialDAO _iTblMaterialDAO;
         private readonly ITblLoadingSlipExtDAO _iTblLoadingSlipExtDAO;
         private readonly ITblAlertDefinitionDAO _iTblAlertDefinitionDAO;
+        //Rupali and Sameeksha
         private readonly ITblPaymentTermsForBookingBL _iTblPaymentTermsForBookingBL;
         private readonly IDimReportTemplateBL _iDimReportTemplateBL;
         private readonly IRunReport _iRunReport;
@@ -95,6 +96,7 @@ namespace ODLMWebAPI.BL
             _iTblLoadingSlipExtDAO = iTblLoadingSlipExtDAO;
             _iTblAlertDefinitionDAO = iTblAlertDefinitionDAO;
             _iDimReportTemplateBL = iDimReportTemplateBL;
+            //Rupali and Sameeksha
             _iRunReport = iRunReport;
             _iTblPaymentTermsForBookingBL = iTblPaymentTermsForBookingBL;
             _iTblConfigParamsBL = iTblConfigParamsBL;
@@ -1400,7 +1402,7 @@ namespace ODLMWebAPI.BL
                     tblBookingsTO.NoOfDeliveries = res.Count();
                 }
 
-                #region//Sameeksha: code done to make Overdue exists(Block/Unblock) by default ON for OtherNewBooking
+                #region//Sameeksha and Rupali: code done to make Overdue exists(Block/Unblock) by default ON for OtherNewBooking
                 if (!isRegular)
                 {
                     TblConfigParamsTO tblConfigParamsTOOverDueExists = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.DEFAULT_OVERDUE_EXISTS_VALUE_OTHER_NEW_BOOKING, conn, tran);
@@ -2345,7 +2347,7 @@ namespace ODLMWebAPI.BL
                 //Aniket [23-9-2019] added to update booking rate in bookings parities table 
               
                 int updateBookingparityResult;
-                if (tblBookingsTO.OtherNewBooking == 0)
+                if (tblBookingsTO.OtherNewBooking == 0) //Rupali and Sameeksha
                 {
                     List<TblBookingParitiesTO> tblBookingParitiesTOList = _iTblBookingParitiesDAO.SelectTblBookingParitiesByBookingId(tblBookingsTO.IdBooking, conn, tran);
                     TblBookingParitiesTO tblBookingParitiesTO = new TblBookingParitiesTO();
@@ -2665,26 +2667,7 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        //public List<TblBookingExtTO> SelectTblBookingExtTOWithDetails(Int32 bookingId)
-        //{
-        //    SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
-        //    SqlTransaction tran = null;
-        //    try
-        //    {
-        //        conn.Open();
-        //        tran = conn.BeginTransaction();
-        //        return SelectTblBookingExtTOWithDetails(bookingId, conn, tran);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return null;
-        //    }
-        //    finally
-        //    {
-        //        conn.Close();
-        //    }
-        //}
-
+        #region //Rupali and Sameeksha
         public DataTable ToDataTable<T>(List<T> items)
         {
             DataTable dataTable = new DataTable();
@@ -2711,7 +2694,7 @@ namespace ODLMWebAPI.BL
             }
             return dataTable;
         }
-
+       
         public ResultMessage PrintBooking(Int32 bookingId)
         {
             ResultMessage resultMessage = new ResultMessage();
@@ -2934,6 +2917,7 @@ namespace ODLMWebAPI.BL
             }
 
         }
+        #endregion
 
         /// <summary>
         /// Vijaymala added to send booking notification [29-11-2018]

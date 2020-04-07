@@ -21,6 +21,7 @@ namespace ODLMWebAPI.DAL
             _iCommon = iCommon;
         }
         #region Methods
+        //Rupali and Sameeksha for bookingType and OtherNewBooking
         public String SqlSelectQuery()
         {
             String sqlSelectQry = " SELECT loadDtl.* ,loadLayers.layerDesc,material.materialSubType " +

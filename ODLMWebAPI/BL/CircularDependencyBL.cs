@@ -183,6 +183,7 @@ namespace ODLMWebAPI.BL
         /// </summary>
         /// <param name="idBooking"></param>
         /// <returns></returns>
+         #region//Rupali and Sameeksha
         public TblBookingsTO SelectBookingsTOWithDetails(Int32 idBooking)
         {
             try
@@ -235,5 +236,6 @@ namespace ODLMWebAPI.BL
             }
 
         }
+        #endregion
     }
 }

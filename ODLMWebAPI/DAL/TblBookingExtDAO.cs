@@ -19,6 +19,7 @@ namespace ODLMWebAPI.DAL
             _iConnectionString = iConnectionString;
         }
         #region Methods
+        //Rupali and Sameeksha for COnversion of UOM and Uom
         public String SqlSelectQuery()
         {
             String sqlSelectQry = " SELECT  bookingDtl.* ,material.materialSubType,booking.bookingDatetime,isConfirmed,isJointDelivery,cdStructure,noOfDeliveries " +
@@ -331,7 +332,7 @@ namespace ODLMWebAPI.DAL
 
                     if (tblBookingExtTODT["displayName"] != DBNull.Value)
                         tblBookingExtTONew.DisplayName = Convert.ToString(tblBookingExtTODT["displayName"].ToString());
-
+                    //Rupali and Sameeksha
                     if (tblBookingExtTODT["length"] != DBNull.Value)
                         tblBookingExtTONew.Length = Convert.ToDouble(tblBookingExtTODT["length"]);
                     if (tblBookingExtTODT["width"] != DBNull.Value)
@@ -340,7 +341,7 @@ namespace ODLMWebAPI.DAL
                         tblBookingExtTONew.IsProcessReq = Convert.ToInt32(tblBookingExtTODT["isProcessReq"]);
                         if (tblBookingExtTONew.ProdItemId > 0)
                     {
-                        if(tblBookingExtTONew.IsProcessReq == 1)
+                        if(tblBookingExtTONew.IsProcessReq == 1)//Rupali and Sameeksha
                             tblBookingExtTONew.DisplayName = tblBookingExtTONew.DisplayName + "-" + tblBookingExtTONew.ItemName + "(" + tblBookingExtTONew.Length + "*" + tblBookingExtTONew.Width + ")";
                         else
                         tblBookingExtTONew.DisplayName = tblBookingExtTONew.DisplayName + "-" + tblBookingExtTONew.ItemName;
@@ -375,18 +376,16 @@ namespace ODLMWebAPI.DAL
                    
                     if (tblBookingExtTODT["prodClassId"] != DBNull.Value)
                         tblBookingExtTONew.ProdClassId = Convert.ToInt32(tblBookingExtTODT["prodClassId"]);
-
-
-                    if (tblBookingExtTODT["weightMeasurUnitDesc"] != DBNull.Value)
+                    //Rupali and Sameeksha for display booking information
+                    if (tblBookingExtTODT["weightMeasurUnitDesc"] != DBNull.Value) //Rupali and Sameeksha
                         tblBookingExtTONew.WeightMeasureUnitDesc = Convert.ToString(tblBookingExtTODT["weightMeasurUnitDesc"].ToString());
-                    if (tblBookingExtTODT["conversionweightMeasurUnitDesc"] != DBNull.Value)
+                    if (tblBookingExtTODT["conversionweightMeasurUnitDesc"] != DBNull.Value) //Rupali and Sameeksha
                         tblBookingExtTONew.ConversionUnitOfMeasure = Convert.ToString(tblBookingExtTODT["conversionweightMeasurUnitDesc"].ToString());
-                    if (tblBookingExtTODT["bookingType"] != DBNull.Value)
+                    if (tblBookingExtTODT["bookingType"] != DBNull.Value) //Rupali and Sameeksha
                         tblBookingExtTONew.BookingType = Convert.ToInt32(tblBookingExtTODT["bookingType"]);
-                    if (tblBookingExtTODT["otherNewBooking"] != DBNull.Value)
+                    if (tblBookingExtTODT["otherNewBooking"] != DBNull.Value) //Rupali and Sameeksha
                         tblBookingExtTONew.OtherNewBooking = Convert.ToInt32(tblBookingExtTODT["otherNewBooking"]);
-
-                    tblBookingExtTONew.TotalAmount = Math.Round(tblBookingExtTONew.Rate * tblBookingExtTONew.BookedQty, 2);
+                    tblBookingExtTONew.TotalAmount = Math.Round(tblBookingExtTONew.Rate * tblBookingExtTONew.BookedQty, 2); //Rupali and Sameeksha
                     tblBookingExtTOList.Add(tblBookingExtTONew);
                 }
             }

@@ -133,7 +133,7 @@ namespace ODLMWebAPI.BL
                             tblLoadingSlipExtTO.AvgBundleWt= bookingList[i].AvgBundleWt;
                             tblLoadingSlipExtTO.SchedulelayerId = tblBookingScheduleTO.LoadingLayerId;
                             tblLoadingSlipExtTO.Bundles = bookingList[i].PendingUomQty;
-                            // Added by Rupali Jadhav for display Bookingrate, Uomqty,WeightMeasureUnitDesc,ConversionUnitOfMeasure in OherNewBooking schedule booking.
+                            // Added by Rupali Jadhav for display Bookingrate, Uomqty,WeightMeasureUnitDesc,ConversionUnitOfMeasure,BookedQty,Rate,TotalAmount,Discount and ProdItemDesc in OherNewBooking schedule booking.
                             tblLoadingSlipExtTO.BookingRate = bookingList[i].BookingRate;
                             tblLoadingSlipExtTO.UomQty = bookingList[i].UomQty;
                             tblLoadingSlipExtTO.IsProcessReq = bookingList[i].IsProcessReq;
@@ -267,8 +267,8 @@ namespace ODLMWebAPI.BL
                                 tblLoadingSlipExtTO.LoadingQty = LoadingQty;
                                 tblLoadingSlipExtTO.MaterialDesc = bookingExtTo.MaterialSubType;
                                 tblLoadingSlipExtTO.BrandId = bookingExtTo.BrandId;
-
-                                tblLoadingSlipExtTO.BrandDesc = bookingExtTo.BrandDesc;
+                            //Rupali and Sameeksha for display BrandDesc,ConversionUnitOfMeasure,WeightMeasureUnitDesc,UomQty,BookedQty,BookingRate,Rate and Discount
+                            tblLoadingSlipExtTO.BrandDesc = bookingExtTo.BrandDesc;
                                 tblLoadingSlipExtTO.ConversionUnitOfMeasure = bookingExtTo.ConversionUnitOfMeasure;
                                 tblLoadingSlipExtTO.WeightMeasureUnitDesc = bookingExtTo.WeightMeasureUnitDesc;
                                 tblLoadingSlipExtTO.UomQty = bookingExtTo.UomQty;

@@ -369,7 +369,7 @@ namespace ODLMWebAPI.Controllers
             //TblUserRoleTO tblUserRoleTO = JsonConvert.DeserializeObject<TblUserRoleTO>(userRoleTO);
             return _iTblBookingsBL.GetOrderwiseDealerList();
         }
-
+        //Rupali and Sameeksha for Booking Report
         [Route("PrintBookingDetails")]
         [HttpGet]
         public ResultMessage PrintBookingDetails(int bookingId)
