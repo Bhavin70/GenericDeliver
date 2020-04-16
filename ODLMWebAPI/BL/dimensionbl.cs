@@ -320,7 +320,7 @@ namespace ODLMWebAPI.BL
                 if (curDate >= mstFinYearTO.FinYearStartDate &&
                     curDate <= mstFinYearTO.FinYearEndDate)
                     return mstFinYearTO;
-            }
+                }
 
             //Means Current Financial year not found so insert it
             DateTime startDate = Constants.GetStartDateTimeOfYear(curDate);

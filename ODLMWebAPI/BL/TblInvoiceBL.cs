@@ -8378,7 +8378,7 @@ namespace ODLMWebAPI.BL
                 #region 1. Create Sale Order Against Invoice
 
                 SAPbobsCOM.Documents saleOrderDocument;
-                saleOrderDocument = Startup.CompanyObject.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oOrders);
+                saleOrderDocument =(SAPbobsCOM.Documents)Startup.CompanyObject.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oOrders);
                 saleOrderDocument.CardCode = tblInvoiceTO.DealerOrgId.ToString();
                 saleOrderDocument.CardName = tblInvoiceTO.DealerName;
                 saleOrderDocument.DocDate = _iCommon.ServerDateTime;
