@@ -22,7 +22,7 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblLoadingSlipExtTO> SelectAllLoadingSlipExtListFromLoadingId(Int32 loadingId, SqlConnection conn, SqlTransaction tran);
         Dictionary<Int32, Double> SelectLoadingQuotaWiseApprovedLoadingQtyDCT(String loadingQuotaIds, SqlConnection conn, SqlTransaction tran);
         List<TblLoadingSlipExtTO> SelectCnfWiseLoadingMaterialToPostPoneList(SqlConnection conn, SqlTransaction tran);
-        List<TblLoadingSlipExtTO> SelectAllTblLoadingSlipExtByDate(DateTime frmDt, DateTime toDt, String statusStr);
+        List<TblLoadingSlipExtTO> SelectAllTblLoadingSlipExtByDate(DateTime frmDt, DateTime toDt, String statusStr,string selectedOrgStr);
         List<TblLoadingSlipExtTO> SelectTblLoadingSlipExtByIds(String idLoadingSlipExt, SqlConnection conn, SqlTransaction tran);
         int InsertTblLoadingSlipExt(TblLoadingSlipExtTO tblLoadingSlipExtTO);
         int InsertTblLoadingSlipExt(TblLoadingSlipExtTO tblLoadingSlipExtTO, SqlConnection conn, SqlTransaction tran);

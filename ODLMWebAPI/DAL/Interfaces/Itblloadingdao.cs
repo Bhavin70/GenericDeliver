@@ -12,10 +12,10 @@ namespace ODLMWebAPI.DAL.Interfaces
         String SqlSelectQuery();
         List<TblLoadingTO> SelectAllTblLoading();
         List<TblLoadingTO> SelectAllTblLoadingListForConvertNCToC();
-        List<TblLoadingTO> SelectAllTblloadingList(DateTime fromDate, DateTime toDate);
+        List<TblLoadingTO> SelectAllTblloadingList(DateTime fromDate, DateTime toDate,string selectedOrgStr);
         List<TblLoadingTO> SelectAllLoadingsFromParentLoadingId(Int32 parentLoadingId);
         List<TblLoadingTO> SelectAllLoadingListByStatus(string statusId, SqlConnection conn, SqlTransaction tran,Int32 gateId);
-        List<TblLoadingTO> SelectAllTblLoading(TblUserRoleTO tblUserRoleTO, int cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, Int32 isConfirm, Int32 brandId, Int32 loadingNavigateId, Int32 superwisorId);
+        List<TblLoadingTO> SelectAllTblLoading(TblUserRoleTO tblUserRoleTO, int cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, string selectedOrgStr, Int32 isConfirm, Int32 brandId, Int32 loadingNavigateId, Int32 superwisorId);
         List<TblLoadingTO> SelectAllTblLoadingLinkList(TblUserRoleTO tblUserRoleTO, int dearlerOrgId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate);
         List<TblLoadingTO> SelectAllTblLoading(int cnfId, String loadingStatusIdIn, DateTime loadingDate);
         TblLoadingTO SelectTblLoading(Int32 idLoading, SqlConnection conn, SqlTransaction tran);

@@ -375,7 +375,7 @@ namespace ODLMWebAPI.BL
         }
 
         //Priyanka [01-06-2018] : Added to get loading slip list.
-        public List<TblLoadingSlipTO> SelectAllLoadingSlipList(List<TblUserRoleTO> tblUserRoleTOList, Int32 cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, Int32 isConfirm, Int32 brandId,Int32 superwisorId)
+        public List<TblLoadingSlipTO> SelectAllLoadingSlipList(List<TblUserRoleTO> tblUserRoleTOList, Int32 cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId,string selectedOrgStr, Int32 isConfirm, Int32 brandId,Int32 superwisorId)
         {
             var checkIotFlag = loadingStatusId;
             int configId = _iTblConfigParamsDAO.IoTSetting();
@@ -391,7 +391,7 @@ namespace ODLMWebAPI.BL
             {
                 tblUserRoleTO = _iTblUserRoleBL.SelectUserRoleTOAccToPriority(tblUserRoleTOList);
             }
-            List<TblLoadingSlipTO> tblLoadingTOSlipList = _iTblLoadingSlipDAO.SelectAllTblLoadingSlipList(tblUserRoleTO, cnfId, loadingStatusId, fromDate, toDate, loadingTypeId, dealerId, isConfirm, brandId, superwisorId);
+            List<TblLoadingSlipTO> tblLoadingTOSlipList = _iTblLoadingSlipDAO.SelectAllTblLoadingSlipList(tblUserRoleTO, cnfId, loadingStatusId, fromDate, toDate, loadingTypeId, dealerId, selectedOrgStr, isConfirm, brandId, superwisorId);
             if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
             {
                 if (tblLoadingTOSlipList != null && tblLoadingTOSlipList.Count > 0)
@@ -678,17 +678,17 @@ namespace ODLMWebAPI.BL
         /// Vijaymala [08-05-2018] added to get notified loading list withiin period 
         /// </summary>
         /// <returns></returns>
-        public List<TblLoadingSlipTO> SelectAllNotifiedTblLoadingList(DateTime fromDate, DateTime toDate,Int32 callFlag)
+        public List<TblLoadingSlipTO> SelectAllNotifiedTblLoadingList(DateTime fromDate, DateTime toDate,Int32 callFlag,string selectedOrgStr)
         {
-            return _iTblLoadingSlipDAO.SelectAllNotifiedTblLoadingList(fromDate, toDate, callFlag);
+            return _iTblLoadingSlipDAO.SelectAllNotifiedTblLoadingList(fromDate, toDate, callFlag, selectedOrgStr);
         }
 
         //Priyanka [11-05-2018] : Added for showing ORC report in loading slip.
-        public List<TblORCReportTO> SelectORCReportDetailsList(DateTime fromDate, DateTime toDate, Int32 flag)
+        public List<TblORCReportTO> SelectORCReportDetailsList(DateTime fromDate, DateTime toDate, Int32 flag,string selectedOrgStr)
         {
             fromDate = Convert.ToDateTime(fromDate);
             toDate = Convert.ToDateTime(toDate);
-            return _iTblLoadingSlipDAO.SelectORCReportDetailsList(fromDate, toDate, flag);
+            return _iTblLoadingSlipDAO.SelectORCReportDetailsList(fromDate, toDate, flag, selectedOrgStr);
         }
         #endregion
 

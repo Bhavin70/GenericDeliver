@@ -696,7 +696,7 @@ namespace ODLMWebAPI.DAL
         }
 
 
-        public List<TblLoadingSlipExtTO> SelectAllTblLoadingSlipExtByDate(DateTime frmDt, DateTime toDt, String statusStr)
+        public List<TblLoadingSlipExtTO> SelectAllTblLoadingSlipExtByDate(DateTime frmDt, DateTime toDt, String statusStr,string selectedOrgStr)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -789,6 +789,10 @@ namespace ODLMWebAPI.DAL
                 if (!String.IsNullOrEmpty(statusStr))
                 {
                     whereCondition += " AND loadingSlip.statusId IN (" + statusStr + ")";
+                }
+                if(!string.IsNullOrEmpty(selectedOrgStr))
+                {
+                    whereCondition += " AND loadingSlip.fromOrgId IN (" + selectedOrgStr + ")";
                 }
                 //[05-09-2018]Vijaymala modified to change statistic report for regular or other loading
                 sqlQuery = "select SUM(AA.loadingQty) AS loadingQty ,AA.materialSubType , AA.brandDesc ,AA.prodCatDesc,AA.prodSpecDesc," +
