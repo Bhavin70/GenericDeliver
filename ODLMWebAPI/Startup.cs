@@ -58,18 +58,18 @@ namespace ODLMWebAPI
             Configuration = configuration;
 
             //Sanjay[2017-02-11] For Logging Configuration
-#if DEBUG
+
             Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Error()
             .WriteTo.RollingFile("../logs/error_log-{Date}.txt")
             .WriteTo.Logger(l => l
             .MinimumLevel.Warning()
             .WriteTo.RollingFile("../logs/warling_log-{Date}.log")).CreateLogger();
-#else
+
                 Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
                 .WriteTo.RollingFile("../logs/log-{Date}.txt").CreateLogger();
-#endif
+
         }
 
         public IConfiguration Configuration { get; }
