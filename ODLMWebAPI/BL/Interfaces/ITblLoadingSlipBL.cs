@@ -17,7 +17,7 @@ namespace ODLMWebAPI.BL.Interfaces
         TblLoadingSlipTO SelectTblLoadingSlipTO(Int32 idLoadingSlip);
         Dictionary<int, string> SelectRegMobileNoDCTForLoadingDealers(String loadingIds, SqlConnection conn, SqlTransaction tran);
         TblLoadingSlipTO SelectAllLoadingSlipWithDetails(Int32 loadingSlipId);
-        List<TblLoadingSlipTO> SelectAllLoadingSlipList(List<TblUserRoleTO> tblUserRoleTOList, Int32 cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, Int32 isConfirm, Int32 brandId, Int32 superwisorId);
+        List<TblLoadingSlipTO> SelectAllLoadingSlipList(List<TblUserRoleTO> tblUserRoleTOList, Int32 cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId,string selectedOrgStr, Int32 isConfirm, Int32 brandId, Int32 superwisorId);
         TblLoadingSlipTO SelectAllLoadingSlipWithDetailsByInvoice(Int32 invoiceId);
         List<TblLoadingSlipTO> SelectAllTblLoadingSlipByDate(DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 cnfId);
         List<TblLoadingSlipTO> SelectAllLoadingCycleList(DateTime startDate, DateTime endDate, List<TblUserRoleTO> tblUserRoleTOList, Int32 cnfId, Int32 vehicleStatus);
@@ -25,8 +25,8 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblLoadingSlipTO> SelectLoadingTOWithDetailsByLoadingSlipIdForSupport(String loadingSlipNo);
         List<TblLoadingSlipTO> SelectAllLoadingListByVehicleNo(string vehicleNo, DateTime startDate, DateTime endDate);
         List<TblLoadingSlipTO> SelectAllTblLoadingSlip(Int32 loadingId, SqlConnection conn, SqlTransaction tran);
-        List<TblLoadingSlipTO> SelectAllNotifiedTblLoadingList(DateTime fromDate, DateTime toDate, Int32 callFlag);
-        List<TblORCReportTO> SelectORCReportDetailsList(DateTime fromDate, DateTime toDate, Int32 flag);
+        List<TblLoadingSlipTO> SelectAllNotifiedTblLoadingList(DateTime fromDate, DateTime toDate, Int32 callFlag,string selectedOrgStr);
+        List<TblORCReportTO> SelectORCReportDetailsList(DateTime fromDate, DateTime toDate, Int32 flag,string selectedOrgStr);
         int InsertTblLoadingSlip(TblLoadingSlipTO tblLoadingSlipTO);
         int InsertTblLoadingSlip(TblLoadingSlipTO tblLoadingSlipTO, SqlConnection conn, SqlTransaction tran);
         int UpdateTblLoadingSlip(TblLoadingSlipTO tblLoadingSlipTO);
