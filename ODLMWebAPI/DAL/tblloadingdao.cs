@@ -282,7 +282,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblLoadingTO> SelectAllTblloadingList(DateTime fromDate, DateTime toDate)
+        public List<TblLoadingTO> SelectAllTblloadingList(DateTime fromDate, DateTime toDate,string selectedOrgStr)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -291,9 +291,14 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = "SELECT * FROM(" + SqlSelectQuery() + ")sq1 WHERE sq1.idLoading " +
+                cmdSelect.CommandText = "SELECT * FROM(" + SqlSelectQuery() + ")sq1 WHERE (sq1.idLoading " +
                     "IN (SELECT loadingId FROM tempWeighingMeasures where createdOn BETWEEN @fromDate AND @toDate) OR " +
-                    " sq1.idLoading  IN (SELECT loadingId FROM finalWeighingMeasures where createdOn BETWEEN @fromDate AND @toDate)";
+                    " sq1.idLoading  IN (SELECT loadingId FROM finalWeighingMeasures where createdOn BETWEEN @fromDate AND @toDate)) ";
+
+                if(!string.IsNullOrEmpty(selectedOrgStr))
+                {
+                    cmdSelect.CommandText += " And sq1.fromOrgId in("+ selectedOrgStr + ")";
+                }
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
                 cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.DateTime).Value = fromDate;
@@ -380,7 +385,7 @@ namespace ODLMWebAPI.DAL
         }
 
 
-        public List<TblLoadingTO> SelectAllTblLoading(TblUserRoleTO tblUserRoleTO, int cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId,Int32 isConfirm, Int32 brandId, Int32 loadingNavigateId,Int32 superwisorId)
+        public List<TblLoadingTO> SelectAllTblLoading(TblUserRoleTO tblUserRoleTO, int cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId,string selectedOrgStr, Int32 isConfirm, Int32 brandId, Int32 loadingNavigateId,Int32 superwisorId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -403,6 +408,7 @@ namespace ODLMWebAPI.DAL
                 {
                     areConfJoin = " INNER JOIN ( SELECT DISTINCT cnfOrgId FROM tblUserAreaAllocation WHERE isActive=1 AND userId=" + userId + ") areaConf ON  areaConf.cnfOrgId = loading.cnfOrgId ";
                 }
+                
 
                 conn.Open();
                 //if (cnfId == 0 && loadingStatusId > 0)
@@ -458,9 +464,13 @@ namespace ODLMWebAPI.DAL
                 if (loadingStatusId > 0)
                     whereCond += " AND loading.statusId=" + loadingStatusId;
 
+                if (isConfEn == 0 && (!string.IsNullOrEmpty(selectedOrgStr)))
+                {
+                    whereCond += " AND isnull(loading.fromOrgId,0) in(" + selectedOrgStr+")";
+                }
 
-                //Priyanka [31-05-2018] : Added to show the confirm and non-confirm loading slip.
-                if (isConfirm == 0 || isConfirm == 1)
+                    //Priyanka [31-05-2018] : Added to show the confirm and non-confirm loading slip.
+                    if (isConfirm == 0 || isConfirm == 1)
                 {
                     whereisConTemp += " AND loading.idLoading IN ( select loadingId from tempLoadingSlip where ISNULL(isConfirmed,0) = " + isConfirm + ")";
                     whereisConFinal += " AND loading.idLoading IN ( select loadingId from finalLoadingSlip where ISNULL(isConfirmed,0) = " + isConfirm + ")";
@@ -1500,6 +1510,8 @@ namespace ODLMWebAPI.DAL
                         tblLoadingTONew.IsDBup = Convert.ToInt32(tblLoadingTODT["isDBup"]);
                     if (tblLoadingTODT["ignoreGrossWt"] != DBNull.Value)
                         tblLoadingTONew.IgnoreGrossWt = Convert.ToInt32(tblLoadingTODT["ignoreGrossWt"]);
+                    if (tblLoadingTODT["fromOrgId"] != DBNull.Value)
+                        tblLoadingTONew.FromOrgId = Convert.ToInt32(tblLoadingTODT["fromOrgId"]);
 
                     tblLoadingTOList.Add(tblLoadingTONew);
                 }
@@ -1880,6 +1892,7 @@ namespace ODLMWebAPI.DAL
                                   ",[modbusRefId]" +
                                 ",[gateId]" +
                                 ",[ignoreGrossWt]" +
+                                " ,[fromOrgId]" +
                                 " )" +
                     " VALUES (" +
                                 "  @IsJointDelivery " +
@@ -1914,6 +1927,7 @@ namespace ODLMWebAPI.DAL
                                   " ,@ModbusRefId" +
                                 " ,@GateId" +
                                 " ,@IgnoreGrossWt" +
+                                " ,@fromOrgId " +
                                 " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -1953,6 +1967,8 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@ModbusRefId", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.ModbusRefId);
             cmdInsert.Parameters.Add("@GateId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.GateId);
             cmdInsert.Parameters.Add("@IgnoreGrossWt", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.IgnoreGrossWt);
+            cmdInsert.Parameters.Add("@fromOrgId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.FromOrgId);
+
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = Constants.IdentityColumnQuery;

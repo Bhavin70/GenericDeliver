@@ -1344,7 +1344,10 @@ namespace ODLMWebAPI.BL
                 {
                     tblBookingsTO.IsWithinQuotaLimit = 0;
                     // tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_NEW;
-                    tblBookingsTO.StatusId = statusId;
+
+                    if (tblBookingsTO.EnquiryId == 0)
+                        tblBookingsTO.StatusId = statusId;
+
                     if (tblBookingsTO.QuotaQtyAftBooking < 0)
                         tblBookingsTO.AuthReasons = "QTY|";
                     if (tblBookingsTO.BookingRate < allowedRate)
@@ -1361,8 +1364,8 @@ namespace ODLMWebAPI.BL
                     //Sanjay [2017-11-10]
                     //tblBookingsTO.IsWithinQuotaLimit = 1;
                     //tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_APPROVED;
-
-                    tblBookingsTO.StatusId = statusId;
+                    if (tblBookingsTO.EnquiryId == 0)
+                        tblBookingsTO.StatusId = statusId;
                     //tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_NEW;
 
                 }
@@ -1373,7 +1376,8 @@ namespace ODLMWebAPI.BL
                     {
                         tblBookingsTO.IsWithinQuotaLimit = 0;
                         //tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_NEW;
-                        tblBookingsTO.StatusId = statusId;
+                        if (tblBookingsTO.EnquiryId == 0)
+                            tblBookingsTO.StatusId = statusId;
                         tblBookingsTO.AuthReasons += "CD|";
                     }
                 }
@@ -1389,7 +1393,8 @@ namespace ODLMWebAPI.BL
                     if (skipFinanceApproval == 1)
                     {
                         statusId = Convert.ToInt32(Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR);
-                        tblBookingsTO.StatusId = statusId;
+                        if (tblBookingsTO.EnquiryId == 0)
+                            tblBookingsTO.StatusId = statusId;
                         //tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR;
                         tblBookingsTO.IsWithinQuotaLimit = 1;
                     }
@@ -1462,8 +1467,8 @@ namespace ODLMWebAPI.BL
                     }
                 }
 
-
-                tblBookingsTO.StatusId = statusId;
+                if (tblBookingsTO.EnquiryId == 0)
+                    tblBookingsTO.StatusId = statusId;
                 //Aniket [24-7-2019] added to check scheduled NoOfDeliveries against booking
                 if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count>0)
                 {

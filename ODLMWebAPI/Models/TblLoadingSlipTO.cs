@@ -75,7 +75,9 @@ namespace ODLMWebAPI.Models
         String statusDesc;
         String bookingDisplayNo;
         Int32 isMerge;
+        Int32 fromOrgId;
 
+       
         #endregion
 
         #region Constructor
@@ -86,6 +88,12 @@ namespace ODLMWebAPI.Models
         #endregion
 
         #region GetSet
+
+        public Int32 FromOrgId
+        {
+            get { return fromOrgId; }
+            set { fromOrgId = value; }
+        }
         public Int32 IdLoadingSlip
         {
             get { return idLoadingSlip; }

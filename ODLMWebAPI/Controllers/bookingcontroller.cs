@@ -707,7 +707,9 @@ namespace ODLMWebAPI.Controllers
 
                 tblBookingsTO.CreatedBy = Convert.ToInt32(loginUserId);
                 tblBookingsTO.CreatedOn = _iCommon.ServerDateTime;
-                tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_NEW;
+                if(tblBookingsTO.EnquiryId == 0)
+                    tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_NEW;
+
                 tblBookingsTO.StatusDate = tblBookingsTO.CreatedOn;
                 tblBookingsTO.BookingDatetime = tblBookingsTO.CreatedOn;
                 return _iTblBookingsBL.SaveNewBooking(tblBookingsTO);

@@ -1516,7 +1516,7 @@ namespace ODLMWebAPI.BL
             //It will be based on confirm not confirm. Hence commented and added at the end
             //tblInvoiceTO.FreightAmt = loadingTO.FreightAmt;
             tblInvoiceTO.VehicleNo = loadingTO.VehicleNo;
-
+           // tblInvoiceTO.InvFromOrgId = loadingTO.FromOrgId;
             //Saket [2018-02-01] Added.
             //tblInvoiceTO.Narration = loadingTO.CnfOrgName;
             Int32 cnfNameInNarration = 0;
@@ -1537,7 +1537,7 @@ namespace ODLMWebAPI.BL
 
 
             //tblInvoiceTO.InvFromOrgId = internalOrgId; //No need to aasign from loading Only use for BMM
-            tblInvoiceTO.InvFromOrgId = internalOrgId;  //For 
+            tblInvoiceTO.InvFromOrgId = loadingTO.FromOrgId;  //For 
             tblInvoiceTO.CreatedOn = _iCommon.ServerDateTime;
             tblInvoiceTO.CreatedBy = loadingTO.CreatedBy;
             //tblInvoiceTO.DistributorOrgId = loadingTO.CnfOrgId;
@@ -2455,8 +2455,8 @@ namespace ODLMWebAPI.BL
                 List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOList = new List<TblInvoiceItemDetailsTO>();
 
                 #region 1 Preparing main InvoiceTO
-
-                tblInvoiceTO.InvFromOrgId = internalOrgId;
+                if(tblInvoiceTO.InvFromOrgId==0)
+                    tblInvoiceTO.InvFromOrgId = internalOrgId;
                 tblInvoiceTO.CreatedOn = _iCommon.ServerDateTime;
                 tblInvoiceTO.CreatedBy = invoiceTO.CreatedBy;
                 tblInvoiceTO.InvoiceDate = tblInvoiceTO.CreatedOn;

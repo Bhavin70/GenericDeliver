@@ -254,11 +254,11 @@ namespace ODLMWebAPI.BL {
             return _iTblLoadingDAO.SelectAllLoadingsFromParentLoadingId (parentLoadingId);
         }
 
-        public List<TblLoadingTO> SelectAllTblloadingList (DateTime fromDate, DateTime toDate) {
-            return _iTblLoadingDAO.SelectAllTblloadingList (fromDate, toDate);
+        public List<TblLoadingTO> SelectAllTblloadingList (DateTime fromDate, DateTime toDate,string selectedOrgStr) {
+            return _iTblLoadingDAO.SelectAllTblloadingList (fromDate, toDate, selectedOrgStr);
         }
 
-        public List<TblLoadingTO> SelectAllTblLoadingList(List<TblUserRoleTO> tblUserRoleTOList, Int32 cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, Int32 isConfirm, Int32 brandId, Int32 loadingNavigateId, Int32 superwisorId)
+        public List<TblLoadingTO> SelectAllTblLoadingList(List<TblUserRoleTO> tblUserRoleTOList, Int32 cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, string selectedOrgStr, Int32 isConfirm, Int32 brandId, Int32 loadingNavigateId, Int32 superwisorId)
         {
             //Aniket [30-7-2019] added for IOT
 
@@ -274,7 +274,7 @@ namespace ODLMWebAPI.BL {
                 tblUserRoleTO = _iTblUserRoleBL.SelectUserRoleTOAccToPriority (tblUserRoleTOList);
             }
 
-            List<TblLoadingTO> tblLoadingTOList = _iTblLoadingDAO.SelectAllTblLoading (tblUserRoleTO, cnfId, loadingStatusId, fromDate, toDate, loadingTypeId, dealerId, isConfirm, brandId, loadingNavigateId, superwisorId);
+            List<TblLoadingTO> tblLoadingTOList = _iTblLoadingDAO.SelectAllTblLoading (tblUserRoleTO, cnfId, loadingStatusId, fromDate, toDate, loadingTypeId, dealerId,selectedOrgStr, isConfirm, brandId, loadingNavigateId, superwisorId);
 
             if (cnfId > 0) {
                 if (tblLoadingTOList != null && tblLoadingTOList.Count > 0) {
@@ -792,10 +792,10 @@ namespace ODLMWebAPI.BL {
         /// </summary>
         /// <param name="TblLoadingTO"></param>
         /// <returns></returns>
-        public List<TblLoadingTO> GetLoadingDetailsForReport (DateTime fromDate, DateTime toDate) {
+        public List<TblLoadingTO> GetLoadingDetailsForReport (DateTime fromDate, DateTime toDate,string selectedOrgStr) {
             List<TblLoadingTO> tblLoadingToList = new List<TblLoadingTO> ();
             TblLoadingTO tblLoadingTO = new TblLoadingTO ();
-            List<TblLoadingTO> tblLoadingTOList = SelectAllTblloadingList (fromDate, toDate); //.FindAll(ele => ele.WeightMeasurTypeId == (int)Constants.TransMeasureTypeE.TARE_WEIGHT);
+            List<TblLoadingTO> tblLoadingTOList = SelectAllTblloadingList (fromDate, toDate, selectedOrgStr); //.FindAll(ele => ele.WeightMeasurTypeId == (int)Constants.TransMeasureTypeE.TARE_WEIGHT);
 
             if (tblLoadingTOList != null && tblLoadingTOList.Count > 0) {
                 List<DropDownTO> MaterialList = _iTblMaterialBL.SelectAllMaterialListForDropDown ();
@@ -4284,6 +4284,7 @@ namespace ODLMWebAPI.BL {
             for (int i = 0; i < tblLoadingTO.LoadingSlipList.Count; i++)
             {
                 TblLoadingSlipTO tblLoadingSlipTO = tblLoadingTO.LoadingSlipList[i];
+                tblLoadingSlipTO.FromOrgId = tblLoadingTO.FromOrgId;
                 tblLoadingSlipTO.LoadingId = tblLoadingTO.IdLoading;
                 //Aniket [30-7-2019] added for IOT
                 if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
