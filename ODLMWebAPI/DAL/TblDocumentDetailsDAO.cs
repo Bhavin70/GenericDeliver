@@ -128,7 +128,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE fileTypeId = " + FileTypeId + " AND isActive=1 " +
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE fileTypeId = " + FileTypeId + " AND idActive=1 " +
                                       " AND tblDocumentDetails.createdBy=" + createdBy;
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
@@ -160,7 +160,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText =SqlSelectQuery() + " WHERE idDocument in (" + DocumentIds + ") AND tblDocumentDetails.isActive=1 ";
+                cmdSelect.CommandText =SqlSelectQuery() + " WHERE idDocument in (" + DocumentIds + ") AND tblDocumentDetails.idActive=1 ";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -233,7 +233,7 @@ namespace ODLMWebAPI.DAL
             //"  [idDocument]" +
             " [moduleId]" +
             " ,[createdBy]" +
-            " ,[isActive]" +
+            " ,[idActive]" +
             " ,[createdOn]" +
             " ,[documentDesc]" +
             " ,[path]" +
@@ -319,7 +319,7 @@ namespace ODLMWebAPI.DAL
             //"  [idDocument] = @IdDocument" +
             " [moduleId]= @ModuleId" +
             " ,[createdBy]= @CreatedBy" +
-            " ,[isActive]= @IsActive" +
+            " ,[idActive]= @IsActive" +
             " ,[createdOn]= @CreatedOn" +
             " ,[documentDesc]= @DocumentDesc" +
             " ,[path] = @Path" +
@@ -407,8 +407,8 @@ namespace ODLMWebAPI.DAL
                         tblDocumentDetailsTONew.ModuleId = Convert.ToInt32(tblDocumentDetailsTODT["moduleId"].ToString());
                     if (tblDocumentDetailsTODT["createdBy"] != DBNull.Value)
                         tblDocumentDetailsTONew.CreatedBy = Convert.ToInt32(tblDocumentDetailsTODT["createdBy"].ToString());
-                    if (tblDocumentDetailsTODT["isActive"] != DBNull.Value)
-                        tblDocumentDetailsTONew.IsActive = Convert.ToInt32(tblDocumentDetailsTODT["isActive"].ToString());
+                    if (tblDocumentDetailsTODT["idActive"] != DBNull.Value)
+                        tblDocumentDetailsTONew.IsActive = Convert.ToInt32(tblDocumentDetailsTODT["idActive"].ToString());
                     if (tblDocumentDetailsTODT["createdOn"] != DBNull.Value)
                         tblDocumentDetailsTONew.CreatedOn = Convert.ToDateTime(tblDocumentDetailsTODT["createdOn"].ToString());
                     if (tblDocumentDetailsTODT["documentDesc"] != DBNull.Value)
