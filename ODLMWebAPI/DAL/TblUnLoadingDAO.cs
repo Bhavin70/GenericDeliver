@@ -141,6 +141,11 @@ namespace ODLMWebAPI.DAL
                         tblUnLoadingTONew.StatusDate = Convert.ToDateTime(tblUnLoadingTODT["statusDate"]);
                     if (tblUnLoadingTODT["status"] != DBNull.Value)
                         tblUnLoadingTONew.Status = tblUnLoadingTODT["status"].ToString();
+                    if (tblUnLoadingTODT["tranRefId"] != DBNull.Value)
+                        tblUnLoadingTONew.TranRefId = tblUnLoadingTODT["tranRefId"].ToString();
+                    if (tblUnLoadingTODT["moduleId"] != DBNull.Value)
+                        tblUnLoadingTONew.ModuleId = Convert.ToInt32(tblUnLoadingTODT["moduleId"]);
+
 
                     tblUnLoadingTOList.Add(tblUnLoadingTONew);
                 }

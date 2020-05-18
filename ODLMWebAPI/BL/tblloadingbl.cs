@@ -1962,9 +1962,17 @@ namespace ODLMWebAPI.BL {
                                     resultMessage.DefaultBehaviour("tblLoadingTO Found NULL"); return resultMessage;
                                 }
                             }
-
                             tblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.INVOICE_GENERATED_AND_READY_FOR_DISPACH);
                             tblLoadingTO.StatusReason = "Invoice Generated and ready for dispach";
+                            TblConfigParamsTO tblConfigParamsTOWeighing = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_SKIP_WEIGHING, conn, tran);
+                            if (tblConfigParamsTOWeighing != null)
+                            {
+                                if (Convert.ToInt32(tblConfigParamsTOWeighing.ConfigParamVal) == 1)
+                                {
+                                    tblLoadingTO.StatusId = Convert.ToInt16(Constants.TranStatusE.LOADING_DELIVERED);
+                                    tblLoadingTO.StatusReason = "Delivered";
+                                }
+                            }
                             tblLoadingTO.StatusDate = _iCommon.ServerDateTime;
                             tblLoadingTO.IdLoading = tblLoadingSlipTOselect.LoadingId;
                             invoiceTO.VehicleNo = tblLoadingTO.VehicleNo;
@@ -7111,7 +7119,52 @@ namespace ODLMWebAPI.BL {
                 }
 
                 #endregion
-
+                #region 7.Create Invoice Receipt
+                TblConfigParamsTO tblConfigParamsTOWeighing = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_SKIP_WEIGHING, conn, tran);
+                if (tblConfigParamsTOWeighing != null)
+                {
+                    if (Convert.ToInt32(tblConfigParamsTOWeighing.ConfigParamVal) == 1)
+                    {
+                        TblLoadingTO tbloadingTOInvoice = SelectTblLoadingTO(tblLoadingTO.IdLoading, conn, tran);
+                        if(tbloadingTOInvoice == null)
+                        {
+                            resultMessage.DefaultBehaviour("Failed to get loading details for invoice creation");
+                            return resultMessage;
+                        }
+                        List<TblLoadingSlipTO> InvoiceloadingSlipTOList = _iCircularDependencyBL.SelectAllLoadingSlipListWithDetails(tbloadingTOInvoice.IdLoading, conn, tran);
+                        if (InvoiceloadingSlipTOList == null || InvoiceloadingSlipTOList.Count == 0)
+                        {
+                            resultMessage.DefaultBehaviour("Failed to get loading slip details for invoice creation");
+                            return resultMessage;
+                        }
+                        for (int m = 0; m < InvoiceloadingSlipTOList.Count; m++)
+                        {
+                            if (InvoiceloadingSlipTOList[m].LoadingSlipExtTOList == null || InvoiceloadingSlipTOList[m].LoadingSlipExtTOList.Count == 0)
+                            {
+                                resultMessage.DefaultBehaviour("Failed to get loading slip ext details for invoice creation");
+                                return resultMessage;
+                            }
+                            TblLoadingSlipExtTO TblLoadingSlipExtTOInvoice = new TblLoadingSlipExtTO();
+                            for (int n = 0; n < InvoiceloadingSlipTOList[m].LoadingSlipExtTOList.Count; n++)
+                            {
+                                InvoiceloadingSlipTOList[m].LoadingSlipExtTOList[n].LoadedWeight = InvoiceloadingSlipTOList[m].LoadingSlipExtTOList[n].LoadingQty * 1000;
+                                TblLoadingSlipExtTOInvoice = InvoiceloadingSlipTOList[m].LoadingSlipExtTOList[n];
+                                result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExt(TblLoadingSlipExtTOInvoice, conn, tran);
+                                if (result != 1)
+                                {
+                                    resultMessage.DefaultBehaviour("Error : While UpdateTblLoadingSlipExt Against LoadingSlip");
+                                    return resultMessage;
+                                }
+                            }
+                        }
+                        resultMessage = _iTblInvoiceBL.CreateInvoiceAgainstLoadingSlips(tbloadingTOInvoice, conn, tran, InvoiceloadingSlipTOList);
+                        if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                        {
+                            return resultMessage;
+                        }
+                    }
+                }
+                #endregion
                 //tran.Commit();
                 resultMessage.MessageType = ResultMessageE.Information;
                 resultMessage.Text = "Loading Slip Approved Sucessfully";
