@@ -5088,7 +5088,7 @@ namespace ODLMWebAPI.BL
 
                 if(mailInformationTo.IsSendEmailForWeighment)
                 {
-                    resultMessage = PrintWeighingReport(mailInformationTo.InvoiceId, true);
+                    resultMessage = PrintWeighingReport(mailInformationTo.InvoiceId, true, Constants.WeighmentSlip);
                     if (resultMessage.MessageType == ResultMessageE.Information)
                     {
                         if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(string))
@@ -5124,7 +5124,7 @@ namespace ODLMWebAPI.BL
         }
 
 
-        public ResultMessage PrintWeighingReport(Int32 invoiceId,Boolean isSendEmailForWeighment = false)
+        public ResultMessage PrintWeighingReport(Int32 invoiceId,Boolean isSendEmailForWeighment = false,String reportType=null)
         {
             ResultMessage resultMessage = new ResultMessage();
 
@@ -5317,7 +5317,17 @@ namespace ODLMWebAPI.BL
                         printDataSet.Tables.Add(loadingItemDTForGatePass);
 
 
-                        string templateName = "WeighingSlip";
+                        string templateName = "";
+
+                        if(reportType==Constants.WeighmentSlip)
+                        {
+                            templateName = "WeighingSlip";
+                        }
+                        else if(reportType==Constants.GatePassSlip)
+                        {
+                            templateName = "GatePassSlip";
+                        }
+       
                         //creating template'''''''''''''''''
                         if (TblLoadingSlipTO.IsConfirmed != 1)
                         {
@@ -5327,12 +5337,12 @@ namespace ODLMWebAPI.BL
                         String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
                         String fileName = "Bill-" + DateTime.Now.Ticks;
 
-                        if(isSendEmailForWeighment)
-                        {
-                            templateName = "WeighmentSlip";
-                            templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
-                            fileName = "Bill-" + DateTime.Now.Ticks;
-                        }
+                        //if(isSendEmailForWeighment)
+                        //{
+                        //    templateName = "WeighmentSlip";                      
+                        //    templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
+                        //    fileName = "Bill-" + DateTime.Now.Ticks;
+                        //}
 
                         //download location for rewrite  template file
                         String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
