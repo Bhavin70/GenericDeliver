@@ -564,6 +564,7 @@ namespace ODLMWebAPI.StaticStuff
 
         public static string CP_BRAND_WISE_INVOICE = "BRAND_WISE_INVOICE";
         public static string CP_SKIP_LOADING_APPROVAL = "SKIP_LOADING_APPROVAL";
+        public static string CP_SKIP_WEIGHING = "SKIP_WEIGHING";
         public static string CP_SKIP_INVOICE_APPROVAL = "SKIP_INVOICE_APPROVAL";
         public static string CP_AUTO_MERGE_INVOICE = "AUTO_MERGE_INVOICE";
 

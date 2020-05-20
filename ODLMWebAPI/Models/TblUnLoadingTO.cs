@@ -141,6 +141,9 @@ namespace ODLMWebAPI.Models
             }
         }
 
+        public string TranRefId { get; internal set; }
+        public int ModuleId { get; internal set; }
+
         #endregion
     }
 }

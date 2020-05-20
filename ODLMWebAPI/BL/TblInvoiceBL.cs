@@ -1196,6 +1196,8 @@ namespace ODLMWebAPI.BL
                 List<TblLoadingSlipTO> loadingSlipTOList = _iCircularDependencyBL.SelectAllLoadingSlipListWithDetails(loadingTO.IdLoading, conn, tran);
                 loadingTO.LoadingSlipList = loadingSlipTOList;
                 int configId = _iTblConfigParamsDAO.IoTSetting();
+                
+
                 //Aniket [19-8-2019] added for IOT
                 if (configId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
                 {
@@ -1236,9 +1238,9 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        private ResultMessage CreateInvoiceAgainstLoadingSlips(TblLoadingTO loadingTO, SqlConnection conn, SqlTransaction tran, List<TblLoadingSlipTO> loadingSlipTOList, Int32 skipMergeSetting = 0)
+        public ResultMessage CreateInvoiceAgainstLoadingSlips(TblLoadingTO loadingTO, SqlConnection conn, SqlTransaction tran, List<TblLoadingSlipTO> loadingSlipTOList, Int32 skipMergeSetting = 0)
         {
-
+             
             ResultMessage resultMsg = new ResultMessage();
 
             if (loadingSlipTOList == null && loadingSlipTOList.Count == 0)
@@ -1274,7 +1276,9 @@ namespace ODLMWebAPI.BL
                     }
                     else
                     {
-                        List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = tblLoadingSlipTOTemp.LoadingSlipExtTOList.Where(w => w.WeightMeasureId == 0).ToList();
+                        //14/05/2020 - Yogesh - We are Added this for Skip Wehing Skip Functionality after loding slip approval and commented below code
+                        List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = tblLoadingSlipTOTemp.LoadingSlipExtTOList.Where(w => w.LoadedWeight == 0).ToList();
+                        //List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = tblLoadingSlipTOTemp.LoadingSlipExtTOList.Where(w => w.WeightMeasureId == 0).ToList();
                         if (tblLoadingSlipExtTOList != null && tblLoadingSlipExtTOList.Count > 0)
                         {
                             remove = true;

@@ -88,6 +88,7 @@ namespace ODLMWebAPI.BL.Interfaces
         void SetGateIotDataToInvoiceTO(List<TblInvoiceTO> list);
 
         ResultMessage SetWeightIotDateToInvoiceTO(TblInvoiceTO tblInvoice, int IsExtractionAllowed);
+        ResultMessage CreateInvoiceAgainstLoadingSlips(TblLoadingTO loadingTO, SqlConnection conn, SqlTransaction tran, List<TblLoadingSlipTO> loadingSlipTOList, Int32 skipMergeSetting = 0);
 
     }
 }
