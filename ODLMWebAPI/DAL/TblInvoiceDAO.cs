@@ -1665,7 +1665,7 @@ namespace ODLMWebAPI.DAL
                 String formOrgIdCondtion = String.Empty;
                 if (fromOrgId > 0)
                 {
-                    formOrgIdCondtion = " AND sq1.invFromOrgId = " + fromOrgId;
+                    formOrgIdCondtion = " AND isnull(sq1.invFromOrgId,"+fromOrgId+") = " + fromOrgId;
                 }
                 cmdSelect.CommandText = "SELECT * FROM (" + selectQuery + ")sq1 WHERE sq1.isConfirmed =" + isConfirm +
                      //" AND CAST(sq1.deliveredOn AS DATE) BETWEEN @fromDate AND @toDate" +

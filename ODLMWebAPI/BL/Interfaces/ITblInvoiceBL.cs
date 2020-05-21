@@ -89,6 +89,6 @@ namespace ODLMWebAPI.BL.Interfaces
 
         ResultMessage SetWeightIotDateToInvoiceTO(TblInvoiceTO tblInvoice, int IsExtractionAllowed);
         ResultMessage CreateInvoiceAgainstLoadingSlips(TblLoadingTO loadingTO, SqlConnection conn, SqlTransaction tran, List<TblLoadingSlipTO> loadingSlipTOList, Int32 skipMergeSetting = 0);
-
+        Byte[] DeleteFile(string saveLocation, string filePath);
     }
 }
