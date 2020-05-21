@@ -65,11 +65,11 @@ namespace ODLMWebAPI.StaticStuff
             }
         }
         #endregion
-//vipul[06/05/2019] user subscription active count setting
-         public enum UsersSubscriptionActiveCntCalSetting
+        //vipul[06/05/2019] user subscription active count setting
+        public enum UsersSubscriptionActiveCntCalSetting
         {
             ByTab = 1,
-            WithOutTab=2,
+            WithOutTab = 2,
         }
         #region Enumerations
 
@@ -166,7 +166,7 @@ namespace ODLMWebAPI.StaticStuff
             UNLOADING_COMPLETED = 22,
             UNLOADING_CANCELED = 23,
             BOOKING_PENDING_FOR_DIRECTOR_APPROVAL = 24,  //Sanjay [2017-12-19] New Status when Finance Forward Booking to Director Approval.
-            BOOKING_HOLD_BY_ADMIN_OR_DIRECTOR = 25  ,                          //Priyanka [2018-30-07] Added for adding new status in booking.
+            BOOKING_HOLD_BY_ADMIN_OR_DIRECTOR = 25,                          //Priyanka [2018-30-07] Added for adding new status in booking.
             INVOICE_GENERATED_AND_READY_FOR_DISPACH = 26,
         }
 
@@ -559,8 +559,8 @@ namespace ODLMWebAPI.StaticStuff
         public static string CP_BILLING_NOT_CONFIRM_AUTHENTICATION = "BILLING_NOT_CONFIRM_AUTHENTICATION";
         public static string CONSOLIDATE_STOCK = "CONSOLIDATE_STOCK";
         public static String ENTITY_RANGE_REGULAR_TAX_INVOICE_BMM = "REGULAR_TAX_INVOICE_BMM";
-  public static String ENTITY_RANGE_REGULAR_TAX_INTERNALORG = "REGULAR_TAX_INVOICE_ORG_";
-  public static String INTERNAL_DEFAULT_ITEM = "INTERNAL_DEFAULT_ITEM";
+        public static String ENTITY_RANGE_REGULAR_TAX_INTERNALORG = "REGULAR_TAX_INVOICE_ORG_";
+        public static String INTERNAL_DEFAULT_ITEM = "INTERNAL_DEFAULT_ITEM";
 
         public static string CP_BRAND_WISE_INVOICE = "BRAND_WISE_INVOICE";
         public static string CP_SKIP_LOADING_APPROVAL = "SKIP_LOADING_APPROVAL";
@@ -772,6 +772,9 @@ namespace ODLMWebAPI.StaticStuff
 
         #endregion
 
+        //Harshala Added
+        public static string WeighmentSlip = "WeighmentSlip";
+        public static string GatePassSlip = "GatePassSlip";
 
         #region Common functions
 
@@ -939,10 +942,10 @@ namespace ODLMWebAPI.StaticStuff
         {
             REGULAR = 0,
             DUPLICATE = 1,
-            CHANGEFROM  = 2
+            CHANGEFROM = 2
         }
 
-        
+
 
         /// <summary>
         /// Vijaymala[06-02-2018]Added To Set Firm Name
@@ -968,8 +971,8 @@ namespace ODLMWebAPI.StaticStuff
             TECHNICAL = 2
         }
 
-        //Priyanka [12-03-2018] : Added for Select Type of list in view booking summary list
-        public enum SelectTypeE
+    //Priyanka [12-03-2018] : Added for Select Type of list in view booking summary list
+    public enum SelectTypeE
         {
             DISTRICT = 1,
             STATE = 2,
