@@ -109,7 +109,7 @@ namespace ODLMWebAPI.BL
                     tblBookingsDT.Rows[0]["bookingQty"] = tblBookingsTO.BookingQty;
                     tblBookingsDT.Rows[0]["pendingQty"] = tblBookingsTO.PendingQty;
                     tblBookingsDT.Rows[0]["bookingDisplayNo"] = "#" + tblBookingsTO.BookingDisplayNo;
-                    tblBookingsDT.Rows[0]["createdOn"] = tblBookingsTO.CreatedOnStr;
+                    tblBookingsDT.Rows[0]["createdOn"] = tblBookingsTO.CreatedOn;
                     tblBookingsDT.Rows[0]["bookingRate"] = tblBookingsTO.BookingRate;
                     tblBookingsDT.Rows[0]["cdStructure"] = tblBookingsTO.CdStructure;
                     tblBookingsDT.Rows[0]["orcAmt"] = tblBookingsTO.OrcAmt + "/" + tblBookingsTO.OrcMeasure;
