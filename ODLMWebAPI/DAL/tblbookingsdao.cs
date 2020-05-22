@@ -386,9 +386,9 @@ namespace ODLMWebAPI.DAL
                 }
 
                 if (cnfId == 0)
-                    sqlQuery = SqlSelectQuery() + areConfJoin + " WHERE IsWithinQuotaLimit=0 AND statusId IN(" + statusIds + ")";
+                    sqlQuery = SqlSelectQuery() + areConfJoin + " WHERE IsWithinQuotaLimit=0 AND bookings.statusId IN(" + statusIds + ")";
                 else
-                    sqlQuery = SqlSelectQuery() + areConfJoin + " WHERE IsWithinQuotaLimit=0 AND statusId IN(" + statusIds + ")" + " AND bookings.cnFOrgId=" + cnfId;
+                    sqlQuery = SqlSelectQuery() + areConfJoin + " WHERE IsWithinQuotaLimit=0 AND bookings.statusId IN(" + statusIds + ")" + " AND bookings.cnFOrgId=" + cnfId;
 
                 if (isConfirmed == (int)Constants.bookingFilterTypeE.CONFIRMED)
                 {
