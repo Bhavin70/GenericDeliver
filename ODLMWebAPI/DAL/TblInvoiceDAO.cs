@@ -1593,7 +1593,8 @@ namespace ODLMWebAPI.DAL
                     " INNER JOIN tempInvoiceItemDetails itemDetails  ON itemDetails.invoiceId = invoice.idInvoice " +
                     " AND itemDetails.otherTaxId is  NULL" +
                     " LEFT JOIN tempLoadingSlipExt lExt ON lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId " +
-                    " LEFT JOIN tblBookings booking ON lExt.bookingId = booking.idBooking " +
+                     " LEFT JOIN tempLoadingSlipDtl LoadingSlipDtl on LoadingSlipDtl.loadingSlipId=invoice.loadingSlipId "+
+                    " LEFT JOIN tblBookings booking ON LoadingSlipDtl.bookingId = booking.idBooking " +
                     " LEFT JOIN  tblProdGstCodeDtls prodGstCodeDtl on prodGstCodeDtl.idProdGstCode = itemDetails.prodGstCodeId " +
                     " LEFT JOIN tblItemTallyRefDtls ON ISNULL(prodGstCodeDtl.prodCatId,0) =  ISNULL(tblItemTallyRefDtls.prodCatId,0) AND" +
                     " ISNULL(prodGstCodeDtl.prodSpecId,0) = ISNULL(tblItemTallyRefDtls.prodSpecId,0) AND " +
@@ -1646,6 +1647,7 @@ namespace ODLMWebAPI.DAL
                     " INNER JOIN finalInvoiceItemDetails itemDetails  ON itemDetails.invoiceId = invoice.idInvoice " +
                     " AND itemDetails.otherTaxId is  NULL" +
                     " LEFT JOIN finalLoadingSlipExt lExt ON lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId " +
+                    "  LEFT JOIN finalLoadingSlipDtl LoadingSlipDtl on LoadingSlipDtl.loadingSlipId = invoice.loadingSlipId" +
                     " LEFT JOIN tblBookings booking ON lExt.bookingId = booking.idBooking " +
                     " LEFT JOIN tblProdGstCodeDtls prodGstCodeDtl on prodGstCodeDtl.idProdGstCode = itemDetails.prodGstCodeId " +
                     " LEFT JOIN tblItemTallyRefDtls ON ISNULL(prodGstCodeDtl.prodCatId,0) =  ISNULL(tblItemTallyRefDtls.prodCatId,0) AND" +
