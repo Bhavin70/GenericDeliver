@@ -250,7 +250,7 @@ namespace ODLMWebAPI.BL
 
                 string templateName = "LoadingAgainstBookingReport";
                 String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
-                String fileName = "LoadingAgainstBookingReport-" + DateTime.Now.Ticks;
+                String fileName = "LoadingAgainstBookingReport-" + _iCommon.ServerDateTime.Ticks;
 
                 //download location for rewrite  template file
                 String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
