@@ -2459,7 +2459,7 @@ namespace ODLMWebAPI.BL
                 List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOList = new List<TblInvoiceItemDetailsTO>();
 
                 #region 1 Preparing main InvoiceTO
-                if(tblInvoiceTO.InvFromOrgId==0)
+               // if(tblInvoiceTO.InvFromOrgId==0)
                     tblInvoiceTO.InvFromOrgId = internalOrgId;
                 tblInvoiceTO.CreatedOn = _iCommon.ServerDateTime;
                 tblInvoiceTO.CreatedBy = invoiceTO.CreatedBy;
@@ -5215,8 +5215,12 @@ namespace ODLMWebAPI.BL
                             double totalBundle = 0;
                             double totalNetWt = 0;
                             headerDT.Rows[0]["InvoiceId"] = invoiceId;
-                            headerDT.Rows[0]["FirmName"] = TblLoadingSlipTO.DealerOrgName;
-                            headerDT.Rows[0]["dealername"] = TblLoadingSlipTO.DealerOrgName;
+                            if(invoiceAddressTOList!=null && invoiceAddressTOList.Count>0)
+                            {
+                                TblInvoiceAddressTO tblInvoiceAddressTO = invoiceAddressTOList.Where(w => w.TxnAddrTypeId == (Int32)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS).FirstOrDefault();
+                                headerDT.Rows[0]["FirmName"] = tblInvoiceAddressTO.BillingName;
+                                headerDT.Rows[0]["dealername"] = tblInvoiceAddressTO.BillingName;
+                            }
                             headerDT.Rows[0]["VehicleNo"] = TblLoadingSlipTO.VehicleNo;
                             headerDT.Rows[0]["loadingLayerDesc"] = TblLoadingSlipTO.LoadingSlipExtTOList[0].LoadingLayerDesc;
                             headerDT.Rows[0]["LoadingSlipId"] = TblLoadingSlipTO.IdLoadingSlip;
