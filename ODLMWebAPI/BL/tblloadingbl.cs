@@ -3772,6 +3772,21 @@ namespace ODLMWebAPI.BL {
             resultMessage.Text = "Not Entered In The Loop";
             try
             {
+                //Saket [2020-05-23] Added default from Org ID
+                if (tblLoadingTO.FromOrgId == 0)
+                {
+                    TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID, conn, tran);
+                    if (tblConfigParamsTO == null)
+                    {
+                        resultMessage.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
+                        return resultMessage;
+                    }
+                    Int32 internalOrgId = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+
+                    tblLoadingTO.FromOrgId = internalOrgId;
+
+                }
+
                 #region Check Merge Condition
 
                 resultMessage = CheckMergeCondition(tblLoadingTO);
