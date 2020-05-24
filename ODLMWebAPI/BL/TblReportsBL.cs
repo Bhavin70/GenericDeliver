@@ -231,7 +231,7 @@ namespace ODLMWebAPI.BL
                                     //}
                                 }
                             }
-                            loadingDT.Rows[loadingDTRowNo]["vehicalNo"] = tblLoadingTO.VehicleNo+"("+ loadingQty+ MTStr+")";
+                            loadingDT.Rows[loadingDTRowNo]["vehicalNo"] = tblLoadingTO.VehicleNo+"("+ Math.Round(loadingQty)+ MTStr+")";
 
 
 
