@@ -817,7 +817,7 @@ namespace ODLMWebAPI.DAL
                 updateCommand.Connection = conn;
                 conn.Open();
                 updateCommand.CommandText = "select * from tblQuotaDeclaration  where orgId= @cnfOrgId " +
-                    "and globalRateId= ( select idGlobalRate from tblGlobalRate where cast(createdOn as date) = cast( @currentDate as date) and brandId = @brandId)";
+                    "and globalRateId IN ( select idGlobalRate from tblGlobalRate where cast(createdOn as date) = cast( @currentDate as date) and brandId = @brandId)";
                
                 updateCommand.Parameters.AddWithValue("@currentDate", DbType.DateTime).Value = serverDate;
                 updateCommand.Parameters.AddWithValue("@brandId", DbType.Int32).Value = brandId;
