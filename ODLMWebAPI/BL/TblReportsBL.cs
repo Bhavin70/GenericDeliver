@@ -26,11 +26,13 @@ namespace ODLMWebAPI.BL
         private readonly IRunReport _iRunReport;
         private readonly IDimReportTemplateBL _iDimReportTemplateBL;
         private readonly ITblInvoiceItemDetailsBL _iTblInvoiceItemDetailsBL;
+        private readonly ITblInvoiceAddressBL _iTblInvoiceAddressBL;
         public TblReportsBL(ICommon iCommon, IConnectionString iConnectionString, ITblReportsDAO iTblReportsDAO,
                             ITblFilterReportBL iTblFilterReportBL, ITblOrgStructureBL iTblOrgStructureBL, 
                             ITblBookingsBL iTblBookingsBL, ITblBookingQtyConsumptionBL iTblBookingQtyConsumptionBL,
                             ITblLoadingBL iTblLoadingBL, ITblInvoiceBL iTblInvoiceBL, IRunReport iRunReport,
-                            IDimReportTemplateBL iDimReportTemplateBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL)
+                            IDimReportTemplateBL iDimReportTemplateBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL,
+                            ITblInvoiceAddressBL iTblInvoiceAddressBL)
         {
             _iTblReportsDAO = iTblReportsDAO;
             _iTblFilterReportBL = iTblFilterReportBL;
@@ -44,6 +46,7 @@ namespace ODLMWebAPI.BL
             _iRunReport = iRunReport;
             _iDimReportTemplateBL = iDimReportTemplateBL;
             _iTblInvoiceItemDetailsBL = iTblInvoiceItemDetailsBL;
+            _iTblInvoiceAddressBL = iTblInvoiceAddressBL;
         }
 
         #region Selection
@@ -85,6 +88,7 @@ namespace ODLMWebAPI.BL
         {
             ResultMessage resultMessage = new ResultMessage();
             resultMessage.MessageType = ResultMessageE.None;
+            double conversionFactor = 1000;
             DataSet reportDS = new DataSet();
             try
             {
@@ -93,6 +97,28 @@ namespace ODLMWebAPI.BL
                 {
                     List<TblBookingQtyConsumptionTO> tblBookingQtyConsumptionTOList = _iTblBookingQtyConsumptionBL.SelectTblBookingQtyConsumptionTOByBookingId(bookingId);
                     List<TblLoadingTO> tblLoadingTOList = _iTblLoadingBL.SelectAllTblLoadingByBookingId(bookingId);
+                    DataTable tblConsumptionDT = new DataTable();
+                    tblConsumptionDT.Columns.Add("consumptionQty",typeof(double));
+                    tblConsumptionDT.Columns.Add("weightTolerance", typeof(string));
+                    tblConsumptionDT.Columns.Add("remark", typeof(string));
+                    tblConsumptionDT.Columns.Add("statusName", typeof(string));
+                    tblConsumptionDT.Columns.Add("userDisplayName", typeof(string));
+                    if(tblBookingQtyConsumptionTOList!=null && tblBookingQtyConsumptionTOList.Count>0)
+                    {
+                        for (int c = 0; c < tblBookingQtyConsumptionTOList.Count; c++)
+                        {
+                            TblBookingQtyConsumptionTO tblBookingQtyConsumptionTO = tblBookingQtyConsumptionTOList[c];
+                            tblConsumptionDT.Rows.Add();
+                            int rowNo = tblConsumptionDT.Rows.Count - 1;
+                            tblConsumptionDT.Rows[rowNo]["consumptionQty"] = tblBookingQtyConsumptionTO.ConsumptionQty;
+                            tblConsumptionDT.Rows[rowNo]["weightTolerance"] = tblBookingQtyConsumptionTO.WeightTolerance;
+                            tblConsumptionDT.Rows[rowNo]["remark"] = tblBookingQtyConsumptionTO.Remark;
+                            tblConsumptionDT.Rows[rowNo]["statusName"] = tblBookingQtyConsumptionTO.StatusName;
+                            tblConsumptionDT.Rows[rowNo]["userDisplayName"] = tblBookingQtyConsumptionTO.UserDisplayName;
+
+                        }
+                    }
+
                     DataTable tblBookingsDT = new DataTable();
                     tblBookingsDT.Columns.Add("dealerName", typeof(string));
                     tblBookingsDT.Columns.Add("bookingQty", typeof(double));
@@ -103,6 +129,7 @@ namespace ODLMWebAPI.BL
                     tblBookingsDT.Columns.Add("cdStructure", typeof(double));
                     tblBookingsDT.Columns.Add("orcAmt", typeof(string));
                     tblBookingsDT.Columns.Add("overDueAmt", typeof(double));
+                    tblBookingsDT.Columns.Add("roundupQty", typeof(double));
 
                     tblBookingsDT.Rows.Add();
                     tblBookingsDT.Rows[0]["dealerName"] = tblBookingsTO.DealerName;
@@ -113,6 +140,8 @@ namespace ODLMWebAPI.BL
                     tblBookingsDT.Rows[0]["bookingRate"] = tblBookingsTO.BookingRate;
                     tblBookingsDT.Rows[0]["cdStructure"] = tblBookingsTO.CdStructure;
                     tblBookingsDT.Rows[0]["orcAmt"] = tblBookingsTO.OrcAmt + "/" + tblBookingsTO.OrcMeasure;
+                    if(tblBookingQtyConsumptionTOList!=null && tblBookingQtyConsumptionTOList.Count>0)
+                       tblBookingsDT.Rows[0]["roundupQty"] = tblBookingQtyConsumptionTOList.Sum(s=>s.ConsumptionQty);
 
                     DataTable loadingDT = new DataTable();
                     loadingDT.Columns.Add("vehicalNo", typeof(string));
@@ -132,7 +161,17 @@ namespace ODLMWebAPI.BL
                     loadingSlipDT.Columns.Add("rate", typeof(double));
                     loadingSlipDT.Columns.Add("CD", typeof(double));
                     loadingSlipDT.Columns.Add("Confirm", typeof(string));
+                    loadingSlipDT.Columns.Add("InvoiceNo", typeof(string));
+                    loadingSlipDT.Columns.Add("InvoiceDate", typeof(DateTime));
+                    loadingSlipDT.Columns.Add("BillingName", typeof(string));
+
                     loadingSlipDT.Columns.Add("invoiceAmt", typeof(Double));
+                    loadingSlipDT.Columns.Add("Bundles", typeof(Double));
+                    loadingSlipDT.Columns.Add("Qty", typeof(Double));
+                    loadingSlipDT.Columns.Add("LoadedWt", typeof(Double));
+                    loadingSlipDT.Columns.Add("LoadedBundles", typeof(Double));
+                    loadingSlipDT.Columns.Add("orcAmt", typeof(Double));
+
 
                     DataTable loadingSlipExtDT = new DataTable();
                     loadingSlipExtDT.Columns.Add("idLoadingSlip", typeof(Int32));
@@ -156,15 +195,15 @@ namespace ODLMWebAPI.BL
                         {
                             TblLoadingTO tblLoadingTO = tblLoadingTOList[i];
                             loadingDT.Rows.Add();
-                            int loadingDTRowNo = loadingDT.Rows.Count-1;
+                            int loadingDTRowNo = loadingDT.Rows.Count - 1;
                             double loadingQty = 0;
-                            
+
                             loadingDT.Rows[loadingDTRowNo]["statusName"] = tblLoadingTO.StatusDesc;
                             loadingDT.Rows[loadingDTRowNo]["loadingDate"] = tblLoadingTO.CreatedOnStr;
                             loadingDT.Rows[loadingDTRowNo]["idLoading"] = tblLoadingTO.IdLoading;
 
                             List<TblLoadingSlipTO> tblLoadingSlipTOist = tblLoadingTO.LoadingSlipList;
-                            if(tblLoadingSlipTOist!=null && tblLoadingSlipTOist.Count>0)
+                            if (tblLoadingSlipTOist != null && tblLoadingSlipTOist.Count > 0)
                             {
                                 for (int j = 0; j < tblLoadingSlipTOist.Count; j++)
                                 {
@@ -175,26 +214,40 @@ namespace ODLMWebAPI.BL
                                     loadingSlipDT.Rows[loadingSlipDTrowNo]["idLoadingSlip"] = TblLoadingSlipTO.IdLoadingSlip;
                                     loadingSlipDT.Rows[loadingSlipDTrowNo]["salesEngineer"] = TblLoadingSlipTO.CnfOrgName;
                                     loadingSlipDT.Rows[loadingSlipDTrowNo]["loadingSlipStatus"] = TblLoadingSlipTO.StatusName;
-                                    loadingSlipDT.Rows[loadingSlipDTrowNo]["JointDelivery"] = TblLoadingSlipTO.IsJointDelivery==1?"Yes":"No";
+                                    loadingSlipDT.Rows[loadingSlipDTrowNo]["JointDelivery"] = TblLoadingSlipTO.IsJointDelivery == 1 ? "Yes" : "No";
                                     loadingSlipDT.Rows[loadingSlipDTrowNo]["noOfDeliveries"] = TblLoadingSlipTO.NoOfDeliveries;
                                     loadingSlipDT.Rows[loadingSlipDTrowNo]["loadingSlipNo"] = TblLoadingSlipTO.LoadingSlipNo;
                                     loadingSlipDT.Rows[loadingSlipDTrowNo]["dealer"] = TblLoadingSlipTO.DealerOrgName;
                                     loadingSlipDT.Rows[loadingSlipDTrowNo]["rate"] = TblLoadingSlipTO.TblLoadingSlipDtlTO.BookingRate;
                                     loadingSlipDT.Rows[loadingSlipDTrowNo]["CD"] = TblLoadingSlipTO.CdStructure;
-                                    loadingSlipDT.Rows[loadingSlipDTrowNo]["Confirm"] = TblLoadingSlipTO.IsConfirmed == 1 ? "Confirm" :"-";
+                                    loadingSlipDT.Rows[loadingSlipDTrowNo]["Confirm"] = TblLoadingSlipTO.IsConfirmed == 1 ? "Confirm" : "-";
+                                    loadingSlipDT.Rows[loadingSlipDTrowNo]["orcAmt"] = TblLoadingSlipTO.OrcAmt;
+
+
+
                                     List<TblLoadingSlipExtTO> tblLoadingSlipExtTOList = TblLoadingSlipTO.LoadingSlipExtTOList;
                                     List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOList = new List<TblInvoiceItemDetailsTO>();
                                     double loadingSlipInvAmt = 0;
                                     List<TblInvoiceTO> tblInvoiceTOList = _iTblInvoiceBL.SelectInvoiceTOListFromLoadingSlipId(TblLoadingSlipTO.IdLoadingSlip);
-                                    if(tblInvoiceTOList!=null && tblInvoiceTOList.Count>0)
+                                    if (tblInvoiceTOList != null && tblInvoiceTOList.Count > 0)
                                     {
-                                        for (int c = 0; c < tblInvoiceTOList.Count; c++)
+                                        if(tblInvoiceTOList!=null && tblInvoiceTOList.Count>1)
                                         {
-                                            loadingSlipInvAmt += tblInvoiceTOList[c].GrandTotal;
-                                            tblInvoiceItemDetailsTOList.AddRange(_iTblInvoiceItemDetailsBL.SelectAllTblInvoiceItemDetailsList(tblInvoiceTOList[c].IdInvoice));
+                                            tblInvoiceTOList = tblInvoiceTOList.Where(w => w.DealerOrgId == tblBookingsTO.DealerOrgId).ToList();
                                         }
+                                        TblInvoiceTO tblInvoiceTO = tblInvoiceTOList[0];
+                                        loadingSlipDT.Rows[loadingSlipDTrowNo]["InvoiceNo"] = tblInvoiceTO.InvoiceNo;
+                                        loadingSlipDT.Rows[loadingSlipDTrowNo]["InvoiceDate"] = tblInvoiceTO.InvoiceDate;
+                                        //loadingSlipDT.Rows[loadingSlipDTrowNo]["BillingName"] = tblInvoiceTO.DistributorName;
+                                        List<TblInvoiceAddressTO> invoiceAddressTOList = _iTblInvoiceAddressBL.SelectAllTblInvoiceAddressList(tblInvoiceTO.IdInvoice);
+                                        if (invoiceAddressTOList != null && invoiceAddressTOList.Count > 0)
+                                        {
+                                            TblInvoiceAddressTO tblInvoiceAddressTO = invoiceAddressTOList.Where(w => w.TxnAddrTypeId == (Int32)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS).FirstOrDefault();
+                                            loadingSlipDT.Rows[loadingSlipDTrowNo]["BillingName"] = tblInvoiceAddressTO.BillingName;
+                                        }
+                                        tblInvoiceItemDetailsTOList.AddRange(_iTblInvoiceItemDetailsBL.SelectAllTblInvoiceItemDetailsList(tblInvoiceTO.IdInvoice));
                                     }
-                                   
+
                                     for (int k = 0; k < tblLoadingSlipExtTOList.Count; k++)
                                     {
                                         TblLoadingSlipExtTO tblLoadingSlipExtTO = tblLoadingSlipExtTOList[k];
@@ -207,9 +260,9 @@ namespace ODLMWebAPI.BL
                                         loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["Qty"] = tblLoadingSlipExtTO.LoadingQty;
                                         loadingQty += tblLoadingSlipExtTO.LoadingQty;
                                         loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["Bundles"] = tblLoadingSlipExtTO.Bundles;
-                                        loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["tareWt"] = tblLoadingSlipExtTO.CalcTareWeight;
-                                        loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["grossWt"] = tblLoadingSlipExtTO.LoadedWeight + tblLoadingSlipExtTO.CalcTareWeight;
-                                        loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["loadedWt"] = tblLoadingSlipExtTO.LoadedWeight;
+                                        loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["tareWt"] = tblLoadingSlipExtTO.CalcTareWeight / conversionFactor;
+                                        loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["grossWt"] = (tblLoadingSlipExtTO.LoadedWeight / conversionFactor) + (tblLoadingSlipExtTO.CalcTareWeight / conversionFactor);
+                                        loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["loadedWt"] = tblLoadingSlipExtTO.LoadedWeight / conversionFactor;
                                         loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["loadedBundles"] = tblLoadingSlipExtTO.LoadedBundles;
                                         loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["rate"] = Math.Round(tblLoadingSlipExtTO.RatePerMT);
                                         loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["layer"] = tblLoadingSlipExtTO.LoadingLayerDesc
@@ -217,24 +270,23 @@ namespace ODLMWebAPI.BL
                                                                                                 > 3 ? tblLoadingSlipExtTO.LoadingLayerDesc
                                                                                                 : "Middle" : tblLoadingSlipExtTO.LoadingLayerDesc;
 
-                                        
+
                                         loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["totalAmt"] = Math.Round(tblLoadingSlipExtTO.LoadingQty * tblLoadingSlipExtTO.RatePerMT);
 
-                                        if (tblInvoiceItemDetailsTOList!=null && tblInvoiceItemDetailsTOList.Count>0)
+                                        if (tblInvoiceItemDetailsTOList != null && tblInvoiceItemDetailsTOList.Count > 0)
                                         {
                                             loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["invoiceAmt"] = Math.Round((tblInvoiceItemDetailsTOList.Where(w => w.LoadingSlipExtId == tblLoadingSlipExtTO.IdLoadingSlipExt).Sum(s => s.GrandTotal)));
+                                            loadingSlipInvAmt += Math.Round((tblInvoiceItemDetailsTOList.Where(w => w.LoadingSlipExtId == tblLoadingSlipExtTO.IdLoadingSlipExt).Sum(s => s.GrandTotal)));
                                         }
                                     }
-                                    //if (tblInvoiceItemDetailsTOList != null && tblInvoiceItemDetailsTOList.Count > 0)
-                                    //{
-                                    //    loadingSlipDT.Rows[loadingSlipDTrowNo]["invoiceAmt"] = Math.Round(tblInvoiceItemDetailsTOList.Sum(s=>s.GrandTotal));
-                                    //}
+                                    loadingSlipDT.Rows[loadingSlipDTrowNo]["invoiceAmt"] = Math.Round(loadingSlipInvAmt);
+                                    loadingSlipDT.Rows[loadingSlipDTrowNo]["Bundles"] = Math.Round(tblLoadingSlipExtTOList.Sum(s=>s.Bundles),3);
+                                    loadingSlipDT.Rows[loadingSlipDTrowNo]["Qty"] = Math.Round(tblLoadingSlipExtTOList.Sum(s => s.LoadingQty), 3);
+                                    loadingSlipDT.Rows[loadingSlipDTrowNo]["LoadedWt"] = Math.Round((tblLoadingSlipExtTOList.Sum(s => s.LoadedWeight) /conversionFactor), 3);
+                                    loadingSlipDT.Rows[loadingSlipDTrowNo]["LoadedBundles"] = Math.Round(tblLoadingSlipExtTOList.Sum(s => s.LoadedBundles), 3);
                                 }
                             }
-                            loadingDT.Rows[loadingDTRowNo]["vehicalNo"] = tblLoadingTO.VehicleNo+"("+ Math.Round(loadingQty)+ MTStr+")";
-
-
-
+                            loadingDT.Rows[loadingDTRowNo]["vehicalNo"] = tblLoadingTO.VehicleNo;// + "(" + Math.Round(loadingQty,3) + MTStr + ")";
                         }
                     }
                     tblBookingsDT.TableName = "tblBookingsDT";
@@ -250,7 +302,7 @@ namespace ODLMWebAPI.BL
 
                 string templateName = "LoadingAgainstBookingReport";
                 String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
-                String fileName = "LoadingAgainstBookingReport-" + _iCommon.ServerDateTime.Ticks;
+                String fileName = "BookingLoadingReport-" + _iCommon.ServerDateTime.Ticks;
 
                 //download location for rewrite  template file
                 String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
