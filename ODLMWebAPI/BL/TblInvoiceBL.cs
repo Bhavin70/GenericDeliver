@@ -5136,6 +5136,7 @@ namespace ODLMWebAPI.BL
             {
                 if (invoiceId != null)
                 {
+                    TblInvoiceTO tblInvoiceTO = SelectTblInvoiceTOWithDetails(invoiceId);
                     TblLoadingSlipTO TblLoadingSlipTO = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsByInvoice(invoiceId);
                     List<TblInvoiceAddressTO> invoiceAddressTOList = _iTblInvoiceAddressBL.SelectAllTblInvoiceAddressList(invoiceId);
 
@@ -5165,6 +5166,8 @@ namespace ODLMWebAPI.BL
                         headerDT.Columns.Add("Date");
                         headerDT.Columns.Add("TotalBundles");
                         headerDT.Columns.Add("TotalNetWt");
+                        headerDT.Columns.Add("TotalTareWt");
+                        headerDT.Columns.Add("TotalGrossWt");
 
                         loadingItemDTForGatePass.Columns.Add("SrNo");
                         loadingItemDTForGatePass.Columns.Add("DisplayName");
@@ -5214,6 +5217,7 @@ namespace ODLMWebAPI.BL
                             headerDT.Rows.Add();
                             double totalBundle = 0;
                             double totalNetWt = 0;
+                            //double 
                             headerDT.Rows[0]["InvoiceId"] = invoiceId;
                             if(invoiceAddressTOList!=null && invoiceAddressTOList.Count>0)
                             {
@@ -5298,7 +5302,7 @@ namespace ODLMWebAPI.BL
                                     loadingItemDT.Rows[loadItemDTCount]["TareWt"] = (tblLoadingSlipExtTO.CalcTareWeight / 1000);
                                     loadingItemDT.Rows[loadItemDTCount]["GrossWt"] = (tblLoadingSlipExtTO.CalcTareWeight + tblLoadingSlipExtTO.LoadedWeight)/ 1000;
                                     loadingItemDT.Rows[loadItemDTCount]["NetWt"] = tblLoadingSlipExtTO.LoadedWeight / 1000;
-                                totalNetWt += (tblLoadingSlipExtTO.LoadedWeight / 1000);
+                                    totalNetWt += (tblLoadingSlipExtTO.LoadedWeight / 1000);
                                     loadingItemDT.Rows[loadItemDTCount]["LoadedWeight"] = tblLoadingSlipExtTO.LoadedWeight;
                                     loadingItemDT.Rows[loadItemDTCount]["MstLoadedBundles"] = tblLoadingSlipExtTO.MstLoadedBundles;
                                     loadingItemDT.Rows[loadItemDTCount]["LoadedBundles"] = tblLoadingSlipExtTO.LoadedBundles;
@@ -5307,8 +5311,9 @@ namespace ODLMWebAPI.BL
                                 }
                             headerDT.Rows[0]["TotalBundles"] =totalBundle;
                             headerDT.Rows[0]["TotalNetWt"] = totalNetWt;
-
-
+                            headerDT.Rows[0]["TotalTareWt"] = (tblInvoiceTO.TareWeight / 1000);
+                            headerDT.Rows[0]["TotalGrossWt"] = (tblInvoiceTO.GrossWeight / 1000);
+                            headerDT.Rows[0]["TotalNetWt"] = (tblInvoiceTO.NetWeight / 1000);
                         }
 
 
