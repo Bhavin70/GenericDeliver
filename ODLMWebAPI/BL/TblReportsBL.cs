@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
+using System.IO;
 
 namespace ODLMWebAPI.BL
 {
@@ -317,7 +318,7 @@ namespace ODLMWebAPI.BL
                 }
 
                 //driveName + path;
-                Byte[] bytes = _iTblInvoiceBL.DeleteFile(saveLocation, filePath);
+                Byte[] bytes = DeleteFile(saveLocation, filePath, fileName);
                 if (bytes != null && bytes.Length > 0)
                 {
                     resultMessage.Tag = Convert.ToBase64String(bytes);
@@ -336,7 +337,29 @@ namespace ODLMWebAPI.BL
             }
             return resultMessage;
         }
+        public Byte[] DeleteFile(string saveLocation, string filePath, string fileName)
+        {
+            String fileName1 = Path.GetFileName(saveLocation);
+            Byte[] bytes = File.ReadAllBytes(filePath);
+            if (bytes != null && bytes.Length > 0)
+            {
+                string resFname = Path.GetFileNameWithoutExtension(saveLocation);
+                string directoryName;
+                directoryName = Path.GetDirectoryName(saveLocation);
 
+                string[] fileEntries = Directory.GetFiles(directoryName, "*" + fileName + "*");
+                string[] filesList = Directory.GetFiles(directoryName, "*" + fileName + "*");
+
+                foreach (string file in filesList)
+                {
+                    //if (file.ToUpper().Contains(resFname.ToUpper()))
+                    {
+                        File.Delete(file);
+                    }
+                }
+            }
+            return bytes;
+        }
         #endregion
 
         #region Insertion
