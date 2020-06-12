@@ -590,6 +590,8 @@ namespace ODLMWebAPI.StaticStuff
 
         // Vijaymala[14-02-2018] Added to Set Display Brand On Invoice
         public static string CP_DISPLAY_BRAND_ON_INVOICE = "DISPLAY_BRAND_ON_INVOICE";
+        //chetan[2020-06-08] added
+        public static string ITEM_GRAND_TOTAL_ROUNDUP_VALUE = "ITEM_GRAND_TOTAL_ROUNDUP_VALUE";
 
         public static string CP_SIZEWISE_LOADING_REPORT_STATUS_IDS = "SIZEWISE_LOADING_REPORT_STATUS_IDS";
 

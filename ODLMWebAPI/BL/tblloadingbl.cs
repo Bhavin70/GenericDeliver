@@ -1599,8 +1599,16 @@ namespace ODLMWebAPI.BL {
             tblLoadingSlipTO.DealerOrgId = tblBookingTO.DealerOrgId;
             tblLoadingSlipTO.DealerOrgName = tblBookingTO.DealerName;
             tblLoadingSlipTO.FreightAmt = tblBookingTO.FreightAmt;
-            tblLoadingSlipTO.OrcAmt = tblBookingTO.OrcAmt;
-            tblLoadingSlipTO.OrcMeasure = tblBookingTO.OrcMeasure;
+            if (tblBookingTO.OrcMeasure == "Fix" && tblBookingTO.OrcAmt > 0)  //Need to change Rs/MT
+            {
+                tblLoadingSlipTO.OrcAmt = tblBookingTO.OrcAmt/ tblBookingTO.BookingQty;
+                tblLoadingSlipTO.OrcMeasure = "Rs/MT";
+            }
+            else
+            {
+                tblLoadingSlipTO.OrcAmt = tblBookingTO.OrcAmt;
+                tblLoadingSlipTO.OrcMeasure = tblBookingTO.OrcMeasure;
+            }
             tblLoadingSlipTO.ORCPersonName = tblBookingTO.ORCPersonName;
             tblLoadingSlipTO.Comment = tblBookingTO.Comments;
             tblLoadingSlipTO.TblLoadingSlipDtlTO = new TblLoadingSlipDtlTO ();
