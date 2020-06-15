@@ -1735,6 +1735,13 @@ namespace ODLMWebAPI.BL
             Double totalInvQty = 0;
             Double totalNCExpAmt = 0;
             Double totalNCOtherAmt = 0;
+            Int32 isForItemWiseRoundup = 2;
+            //chetan[2020 - june - 08] added
+                TblConfigParamsTO cPisForItemWiseRoundup = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.ITEM_GRAND_TOTAL_ROUNDUP_VALUE, conn, tran);
+            if (cPisForItemWiseRoundup != null)
+            {
+                isForItemWiseRoundup = Convert.ToInt32(cPisForItemWiseRoundup.ConfigParamVal);
+            }
             #region GJ@20170922 : Find the Minium Weight from LoadingSlipExtTo to Know Tare wt for that Loading Slip
             if (loadingSlipTo.LoadingSlipExtTOList != null && loadingSlipTo.LoadingSlipExtTOList.Count > 0)
             {
@@ -1871,8 +1878,9 @@ namespace ODLMWebAPI.BL
                     tblInvoiceItemDetailsTO.Bundles = String.Empty;
                 }
                 tblInvoiceItemDetailsTO.Bundles = tblInvoiceItemDetailsTO.Bundles.TrimEnd(',');
+                //chean[2020-june-08]
+                tblInvoiceItemDetailsTO.BasicTotal = Math.Round((loadingSlipExtTo.LoadedWeight * conversionFactor * tblInvoiceItemDetailsTO.Rate),isForItemWiseRoundup);
 
-                tblInvoiceItemDetailsTO.BasicTotal = Math.Round((loadingSlipExtTo.LoadedWeight * conversionFactor * tblInvoiceItemDetailsTO.Rate), 2);
                 basicTotal += tblInvoiceItemDetailsTO.BasicTotal;
                 //Vijaymala added[22-06-2018]
                 DropDownTO dropDownTO = _iDimensionBL.SelectCDDropDown(tblInvoiceItemDetailsTO.CdStructureId);
@@ -1882,14 +1890,14 @@ namespace ODLMWebAPI.BL
 
                     if (isRsValue == (int)Constants.CdType.IsRs)
                     {
-                        tblInvoiceItemDetailsTO.CdAmt = tblInvoiceItemDetailsTO.CdStructure * loadingSlipExtTo.LoadedWeight * conversionFactor;
+                        tblInvoiceItemDetailsTO.CdAmt = Math.Round((tblInvoiceItemDetailsTO.CdStructure * loadingSlipExtTo.LoadedWeight * conversionFactor),isForItemWiseRoundup);
                     }
                     else
                     {
-                        tblInvoiceItemDetailsTO.CdAmt = Math.Round(tblInvoiceItemDetailsTO.BasicTotal * tblInvoiceItemDetailsTO.CdStructure) / 100;
+                        tblInvoiceItemDetailsTO.CdAmt =Math.Round(tblInvoiceItemDetailsTO.BasicTotal * tblInvoiceItemDetailsTO.CdStructure) / 100;
                     }
                     //Priyanka [10-07-2018] : Added for additional discount SHIVANGI.
-                    tblInvoiceItemDetailsTO.CdAmt += loadingSlipTo.AddDiscAmt * loadingSlipExtTo.LoadedWeight * conversionFactor;
+                    tblInvoiceItemDetailsTO.CdAmt += Math.Round((loadingSlipTo.AddDiscAmt * loadingSlipExtTo.LoadedWeight * conversionFactor),isForItemWiseRoundup);
                 }
                 else
                 {
@@ -1914,7 +1922,7 @@ namespace ODLMWebAPI.BL
                 else
                     taxbleAmt = tblInvoiceItemDetailsTO.BasicTotal - tblInvoiceItemDetailsTO.CdAmt;
 
-                tblInvoiceItemDetailsTO.TaxableAmt = taxbleAmt;
+                tblInvoiceItemDetailsTO.TaxableAmt = Math.Round(taxbleAmt,isForItemWiseRoundup);
                 itemGrandTotal += taxbleAmt;
                 taxableTotal += tblInvoiceItemDetailsTO.TaxableAmt;
                 tblProdGstCodeDtlsTO = _iTblProdGstCodeDtlsDAO.SelectTblProdGstCodeDtls(loadingSlipExtTo.ProdCatId, loadingSlipExtTo.ProdSpecId, loadingSlipExtTo.MaterialId, loadingSlipExtTo.ProdItemId, 0, conn, tran);
@@ -1953,11 +1961,11 @@ namespace ODLMWebAPI.BL
                         tblInvoiceItemTaxDtlsTO.TaxRatePct = 0;
                         tblInvoiceItemTaxDtlsTO.TaxableAmt = 0;
                     }
-                    tblInvoiceItemTaxDtlsTO.TaxAmt = (tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100;
+                    tblInvoiceItemTaxDtlsTO.TaxAmt = Math.Round(((tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100),isForItemWiseRoundup);
                     tblInvoiceItemTaxDtlsTO.TaxTypeId = taxRateTo.TaxTypeId;
                     if (billingStateId == ofcAddrTO.StateId)
                     {
-                        if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.CGST)
+                        if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.CGST) 
                         {
                             cgstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
                             itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
@@ -1986,7 +1994,7 @@ namespace ODLMWebAPI.BL
 
 
                 grandTotal += itemGrandTotal;
-                tblInvoiceItemDetailsTO.GrandTotal = itemGrandTotal;
+                tblInvoiceItemDetailsTO.GrandTotal = Math.Round(itemGrandTotal,isForItemWiseRoundup);
                 tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList = tblInvoiceItemTaxDtlsTOList;
                 tblInvoiceItemDetailsTOList.Add(tblInvoiceItemDetailsTO);
             }
@@ -5238,7 +5246,8 @@ namespace ODLMWebAPI.BL
                                     Int32 loadItemDTCount = loadingItemDT.Rows.Count - 1;
 
                                     loadingItemDT.Rows[loadItemDTCount]["SrNo"] = loadItemDTCount + 1;
-                                    loadingItemDT.Rows[loadItemDTCount]["DisplayName"] = tblLoadingSlipExtTO.DisplayName;
+                                  string displayName = tblLoadingSlipExtTO.ProdCatDesc + " " + tblLoadingSlipExtTO.ProdSpecDesc + " " + tblLoadingSlipExtTO.MaterialDesc;
+                                loadingItemDT.Rows[loadItemDTCount]["DisplayName"] = displayName;// tblLoadingSlipExtTO.DisplayName;
 
                                     if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
                                     {
