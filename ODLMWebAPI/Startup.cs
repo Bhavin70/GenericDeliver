@@ -556,12 +556,12 @@ namespace ODLMWebAPI
             //}
 
             // Vaibhav [15-Mar-2018] Configure authentication server.
-            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-                    .AddIdentityServerAuthentication(options =>
-                    {
-                        options.Authority = "http://localhost:5000"; // Auth Server
-                        options.RequireHttpsMetadata = false;
-                    });
+            //services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+            //        .AddIdentityServerAuthentication(options =>
+            //        {
+            //            options.Authority = "http://localhost:5000"; // Auth Server
+            //            options.RequireHttpsMetadata = false;
+            //        });
         }
 
         public void DOSapLogin()

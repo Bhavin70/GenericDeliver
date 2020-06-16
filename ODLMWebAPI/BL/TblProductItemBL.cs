@@ -267,7 +267,7 @@ namespace ODLMWebAPI.BL
                                 tran.Rollback();
                                 return result;
                             }
-                      
+                        result = 1;
                     }
                 }
                 //@ Priyanka H [06-march-2019] if tblPurchaseItemMasterTO.IdPurchaseItemMaster is higher than 0 then update purchase data 
