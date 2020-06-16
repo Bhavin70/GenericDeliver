@@ -133,13 +133,13 @@ namespace ODLMWebAPI.DAL
                 //String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
 
                 ////To get Server Date Time for Azure Server DB
-                string sqlQuery = " declare @dfecha as datetime " +
+                string sqlquery = " declare @dfecha as datetime " +
                                   " declare @d as datetimeoffset " +
                                   " set @dfecha= sysdatetime()   " +
                                   " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
                                   " select convert(datetime, @d)";
 
-                cmdSelect = new SqlCommand(sqlQuery, conn);
+                cmdSelect = new SqlCommand(sqlquery, conn);
 
                 SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
 

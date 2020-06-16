@@ -7189,12 +7189,24 @@ namespace ODLMWebAPI.BL {
                 }
                 #endregion
                 //tran.Commit();
-                resultMessage.MessageType = ResultMessageE.Information;
-                resultMessage.Text = "Loading Slip Approved Sucessfully";
-                resultMessage.DisplayMessage = "Loading Slip Approved Sucessfully";
-                resultMessage.Result = 1;
-                resultMessage.Tag = tblLoadingTO;
-                return resultMessage;
+                if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_CANCEL)
+                {
+                    resultMessage.MessageType = ResultMessageE.Information;
+                    resultMessage.Text = "Loading Slip No :" + tblLoadingTO.LoadingSlipNo + " is cancelled.";
+                    resultMessage.DisplayMessage = "Loading Slip No :" + tblLoadingTO.LoadingSlipNo + " is cancelled.";
+                    resultMessage.Result = 1;
+                    resultMessage.Tag = tblLoadingTO;
+                    return resultMessage;
+                }
+                else
+                {
+                    resultMessage.MessageType = ResultMessageE.Information;
+                    resultMessage.Text = "Loading Slip Approved Sucessfully";
+                    resultMessage.DisplayMessage = "Loading Slip Approved Sucessfully";
+                    resultMessage.Result = 1;
+                    resultMessage.Tag = tblLoadingTO;
+                    return resultMessage;
+                }
             } catch (Exception ex) {
                 resultMessage.MessageType = ResultMessageE.Error;
                 resultMessage.Text = "Exception Error In MEthod UpdateDeliverySlipConfirmations";

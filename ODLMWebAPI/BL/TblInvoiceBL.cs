@@ -1930,7 +1930,7 @@ namespace ODLMWebAPI.BL
                 {
                     resultMsg.DefaultBehaviour("ProdGSTCodeDetails found null against loadingSlipExtId is : " + loadingSlipExtTo.IdLoadingSlipExt + ".");
                     resultMsg.DisplayMessage = "GSTIN Not Defined for Item :" + tblInvoiceItemDetailsTO.ProdItemDesc;
-                    ////return resultMsg;
+                    //return resultMsg;
                 }
                 tblInvoiceItemDetailsTO.ProdGstCodeId = tblProdGstCodeDtlsTO.IdProdGstCode;
                 TblGstCodeDtlsTO gstCodeDtlsTO = _iTblGstCodeDtlsDAO.SelectTblGstCodeDtls(tblProdGstCodeDtlsTO.GstCodeId, conn, tran);
@@ -4266,8 +4266,15 @@ namespace ODLMWebAPI.BL
                         //chetan[18-feb-2020] added for display GrandTotal on template
                         invoiceItemDT.Columns.Add("GrandTotal", typeof(double));
                         invoiceItemDT.Columns.Add("RateWithTax", typeof(double));
+                        invoiceItemDT.Columns.Add("IGSTAmt", typeof(double));
+                        invoiceItemDT.Columns.Add("CGSTAmt", typeof(double));
+                        invoiceItemDT.Columns.Add("SGSTAmt", typeof(double));
 
+                        invoiceItemDT.Columns.Add("IGSTPct", typeof(double));
+                        invoiceItemDT.Columns.Add("CGSTPct", typeof(double));
+                        invoiceItemDT.Columns.Add("SGSTPct", typeof(double));
                         invoiceItemDT.Columns.Add("hsn");
+
                         for (int i = 0; i < invoiceItemlist.Count; i++)
                         {
                             TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = invoiceItemlist[i];
@@ -4296,6 +4303,33 @@ namespace ODLMWebAPI.BL
                             }
 
                             invoiceItemDT.Rows[invoiceItemDTCount]["hsn"] = tblInvoiceItemDetailsTO.GstinCodeNo;
+
+
+                            if(tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList!=null && tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList.Count>0)
+                            {
+                                for (int c = 0; c < tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList.Count; c++)
+                                {
+                                    TblInvoiceItemTaxDtlsTO tblInvoiceItemTaxDtlsTO = tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList[c];
+                                    if(tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.IGST)
+                                    {
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["IGSTPct"] = tblInvoiceItemTaxDtlsTO.TaxPct;
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["IGSTAmt"] = tblInvoiceItemTaxDtlsTO.TaxAmt;
+
+                                    }
+                                    else if(tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.CGST)
+                                    {
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["CGSTAmt"] = tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["CGSTPct"] = tblInvoiceItemTaxDtlsTO.TaxPct;
+
+                                    }
+                                    else if (tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.SGST)
+                                    {
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["SGSTAmt"] = tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["SGSTPct"] = tblInvoiceItemTaxDtlsTO.TaxPct;
+
+                                    }
+                                }
+                            }
                         }
                         //if(invoiceItemDT.Rows.Count <finalItemCount)
                         //{
@@ -4942,6 +4976,7 @@ namespace ODLMWebAPI.BL
                     }
                 }
                 String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
+               // templateFilePath = @"C:\Deliver Templates\SER INVOICE Template.xls";
                 String fileName = "Bill-" + DateTime.Now.Ticks;
 
                 //download location for rewrite  template file
