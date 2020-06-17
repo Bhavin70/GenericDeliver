@@ -4312,20 +4312,20 @@ namespace ODLMWebAPI.BL
                                     TblInvoiceItemTaxDtlsTO tblInvoiceItemTaxDtlsTO = tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList[c];
                                     if(tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.IGST)
                                     {
-                                        invoiceItemDT.Rows[invoiceItemDTCount]["IGSTPct"] = tblInvoiceItemTaxDtlsTO.TaxPct;
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["IGSTPct"] = tblInvoiceItemTaxDtlsTO.TaxRatePct;
                                         invoiceItemDT.Rows[invoiceItemDTCount]["IGSTAmt"] = tblInvoiceItemTaxDtlsTO.TaxAmt;
 
                                     }
                                     else if(tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.CGST)
                                     {
                                         invoiceItemDT.Rows[invoiceItemDTCount]["CGSTAmt"] = tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                        invoiceItemDT.Rows[invoiceItemDTCount]["CGSTPct"] = tblInvoiceItemTaxDtlsTO.TaxPct;
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["CGSTPct"] = tblInvoiceItemTaxDtlsTO.TaxRatePct;
 
                                     }
                                     else if (tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.SGST)
                                     {
                                         invoiceItemDT.Rows[invoiceItemDTCount]["SGSTAmt"] = tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                        invoiceItemDT.Rows[invoiceItemDTCount]["SGSTPct"] = tblInvoiceItemTaxDtlsTO.TaxPct;
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["SGSTPct"] = tblInvoiceItemTaxDtlsTO.TaxRatePct;
 
                                     }
                                 }
