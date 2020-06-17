@@ -1563,6 +1563,18 @@ namespace ODLMWebAPI.BL {
                                     }
 
                                 }
+                                else
+                                {
+                                    TblLoadingSlipTO tblLoadingSlipTO = selectLoadingSlipTO(tblBookingTO);
+                                    tblLoadingTO.NoOfDeliveries = 1;
+                                    TblLoadingSlipExtTO tblLoadingSlipExtTO = new TblLoadingSlipExtTO();
+                                    tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingId = tblBookingTO.IdBooking;
+                                    tblLoadingSlipTO.TblLoadingSlipDtlTO.LoadingQty = tblBookingTO.PendingQty;
+                                    tblLoadingSlipExtTO.LoadingLayerid = (int)Constants.LoadingLayerE.BOTTOM;
+                                    tblLoadingSlipTO.LoadingSlipExtTOList.Add(tblLoadingSlipExtTO);
+                                    tblLoadingTO.LoadingSlipList.Add(tblLoadingSlipTO);
+
+                                }
 
                             } else {
                                 TblLoadingSlipTO tblLoadingSlipTO = selectLoadingSlipTO (tblBookingTO);
@@ -1601,7 +1613,7 @@ namespace ODLMWebAPI.BL {
             tblLoadingSlipTO.FreightAmt = tblBookingTO.FreightAmt;
             if (tblBookingTO.OrcMeasure == "Fix" && tblBookingTO.OrcAmt > 0)  //Need to change Rs/MT
             {
-                tblLoadingSlipTO.OrcAmt = tblBookingTO.OrcAmt/ tblBookingTO.BookingQty;
+                tblLoadingSlipTO.OrcAmt = Math.Round(tblBookingTO.OrcAmt / tblBookingTO.BookingQty);
                 tblLoadingSlipTO.OrcMeasure = "Rs/MT";
             }
             else
@@ -1609,6 +1621,8 @@ namespace ODLMWebAPI.BL {
                 tblLoadingSlipTO.OrcAmt = tblBookingTO.OrcAmt;
                 tblLoadingSlipTO.OrcMeasure = tblBookingTO.OrcMeasure;
             }
+            //tblLoadingSlipTO.OrcAmt = tblBookingTO.OrcAmt;
+            //tblLoadingSlipTO.OrcMeasure = tblBookingTO.OrcMeasure;
             tblLoadingSlipTO.ORCPersonName = tblBookingTO.ORCPersonName;
             tblLoadingSlipTO.Comment = tblBookingTO.Comments;
             tblLoadingSlipTO.TblLoadingSlipDtlTO = new TblLoadingSlipDtlTO ();
