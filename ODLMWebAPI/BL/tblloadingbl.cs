@@ -1150,7 +1150,10 @@ namespace ODLMWebAPI.BL {
 
             }
             #endregion
-            return _iTblLoadingDAO.SelectAllVehiclesListByStatus (statusId);
+            List <DropDownTO> dropDownTOList = _iTblLoadingDAO.SelectAllVehiclesListByStatus(statusId);
+            if (dropDownTOList != null && dropDownTOList.Count > 0)
+                dropDownTOList = dropDownTOList.Where(w => w.Text != null).ToList();
+            return dropDownTOList;
         }
 
         public tblUserMachineMappingTo SelectUserMachineTo (int userId) {
