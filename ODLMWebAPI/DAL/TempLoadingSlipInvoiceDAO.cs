@@ -230,7 +230,7 @@ namespace ODLMWebAPI.DAL
         }
 
 
-        public TempLoadingSlipInvoiceTO SelectTempLoadingSlipInvoiceTOListByLoadingSlip(int loadingSlipId, SqlConnection conn, SqlTransaction tran)
+        public List<TempLoadingSlipInvoiceTO> SelectTempLoadingSlipInvoiceTOListByLoadingSlip(int loadingSlipId, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader reader = null;
@@ -243,10 +243,10 @@ namespace ODLMWebAPI.DAL
 
                 reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
                 List<TempLoadingSlipInvoiceTO> list = ConvertDTToList(reader);
-                if (list != null && list.Count == 1)
-                    return list[0];
-                else
-                    return null;
+                //if (list != null && list.Count == 1)
+                    return list;
+                //else
+                //    return null;
 
             }
             catch (Exception ex)

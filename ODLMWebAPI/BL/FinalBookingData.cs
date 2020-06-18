@@ -2140,7 +2140,10 @@ namespace ODLMWebAPI.BL
 
                 foreach (var loadingSlipTO in loadingSlipTOList)
                 {
-                    TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO = _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOListByLoadingSlip(loadingSlipTO.IdLoadingSlip, conn, tran);
+                    List<TempLoadingSlipInvoiceTO> tempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOListByLoadingSlip(loadingSlipTO.IdLoadingSlip, conn, tran);
+                    TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO = null;   
+                    if (tempLoadingSlipInvoiceTOList!=null && tempLoadingSlipInvoiceTOList.Count>0)
+                      tempLoadingSlipInvoiceTO = tempLoadingSlipInvoiceTOList[0];
 
                     Int32 invoiceId = 0;
 
@@ -2297,7 +2300,10 @@ namespace ODLMWebAPI.BL
 
                 foreach (var loadingSlipTO in loadingSlipTOList)
                 {
-                    TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO = _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOListByLoadingSlip(loadingSlipTO.IdLoadingSlip, conn, tran);
+                    List<TempLoadingSlipInvoiceTO> tempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOListByLoadingSlip(loadingSlipTO.IdLoadingSlip, conn, tran);
+                    TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO = null;
+                    if (tempLoadingSlipInvoiceTOList != null && tempLoadingSlipInvoiceTOList.Count > 0)
+                         tempLoadingSlipInvoiceTO = tempLoadingSlipInvoiceTOList[0];
 
                     Int32 invoiceId = 0;
 

@@ -10352,7 +10352,10 @@ namespace ODLMWebAPI.BL {
 
                         if (loadingSlipTOList != null && loadingSlipTOList.Count > 0) {
                             foreach (var loadingSlip in loadingSlipTOList) {
-                                TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO = _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOListByLoadingSlip (loadingSlip.IdLoadingSlip, bookingConn, bookingTran);
+                                List<TempLoadingSlipInvoiceTO> tempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOListByLoadingSlip(loadingSlip.IdLoadingSlip, bookingConn, bookingTran);
+                                TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO = null;
+                                if (tempLoadingSlipInvoiceTOList != null && tempLoadingSlipInvoiceTOList.Count > 0)
+                                     tempLoadingSlipInvoiceTO = tempLoadingSlipInvoiceTOList[0];
 
                                 if (tempLoadingSlipInvoiceTO != null) {
                                     loadingSlipDataByInvoiceId = _iTblInvoiceBL.SelectLoadingSlipDetailsByInvoiceId (tempLoadingSlipInvoiceTO.InvoiceId, bookingConn, bookingTran);
