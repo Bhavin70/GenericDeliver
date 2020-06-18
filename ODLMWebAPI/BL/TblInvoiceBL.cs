@@ -1319,8 +1319,8 @@ namespace ODLMWebAPI.BL
                 //List<TempLoadingSlipInvoiceTO> TempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceBL.SelectTempLoadingSlipInvoiceTOListByLoadingSlip()
                 for (int r = 0; r < loadingSlipTOList.Count; r++)
                 {
-                    TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO = _iTempLoadingSlipInvoiceBL.SelectTempLoadingSlipInvoiceTOListByLoadingSlip(loadingSlipTOList[r].IdLoadingSlip, conn, tran);
-                    if (tempLoadingSlipInvoiceTO != null)
+                    List<TempLoadingSlipInvoiceTO> tempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceBL.SelectTempLoadingSlipInvoiceTOListByLoadingSlip(loadingSlipTOList[r].IdLoadingSlip, conn, tran);
+                    if (tempLoadingSlipInvoiceTOList != null && tempLoadingSlipInvoiceTOList.Count>0)
                     {
                         loadingSlipTOList.RemoveAt(r);
                         r--;
@@ -2434,6 +2434,13 @@ namespace ODLMWebAPI.BL
                 TblConfigParamsTO tblConfigParamsTO = null;
                 DateTime serverDateTime = _iCommon.ServerDateTime;
                 Int32 billingStateId = 0;
+                Int32 isForItemWiseRoundup = 2;
+                //chetan[2020 - june - 08] added
+                TblConfigParamsTO cPisForItemWiseRoundup = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.ITEM_GRAND_TOTAL_ROUNDUP_VALUE, conn, tran);
+                if (cPisForItemWiseRoundup != null)
+                {
+                    isForItemWiseRoundup = Convert.ToInt32(cPisForItemWiseRoundup.ConfigParamVal);
+                }
 
                 //Hrushikesh Need to change here
                 // if (invoiceGenerateModeE == (int)Constants.InvoiceGenerateModeE.Duplicate)
@@ -2753,8 +2760,8 @@ namespace ODLMWebAPI.BL
 
                     }
                     tblInvoiceItemDetailsTO.Rate = TblBookingsTO.BookingRate;
-                    tblInvoiceItemDetailsTO.BasicTotal = tblInvoiceItemDetailsTO.Rate * tblInvoiceItemDetailsTO.InvoiceQty;
-                    tblInvoiceItemDetailsTO.TaxableAmt = tblInvoiceItemDetailsTO.BasicTotal - tblInvoiceItemDetailsTO.CdAmt;
+                    tblInvoiceItemDetailsTO.BasicTotal =Math.Round(tblInvoiceItemDetailsTO.Rate * tblInvoiceItemDetailsTO.InvoiceQty, isForItemWiseRoundup);
+                    tblInvoiceItemDetailsTO.TaxableAmt =Math.Round(tblInvoiceItemDetailsTO.BasicTotal - tblInvoiceItemDetailsTO.CdAmt, isForItemWiseRoundup);
                     invoiceTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
                     
 
@@ -2823,7 +2830,7 @@ namespace ODLMWebAPI.BL
                             tblInvoiceItemTaxDtlsTO.TaxableAmt = 0;
                         }
 
-                        tblInvoiceItemTaxDtlsTO.TaxAmt = (tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100;
+                        tblInvoiceItemTaxDtlsTO.TaxAmt = Math.Round(((tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100), isForItemWiseRoundup);
                         tblInvoiceItemTaxDtlsTO.TaxTypeId = taxRateTo.TaxTypeId;
 
                        
@@ -2864,7 +2871,7 @@ namespace ODLMWebAPI.BL
                     itemGrandTotal += existingInvItemTO.TaxableAmt;
 
                     grandTotal += itemGrandTotal;
-                    tblInvoiceItemDetailsTO.GrandTotal = itemGrandTotal;
+                    tblInvoiceItemDetailsTO.GrandTotal = Math.Round(itemGrandTotal, isForItemWiseRoundup);
                     tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList = tblInvoiceItemTaxDtlsTOList;
                     tblInvoiceItemDetailsTOList.Add(tblInvoiceItemDetailsTO);
                 }

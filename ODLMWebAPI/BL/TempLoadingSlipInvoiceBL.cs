@@ -64,7 +64,7 @@ namespace ODLMWebAPI.BL
             return _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOList(loadingSlipId, invoiceId, conn, tran);
         }
 
-        public TempLoadingSlipInvoiceTO SelectTempLoadingSlipInvoiceTOListByLoadingSlip(int loadingSlipId, SqlConnection conn, SqlTransaction tran)
+        public List<TempLoadingSlipInvoiceTO> SelectTempLoadingSlipInvoiceTOListByLoadingSlip(int loadingSlipId, SqlConnection conn, SqlTransaction tran)
         {
             return _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOListByLoadingSlip(loadingSlipId, conn, tran);
         }
