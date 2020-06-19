@@ -146,6 +146,7 @@ namespace ODLMWebAPI.BL
         public List<TblInvoiceTO> SelectAllTblInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm, Int32 cnfId, Int32 dealerID, List<TblUserRoleTO> tblUserRoleTOList, Int32 brandId, Int32 invoiceId, Int32 statusId,String internalOrgId)
         {
             TblUserRoleTO tblUserRoleTO = new TblUserRoleTO();
+            int configId = _iTblConfigParamsDAO.IoTSetting();
             if (tblUserRoleTOList != null && tblUserRoleTOList.Count > 0)
             {
                 tblUserRoleTO = _iTblUserRoleBL.SelectUserRoleTOAccToPriority(tblUserRoleTOList);
@@ -161,7 +162,10 @@ namespace ODLMWebAPI.BL
                 var nonAuthList = list.Where(n => n.LoadingStatusId != (int)TranStatusE.LOADING_DELIVERED).ToList();
                 SetGateIotDataToInvoiceTOV2(nonAuthList);
             }
-            list = list.Where(n => !String.IsNullOrEmpty(n.VehicleNo)).ToList();
+            if (configId == (int)Constants.WeighingDataSourceE.IoT)
+            {
+                list = list.Where(n => !String.IsNullOrEmpty(n.VehicleNo)).ToList();
+            }
             return list;
         }
         //Aniket [22-8-2019] added for IoT
