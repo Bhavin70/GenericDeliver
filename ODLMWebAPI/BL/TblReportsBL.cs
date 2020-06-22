@@ -255,7 +255,9 @@ namespace ODLMWebAPI.BL
                                         loadingSlipExtDT.Rows.Add();
                                         int loadingSlipDTrowNorowNo = loadingSlipExtDT.Rows.Count - 1;
                                         loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["idLoadingSlip"] = TblLoadingSlipTO.IdLoadingSlip;
-                                        string displayName = tblLoadingSlipExtTO.MaterialDesc + "-" + tblLoadingSlipExtTO.ProdCatDesc + "-" + tblLoadingSlipExtTO.ProdSpecDesc;
+                                        string displayName = tblLoadingSlipExtTO.MaterialDesc + "/" + tblLoadingSlipExtTO.ProdCatDesc + "/" + tblLoadingSlipExtTO.ProdSpecDesc;
+                                        if(displayName=="--")
+                                            displayName=tblLoadingSlipExtTO.DisplayName;
                                         loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["Size"] = displayName;// tblLoadingSlipExtTO.DisplayName;
                                         loadingSlipExtDT.Rows[loadingSlipDTrowNorowNo]["prodItem"] = tblLoadingSlipExtTO.ProdItemDesc;
 
