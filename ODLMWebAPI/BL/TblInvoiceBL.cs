@@ -5294,7 +5294,7 @@ namespace ODLMWebAPI.BL
                                     loadingItemDT.Rows[loadItemDTCount]["SrNo"] = loadItemDTCount + 1;
                                   string displayName = tblLoadingSlipExtTO.ProdCatDesc + " " + tblLoadingSlipExtTO.ProdSpecDesc + " " + tblLoadingSlipExtTO.MaterialDesc;
                                 if(displayName=="  ")
-                                    displayName= tblLoadingSlipExtTO.DisplayName;
+                                    displayName= tblLoadingSlipExtTO.ItemName;
                                 loadingItemDT.Rows[loadItemDTCount]["DisplayName"] = displayName;// tblLoadingSlipExtTO.DisplayName;
 
                                     if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
