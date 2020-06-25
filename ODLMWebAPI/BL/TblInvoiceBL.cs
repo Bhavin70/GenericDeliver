@@ -5222,6 +5222,8 @@ namespace ODLMWebAPI.BL
                         headerDT.Columns.Add("TotalNetWt");
                         headerDT.Columns.Add("TotalTareWt");
                         headerDT.Columns.Add("TotalGrossWt");
+                        headerDT.Columns.Add("invoiceNo");
+
 
                         loadingItemDTForGatePass.Columns.Add("SrNo");
                         loadingItemDTForGatePass.Columns.Add("DisplayName");
@@ -5273,7 +5275,8 @@ namespace ODLMWebAPI.BL
                             double totalNetWt = 0;
                             //double 
                             headerDT.Rows[0]["InvoiceId"] = invoiceId;
-                            if(invoiceAddressTOList!=null && invoiceAddressTOList.Count>0)
+                            headerDT.Rows[0]["invoiceNo"] = tblInvoiceTO.InvoiceNo;
+                            if (invoiceAddressTOList!=null && invoiceAddressTOList.Count>0)
                             {
                                 TblInvoiceAddressTO tblInvoiceAddressTO = invoiceAddressTOList.Where(w => w.TxnAddrTypeId == (Int32)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS).FirstOrDefault();
                                 headerDT.Rows[0]["FirmName"] = tblInvoiceAddressTO.BillingName;
