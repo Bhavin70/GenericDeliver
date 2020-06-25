@@ -5275,6 +5275,7 @@ namespace ODLMWebAPI.BL
                             double totalNetWt = 0;
                             //double 
                             headerDT.Rows[0]["InvoiceId"] = invoiceId;
+                            //prajkta[25-06-2020]added
                             headerDT.Rows[0]["invoiceNo"] = tblInvoiceTO.InvoiceNo;
                             if (invoiceAddressTOList!=null && invoiceAddressTOList.Count>0)
                             {
