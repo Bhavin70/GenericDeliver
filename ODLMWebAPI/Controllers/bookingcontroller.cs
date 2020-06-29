@@ -37,11 +37,12 @@ namespace ODLMWebAPI.Controllers
         private readonly ICircularDependencyBL _iCircularDependencyBL;
         private readonly ITblPaymentTermsForBookingBL _iTblPaymentTermsForBookingBL;
         private readonly ITblBookingQtyConsumptionBL _iTblBookingQtyConsumptionBL;
+        private readonly ITblReportsBL _iTblReportsBL;
         #endregion
 
         #region Constructor
 
-        public BookingController(ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblBookingScheduleBL iTblBookingScheduleBL, ITblBookingOpngBalBL iTblBookingOpngBalBL, ITblBookingExtBL iTblBookingExtBL, ITblBookingDelAddrBL iTblBookingDelAddrBL, ITblBookingBeyondQuotaBL iTblBookingBeyondQuotaBL, ICircularDependencyBL iCircularDependencyBL, ITblBookingsBL iTblBookingsBL, ICommon iCommon, ILogger<BookingController> logger, ITblBookingActionsBL iTblBookingActionsBL, ITblConfigParamsBL iTblConfigParamsBL, ITblBookingQtyConsumptionBL iTblBookingQtyConsumptionBL)
+        public BookingController(ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblBookingScheduleBL iTblBookingScheduleBL, ITblBookingOpngBalBL iTblBookingOpngBalBL, ITblBookingExtBL iTblBookingExtBL, ITblBookingDelAddrBL iTblBookingDelAddrBL, ITblBookingBeyondQuotaBL iTblBookingBeyondQuotaBL, ICircularDependencyBL iCircularDependencyBL, ITblBookingsBL iTblBookingsBL, ICommon iCommon, ILogger<BookingController> logger, ITblBookingActionsBL iTblBookingActionsBL, ITblConfigParamsBL iTblConfigParamsBL, ITblBookingQtyConsumptionBL iTblBookingQtyConsumptionBL, ITblReportsBL iTblReportsBL)
         {
             loggerObj = logger;
             _iTblBookingActionsBL = iTblBookingActionsBL; 
@@ -57,6 +58,7 @@ namespace ODLMWebAPI.Controllers
             _iTblPaymentTermsForBookingBL = iTblPaymentTermsForBookingBL;
             _iTblBookingQtyConsumptionBL = iTblBookingQtyConsumptionBL;
             Constants.LoggerObj = logger;
+            _iTblReportsBL = iTblReportsBL;
         }
 
         #endregion
@@ -627,9 +629,38 @@ namespace ODLMWebAPI.Controllers
         [HttpGet]
         public List<TblBookingQtyConsumptionTO> GetConsumptionQuantityDetailsByBookingId(int bookingId)
         {
-            return _iTblBookingQtyConsumptionBL.SelectTblBookingQtyConsumptionTOByBookingId(bookingId);
+            return _iTblBookingQtyConsumptionBL.SelectTblBookingQtyConsumptionTOByBookingId(bookingId); 
         }
+        [Route("PrintLodingSlipDetailDetails")]
+        [HttpPost]
+        public ResultMessage PrintLodingSlipDetailDetails([FromBody] JObject data)
+        {
+            try
+            {
+                var bookingId = Convert.ToInt32(data["bookingId"].ToString());
+                ResultMessage resultMessage = new StaticStuff.ResultMessage();
+                if (bookingId >0)
+                {
+                    DateTime serverDate = _iCommon.ServerDateTime;
+                    return _iTblReportsBL.PrintLoadingTODetailsReport(bookingId);
+                }
 
+                else
+                {
+                    resultMessage.DefaultBehaviour("tempInvoiceDocumentDetailsTO Found NULL");
+                    return resultMessage;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+
+            }
+        }
         #endregion
 
         #region Post

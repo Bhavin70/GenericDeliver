@@ -1150,7 +1150,10 @@ namespace ODLMWebAPI.BL {
 
             }
             #endregion
-            return _iTblLoadingDAO.SelectAllVehiclesListByStatus (statusId);
+            List <DropDownTO> dropDownTOList = _iTblLoadingDAO.SelectAllVehiclesListByStatus(statusId);
+            if (dropDownTOList != null && dropDownTOList.Count > 0)
+                dropDownTOList = dropDownTOList.Where(w => w.Text != null).ToList();
+            return dropDownTOList;
         }
 
         public tblUserMachineMappingTo SelectUserMachineTo (int userId) {
@@ -1563,6 +1566,18 @@ namespace ODLMWebAPI.BL {
                                     }
 
                                 }
+                                else
+                                {
+                                    TblLoadingSlipTO tblLoadingSlipTO = selectLoadingSlipTO(tblBookingTO);
+                                    tblLoadingTO.NoOfDeliveries = 1;
+                                    TblLoadingSlipExtTO tblLoadingSlipExtTO = new TblLoadingSlipExtTO();
+                                    tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingId = tblBookingTO.IdBooking;
+                                    tblLoadingSlipTO.TblLoadingSlipDtlTO.LoadingQty = tblBookingTO.PendingQty;
+                                    tblLoadingSlipExtTO.LoadingLayerid = (int)Constants.LoadingLayerE.BOTTOM;
+                                    tblLoadingSlipTO.LoadingSlipExtTOList.Add(tblLoadingSlipExtTO);
+                                    tblLoadingTO.LoadingSlipList.Add(tblLoadingSlipTO);
+
+                                }
 
                             } else {
                                 TblLoadingSlipTO tblLoadingSlipTO = selectLoadingSlipTO (tblBookingTO);
@@ -1599,8 +1614,18 @@ namespace ODLMWebAPI.BL {
             tblLoadingSlipTO.DealerOrgId = tblBookingTO.DealerOrgId;
             tblLoadingSlipTO.DealerOrgName = tblBookingTO.DealerName;
             tblLoadingSlipTO.FreightAmt = tblBookingTO.FreightAmt;
-            tblLoadingSlipTO.OrcAmt = tblBookingTO.OrcAmt;
-            tblLoadingSlipTO.OrcMeasure = tblBookingTO.OrcMeasure;
+            if (tblBookingTO.OrcMeasure == "Fix" && tblBookingTO.OrcAmt > 0)  //Need to change Rs/MT
+            {
+                tblLoadingSlipTO.OrcAmt = Math.Round(tblBookingTO.OrcAmt / tblBookingTO.BookingQty);
+                tblLoadingSlipTO.OrcMeasure = "Rs/MT";
+            }
+            else
+            {
+                tblLoadingSlipTO.OrcAmt = tblBookingTO.OrcAmt;
+                tblLoadingSlipTO.OrcMeasure = tblBookingTO.OrcMeasure;
+            }
+            //tblLoadingSlipTO.OrcAmt = tblBookingTO.OrcAmt;
+            //tblLoadingSlipTO.OrcMeasure = tblBookingTO.OrcMeasure;
             tblLoadingSlipTO.ORCPersonName = tblBookingTO.ORCPersonName;
             tblLoadingSlipTO.Comment = tblBookingTO.Comments;
             tblLoadingSlipTO.TblLoadingSlipDtlTO = new TblLoadingSlipDtlTO ();
@@ -3772,6 +3797,21 @@ namespace ODLMWebAPI.BL {
             resultMessage.Text = "Not Entered In The Loop";
             try
             {
+                //Saket [2020-05-23] Added default from Org ID
+                if (tblLoadingTO.FromOrgId == 0)
+                {
+                    TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID, conn, tran);
+                    if (tblConfigParamsTO == null)
+                    {
+                        resultMessage.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
+                        return resultMessage;
+                    }
+                    Int32 internalOrgId = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+
+                    tblLoadingTO.FromOrgId = internalOrgId;
+
+                }
+
                 #region Check Merge Condition
 
                 resultMessage = CheckMergeCondition(tblLoadingTO);
@@ -7166,12 +7206,24 @@ namespace ODLMWebAPI.BL {
                 }
                 #endregion
                 //tran.Commit();
-                resultMessage.MessageType = ResultMessageE.Information;
-                resultMessage.Text = "Loading Slip Approved Sucessfully";
-                resultMessage.DisplayMessage = "Loading Slip Approved Sucessfully";
-                resultMessage.Result = 1;
-                resultMessage.Tag = tblLoadingTO;
-                return resultMessage;
+                if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_CANCEL)
+                {
+                    resultMessage.MessageType = ResultMessageE.Information;
+                    resultMessage.Text = "Loading Slip No :" + tblLoadingTO.LoadingSlipNo + " is cancelled.";
+                    resultMessage.DisplayMessage = "Loading Slip No :" + tblLoadingTO.LoadingSlipNo + " is cancelled.";
+                    resultMessage.Result = 1;
+                    resultMessage.Tag = tblLoadingTO;
+                    return resultMessage;
+                }
+                else
+                {
+                    resultMessage.MessageType = ResultMessageE.Information;
+                    resultMessage.Text = "Loading Slip Approved Sucessfully";
+                    resultMessage.DisplayMessage = "Loading Slip Approved Sucessfully";
+                    resultMessage.Result = 1;
+                    resultMessage.Tag = tblLoadingTO;
+                    return resultMessage;
+                }
             } catch (Exception ex) {
                 resultMessage.MessageType = ResultMessageE.Error;
                 resultMessage.Text = "Exception Error In MEthod UpdateDeliverySlipConfirmations";
@@ -10300,7 +10352,10 @@ namespace ODLMWebAPI.BL {
 
                         if (loadingSlipTOList != null && loadingSlipTOList.Count > 0) {
                             foreach (var loadingSlip in loadingSlipTOList) {
-                                TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO = _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOListByLoadingSlip (loadingSlip.IdLoadingSlip, bookingConn, bookingTran);
+                                List<TempLoadingSlipInvoiceTO> tempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOListByLoadingSlip(loadingSlip.IdLoadingSlip, bookingConn, bookingTran);
+                                TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO = null;
+                                if (tempLoadingSlipInvoiceTOList != null && tempLoadingSlipInvoiceTOList.Count > 0)
+                                     tempLoadingSlipInvoiceTO = tempLoadingSlipInvoiceTOList[0];
 
                                 if (tempLoadingSlipInvoiceTO != null) {
                                     loadingSlipDataByInvoiceId = _iTblInvoiceBL.SelectLoadingSlipDetailsByInvoiceId (tempLoadingSlipInvoiceTO.InvoiceId, bookingConn, bookingTran);
