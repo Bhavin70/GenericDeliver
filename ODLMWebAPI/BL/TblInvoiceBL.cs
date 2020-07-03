@@ -1894,14 +1894,14 @@ namespace ODLMWebAPI.BL
 
                     if (isRsValue == (int)Constants.CdType.IsRs)
                     {
-                        tblInvoiceItemDetailsTO.CdAmt = Math.Round((tblInvoiceItemDetailsTO.CdStructure * loadingSlipExtTo.LoadedWeight * conversionFactor),isForItemWiseRoundup);
+                        tblInvoiceItemDetailsTO.CdAmt =(tblInvoiceItemDetailsTO.CdStructure * loadingSlipExtTo.LoadedWeight * conversionFactor);
                     }
                     else
                     {
                         tblInvoiceItemDetailsTO.CdAmt =Math.Round(tblInvoiceItemDetailsTO.BasicTotal * tblInvoiceItemDetailsTO.CdStructure) / 100;
                     }
                     //Priyanka [10-07-2018] : Added for additional discount SHIVANGI.
-                    tblInvoiceItemDetailsTO.CdAmt += Math.Round((loadingSlipTo.AddDiscAmt * loadingSlipExtTo.LoadedWeight * conversionFactor),isForItemWiseRoundup);
+                    tblInvoiceItemDetailsTO.CdAmt +=(loadingSlipTo.AddDiscAmt * loadingSlipExtTo.LoadedWeight * conversionFactor);
                 }
                 else
                 {
@@ -1965,7 +1965,7 @@ namespace ODLMWebAPI.BL
                         tblInvoiceItemTaxDtlsTO.TaxRatePct = 0;
                         tblInvoiceItemTaxDtlsTO.TaxableAmt = 0;
                     }
-                    tblInvoiceItemTaxDtlsTO.TaxAmt = Math.Round(((tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100),isForItemWiseRoundup);
+                    tblInvoiceItemTaxDtlsTO.TaxAmt =((tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100);
                     tblInvoiceItemTaxDtlsTO.TaxTypeId = taxRateTo.TaxTypeId;
                     if (billingStateId == ofcAddrTO.StateId)
                     {
@@ -2834,7 +2834,7 @@ namespace ODLMWebAPI.BL
                             tblInvoiceItemTaxDtlsTO.TaxableAmt = 0;
                         }
 
-                        tblInvoiceItemTaxDtlsTO.TaxAmt = Math.Round(((tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100), isForItemWiseRoundup);
+                        tblInvoiceItemTaxDtlsTO.TaxAmt =((tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100);
                         tblInvoiceItemTaxDtlsTO.TaxTypeId = taxRateTo.TaxTypeId;
 
                        
