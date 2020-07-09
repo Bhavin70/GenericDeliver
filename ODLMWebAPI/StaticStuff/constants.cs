@@ -926,7 +926,11 @@ namespace ODLMWebAPI.StaticStuff
             TERMSANDCONDITION = 2
         }
 
-
+        public enum LogoutValueE
+        {
+            LogoutWithTimer=1,
+            DirectLogout=2
+        }
         public enum bookingFilterTypeE
         {
             ALL = 0,
