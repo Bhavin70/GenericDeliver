@@ -3296,6 +3296,8 @@ namespace ODLMWebAPI.BL {
                                     }
                                     else
                                     {
+
+                                        //Saket [2020-07-10] Parmeshwar  Can be convert this setting all params.
                                         if (isTaxInclusiveWithAllParam == 0)
                                         {
                                             if (isSez)
@@ -3304,11 +3306,16 @@ namespace ODLMWebAPI.BL {
                                             }
                                             Double taxToDivide = 100 + gstCodeDtlsTO.TaxPct;
 
-                                            gstAmt = basicRateTaxIncl - ((basicRateTaxIncl / taxToDivide) * 100);
-                                            gstAmt = Math.Round(gstAmt, 2);
-                                            gstApplicableAmt = basicRateTaxIncl - gstAmt;
-                                            finalRate = basicRateTaxIncl;
+                                            Double temp = ((basicRateTaxIncl * taxToDivide) / 100);
+
+                                            gstAmt = basicRateTaxIncl - temp;
+                                            gstAmt = Math.Round(Math.Abs(gstAmt), 2);
+                                            //gstApplicableAmt = basicRateTaxIncl - gstAmt;
+                                            gstApplicableAmt = basicRateTaxIncl;
+
+                                            //finalRate = basicRateTaxIncl;
                                             cdApplicableAmt = gstApplicableAmt + cdAmt;
+                                            finalRate = gstApplicableAmt + gstAmt;
                                         }
                                         //Rate Calculation for A1 Ispaat- All param will less from declared rate expect Freight
                                         else if (isTaxInclusiveWithAllParam == 1)
