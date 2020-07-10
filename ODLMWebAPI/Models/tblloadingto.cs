@@ -64,11 +64,16 @@ namespace ODLMWebAPI.Models
         Int32 isBackup;
         List<TblLoadingStatusHistoryTO> loadingStatusHistoryTOList;
         Int32 ignoreGrossWt;
-
+        Int32 fromOrgId;
+        
         // Double orcAmt;
         //Saket [2018-02-21] Added.
         List<TblLoadingVehDocExtTO> loadingVehDocExtTOList = new List<TblLoadingVehDocExtTO>();
-
+        public Int32 FromOrgId
+        {
+            get { return fromOrgId; }
+            set { fromOrgId = value; }
+        }
         public int ModbusRefId { get => modbusRefId; set => modbusRefId = value; }
         public List<int[]> DynamicItemList { get => dynamicItemList; set => dynamicItemList = value; }
         public Dictionary<int, List<int[]>> DynamicItemListDCT { get => dynamicItemListDCT; set => dynamicItemListDCT = value; }

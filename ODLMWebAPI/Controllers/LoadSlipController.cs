@@ -244,7 +244,7 @@ namespace ODLMWebAPI.Controllers
         /// <returns></returns>
         [Route("GetLoadingDetailsForReport")]
         [HttpGet]
-        public List<TblLoadingTO> GetLoadingDetailsForReport(string fromDate, string toDate)
+        public List<TblLoadingTO> GetLoadingDetailsForReport(string fromDate, string toDate, string selectedOrgStr)
         {
             DateTime frmDate = DateTime.MinValue;
             DateTime tDate = DateTime.MinValue;
@@ -258,7 +258,16 @@ namespace ODLMWebAPI.Controllers
                 frmDate = serverDate.Date;
             if (tDate == DateTime.MinValue)
                 tDate = serverDate.Date;
-            return _iTblLoadingBL.GetLoadingDetailsForReport(frmDate, tDate);
+
+            if (string.IsNullOrEmpty(selectedOrgStr))
+            {
+                TblConfigParamsTO tblConfigParamsTempTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                if (tblConfigParamsTempTO != null)
+                {
+                    selectedOrgStr = Convert.ToString(tblConfigParamsTempTO.ConfigParamVal) + ",0";
+                }
+            }
+            return _iTblLoadingBL.GetLoadingDetailsForReport(frmDate, tDate, selectedOrgStr);
         }
 
 
@@ -295,7 +304,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetAllPendingLoadingList")]
         [HttpGet]
-        public List<TblLoadingTO> GetAllPendingLoadingList(string userRoleTOList, Int32 cnfId, Int32 loadingStatusId, string fromDate, String toDate,Int32 loadingTypeId,Int32 dealerId, Int32 isConfirm = -1, Int32 brandId = 0, Int32 loadingNavigateId = 0,Int32 superwisorId=0)
+        public List<TblLoadingTO> GetAllPendingLoadingList(string userRoleTOList, Int32 cnfId, Int32 loadingStatusId, string fromDate, String toDate,Int32 loadingTypeId,Int32 dealerId,string selectedOrgStr, Int32 isConfirm = -1, Int32 brandId = 0, Int32 loadingNavigateId = 0,Int32 superwisorId=0)
         {
             try
            {
@@ -311,10 +320,17 @@ namespace ODLMWebAPI.Controllers
                     frmDate = serverDate.Date;
                 if (tDate == DateTime.MinValue)
                     tDate = serverDate.Date;
-
+                if (string.IsNullOrEmpty(selectedOrgStr))
+                {
+                    TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                    if (tblConfigParamsTO != null)
+                    {
+                        selectedOrgStr = Convert.ToString(tblConfigParamsTO.ConfigParamVal) + ",0";
+                    }
+                }
                 List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleTOList);
 
-                return _iTblLoadingBL.SelectAllTblLoadingList(tblUserRoleTOList, cnfId, loadingStatusId, frmDate, tDate, loadingTypeId, dealerId, isConfirm, brandId, loadingNavigateId,superwisorId);
+                return _iTblLoadingBL.SelectAllTblLoadingList(tblUserRoleTOList, cnfId, loadingStatusId, frmDate, tDate, loadingTypeId, dealerId,selectedOrgStr, isConfirm, brandId, loadingNavigateId,superwisorId);
             }
             catch (Exception ex)
             {
@@ -337,7 +353,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetAllLoadingSlipList")]
         [HttpGet]
-        public List<TblLoadingSlipTO> GetAllLoadingSlipList(string userRoleTOList, Int32 cnfId, Int32 loadingStatusId, string fromDate, String toDate, Int32 loadingTypeId, Int32 dealerId, Int32 isConfirm = -1, Int32 brandId = 0,Int32 superwisorId=0)
+        public List<TblLoadingSlipTO> GetAllLoadingSlipList(string userRoleTOList, Int32 cnfId, Int32 loadingStatusId, string fromDate, String toDate, Int32 loadingTypeId, Int32 dealerId, string selectedOrgStr, Int32 isConfirm = -1, Int32 brandId = 0, Int32 superwisorId = 0)
         {
             try
             {
@@ -354,9 +370,17 @@ namespace ODLMWebAPI.Controllers
                 if (tDate == DateTime.MinValue)
                     tDate = serverDate.Date;
 
+                if (string.IsNullOrEmpty(selectedOrgStr))
+                {
+                    TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                    if (tblConfigParamsTO != null)
+                    {
+                        selectedOrgStr = Convert.ToString(tblConfigParamsTO.ConfigParamVal) + ",0";
+                    }
+                }
                 List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleTOList);
 
-                return _iTblLoadingSlipBL.SelectAllLoadingSlipList(tblUserRoleTOList, cnfId, loadingStatusId, frmDate, tDate, loadingTypeId, dealerId, isConfirm, brandId, superwisorId);
+                return _iTblLoadingSlipBL.SelectAllLoadingSlipList(tblUserRoleTOList, cnfId, loadingStatusId, frmDate, tDate, loadingTypeId, dealerId, selectedOrgStr, isConfirm, brandId, superwisorId);
             }
             catch (Exception ex)
             {
@@ -846,7 +870,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetAllTblLoadingSlipExtByDate")]
         [HttpGet]
-        public List<TblLoadingSlipExtTO> GetAllTblLoadingSlipExtByDate(string fromDate, string toDate)
+        public List<TblLoadingSlipExtTO> GetAllTblLoadingSlipExtByDate(string fromDate, string toDate,string selectedOrgStr)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -865,7 +889,6 @@ namespace ODLMWebAPI.Controllers
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date;
 
-
             String statusIdsStr = String.Empty;
 
             TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_SIZEWISE_LOADING_REPORT_STATUS_IDS);
@@ -873,8 +896,15 @@ namespace ODLMWebAPI.Controllers
             {
                 statusIdsStr = tblConfigParamsTO.ConfigParamVal;
             }
-
-            return _iTblLoadingSlipExtBL.SelectAllTblLoadingSlipExtByDate(frmDt, toDt, statusIdsStr);
+            if (string.IsNullOrEmpty(selectedOrgStr))
+            {
+                TblConfigParamsTO tblConfigParamsTempTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                if (tblConfigParamsTempTO != null)
+                {
+                    selectedOrgStr = Convert.ToString(tblConfigParamsTempTO.ConfigParamVal) + ",0";
+                }
+            }
+            return _iTblLoadingSlipExtBL.SelectAllTblLoadingSlipExtByDate(frmDt, toDt, statusIdsStr,selectedOrgStr);
         }
 
         [Route("GetProductGroupItemGlobalRate")]
@@ -933,9 +963,18 @@ namespace ODLMWebAPI.Controllers
         
         [Route("GetORCReportDetailsList")]
         [HttpGet]
-        public List<TblORCReportTO> GetORCReportDetailsList(DateTime fromDate, DateTime toDate, Int32 flag)
+        public List<TblORCReportTO> GetORCReportDetailsList(DateTime fromDate, DateTime toDate, Int32 flag,string selectedOrgStr)
         {
-            return _iTblLoadingSlipBL.SelectORCReportDetailsList(fromDate, toDate, flag);
+
+            if (string.IsNullOrEmpty(selectedOrgStr))
+            {
+                TblConfigParamsTO tblConfigParamsTempTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                if (tblConfigParamsTempTO != null)
+                {
+                    selectedOrgStr = Convert.ToString(tblConfigParamsTempTO.ConfigParamVal) + ",0";
+                }
+            }
+            return _iTblLoadingSlipBL.SelectORCReportDetailsList(fromDate, toDate, flag, selectedOrgStr);
         }
 
 
@@ -1056,7 +1095,7 @@ namespace ODLMWebAPI.Controllers
         /// <returns></returns>
         [Route("GetAllNotifiedLoadingList")]
         [HttpGet]
-        public List<TblLoadingSlipTO> GetAllNotifiedLoadingList(string fromDate, String toDate,Int32 callFlag)
+        public List<TblLoadingSlipTO> GetAllNotifiedLoadingList(string fromDate, String toDate,Int32 callFlag,string selectedOrgStr)
         {
             try
             {
@@ -1072,9 +1111,15 @@ namespace ODLMWebAPI.Controllers
                     frmDate = serverDate.Date;
                 if (tDate == DateTime.MinValue)
                     tDate = serverDate.Date;
-
-
-                return _iTblLoadingSlipBL.SelectAllNotifiedTblLoadingList(frmDate, tDate, callFlag);
+                if (string.IsNullOrEmpty(selectedOrgStr))
+                {
+                    TblConfigParamsTO tblConfigParamsTempTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                    if (tblConfigParamsTempTO != null)
+                    {
+                        selectedOrgStr = Convert.ToString(tblConfigParamsTempTO.ConfigParamVal) + ",0";
+                    }
+                }
+                return _iTblLoadingSlipBL.SelectAllNotifiedTblLoadingList(frmDate, tDate, callFlag, selectedOrgStr);
             }
             catch (Exception ex)
             {

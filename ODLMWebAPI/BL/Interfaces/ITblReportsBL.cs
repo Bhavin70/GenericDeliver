@@ -19,5 +19,6 @@ namespace ODLMWebAPI.BL.Interfaces
         int DeleteTblReports(Int32 idReports, SqlConnection conn, SqlTransaction tran);
         IEnumerable<dynamic> GetDynamicData(string cmdText, params SqlParameter[] commandParameters);
         IEnumerable<dynamic> CreateDynamicQuery(TblReportsTO tblReportsTO);
+        StaticStuff.ResultMessage PrintLoadingTODetailsReport(int bookingId);
     }
 }

@@ -265,6 +265,8 @@ namespace ODLMWebAPI.DAL
                 {
                     if (sqlReader["personId"] != DBNull.Value)
                         tblPersonTONew.IdPerson = Convert.ToInt32(sqlReader["personId"].ToString());
+                    if (sqlReader["organizationId"] != DBNull.Value)
+                        tblPersonTONew.OrganizationId = Convert.ToInt32(sqlReader["organizationId"].ToString());
                 }
                 return tblPersonTONew.IdPerson;
             }

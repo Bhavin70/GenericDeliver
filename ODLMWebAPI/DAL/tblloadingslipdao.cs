@@ -747,7 +747,7 @@ namespace ODLMWebAPI.DAL
         /// Vijaymala [08-05-2018] added to get notified loading list withiin period 
         /// </summary>
         /// <returns></returns>
-        public List<TblLoadingSlipTO> SelectAllNotifiedTblLoadingList(DateTime fromDate, DateTime toDate,Int32 callFlag)
+        public List<TblLoadingSlipTO> SelectAllNotifiedTblLoadingList(DateTime fromDate, DateTime toDate, Int32 callFlag, string selectedOrgStr)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -761,6 +761,10 @@ namespace ODLMWebAPI.DAL
 
                 whereCondition += " AND ISNULL(sq1.callFlag,0) = " + callFlag;
 
+                if (!string.IsNullOrEmpty(selectedOrgStr))
+                {
+                    whereCondition += " AND ISNULL(sq1.fromOrgId,0) in(" + selectedOrgStr + ")";
+                }
                 String sqlSelectQry = " SELECT tempLoadingSlip.* ,cnfOrg.firmName as cnfOrgName , " +
                                   " tempLoadSlipdtl.bookingId, tempLoadSlipdtl.loadingQty, dimStat.statusName,tempLoading.callFlag,tblOrganization.firmName+', '+CASE WHEN tblOrganization.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName " +
                                   " FROM tempLoadingSlip " +
@@ -791,7 +795,7 @@ namespace ODLMWebAPI.DAL
                                   " ON dimStat.idStatus = finalLoadingSlip.statusId " +
                                   " LEFT JOIN finalLoading " +
                                   "  ON finalLoading.idLoading = finalLoadingSlip.loadingId " +
-                                  "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = tblOrganization.addrId"+
+                                  "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = tblOrganization.addrId" +
                                   " Left Join finalLoadingSlipDtl tempLoadSlipdtl ON tempLoadSlipdtl.loadingSlipId = finalLoadingSlip.idLoadingSlip ";
 
 
@@ -802,7 +806,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.DateTime).Value = toDate.Date.ToString(Constants.AzureDateFormat); ;
 
                 sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
-                List<TblLoadingSlipTO> list = ConvertDTToList(sqlReader);
+                List<TblLoadingSlipTO> list = ConvertDTNotifiedTblLoadingToList(sqlReader);
                 return list;
             }
             catch (Exception ex)
@@ -816,12 +820,124 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+            public List<TblLoadingSlipTO> ConvertDTNotifiedTblLoadingToList(SqlDataReader tblLoadingSlipTODT)
+            {
+                List<TblLoadingSlipTO> tblLoadingSlipTOList = new List<TblLoadingSlipTO>();
+                if (tblLoadingSlipTODT != null)
+                {
+                    while (tblLoadingSlipTODT.Read())
+                    {
+                        TblLoadingSlipTO tblLoadingSlipTONew = new TblLoadingSlipTO();
+                        if (tblLoadingSlipTODT["idLoadingSlip"] != DBNull.Value)
+                            tblLoadingSlipTONew.IdLoadingSlip = Convert.ToInt32(tblLoadingSlipTODT["idLoadingSlip"].ToString());
+                        if (tblLoadingSlipTODT["dealerOrgId"] != DBNull.Value)
+                            tblLoadingSlipTONew.DealerOrgId = Convert.ToInt32(tblLoadingSlipTODT["dealerOrgId"].ToString());
+                        if (tblLoadingSlipTODT["isJointDelivery"] != DBNull.Value)
+                            tblLoadingSlipTONew.IsJointDelivery = Convert.ToInt32(tblLoadingSlipTODT["isJointDelivery"].ToString());
+                        if (tblLoadingSlipTODT["noOfDeliveries"] != DBNull.Value)
+                            tblLoadingSlipTONew.NoOfDeliveries = Convert.ToInt32(tblLoadingSlipTODT["noOfDeliveries"].ToString());
+                        if (tblLoadingSlipTODT["statusId"] != DBNull.Value)
+                            tblLoadingSlipTONew.StatusId = Convert.ToInt32(tblLoadingSlipTODT["statusId"].ToString());
+                        if (tblLoadingSlipTODT["createdBy"] != DBNull.Value)
+                            tblLoadingSlipTONew.CreatedBy = Convert.ToInt32(tblLoadingSlipTODT["createdBy"].ToString());
+                        if (tblLoadingSlipTODT["statusDate"] != DBNull.Value)
+                            tblLoadingSlipTONew.StatusDate = Convert.ToDateTime(tblLoadingSlipTODT["statusDate"].ToString());
+                        if (tblLoadingSlipTODT["loadingDatetime"] != DBNull.Value)
+                            tblLoadingSlipTONew.LoadingDatetime = Convert.ToDateTime(tblLoadingSlipTODT["loadingDatetime"].ToString());
+                        if (tblLoadingSlipTODT["createdOn"] != DBNull.Value)
+                            tblLoadingSlipTONew.CreatedOn = Convert.ToDateTime(tblLoadingSlipTODT["createdOn"].ToString());
+                        if (tblLoadingSlipTODT["cdStructure"] != DBNull.Value)
+                            tblLoadingSlipTONew.CdStructure = Convert.ToDouble(tblLoadingSlipTODT["cdStructure"].ToString());
+                        if (tblLoadingSlipTODT["statusReason"] != DBNull.Value)
+                            tblLoadingSlipTONew.StatusReason = Convert.ToString(tblLoadingSlipTODT["statusReason"].ToString());
+                        if (tblLoadingSlipTODT["vehicleNo"] != DBNull.Value)
+                            tblLoadingSlipTONew.VehicleNo = Convert.ToString(tblLoadingSlipTODT["vehicleNo"].ToString().ToUpper());
+                        if (tblLoadingSlipTODT["dealerOrgName"] != DBNull.Value)
+                            tblLoadingSlipTONew.DealerOrgName = Convert.ToString(tblLoadingSlipTODT["dealerOrgName"].ToString());
+                        if (tblLoadingSlipTODT["statusName"] != DBNull.Value)
+                            tblLoadingSlipTONew.StatusName = Convert.ToString(tblLoadingSlipTODT["statusName"].ToString());
+
+                        if (tblLoadingSlipTODT["loadingId"] != DBNull.Value)
+                            tblLoadingSlipTONew.LoadingId = Convert.ToInt32(tblLoadingSlipTODT["loadingId"].ToString());
+                        if (tblLoadingSlipTODT["statusReasonId"] != DBNull.Value)
+                            tblLoadingSlipTONew.StatusReasonId = Convert.ToInt32(tblLoadingSlipTODT["statusReasonId"].ToString());
+                        if (tblLoadingSlipTODT["loadingSlipNo"] != DBNull.Value)
+                            tblLoadingSlipTONew.LoadingSlipNo = Convert.ToString(tblLoadingSlipTODT["loadingSlipNo"].ToString());
+
+                        if (tblLoadingSlipTODT["isConfirmed"] != DBNull.Value)
+                            tblLoadingSlipTONew.IsConfirmed = Convert.ToInt32(tblLoadingSlipTODT["isConfirmed"].ToString());
+
+                        if (tblLoadingSlipTODT["comment"] != DBNull.Value)
+                            tblLoadingSlipTONew.Comment = Convert.ToString(tblLoadingSlipTODT["comment"].ToString());
+                        if (tblLoadingSlipTODT["contactNo"] != DBNull.Value)
+                            tblLoadingSlipTONew.ContactNo = Convert.ToString(tblLoadingSlipTODT["contactNo"].ToString());
+                        if (tblLoadingSlipTODT["driverName"] != DBNull.Value)
+                            tblLoadingSlipTONew.DriverName = Convert.ToString(tblLoadingSlipTODT["driverName"].ToString());
+                        if (tblLoadingSlipTODT["cdStructureId"] != DBNull.Value)
+                            tblLoadingSlipTONew.CdStructureId = Convert.ToInt32(tblLoadingSlipTODT["cdStructureId"].ToString());
+
+                        //Vijaymala [2018-26-02]
+                        if (tblLoadingSlipTODT["poNo"] != DBNull.Value)
+                            tblLoadingSlipTONew.PoNo = Convert.ToString(tblLoadingSlipTODT["poNo"].ToString());
+
+                        //Vijaymla[26-02-2018]added
+                        if (tblLoadingSlipTODT["poDate"] != DBNull.Value)
+                            tblLoadingSlipTONew.PoDate = Convert.ToDateTime(tblLoadingSlipTODT["poDate"].ToString());
+
+                        //Priyanka [10-03-2018]
+                        if (tblLoadingSlipTODT["orcAmt"] != DBNull.Value)
+                            tblLoadingSlipTONew.OrcAmt = Convert.ToDouble(tblLoadingSlipTODT["orcAmt"].ToString());
+
+                        //Priyanka [10-03-2018]
+                        if (tblLoadingSlipTODT["orcMeasure"] != DBNull.Value)
+                            tblLoadingSlipTONew.OrcMeasure = Convert.ToString(tblLoadingSlipTODT["orcMeasure"].ToString());
+
+
+                        if (tblLoadingSlipTODT["cnfOrgId"] != DBNull.Value)
+                            tblLoadingSlipTONew.CnfOrgId = Convert.ToInt32(tblLoadingSlipTODT["cnfOrgId"].ToString());
+
+                        if (tblLoadingSlipTODT["cnfOrgName"] != DBNull.Value)
+                            tblLoadingSlipTONew.CnfOrgName = Convert.ToString(tblLoadingSlipTODT["cnfOrgName"].ToString());
+
+                        if (tblLoadingSlipTODT["orcPersonName"] != DBNull.Value)
+                            tblLoadingSlipTONew.ORCPersonName = Convert.ToString(tblLoadingSlipTODT["orcPersonName"]);
+
+
+                        if (tblLoadingSlipTODT["freightAmt"] != DBNull.Value)    //Vijaymala [25-04-2018] added
+                            tblLoadingSlipTONew.FreightAmt = Convert.ToDouble(tblLoadingSlipTODT["freightAmt"].ToString());
+                        if (tblLoadingSlipTODT["isFreightIncluded"] != DBNull.Value) //Vijaymala [25-04-2018] added
+                            tblLoadingSlipTONew.IsFreightIncluded = Convert.ToInt32(tblLoadingSlipTODT["isFreightIncluded"].ToString());
+
+                        //Priyanka [04-06-2018] 
+                        if (tblLoadingSlipTODT["loadingQty"] != DBNull.Value)
+                            tblLoadingSlipTONew.LoadingQty = Convert.ToDouble(tblLoadingSlipTODT["loadingQty"].ToString());
+
+                        //vijaymala added
+                        if (tblLoadingSlipTODT["forAmount"] != DBNull.Value)
+                            tblLoadingSlipTONew.ForAmount = Convert.ToDouble(tblLoadingSlipTODT["forAmount"]);
+                        if (tblLoadingSlipTODT["isForAmountIncluded"] != DBNull.Value)
+                            tblLoadingSlipTONew.IsForAmountIncluded = Convert.ToInt32(tblLoadingSlipTODT["isForAmountIncluded"].ToString());
+
+                        //Priyanka [05-07-2018]
+                        if (tblLoadingSlipTODT["addDiscAmt"] != DBNull.Value)
+                            tblLoadingSlipTONew.AddDiscAmt = Convert.ToDouble(tblLoadingSlipTODT["addDiscAmt"]);
+
+                        //Priyanka [05-09-2018]
+                        if (tblLoadingSlipTODT["bookingId"] != DBNull.Value)
+                            tblLoadingSlipTONew.BookingId = Convert.ToInt32(tblLoadingSlipTODT["bookingId"].ToString());
+
+                        tblLoadingSlipTOList.Add(tblLoadingSlipTONew);
+                    }
+                }
+                return tblLoadingSlipTOList;
+            }
+        
 
         /// <summary>
         /// Priyanka [01-06-2018]: Added to get loading slip list
         /// </summary>
 
-        public List<TblLoadingSlipTO> SelectAllTblLoadingSlipList(TblUserRoleTO tblUserRoleTO, int cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, Int32 isConfirm, Int32 brandId,Int32 superwisorId)
+        public List<TblLoadingSlipTO> SelectAllTblLoadingSlipList(TblUserRoleTO tblUserRoleTO, int cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, string selectedOrgStr, Int32 isConfirm, Int32 brandId,Int32 superwisorId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -880,7 +996,10 @@ namespace ODLMWebAPI.DAL
                 {
                     whereCond += " AND sq1.loadingType=" + loadingTypeId;
                 }
-
+                if(!string.IsNullOrEmpty(selectedOrgStr))
+                {
+                    whereCond += " AND sq1.fromOrgId in(" + selectedOrgStr +")";
+                }
                 //Priyanka [31-05-2018] : Added to show the confirm and non-confirm loading slip.
                 if (isConfirm == 0 || isConfirm == 1)
                 {
@@ -970,7 +1089,7 @@ namespace ODLMWebAPI.DAL
 
 
         //Priyanka [08-05-2018] : For showing ORC Report from booking and loading.
-        public List<TblORCReportTO> SelectORCReportDetailsList(DateTime fromDate, DateTime toDate, Int32 flag)
+        public List<TblORCReportTO> SelectORCReportDetailsList(DateTime fromDate, DateTime toDate, Int32 flag,string selectedOrgStr)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -1018,6 +1137,11 @@ namespace ODLMWebAPI.DAL
 
                         whereCon = " Where CAST(tblLoadingSlip.createdOn AS DATE) BETWEEN @fromDate AND @toDate " +
                                               "AND tblLoadingSlip.statusId NOT IN (" + (int)Constants.TranStatusE.LOADING_CANCEL + " ) AND tblLoadingSlip.orcAmt > 0";
+
+                        if(!string.IsNullOrEmpty(selectedOrgStr))
+                        {
+                            whereCon += " AND isnull(tblLoadingSlip.fromOrgId,0) in("+ selectedOrgStr+")";
+                        }
 
                         FinalSqlSelectQuery ="select DISTINCT * from (" + sqlSelectQueryTemp + whereCon + "UNION ALL" + sqlSelectQueryFinal + whereCon + ") As sq1";
                     }
@@ -1185,7 +1309,8 @@ namespace ODLMWebAPI.DAL
                             " ,[forAmount]" +
                             " ,[isForAmountIncluded]" +
                             " ,[addDiscAmt]" +          //Priyanka [05-07-2018]
-                            " ,[isMerge]" +     
+                            " ,[isMerge]" +
+                            " ,[fromOrgId]" +
                             " )" +
                 " VALUES (" +
                             "  @DealerOrgId " +
@@ -1219,6 +1344,7 @@ namespace ODLMWebAPI.DAL
                             " ,@isForAmountIncluded" +
                             " ,@addDiscAmt" +           //Priyanka [05-07-2018]
                             " ,@IsMerge " +
+                              " ,@fromOrgId " +
                             " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -1257,6 +1383,8 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@isForAmountIncluded", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.IsForAmountIncluded);
             cmdInsert.Parameters.Add("@addDiscAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.AddDiscAmt); //Priyanka [05-07-2018] 
             cmdInsert.Parameters.Add("@IsMerge", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.IsMerge);
+            cmdInsert.Parameters.Add("@fromOrgId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.FromOrgId);
+
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = sqlSelectIdentityQry;

@@ -179,18 +179,21 @@ namespace ODLMWebAPI.BL
                         weighingMeasuresToList = _iCircularDependencyBL.SelectAllTblWeighingMeasuresListByLoadingId(tblWeighingMeasuresTO.LoadingId, conn, tran);
 
 
-                        #region Send Notification
+                            #region Send Notification
 
-                        //If tare weight send notification
-                        if (weighingMeasuresToList == null || weighingMeasuresToList.Count == 0)
-                        {
-                            resultMessage = SendNotificationOfVehicaleIn(tblWeighingMeasuresTO, conn, tran);
-                            if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                            if (tblWeighingMeasuresTO.LoadingId > 0)
                             {
-                                return resultMessage;
-                            }
+                                //If tare weight send notification
+                                if (weighingMeasuresToList == null || weighingMeasuresToList.Count == 0)
+                                {
+                                    resultMessage = SendNotificationOfVehicaleIn(tblWeighingMeasuresTO, conn, tran);
+                                    if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                                    {
+                                        return resultMessage;
+                                    }
 
-                        }
+                                }
+                            }
 
                         #endregion
 

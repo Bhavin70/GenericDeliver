@@ -1233,11 +1233,11 @@ namespace ODLMWebAPI.Controllers
             {
                 ResultMessage resultMessage = new StaticStuff.ResultMessage();
                 var invoiceId = data["invoiceId"].ToString();
-
+                var reportType = data["reportType"].ToString();
                 if (invoiceId != null)
                 {
                     DateTime serverDate = _iCommon.ServerDateTime;
-                    return _iTblInvoiceBL.PrintWeighingReport(Convert.ToInt32(invoiceId));
+                    return _iTblInvoiceBL.PrintWeighingReport(Convert.ToInt32(invoiceId),false,reportType.ToString());
                 }
 
                 else

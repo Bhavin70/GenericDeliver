@@ -23,9 +23,9 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblLoadingSlipTO> ConvertDTToList(SqlDataReader tblLoadingSlipTODT);
         List<TblLoadingSlipTO> SelectAllTblLoadingSlipListByloadingId(string idLoadingSlip);
         List<TblLoadingSlipTO> SelectAllLoadingSlipListByVehicleNo(string vehicleNo, DateTime fromDate, DateTime toDate);
-        List<TblLoadingSlipTO> SelectAllNotifiedTblLoadingList(DateTime fromDate, DateTime toDate, Int32 callFlag);
-        List<TblLoadingSlipTO> SelectAllTblLoadingSlipList(TblUserRoleTO tblUserRoleTO, int cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, Int32 isConfirm, Int32 brandId, Int32 superwisorId);
-        List<TblORCReportTO> SelectORCReportDetailsList(DateTime fromDate, DateTime toDate, Int32 flag);
+        List<TblLoadingSlipTO> SelectAllNotifiedTblLoadingList(DateTime fromDate, DateTime toDate, Int32 callFlag,string selectedOrgStr);
+        List<TblLoadingSlipTO> SelectAllTblLoadingSlipList(TblUserRoleTO tblUserRoleTO, int cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, string selectedOrgStr, Int32 isConfirm, Int32 brandId, Int32 superwisorId);
+        List<TblORCReportTO> SelectORCReportDetailsList(DateTime fromDate, DateTime toDate, Int32 flag,string selectedOrgStr);
         List<TblORCReportTO> ConvertDTToListForORC(SqlDataReader tblORCReportTODT);
         int InsertTblLoadingSlip(TblLoadingSlipTO tblLoadingSlipTO);
         int InsertTblLoadingSlip(TblLoadingSlipTO tblLoadingSlipTO, SqlConnection conn, SqlTransaction tran);

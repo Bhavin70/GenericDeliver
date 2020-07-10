@@ -65,11 +65,11 @@ namespace ODLMWebAPI.StaticStuff
             }
         }
         #endregion
-//vipul[06/05/2019] user subscription active count setting
-         public enum UsersSubscriptionActiveCntCalSetting
+        //vipul[06/05/2019] user subscription active count setting
+        public enum UsersSubscriptionActiveCntCalSetting
         {
             ByTab = 1,
-            WithOutTab=2,
+            WithOutTab = 2,
         }
         #region Enumerations
 
@@ -166,7 +166,7 @@ namespace ODLMWebAPI.StaticStuff
             UNLOADING_COMPLETED = 22,
             UNLOADING_CANCELED = 23,
             BOOKING_PENDING_FOR_DIRECTOR_APPROVAL = 24,  //Sanjay [2017-12-19] New Status when Finance Forward Booking to Director Approval.
-            BOOKING_HOLD_BY_ADMIN_OR_DIRECTOR = 25  ,                          //Priyanka [2018-30-07] Added for adding new status in booking.
+            BOOKING_HOLD_BY_ADMIN_OR_DIRECTOR = 25,                          //Priyanka [2018-30-07] Added for adding new status in booking.
             INVOICE_GENERATED_AND_READY_FOR_DISPACH = 26,
         }
 
@@ -559,11 +559,12 @@ namespace ODLMWebAPI.StaticStuff
         public static string CP_BILLING_NOT_CONFIRM_AUTHENTICATION = "BILLING_NOT_CONFIRM_AUTHENTICATION";
         public static string CONSOLIDATE_STOCK = "CONSOLIDATE_STOCK";
         public static String ENTITY_RANGE_REGULAR_TAX_INVOICE_BMM = "REGULAR_TAX_INVOICE_BMM";
-  public static String ENTITY_RANGE_REGULAR_TAX_INTERNALORG = "REGULAR_TAX_INVOICE_ORG_";
-  public static String INTERNAL_DEFAULT_ITEM = "INTERNAL_DEFAULT_ITEM";
+        public static String ENTITY_RANGE_REGULAR_TAX_INTERNALORG = "REGULAR_TAX_INVOICE_ORG_";
+        public static String INTERNAL_DEFAULT_ITEM = "INTERNAL_DEFAULT_ITEM";
 
         public static string CP_BRAND_WISE_INVOICE = "BRAND_WISE_INVOICE";
         public static string CP_SKIP_LOADING_APPROVAL = "SKIP_LOADING_APPROVAL";
+        public static string CP_SKIP_WEIGHING = "SKIP_WEIGHING";
         public static string CP_SKIP_INVOICE_APPROVAL = "SKIP_INVOICE_APPROVAL";
         public static string CP_AUTO_MERGE_INVOICE = "AUTO_MERGE_INVOICE";
 
@@ -589,6 +590,8 @@ namespace ODLMWebAPI.StaticStuff
 
         // Vijaymala[14-02-2018] Added to Set Display Brand On Invoice
         public static string CP_DISPLAY_BRAND_ON_INVOICE = "DISPLAY_BRAND_ON_INVOICE";
+        //chetan[2020-06-08] added
+        public static string ITEM_GRAND_TOTAL_ROUNDUP_VALUE = "ITEM_GRAND_TOTAL_ROUNDUP_VALUE";
 
         public static string CP_SIZEWISE_LOADING_REPORT_STATUS_IDS = "SIZEWISE_LOADING_REPORT_STATUS_IDS";
 
@@ -771,6 +774,9 @@ namespace ODLMWebAPI.StaticStuff
 
         #endregion
 
+        //Harshala Added
+        public static string WeighmentSlip = "WeighmentSlip";
+        public static string GatePassSlip = "GatePassSlip";
 
         #region Common functions
 
@@ -920,7 +926,11 @@ namespace ODLMWebAPI.StaticStuff
             TERMSANDCONDITION = 2
         }
 
-
+        public enum LogoutValueE
+        {
+            LogoutWithTimer=1,
+            DirectLogout=2
+        }
         public enum bookingFilterTypeE
         {
             ALL = 0,
@@ -938,10 +948,10 @@ namespace ODLMWebAPI.StaticStuff
         {
             REGULAR = 0,
             DUPLICATE = 1,
-            CHANGEFROM  = 2
+            CHANGEFROM = 2
         }
 
-        
+
 
         /// <summary>
         /// Vijaymala[06-02-2018]Added To Set Firm Name
@@ -967,8 +977,8 @@ namespace ODLMWebAPI.StaticStuff
             TECHNICAL = 2
         }
 
-        //Priyanka [12-03-2018] : Added for Select Type of list in view booking summary list
-        public enum SelectTypeE
+    //Priyanka [12-03-2018] : Added for Select Type of list in view booking summary list
+    public enum SelectTypeE
         {
             DISTRICT = 1,
             STATE = 2,

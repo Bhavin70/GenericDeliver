@@ -37,8 +37,6 @@
       <Lcid>0</Lcid>
       <WrapperTool>tlbimp</WrapperTool>
       <Isolated>false</Isolated>
-      <Private>true</Private>
-      <EmbedInteropTypes>true</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
 
@@ -74,6 +72,12 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Interop.SAPbobsCOM">
+      <HintPath>..\..\..\..\..\..\it29\Projects\SAP\New Ref Dll\Interop.SAPbobsCOM.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
