@@ -1230,6 +1230,16 @@ namespace ODLMWebAPI.BL
                     //    resultMsg.DefaultBehaviour("Weight Not Found Against " + emptyItem.Count + " Item ");
                     //    return resultMsg;
                     //}
+
+                    //Saket [2020-07-10] Check all item weight are completed on final invoice generation step.
+                    var emptyItem = allItem.Where(w => w.LoadedWeight <= 0).ToList();
+                    if (emptyItem != null && emptyItem.Count > 0)
+                    {
+                        resultMsg.DefaultBehaviour("Weight Not Found Against " + emptyItem.Count + " Item ");
+                        return resultMsg;
+                    }
+
+
                 }
                 resultMsg = CreateInvoiceAgainstLoadingSlips(loadingTO, conn, tran, loadingSlipTOList);
                 // resultMsg.DefaultSuccessBehaviour();
