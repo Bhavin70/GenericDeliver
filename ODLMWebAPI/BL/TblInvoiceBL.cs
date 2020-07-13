@@ -8423,6 +8423,7 @@ namespace ODLMWebAPI.BL
                 tblEmailHistoryTO.SendTo = sendMail.To;
                 tblEmailHistoryTO.SendOn = _iCommon.ServerDateTime;
                 tblEmailHistoryTO.CreatedBy = sendMail.CreatedBy;
+                tblEmailHistoryTO.InvoiceId = sendMail.InvoiceId;
 
                 result = _iTblEmailHistoryDAO.InsertTblEmailHistory(tblEmailHistoryTO, conn, tran);
                 if (result != 1)
