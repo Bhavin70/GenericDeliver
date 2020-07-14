@@ -5198,7 +5198,7 @@ namespace ODLMWebAPI.BL
 
             try
             {
-                if (invoiceId != null)
+                if (invoiceId != 0)
                 {
                     TblInvoiceTO tblInvoiceTO = SelectTblInvoiceTOWithDetails(invoiceId);
                     TblLoadingSlipTO TblLoadingSlipTO = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsByInvoice(invoiceId);
@@ -5423,8 +5423,8 @@ namespace ODLMWebAPI.BL
                         List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
                         if (organizationTO != null)
                         {
-                            headerDT.Rows.Add();
-                            headerDT.Rows.Add();
+                            //headerDT.Rows.Add();
+                            //headerDT.Rows.Add();
                             headerDT.Rows[0]["orgFirmName"] = organizationTO.FirmName;
 
                             headerDT.Rows[0]["orgPhoneNo"] = organizationTO.PhoneNo;
