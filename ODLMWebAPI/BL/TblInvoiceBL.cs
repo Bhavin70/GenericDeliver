@@ -1230,6 +1230,16 @@ namespace ODLMWebAPI.BL
                     //    resultMsg.DefaultBehaviour("Weight Not Found Against " + emptyItem.Count + " Item ");
                     //    return resultMsg;
                     //}
+
+                    //Saket [2020-07-10] Check all item weight are completed on final invoice generation step.
+                    var emptyItem = allItem.Where(w => w.LoadedWeight <= 0).ToList();
+                    if (emptyItem != null && emptyItem.Count > 0)
+                    {
+                        resultMsg.DefaultBehaviour("Weight Not Found Against " + emptyItem.Count + " Item ");
+                        return resultMsg;
+                    }
+
+
                 }
                 resultMsg = CreateInvoiceAgainstLoadingSlips(loadingTO, conn, tran, loadingSlipTOList);
                 // resultMsg.DefaultSuccessBehaviour();
@@ -5194,7 +5204,6 @@ namespace ODLMWebAPI.BL
                     TblLoadingSlipTO TblLoadingSlipTO = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsByInvoice(invoiceId);
                     List<TblInvoiceAddressTO> invoiceAddressTOList = _iTblInvoiceAddressBL.SelectAllTblInvoiceAddressList(invoiceId);
 
-
                     if (TblLoadingSlipTO != null)
                     {
                         DataSet printDataSet = new DataSet();
@@ -5223,6 +5232,20 @@ namespace ODLMWebAPI.BL
                         headerDT.Columns.Add("TotalTareWt");
                         headerDT.Columns.Add("TotalGrossWt");
                         headerDT.Columns.Add("invoiceNo");
+                        //Prajakta[2020-07-14] Added
+                        headerDT.Columns.Add("orgFirmName");
+                        headerDT.Columns.Add("orgPhoneNo");
+                        headerDT.Columns.Add("orgFaxNo");
+                        headerDT.Columns.Add("orgWebsite");
+                        headerDT.Columns.Add("orgEmailAddr");
+                        headerDT.Columns.Add("plotNo");
+                        headerDT.Columns.Add("areaName");
+                        headerDT.Columns.Add("district");
+                        headerDT.Columns.Add("pinCode");
+                        headerDT.Columns.Add("orgVillageNm");
+                        headerDT.Columns.Add("orgAddr");
+                        headerDT.Columns.Add("orgState");
+                        headerDT.Columns.Add("orgStateCode");
 
 
                         loadingItemDTForGatePass.Columns.Add("SrNo");
@@ -5265,6 +5288,8 @@ namespace ODLMWebAPI.BL
                         loadingItemDT.Columns.Add("UpdatedOn");
                         loadingItemDT.Columns.Add("DisplayField");
                         loadingItemDT.Columns.Add("LoadingSlipId");
+                        
+
 
 
                         #endregion
@@ -5378,6 +5403,78 @@ namespace ODLMWebAPI.BL
                         }
 
 
+                        //Prajakta[2020-07-14] Added to show orgFirmName and address details 
+                        int defaultCompOrgId = 0;
+
+                        if (tblInvoiceTO.InvFromOrgId == 0)
+                        {
+                            TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                            if (configParamsTO != null)
+                            {
+                                defaultCompOrgId = Convert.ToInt16(configParamsTO.ConfigParamVal);
+                            }
+                        }
+                        else
+                        {
+                            defaultCompOrgId = tblInvoiceTO.InvFromOrgId;
+                        }
+                        TblOrganizationTO organizationTO = _iTblOrganizationBL.SelectTblOrganizationTO(defaultCompOrgId);
+                        TblAddressTO tblAddressTO = _iTblAddressBL.SelectOrgAddressWrtAddrType(organizationTO.IdOrganization, Constants.AddressTypeE.OFFICE_ADDRESS);
+                        List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
+                        if (organizationTO != null)
+                        {
+                            headerDT.Rows.Add();
+                            headerDT.Rows.Add();
+                            headerDT.Rows[0]["orgFirmName"] = organizationTO.FirmName;
+
+                            headerDT.Rows[0]["orgPhoneNo"] = organizationTO.PhoneNo;
+                            headerDT.Rows[0]["orgFaxNo"] = organizationTO.FaxNo;
+                            headerDT.Rows[0]["orgWebsite"] = organizationTO.Website;
+                            headerDT.Rows[0]["orgEmailAddr"] = organizationTO.EmailAddr;
+                        }
+
+
+                        if (tblAddressTO != null)
+                        {
+                            String orgAddrStr = String.Empty;
+                            if (!String.IsNullOrEmpty(tblAddressTO.PlotNo))
+                            {
+                                orgAddrStr += tblAddressTO.PlotNo;
+                                headerDT.Rows[0]["plotNo"] = tblAddressTO.PlotNo;
+                            }
+                            if (!String.IsNullOrEmpty(tblAddressTO.AreaName))
+                            {
+                                orgAddrStr += " " + tblAddressTO.AreaName;
+                                headerDT.Rows[0]["areaName"] = tblAddressTO.AreaName;
+                            }
+                            if (!String.IsNullOrEmpty(tblAddressTO.DistrictName))
+                            {
+                                orgAddrStr += " " + tblAddressTO.DistrictName;
+                                headerDT.Rows[0]["district"] = tblAddressTO.DistrictName;
+
+                            }
+                            if (tblAddressTO.Pincode > 0)
+                            {
+                                orgAddrStr += "-" + tblAddressTO.Pincode;
+                                headerDT.Rows[0]["pinCode"] = tblAddressTO.Pincode;
+
+                            }
+                            headerDT.Rows[0]["orgVillageNm"] = tblAddressTO.VillageName + "-" + tblAddressTO.Pincode;
+                            headerDT.Rows[0]["orgAddr"] = orgAddrStr;
+                            headerDT.Rows[0]["orgState"] = tblAddressTO.StateName;
+
+                            if (stateList != null && stateList.Count > 0)
+                            {
+                                DropDownTO stateTO = stateList.Where(ele => ele.Value == tblAddressTO.StateId).FirstOrDefault();
+                                if (stateTO != null)
+                                {
+
+                                    headerDT.Rows[0]["orgStateCode"] = stateTO.Tag;
+                                }
+                            }
+                        }
+
+
                         //headerDT = loadingDT.Copy();
                         headerDT.TableName = "headerDT";
                         printDataSet.Tables.Add(headerDT);
@@ -5395,7 +5492,8 @@ namespace ODLMWebAPI.BL
 
                         if(reportType==Constants.WeighmentSlip)
                         {
-                            templateName = "WeighingSlip";
+                            //templateName = "WeighingSlip";
+                            templateName = "WeighmentSlip";
                         }
                         else if(reportType==Constants.GatePassSlip)
                         {
@@ -8423,6 +8521,7 @@ namespace ODLMWebAPI.BL
                 tblEmailHistoryTO.SendTo = sendMail.To;
                 tblEmailHistoryTO.SendOn = _iCommon.ServerDateTime;
                 tblEmailHistoryTO.CreatedBy = sendMail.CreatedBy;
+                tblEmailHistoryTO.InvoiceId = sendMail.InvoiceId;
 
                 result = _iTblEmailHistoryDAO.InsertTblEmailHistory(tblEmailHistoryTO, conn, tran);
                 if (result != 1)
