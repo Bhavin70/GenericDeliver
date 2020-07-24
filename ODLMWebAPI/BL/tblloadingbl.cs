@@ -3807,7 +3807,7 @@ namespace ODLMWebAPI.BL {
                 //Saket [2020-05-23] Added default from Org ID
                 if (tblLoadingTO.FromOrgId == 0)
                 {
-                    TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID, conn, tran);
+                    TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
                     if (tblConfigParamsTO == null)
                     {
                         resultMessage.DefaultBehaviour("Internal Self Organization Not Found in Configuration.");
