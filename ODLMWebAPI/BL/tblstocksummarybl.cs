@@ -585,7 +585,7 @@ namespace ODLMWebAPI.BL
                     if(skipOtherQty==1)
                     {
                         totalNoOfBundles = totalStockList.Where(x => x.ProdItemId == 0).Sum(x => x.NoOfBundles);
-                        totalStockMT = totalStockList.Where(x => x.ProdItemId == 0).Sum(x => x.TodaysStock);
+                        totalStockMT = totalStockList.Where(x => x.ProdItemId == 0).Sum(x => x.TotalStock);
                     }
                     else
                     {

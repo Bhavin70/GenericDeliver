@@ -1230,6 +1230,16 @@ namespace ODLMWebAPI.BL
                     //    resultMsg.DefaultBehaviour("Weight Not Found Against " + emptyItem.Count + " Item ");
                     //    return resultMsg;
                     //}
+
+                    //Saket [2020-07-10] Check all item weight are completed on final invoice generation step.
+                    var emptyItem = allItem.Where(w => w.LoadedWeight <= 0).ToList();
+                    if (emptyItem != null && emptyItem.Count > 0)
+                    {
+                        resultMsg.DefaultBehaviour("Weight Not Found Against " + emptyItem.Count + " Item ");
+                        return resultMsg;
+                    }
+
+
                 }
                 resultMsg = CreateInvoiceAgainstLoadingSlips(loadingTO, conn, tran, loadingSlipTOList);
                 // resultMsg.DefaultSuccessBehaviour();
@@ -5188,12 +5198,11 @@ namespace ODLMWebAPI.BL
 
             try
             {
-                if (invoiceId != null)
+                if (invoiceId != 0)
                 {
                     TblInvoiceTO tblInvoiceTO = SelectTblInvoiceTOWithDetails(invoiceId);
                     TblLoadingSlipTO TblLoadingSlipTO = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsByInvoice(invoiceId);
                     List<TblInvoiceAddressTO> invoiceAddressTOList = _iTblInvoiceAddressBL.SelectAllTblInvoiceAddressList(invoiceId);
-
 
                     if (TblLoadingSlipTO != null)
                     {
@@ -5219,24 +5228,38 @@ namespace ODLMWebAPI.BL
                         headerDT.Columns.Add("loadingLayerDesc");
                         headerDT.Columns.Add("Date");
                         headerDT.Columns.Add("TotalBundles");
-                        headerDT.Columns.Add("TotalNetWt");
-                        headerDT.Columns.Add("TotalTareWt");
-                        headerDT.Columns.Add("TotalGrossWt");
+                        headerDT.Columns.Add("TotalNetWt", typeof(double));
+                        headerDT.Columns.Add("TotalTareWt", typeof(double));
+                        headerDT.Columns.Add("TotalGrossWt", typeof(double));
                         headerDT.Columns.Add("invoiceNo");
+                        //Prajakta[2020-07-14] Added
+                        headerDT.Columns.Add("orgFirmName");
+                        headerDT.Columns.Add("orgPhoneNo");
+                        headerDT.Columns.Add("orgFaxNo");
+                        headerDT.Columns.Add("orgWebsite");
+                        headerDT.Columns.Add("orgEmailAddr");
+                        headerDT.Columns.Add("plotNo");
+                        headerDT.Columns.Add("areaName");
+                        headerDT.Columns.Add("district");
+                        headerDT.Columns.Add("pinCode");
+                        headerDT.Columns.Add("orgVillageNm");
+                        headerDT.Columns.Add("orgAddr");
+                        headerDT.Columns.Add("orgState");
+                        headerDT.Columns.Add("orgStateCode");
 
 
                         loadingItemDTForGatePass.Columns.Add("SrNo");
                         loadingItemDTForGatePass.Columns.Add("DisplayName");
                         loadingItemDTForGatePass.Columns.Add("MaterialDesc");
                         loadingItemDTForGatePass.Columns.Add("ProdItemDesc");
-                        loadingItemDTForGatePass.Columns.Add("LoadingQty");
+                        loadingItemDTForGatePass.Columns.Add("LoadingQty", typeof(double));
                         loadingItemDTForGatePass.Columns.Add("Bundles");
-                        loadingItemDTForGatePass.Columns.Add("LoadedWeight");
+                        loadingItemDTForGatePass.Columns.Add("LoadedWeight", typeof(double));
                         loadingItemDTForGatePass.Columns.Add("MstLoadedBundles");
                         loadingItemDTForGatePass.Columns.Add("LoadedBundles");
-                        loadingItemDTForGatePass.Columns.Add("GrossWt");
-                        loadingItemDTForGatePass.Columns.Add("TareWt");
-                        loadingItemDTForGatePass.Columns.Add("NetWt");
+                        loadingItemDTForGatePass.Columns.Add("GrossWt", typeof(double));
+                        loadingItemDTForGatePass.Columns.Add("TareWt", typeof(double));
+                        loadingItemDTForGatePass.Columns.Add("NetWt", typeof(double));
                         loadingItemDTForGatePass.Columns.Add("BrandDesc");
                         loadingItemDTForGatePass.Columns.Add("ProdSpecDesc");
                         loadingItemDTForGatePass.Columns.Add("ProdcatDesc");
@@ -5250,14 +5273,14 @@ namespace ODLMWebAPI.BL
                         loadingItemDT.Columns.Add("DisplayName");
                         loadingItemDT.Columns.Add("MaterialDesc");
                         loadingItemDT.Columns.Add("ProdItemDesc");
-                        loadingItemDT.Columns.Add("LoadingQty");
+                        loadingItemDT.Columns.Add("LoadingQty", typeof(double));
                         loadingItemDT.Columns.Add("Bundles");
-                        loadingItemDT.Columns.Add("LoadedWeight");
+                        loadingItemDT.Columns.Add("LoadedWeight", typeof(double));
                         loadingItemDT.Columns.Add("MstLoadedBundles");
                         loadingItemDT.Columns.Add("LoadedBundles");
-                        loadingItemDT.Columns.Add("GrossWt");
-                        loadingItemDT.Columns.Add("TareWt");
-                        loadingItemDT.Columns.Add("NetWt");
+                        loadingItemDT.Columns.Add("GrossWt", typeof(double));
+                        loadingItemDT.Columns.Add("TareWt", typeof(double));
+                        loadingItemDT.Columns.Add("NetWt", typeof(double));
                         loadingItemDT.Columns.Add("BrandDesc");
                         loadingItemDT.Columns.Add("ProdSpecDesc");
                         loadingItemDT.Columns.Add("ProdcatDesc");
@@ -5265,6 +5288,8 @@ namespace ODLMWebAPI.BL
                         loadingItemDT.Columns.Add("UpdatedOn");
                         loadingItemDT.Columns.Add("DisplayField");
                         loadingItemDT.Columns.Add("LoadingSlipId");
+                        
+
 
 
                         #endregion
@@ -5288,18 +5313,21 @@ namespace ODLMWebAPI.BL
                             headerDT.Rows[0]["LoadingSlipId"] = TblLoadingSlipTO.IdLoadingSlip;
                             headerDT.Rows[0]["Date"] = TblLoadingSlipTO.CreatedOnStr;
 
+                            if (TblLoadingSlipTO.LoadingSlipExtTOList != null && TblLoadingSlipTO.LoadingSlipExtTOList.Count > 0)
+                            {
+                                TblLoadingSlipTO.LoadingSlipExtTOList = TblLoadingSlipTO.LoadingSlipExtTOList.OrderBy(o => o.CalcTareWeight).ToList();
 
-                            for (int j = 0; j < TblLoadingSlipTO.LoadingSlipExtTOList.Count; j++)
+                                for (int j = 0; j < TblLoadingSlipTO.LoadingSlipExtTOList.Count; j++)
                                 {
                                     TblLoadingSlipExtTO tblLoadingSlipExtTO = TblLoadingSlipTO.LoadingSlipExtTOList[j];
                                     loadingItemDT.Rows.Add();
                                     Int32 loadItemDTCount = loadingItemDT.Rows.Count - 1;
 
                                     loadingItemDT.Rows[loadItemDTCount]["SrNo"] = loadItemDTCount + 1;
-                                  string displayName = tblLoadingSlipExtTO.ProdCatDesc + " " + tblLoadingSlipExtTO.ProdSpecDesc + " " + tblLoadingSlipExtTO.MaterialDesc;
-                                if(displayName=="  ")
-                                    displayName= tblLoadingSlipExtTO.ItemName;
-                                loadingItemDT.Rows[loadItemDTCount]["DisplayName"] = displayName;// tblLoadingSlipExtTO.DisplayName;
+                                    string displayName = tblLoadingSlipExtTO.ProdCatDesc + " " + tblLoadingSlipExtTO.ProdSpecDesc + " " + tblLoadingSlipExtTO.MaterialDesc;
+                                    if (displayName == "  ")
+                                        displayName = tblLoadingSlipExtTO.ItemName;
+                                    loadingItemDT.Rows[loadItemDTCount]["DisplayName"] = displayName;// tblLoadingSlipExtTO.DisplayName;
 
                                     if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
                                     {
@@ -5359,9 +5387,9 @@ namespace ODLMWebAPI.BL
                                     loadingItemDT.Rows[loadItemDTCount]["ProdItemDesc"] = tblLoadingSlipExtTO.ProdItemDesc;
                                     loadingItemDT.Rows[loadItemDTCount]["LoadingQty"] = tblLoadingSlipExtTO.LoadingQty;
                                     loadingItemDT.Rows[loadItemDTCount]["Bundles"] = tblLoadingSlipExtTO.Bundles;
-                                    totalBundle +=tblLoadingSlipExtTO.Bundles;
+                                    totalBundle += tblLoadingSlipExtTO.Bundles;
                                     loadingItemDT.Rows[loadItemDTCount]["TareWt"] = (tblLoadingSlipExtTO.CalcTareWeight / 1000);
-                                    loadingItemDT.Rows[loadItemDTCount]["GrossWt"] = (tblLoadingSlipExtTO.CalcTareWeight + tblLoadingSlipExtTO.LoadedWeight)/ 1000;
+                                    loadingItemDT.Rows[loadItemDTCount]["GrossWt"] = (tblLoadingSlipExtTO.CalcTareWeight + tblLoadingSlipExtTO.LoadedWeight) / 1000;
                                     loadingItemDT.Rows[loadItemDTCount]["NetWt"] = tblLoadingSlipExtTO.LoadedWeight / 1000;
                                     totalNetWt += (tblLoadingSlipExtTO.LoadedWeight / 1000);
                                     loadingItemDT.Rows[loadItemDTCount]["LoadedWeight"] = tblLoadingSlipExtTO.LoadedWeight;
@@ -5370,11 +5398,84 @@ namespace ODLMWebAPI.BL
                                     loadingItemDT.Rows[loadItemDTCount]["LoadingSlipId"] = tblLoadingSlipExtTO.LoadingSlipId;
 
                                 }
+                            }
                             headerDT.Rows[0]["TotalBundles"] =totalBundle;
                             headerDT.Rows[0]["TotalNetWt"] = totalNetWt;
                             headerDT.Rows[0]["TotalTareWt"] = (tblInvoiceTO.TareWeight / 1000);
                             headerDT.Rows[0]["TotalGrossWt"] = (tblInvoiceTO.GrossWeight / 1000);
                             headerDT.Rows[0]["TotalNetWt"] = (tblInvoiceTO.NetWeight / 1000);
+                        }
+
+
+                        //Prajakta[2020-07-14] Added to show orgFirmName and address details 
+                        int defaultCompOrgId = 0;
+
+                        if (tblInvoiceTO.InvFromOrgId == 0)
+                        {
+                            TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                            if (configParamsTO != null)
+                            {
+                                defaultCompOrgId = Convert.ToInt16(configParamsTO.ConfigParamVal);
+                            }
+                        }
+                        else
+                        {
+                            defaultCompOrgId = tblInvoiceTO.InvFromOrgId;
+                        }
+                        TblOrganizationTO organizationTO = _iTblOrganizationBL.SelectTblOrganizationTO(defaultCompOrgId);
+                        TblAddressTO tblAddressTO = _iTblAddressBL.SelectOrgAddressWrtAddrType(organizationTO.IdOrganization, Constants.AddressTypeE.OFFICE_ADDRESS);
+                        List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
+                        if (organizationTO != null)
+                        {
+                            //headerDT.Rows.Add();
+                            //headerDT.Rows.Add();
+                            headerDT.Rows[0]["orgFirmName"] = organizationTO.FirmName;
+
+                            headerDT.Rows[0]["orgPhoneNo"] = organizationTO.PhoneNo;
+                            headerDT.Rows[0]["orgFaxNo"] = organizationTO.FaxNo;
+                            headerDT.Rows[0]["orgWebsite"] = organizationTO.Website;
+                            headerDT.Rows[0]["orgEmailAddr"] = organizationTO.EmailAddr;
+                        }
+
+
+                        if (tblAddressTO != null)
+                        {
+                            String orgAddrStr = String.Empty;
+                            if (!String.IsNullOrEmpty(tblAddressTO.PlotNo))
+                            {
+                                orgAddrStr += tblAddressTO.PlotNo;
+                                headerDT.Rows[0]["plotNo"] = tblAddressTO.PlotNo;
+                            }
+                            if (!String.IsNullOrEmpty(tblAddressTO.AreaName))
+                            {
+                                orgAddrStr += " " + tblAddressTO.AreaName;
+                                headerDT.Rows[0]["areaName"] = tblAddressTO.AreaName;
+                            }
+                            if (!String.IsNullOrEmpty(tblAddressTO.DistrictName))
+                            {
+                                orgAddrStr += " " + tblAddressTO.DistrictName;
+                                headerDT.Rows[0]["district"] = tblAddressTO.DistrictName;
+
+                            }
+                            if (tblAddressTO.Pincode > 0)
+                            {
+                                orgAddrStr += "-" + tblAddressTO.Pincode;
+                                headerDT.Rows[0]["pinCode"] = tblAddressTO.Pincode;
+
+                            }
+                            headerDT.Rows[0]["orgVillageNm"] = tblAddressTO.VillageName + "-" + tblAddressTO.Pincode;
+                            headerDT.Rows[0]["orgAddr"] = orgAddrStr;
+                            headerDT.Rows[0]["orgState"] = tblAddressTO.StateName;
+
+                            if (stateList != null && stateList.Count > 0)
+                            {
+                                DropDownTO stateTO = stateList.Where(ele => ele.Value == tblAddressTO.StateId).FirstOrDefault();
+                                if (stateTO != null)
+                                {
+
+                                    headerDT.Rows[0]["orgStateCode"] = stateTO.Tag;
+                                }
+                            }
                         }
 
 
@@ -5395,7 +5496,8 @@ namespace ODLMWebAPI.BL
 
                         if(reportType==Constants.WeighmentSlip)
                         {
-                            templateName = "WeighingSlip";
+                            //templateName = "WeighingSlip";
+                            templateName = "WeighmentSlip";
                         }
                         else if(reportType==Constants.GatePassSlip)
                         {
@@ -8423,6 +8525,7 @@ namespace ODLMWebAPI.BL
                 tblEmailHistoryTO.SendTo = sendMail.To;
                 tblEmailHistoryTO.SendOn = _iCommon.ServerDateTime;
                 tblEmailHistoryTO.CreatedBy = sendMail.CreatedBy;
+                tblEmailHistoryTO.InvoiceId = sendMail.InvoiceId;
 
                 result = _iTblEmailHistoryDAO.InsertTblEmailHistory(tblEmailHistoryTO, conn, tran);
                 if (result != 1)
