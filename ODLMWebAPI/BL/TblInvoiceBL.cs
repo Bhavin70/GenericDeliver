@@ -5387,7 +5387,7 @@ namespace ODLMWebAPI.BL
                                     loadingItemDT.Rows[loadItemDTCount]["ProdItemDesc"] = tblLoadingSlipExtTO.ProdItemDesc;
                                     loadingItemDT.Rows[loadItemDTCount]["LoadingQty"] = tblLoadingSlipExtTO.LoadingQty;
                                     loadingItemDT.Rows[loadItemDTCount]["Bundles"] = tblLoadingSlipExtTO.Bundles;
-                                    totalBundle += tblLoadingSlipExtTO.Bundles;
+                                    totalBundle += tblLoadingSlipExtTO.LoadedBundles;
                                     loadingItemDT.Rows[loadItemDTCount]["TareWt"] = (tblLoadingSlipExtTO.CalcTareWeight / 1000);
                                     loadingItemDT.Rows[loadItemDTCount]["GrossWt"] = (tblLoadingSlipExtTO.CalcTareWeight + tblLoadingSlipExtTO.LoadedWeight) / 1000;
                                     loadingItemDT.Rows[loadItemDTCount]["NetWt"] = tblLoadingSlipExtTO.LoadedWeight / 1000;
