@@ -102,7 +102,7 @@ namespace ODLMWebAPI.BL
             List<TblBookingsTO> tblBookingTOList = _iTblBookingsDAO.SelectAllBookingDateWise(fromDate, toDate);
             if (reportType == 1)
             {
-                tblBookingTOList = tblBookingTOList.Where(x => x.PendingQty > 0).ToList();
+                tblBookingTOList = tblBookingTOList.Where(x => x.PendingQty > 0 && x.StatusId != (Int32)Constants.TranStatusE.BOOKING_DELETE).ToList();
             }
 
             //// created object to get loading details against each booking
