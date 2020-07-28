@@ -5311,7 +5311,17 @@ namespace ODLMWebAPI.BL
                             headerDT.Rows[0]["VehicleNo"] = TblLoadingSlipTO.VehicleNo;
                             headerDT.Rows[0]["loadingLayerDesc"] = TblLoadingSlipTO.LoadingSlipExtTOList[0].LoadingLayerDesc;
                             headerDT.Rows[0]["LoadingSlipId"] = TblLoadingSlipTO.IdLoadingSlip;
-                            headerDT.Rows[0]["Date"] = TblLoadingSlipTO.CreatedOnStr;
+                            //headerDT.Rows[0]["Date"] = TblLoadingSlipTO.CreatedOnStr;
+                            //headerDT.Rows[0]["Date"] = TblLoadingSlipTO.CreatedOnStr;
+                            //headerDT.Rows[0]["Date"] = tblInvoiceTO.CreatedOnStr;
+                            if (tblInvoiceTO != null && tblInvoiceTO.CreatedOn != new DateTime())
+                            {
+                                headerDT.Rows[0]["Date"] = tblInvoiceTO.CreatedOnStr;
+                            }
+                            else
+                            {
+                                headerDT.Rows[0]["Date"] = TblLoadingSlipTO.CreatedOnStr;
+                            }
 
                             if (TblLoadingSlipTO.LoadingSlipExtTOList != null && TblLoadingSlipTO.LoadingSlipExtTOList.Count > 0)
                             {
