@@ -77,5 +77,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         Int64 GetProductItemIdFromGivenRMDetails(int prodCatId, int prodSpecId, int materialId, int brandId, int rmProdItemId);
 
         String SelectInvoiceEntityNameByInvoiceTypeId(Int32 idInvoiceType);
+        List<DimExportTypeTO> GetExportTypeList();
+        List<DimIndustrySegmentTO> GetIndustryTypeList();
+        List<DimIndustrySegmentTypeTO> GetIndustrySegmentTypeList(Int32 industrySegmentId);
     }
 }

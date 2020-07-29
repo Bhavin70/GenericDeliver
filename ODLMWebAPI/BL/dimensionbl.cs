@@ -650,6 +650,19 @@ namespace ODLMWebAPI.BL
 
         }
 
+        public List<DimExportTypeTO> GetExportTypeList()
+        {
+            return _iDimensionDAO.GetExportTypeList();
+        }
+        public List<DimIndustrySegmentTO> GetIndustryTypeList()
+        {
+            return _iDimensionDAO.GetIndustryTypeList();
+        }
+
+        public List<DimIndustrySegmentTypeTO> GetIndustrySegmentTypeList(Int32 industrySegmentId)
+        {
+            return _iDimensionDAO.GetIndustrySegmentTypeList(industrySegmentId);
+        }
         /// <summary>
         /// Vijaymala[08-09-2018]added :to get state from booking
         /// </summary>
