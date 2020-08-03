@@ -1567,6 +1567,139 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public List<DimExportTypeTO> GetExportTypeList()
+        {
+
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            try
+            {
+                conn.Open();
+                String aqlQuery = "SELECT * FROM dimExportType WHERE isActive=1";
+
+                cmdSelect = new SqlCommand(aqlQuery, conn);
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DimExportTypeTO> DimExportTypeTOList = new List<Models.DimExportTypeTO>();
+                while (dateReader.Read())
+                {
+                    DimExportTypeTO DimExportTypeTO = new DimExportTypeTO();
+                    if (dateReader["idExportType"] != DBNull.Value)
+                        DimExportTypeTO.IdExportType = Convert.ToInt32(dateReader["idExportType"].ToString());
+                    if (dateReader["exportTypeName"] != DBNull.Value)
+                        DimExportTypeTO.ExportTypeName = Convert.ToString(dateReader["exportTypeName"].ToString());
+                    if (dateReader["isActive"] != DBNull.Value)
+                        DimExportTypeTO.IsActive = Convert.ToInt32(dateReader["isActive"].ToString());
+
+                    DimExportTypeTOList.Add(DimExportTypeTO);
+                }
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return DimExportTypeTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+
+        }
+
+        public List<DimIndustrySegmentTO> GetIndustryTypeList()
+        {
+
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            try
+            {
+                conn.Open();
+                String aqlQuery = "SELECT * FROM dimIndustrySegment WHERE isActive=1";
+
+                cmdSelect = new SqlCommand(aqlQuery, conn);
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DimIndustrySegmentTO> DimIndustrySegmentTOList = new List<Models.DimIndustrySegmentTO>();
+                while (dateReader.Read())
+                {
+                    DimIndustrySegmentTO DimIndustrySegmentTO = new DimIndustrySegmentTO();
+                    if (dateReader["idIndustrySegment"] != DBNull.Value)
+                        DimIndustrySegmentTO.IdIndustrySegment = Convert.ToInt32(dateReader["idIndustrySegment"].ToString());
+                    if (dateReader["industrySegName"] != DBNull.Value)
+                        DimIndustrySegmentTO.IndustrySegName = Convert.ToString(dateReader["industrySegName"].ToString());
+                    if (dateReader["isActive"] != DBNull.Value)
+                        DimIndustrySegmentTO.IsActive = Convert.ToInt32(dateReader["isActive"].ToString());
+
+                    DimIndustrySegmentTOList.Add(DimIndustrySegmentTO);
+                }
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return DimIndustrySegmentTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+
+        }
+
+
+        public List<DimIndustrySegmentTypeTO> GetIndustrySegmentTypeList(Int32 industrySegmentId)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            ResultMessage resultMessage = new ResultMessage();
+            try
+            {
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = CommandType.Text;
+                cmdSelect.CommandText = "select * from dimIndustrySegmentType  WHERE  industrySegmentId = " + industrySegmentId;
+
+                conn.Open();
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DimIndustrySegmentTypeTO> DimIndustrySegmentTypeTOList = new List<Models.DimIndustrySegmentTypeTO>();
+                while (dateReader.Read())
+                {
+                    DimIndustrySegmentTypeTO DimIndustrySegmentTypeTO = new DimIndustrySegmentTypeTO();
+                    if (dateReader["idIndustrySegType"] != DBNull.Value)
+                        DimIndustrySegmentTypeTO.IdIndustrySegType = Convert.ToInt32(dateReader["idIndustrySegType"].ToString());
+                    if (dateReader["typeName"] != DBNull.Value)
+                        DimIndustrySegmentTypeTO.TypeName = Convert.ToString(dateReader["typeName"].ToString());
+                    if (dateReader["industrySegmentId"] != DBNull.Value)
+                        DimIndustrySegmentTypeTO.IndustrySegmentId = Convert.ToInt32(dateReader["industrySegmentId"].ToString());
+                    if (dateReader["isActive"] != DBNull.Value)
+                        DimIndustrySegmentTypeTO.IsActive = Convert.ToInt32(dateReader["isActive"].ToString());
+
+                    DimIndustrySegmentTypeTOList.Add(DimIndustrySegmentTypeTO);
+                }
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return DimIndustrySegmentTypeTOList;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "industrySegmentTypeList");
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
 
         // Vijaymala [09-11-2017] added to get state code
         public DropDownTO SelectStateCode(Int32 stateId)

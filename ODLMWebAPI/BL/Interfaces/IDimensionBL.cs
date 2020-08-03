@@ -72,5 +72,8 @@ namespace ODLMWebAPI.BL.Interfaces
         List<DropDownTO> SelectInvoiceCopyList();
 
         DimFinYearTO GetCurrentFinancialYear(DateTime curDate);
+        List<DimExportTypeTO> GetExportTypeList();
+        List<DimIndustrySegmentTO> GetIndustryTypeList();
+        List<DimIndustrySegmentTypeTO> GetIndustrySegmentTypeList(Int32 industrySegmentId);
     }
 }

@@ -271,8 +271,27 @@ namespace ODLMWebAPI.Controllers
             return statusList;
         }
 
+        [Route("GetExportTypeList")]
+        [HttpGet]
+        public List<DimExportTypeTO> GetExportTypeList()
+        {
+            return _iDimensionBL.GetExportTypeList();
+        }
 
-        
+        [Route("GetIndustrySegmentList")]
+        [HttpGet]
+        public List<DimIndustrySegmentTO> GetIndustrySegmentList()
+        {
+            return _iDimensionBL.GetIndustryTypeList();
+        }
+        //for industry segment type list
+        [Route("GetIndustrySegmentTypeList")]
+        [HttpGet]
+        public List<DimIndustrySegmentTypeTO> GetIndustrySegmentTypeList(Int32 industrySegmentId)
+        {
+            return _iDimensionBL.GetIndustrySegmentTypeList(industrySegmentId);
+        }
+
         [Route("GetStatusByOrgId")]
         [HttpGet]
         public DimStatusTO GetStatusOnOrgId(Int32 orgId)
