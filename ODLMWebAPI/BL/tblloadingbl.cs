@@ -10933,7 +10933,7 @@ namespace ODLMWebAPI.BL {
                         break;
                     case FinalBookingData.DelTranTablesE.tblBookingExt:
                         sqlQuery = " DELETE FROM tblBookingExt WHERE scheduleId IN " +
-                            ("(select idSchedule from tblBookingSchedule where bookingId = " + delId + ")");
+                            ("(select idSchedule from tblBookingSchedule where bookingId = " + delId + ")") + " OR bookingId = " + delId;
                         break;
                     case FinalBookingData.DelTranTablesE.tblBookingParities:
                         sqlQuery = " DELETE FROM tblBookingParities WHERE bookingId = " + delId;
