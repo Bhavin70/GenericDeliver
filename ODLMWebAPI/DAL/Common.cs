@@ -16,6 +16,7 @@ using System.Dynamic;
 using ODLMWebAPI.Models;
 using ODLMWebAPI.IoT;
 using System.Threading;
+using System.Text;
 
 namespace ODLMWebAPI.DAL
 { 
@@ -130,14 +131,14 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 /*To get Server Date Time for Local DB*/
-                //String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
+                String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
 
                 ////To get Server Date Time for Azure Server DB
-                string sqlQuery = " declare @dfecha as datetime " +
-                                  " declare @d as datetimeoffset " +
-                                  " set @dfecha= sysdatetime()   " +
-                                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
-                                  " select convert(datetime, @d)";
+                //string sqlQuery = " declare @dfecha as datetime " +
+                //                  " declare @d as datetimeoffset " +
+                //                  " set @dfecha= sysdatetime()   " +
+                //                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
+                //                  " select convert(datetime, @d)";
 
                 cmdSelect = new SqlCommand(sqlQuery, conn);
 
@@ -474,5 +475,31 @@ public  string SelectApKLoginArray(int userId)
             }
         }
         #endregion
+        public dynamic PostSalesInvoiceToSAP(TblInvoiceTO tblInvoiceTO)
+        {
+            var tRequest = WebRequest.Create(Startup.StockUrl + "Commercial/PostSalesInvoiceToSAP") as HttpWebRequest;
+            try
+            {
+                tRequest.Method = "post";
+                tRequest.ContentType = "application/json";
+                var data = new
+                {
+                    data = tblInvoiceTO,
+                };
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(tblInvoiceTO);
+                Byte[] byteArray = Encoding.UTF8.GetBytes(json);
+                using (Stream dataStream = tRequest.GetRequestStreamAsync().Result)
+                {
+                    dataStream.Write(byteArray, 0, byteArray.Length);
+                }
+                var response = (HttpWebResponse)tRequest.GetResponseAsync().Result;
+                var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                return responseString;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

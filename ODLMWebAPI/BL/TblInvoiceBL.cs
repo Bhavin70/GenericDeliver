@@ -6018,7 +6018,10 @@ namespace ODLMWebAPI.BL
         {
             return _iTblInvoiceDAO.UpdateTblInvoice(tblInvoiceTO, conn, tran);
         }
-
+        public int UpdateMappedSAPInvoiceNo(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran)
+        {
+            return _iTblInvoiceDAO.UpdateMappedSAPInvoiceNo(tblInvoiceTO, conn, tran);
+        }
         public ResultMessage SaveUpdatedInvoice(TblInvoiceTO invoiceTO)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));

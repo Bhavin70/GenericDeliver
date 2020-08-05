@@ -52,6 +52,8 @@ namespace ODLMWebAPI
 
         public static String SapConnectivityErrorCode { get; private set; }
         public static SAPbobsCOM.Company CompanyObject { get; private set; }
+        public static string StockUrl { get; private set; }
+
 
         public Startup(IConfiguration configuration)
         {
@@ -528,7 +530,8 @@ namespace ODLMWebAPI
             RequestOriginString = Configuration.GetSection("Data:RequestOriginString").Value.ToString();
             NewConnectionString = Configuration.GetSection("Data:NewDefaultConnection").Value.ToString();
             DeliverUrl = Configuration.GetSection("Data:DeliverUrl").Value.ToString();
-
+            StockUrl = Configuration.GetSection("Data:StockUrl").Value.ToString();
+            
 
             ConnectionJsonFile = JObject.Parse(System.IO.File.ReadAllText(@".\connection.json"));
 

@@ -524,6 +524,8 @@ namespace ODLMWebAPI.StaticStuff
         public static string DEFAULT_FETCH_SUCCESS_MSG = "Record Fetch Succesfully";
 
         public static string DEFAULT_NOTFOUND_MSG = " Record Could not be found";
+        public static string CP_POST_SALES_INVOICE_TO_SAP_DIRECTLY_AFTER_INVOICE_GENERATION = "CP_POST_SALES_INVOICE_TO_SAP_DIRECTLY_AFTER_INVOICE_GENERATION";
+        public static String SAPB1_SERVICES_ENABLE = "SAPB1_SERVICES_ENABLE";
         #endregion
 
         #region Configuration Sections

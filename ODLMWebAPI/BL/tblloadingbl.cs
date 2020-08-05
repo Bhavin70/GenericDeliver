@@ -16,6 +16,7 @@ using ODLMWebAPI.IoT.Interfaces;
 using ODLMWebAPI.Models;
 using ODLMWebAPI.StaticStuff;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace ODLMWebAPI.BL {
     public class TblLoadingBL : ITblLoadingBL {
@@ -1651,7 +1652,9 @@ namespace ODLMWebAPI.BL {
                 conn.Open();
                 tran = conn.BeginTransaction();
                 int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
-                TblInvoiceTO invoiceTO = _iTblInvoiceDAO.SelectTblInvoice(invoiceId, conn, tran);
+
+                TblInvoiceTO invoiceTO = _iTblInvoiceBL.SelectTblInvoiceTOWithDetails(invoiceId, conn, tran);
+                //TblInvoiceTO invoiceTO = _iTblInvoiceDAO.SelectTblInvoice(invoiceId, conn, tran);
                 if (invoiceTO == null)
                 {
                     tran.Rollback();
@@ -2057,7 +2060,7 @@ namespace ODLMWebAPI.BL {
                     {
                         if (invoiceTO.IsConfirmed == 1)
                         {
-                            invoiceTO = _iTblInvoiceBL.SelectTblInvoiceTOWithDetails(invoiceTO.IdInvoice, conn, tran);
+                            //invoiceTO = _iTblInvoiceBL.SelectTblInvoiceTOWithDetails(invoiceTO.IdInvoice, conn, tran);
 
                             _iTblInvoiceBL.SetGateAndWeightIotData(invoiceTO, 0);
 
@@ -2148,9 +2151,41 @@ namespace ODLMWebAPI.BL {
                     }
 
                     #endregion
-
-
                 }
+                #region 4. Save the invoice data to SAP
+                if (invoiceTO.InvoiceStatusE == Constants.InvoiceStatusE.AUTHORIZED)
+                {
+                    TblConfigParamsTO tblConfigParams = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_POST_SALES_INVOICE_TO_SAP_DIRECTLY_AFTER_INVOICE_GENERATION);
+                    if (tblConfigParams != null)
+                    {
+                        if (Convert.ToInt32(tblConfigParams.ConfigParamVal) == 1)
+                        {
+                            TblConfigParamsTO tblConfigParamsTOSAPService = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.SAPB1_SERVICES_ENABLE);
+                            if (tblConfigParamsTOSAPService != null)
+                            {
+                                if (Convert.ToInt32(tblConfigParamsTOSAPService.ConfigParamVal) == 1)
+                                {
+                                    resultMessage = JsonConvert.DeserializeObject<ResultMessage>(_iCommon.PostSalesInvoiceToSAP(invoiceTO));
+                                    if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                                    {
+                                        tran.Rollback();
+                                        return resultMessage;
+                                    }
+                                    TblInvoiceTO tblInvoiceTO = JsonConvert.DeserializeObject<TblInvoiceTO>(resultMessage.data.ToString());
+                                    result = _iTblInvoiceBL.UpdateMappedSAPInvoiceNo(tblInvoiceTO, conn, tran);
+                                    if (result != 1)
+                                    {
+                                        tran.Rollback();
+                                        resultMessage.MessageType = ResultMessageE.Error;
+                                        resultMessage.Text = "Error While updating tblInvoiceTO";
+                                        return resultMessage;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                #endregion
                 tran.Commit();
                 resultMessage.DefaultSuccessBehaviour();
                 if(invoiceTO.IsConfirmed==1)
