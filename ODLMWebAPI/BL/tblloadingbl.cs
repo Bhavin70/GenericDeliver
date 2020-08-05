@@ -1573,6 +1573,10 @@ namespace ODLMWebAPI.BL {
                                     tblLoadingTO.NoOfDeliveries = 1;
                                     TblLoadingSlipExtTO tblLoadingSlipExtTO = new TblLoadingSlipExtTO();
                                     tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingId = tblBookingTO.IdBooking;
+
+                                    tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingDisplayNo = tblBookingTO.BookingDisplayNo;
+                                    tblLoadingSlipExtTO.BookingDisplayNo = tblBookingTO.BookingDisplayNo;
+
                                     tblLoadingSlipTO.TblLoadingSlipDtlTO.LoadingQty = tblBookingTO.PendingQty;
                                     tblLoadingSlipExtTO.LoadingLayerid = (int)Constants.LoadingLayerE.BOTTOM;
                                     tblLoadingSlipTO.LoadingSlipExtTOList.Add(tblLoadingSlipExtTO);
@@ -1585,6 +1589,10 @@ namespace ODLMWebAPI.BL {
                                 tblLoadingTO.NoOfDeliveries = 1;
                                 TblLoadingSlipExtTO tblLoadingSlipExtTO = new TblLoadingSlipExtTO ();
                                 tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingId = tblBookingTO.IdBooking;
+
+                                tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingDisplayNo = tblBookingTO.BookingDisplayNo;
+                                tblLoadingSlipExtTO.BookingDisplayNo = tblBookingTO.BookingDisplayNo;
+
                                 tblLoadingSlipTO.TblLoadingSlipDtlTO.LoadingQty = tblBookingTO.PendingQty;
                                 tblLoadingSlipExtTO.LoadingLayerid = (int) Constants.LoadingLayerE.BOTTOM;
                                 tblLoadingSlipTO.LoadingSlipExtTOList.Add (tblLoadingSlipExtTO);
