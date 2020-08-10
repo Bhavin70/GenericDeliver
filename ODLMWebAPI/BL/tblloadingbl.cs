@@ -2173,6 +2173,16 @@ namespace ODLMWebAPI.BL {
                             {
                                 if (Convert.ToInt32(tblConfigParamsTOSAPService.ConfigParamVal) == 1)
                                 {
+                                    if(invoiceTO!= null)
+                                    {
+                                        for(int i=0;i< invoiceTO.InvoiceItemDetailsTOList.Count;i++)
+                                        {
+                                            if (invoiceTO.InvoiceItemDetailsTOList[i].Bundles == null)
+                                            {
+                                                invoiceTO.InvoiceItemDetailsTOList[i].Bundles = "0";
+                                            }
+                                        }
+                                    }
                                     resultMessage = JsonConvert.DeserializeObject<ResultMessage>(_iCommon.PostSalesInvoiceToSAP(invoiceTO));
                                     if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
                                     {
