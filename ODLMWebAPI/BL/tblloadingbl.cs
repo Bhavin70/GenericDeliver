@@ -3044,19 +3044,25 @@ namespace ODLMWebAPI.BL {
 
                     if (tblLoadingSlipTO.LoadingSlipExtTOList != null && tblLoadingSlipTO.LoadingSlipExtTOList.Count > 0)
                     {
-                        if (tblLoadingTO.LoadingType == (int)Constants.LoadingTypeE.OTHER)
+
+                        //Prajakta [2020-08-17]
+                        TblLoadingSlipDtlTO tblLoadingSlipDtlTO = tblLoadingSlipTO.TblLoadingSlipDtlTO;
+                        if (tblLoadingSlipDtlTO != null && tblLoadingSlipDtlTO.IdBooking > 0)
                         {
+                            tblLoadingSlipDtlTO.BookingId = tblLoadingSlipDtlTO.IdBooking;
 
                         }
+
+                        //if (tblLoadingTO.LoadingType == (int)Constants.LoadingTypeE.OTHER)
+                        //{
+
+                        //}
+                        if(tblLoadingSlipDtlTO == null || tblLoadingSlipDtlTO.BookingId == 0)
+                        { }
                         else
                         {
 
-                            TblLoadingSlipDtlTO tblLoadingSlipDtlTO = tblLoadingSlipTO.TblLoadingSlipDtlTO;
-                            if (tblLoadingSlipDtlTO.IdBooking > 0)
-                            {
-                                tblLoadingSlipDtlTO.BookingId = tblLoadingSlipDtlTO.IdBooking;
 
-                            }
                             TblBookingsTO tblBookingsTO = _iTblBookingsDAO.SelectTblBookings(tblLoadingSlipDtlTO.BookingId, conn, tran);
                             if (tblBookingsTO == null)
                             {
@@ -4557,7 +4563,15 @@ namespace ODLMWebAPI.BL {
 
                 List<TblBookingExtTO> tblBookingExtTOList = new List<TblBookingExtTO>();
 
-                if (tblLoadingTO.LoadingType != (int)Constants.LoadingTypeE.OTHER)
+                //Prajakta [2020-08-17] Added isReg Condition.
+                Boolean isReg = false;
+                if (tblLoadingSlipTO.TblLoadingSlipDtlTO != null && tblLoadingSlipTO.TblLoadingSlipDtlTO.BookingId > 0)
+                {
+                    isReg = true;
+                }
+
+                if(isReg)
+                //if (tblLoadingTO.LoadingType != (int)Constants.LoadingTypeE.OTHER)
                 {
                     if (tblLoadingSlipTO.TblLoadingSlipDtlTO == null)
                     {
