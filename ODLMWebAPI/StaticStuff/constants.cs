@@ -774,6 +774,15 @@ namespace ODLMWebAPI.StaticStuff
 
         public static string IS_SIZE_CHANGE_ALERT_GENERATE = "IS_SIZE_CHANGE_ALERT_GENERATE";
 
+        //Harshala added
+        public static string CP_TCS_OTHER_TAX_ID = "CP_TCS_OTHER_TAX_ID";
+
+        public static string DEFAULT_TCS_PERCENT_IF_PAN_PRESENT = "DEFAULT_TCS_PERCENT_IF_PAN_PRESENT";
+
+        public static string DEFAULT_TCS_PERCENT_IF_PAN_NOT_PRESENT = "DEFAULT_TCS_PERCENT_IF_PAN_NOT_PRESENT";
+
+        public static string CP_IS_INCLUDE_TCS_TO_AUTO_INVOICE = "CP_IS_INCLUDE_TCS_TO_AUTO_INVOICE";
+
         #endregion
 
         //Harshala Added

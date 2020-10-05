@@ -10072,6 +10072,20 @@ namespace ODLMWebAPI.BL {
                     //Sudhir[30-APR-2018] Commented For New Parity Logic.
                     //parityDetailsTOList = BL.TblParityDetailsBL.SelectAllTblParityDetailsList(parityIds, 0, conn, tran);
 
+                    //Harshala
+                    if (tblInvoiceTO.IsConfirmed == 0)
+                    {
+                        Int32 tcsTaxId = 0;
+                        TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_TCS_OTHER_TAX_ID, conn, tran);
+                        if (configParamsTO != null)
+                        {
+                            tcsTaxId = Convert.ToInt32(configParamsTO.ConfigParamVal);
+                        }
+                        if (tcsTaxId > 0)
+                            exiInvoiceTO.InvoiceItemDetailsTOList = exiInvoiceTO.InvoiceItemDetailsTOList.Where(w => w.OtherTaxId != tcsTaxId).ToList();
+                    }
+                    //
+
                     for (int e = 0; e < exiInvoiceTO.InvoiceItemDetailsTOList.Count; e++) {
                         TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = exiInvoiceTO.InvoiceItemDetailsTOList[e];
                         if (tblInvoiceItemDetailsTO.OtherTaxId == 0) {
