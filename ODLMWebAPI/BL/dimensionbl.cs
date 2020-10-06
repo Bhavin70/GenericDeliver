@@ -57,7 +57,7 @@ namespace ODLMWebAPI.BL
             return _iDimensionDAO.SelectDistrictForStateMaster(stateId);
         }
 
-        public List<DropDownTO> SelectCDStructureForDropDown()
+        public List<DropDownTO> SelectCDStructureForDropDown(Int32 moduleId=0)
         {
             //Vijaymala added[22-06-2018]
             Int32 isRsOrPerncent = 0;
@@ -92,7 +92,7 @@ namespace ODLMWebAPI.BL
                 isRsOrPerncent = 2;
             }
 
-            return _iDimensionDAO.SelectCDStructureForDropDown(isRsOrPerncent);
+            return _iDimensionDAO.SelectCDStructureForDropDown(isRsOrPerncent,moduleId);
         }
 
         //Vijaymala added[22-06-2018]

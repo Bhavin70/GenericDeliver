@@ -15,7 +15,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<DimensionTO> SelectAllMasterDimensionList();
         Int32 getidentityOfTable(string Query);
         Int32 getMaxCountOfTable(string CoulumName, string tableName);
-        List<DropDownTO> SelectCDStructureForDropDown(Int32 isRsOrPerncent);
+        List<DropDownTO> SelectCDStructureForDropDown(Int32 isRsOrPerncent, Int32 moduleId);
         List<DropDownTO> SelectCountriesForDropDown();
         List<DropDownTO> SelectOrgLicensesForDropDown();
         List<DropDownTO> SelectSalutationsForDropDown();

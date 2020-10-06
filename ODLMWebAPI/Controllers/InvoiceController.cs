@@ -275,7 +275,7 @@ namespace ODLMWebAPI.Controllers
                                         }
                                         if (element.OldCdStructureId != 0 && element.NewCdStructureId != 0)
                                         {
-                                            List<DropDownTO> cdStructureList = _iDimensionBL.SelectCDStructureForDropDown();
+                                            List<DropDownTO> cdStructureList = _iDimensionBL.SelectCDStructureForDropDown(0);
                                             var vOldRes = cdStructureList.Where(p => p.Value == element.OldCdStructureId).ToList();
                                             var vNewRes = cdStructureList.Where(p => p.Value == element.NewCdStructureId).ToList();
                                             itemList[i].ChangeIn = itemList[i].ChangeIn == "" || string.IsNullOrEmpty(itemList[i].ChangeIn) ? "CD" : itemList[i].ChangeIn + "|" + "CD";

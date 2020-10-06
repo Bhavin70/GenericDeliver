@@ -502,9 +502,9 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetCDStructureForDropDown")]
         [HttpGet]
-        public List<DropDownTO> GetCDStructureForDropDown()
+        public List<DropDownTO> GetCDStructureForDropDown(Int32 moduleId=0)
         {
-            List<DropDownTO> statusList = _iDimensionBL.SelectCDStructureForDropDown();
+            List<DropDownTO> statusList = _iDimensionBL.SelectCDStructureForDropDown(moduleId);
             return statusList;
         }
 
@@ -1188,7 +1188,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetCDStructureForDropDownById")]
         [HttpGet]
-        public DropDownTO GetCDStructureForDropDown(Int32 cdstructureId)
+        public DropDownTO GetCDStructureForDropDownById(Int32 cdstructureId)
         {
             return _iDimensionBL.SelectCDDropDown(cdstructureId);
 

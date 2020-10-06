@@ -2124,13 +2124,15 @@ namespace ODLMWebAPI.BL
                     tblInvoiceItemDetailsTOList.Add(freightItemTO);
                     grandTotal += freightGrandTotal;
                 }
-
-                resultMsg = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableTotal, isPanNoPresent, tblInvoiceItemDetailsTOList);
-                if (resultMsg == null || resultMsg.MessageType != ResultMessageE.Information)
-                {
-                    resultMsg.DefaultBehaviour(resultMsg.Text);
-                    //return resultMsg;
-                }
+        
+                    resultMsg = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableTotal, isPanNoPresent, tblInvoiceItemDetailsTOList,tblInvoiceTO);
+                    if (resultMsg == null || resultMsg.MessageType != ResultMessageE.Information)
+                    {
+                        resultMsg.DefaultBehaviour(resultMsg.Text);
+                        //return resultMsg;
+                    }
+                
+               
 
             }
             else
@@ -2217,80 +2219,88 @@ namespace ODLMWebAPI.BL
         }
 
         //Harshala[30/09/3030] added to calculate TCS 
-        private ResultMessage AddTcsTOInTaxItemDtls(SqlConnection conn, SqlTransaction tran, ref double grandTotal, ref double taxableTotal, bool isPanNoPresent, List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOList)
+        private ResultMessage AddTcsTOInTaxItemDtls(SqlConnection conn, SqlTransaction tran, ref double grandTotal, ref double taxableTotal, bool isPanNoPresent, List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOList, TblInvoiceTO tblInvoiceTo)
         {
+          
             ResultMessage resultMessage = new ResultMessage();
-   
-            TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_IS_INCLUDE_TCS_TO_AUTO_INVOICE, conn, tran);
 
-            if (configParamsTO != null)
+            if (tblInvoiceTo.InvoiceTypeE != Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
             {
-                if (configParamsTO.ConfigParamVal == "1")
+                TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_IS_INCLUDE_TCS_TO_AUTO_INVOICE, conn, tran);
+
+                if (configParamsTO != null)
                 {
-
-                    TblConfigParamsTO tcsConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_TCS_OTHER_TAX_ID, conn, tran);
-
-                    if (tcsConfigParamsTO == null)
+                    if (configParamsTO.ConfigParamVal == "1")
                     {
-                        resultMessage.DefaultBehaviour("Other Tax id is not configured for freight");
-                        return resultMessage;
-                    }
 
-                    TblConfigParamsTO tcsPercentConfigParamsTO = new TblConfigParamsTO();
+                        TblConfigParamsTO tcsConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_TCS_OTHER_TAX_ID, conn, tran);
 
-                    if (isPanNoPresent)
-                        tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_PAN_PRESENT, conn, tran);
-                    else
-                        tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_PAN_NOT_PRESENT, conn, tran);
-
-                    if (tcsPercentConfigParamsTO != null)
-                    {
-                        if (tcsPercentConfigParamsTO.ConfigParamVal != "0" && tcsPercentConfigParamsTO.ConfigParamVal != null)
+                        if (tcsConfigParamsTO == null)
                         {
-                            Int32 tcsOtherTaxId = Convert.ToInt32(tcsConfigParamsTO.ConfigParamVal);
-                            Double tcsGrandTotal = 0;
-                            TblInvoiceItemDetailsTO tcsItemTO = new TblInvoiceItemDetailsTO();
-                            tcsItemTO.OtherTaxId = tcsOtherTaxId;
-                            TblOtherTaxesTO otherTaxesTO = _iTblOtherTaxesDAO.SelectTblOtherTaxes(tcsOtherTaxId);
-                            tcsItemTO.ProdItemDesc = otherTaxesTO.TaxName;
+                            resultMessage.DefaultBehaviour("Other Tax id is not configured for freight");
+                            return resultMessage;
+                        }
 
-                            var maxTaxableItemTO = tblInvoiceItemDetailsTOList.OrderByDescending(m => m.TaxableAmt).FirstOrDefault();
+                        TblConfigParamsTO tcsPercentConfigParamsTO = new TblConfigParamsTO();
 
+                        if (isPanNoPresent)
+                            tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_PAN_PRESENT, conn, tran);
+                        else
+                            tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_PAN_NOT_PRESENT, conn, tran);
 
-                            tcsItemTO.ProdGstCodeId = maxTaxableItemTO.ProdGstCodeId;
-                            tcsItemTO.GstinCodeNo = maxTaxableItemTO.GstinCodeNo;
-                            Double tcsTaxPercent = Convert.ToDouble(tcsPercentConfigParamsTO.ConfigParamVal);
-                            tcsItemTO.TaxPct = tcsTaxPercent;
-                            tcsItemTO.TaxableAmt = (grandTotal * tcsTaxPercent) / 100;
-                            tcsItemTO.TaxableAmt = Math.Round(tcsItemTO.TaxableAmt, 0);
-                            tcsGrandTotal += tcsItemTO.TaxableAmt;
-                            tcsItemTO.GrandTotal = tcsGrandTotal;
-                            taxableTotal += tcsItemTO.TaxableAmt;
-
-
-                            if (maxTaxableItemTO.InvoiceItemTaxDtlsTOList != null && maxTaxableItemTO.InvoiceItemTaxDtlsTOList.Count > 0)
+                        if (tcsPercentConfigParamsTO != null)
+                        {
+                            if (tcsPercentConfigParamsTO.ConfigParamVal != "0" && tcsPercentConfigParamsTO.ConfigParamVal != null)
                             {
-                                for (int ti = 0; ti < maxTaxableItemTO.InvoiceItemTaxDtlsTOList.Count; ti++)
+                                Int32 tcsOtherTaxId = Convert.ToInt32(tcsConfigParamsTO.ConfigParamVal);
+                                Double tcsGrandTotal = 0;
+                                TblInvoiceItemDetailsTO tcsItemTO = new TblInvoiceItemDetailsTO();
+                                tcsItemTO.OtherTaxId = tcsOtherTaxId;
+                                TblOtherTaxesTO otherTaxesTO = _iTblOtherTaxesDAO.SelectTblOtherTaxes(tcsOtherTaxId);
+                                if (otherTaxesTO != null)
+                                    tcsItemTO.ProdItemDesc = otherTaxesTO.TaxName;
+                                else
+                                    tcsItemTO.ProdItemDesc = "TCS";
+
+                                var maxTaxableItemTO = tblInvoiceItemDetailsTOList.OrderByDescending(m => m.TaxableAmt).FirstOrDefault();
+
+
+                                tcsItemTO.ProdGstCodeId = maxTaxableItemTO.ProdGstCodeId;
+                                tcsItemTO.GstinCodeNo = maxTaxableItemTO.GstinCodeNo;
+                                Double tcsTaxPercent = Convert.ToDouble(tcsPercentConfigParamsTO.ConfigParamVal);
+                                tcsItemTO.TaxPct = tcsTaxPercent;
+                                tcsItemTO.TaxableAmt = (grandTotal * tcsTaxPercent) / 100;
+                                tcsItemTO.TaxableAmt = Math.Round(tcsItemTO.TaxableAmt, 2);
+                                tcsGrandTotal += tcsItemTO.TaxableAmt;
+                                tcsItemTO.GrandTotal = tcsGrandTotal;
+                                taxableTotal += tcsItemTO.TaxableAmt;
+
+
+                                if (maxTaxableItemTO.InvoiceItemTaxDtlsTOList != null && maxTaxableItemTO.InvoiceItemTaxDtlsTOList.Count > 0)
                                 {
-                                    TblInvoiceItemTaxDtlsTO taxDtlTO = maxTaxableItemTO.InvoiceItemTaxDtlsTOList[ti].DeepCopy();
-                                    taxDtlTO.TaxableAmt = tcsItemTO.TaxableAmt;
-                                    taxDtlTO.TaxAmt = 0;
-                                    taxDtlTO.TaxRatePct = 0.00;
+                                    for (int ti = 0; ti < maxTaxableItemTO.InvoiceItemTaxDtlsTOList.Count; ti++)
+                                    {
+                                        TblInvoiceItemTaxDtlsTO taxDtlTO = maxTaxableItemTO.InvoiceItemTaxDtlsTOList[ti].DeepCopy();
+                                        taxDtlTO.TaxableAmt = tcsItemTO.TaxableAmt;
+                                        taxDtlTO.TaxAmt = 0;
+                                        taxDtlTO.TaxRatePct = 0.00;
 
-                                    if (tcsItemTO.InvoiceItemTaxDtlsTOList == null)
-                                        tcsItemTO.InvoiceItemTaxDtlsTOList = new List<TblInvoiceItemTaxDtlsTO>();
-                                    tcsItemTO.InvoiceItemTaxDtlsTOList.Add(taxDtlTO);
+                                        if (tcsItemTO.InvoiceItemTaxDtlsTOList == null)
+                                            tcsItemTO.InvoiceItemTaxDtlsTOList = new List<TblInvoiceItemTaxDtlsTO>();
+                                        tcsItemTO.InvoiceItemTaxDtlsTOList.Add(taxDtlTO);
+                                    }
                                 }
-                            }
-                            tblInvoiceItemDetailsTOList.Add(tcsItemTO);
+                                tblInvoiceItemDetailsTOList.Add(tcsItemTO);
 
-                            grandTotal += tcsGrandTotal;
+                                grandTotal += tcsGrandTotal;
+                            }
                         }
                     }
                 }
             }
-            resultMessage.DefaultSuccessBehaviour();
-            return resultMessage;
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            
         }
         private  void RemoveIotFieldsFromDB(TblInvoiceTO tblInvoiceTO)
         {
@@ -6922,7 +6932,7 @@ namespace ODLMWebAPI.BL
                         tblInvoiceItemDetailsTO.CdStructureId = historyInvoiceTo.OldCdStructureId;
                         if (tblInvoiceItemDetailsTO.CdStructureId > 0)
                         {
-                            List<DropDownTO> dropDownTOList = _iDimensionBL.SelectCDStructureForDropDown();
+                            List<DropDownTO> dropDownTOList = _iDimensionBL.SelectCDStructureForDropDown(0);
                             if (dropDownTOList != null && dropDownTOList.Count > 0)
                             {
                                 DropDownTO dropDownTO = dropDownTOList.Where(w => w.Value == tblInvoiceItemDetailsTO.CdStructureId).FirstOrDefault();
@@ -7038,7 +7048,7 @@ namespace ODLMWebAPI.BL
 
                     }
                 });
-                message = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableAmt, isPanPresent, tblInvoiceTo.InvoiceItemDetailsTOList);
+                message = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableAmt, isPanPresent, tblInvoiceTo.InvoiceItemDetailsTOList, tblInvoiceTo);
                 tblInvoiceTo.GrandTotal = grandTotal;
                 tblInvoiceTo.TaxableAmt = taxableAmt;
             }

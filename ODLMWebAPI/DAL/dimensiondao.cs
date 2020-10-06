@@ -388,7 +388,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<DropDownTO> SelectCDStructureForDropDown(Int32 isRsOrPerncent)
+        public List<DropDownTO> SelectCDStructureForDropDown(Int32 isRsOrPerncent, Int32 moduleId=0)
         {
 
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -406,6 +406,10 @@ namespace ODLMWebAPI.DAL
                 else if (isRsOrPerncent == 2)
                 {
                     sqlQuery += " AND isPercent=1";
+                }
+                if(moduleId>0)
+                {
+                    sqlQuery += " And moduleId= " + moduleId;
                 }
 
                 cmdSelect = new SqlCommand(sqlQuery, conn);

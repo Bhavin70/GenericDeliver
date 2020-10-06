@@ -38,6 +38,7 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 cmdSelect.CommandText = SqlSelectQuery();
+                cmdSelect.CommandText += " where isActive=1";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -66,7 +67,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = SqlSelectQuery()+ " WHERE idOtherTax = " + idOtherTax +" ";
+                cmdSelect.CommandText = SqlSelectQuery()+ " WHERE idOtherTax = " + idOtherTax +" and isActive=1 ";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -129,7 +130,7 @@ namespace ODLMWebAPI.DAL
             SqlDataReader reader = null;
             try
             {
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE idOtherTax = " + idOtherTax + " ";
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE idOtherTax = " + idOtherTax + " and isActive=1 ";
                 cmdSelect.Connection = conn;
                 cmdSelect.Transaction = tran;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
