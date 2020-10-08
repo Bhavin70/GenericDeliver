@@ -2125,7 +2125,7 @@ namespace ODLMWebAPI.BL
                     grandTotal += freightGrandTotal;
                 }
         
-                    resultMsg = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableTotal, isPanNoPresent, tblInvoiceItemDetailsTOList,tblInvoiceTO);
+                    resultMsg = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableTotal, ref basicTotal, isPanNoPresent, tblInvoiceItemDetailsTOList,tblInvoiceTO);
                     if (resultMsg == null || resultMsg.MessageType != ResultMessageE.Information)
                     {
                         resultMsg.DefaultBehaviour(resultMsg.Text);
@@ -2219,7 +2219,7 @@ namespace ODLMWebAPI.BL
         }
 
         //Harshala[30/09/3030] added to calculate TCS 
-        private ResultMessage AddTcsTOInTaxItemDtls(SqlConnection conn, SqlTransaction tran, ref double grandTotal, ref double taxableTotal, bool isPanNoPresent, List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOList, TblInvoiceTO tblInvoiceTo)
+        private ResultMessage AddTcsTOInTaxItemDtls(SqlConnection conn, SqlTransaction tran, ref double grandTotal, ref double taxableTotal, ref double basicTotal, bool isPanNoPresent, List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOList, TblInvoiceTO tblInvoiceTo)
         {
           
             ResultMessage resultMessage = new ResultMessage();
@@ -2912,6 +2912,32 @@ namespace ODLMWebAPI.BL
                     tblInvoiceItemDetailsTOsList.Add(tblInvoiceItemDetailsTO);
 
                     invoiceItemTOList = tblInvoiceItemDetailsTOsList;
+
+
+                    //Harshala added 
+                    Double grandTotal1 = tblInvoiceTO.GrandTotal;
+                    Double taxableAmt = tblInvoiceTO.TaxableAmt;
+                    Double basicTotalAmt = tblInvoiceTO.BasicAmt;
+                    Boolean isPanPresent = false;
+                    ResultMessage message = new ResultMessage();
+                    if (tblInvoiceTO.IsConfirmed == 1)
+                    {
+                        tblInvoiceTO.InvoiceAddressTOList.ForEach(element =>
+                        {
+                            if (element.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS)
+                            {
+                                isPanPresent = IsPanOrGstPresent(element.PanNo, element.GstinNo);
+
+                            }
+                        });
+                        message = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal1, ref taxableAmt, ref basicTotalAmt, isPanPresent, invoiceItemTOList, tblInvoiceTO);
+                        tblInvoiceTO.GrandTotal = grandTotal1;
+                        tblInvoiceTO.TaxableAmt = taxableAmt;
+                        tblInvoiceTO.BasicAmt = basicTotalAmt;
+
+                    }
+                    //
+
                 }
 
                 foreach (var existingInvItemTO in invoiceItemTOList)
@@ -7036,6 +7062,7 @@ namespace ODLMWebAPI.BL
 
             Double grandTotal = tblInvoiceTo.GrandTotal;
             Double taxableAmt = tblInvoiceTo.TaxableAmt;
+            Double basicTotalAmt = tblInvoiceTo.BasicAmt;
             Boolean isPanPresent = false;
             ResultMessage message = new ResultMessage();
             if (tblInvoiceTo.IsConfirmed == 1)
@@ -7048,9 +7075,11 @@ namespace ODLMWebAPI.BL
 
                     }
                 });
-                message = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableAmt, isPanPresent, tblInvoiceTo.InvoiceItemDetailsTOList, tblInvoiceTo);
+                message = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableAmt, ref basicTotalAmt, isPanPresent, tblInvoiceTo.InvoiceItemDetailsTOList, tblInvoiceTo);
                 tblInvoiceTo.GrandTotal = grandTotal;
                 tblInvoiceTo.TaxableAmt = taxableAmt;
+                tblInvoiceTo.BasicAmt = basicTotalAmt;
+
             }
             return tblInvoiceTo;
 
