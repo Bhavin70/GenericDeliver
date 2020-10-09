@@ -2273,7 +2273,7 @@ namespace ODLMWebAPI.BL
                                 tcsItemTO.TaxableAmt = Math.Round(tcsItemTO.TaxableAmt, 2);
                                 tcsGrandTotal += tcsItemTO.TaxableAmt;
                                 tcsItemTO.GrandTotal = tcsGrandTotal;
-                                taxableTotal += tcsItemTO.TaxableAmt;
+                               // taxableTotal += tcsItemTO.TaxableAmt;
 
 
                                 if (maxTaxableItemTO.InvoiceItemTaxDtlsTOList != null && maxTaxableItemTO.InvoiceItemTaxDtlsTOList.Count > 0)
