@@ -2563,7 +2563,7 @@ namespace ODLMWebAPI.BL
                 double sgstTotal = 0;
                 double basicTotal = 0;
                 double taxableTotal = 0;
-
+                double otherTaxAmount = 0;
                 TblConfigParamsTO tblConfigParamsTO = null;
                 DateTime serverDateTime = _iCommon.ServerDateTime;
                 Int32 billingStateId = 0;
@@ -2943,6 +2943,14 @@ namespace ODLMWebAPI.BL
                     //
 
                 }
+                Int32 tcsOtherTaxId = 0;
+                //added by harshala to skip adding tcs value in taxable amt.
+                TblConfigParamsTO configParamTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_TCS_OTHER_TAX_ID);
+                if (configParamTO != null)
+                {
+                     tcsOtherTaxId = Convert.ToInt32(configParamTO.ConfigParamVal);
+                }
+                //
 
                 foreach (var existingInvItemTO in invoiceItemTOList)
                 {
@@ -3036,7 +3044,12 @@ namespace ODLMWebAPI.BL
                     #endregion
 
                     basicTotal += existingInvItemTO.BasicTotal;
+
+                    if (tcsOtherTaxId == existingInvItemTO.OtherTaxId)  //added by harshala 
+                        otherTaxAmount+= existingInvItemTO.TaxableAmt;
+                    else
                     taxableTotal += existingInvItemTO.TaxableAmt;
+
                     discountTotal += existingInvItemTO.CdAmt;
 
                     itemGrandTotal += existingInvItemTO.TaxableAmt;
@@ -3061,7 +3074,7 @@ namespace ODLMWebAPI.BL
                 tblInvoiceTO.CgstAmt = cgstTotal;
                 tblInvoiceTO.SgstAmt = sgstTotal;
                 tblInvoiceTO.BasicAmt = basicTotal;
-
+                tblInvoiceTO.OtherTaxAmt = otherTaxAmount;
                 //double finalGrandTotal = Math.Round(grandTotal);
                 //tblInvoiceTO.GrandTotal = finalGrandTotal;
                 //tblInvoiceTO.RoundOffAmt = Math.Round(finalGrandTotal - grandTotal, 2);
