@@ -1522,6 +1522,7 @@ namespace ODLMWebAPI.BL
             double sgstTotal = 0;
             double basicTotal = 0;
             double taxableTotal = 0;
+            Double otherTaxAmt = 0;
             Boolean isSez = false;
             Int32 result = 0;
             Boolean isPanNoPresent = false;
@@ -2124,8 +2125,9 @@ namespace ODLMWebAPI.BL
                     tblInvoiceItemDetailsTOList.Add(freightItemTO);
                     grandTotal += freightGrandTotal;
                 }
-        
-                    resultMsg = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableTotal, ref basicTotal, isPanNoPresent, tblInvoiceItemDetailsTOList,tblInvoiceTO);
+
+              
+                resultMsg = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableTotal, ref basicTotal, isPanNoPresent, tblInvoiceItemDetailsTOList,tblInvoiceTO, ref otherTaxAmt);
                     if (resultMsg == null || resultMsg.MessageType != ResultMessageE.Information)
                     {
                         resultMsg.DefaultBehaviour(resultMsg.Text);
@@ -2187,7 +2189,7 @@ namespace ODLMWebAPI.BL
             tblInvoiceTO.CgstAmt = cgstTotal;
             tblInvoiceTO.SgstAmt = sgstTotal;
             tblInvoiceTO.BasicAmt = basicTotal;
-
+            tblInvoiceTO.OtherTaxAmt = otherTaxAmt;
             RoundOffInvoiceValuesBySetting(tblInvoiceTO);
 
             //double finalGrandTotal = Math.Round(grandTotal);
@@ -2219,7 +2221,7 @@ namespace ODLMWebAPI.BL
         }
 
         //Harshala[30/09/3030] added to calculate TCS 
-        private ResultMessage AddTcsTOInTaxItemDtls(SqlConnection conn, SqlTransaction tran, ref double grandTotal, ref double taxableTotal, ref double basicTotal, bool isPanNoPresent, List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOList, TblInvoiceTO tblInvoiceTo)
+        private ResultMessage AddTcsTOInTaxItemDtls(SqlConnection conn, SqlTransaction tran, ref double grandTotal, ref double taxableTotal, ref double basicTotal, bool isPanNoPresent, List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOList, TblInvoiceTO tblInvoiceTo,ref double otherTaxAmt)
         {
           
             ResultMessage resultMessage = new ResultMessage();
@@ -2293,6 +2295,7 @@ namespace ODLMWebAPI.BL
                                 tblInvoiceItemDetailsTOList.Add(tcsItemTO);
 
                                 grandTotal += tcsGrandTotal;
+                                otherTaxAmt += tcsGrandTotal;
                             }
                         }
                     }
@@ -2919,6 +2922,7 @@ namespace ODLMWebAPI.BL
                     Double taxableAmt = tblInvoiceTO.TaxableAmt;
                     Double basicTotalAmt = tblInvoiceTO.BasicAmt;
                     Boolean isPanPresent = false;
+                    Double otherTaxAmt = 0;
                     ResultMessage message = new ResultMessage();
                     if (tblInvoiceTO.IsConfirmed == 1)
                     {
@@ -2930,7 +2934,7 @@ namespace ODLMWebAPI.BL
 
                             }
                         });
-                        message = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal1, ref taxableAmt, ref basicTotalAmt, isPanPresent, invoiceItemTOList, tblInvoiceTO);
+                        message = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal1, ref taxableAmt, ref basicTotalAmt, isPanPresent, invoiceItemTOList, tblInvoiceTO, ref otherTaxAmt);
                         tblInvoiceTO.GrandTotal = grandTotal1;
                         tblInvoiceTO.TaxableAmt = taxableAmt;
                         tblInvoiceTO.BasicAmt = basicTotalAmt;
@@ -3105,9 +3109,10 @@ namespace ODLMWebAPI.BL
                 tblInvoiceTO.CgstAmt = Math.Round(tblInvoiceTO.CgstAmt, roundOffValue);
                 tblInvoiceTO.SgstAmt = Math.Round(tblInvoiceTO.SgstAmt, roundOffValue);
                 tblInvoiceTO.BasicAmt = Math.Round(tblInvoiceTO.BasicAmt, roundOffValue);
+                
             }
 
-            Double grandTotal = tblInvoiceTO.TaxableAmt + tblInvoiceTO.IgstAmt + tblInvoiceTO.CgstAmt + tblInvoiceTO.SgstAmt;
+            Double grandTotal = tblInvoiceTO.TaxableAmt + tblInvoiceTO.IgstAmt + tblInvoiceTO.CgstAmt + tblInvoiceTO.SgstAmt + tblInvoiceTO.OtherTaxAmt;
 
             double finalGrandTotal = Math.Round(grandTotal);
             tblInvoiceTO.GrandTotal = finalGrandTotal;
@@ -7064,6 +7069,7 @@ namespace ODLMWebAPI.BL
             Double taxableAmt = tblInvoiceTo.TaxableAmt;
             Double basicTotalAmt = tblInvoiceTo.BasicAmt;
             Boolean isPanPresent = false;
+            Double otherTaxAmt = 0;
             ResultMessage message = new ResultMessage();
             if (tblInvoiceTo.IsConfirmed == 1)
             {
@@ -7075,7 +7081,7 @@ namespace ODLMWebAPI.BL
 
                     }
                 });
-                message = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableAmt, ref basicTotalAmt, isPanPresent, tblInvoiceTo.InvoiceItemDetailsTOList, tblInvoiceTo);
+                message = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableAmt, ref basicTotalAmt, isPanPresent, tblInvoiceTo.InvoiceItemDetailsTOList, tblInvoiceTo, ref otherTaxAmt);
                 tblInvoiceTo.GrandTotal = grandTotal;
                 tblInvoiceTo.TaxableAmt = taxableAmt;
                 tblInvoiceTo.BasicAmt = basicTotalAmt;
