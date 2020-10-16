@@ -19,5 +19,8 @@ namespace ODLMWebAPI.BL.Interfaces
         int DeleteDimStatus(Int32 idStatus);
         DimStatusTO SelectDimStatusOnOrgId(int orgId);
         int DeleteDimStatus(Int32 idStatus, SqlConnection conn, SqlTransaction tran);
+
+        //Aniket [30-7-2019] added for IOT
+        DimStatusTO SelectDimStatusTOByIotStatusId(Int32 iotStatusId, Int32 txnTypeId);
     }
 }

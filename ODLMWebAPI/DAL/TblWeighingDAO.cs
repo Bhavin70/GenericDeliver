@@ -27,6 +27,7 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Selection
+    
         public List<TblWeighingTO> SelectAllTblWeighing()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -121,6 +122,51 @@ namespace ODLMWebAPI.DAL
             }
             finally
             {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+        public static List<TblMachineBackupTO> GetALLMachineData()
+        {
+            String sqlConnStr = Startup.IoTBackUpConnectionString;
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            var list = new List<TblMachineBackupTO>();
+            //SqlDataReader sqlReader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = "select idmachineBackup,transactionId,machinedata, machinePortNumber, globleIP from tblmachinebackup where machinetype=1";
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                SqlDataReader dr = cmdSelect.ExecuteReader();
+                while (dr.Read())
+                {
+                    TblMachineBackupTO machineBackUpTo = new TblMachineBackupTO();
+                    if (dr["idmachineBackup"] != DBNull.Value)
+                        machineBackUpTo.IdMachineBackup = Convert.ToInt32(dr["idmachineBackup"].ToString());
+                    if (dr["transactionId"] != DBNull.Value)
+                        machineBackUpTo.TransactionId = Convert.ToInt32(dr["transactionId"].ToString());
+                    if (dr["machinedata"] != DBNull.Value)
+                        machineBackUpTo.Machinedata = (dr["machinedata"].ToString());
+                    if (dr["machinePortNumber"] != DBNull.Value)
+                        machineBackUpTo.MachinePortNumber = Convert.ToInt32(dr["machinePortNumber"].ToString());
+                    if (dr["globleIP"] != DBNull.Value)
+                        machineBackUpTo.GlobleIP = (dr["globleIP"].ToString());
+                    list.Add(machineBackUpTo);
+
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                // sqlReader.Dispose();
                 conn.Close();
                 cmdSelect.Dispose();
             }

@@ -351,7 +351,7 @@ namespace ODLMWebAPI.BL
             TblConfigParamsTO postponeConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_LOADING_SLIPS_AUTO_POSTPONED_STATUS_ID, conn, tran);
             //Sanjay [2017-07-18] The vehicles which are gate in ,loading completed or postponed
             //List<TblLoadingTO> loadingTOToPostponeList = _iTblLoadingDAO.SelectAllLoadingListByStatus((int)Constants.TranStatusE.LOADING_POSTPONED + "", conn, tran);
-            List<TblLoadingTO> loadingTOToPostponeList = _iTblLoadingDAO.SelectAllLoadingListByStatus(postponeConfigParamsTO.ConfigParamVal, conn, tran);
+            List<TblLoadingTO> loadingTOToPostponeList = _iTblLoadingDAO.SelectAllLoadingListByStatus(postponeConfigParamsTO.ConfigParamVal, conn, tran,0);
             if (loadingTOToPostponeList != null)
             {
                 postponeList = new List<TblLoadingSlipExtTO>();
@@ -370,10 +370,10 @@ namespace ODLMWebAPI.BL
         /// [13-12-2017] Vijaymala : Added To Get Loading slip extension list according to filter 
         /// </summary>
         /// <returns></returns>
-        public List<TblLoadingSlipExtTO> SelectAllTblLoadingSlipExtByDate(DateTime frmDt, DateTime toDt, String statusStr)
+        public List<TblLoadingSlipExtTO> SelectAllTblLoadingSlipExtByDate(DateTime frmDt, DateTime toDt, String statusStr,string selectedOrgStr)
         {
           
-            List<TblLoadingSlipExtTO>tblLoadingSlipExtTolist= _iTblLoadingSlipExtDAO.SelectAllTblLoadingSlipExtByDate(frmDt, toDt, statusStr);
+            List<TblLoadingSlipExtTO>tblLoadingSlipExtTolist= _iTblLoadingSlipExtDAO.SelectAllTblLoadingSlipExtByDate(frmDt, toDt, statusStr, selectedOrgStr);
           //  tblLoadingSlipExtTolist = tblLoadingSlipExtTolist.OrderBy(asc=>asc.SequenceNo).ThenBy(a => a.DisplayName).ToList();
             return tblLoadingSlipExtTolist;
                 //.ThenBy(a => a.AlertInstanceId).ToList();

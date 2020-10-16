@@ -19,9 +19,11 @@ namespace ODLMWebAPI.Controllers
     public class LoadingSlipController : Controller
     {
         private readonly ITblLoadingBL _iTblLoadingBL;
+      private readonly ITblLoadingDAO _iTblLoadingDAO;
         private readonly ICommon _iCommon;
-        public LoadingSlipController(ICommon iCommon, ITblLoadingBL iTblLoadingBL)
+        public LoadingSlipController(ICommon iCommon, ITblLoadingBL iTblLoadingBL,ITblLoadingDAO iTblLoadingDAO)
         {
+            _iTblLoadingDAO =iTblLoadingDAO;
             _iTblLoadingBL = iTblLoadingBL;
             _iCommon = iCommon;
         }
@@ -78,6 +80,28 @@ namespace ODLMWebAPI.Controllers
             {
                 //loggerObj.LogError(1, ex, "Exception Error in POstNewBooking", data);
                 return -1;
+            }
+        }
+
+
+
+
+
+        //IOT
+        //hrushikesh added to read modbusList         
+        [Route("getModbusRefList")]
+        [HttpGet]
+        public List<int> getModbusRefList()
+        {
+            try
+            {
+                return _iTblLoadingDAO.GeModRefMaxData();
+             
+            }
+            catch (Exception ex)
+            {
+                //loggerObj.LogError(1, ex, "Exception Error in POstNewBooking", data);
+                return null;
             }
         }
 

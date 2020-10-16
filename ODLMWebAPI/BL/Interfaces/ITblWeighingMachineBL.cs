@@ -18,5 +18,7 @@ namespace ODLMWebAPI.BL.Interfaces
         int UpdateTblWeighingMachine(TblWeighingMachineTO tblWeighingMachineTO, SqlConnection conn, SqlTransaction tran);
         int DeleteTblWeighingMachine(Int32 idWeighingMachine);
         int DeleteTblWeighingMachine(Int32 idWeighingMachine, SqlConnection conn, SqlTransaction tran);
+        //Aniket [30-7-2019] added for IOT
+        List<TblWeighingMachineTO> SelectAllTblWeighingMachineOfWeighingList(int loadingId);
     }
 }

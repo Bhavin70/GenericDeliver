@@ -25,5 +25,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblConfigParams(Int32 idConfigParam, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idConfigParam, SqlCommand cmdDelete);
 
+        int IoTSetting();
+
     }
 }

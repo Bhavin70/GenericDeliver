@@ -14,7 +14,7 @@ namespace ODLMWebAPI.StaticStuff
         Int32 result;
         Object tag;
         String displayMessage;
-
+        public object data { get; set; }
         #endregion
 
         #region Constructor

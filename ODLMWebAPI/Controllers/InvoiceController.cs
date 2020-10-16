@@ -10,6 +10,8 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
+using ODLMWebAPI.IoT.Interfaces;
+using static ODLMWebAPI.StaticStuff.Constants;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -34,8 +36,10 @@ namespace ODLMWebAPI.Controllers
         private readonly ITblConfigParamsBL _iTblConfigParamsBL;
         private readonly ITblLoadingBL _iTblLoadingBL;
         private readonly ICommon _iCommon;
-       
-        public InvoiceController(ITblLoadingBL iTblLoadingBL, ITblConfigParamsBL iTblConfigParamsBL, ITempInvoiceDocumentDetailsBL iTempInvoiceDocumentDetailsBL, IDimensionBL iDimensionBL, ITblUserBL iTblUserBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, ITblTaxRatesBL iTblTaxRatesBL, ITblGstCodeDtlsBL iTblGstCodeDtlsBL, ITblProdGstCodeDtlsBL iTblProdGstCodeDtlsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ICommon iCommon, ITblInvoiceBL iTblInvoiceBL)
+        private readonly ITblLoadingSlipBL _iTblLoadingSlipBL;
+        private readonly IIotCommunication _iIotCommunication;
+
+        public InvoiceController(IIotCommunication iIotCommunication,ITblLoadingSlipBL iTblLoadingSlipBL,ITblLoadingBL iTblLoadingBL, ITblConfigParamsBL iTblConfigParamsBL, ITempInvoiceDocumentDetailsBL iTempInvoiceDocumentDetailsBL, IDimensionBL iDimensionBL, ITblUserBL iTblUserBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, ITblTaxRatesBL iTblTaxRatesBL, ITblGstCodeDtlsBL iTblGstCodeDtlsBL, ITblProdGstCodeDtlsBL iTblProdGstCodeDtlsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ICommon iCommon, ITblInvoiceBL iTblInvoiceBL)
         {
             _iTblInvoiceBL = iTblInvoiceBL;
             _iTblInvoiceAddressBL = iTblInvoiceAddressBL;
@@ -51,7 +55,8 @@ namespace ODLMWebAPI.Controllers
             _iTblConfigParamsBL = iTblConfigParamsBL;
             _iTblLoadingBL = iTblLoadingBL;
             _iCommon = iCommon;
-           
+            _iTblLoadingSlipBL = iTblLoadingSlipBL;
+            _iIotCommunication = iIotCommunication;
         }
 
         // GET: api/values
@@ -125,6 +130,7 @@ namespace ODLMWebAPI.Controllers
                 {
                     invoiceTO.InvoiceAddressTOList = _iTblInvoiceAddressBL.SelectAllTblInvoiceAddressList(invoiceId);
                     List<TblInvoiceItemDetailsTO> itemList = _iTblInvoiceItemDetailsBL.SelectAllTblInvoiceItemDetailsList(invoiceId);
+                    invoiceTO.InvoiceItemDetailsTOList = itemList;
                     if (itemList != null)
                     {
                         for (int i = 0; i < itemList.Count; i++)
@@ -132,10 +138,52 @@ namespace ODLMWebAPI.Controllers
                             itemList[i].InvoiceItemTaxDtlsTOList = _iTblInvoiceItemTaxDtlsBL.SelectAllTblInvoiceItemTaxDtlsList(itemList[i].IdInvoiceItem);
 
                         }
-                        invoiceTO.InvoiceItemDetailsTOList = itemList;
-                        /*GJ@20170929 : To get the History Details for Approval and Acceptance*/
-                        //if (invoiceTO.StatusId == (int)Constants.InvoiceStatusE.PENDING_FOR_AUTHORIZATION || invoiceTO.StatusId == (int)Constants.InvoiceStatusE.PENDING_FOR_ACCEPTANCE)
-                        //{
+
+                        if (invoiceTO.InvoiceModeE != InvoiceModeE.MANUAL_INVOICE)
+                        {
+
+                            //TblLoadingSlipTO tblLoadingSlipTO = _iTblLoadingSlipBL.SelectTblLoadingSlipTO(invoiceTO.LoadingSlipId);
+                            //tblLoadingSlipTO = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetails(tblLoadingSlipTO.IdLoadingSlip);
+
+                            //int configId = _iTblConfigParamsBL.IotSetting();
+
+                            
+                            ////add Iot settings
+
+
+                            //// _iIotCommunication.GetItemDataFromIotForGivenLoadingSlip(tblLoadingSlipTO);
+                            //// invoiceTO.VehicleNo = tblLoadingSlipTO.VehicleNo;
+
+                            //for (int i = 0; i < itemList.Count; i++)
+                            //{
+                            //    if (tblLoadingSlipTO != null && tblLoadingSlipTO.LoadingSlipExtTOList != null)
+                            //    {
+                            //        for (int j = 0; j < tblLoadingSlipTO.LoadingSlipExtTOList.Count; j++)
+                            //        {
+                            //            if (itemList[i].LoadingSlipExtId == tblLoadingSlipTO.LoadingSlipExtTOList[j].IdLoadingSlipExt)
+                            //            {
+                            //                itemList[i].Bundles = tblLoadingSlipTO.LoadingSlipExtTOList[j].Bundles.ToString();
+                            //                itemList[i].InvoiceQty = Math.Round(tblLoadingSlipTO.LoadingSlipExtTOList[j].LoadedWeight * 0.001, 3);
+
+                            //            }
+                            //        }
+                            //    }
+                            //}
+                            /*GJ@20170929 : To get the History Details for Approval and Acceptance*/
+                            //if (invoiceTO.StatusId == (int)Constants.InvoiceStatusE.PENDING_FOR_AUTHORIZATION || invoiceTO.StatusId == (int)Constants.InvoiceStatusE.PENDING_FOR_ACCEPTANCE)
+                            //{
+                            if (invoiceTO.InvoiceModeE != InvoiceModeE.MANUAL_INVOICE)
+                            {
+                                //Sanjay [30-May-2019] Conditions added for auth invoice. If type is firm and auth then data wil be written to DB else on IoT
+                                if (invoiceTO.IsConfirmed == 0)
+                                    _iTblInvoiceBL.SetGateAndWeightIotData(invoiceTO, 0);
+                                else if (invoiceTO.InvoiceStatusE != InvoiceStatusE.AUTHORIZED && invoiceTO.InvoiceStatusE != InvoiceStatusE.CANCELLED)
+                                    _iTblInvoiceBL.SetGateAndWeightIotData(invoiceTO, 0);
+
+                            }
+                        }
+
+                        //invoiceTO.InvoiceItemDetailsTOList = itemList;
 
                         //Saket [2017-11-21]
                         String strProdGstCode = String.Join(",", invoiceTO.InvoiceItemDetailsTOList.Select(s => s.ProdGstCodeId.ToString()).ToArray());
@@ -164,10 +212,10 @@ namespace ODLMWebAPI.Controllers
                         {
                             for (int i = 0; i < InvoiceHistoryTOList.Count; i++)
                             {
-                                string editedBy = string.Empty;                                
+                                string editedBy = string.Empty;
                                 TblInvoiceHistoryTO element = InvoiceHistoryTOList[i];
                                 TblUserTO tblUserTo = _iTblUserBL.SelectTblUserTO(element.CreatedBy);
-                                if(tblUserTo != null)
+                                if (tblUserTo != null)
                                 {
                                     editedBy = tblUserTo.UserDisplayName;
                                 }
@@ -175,7 +223,7 @@ namespace ODLMWebAPI.Controllers
                                 {
                                     if (string.IsNullOrEmpty(historyDetails))
                                     {
-                                        historyDetails = "Billing Address " + "!" + editedBy + "!"  + element.OldBillingAddr + "!" + element.NewBillingAddr;
+                                        historyDetails = "Billing Address " + "!" + editedBy + "!" + element.OldBillingAddr + "!" + element.NewBillingAddr;
                                     }
                                     else
                                     {
@@ -218,23 +266,23 @@ namespace ODLMWebAPI.Controllers
                                             itemList[i].ChangeIn = itemList[i].ChangeIn == "" || string.IsNullOrEmpty(itemList[i].ChangeIn) ? "Rate" : itemList[i].ChangeIn + "|" + "Rate";
                                             if (string.IsNullOrEmpty(historyDetails))
                                             {
-                                                historyDetails = itemList[i].ProdItemDesc  + " (Rate)" + "!" + editedBy + "!" + element.OldUnitRate + "!" + element.NewUnitRate;
+                                                historyDetails = itemList[i].ProdItemDesc + " (Rate)" + "!" + editedBy + "!" + element.OldUnitRate + "!" + element.NewUnitRate;
                                             }
                                             else
                                             {
-                                                historyDetails += "::" + itemList[i].ProdItemDesc  + " (Rate)" + "!" + editedBy + "!" + element.OldUnitRate + "!" + element.NewUnitRate;
+                                                historyDetails += "::" + itemList[i].ProdItemDesc + " (Rate)" + "!" + editedBy + "!" + element.OldUnitRate + "!" + element.NewUnitRate;
                                             }
                                         }
                                         if (element.OldCdStructureId != 0 && element.NewCdStructureId != 0)
                                         {
-                                            List<DropDownTO> cdStructureList = _iDimensionBL.SelectCDStructureForDropDown();
+                                            List<DropDownTO> cdStructureList = _iDimensionBL.SelectCDStructureForDropDown(0);
                                             var vOldRes = cdStructureList.Where(p => p.Value == element.OldCdStructureId).ToList();
                                             var vNewRes = cdStructureList.Where(p => p.Value == element.NewCdStructureId).ToList();
                                             itemList[i].ChangeIn = itemList[i].ChangeIn == "" || string.IsNullOrEmpty(itemList[i].ChangeIn) ? "CD" : itemList[i].ChangeIn + "|" + "CD";
 
                                             if (string.IsNullOrEmpty(historyDetails))
                                             {
-                                                historyDetails = itemList[i].ProdItemDesc  + " (CD)" + "!" + editedBy + "!" + (vOldRes.Count > 0 ? vOldRes[0].Text : "0") + "!" + (vNewRes.Count > 0 ? vNewRes[0].Text : "0");
+                                                historyDetails = itemList[i].ProdItemDesc + " (CD)" + "!" + editedBy + "!" + (vOldRes.Count > 0 ? vOldRes[0].Text : "0") + "!" + (vNewRes.Count > 0 ? vNewRes[0].Text : "0");
                                             }
                                             else
                                             {
@@ -296,7 +344,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetRptInvoiceList")]
         [HttpGet]
-        public List<TblInvoiceRptTO> GetRptInvoiceList(string fromDate, string toDate, int isConfirm)
+        public List<TblInvoiceRptTO> GetRptInvoiceList(string fromDate, string toDate, int isConfirm,int fromOrgId)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -314,7 +362,7 @@ namespace ODLMWebAPI.Controllers
                 frmDt = _iCommon.ServerDateTime.Date;
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date;
-            return _iTblInvoiceBL.SelectAllRptInvoiceList(frmDt, toDt, isConfirm);
+            return _iTblInvoiceBL.SelectAllRptInvoiceList(frmDt, toDt, isConfirm, fromOrgId);
         }
 
         /// <summary>
@@ -324,7 +372,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetInvoiceExportList")]
         [HttpGet]
-        public List<TblInvoiceRptTO> GetInvoiceExportList(string fromDate, string toDate, int isConfirm)
+        public List<TblInvoiceRptTO> GetInvoiceExportList(string fromDate, string toDate, int isConfirm,int fromOrgId)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -344,7 +392,7 @@ namespace ODLMWebAPI.Controllers
                 toDt = _iCommon.ServerDateTime.Date;
 
 
-            return _iTblInvoiceBL.SelectInvoiceExportList(frmDt, toDt, isConfirm);
+            return _iTblInvoiceBL.SelectInvoiceExportList(frmDt, toDt, isConfirm, fromOrgId);
         }
 
         /// <summary>
@@ -354,7 +402,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetHsnExportList")]
         [HttpGet]
-        public List<TblInvoiceRptTO> GetHsnExportList(string fromDate, string toDate, int isConfirm)
+        public List<TblInvoiceRptTO> GetHsnExportList(string fromDate, string toDate, int isConfirm,int fromOrgId)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -372,7 +420,7 @@ namespace ODLMWebAPI.Controllers
                 frmDt = _iCommon.ServerDateTime.Date;
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date;
-            return _iTblInvoiceBL.SelectHsnExportList(frmDt, toDt, isConfirm);
+            return _iTblInvoiceBL.SelectHsnExportList(frmDt, toDt, isConfirm, fromOrgId);
         }
 
 
@@ -383,7 +431,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetSalesInvoiceListForReport")]
         [HttpGet]
-        public List<TblInvoiceRptTO> GetSalesInvoiceListForReport(string fromDate, string toDate, int isConfirm)
+        public List<TblInvoiceRptTO> GetSalesInvoiceListForReport(string fromDate, string toDate, int isConfirm, int fromOrgId)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -401,13 +449,13 @@ namespace ODLMWebAPI.Controllers
                 frmDt = _iCommon.ServerDateTime.Date;
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date;
-            return _iTblInvoiceBL.SelectSalesInvoiceListForReport(frmDt, toDt, isConfirm);
+            return _iTblInvoiceBL.SelectSalesInvoiceListForReport(frmDt, toDt, isConfirm, fromOrgId);
         }
 
 
         [Route("GetOtherItemListForReport")]
         [HttpGet]
-        public List<TblOtherTaxRpt> GetOtherItemListForReport(string fromDate, string toDate, int isConfirm, int otherTaxId)
+        public List<TblOtherTaxRpt> GetOtherItemListForReport(string fromDate, string toDate, int isConfirm, int otherTaxId,int fromOrgId)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -425,7 +473,7 @@ namespace ODLMWebAPI.Controllers
                 frmDt = _iCommon.ServerDateTime.Date;
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date;
-            return _iTblInvoiceBL.SelectOtherTaxDetailsReport(frmDt, toDt, isConfirm, otherTaxId);
+            return _iTblInvoiceBL.SelectOtherTaxDetailsReport(frmDt, toDt, isConfirm, otherTaxId, fromOrgId);
         }
 
 
@@ -468,7 +516,7 @@ namespace ODLMWebAPI.Controllers
                 if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                     toDt = _iCommon.ServerDateTime.Date;
 
-                return _iTblInvoiceBL.SelectAllInvoiceListByVehicleNo(vehicleNo, frmDt , toDt);
+                return _iTblLoadingBL.SelectAllInvoiceListByVehicleNo(vehicleNo, frmDt , toDt);
                
             }
             catch (Exception ex)
@@ -510,7 +558,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetAllTNotifiedblInvoiceList")]
         [HttpGet]
-        public List<TblInvoiceTO> GetAllTNotifiedblInvoiceList(string fromDate, string toDate,  int isConfirm)
+        public List<TblInvoiceTO> GetAllTNotifiedblInvoiceList(string fromDate, string toDate,  int isConfirm, int fromOrgId)
         {
             try
             {
@@ -530,7 +578,7 @@ namespace ODLMWebAPI.Controllers
                 if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                     toDt = _iCommon.ServerDateTime.Date;
 
-                return _iTblInvoiceBL.SelectAllTNotifiedblInvoiceList(frmDt, toDt,isConfirm);
+                return _iTblInvoiceBL.SelectAllTNotifiedblInvoiceList(frmDt, toDt,isConfirm, fromOrgId);
             }
             catch (Exception ex)
             {
@@ -740,7 +788,7 @@ namespace ODLMWebAPI.Controllers
                     return resultMessage;
                 }
                Int32 isConfirm = 1;
-                return _iTblInvoiceBL.GenerateInvoiceNumber(Convert.ToInt32(invoiceId), Convert.ToInt32(loginUserId), isConfirm, Convert.ToInt32(invGenerateModeId),fromOrgId,toOrgId,Convert.ToString(taxInvoiceNumber), manualinvoiceno,invComment);
+                return _iTblLoadingBL.GenerateInvoiceNumber(Convert.ToInt32(invoiceId), Convert.ToInt32(loginUserId), isConfirm, Convert.ToInt32(invGenerateModeId),fromOrgId,toOrgId,Convert.ToString(taxInvoiceNumber), manualinvoiceno,invComment);
             }
             catch (Exception ex)
             {
@@ -798,6 +846,7 @@ namespace ODLMWebAPI.Controllers
         public ResultMessage PostInvoiceFromMail([FromBody] JObject data)
         {
             ResultMessage resultMessage = new StaticStuff.ResultMessage();
+
             try
             {
                 SendMail SendMailTo = JsonConvert.DeserializeObject<SendMail>(data["mailInformationTo"].ToString());
@@ -1184,11 +1233,11 @@ namespace ODLMWebAPI.Controllers
             {
                 ResultMessage resultMessage = new StaticStuff.ResultMessage();
                 var invoiceId = data["invoiceId"].ToString();
-
+                var reportType = data["reportType"].ToString();
                 if (invoiceId != null)
                 {
                     DateTime serverDate = _iCommon.ServerDateTime;
-                    return _iTblInvoiceBL.PrintWeighingReport(Convert.ToInt32(invoiceId));
+                    return _iTblInvoiceBL.PrintWeighingReport(Convert.ToInt32(invoiceId),false,reportType.ToString());
                 }
 
                 else
@@ -1196,6 +1245,36 @@ namespace ODLMWebAPI.Controllers
                     resultMessage.DefaultBehaviour("tempInvoiceDocumentDetailsTO Found NULL");
                     return resultMessage;
                 }
+            }
+
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+
+            }
+        }
+
+        [Route("SendInvoiceEmail")]
+        [HttpPost]
+        public ResultMessage SendInvoiceEmail([FromBody] JObject data)
+        {
+            try
+            {
+                ResultMessage resultMessage = new StaticStuff.ResultMessage();
+
+                SendMail mailInformationTo = JsonConvert.DeserializeObject<SendMail>(data["mailInformationTo"].ToString());
+
+                if(mailInformationTo == null)
+                {
+                    resultMessage.DefaultBehaviour("mailInformationTo Found NULL");
+                    return resultMessage;
+                }
+               
+             return _iTblInvoiceBL.SendInvoiceEmail(mailInformationTo);
+               
             }
 
             catch (Exception ex)

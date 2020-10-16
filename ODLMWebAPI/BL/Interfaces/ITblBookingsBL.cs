@@ -45,6 +45,9 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblBookingPendingRptTO> SelectBookingPendingQryRpt(DateTime fromDate, DateTime toDate,int reportType);
         TblBookingsTO SelectBookingsDetailsFromInVoiceId(Int32 inInvoice, SqlConnection conn, SqlTransaction tran);
 
+        TblBookingsTO SelectBookingsDetailsFromInVoiceId(Int32 inInvoice);
+        ResultMessage UpdatePendingQuantity(TblBookingQtyConsumptionTO tblBookingQtyConsumptionTO);
+
         //ResultMessage DeleteAllBookings(List<Int32> bookingsIdList);
         //ResultMessage DeleteAllBookings(List<int> bookingsIdsList, SqlConnection conn, SqlTransaction tran);
         //int DeleteDispatchBookingData(Int32 bookingId, SqlConnection conn, SqlTransaction tran);

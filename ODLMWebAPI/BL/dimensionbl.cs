@@ -57,7 +57,7 @@ namespace ODLMWebAPI.BL
             return _iDimensionDAO.SelectDistrictForStateMaster(stateId);
         }
 
-        public List<DropDownTO> SelectCDStructureForDropDown()
+        public List<DropDownTO> SelectCDStructureForDropDown(Int32 moduleId=0)
         {
             //Vijaymala added[22-06-2018]
             Int32 isRsOrPerncent = 0;
@@ -92,7 +92,7 @@ namespace ODLMWebAPI.BL
                 isRsOrPerncent = 2;
             }
 
-            return _iDimensionDAO.SelectCDStructureForDropDown(isRsOrPerncent);
+            return _iDimensionDAO.SelectCDStructureForDropDown(isRsOrPerncent,moduleId);
         }
 
         //Vijaymala added[22-06-2018]
@@ -311,7 +311,34 @@ namespace ODLMWebAPI.BL
             return null;
         }
 
+        public DimFinYearTO GetCurrentFinancialYear(DateTime curDate)
+        {
+            List<DimFinYearTO> mstFinYearTOList = _iDimensionDAO.SelectAllMstFinYearList();
+            for (int i = 0; i < mstFinYearTOList.Count; i++)
+            {
+                DimFinYearTO mstFinYearTO = mstFinYearTOList[i];
+                if (curDate >= mstFinYearTO.FinYearStartDate &&
+                    curDate <= mstFinYearTO.FinYearEndDate)
+                    return mstFinYearTO;
+                }
 
+            //Means Current Financial year not found so insert it
+            DateTime startDate = Constants.GetStartDateTimeOfYear(curDate);
+            DateTime endDate = Constants.GetEndDateTimeOfYear(curDate);
+            int finYear = startDate.Year;
+            DimFinYearTO newMstFinYearTO = new DimFinYearTO();
+            newMstFinYearTO.FinYearDisplayName = finYear + "-" + (finYear + 1);
+            newMstFinYearTO.FinYearEndDate = endDate;
+            newMstFinYearTO.IdFinYear = finYear;
+            newMstFinYearTO.FinYearStartDate = startDate;
+            int result = _iDimensionDAO.InsertMstFinYear(newMstFinYearTO);
+            if (result == 1)
+            {
+                return newMstFinYearTO;
+            }
+
+            return null;
+        }
 
         // Vaibhav [27-Sep-2017] added to select all reporting type list
         public List<DropDownTO> GetReportingType()
@@ -623,6 +650,19 @@ namespace ODLMWebAPI.BL
 
         }
 
+        public List<DimExportTypeTO> GetExportTypeList()
+        {
+            return _iDimensionDAO.GetExportTypeList();
+        }
+        public List<DimIndustrySegmentTO> GetIndustryTypeList()
+        {
+            return _iDimensionDAO.GetIndustryTypeList();
+        }
+
+        public List<DimIndustrySegmentTypeTO> GetIndustrySegmentTypeList(Int32 industrySegmentId)
+        {
+            return _iDimensionDAO.GetIndustrySegmentTypeList(industrySegmentId);
+        }
         /// <summary>
         /// Vijaymala[08-09-2018]added :to get state from booking
         /// </summary>

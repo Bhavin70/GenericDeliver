@@ -45,6 +45,12 @@ namespace ODLMWebAPI.BL
         {
             return _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOByInvoiceId(invoiceId,conn,tran);
         }
+
+        public List<TempLoadingSlipInvoiceTO> SelectTempLoadingSlipInvoiceTOByInvoiceId(Int32 invoiceId)
+        {
+            return _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOByInvoiceId(invoiceId);
+        }
+
         /// <summary>
         /// Vaibhav [24-April-2018] 
         /// </summary>
@@ -58,7 +64,7 @@ namespace ODLMWebAPI.BL
             return _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOList(loadingSlipId, invoiceId, conn, tran);
         }
 
-        public TempLoadingSlipInvoiceTO SelectTempLoadingSlipInvoiceTOListByLoadingSlip(int loadingSlipId, SqlConnection conn, SqlTransaction tran)
+        public List<TempLoadingSlipInvoiceTO> SelectTempLoadingSlipInvoiceTOListByLoadingSlip(int loadingSlipId, SqlConnection conn, SqlTransaction tran)
         {
             return _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOListByLoadingSlip(loadingSlipId, conn, tran);
         }

@@ -64,6 +64,11 @@ namespace ODLMWebAPI.BL
             _iCommon = iCommon;
         }
         #region Selection
+        //Aniket [30-7-2019] added for IOT
+        public String GetFirmNameByOrgId(Int32 orgId)
+        {
+            return _iTblOrganizationDAO.GetFirmNameByOrgId(orgId);
+        }
 
         public List<TblOrganizationTO> SelectAllTblOrganizationList()
         {

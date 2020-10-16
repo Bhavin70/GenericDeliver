@@ -19,6 +19,7 @@ namespace ODLMWebAPI.Models
         Int32 idBooking;
         Double bookingRate;
         String specialNote;
+        String bookingDisplayNo;
         #endregion
 
         #region Constructor
@@ -68,6 +69,8 @@ namespace ODLMWebAPI.Models
 
         public double BookingRate { get => bookingRate; set => bookingRate = value; }
         public String SpecialNote { get => specialNote; set => specialNote = value; }
+        public String BookingDisplayNo { get => bookingDisplayNo; set => bookingDisplayNo = value; }
+
         #endregion
     }
 }

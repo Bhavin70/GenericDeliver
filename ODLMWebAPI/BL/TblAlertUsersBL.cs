@@ -159,10 +159,18 @@ namespace ODLMWebAPI.BL
             if (list != null && list.Count > 0)
             {
                 list[0].IsLogOut = result;
+                if (result == (int)Constants.LogoutValueE.LogoutWithTimer || result == (int)Constants.LogoutValueE.DirectLogout)
+                {
+                    list[0].IsLogOut = (int)Constants.LogoutValueE.DirectLogout;
+                }
             }
             else
             {
                 TblAlertUsersTO a = new TblAlertUsersTO();
+                if (result == (int)Constants.LogoutValueE.LogoutWithTimer)
+                {
+                    result = (int)Constants.LogoutValueE.DirectLogout; ;
+                }
                 //Hrushikesh added to not to show empty notification
                 a.IsAcknowledged = 1;
                 a.IsLogOut = result;

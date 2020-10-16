@@ -181,7 +181,7 @@ namespace ODLMWebAPI.DAL
             SqlDataReader reader = null;
             try
             {
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE invoiceId = " + invoiceId + " "; ;
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE invoiceId = " + invoiceId + " ";
                 cmdSelect.Connection = conn;
                 cmdSelect.Transaction = tran;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
@@ -201,7 +201,36 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public TempLoadingSlipInvoiceTO SelectTempLoadingSlipInvoiceTOListByLoadingSlip(int loadingSlipId, SqlConnection conn, SqlTransaction tran)
+        public List<TempLoadingSlipInvoiceTO> SelectTempLoadingSlipInvoiceTOByInvoiceId(Int32 invoiceId)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE invoiceId = " + invoiceId + " ";
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TempLoadingSlipInvoiceTO> list = ConvertDTToList(reader);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
+
+
+        public List<TempLoadingSlipInvoiceTO> SelectTempLoadingSlipInvoiceTOListByLoadingSlip(int loadingSlipId, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader reader = null;
@@ -214,10 +243,10 @@ namespace ODLMWebAPI.DAL
 
                 reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
                 List<TempLoadingSlipInvoiceTO> list = ConvertDTToList(reader);
-                if (list != null && list.Count == 1)
-                    return list[0];
-                else
-                    return null;
+                //if (list != null && list.Count == 1)
+                    return list;
+                //else
+                //    return null;
 
             }
             catch (Exception ex)

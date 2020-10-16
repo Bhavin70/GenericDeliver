@@ -15,7 +15,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<DimensionTO> SelectAllMasterDimensionList();
         Int32 getidentityOfTable(string Query);
         Int32 getMaxCountOfTable(string CoulumName, string tableName);
-        List<DropDownTO> SelectCDStructureForDropDown(Int32 isRsOrPerncent);
+        List<DropDownTO> SelectCDStructureForDropDown(Int32 isRsOrPerncent, Int32 moduleId);
         List<DropDownTO> SelectCountriesForDropDown();
         List<DropDownTO> SelectOrgLicensesForDropDown();
         List<DropDownTO> SelectSalutationsForDropDown();
@@ -68,8 +68,17 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<DropDownTO> GetUserListDepartmentWise(string deptId);
         List<DropDownTO> SelectAllInvoiceCopyList();
 
+        List<DimFinYearTO> SelectAllMstFinYearList();
+
+        int InsertMstFinYear(DimFinYearTO newMstFinYearTO);
+
         List<TblProdGstCodeDtlsTO> GetSAPTaxCodeByIdProdGstCode(int idProdGstCode);
 
         Int64 GetProductItemIdFromGivenRMDetails(int prodCatId, int prodSpecId, int materialId, int brandId, int rmProdItemId);
+
+        String SelectInvoiceEntityNameByInvoiceTypeId(Int32 idInvoiceType);
+        List<DimExportTypeTO> GetExportTypeList();
+        List<DimIndustrySegmentTO> GetIndustryTypeList();
+        List<DimIndustrySegmentTypeTO> GetIndustrySegmentTypeList(Int32 industrySegmentId);
     }
 }

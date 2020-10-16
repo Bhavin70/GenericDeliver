@@ -160,7 +160,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText =SqlSelectQuery() + " WHERE idDocument in (" + DocumentIds + ") AND idActive=1 ";
+                cmdSelect.CommandText =SqlSelectQuery() + " WHERE idDocument in (" + DocumentIds + ") AND tblDocumentDetails.idActive=1 ";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -243,7 +243,7 @@ namespace ODLMWebAPI.DAL
             //"  @IdDocument " +
             " @ModuleId " +
             " ,@CreatedBy " +
-            " ,@IdActive " +
+            " ,@IsActive " +
             " ,@CreatedOn " +
             " ,@DocumentDesc " +
             " ,@Path " +
@@ -255,7 +255,7 @@ namespace ODLMWebAPI.DAL
             //cmdInsert.Parameters.Add("@IdDocument", System.Data.SqlDbType.Int).Value = tblDocumentDetailsTO.IdDocument;
             cmdInsert.Parameters.Add("@ModuleId", System.Data.SqlDbType.Int).Value = tblDocumentDetailsTO.ModuleId;
             cmdInsert.Parameters.Add("@CreatedBy", System.Data.SqlDbType.Int).Value = tblDocumentDetailsTO.CreatedBy;
-            cmdInsert.Parameters.Add("@IdActive", System.Data.SqlDbType.Int).Value = tblDocumentDetailsTO.IsActive;
+            cmdInsert.Parameters.Add("@IsActive", System.Data.SqlDbType.Int).Value = tblDocumentDetailsTO.IsActive;
             cmdInsert.Parameters.Add("@CreatedOn", System.Data.SqlDbType.DateTime).Value = tblDocumentDetailsTO.CreatedOn;
             cmdInsert.Parameters.Add("@DocumentDesc", System.Data.SqlDbType.NVarChar).Value = tblDocumentDetailsTO.DocumentDesc;
             cmdInsert.Parameters.Add("@Path", System.Data.SqlDbType.NVarChar).Value = tblDocumentDetailsTO.Path;
@@ -319,7 +319,7 @@ namespace ODLMWebAPI.DAL
             //"  [idDocument] = @IdDocument" +
             " [moduleId]= @ModuleId" +
             " ,[createdBy]= @CreatedBy" +
-            " ,[idActive]= @IdActive" +
+            " ,[idActive]= @IsActive" +
             " ,[createdOn]= @CreatedOn" +
             " ,[documentDesc]= @DocumentDesc" +
             " ,[path] = @Path" +
@@ -331,7 +331,7 @@ namespace ODLMWebAPI.DAL
             //cmdUpdate.Parameters.Add("@IdDocument", System.Data.SqlDbType.Int).Value = tblDocumentDetailsTO.IdDocument;
             cmdUpdate.Parameters.Add("@ModuleId", System.Data.SqlDbType.Int).Value = tblDocumentDetailsTO.ModuleId;
             cmdUpdate.Parameters.Add("@CreatedBy", System.Data.SqlDbType.Int).Value = tblDocumentDetailsTO.CreatedBy;
-            cmdUpdate.Parameters.Add("@IdActive", System.Data.SqlDbType.Int).Value = tblDocumentDetailsTO.IsActive;
+            cmdUpdate.Parameters.Add("@IsActive", System.Data.SqlDbType.Int).Value = tblDocumentDetailsTO.IsActive;
             cmdUpdate.Parameters.Add("@CreatedOn", System.Data.SqlDbType.DateTime).Value = tblDocumentDetailsTO.CreatedOn;
             cmdUpdate.Parameters.Add("@DocumentDesc", System.Data.SqlDbType.NVarChar).Value = tblDocumentDetailsTO.DocumentDesc;
             cmdUpdate.Parameters.Add("@Path", System.Data.SqlDbType.NVarChar).Value = tblDocumentDetailsTO.Path;

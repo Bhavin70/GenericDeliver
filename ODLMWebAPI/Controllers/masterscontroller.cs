@@ -271,8 +271,27 @@ namespace ODLMWebAPI.Controllers
             return statusList;
         }
 
+        [Route("GetExportTypeList")]
+        [HttpGet]
+        public List<DimExportTypeTO> GetExportTypeList()
+        {
+            return _iDimensionBL.GetExportTypeList();
+        }
 
-        
+        [Route("GetIndustrySegmentList")]
+        [HttpGet]
+        public List<DimIndustrySegmentTO> GetIndustrySegmentList()
+        {
+            return _iDimensionBL.GetIndustryTypeList();
+        }
+        //for industry segment type list
+        [Route("GetIndustrySegmentTypeList")]
+        [HttpGet]
+        public List<DimIndustrySegmentTypeTO> GetIndustrySegmentTypeList(Int32 industrySegmentId)
+        {
+            return _iDimensionBL.GetIndustrySegmentTypeList(industrySegmentId);
+        }
+
         [Route("GetStatusByOrgId")]
         [HttpGet]
         public DimStatusTO GetStatusOnOrgId(Int32 orgId)
@@ -280,8 +299,6 @@ namespace ODLMWebAPI.Controllers
             return _iDimStatusBL.SelectDimStatusOnOrgId(orgId);
 
         }
-
-
 
         /// <summary>
         /// Kiran[16-08-2018] To get module Communication List using moduleId and entityId
@@ -485,9 +502,9 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetCDStructureForDropDown")]
         [HttpGet]
-        public List<DropDownTO> GetCDStructureForDropDown()
+        public List<DropDownTO> GetCDStructureForDropDown(Int32 moduleId=0)
         {
-            List<DropDownTO> statusList = _iDimensionBL.SelectCDStructureForDropDown();
+            List<DropDownTO> statusList = _iDimensionBL.SelectCDStructureForDropDown(moduleId);
             return statusList;
         }
 
@@ -1171,7 +1188,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetCDStructureForDropDownById")]
         [HttpGet]
-        public DropDownTO GetCDStructureForDropDown(Int32 cdstructureId)
+        public DropDownTO GetCDStructureForDropDownById(Int32 cdstructureId)
         {
             return _iDimensionBL.SelectCDDropDown(cdstructureId);
 

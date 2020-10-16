@@ -19,6 +19,14 @@ namespace ODLMWebAPI.Models
         String location;
         String deviceId;
         String machineIP;
+        //Aniket [30-7-2019] added for IOT
+        string portNumber;
+        string ioTUrl;
+        int isActive;
+        int layerId;
+        int weightMeasurTypeId;
+        int idWeightMeasure;
+        String userIds;
         #endregion
 
         #region Constructor
@@ -89,6 +97,14 @@ namespace ODLMWebAPI.Models
             get { return machineIP; }
             set { machineIP = value; }
         }
+
+        public string PortNumber { get => portNumber; set => portNumber = value; }
+        public string IoTUrl { get => ioTUrl; set => ioTUrl = value; }
+        public int IsActive { get => isActive; set => isActive = value; }
+        public int LayerId { get => layerId; set => layerId = value; }
+        public int WeightMeasurTypeId { get => weightMeasurTypeId; set => weightMeasurTypeId = value; }
+        public int IdWeightMeasure { get => idWeightMeasure; set => idWeightMeasure = value; }
+        public string UserIds { get => userIds; set => userIds = value; }
         #endregion
     }
 }

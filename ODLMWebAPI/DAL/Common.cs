@@ -14,16 +14,112 @@ using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.StaticStuff;
 using System.Dynamic;
 using ODLMWebAPI.Models;
+using ODLMWebAPI.IoT;
+using System.Threading;
+using System.Text;
 
 namespace ODLMWebAPI.DAL
 { 
     public class Common : ICommon
     {
         private readonly IConnectionString _iConnectionString;
-        public Common(IConnectionString iConnectionString)
+        private readonly IModbusRefConfig _iModbusRefConfig;
+
+        static readonly object uniqueModBusRefIdLock = new object();
+
+        public Common(IConnectionString iConnectionString, IModbusRefConfig iModbusRefConfig)
         {
             _iConnectionString = iConnectionString;
+         _iModbusRefConfig =iModbusRefConfig;
         }
+
+        public List<int> GeModRefMaxData()
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlDataReader sqlReader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = " SELECT TOP 255 modbusRefId FROM tempLoading WHERE modbusRefId IS NOT NULL ORDER BY modbusRefId DESC";
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Connection = conn;
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<int> list = new List<int>();
+                if (sqlReader != null)
+                {
+                    while (sqlReader.Read())
+                    {
+                        int modRefId = 0;
+                        if (sqlReader["modbusRefId"] != DBNull.Value)
+                            modRefId = Convert.ToInt32(sqlReader["modbusRefId"].ToString());
+                        if (modRefId > 0)
+                            list.Add(modRefId);
+                    }
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                sqlReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+        #region GetNextAvailableModRefIdNew
+        //Aniket [30-7-2019]  added for IOT
+        public int GetNextAvailableModRefIdNew()
+        {
+
+            lock (uniqueModBusRefIdLock)
+            {
+                int modRefNumber = 0;
+                List<int> list = GeModRefMaxData();
+                if (list != null && list.Count > 0)
+                {
+                    int maxNumber = 1;
+                    modRefNumber = GetAvailNumber(list, maxNumber);
+                }
+                else
+                {
+                    modRefNumber = 1;
+                }
+                bool isInList = list.Contains(modRefNumber);
+                if (isInList)
+                    return 0;
+                else
+                    list.Add(modRefNumber);
+                //     Random num = new Random();
+                //    modRefNumber= num.Next(1, 255);
+                return modRefNumber;
+            }
+        }
+
+
+        public int GetAvailNumber(List<int> list, int maxNumber)
+        {
+            if (list.Contains(maxNumber))
+            {
+                if (maxNumber > 255)
+                {
+                    return 0;
+                }
+                maxNumber++;
+                return GetAvailNumber(list, maxNumber);
+            }
+            else
+            {
+                return maxNumber;
+            }
+        }
+        #endregion
 
         public System.DateTime SelectServerDateTime()
         {
@@ -35,14 +131,14 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 /*To get Server Date Time for Local DB*/
-                String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
+                //String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
 
-                //To get Server Date Time for Azure Server DB
-                //string sqlQuery = " declare @dfecha as datetime " +
-                //                  " declare @d as datetimeoffset " +
-                //                  " set @dfecha= sysdatetime()   " +
-                //                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
-                //                  " select convert(datetime, @d)";
+                ////To get Server Date Time for Azure Server DB
+                string sqlQuery = " declare @dfecha as datetime " +
+                                  " declare @d as datetimeoffset " +
+                                  " set @dfecha= sysdatetime()   " +
+                                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
+                                  " select convert(datetime, @d)";
 
                 cmdSelect = new SqlCommand(sqlQuery, conn);
 
@@ -206,6 +302,9 @@ namespace ODLMWebAPI.DAL
                 throw exc;
             }
         }
+
+
+
         public void PostSnoozeAndroid(String RequestOriginString)
         {
             
@@ -376,5 +475,31 @@ public  string SelectApKLoginArray(int userId)
             }
         }
         #endregion
+        public dynamic PostSalesInvoiceToSAP(TblInvoiceTO tblInvoiceTO)
+        {
+            var tRequest = WebRequest.Create(Startup.StockUrl + "Commercial/PostSalesInvoiceToSAP") as HttpWebRequest;
+            try
+            {
+                tRequest.Method = "post";
+                tRequest.ContentType = "application/json";
+                var data = new
+                {
+                    data = tblInvoiceTO,
+                };
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(tblInvoiceTO);
+                Byte[] byteArray = Encoding.UTF8.GetBytes(json);
+                using (Stream dataStream = tRequest.GetRequestStreamAsync().Result)
+                {
+                    dataStream.Write(byteArray, 0, byteArray.Length);
+                }
+                var response = (HttpWebResponse)tRequest.GetResponseAsync().Result;
+                var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                return responseString;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

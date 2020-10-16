@@ -13,6 +13,7 @@ using System.Globalization;
 using System.Threading;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
+using ODLMWebAPI.IoT.Interfaces;
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ODLMWebAPI.Controllers
@@ -40,7 +41,10 @@ namespace ODLMWebAPI.Controllers
         private readonly ITblLoadingQuotaTransferBL _iTblLoadingQuotaTransferBL;
         private readonly IDimStatusBL _iDimStatusBL;
         private readonly ICommon _iCommon;
-        public LoadSlipController(ITblInvoiceBL iTblInvoiceBL, IDimStatusBL iDimStatusBL, ITblLoadingQuotaTransferBL iTblLoadingQuotaTransferBL, ITblGlobalRateBL iTblGlobalRateBL, ITblUnloadingStandDescBL iTblUnloadingStandDescBL, ITblUnLoadingBL iTblUnLoadingBL, ITblBookingDelAddrBL iTblBookingDelAddrBL, ITblConfigParamsBL iTblConfigParamsBL, ITblLoadingAllowedTimeBL iTblLoadingAllowedTimeBL, ITblLoadingSlipExtBL iTblLoadingSlipExtBL, ITblLoadingQuotaDeclarationBL iTblLoadingQuotaDeclarationBL, ITblLoadingQuotaConfigBL iTblLoadingQuotaConfigBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ICommon iCommon, ITblStatusReasonBL iTblStatusReasonBL, ITblUserBL iTblUserBL, ITblLoadingBL iTblLoadingBL, ITblTransportSlipBL iTblTransportSlipBL)
+        private readonly IFinalBookingData _iFinalBookingData;
+        private readonly IIotCommunication _iIotCommunication;
+        private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
+        public LoadSlipController(ITblConfigParamsDAO iTblConfigParamsDAO, IFinalBookingData iFinalBookingData,IIotCommunication iIotCommunication,ITblInvoiceBL iTblInvoiceBL, IDimStatusBL iDimStatusBL, ITblLoadingQuotaTransferBL iTblLoadingQuotaTransferBL, ITblGlobalRateBL iTblGlobalRateBL, ITblUnloadingStandDescBL iTblUnloadingStandDescBL, ITblUnLoadingBL iTblUnLoadingBL, ITblBookingDelAddrBL iTblBookingDelAddrBL, ITblConfigParamsBL iTblConfigParamsBL, ITblLoadingAllowedTimeBL iTblLoadingAllowedTimeBL, ITblLoadingSlipExtBL iTblLoadingSlipExtBL, ITblLoadingQuotaDeclarationBL iTblLoadingQuotaDeclarationBL, ITblLoadingQuotaConfigBL iTblLoadingQuotaConfigBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ICommon iCommon, ITblStatusReasonBL iTblStatusReasonBL, ITblUserBL iTblUserBL, ITblLoadingBL iTblLoadingBL, ITblTransportSlipBL iTblTransportSlipBL)
         {
             _iTblStatusReasonBL = iTblStatusReasonBL;
             _iTblUserBL = iTblUserBL;
@@ -61,6 +65,9 @@ namespace ODLMWebAPI.Controllers
             _iTblLoadingQuotaTransferBL = iTblLoadingQuotaTransferBL;
             _iDimStatusBL = iDimStatusBL;
             _iCommon = iCommon;
+            _iIotCommunication = iIotCommunication;
+            _iTblConfigParamsDAO = iTblConfigParamsDAO;
+            _iFinalBookingData = iFinalBookingData;
         }
         #region Get
         
@@ -237,7 +244,7 @@ namespace ODLMWebAPI.Controllers
         /// <returns></returns>
         [Route("GetLoadingDetailsForReport")]
         [HttpGet]
-        public List<TblLoadingTO> GetLoadingDetailsForReport(string fromDate, string toDate)
+        public List<TblLoadingTO> GetLoadingDetailsForReport(string fromDate, string toDate, string selectedOrgStr)
         {
             DateTime frmDate = DateTime.MinValue;
             DateTime tDate = DateTime.MinValue;
@@ -251,7 +258,16 @@ namespace ODLMWebAPI.Controllers
                 frmDate = serverDate.Date;
             if (tDate == DateTime.MinValue)
                 tDate = serverDate.Date;
-            return _iTblLoadingBL.GetLoadingDetailsForReport(frmDate, tDate);
+
+            if (string.IsNullOrEmpty(selectedOrgStr))
+            {
+                TblConfigParamsTO tblConfigParamsTempTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                if (tblConfigParamsTempTO != null)
+                {
+                    selectedOrgStr = Convert.ToString(tblConfigParamsTempTO.ConfigParamVal) + ",0";
+                }
+            }
+            return _iTblLoadingBL.GetLoadingDetailsForReport(frmDate, tDate, selectedOrgStr);
         }
 
 
@@ -288,10 +304,10 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetAllPendingLoadingList")]
         [HttpGet]
-        public List<TblLoadingTO> GetAllPendingLoadingList(string userRoleTOList, Int32 cnfId, Int32 loadingStatusId, string fromDate, String toDate,Int32 loadingTypeId,Int32 dealerId, Int32 isConfirm = -1, Int32 brandId = 0, Int32 loadingNavigateId = 0,Int32 superwisorId=0)
+        public List<TblLoadingTO> GetAllPendingLoadingList(string userRoleTOList, Int32 cnfId, Int32 loadingStatusId, string fromDate, String toDate,Int32 loadingTypeId,Int32 dealerId,string selectedOrgStr, Int32 isConfirm = -1, Int32 brandId = 0, Int32 loadingNavigateId = 0,Int32 superwisorId=0)
         {
             try
-            {
+           {
                 DateTime frmDate = DateTime.MinValue;
                 DateTime tDate = DateTime.MinValue;
                 if (Constants.IsDateTime(fromDate))
@@ -304,10 +320,17 @@ namespace ODLMWebAPI.Controllers
                     frmDate = serverDate.Date;
                 if (tDate == DateTime.MinValue)
                     tDate = serverDate.Date;
-
+                if (string.IsNullOrEmpty(selectedOrgStr))
+                {
+                    TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                    if (tblConfigParamsTO != null)
+                    {
+                        selectedOrgStr = Convert.ToString(tblConfigParamsTO.ConfigParamVal) + ",0";
+                    }
+                }
                 List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleTOList);
 
-                return _iTblLoadingBL.SelectAllTblLoadingList(tblUserRoleTOList, cnfId, loadingStatusId, frmDate, tDate, loadingTypeId, dealerId, isConfirm, brandId, loadingNavigateId,superwisorId);
+                return _iTblLoadingBL.SelectAllTblLoadingList(tblUserRoleTOList, cnfId, loadingStatusId, frmDate, tDate, loadingTypeId, dealerId,selectedOrgStr, isConfirm, brandId, loadingNavigateId,superwisorId);
             }
             catch (Exception ex)
             {
@@ -330,7 +353,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetAllLoadingSlipList")]
         [HttpGet]
-        public List<TblLoadingSlipTO> GetAllLoadingSlipList(string userRoleTOList, Int32 cnfId, Int32 loadingStatusId, string fromDate, String toDate, Int32 loadingTypeId, Int32 dealerId, Int32 isConfirm = -1, Int32 brandId = 0,Int32 superwisorId=0)
+        public List<TblLoadingSlipTO> GetAllLoadingSlipList(string userRoleTOList, Int32 cnfId, Int32 loadingStatusId, string fromDate, String toDate, Int32 loadingTypeId, Int32 dealerId, string selectedOrgStr, Int32 isConfirm = -1, Int32 brandId = 0, Int32 superwisorId = 0)
         {
             try
             {
@@ -347,9 +370,17 @@ namespace ODLMWebAPI.Controllers
                 if (tDate == DateTime.MinValue)
                     tDate = serverDate.Date;
 
+                if (string.IsNullOrEmpty(selectedOrgStr))
+                {
+                    TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                    if (tblConfigParamsTO != null)
+                    {
+                        selectedOrgStr = Convert.ToString(tblConfigParamsTO.ConfigParamVal) + ",0";
+                    }
+                }
                 List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleTOList);
 
-                return _iTblLoadingSlipBL.SelectAllLoadingSlipList(tblUserRoleTOList, cnfId, loadingStatusId, frmDate, tDate, loadingTypeId, dealerId, isConfirm, brandId, superwisorId);
+                return _iTblLoadingSlipBL.SelectAllLoadingSlipList(tblUserRoleTOList, cnfId, loadingStatusId, frmDate, tDate, loadingTypeId, dealerId, selectedOrgStr, isConfirm, brandId, superwisorId);
             }
             catch (Exception ex)
             {
@@ -421,12 +452,12 @@ namespace ODLMWebAPI.Controllers
         /// <returns></returns>
         [Route("GetAllInLoadingListByVehicleNo")]
         [HttpGet]
-        public List<TblLoadingTO> GetAllInLoadingListByVehicleNo(string vehicleNo)
+        public List<TblLoadingTO> GetAllInLoadingListByVehicleNo(string vehicleNo,int loadingId=0)//Aniket [13-6-2019] added loadingId paramater
         {
             try
             {
 
-                return _iTblLoadingBL.SelectAllLoadingListByVehicleNo(vehicleNo, false);
+                return _iTblLoadingBL.SelectAllLoadingListByVehicleNo(vehicleNo, false,loadingId);
             }
             catch (Exception ex)
             {
@@ -527,9 +558,20 @@ namespace ODLMWebAPI.Controllers
         [HttpGet]
         public List<TblLoadingTO> GetLoadingSlipsByStatus(String statusId)
         {
-            List<TblLoadingTO> list = _iTblLoadingBL.SelectAllLoadingListByStatus(statusId);
+            //Aniket [30-7-2019] added for IOT
+            int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+
+           
+            var tempStatusIds = statusId;
+            if (weightSourceConfigId == Convert.ToInt32(Constants.WeighingDataSourceE.IoT))
+            {
+                tempStatusIds = Convert.ToString((int)Constants.TranStatusE.LOADING_CONFIRM);
+            }
+            List<TblLoadingTO> list = _iTblLoadingBL.SelectAllLoadingListByStatus(tempStatusIds);
             if (list != null)
             {
+                string finalStatusId = _iIotCommunication.GetIotEncodedStatusIdsForGivenStatus(statusId);
+                list = _iTblLoadingBL.SetLoadingStatusData(finalStatusId, true, weightSourceConfigId, list);
                 List<TblLoadingTO> finalList = new List<TblLoadingTO>();
 
                 string[] statusIds = statusId.Split(',');
@@ -700,31 +742,7 @@ namespace ODLMWebAPI.Controllers
         [HttpGet]
         public ResultMessage IsThisVehicleDelivered(String vehicleNo)
         {
-            ResultMessage resultMessage = new ResultMessage();
-            List<TblLoadingTO> list = _iTblLoadingBL.SelectAllLoadingListByVehicleNo(vehicleNo, true);
-            if (list == null || list.Count == 0)
-            {
-                resultMessage.MessageType = ResultMessageE.Information;
-                resultMessage.Text = "Allowed , All Loadings Are Delivered";
-                resultMessage.Result = 1;
-            }
-            else
-            {
-                var lastObj = list.OrderByDescending(s => s.StatusDate).FirstOrDefault();
-                if (lastObj != null && lastObj.IsAllowNxtLoading == 1)
-                {
-                    resultMessage.MessageType = ResultMessageE.Information;
-                    resultMessage.Text = "Allowed ,  next Loadings is Allowed";
-                    resultMessage.Result = 1;
-                    return resultMessage;
-
-                }
-                resultMessage.MessageType = ResultMessageE.Error;
-                resultMessage.Text = "Not Allowed , Selected Vehicle :" + vehicleNo + " is not delivered . Last status is " + lastObj.StatusDesc;
-                resultMessage.Result = 0;
-            }
-
-            return resultMessage;
+            return _iTblLoadingBL.IsThisVehicleDelivered(vehicleNo);
         }
 
 
@@ -852,7 +870,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetAllTblLoadingSlipExtByDate")]
         [HttpGet]
-        public List<TblLoadingSlipExtTO> GetAllTblLoadingSlipExtByDate(string fromDate, string toDate)
+        public List<TblLoadingSlipExtTO> GetAllTblLoadingSlipExtByDate(string fromDate, string toDate,string selectedOrgStr)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -871,7 +889,6 @@ namespace ODLMWebAPI.Controllers
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date;
 
-
             String statusIdsStr = String.Empty;
 
             TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_SIZEWISE_LOADING_REPORT_STATUS_IDS);
@@ -879,8 +896,15 @@ namespace ODLMWebAPI.Controllers
             {
                 statusIdsStr = tblConfigParamsTO.ConfigParamVal;
             }
-
-            return _iTblLoadingSlipExtBL.SelectAllTblLoadingSlipExtByDate(frmDt, toDt, statusIdsStr);
+            if (string.IsNullOrEmpty(selectedOrgStr))
+            {
+                TblConfigParamsTO tblConfigParamsTempTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                if (tblConfigParamsTempTO != null)
+                {
+                    selectedOrgStr = Convert.ToString(tblConfigParamsTempTO.ConfigParamVal) + ",0";
+                }
+            }
+            return _iTblLoadingSlipExtBL.SelectAllTblLoadingSlipExtByDate(frmDt, toDt, statusIdsStr,selectedOrgStr);
         }
 
         [Route("GetProductGroupItemGlobalRate")]
@@ -939,9 +963,18 @@ namespace ODLMWebAPI.Controllers
         
         [Route("GetORCReportDetailsList")]
         [HttpGet]
-        public List<TblORCReportTO> GetORCReportDetailsList(DateTime fromDate, DateTime toDate, Int32 flag)
+        public List<TblORCReportTO> GetORCReportDetailsList(DateTime fromDate, DateTime toDate, Int32 flag,string selectedOrgStr)
         {
-            return _iTblLoadingSlipBL.SelectORCReportDetailsList(fromDate, toDate, flag);
+
+            if (string.IsNullOrEmpty(selectedOrgStr))
+            {
+                TblConfigParamsTO tblConfigParamsTempTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                if (tblConfigParamsTempTO != null)
+                {
+                    selectedOrgStr = Convert.ToString(tblConfigParamsTempTO.ConfigParamVal) + ",0";
+                }
+            }
+            return _iTblLoadingSlipBL.SelectORCReportDetailsList(fromDate, toDate, flag, selectedOrgStr);
         }
 
 
@@ -1027,8 +1060,11 @@ namespace ODLMWebAPI.Controllers
                     resultMessage.Text = "LoadingSlipList Found NULL";
                     return resultMessage;
                 }
+                resultMessage = _iTblLoadingBL.CalculateLoadingValuesRate(tblLoadingTO);
 
-                return _iTblLoadingBL.CalculateLoadingValuesRate(tblLoadingTO);
+                _iTblLoadingBL.IsLoadingShouldMerge(tblLoadingTO);
+
+                return resultMessage;
 
             }
             catch (Exception ex)
@@ -1059,7 +1095,7 @@ namespace ODLMWebAPI.Controllers
         /// <returns></returns>
         [Route("GetAllNotifiedLoadingList")]
         [HttpGet]
-        public List<TblLoadingSlipTO> GetAllNotifiedLoadingList(string fromDate, String toDate,Int32 callFlag)
+        public List<TblLoadingSlipTO> GetAllNotifiedLoadingList(string fromDate, String toDate,Int32 callFlag,string selectedOrgStr)
         {
             try
             {
@@ -1075,9 +1111,15 @@ namespace ODLMWebAPI.Controllers
                     frmDate = serverDate.Date;
                 if (tDate == DateTime.MinValue)
                     tDate = serverDate.Date;
-
-
-                return _iTblLoadingSlipBL.SelectAllNotifiedTblLoadingList(frmDate, tDate, callFlag);
+                if (string.IsNullOrEmpty(selectedOrgStr))
+                {
+                    TblConfigParamsTO tblConfigParamsTempTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                    if (tblConfigParamsTempTO != null)
+                    {
+                        selectedOrgStr = Convert.ToString(tblConfigParamsTempTO.ConfigParamVal) + ",0";
+                    }
+                }
+                return _iTblLoadingSlipBL.SelectAllNotifiedTblLoadingList(frmDate, tDate, callFlag, selectedOrgStr);
             }
             catch (Exception ex)
             {
@@ -1098,6 +1140,40 @@ namespace ODLMWebAPI.Controllers
             
             return _iTblLoadingBL.SelectLoadingTOWithDetailsByBooking(bookingIdsList,scheduleIdsList);
         }
+
+        //Kiran [21 - 8 - 2019] For Ckeck deliverd vehicle on IoT and remove data 
+        [Route("RemoveVehOutDatFromIotDevice")]
+        [HttpGet]
+        public ResultMessage RemoveVehOutDatFromIotDevice()
+        {
+            return _iTblLoadingBL.RemoveDatFromIotDevice();
+        }
+
+        [Route("PostInvoiceReportListForExcel")]
+        [HttpPost]
+        public ResultMessage PostInvoiceReportListForExcel([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                List<TblInvoiceRptTO> tblInvoiceList = JsonConvert.DeserializeObject<List<TblInvoiceRptTO>>(data["data"].ToString());
+                var result = _iFinalBookingData.CreateTempInvoiceExcel(tblInvoiceList, null, null);
+                if (result == 1)
+                {
+                    resultMessage.DefaultSuccessBehaviour();
+                }
+                return resultMessage;
+
+            }
+            catch (Exception ex)
+            {
+                resultMessage.Exception = ex;
+                resultMessage.Result = -1;
+                resultMessage.Text = "Exception in API Call";
+                return resultMessage;
+            }
+        }
+
 
         #endregion
 
@@ -1721,6 +1797,22 @@ namespace ODLMWebAPI.Controllers
                     resultMessage.DefaultBehaviour("loginUserId Found NULL");
                     return resultMessage;
                 }
+                TblLoadingTO existingTblLoadingTO = _iTblLoadingBL.SelectTblLoadingTO(tblLoadingTO.IdLoading);
+                if (existingTblLoadingTO == null)
+                {
+                    resultMessage.MessageType = ResultMessageE.Error;
+                    resultMessage.Text = "existingTblLoadingTO Found NULL";
+                    resultMessage.Result = 0;
+                    return resultMessage;
+                }
+                //Added By Kiran For avoid to change old value 14/03/19
+                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                {
+                    tblLoadingTO.VehicleNo = existingTblLoadingTO.VehicleNo;
+                    tblLoadingTO.StatusId = existingTblLoadingTO.StatusId;
+                    tblLoadingTO.TransporterOrgId = existingTblLoadingTO.TransporterOrgId;
+                }
 
                 //TblLoadingTO existingTblLoadingTO = _iTblLoadingBL.SelectTblLoadingTO(tblLoadingTO.IdLoading);
                 //if (existingTblLoadingTO == null)
@@ -1771,7 +1863,7 @@ namespace ODLMWebAPI.Controllers
                 var loginUserId = data["loginUserId"].ToString();
                 TblLoadingSlipTO loadingSlipTO = JsonConvert.DeserializeObject<TblLoadingSlipTO>(data["loadingSlipTo"].ToString());
 
-                //TblLoadingSlipTO loadingSlipTO = BL._iTblLoadingSlipBL.SelectTblLoadingSlipTO(Convert.ToInt32(loadingSlipId));
+                loadingSlipTO = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsForExtract(Convert.ToInt32(loadingSlipTO.IdLoadingSlip));
                 if (loadingSlipTO == null)
                 {
                     resultMessage.DefaultBehaviour("loadingSlipTO Found NULL");
@@ -1783,7 +1875,7 @@ namespace ODLMWebAPI.Controllers
                     return resultMessage;
                 }
 
-                return _iTblLoadingSlipBL.ChangeLoadingSlipConfirmationStatus(loadingSlipTO, Convert.ToInt32(loginUserId));
+                return _iTblLoadingBL.ChangeLoadingSlipConfirmationStatus(loadingSlipTO, Convert.ToInt32(loginUserId));
             }
             catch (Exception ex)
             {

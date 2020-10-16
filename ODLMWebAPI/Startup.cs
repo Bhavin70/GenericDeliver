@@ -25,6 +25,9 @@ using ODLMWebAPI.BL;
 using ODLMWebAPI.DAL;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.Authentication;
+using ODLMWebAPI.IoT;
+using ODLMWebAPI.IoT.Interfaces;
+using Newtonsoft.Json.Linq;
 
 namespace ODLMWebAPI
 {
@@ -35,27 +38,40 @@ namespace ODLMWebAPI
         public static string RequestOriginString { get; set; }
         public static string AzureConnectionStr { get; set; }
         public static string NewConnectionString { get; private set; }
+
+        public static JObject ConnectionJsonFile { get; private set; }
         public static string DeliverUrl { get; private set; }
+
+        //Aniket [30-7-2019] added for IOT
+        public static Int32 WeighingSrcConfig { get; private set; }
+
+        public static string IoTBackUpConnectionString { get; private set; }
+        //public static List<int> AvailableModbusRefList { get; set; }
+
+        public static string GateIotApiURL { get; set; }
+
         public static String SapConnectivityErrorCode { get; private set; }
         public static SAPbobsCOM.Company CompanyObject { get; private set; }
+        public static string StockUrl { get; private set; }
+
 
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
 
             //Sanjay[2017-02-11] For Logging Configuration
-#if DEBUG
+
             Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Error()
             .WriteTo.RollingFile("../logs/error_log-{Date}.txt")
             .WriteTo.Logger(l => l
             .MinimumLevel.Warning()
             .WriteTo.RollingFile("../logs/warling_log-{Date}.log")).CreateLogger();
-#else
+
                 Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
                 .WriteTo.RollingFile("../logs/log-{Date}.txt").CreateLogger();
-#endif
+
         }
 
         public IConfiguration Configuration { get; }
@@ -116,6 +132,8 @@ namespace ODLMWebAPI
            }
        });
 
+                //Hrushikesh added for IOT Configuration
+             services.AddScoped<IModbusRefConfig, ModbusRefConfig>();
             services.AddScoped<IDimBrandBL, DimBrandBL>();
             services.AddScoped<IDimDistrictBL, DimDistrictBL>();
             services.AddScoped<IDimensionBL, DimensionBL>();
@@ -496,6 +514,13 @@ namespace ODLMWebAPI
             services.AddScoped<IDimConfigurePageBL, DimConfigurePageBL>();
             services.AddScoped<IDimConfigurePageDAO, DimConfigurePageDAO>();
             services.AddScoped<InotificationDAO, notificationDAO>();
+            services.AddScoped<IGateCommunication, GateCommunication>();
+            services.AddScoped<IIotCommunication, IotCommunication>();
+            services.AddScoped<IWeighingCommunication, WeighingCommunication>();
+            services.AddScoped<ITblGateBL, TblGateBL>();
+            services.AddScoped<ITblGateDAO, TblGateDAO>();
+
+
             services.AddScoped<ITblInvoiceChangeOrgHistoryDAO, TblInvoiceChangeOrgHistoryDAO>();
 
 
@@ -505,6 +530,10 @@ namespace ODLMWebAPI
             RequestOriginString = Configuration.GetSection("Data:RequestOriginString").Value.ToString();
             NewConnectionString = Configuration.GetSection("Data:NewDefaultConnection").Value.ToString();
             DeliverUrl = Configuration.GetSection("Data:DeliverUrl").Value.ToString();
+            StockUrl = Configuration.GetSection("Data:StockUrl").Value.ToString();
+            
+
+            ConnectionJsonFile = JObject.Parse(System.IO.File.ReadAllText(@".\connection.json"));
 
             //TblConfigParamsTO tblConfigParamsTO = BL.TblConfigParamsBL.SelectTblConfigParamsValByName(StaticStuff.Constants.CP_AZURE_CONNECTIONSTRING_FOR_DOCUMENTATION);
             //if (tblConfigParamsTO != null)
@@ -530,12 +559,12 @@ namespace ODLMWebAPI
             //}
 
             // Vaibhav [15-Mar-2018] Configure authentication server.
-            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-                    .AddIdentityServerAuthentication(options =>
-                    {
-                        options.Authority = "http://localhost:5000"; // Auth Server
-                        options.RequireHttpsMetadata = false;
-                    });
+            //services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+            //        .AddIdentityServerAuthentication(options =>
+            //        {
+            //            options.Authority = "http://localhost:5000"; // Auth Server
+            //            options.RequireHttpsMetadata = false;
+            //        });
         }
 
         public void DOSapLogin()
@@ -634,6 +663,9 @@ namespace ODLMWebAPI
                     }
                 });
 
+                //setting up multiTenant modbusRefLists
+                //Hrushikesh
+                //ModbusRefConfig.setModbusRef();
 
         }
     }

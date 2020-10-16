@@ -388,7 +388,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<DropDownTO> SelectCDStructureForDropDown(Int32 isRsOrPerncent)
+        public List<DropDownTO> SelectCDStructureForDropDown(Int32 isRsOrPerncent, Int32 moduleId=0)
         {
 
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -406,6 +406,10 @@ namespace ODLMWebAPI.DAL
                 else if (isRsOrPerncent == 2)
                 {
                     sqlQuery += " AND isPercent=1";
+                }
+                if(moduleId>0)
+                {
+                    sqlQuery += " And moduleId= " + moduleId;
                 }
 
                 cmdSelect = new SqlCommand(sqlQuery, conn);
@@ -1140,6 +1144,43 @@ namespace ODLMWebAPI.DAL
 
         }
 
+        public String SelectInvoiceEntityNameByInvoiceTypeId(Int32 idInvoiceType)
+        {
+
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            SqlDataReader dateReader = null;
+            try
+            {
+                conn.Open();
+                String aqlQuery = "SELECT entityName FROM dimInvoiceTypes WHERE  isActive=1 AND idInvoiceType = " + idInvoiceType;
+
+                cmdSelect = new SqlCommand(aqlQuery, conn);
+                dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DropDownTO> dropDownTOList = new List<Models.DropDownTO>();
+                String entityName = String.Empty;
+                while (dateReader.Read())
+                {
+                    if (dateReader["entityName"] != DBNull.Value)
+                        entityName = Convert.ToString(dateReader["entityName"].ToString());
+                }
+                return entityName;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                dateReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+
+        }
+
+
         public List<DropDownTO> SelectInvoiceModeForDropDown()
         {
 
@@ -1304,6 +1345,52 @@ namespace ODLMWebAPI.DAL
             {
                 if (dateReader != null)
                     dateReader.Dispose();
+                cmdSelect.Dispose();
+            }
+
+        }
+
+
+        public List<DimFinYearTO> SelectAllMstFinYearList()
+        {
+
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            ResultMessage resultMessage = new ResultMessage();
+            SqlDataReader dateReader = null;
+            try
+            {
+                conn.Open();
+                String aqlQuery = "SELECT * FROM dimFinYear ";
+
+                cmdSelect = new SqlCommand(aqlQuery, conn);
+                dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DimFinYearTO> finYearTOList = new List<DimFinYearTO>();
+                while (dateReader.Read())
+                {
+                    DimFinYearTO finYearTO = new DimFinYearTO();
+                    if (dateReader["idFinYear"] != DBNull.Value)
+                        finYearTO.IdFinYear = Convert.ToInt32(dateReader["idFinYear"].ToString());
+                    if (dateReader["finYearDisplayName"] != DBNull.Value)
+                        finYearTO.FinYearDisplayName = Convert.ToString(dateReader["finYearDisplayName"].ToString());
+                    if (dateReader["finYearStartDate"] != DBNull.Value)
+                        finYearTO.FinYearStartDate = Convert.ToDateTime(dateReader["finYearStartDate"].ToString());
+                    if (dateReader["finYearEndDate"] != DBNull.Value)
+                        finYearTO.FinYearEndDate = Convert.ToDateTime(dateReader["finYearEndDate"].ToString());
+
+                    finYearTOList.Add(finYearTO);
+                }
+
+                return finYearTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
                 cmdSelect.Dispose();
             }
 
@@ -1475,6 +1562,139 @@ namespace ODLMWebAPI.DAL
             }
             catch (Exception ex)
             {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+        public List<DimExportTypeTO> GetExportTypeList()
+        {
+
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            try
+            {
+                conn.Open();
+                String aqlQuery = "SELECT * FROM dimExportType WHERE isActive=1";
+
+                cmdSelect = new SqlCommand(aqlQuery, conn);
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DimExportTypeTO> DimExportTypeTOList = new List<Models.DimExportTypeTO>();
+                while (dateReader.Read())
+                {
+                    DimExportTypeTO DimExportTypeTO = new DimExportTypeTO();
+                    if (dateReader["idExportType"] != DBNull.Value)
+                        DimExportTypeTO.IdExportType = Convert.ToInt32(dateReader["idExportType"].ToString());
+                    if (dateReader["exportTypeName"] != DBNull.Value)
+                        DimExportTypeTO.ExportTypeName = Convert.ToString(dateReader["exportTypeName"].ToString());
+                    if (dateReader["isActive"] != DBNull.Value)
+                        DimExportTypeTO.IsActive = Convert.ToInt32(dateReader["isActive"].ToString());
+
+                    DimExportTypeTOList.Add(DimExportTypeTO);
+                }
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return DimExportTypeTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+
+        }
+
+        public List<DimIndustrySegmentTO> GetIndustryTypeList()
+        {
+
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            try
+            {
+                conn.Open();
+                String aqlQuery = "SELECT * FROM dimIndustrySegment WHERE isActive=1";
+
+                cmdSelect = new SqlCommand(aqlQuery, conn);
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DimIndustrySegmentTO> DimIndustrySegmentTOList = new List<Models.DimIndustrySegmentTO>();
+                while (dateReader.Read())
+                {
+                    DimIndustrySegmentTO DimIndustrySegmentTO = new DimIndustrySegmentTO();
+                    if (dateReader["idIndustrySegment"] != DBNull.Value)
+                        DimIndustrySegmentTO.IdIndustrySegment = Convert.ToInt32(dateReader["idIndustrySegment"].ToString());
+                    if (dateReader["industrySegName"] != DBNull.Value)
+                        DimIndustrySegmentTO.IndustrySegName = Convert.ToString(dateReader["industrySegName"].ToString());
+                    if (dateReader["isActive"] != DBNull.Value)
+                        DimIndustrySegmentTO.IsActive = Convert.ToInt32(dateReader["isActive"].ToString());
+
+                    DimIndustrySegmentTOList.Add(DimIndustrySegmentTO);
+                }
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return DimIndustrySegmentTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+
+        }
+
+
+        public List<DimIndustrySegmentTypeTO> GetIndustrySegmentTypeList(Int32 industrySegmentId)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            ResultMessage resultMessage = new ResultMessage();
+            try
+            {
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = CommandType.Text;
+                cmdSelect.CommandText = "select * from dimIndustrySegmentType  WHERE  industrySegmentId = " + industrySegmentId;
+
+                conn.Open();
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DimIndustrySegmentTypeTO> DimIndustrySegmentTypeTOList = new List<Models.DimIndustrySegmentTypeTO>();
+                while (dateReader.Read())
+                {
+                    DimIndustrySegmentTypeTO DimIndustrySegmentTypeTO = new DimIndustrySegmentTypeTO();
+                    if (dateReader["idIndustrySegType"] != DBNull.Value)
+                        DimIndustrySegmentTypeTO.IdIndustrySegType = Convert.ToInt32(dateReader["idIndustrySegType"].ToString());
+                    if (dateReader["typeName"] != DBNull.Value)
+                        DimIndustrySegmentTypeTO.TypeName = Convert.ToString(dateReader["typeName"].ToString());
+                    if (dateReader["industrySegmentId"] != DBNull.Value)
+                        DimIndustrySegmentTypeTO.IndustrySegmentId = Convert.ToInt32(dateReader["industrySegmentId"].ToString());
+                    if (dateReader["isActive"] != DBNull.Value)
+                        DimIndustrySegmentTypeTO.IsActive = Convert.ToInt32(dateReader["isActive"].ToString());
+
+                    DimIndustrySegmentTypeTOList.Add(DimIndustrySegmentTypeTO);
+                }
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return DimIndustrySegmentTypeTOList;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "industrySegmentTypeList");
                 return null;
             }
             finally
@@ -2461,6 +2681,47 @@ namespace ODLMWebAPI.DAL
             }
             finally
             {
+                cmdInsert.Dispose();
+            }
+        }
+
+        public int InsertMstFinYear(DimFinYearTO newMstFinYearTO)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdInsert = new SqlCommand();
+            try
+            {
+
+                conn.Open();
+                String sqlQuery = @" INSERT INTO [dimFinYear]( " +
+                            "  [idFinYear]" +
+                            " ,[finYearDisplayName]" +
+                            " ,[finYearStartDate]" +
+                            " ,[finYearEndDate]" +
+                            " )" +
+                " VALUES (" +
+                            "  @idFinYear " +
+                            " ,@finYearDisplayName " +
+                            " ,@finYearStartDate " +
+                            " ,@finYearEndDate " +
+                            " )";
+                cmdInsert.CommandText = sqlQuery;
+                cmdInsert.CommandType = System.Data.CommandType.Text;
+
+                cmdInsert.Parameters.Add("@idFinYear", System.Data.SqlDbType.Int).Value = newMstFinYearTO.IdFinYear;
+                cmdInsert.Parameters.Add("@finYearDisplayName", System.Data.SqlDbType.NVarChar).Value = newMstFinYearTO.FinYearDisplayName;
+                cmdInsert.Parameters.Add("@finYearStartDate", System.Data.SqlDbType.DateTime).Value = newMstFinYearTO.FinYearStartDate;
+                cmdInsert.Parameters.Add("@finYearEndDate", System.Data.SqlDbType.DateTime).Value = newMstFinYearTO.FinYearEndDate;
+                return cmdInsert.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                conn.Close();
                 cmdInsert.Dispose();
             }
         }

@@ -705,12 +705,13 @@ namespace ODLMWebAPI.DAL
             {
                 cmdUpdate.Connection = conn;
                 cmdUpdate.Transaction = tran;
-
+                cmdUpdate.CommandTimeout = 60;
                 String sqlQuery = @" UPDATE [tblQuotaDeclaration] SET " +
                                   "  [isActive] = @isActive " +
                                   " ,[updatedBy] = @updatedBy " +
                                   " ,[validUpto] = @validUpto " +
-                                  " ,[updatedOn] = @updatedOn ";
+                                  " ,[updatedOn] = @updatedOn " +
+                                  "  WHERE isActive = 1 ";
 
                 cmdUpdate.CommandText = sqlQuery;
                 cmdUpdate.CommandType = System.Data.CommandType.Text;
@@ -816,7 +817,7 @@ namespace ODLMWebAPI.DAL
                 updateCommand.Connection = conn;
                 conn.Open();
                 updateCommand.CommandText = "select * from tblQuotaDeclaration  where orgId= @cnfOrgId " +
-                    "and globalRateId= ( select idGlobalRate from tblGlobalRate where cast(createdOn as date) = cast( @currentDate as date) and brandId = @brandId)";
+                    "and globalRateId IN ( select idGlobalRate from tblGlobalRate where cast(createdOn as date) = cast( @currentDate as date) and brandId = @brandId)";
                
                 updateCommand.Parameters.AddWithValue("@currentDate", DbType.DateTime).Value = serverDate;
                 updateCommand.Parameters.AddWithValue("@brandId", DbType.Int32).Value = brandId;

@@ -331,17 +331,17 @@ namespace ODLMWebAPI.Controllers
                     return returnMsg;
                 }
 
+                stockSummaryTO.CreatedOn = _iCommon.ServerDateTime;
+                stockSummaryTO.CreatedBy = Convert.ToInt32(loginUserId);
 
                 for (int i = 0; i < stockSummaryTO.StockDetailsTOList.Count; i++)
                 {
                     stockSummaryTO.StockDetailsTOList[i].CreatedBy = Convert.ToInt32(loginUserId);
                     stockSummaryTO.StockDetailsTOList[i].UpdatedBy = Convert.ToInt32(loginUserId);
-                    stockSummaryTO.StockDetailsTOList[i].CreatedOn = _iCommon.ServerDateTime;
-                    stockSummaryTO.StockDetailsTOList[i].UpdatedOn = _iCommon.ServerDateTime; 
+                    stockSummaryTO.StockDetailsTOList[i].CreatedOn = stockSummaryTO.CreatedOn;
+                    stockSummaryTO.StockDetailsTOList[i].UpdatedOn = stockSummaryTO.CreatedOn; 
                 }
 
-                stockSummaryTO.CreatedOn = _iCommon.ServerDateTime;
-                stockSummaryTO.CreatedBy = Convert.ToInt32(loginUserId);
                 ResultMessage resMsg = _iTblStockSummaryBL.UpdateDailyStock(stockSummaryTO);
                 return resMsg;
             }

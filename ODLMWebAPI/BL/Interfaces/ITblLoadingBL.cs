@@ -14,11 +14,11 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblLoadingTO> SelectAllTblLoadingList();
         List<TblLoadingTO> SelectAllTblLoadingListForConvertNCToC();
         List<TblLoadingTO> SelectAllLoadingsFromParentLoadingId(int parentLoadingId);
-        List<TblLoadingTO> SelectAllTblloadingList(DateTime fromDate, DateTime toDate);
-        List<TblLoadingTO> SelectAllTblLoadingList(List<TblUserRoleTO> tblUserRoleTOList, Int32 cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, Int32 isConfirm, Int32 brandId, Int32 loadingNavigateId, Int32 superwisorId);
-        List<TblLoadingTO> GetLoadingDetailsForReport(DateTime fromDate, DateTime toDate);
+        List<TblLoadingTO> SelectAllTblloadingList(DateTime fromDate, DateTime toDate,string selectedOrgStr);
+        List<TblLoadingTO> SelectAllTblLoadingList(List<TblUserRoleTO> tblUserRoleTOList, Int32 cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId, string selectedOrgStr, Int32 isConfirm, Int32 brandId, Int32 loadingNavigateId, Int32 superwisorId);
+        List<TblLoadingTO> GetLoadingDetailsForReport(DateTime fromDate, DateTime toDate,string selectedOrgStr);
         List<TblLoadingTO> SelectAllTblLoadingLinkList(List<TblUserRoleTO> tblUserRoleTOList, Int32 dearlerOrgId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate);
-        List<TblLoadingTO> SelectAllLoadingListByStatus(string statusId);
+        List<TblLoadingTO> SelectAllLoadingListByStatus(string statusId,int gateId=0);
         TblLoadingTO SelectTblLoadingTO(Int32 idLoading, SqlConnection conn, SqlTransaction tran);
         TblLoadingTO SelectTblLoadingTO(Int32 idLoading);
         TblLoadingTO SelectTblLoadingTOByLoadingSlipId(Int32 loadingSlipId);
@@ -34,8 +34,8 @@ namespace ODLMWebAPI.BL.Interfaces
 
         List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo);
         List<TblLoadingTO> SelectLoadingTOWithDetailsByLoadingNoForSupport(String loadingSlipNo);
-        List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading);
-        List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading, SqlConnection conn, SqlTransaction tran);
+        List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading, int loadingId);
+        List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, bool isAllowNxtLoading, int loadingId, SqlConnection conn, SqlTransaction tran);
         List<TblLoadingTO> SelectAllLoadingListByVehicleNoForDelOut(string vehicleNo, SqlConnection conn, SqlTransaction tran);
         List<TblLoadingTO> SelectAllInLoadingListByVehicleNo(string vehicleNo);
         Dictionary<Int32, Int32> SelectCountOfLoadingsOfSuperwisorDCT(DateTime date);
@@ -83,6 +83,34 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage DeleteAllBookings(List<Int32> bookingsIdList);
         ResultMessage DeleteAllBookings(List<int> bookingsIdsList, SqlConnection conn, SqlTransaction tran);
         int DeleteDispatchBookingData(Int32 bookingId, SqlConnection conn, SqlTransaction tran);
+        ResultMessage UpdateLoadingStatusToGateIoT(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran);
+        ResultMessage PostChangeGateIOTAgainstLoading(TblLoadingTO tblLoadingTO);
+
+        List<TblLoadingTO> SetLoadingStatusData(String loadingStatusId, bool isEncoded, int configId, List<TblLoadingTO> tblLoadingTOList);
+
+        ResultMessage RightDataFromIotToDB(Int32 loadingId, TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran);
+
+        ResultMessage SpiltBookingAgainstInvoice(TblInvoiceTO tblInvoiceTO, TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran);
+
+        ResultMessage GenerateInvoiceNumber(Int32 invoiceId, Int32 loginUserId, Int32 isconfirm, Int32 invGenModeId, int fromOrgId, int toOrgId, String taxInvoiceNumber = "", Int32 manualinvoiceno = 0, String invComment = "");
+
+        ResultMessage RemoveDatFromIotDevice();
+
+        TblLoadingTO SelectTblLoadingTOByModBusRefId(Int32 modBusRefId);
+
+        TblLoadingTO SelectTblLoadingTOByModBusRefId(Int32 modBusRefId, SqlConnection conn, SqlTransaction tran);
+
+        ResultMessage MarkDeliverAndRemoveModBusRefs(Int32 loadingId);
+
+        ResultMessage MarkDeliverAndRemoveModBusRefs(Int32 loadingId, SqlConnection conn, SqlTransaction tran);
+
+        ResultMessage DeleteLoadingData(Int32 loadingId, SqlConnection conn, SqlTransaction tran);
         ResultMessage PrintReport(int idLoading, bool isPrinted);
+
+        ResultMessage IsThisVehicleDelivered(String vehicleNo, Int32 checkOnDevice = 0);
+        ResultMessage IsLoadingShouldMerge(TblLoadingTO tblLoadingTO);
+
+        List<TblInvoiceTO> SelectAllInvoiceListByVehicleNo(string vehicleNo, DateTime frmDt, DateTime toDt);
+        ResultMessage ChangeLoadingSlipConfirmationStatus(TblLoadingSlipTO tblLoadingSlipTO, Int32 loginUserId);
     }
 }

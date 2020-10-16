@@ -65,11 +65,11 @@ namespace ODLMWebAPI.StaticStuff
             }
         }
         #endregion
-//vipul[06/05/2019] user subscription active count setting
-         public enum UsersSubscriptionActiveCntCalSetting
+        //vipul[06/05/2019] user subscription active count setting
+        public enum UsersSubscriptionActiveCntCalSetting
         {
             ByTab = 1,
-            WithOutTab=2,
+            WithOutTab = 2,
         }
         #region Enumerations
 
@@ -166,7 +166,8 @@ namespace ODLMWebAPI.StaticStuff
             UNLOADING_COMPLETED = 22,
             UNLOADING_CANCELED = 23,
             BOOKING_PENDING_FOR_DIRECTOR_APPROVAL = 24,  //Sanjay [2017-12-19] New Status when Finance Forward Booking to Director Approval.
-            BOOKING_HOLD_BY_ADMIN_OR_DIRECTOR = 25                            //Priyanka [2018-30-07] Added for adding new status in booking.
+            BOOKING_HOLD_BY_ADMIN_OR_DIRECTOR = 25,                          //Priyanka [2018-30-07] Added for adding new status in booking.
+            INVOICE_GENERATED_AND_READY_FOR_DISPACH = 26,
         }
 
         public enum LoadingLayerE
@@ -450,11 +451,25 @@ namespace ODLMWebAPI.StaticStuff
             READ = 1,
             DELETE = 2
         }
-
+        //Aniket [30-7-2019] : Added enum for modBusTCP.
+        public enum WeighingDataSourceE
+        {
+            DB = 1,
+            IoT = 2,
+            BOTH = 3
+        }
+        public enum ActiveSelectionTypeE
+        {
+            Both = 1,
+            Active = 2,
+            NonActive = 3
+        }
         #endregion
 
         #region Constants Or Static Strings
         public static String Local_URL = "http://localhost:4200";
+        //Added by Kiran for set current module id as per tblmodule sequence
+        public static Int32 DefaultModuleID = 1;
         public static Boolean Local_API = true;
         public static String CONNECTION_STRING = "ConnectionString";
         public static String AZURE_CONNECTION_STRING = "AzureConnectionStr";
@@ -479,8 +494,8 @@ namespace ODLMWebAPI.StaticStuff
         // Vaibhav [17-Dec-2017] Added to file encrypt descrypt and upload to azure
         //public static string AzureConnectionStr = "DefaultEndpointsProtocol=https;AccountName=apkupdates;AccountKey=IvC+sc8RLDl3DeH8uZ97A4jX978v78bVFHRQk/qxg2C/J8w/DRslJlLsK7JTF+KhOM0MNUZg443GCVXe3jIanA==";
         //public static string EncryptDescryptKey = "MAKV2SPBNI99212";
-        public static string AzureSourceContainerName = "kalikaextract";
-        public static string AzureTargetContainerName = "newdocuments";
+        public static string AzureSourceContainerName = "srjdocuments";
+        public static string AzureTargetContainerName = "srjnewdocuments";
         public static string ExcelSheetName = "TranData";
         public static string ExcelFileName = "Tran";
         public static int LoadingCountForDataExtraction = 50;
@@ -509,6 +524,8 @@ namespace ODLMWebAPI.StaticStuff
         public static string DEFAULT_FETCH_SUCCESS_MSG = "Record Fetch Succesfully";
 
         public static string DEFAULT_NOTFOUND_MSG = " Record Could not be found";
+        public static string CP_POST_SALES_INVOICE_TO_SAP_DIRECTLY_AFTER_INVOICE_GENERATION = "CP_POST_SALES_INVOICE_TO_SAP_DIRECTLY_AFTER_INVOICE_GENERATION";
+        public static String SAPB1_SERVICES_ENABLE = "SAPB1_SERVICES_ENABLE";
         #endregion
 
         #region Configuration Sections
@@ -544,11 +561,12 @@ namespace ODLMWebAPI.StaticStuff
         public static string CP_BILLING_NOT_CONFIRM_AUTHENTICATION = "BILLING_NOT_CONFIRM_AUTHENTICATION";
         public static string CONSOLIDATE_STOCK = "CONSOLIDATE_STOCK";
         public static String ENTITY_RANGE_REGULAR_TAX_INVOICE_BMM = "REGULAR_TAX_INVOICE_BMM";
-  public static String ENTITY_RANGE_REGULAR_TAX_INTERNALORG = "REGULAR_TAX_INVOICE_ORG_";
-  public static String INTERNAL_DEFAULT_ITEM = "INTERNAL_DEFAULT_ITEM";
+        public static String ENTITY_RANGE_REGULAR_TAX_INTERNALORG = "REGULAR_TAX_INVOICE_ORG_";
+        public static String INTERNAL_DEFAULT_ITEM = "INTERNAL_DEFAULT_ITEM";
 
         public static string CP_BRAND_WISE_INVOICE = "BRAND_WISE_INVOICE";
         public static string CP_SKIP_LOADING_APPROVAL = "SKIP_LOADING_APPROVAL";
+        public static string CP_SKIP_WEIGHING = "SKIP_WEIGHING";
         public static string CP_SKIP_INVOICE_APPROVAL = "SKIP_INVOICE_APPROVAL";
         public static string CP_AUTO_MERGE_INVOICE = "AUTO_MERGE_INVOICE";
 
@@ -574,6 +592,8 @@ namespace ODLMWebAPI.StaticStuff
 
         // Vijaymala[14-02-2018] Added to Set Display Brand On Invoice
         public static string CP_DISPLAY_BRAND_ON_INVOICE = "DISPLAY_BRAND_ON_INVOICE";
+        //chetan[2020-06-08] added
+        public static string ITEM_GRAND_TOTAL_ROUNDUP_VALUE = "ITEM_GRAND_TOTAL_ROUNDUP_VALUE";
 
         public static string CP_SIZEWISE_LOADING_REPORT_STATUS_IDS = "SIZEWISE_LOADING_REPORT_STATUS_IDS";
 
@@ -645,6 +665,11 @@ namespace ODLMWebAPI.StaticStuff
 
         //Priyanka [06-09-2018] Added for set the view pending enquiries.(Show all or on date filter)
         public static string CP_VIEW_ALL_PENDING_ENQUIRIES = "VIEW_ALL_PENDING_ENQUIRIES";
+
+
+        //Saket [2020-14-02] Added.
+        public static string CP_GENERATE_INVOICE_NO_FOR_NC = "GENERATE_INVOICE_NO_FOR_NC";
+        public static string CP_GENERATE_INVOICE_NO_FOR_NC_DAILY = "GENERATE_INVOICE_NO_FOR_NC_DAILY";
 
 
         //Pandurang[2018-09-10] added for Stop web services
@@ -740,8 +765,29 @@ namespace ODLMWebAPI.StaticStuff
         public static string ROUND_OFF_TAX_INVOICE_VALUES = "ROUND_OFF_TAX_INVOICE_VALUES";
         //Aniket [18-9-2019]
         public static string SHOW_DELIVERY_LOCATION_ON_INVOICE = "SHOW_DELIVERY_LOCATION_ON_INVOICE";
+        //@KKM [30-7-2019] added for IOT
+        public static string CP_WEIGHING_MEASURE_SOURCE_ID = "WEIGHING_MEASURE_SOURCE_ID";
+        public static String REGULAR_BOOKING = "REGULAR_BOOKING";
+
+        public static string MULTIPLE_TEMPLATE_FOR_PRINTED_INVOICE_BY_CONFIRM = "MULTIPLE_TEMPLATE_FOR_PRINTED_INVOICE_BY_CONFIRM";
+        public static string MULTIPLE_TEMPLATE_FOR_PLAIN_INVOICE_BY_CONFIRM = "MULTIPLE_TEMPLATE_FOR_PLAIN_INVOICE_BY_CONFIRM";
+
+        public static string IS_SIZE_CHANGE_ALERT_GENERATE = "IS_SIZE_CHANGE_ALERT_GENERATE";
+
+        //Harshala added
+        public static string CP_TCS_OTHER_TAX_ID = "CP_TCS_OTHER_TAX_ID";
+
+        public static string DEFAULT_TCS_PERCENT_IF_PAN_PRESENT = "DEFAULT_TCS_PERCENT_IF_PAN_PRESENT";
+
+        public static string DEFAULT_TCS_PERCENT_IF_PAN_NOT_PRESENT = "DEFAULT_TCS_PERCENT_IF_PAN_NOT_PRESENT";
+
+        public static string CP_IS_INCLUDE_TCS_TO_AUTO_INVOICE = "CP_IS_INCLUDE_TCS_TO_AUTO_INVOICE";
+
         #endregion
 
+        //Harshala Added
+        public static string WeighmentSlip = "WeighmentSlip";
+        public static string GatePassSlip = "GatePassSlip";
 
         #region Common functions
 
@@ -891,7 +937,11 @@ namespace ODLMWebAPI.StaticStuff
             TERMSANDCONDITION = 2
         }
 
-
+        public enum LogoutValueE
+        {
+            LogoutWithTimer=1,
+            DirectLogout=2
+        }
         public enum bookingFilterTypeE
         {
             ALL = 0,
@@ -909,10 +959,10 @@ namespace ODLMWebAPI.StaticStuff
         {
             REGULAR = 0,
             DUPLICATE = 1,
-            CHANGEFROM  = 2
+            CHANGEFROM = 2
         }
 
-        
+
 
         /// <summary>
         /// Vijaymala[06-02-2018]Added To Set Firm Name
@@ -938,8 +988,8 @@ namespace ODLMWebAPI.StaticStuff
             TECHNICAL = 2
         }
 
-        //Priyanka [12-03-2018] : Added for Select Type of list in view booking summary list
-        public enum SelectTypeE
+    //Priyanka [12-03-2018] : Added for Select Type of list in view booking summary list
+    public enum SelectTypeE
         {
             DISTRICT = 1,
             STATE = 2,

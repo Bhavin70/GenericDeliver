@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 namespace ODLMWebAPI.DAL.Interfaces
 {
     public interface ICommon
-    { 
+    {
         System.DateTime SelectServerDateTime();
         DateTime ServerDateTime { get; }
 
@@ -18,12 +18,18 @@ namespace ODLMWebAPI.DAL.Interfaces
         void PostCancelNotConfirmLoadings(String RequestOriginString);
         void serialPortListner(String RequestOriginString);
 
-        
+
         void PostSnoozeAndroid(String RequestOriginString);
         void PostAutoResetAndDeleteAlerts(String RequestOriginString);
-         int CheckLogOutEntry(int loginId);
-           int IsUserDeactivate(int userId);
-             string SelectApKLoginArray(int userId);
-            
+        int CheckLogOutEntry(int loginId);
+        int IsUserDeactivate(int userId);
+        string SelectApKLoginArray(int userId);
+
+        //Aniket [30-7-2019] added for IOT
+      
+        int GetNextAvailableModRefIdNew();
+        int GetAvailNumber(List<int> list, int maxNumber);
+        dynamic PostSalesInvoiceToSAP(TblInvoiceTO tblInvoiceTO);
+
     }
 }

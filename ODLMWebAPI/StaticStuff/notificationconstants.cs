@@ -44,7 +44,9 @@ namespace ODLMWebAPI.StaticStuff
             LOADING_GATE_IN = 29,
             VEHICLE_REPORTED_FOR_LOADING = 30,
             LOADING_VEHICLE_CLEARANCE_TO_SEND_IN = 31,
-            SUPERWISOR_ALLOCATION_FOR_VEHICLE=32
+            SUPERWISOR_ALLOCATION_FOR_VEHICLE=32,
+
+            SIZE_CHANGES_IN_BOOKING = 33, //AmolG[2020-Feb-11]
         }
 
         #endregion

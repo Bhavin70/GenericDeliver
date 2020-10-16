@@ -22,7 +22,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         TblLoadingSlipExtTO SelectTblLoadingSlipExt(Int32 idLoadingSlipExt);
         TblLoadingSlipExtTO SelectTblLoadingSlipExt(Int32 idLoadingSlipExt, SqlConnection conn, SqlTransaction tran);
         List<TblLoadingSlipExtTO> ConvertDTToList(SqlDataReader tblLoadingSlipExtTODT);
-        List<TblLoadingSlipExtTO> SelectAllTblLoadingSlipExtByDate(DateTime frmDt, DateTime toDt, String statusStr);
+        List<TblLoadingSlipExtTO> SelectAllTblLoadingSlipExtByDate(DateTime frmDt, DateTime toDt, String statusStr,string selectedOrgStr);
         List<TblLoadingSlipExtTO> SelectTblLoadingSlipExtByIds(String idLoadingSlipExt, SqlConnection conn, SqlTransaction tran);
         int InsertTblLoadingSlipExt(TblLoadingSlipExtTO tblLoadingSlipExtTO);
         int InsertTblLoadingSlipExt(TblLoadingSlipExtTO tblLoadingSlipExtTO, SqlConnection conn, SqlTransaction tran);
@@ -36,6 +36,8 @@ namespace ODLMWebAPI.DAL.Interfaces
        
         //Aniket [22-3-2019] added to get loadingSlipExt details against 
         List<TblLoadingSlipExtTO> GetAllLoadingExtByBookingId(int bookingId,string configval);
+        //Aniket [13-8-2019]
+        int UpdateLoadingSlipExtSeqNumber(TblLoadingSlipExtTO tblLoadingSlipExtTO, SqlConnection conn, SqlTransaction tran);
 
     }
 }

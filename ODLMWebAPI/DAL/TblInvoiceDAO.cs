@@ -26,8 +26,8 @@ namespace ODLMWebAPI.DAL
         #region Methods
         public String SqlSelectQuery()
         {
-            String sqlSelectQry = " SELECT "+ (int)Constants.TranTableType.TEMP +" AS tableType, invoice.* ,dealer.firmName as dealerName,distributor.firmName AS distributorName " +
-                                  " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc " +
+            String sqlSelectQry = " SELECT "+ (int)Constants.TranTableType.TEMP + " AS tableType, invoice.*,loading.isDBup ,dealer.firmName as dealerName,distributor.firmName AS distributorName " +
+                                  " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc,loadingSlip.statusId as loadingStatusId  " +
                                   " FROM tempInvoice invoice " +
                                   " LEFT JOIN tblOrganization dealer ON dealer.idOrganization = invoice.dealerOrgId " +
                                   " LEFT JOIN tblOrganization distributor ON distributor.idOrganization = invoice.distributorOrgId " +
@@ -35,19 +35,23 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN dimInvoiceStatus ON idInvStatus = invoice.statusId " +
                                   " LEFT JOIN dimInvoiceTypes ON idInvoiceType = invoice.invoiceTypeId " +
                                   " LEFT JOIN dimCurrency ON idCurrency = invoice.currencyId " +
+                                  " LEFT JOIN tempLoadingSlip loadingSlip ON idLoadingSlip = invoice.loadingSlipId " +
+                                  " LEFT JOIN tempLoading loading ON idLoading = loadingSlip.loadingid " +
 
                                   // Vaibhav [10-Jan-2018] Added to select from finalInvoice
 
                                   " UNION ALL " +
-                                  " SELECT " + (int)Constants.TranTableType.FINAL + " AS tableType, invoice.* ,dealer.firmName as dealerName,distributor.firmName AS distributorName " +
-                                  " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc " +
+                                  " SELECT " + (int)Constants.TranTableType.FINAL + " AS tableType, invoice.*,loading.isDBup ,dealer.firmName as dealerName,distributor.firmName AS distributorName " +
+                                  " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc,loadingSlip.statusId as loadingStatusId  " +
                                   " FROM finalInvoice invoice " +
                                   " LEFT JOIN tblOrganization dealer ON dealer.idOrganization = invoice.dealerOrgId " +
                                   " LEFT JOIN tblOrganization distributor ON distributor.idOrganization = invoice.distributorOrgId " +
                                   " LEFT JOIN tblOrganization transport ON transport.idOrganization = invoice.transportOrgId " +
                                   " LEFT JOIN dimInvoiceStatus ON idInvStatus = invoice.statusId " +
                                   " LEFT JOIN dimInvoiceTypes ON idInvoiceType = invoice.invoiceTypeId " +
-                                  " LEFT JOIN dimCurrency ON idCurrency = invoice.currencyId ";
+                                  " LEFT JOIN dimCurrency ON idCurrency = invoice.currencyId "+
+                                  " LEFT JOIN finalLoadingSlip loadingSlip  ON idLoadingSlip = invoice.loadingSlipId " +
+                                  " LEFT JOIN finalLoading loading ON idLoading = loadingSlip.loadingid ";
 
             return sqlSelectQry;
         }
@@ -166,8 +170,8 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 // Vaibhav [10-Jan-2018] Added to select from finalInvoice
-                String sqlQueryTemp = " SELECT " + (int)Constants.TranTableType.TEMP + " AS tableType, invoice.* ,distributor.firmName AS distributorName,dealer.firmName+', '+CASE WHEN dealer.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerName" +
-                                  " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc " +
+                String sqlQueryTemp = " SELECT " + (int)Constants.TranTableType.TEMP + " AS tableType, invoice.*,loading.isDBup ,distributor.firmName AS distributorName,dealer.firmName+', '+CASE WHEN dealer.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerName" +
+                                  " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc, loadingSlip.statusId as loadingStatusId " +
                                   " FROM tempInvoice invoice " +
                                   " LEFT JOIN tblOrganization dealer ON dealer.idOrganization = invoice.dealerOrgId " +
                                   " LEFT JOIN tblOrganization distributor ON distributor.idOrganization = invoice.distributorOrgId " +
@@ -175,10 +179,12 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN dimInvoiceStatus ON idInvStatus = invoice.statusId " +
                                   " LEFT JOIN dimInvoiceTypes ON idInvoiceType = invoice.invoiceTypeId " +
                                   " LEFT JOIN dimCurrency ON idCurrency = invoice.currencyId "+
-                                  "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = dealer.addrId"; // Aniket K[2-Jan-2019] added villageName against dealer
-                
-                String sqlQueryFinal = " SELECT " + (int)Constants.TranTableType.FINAL + " AS tableType, invoice.* ,distributor.firmName AS distributorName,dealer.firmName+', '+CASE WHEN dealer.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerName" +
-                " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc " +
+                                  "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = dealer.addrId" + // Aniket K[2-Jan-2019] added villageName against dealer
+                                   " LEFT JOIN tempLoadingSlip loadingSlip ON idLoadingSlip = invoice.loadingSlipId " + 
+                                   " LEFT JOIN temploading loading ON idLoading = loadingSlip.loadingId "; //Aniket [22-8-2019] added for IoT
+
+                String sqlQueryFinal = " SELECT " + (int)Constants.TranTableType.FINAL + " AS tableType, invoice.* ,loading.isDBup ,distributor.firmName AS distributorName,dealer.firmName+', '+CASE WHEN dealer.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerName" +
+                " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc ,loadingSlip.statusId as loadingStatusId " +
                                   " FROM finalInvoice invoice " +
                                   " LEFT JOIN tblOrganization dealer ON dealer.idOrganization = invoice.dealerOrgId " +
                                   " LEFT JOIN tblOrganization distributor ON distributor.idOrganization = invoice.distributorOrgId " +
@@ -186,7 +192,9 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN dimInvoiceStatus ON idInvStatus = invoice.statusId " +
                                   " LEFT JOIN dimInvoiceTypes ON idInvoiceType = invoice.invoiceTypeId " +
                                   " LEFT JOIN dimCurrency ON idCurrency = invoice.currencyId "+
-                                   "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = dealer.addrId"; // Aniket K[2-Jan-2019] added villageName against dealer
+                                   "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = dealer.addrId"+ // Aniket K[2-Jan-2019] added villageName against dealer
+                                    " LEFT JOIN finalLoadingSlip loadingSlip ON idLoadingSlip = invoice.loadingSlipId " +
+                               " LEFT JOIN finalloading loading ON idLoading = loadingSlip.loadingId ";
 
 
                 if (isConfEn == 1)
@@ -229,7 +237,7 @@ namespace ODLMWebAPI.DAL
                 //}
 
                 //Priyanka [17-08-2018]
-                String whereCondition = " WHERE CAST(invoice.statusDate AS DATETIME) BETWEEN @fromDate AND @toDate AND isConfirmed IN(" + isConfirm + ")";
+                String whereCondition = " WHERE CAST(invoice.statusDate AS DATETIME) BETWEEN @fromDate AND @toDate AND invoice.isConfirmed IN(" + isConfirm + ")";
                 if (invoiceId > 0)
                 {
                     whereCondition = " WHERE invoice.idInvoice =" + invoiceId; 
@@ -797,6 +805,10 @@ namespace ODLMWebAPI.DAL
                     //Aniket [06-02-2019]
                     if (tblInvoiceTODT["preparationDate"] != DBNull.Value)
                         tblInvoiceTONew.PreparationDate = Convert.ToDateTime(tblInvoiceTODT["preparationDate"].ToString());
+                    if (tblInvoiceTODT["loadingStatusId"] != DBNull.Value)
+                        tblInvoiceTONew.LoadingStatusId = Convert.ToInt32(tblInvoiceTODT["loadingStatusId"]);
+                    if (tblInvoiceTODT["isDBup"] != DBNull.Value)
+                        tblInvoiceTONew.IsDBup = Convert.ToInt32(tblInvoiceTODT["isDBup"]);
 
                     if (tblInvoiceTODT["invFromOrgFreeze"] != DBNull.Value)
                         tblInvoiceTONew.InvFromOrgFreeze = Convert.ToInt32(tblInvoiceTODT["invFromOrgFreeze"].ToString());
@@ -813,7 +825,7 @@ namespace ODLMWebAPI.DAL
         /// Vijaymala[15-09-2017] Added To Get Invoice List To Generate Report //for nc
         /// </summary>
         /// <returns></returns>
-        public List<TblInvoiceRptTO> SelectAllRptInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm)
+        public List<TblInvoiceRptTO> SelectAllRptInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm,int fromOrgId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -825,7 +837,7 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 selectQuery =
-                    " Select invoice.idInvoice,invoice.invoiceNo,invoice.narration,invoice.statusDate ,invoice.vehicleNo,invoice.invoiceDate,invoice.createdOn,   " +
+                    " Select invoice.invFromOrgId,invoice.idInvoice,invoice.invoiceNo,invoice.narration,invoice.statusDate ,invoice.vehicleNo,invoice.invoiceDate,invoice.createdOn,   " +
                            " invoiceAddress.billingName as partyName, org.firmName cnfName,  " +
                            "  booking.bookingRate,itemDetails.idInvoiceItem as invoiceItemId,  " +
                            "  itemDetails.prodItemDesc, itemDetails.bundles,itemDetails.rate, " +
@@ -843,7 +855,7 @@ namespace ODLMWebAPI.DAL
                             " ISNULL(tblProdGstCodeDtls.prodSpecId,0) = ISNULL(tblItemTallyRefDtls.prodSpecId,0) AND " +
                             " ISNULL(tblProdGstCodeDtls.materialId,0) = ISNULL(tblItemTallyRefDtls.materialId,0) AND " +
                             " ISNULL(tblProdGstCodeDtls.prodItemId,0) = ISNULL(tblitemtallyrefDtls.prodItemId,0) " +
-                            " AND tblitemtallyrefDtls.isActive = 1"+
+                            " AND tblitemtallyrefDtls.isActive = 1" +
                             " LEFT JOIN tempLoadingSlipExt lExt " +
                             " ON lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId " +
                             " LEFT JOIN tblBookings booking  ON lExt.bookingId = booking.idBooking " +
@@ -855,7 +867,7 @@ namespace ODLMWebAPI.DAL
                             // Vaibhav [10-Jan-2018] Added to select from finalInvoice.
 
                             " UNION ALL " +
-                            " Select invoice.idInvoice,invoice.invoiceNo,invoice.narration,invoice.statusDate ,invoice.vehicleNo,invoice.invoiceDate,invoice.createdOn,   " +
+                            " Select invoice.invFromOrgId,invoice.idInvoice,invoice.invoiceNo,invoice.narration,invoice.statusDate ,invoice.vehicleNo,invoice.invoiceDate,invoice.createdOn,   " +
                            " invoiceAddress.billingName as partyName, org.firmName cnfName,  " +
                            "  booking.bookingRate,itemDetails.idInvoiceItem as invoiceItemId,  " +
                            "  itemDetails.prodItemDesc, itemDetails.bundles,itemDetails.rate, " +
@@ -880,12 +892,18 @@ namespace ODLMWebAPI.DAL
                             " LEFT JOIN finalInvoiceItemTaxDtls itemTaxDetails " +
                             " ON itemTaxDetails.invoiceItemId = itemDetails.idInvoiceItem " +
                             " LEFT JOIN tblTaxRates taxRate  ON taxRate.idTaxRate = itemTaxDetails.taxRateId ";
-                          
 
-                cmdSelect.CommandText = " SELECT * FROM ("+ selectQuery + ")sq1 WHERE sq1.isConfirmed =" + isConfirm +
+                //chetan[13-feb-2020] added for get data from org Id
+                String formOrgIdCondtion = String.Empty;
+                if (fromOrgId > 0)
+                {
+                    formOrgIdCondtion = " AND sq1.invFromOrgId = " + fromOrgId;
+                }
+
+                cmdSelect.CommandText = " SELECT * FROM (" + selectQuery + ")sq1 WHERE sq1.isConfirmed =" + isConfirm +
                      //" AND CAST(sq1.deliveredOn  AS DATE) BETWEEN @fromDate AND @toDate" +
                      " AND CAST(sq1.statusDate  AS DATETIME) BETWEEN @fromDate AND @toDate" +
-                     " AND sq1.txnAddrTypeId = " + (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS +
+                     " AND sq1.txnAddrTypeId = " + (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS + formOrgIdCondtion+
                      " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED
                      //+ " order by sq1.deliveredOn asc";
                      + " order by sq1.invoiceNo asc";
@@ -1308,7 +1326,7 @@ namespace ODLMWebAPI.DAL
         /// Vijaymala[06-10-2017] Added To Get Invoice List To Generate Invoice Excel
         /// </summary>
         /// <returns></returns>
-        public List<TblInvoiceRptTO> SelectInvoiceExportList(DateTime frmDt, DateTime toDt, int isConfirm)
+        public List<TblInvoiceRptTO> SelectInvoiceExportList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -1319,37 +1337,46 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                selectQuery = "select distinct invoice.idInvoice,invoice.statusDate,invoice.invoiceDate,invoice.invoiceNo," +
+                selectQuery = "select distinct  tblBookings.bookingRate,invoice.invFromOrgId,invoice.idInvoice,invoice.statusDate,invoice.invoiceDate,invoice.invoiceNo," +
                     " invAddrBill.txnAddrTypeId as billingTypeId,  invAddrBill.billingName + CASE WHEN invAddrBill.village IS NULL THEN '-' Else case WHEN invAddrBill.village IS NOT NULL THEN" +
                     " ',' + invAddrBill.village END END as buyer, invAddrBill.gstinNo as buyerGstNo,invoice.firmName as salesEngineer, invAddrBill.stateId,invAddrCons.txnAddrTypeId as consigneeTypeId, invAddrCons.billingName as consignee," +
                     " invAddrCons.gstinNo as consigneeGstNo,invoice.deliveryLocation , invoiceItem.invoiceQty ,basicAmt,discountAmt as cdAmt, invoice.isConfirmed,invoice.statusId,invoice.narration, taxableAmt,cgstAmt,sgstAmt,igstAmt,grandTotal,invoice.vehicleNo,invoice.createdOn," +
                     " freightItem.freightAmt,dimState.stateOrUTCode, invAddrCons.overdue_ref_id , invAddrBill.overdue_ref_id as buyer_overdue_ref_id,loadingSlip.cdStructure,loadingSlip.orcAmt,loadingSlip.OrcMeasure,loadingSlipDtl.loadingQty from(select org.firmName,loadingSlipId, invoiceDate, idInvoice, statusDate, invoiceNo, deliveryLocation, discountAmt, cgstAmt, sgstAmt," +
-                    " igstAmt, grandTotal, vehicleNo, invoice.createdOn, isConfirmed, statusId, narration from tempInvoice invoice  LEFT JOIN tblOrganization org on org.idOrganization = invoice.distributorOrgId INNER JOIN tempInvoiceAddress invoiceAdd on invoice.idInvoice = invoiceAdd.invoiceId)invoice" +
+                    " igstAmt, grandTotal, vehicleNo, invoice.createdOn, isConfirmed, statusId, narration,invFromOrgId from tempInvoice invoice  LEFT JOIN tblOrganization org on org.idOrganization = invoice.distributorOrgId INNER JOIN tempInvoiceAddress invoiceAdd on invoice.idInvoice = invoiceAdd.invoiceId)invoice" +
                     " INNER JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.village, invAddrB.txnAddrTypeId, invAddrB.gstinNo, invAddrB.stateId, orgB.overdue_ref_id from tempInvoiceAddress invAddrB LEFT JOIN tblOrganization orgB on orgB.idOrganization = invAddrB.billingOrgId where txnAddrTypeId = 1)invAddrBill" +
                     " inner join(select idState, stateOrUTCode from dimState)dimState on invAddrBill.stateId = dimState.idState on invAddrBill.invoiceId = invoice.idInvoice INNER JOIN(select invAddr.invoiceId, invAddr.billingName, invAddr.txnAddrTypeId, invAddr.gstinNo, org.overdue_ref_id" +
                     " from tempInvoiceAddress invAddr LEFT JOIN tblOrganization org on org.idOrganization = invAddr.billingOrgId where txnAddrTypeId = 2)invAddrCons on invAddrCons.invoiceId = invoice.idInvoice INNER JOIN(select invoiceId, sum(invoiceQty)as invoiceQty,sum(basicTotal) as basicAmt, sum(taxableAmt) as taxableAmt" +
                     " from tempInvoiceItemDetails  where otherTaxId is null group by invoiceId)invoiceItem on invoiceItem.invoiceId = invoice.idInvoice  LEFT JOIN(select invoiceId, taxableAmt as freightAmt from tempInvoiceItemDetails where otherTaxId = 2  )freightItem On freightItem.invoiceId = invoice.idInvoice" +
                     "  LEFT JOIN tempLoadingSlip loadingSlip on loadingSlip.idLoadingSlip = invoice.loadingSlipId LEFT JOIN tempLoadingSlipDtl loadingSlipDtl on loadingSlip.idLoadingSlip = loadingSlipDtl.loadingSlipId" +
+                    " LEFT JOIN tblBookings tblBookings on tblBookings.idBooking = LoadingSlipDtl.bookingId" +
+
                     " UNION ALL" +
-                    " select distinct invoice.idInvoice,invoice.statusDate,invoice.invoiceDate,invoice.invoiceNo, invAddrBill.txnAddrTypeId as billingTypeId,  invAddrBill.billingName + CASE WHEN invAddrBill.village IS NULL THEN '-' Else case WHEN invAddrBill.village IS NOT NULL THEN ',' + invAddrBill.village END END as buyer,invAddrBill.gstinNo as buyerGstNo,invoice.firmName as salesEngineer," +
+                    " select distinct  tblBookings.bookingRate,invoice.invFromOrgId,invoice.idInvoice,invoice.statusDate,invoice.invoiceDate,invoice.invoiceNo, invAddrBill.txnAddrTypeId as billingTypeId,  invAddrBill.billingName + CASE WHEN invAddrBill.village IS NULL THEN '-' Else case WHEN invAddrBill.village IS NOT NULL THEN ',' + invAddrBill.village END END as buyer,invAddrBill.gstinNo as buyerGstNo,invoice.firmName as salesEngineer," +
                     " invAddrBill.stateId,invAddrCons.txnAddrTypeId as consigneeTypeId, invAddrCons.billingName as consignee, invAddrCons.gstinNo as consigneeGstNo,invoice.deliveryLocation , invoiceItem.invoiceQty ,basicAmt,discountAmt as cdAmt, invoice.isConfirmed,invoice.statusId,invoice.narration, taxableAmt,cgstAmt,sgstAmt,igstAmt,grandTotal,invoice.vehicleNo,invoice.createdOn, freightItem.freightAmt,dimState.stateOrUTCode,  invAddrCons.overdue_ref_id , invAddrBill.overdue_ref_id as buyer_overdue_ref_id,loadingSlip.cdStructure,loadingSlip.orcAmt,loadingSlip.OrcMeasure,loadingSlipDtl.loadingQty" +
-                    " from(select org.firmName,loadingSlipId, invoiceDate, idInvoice, statusDate, invoiceNo, deliveryLocation, discountAmt, cgstAmt, sgstAmt, igstAmt, grandTotal, vehicleNo, invoice.createdOn, isConfirmed, statusId, narration from finalInvoice invoice  LEFT JOIN tblOrganization org on org.idOrganization = invoice.distributorOrgId INNER JOIN finalInvoiceAddress invoiceAdd on invoice.idInvoice = invoiceAdd.invoiceId)invoice" +
+                    " from(select org.firmName,loadingSlipId, invoiceDate, idInvoice, statusDate, invoiceNo, deliveryLocation, discountAmt, cgstAmt, sgstAmt, igstAmt, grandTotal, vehicleNo, invoice.createdOn, isConfirmed, statusId, narration,invFromOrgId from finalInvoice invoice  LEFT JOIN tblOrganization org on org.idOrganization = invoice.distributorOrgId INNER JOIN finalInvoiceAddress invoiceAdd on invoice.idInvoice = invoiceAdd.invoiceId)invoice" +
                     " INNER JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.village, invAddrB.txnAddrTypeId, invAddrB.gstinNo, invAddrB.stateId, orgB.overdue_ref_id from finalInvoiceAddress invAddrB LEFT JOIN tblOrganization orgB on orgB.idOrganization = invAddrB.billingOrgId where txnAddrTypeId = 1)invAddrBill" +
                     " inner join(select idState, stateOrUTCode from dimState)dimState on invAddrBill.stateId = dimState.idState on invAddrBill.invoiceId = invoice.idInvoice INNER JOIN(select invAddr.invoiceId, invAddr.billingName, invAddr.txnAddrTypeId, invAddr.gstinNo, org.overdue_ref_id" +
                     " from finalInvoiceAddress invAddr LEFT JOIN tblOrganization org on org.idOrganization = invAddr.billingOrgId where txnAddrTypeId = 2)invAddrCons on invAddrCons.invoiceId = invoice.idInvoice INNER JOIN(select invoiceId, sum(invoiceQty)as invoiceQty,sum(basicTotal) as basicAmt, sum(taxableAmt) as taxableAmt" +
                     " from finalInvoiceItemDetails  where otherTaxId is null group by invoiceId)invoiceItem on invoiceItem.invoiceId = invoice.idInvoice LEFT JOIN(select invoiceId, taxableAmt as freightAmt from finalInvoiceItemDetails where otherTaxId = 2  )" +
-                    " freightItem On freightItem.invoiceId = invoice.idInvoice  LEFT JOIN finalLoadingSlip loadingSlip on loadingSlip.idLoadingSlip = invoice.loadingSlipId LEFT JOIN finalLoadingSlipDtl loadingSlipDtl on loadingSlip.idLoadingSlip = loadingSlipDtl.loadingSlipId";
-   
-    
-                cmdSelect.CommandText = " SELECT * FROM ("+ selectQuery + ")sq1 WHERE sq1.isConfirmed =" + isConfirm +
-                 " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED +
-                 " AND CAST(sq1.statusDate AS DATETIME) BETWEEN @fromDate AND @toDate" +
-                 " order by sq1.invoiceNo asc";
+                    " freightItem On freightItem.invoiceId = invoice.idInvoice  LEFT JOIN finalLoadingSlip loadingSlip on loadingSlip.idLoadingSlip = invoice.loadingSlipId LEFT JOIN finalLoadingSlipDtl loadingSlipDtl on loadingSlip.idLoadingSlip = loadingSlipDtl.loadingSlipId"+
+                    " LEFT JOIN tblBookings tblBookings on tblBookings.idBooking = LoadingSlipDtl.bookingId ";
+                //chetan[12-feb-2020] added for get data from org id
+                String formOrgIdCondtion = String.Empty;
+                if (fromOrgId > 0)
+                {
+                    formOrgIdCondtion = " AND sq1.invFromOrgId = " + fromOrgId;
+                }
+
+                cmdSelect.CommandText = " SELECT * FROM (" + selectQuery + ")sq1 WHERE sq1.isConfirmed =" + isConfirm +
+                " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED + formOrgIdCondtion +
+                " AND CAST(sq1.statusDate AS DATETIME) BETWEEN @fromDate AND @toDate" +
+                " order by sq1.invoiceNo asc";
+
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
                 cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.DateTime).Value = frmDt;
                 cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.DateTime).Value = toDt;
-
+              
                 reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
 
                 List<TblInvoiceRptTO> list = ConvertDTToListForRPTInvoice(reader);
@@ -1372,7 +1399,7 @@ namespace ODLMWebAPI.DAL
         /// Vijaymala[07-10-2017] Added To Get Invoice List To Generate HSN Excel //for c
         /// </summary>
         /// <returns></returns>
-        public List<TblInvoiceRptTO> SelectHsnExportList(DateTime frmDt, DateTime toDt, int isConfirm)
+        public List<TblInvoiceRptTO> SelectHsnExportList(DateTime frmDt, DateTime toDt, int isConfirm,int fromOrgId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -1384,14 +1411,14 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 selectQuery =
-                 " select   distinct invoice.idInvoice,invoice.statusDate ,invoice.invoiceDate,invoice.invoiceNo,invAddrBill.txnAddrTypeId as billTypeId,invAddrBill.billingName as buyer, " +
+                 " select   distinct invoice.invFromOrgId,invoice.idInvoice,invoice.statusDate ,invoice.invoiceDate,invoice.invoiceNo,invAddrBill.txnAddrTypeId as billTypeId,invAddrBill.billingName as buyer, " +
                  " invAddrBill.gstinNo as buyerGstNo,invAddrCons.txnAddrTypeId as consigneeTypeId,invAddrCons.billingName as consignee, " +
                  " invAddrCons.gstinNo as consigneeGstNo,invoiceItem.gstinCodeNo,invoiceItem.prodItemDesc,invoiceItem.invoiceQty,invoiceItem.rate,invoiceItem.basicTotal as basicAmt," +
                  " invoiceItem.taxableAmt,invoiceItem.idInvoiceItem as invoiceItemId,invoiceTax.taxTypeId,invoiceTax.taxAmt,invoiceItem.grandTotal,invoice.createdOn,invoice.vehicleNo," +
                  " freightItem.freightAmt,invoice.statusId,dimState.stateOrUTCode,invoiceItem.otherTaxId,invoice.narration,invoice.isConfirmed,invAddrCons.overdue_ref_id " +
                  " , invAddrBill.overdue_ref_id as buyer_overdue_ref_id,invoiceItem.overdueTallyRefId ,booking.bookingRate from " +
 
-                 " (select  invoiceDate, idInvoice, invoiceNo,vehicleNo , invoice.statusDate  , createdOn,isConfirmed,statusId,narration from tempInvoice invoice " +
+                 " (select  invoiceDate, idInvoice, invoiceNo,vehicleNo , invoice.statusDate  , createdOn,isConfirmed,statusId,narration,invFromOrgId from tempInvoice invoice " +
                  " INNER JOIN tempInvoiceAddress invoiceAdd On invoice.idInvoice = invoiceAdd.invoiceId)invoice " +
                  " INNER JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.txnAddrTypeId, invAddrB.gstinNo" +
                  " ,invAddrB.stateId , orgB.overdue_ref_id from tempInvoiceAddress invAddrB " +
@@ -1430,14 +1457,14 @@ namespace ODLMWebAPI.DAL
 
                 " UNION ALL " +
 
-                " select   distinct invoice.idInvoice,invoice.statusDate ,invoice.invoiceDate,invoice.invoiceNo,invAddrBill.txnAddrTypeId as billTypeId,invAddrBill.billingName as buyer, " +
+                " select   distinct invoice.invFromOrgId,invoice.idInvoice,invoice.statusDate ,invoice.invoiceDate,invoice.invoiceNo,invAddrBill.txnAddrTypeId as billTypeId,invAddrBill.billingName as buyer, " +
                  " invAddrBill.gstinNo as buyerGstNo,invAddrCons.txnAddrTypeId as consigneeTypeId,invAddrCons.billingName as consignee, " +
                  " invAddrCons.gstinNo as consigneeGstNo,invoiceItem.gstinCodeNo,invoiceItem.prodItemDesc,invoiceItem.invoiceQty,invoiceItem.rate,invoiceItem.basicTotal as basicAmt," +
                  " invoiceItem.taxableAmt,invoiceItem.idInvoiceItem as invoiceItemId,invoiceTax.taxTypeId,invoiceTax.taxAmt,invoiceItem.grandTotal,invoice.createdOn,invoice.vehicleNo," +
                  " freightItem.freightAmt,invoice.statusId,dimState.stateOrUTCode,invoiceItem.otherTaxId,invoice.narration,invoice.isConfirmed ,invAddrCons.overdue_ref_id " +
                  " , invAddrBill.overdue_ref_id as buyer_overdue_ref_id,invoiceItem.overdueTallyRefId ,booking.bookingRate from " +
 
-                 " (select  invoiceDate, idInvoice, invoiceNo,vehicleNo , invoice.statusDate  , createdOn,isConfirmed,statusId,narration from finalInvoice invoice " +
+                 " (select  invoiceDate, idInvoice, invoiceNo,vehicleNo , invoice.statusDate  , createdOn,isConfirmed,statusId,narration,invFromOrgId from finalInvoice invoice " +
                  " INNER JOIN finalInvoiceAddress invoiceAdd On invoice.idInvoice = invoiceAdd.invoiceId)invoice " +
                  " INNER JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.txnAddrTypeId, " +
                  " invAddrB.gstinNo,invAddrB.stateId , orgB.overdue_ref_id from finalInvoiceAddress invAddrB " +
@@ -1470,9 +1497,16 @@ namespace ODLMWebAPI.DAL
 
                  " LEFT JOIN tempLoadingSlipExt lExt ON lExt.idLoadingSlipExt = invoiceItem.loadingSlipExtId " +
                  " LEFT JOIN tblBookings booking ON lExt.bookingId = booking.idBooking ";
+                //chetan[13-feb-2020] added for find data from org id
+                String formOrgIdCondtion = String.Empty;
+                if (fromOrgId > 0)
+                {
+                    formOrgIdCondtion = " AND sq1.invFromOrgId = " + fromOrgId;
+                }
 
-               cmdSelect.CommandText = " SELECT * FROM ("+ selectQuery + ")sq1 WHERE sq1.isConfirmed =" + isConfirm +
-                     " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED +
+
+                cmdSelect.CommandText = " SELECT * FROM ("+ selectQuery + ")sq1 WHERE sq1.isConfirmed =" + isConfirm +
+                     " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED + formOrgIdCondtion +
                      " AND CAST(sq1.statusDate AS DATETIME) BETWEEN @fromDate AND @toDate" +
                      " order by sq1.invoiceNo asc"; ;
                 cmdSelect.Connection = conn;
@@ -1535,7 +1569,7 @@ namespace ODLMWebAPI.DAL
         /// Vijaymala[11-01-2018] Added To Get Sales Invoice List To Generate Report
         /// </summary>
         /// <returns></returns>
-        public List<TblInvoiceRptTO> SelectSalesInvoiceListForReport(DateTime frmDt, DateTime toDt, int isConfirm)
+        public List<TblInvoiceRptTO> SelectSalesInvoiceListForReport(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -1581,7 +1615,8 @@ namespace ODLMWebAPI.DAL
                     " INNER JOIN tempInvoiceItemDetails itemDetails  ON itemDetails.invoiceId = invoice.idInvoice " +
                     " AND itemDetails.otherTaxId is  NULL" +
                     " LEFT JOIN tempLoadingSlipExt lExt ON lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId " +
-                    " LEFT JOIN tblBookings booking ON lExt.bookingId = booking.idBooking " +
+                     " LEFT JOIN tempLoadingSlipDtl LoadingSlipDtl on LoadingSlipDtl.loadingSlipId=invoice.loadingSlipId "+
+                    " LEFT JOIN tblBookings booking ON LoadingSlipDtl.bookingId = booking.idBooking " +
                     " LEFT JOIN  tblProdGstCodeDtls prodGstCodeDtl on prodGstCodeDtl.idProdGstCode = itemDetails.prodGstCodeId " +
                     " LEFT JOIN tblItemTallyRefDtls ON ISNULL(prodGstCodeDtl.prodCatId,0) =  ISNULL(tblItemTallyRefDtls.prodCatId,0) AND" +
                     " ISNULL(prodGstCodeDtl.prodSpecId,0) = ISNULL(tblItemTallyRefDtls.prodSpecId,0) AND " +
@@ -1634,6 +1669,7 @@ namespace ODLMWebAPI.DAL
                     " INNER JOIN finalInvoiceItemDetails itemDetails  ON itemDetails.invoiceId = invoice.idInvoice " +
                     " AND itemDetails.otherTaxId is  NULL" +
                     " LEFT JOIN finalLoadingSlipExt lExt ON lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId " +
+                    "  LEFT JOIN finalLoadingSlipDtl LoadingSlipDtl on LoadingSlipDtl.loadingSlipId = invoice.loadingSlipId" +
                     " LEFT JOIN tblBookings booking ON lExt.bookingId = booking.idBooking " +
                     " LEFT JOIN tblProdGstCodeDtls prodGstCodeDtl on prodGstCodeDtl.idProdGstCode = itemDetails.prodGstCodeId " +
                     " LEFT JOIN tblItemTallyRefDtls ON ISNULL(prodGstCodeDtl.prodCatId,0) =  ISNULL(tblItemTallyRefDtls.prodCatId,0) AND" +
@@ -1652,9 +1688,15 @@ namespace ODLMWebAPI.DAL
                     " LEFT JOIN finalLoading loading on loading.idLoading = loadingSlip.loadingId";
 
 
-                cmdSelect.CommandText = "SELECT * FROM ("+ selectQuery + ")sq1 WHERE sq1.isConfirmed =" + isConfirm +
+                //chetan[13-feb-2020] added get data from org id
+                String formOrgIdCondtion = String.Empty;
+                if (fromOrgId > 0)
+                {
+                    formOrgIdCondtion = " AND isnull(sq1.invFromOrgId,"+fromOrgId+") = " + fromOrgId;
+                }
+                cmdSelect.CommandText = "SELECT * FROM (" + selectQuery + ")sq1 WHERE sq1.isConfirmed =" + isConfirm +
                      //" AND CAST(sq1.deliveredOn AS DATE) BETWEEN @fromDate AND @toDate" +
-                     " AND CAST(sq1.statusDate AS DATE) BETWEEN @fromDate AND @toDate" +
+                     " AND CAST(sq1.statusDate AS DATE) BETWEEN @fromDate AND @toDate" + formOrgIdCondtion +
                      " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED +
                      " order by sq1.invoiceNo asc"; ;
 
@@ -1785,6 +1827,30 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public double GetTareWeightFromInvoice(String lodingSlipIds, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                cmdSelect.CommandText = "SELECT MIN(tareWeight) FROM tempinvoice  WHERE loadingSlipId IN (" + lodingSlipIds + " )";
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                return Convert.ToDouble(cmdSelect.ExecuteScalar());
+
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
 
         public List<TblLoadingSlipTO> SelectLoadingDetailsByInvoiceId(int invoiceId,SqlConnection conn, SqlTransaction tran)
         {
@@ -1794,7 +1860,7 @@ namespace ODLMWebAPI.DAL
             {
                 cmdSelect.CommandText =
 
-                    " SELECT tempLoadingSlip.* ,tblOrganization.firmName as dealerOrgName, tempLoadSlipdtl.bookingId,tempLoadSlipdtl.loadingQty, cnfOrg.firmName as cnfOrgName ,dimStat.statusName " +
+                    " SELECT tempLoadingSlip.* ,tmploading.modbusRefId,tmploading.gateId,tblgate.portNumber,tblgate.ioTUrl,tblgate.machineIP,tmploading.isDBup,tblOrganization.firmName as dealerOrgName,tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tempLoadSlipdtl.loadingQty, cnfOrg.firmName as cnfOrgName ,dimStat.statusName " +
                                   " FROM tempLoadingSlip " +
                                   " LEFT JOIN tblOrganization " +
                                   " ON tblOrganization.idOrganization = tempLoadingSlip.dealerOrgId " +
@@ -1804,7 +1870,10 @@ namespace ODLMWebAPI.DAL
                                   " ON dimStat.idStatus = tempLoadingSlip.statusId "+
                                   " INNER JOIN tempLoadingSlipInvoice loadingSlipInvoice ON tempLoadingSlip.idLoadingSlip = loadingSlipInvoice.loadingSlipId " +
                                   //Saket [2018-06-09] Added.
+                                  " LEFT JOIN tempLoading tmploading ON  tempLoadingSlip.loadingId = tmploading.idLoading" +
+                                  " LEFT JOIN tblGate tblgate ON tmploading.gateId = tblgate.idGate " +
                                   " LEFT JOIN tempLoadingSlipDtl tempLoadSlipdtl ON tempLoadSlipdtl.loadingSlipId = tempLoadingSlip.idLoadingSlip " +
+                                   " Left Join tblBookings tblBookings ON tempLoadSlipdtl.bookingId = tblBookings.idbooking " +
                                   " WHERE loadingSlipInvoice.invoiceId = " + invoiceId; 
 
                 cmdSelect.Connection = conn;
@@ -1834,7 +1903,7 @@ namespace ODLMWebAPI.DAL
         /// </summary>
         /// <param name="tblInvoiceTO"></param>
         /// <returns></returns>
-        public List<TblInvoiceTO> SelectAllTNotifiedblInvoiceList(DateTime frmDt, DateTime toDt,int isConfirm)
+        public List<TblInvoiceTO> SelectAllTNotifiedblInvoiceList(DateTime frmDt, DateTime toDt,int isConfirm,int fromOrgId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -1846,7 +1915,10 @@ namespace ODLMWebAPI.DAL
                     " AND CAST(sq1.statusDate AS Date) BETWEEN @fromDate AND @toDate";
 
                 whereCondition += " AND ISNULL(sq1.isConfirmed,0) = " + isConfirm;
-
+                if(fromOrgId>0)
+                {
+                    whereCondition +=" and invFromOrgId= " + fromOrgId;
+                }
                 conn.Open();
                 cmdSelect.CommandText = "Select * From (" + SqlSelectQuery() + ")sq1 " + whereCondition;
                 cmdSelect.Connection = conn;
@@ -2204,6 +2276,29 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public int UpdateMappedSAPInvoiceNo(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+                cmdUpdate.CommandText = "UPDATE tempInvoice SET sapMappedSalesOrderNo = @SapMappedSalesOrderNo, sapMappedSalesInvoiceNo = @SapMappedSalesInvoiceNo WHERE idInvoice = @IdInvoice";
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+                cmdUpdate.Parameters.Add("@IdInvoice", System.Data.SqlDbType.Int).Value = tblInvoiceTO.IdInvoice;
+                cmdUpdate.Parameters.Add("@SapMappedSalesInvoiceNo", System.Data.SqlDbType.NVarChar).Value = tblInvoiceTO.SapMappedSalesInvoiceNo;
+                cmdUpdate.Parameters.Add("@SapMappedSalesOrderNo", System.Data.SqlDbType.NVarChar).Value = tblInvoiceTO.SapMappedSalesOrderNo;
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
 
         public int UpdateInvoiceNonCommercDtlsForFinal(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran)
         {
@@ -2521,7 +2616,7 @@ namespace ODLMWebAPI.DAL
         #region Reports
 
 
-        public List<TblOtherTaxRpt> SelectOtherTaxDetailsReport (DateTime frmDt, DateTime toDt, int isConfirm, Int32 otherTaxId)
+        public List<TblOtherTaxRpt> SelectOtherTaxDetailsReport (DateTime frmDt, DateTime toDt, int isConfirm, Int32 otherTaxId,int fromOrgId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -2545,7 +2640,11 @@ namespace ODLMWebAPI.DAL
                 {
                     whereCondition += "AND otherTaxId > 0 ";
                 }
-
+                //chetan[13-feb-2020] added for fillteron from org id
+                if(fromOrgId > 0)
+                {
+                    whereCondition += "AND invFromOrgId= "+ fromOrgId;
+                }
 
                 selectQuery = " SELECT " +
                     " invoice.idInvoice " +

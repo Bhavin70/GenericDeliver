@@ -607,6 +607,46 @@ namespace ODLMWebAPI.DAL
 
             return cmdUpdate.ExecuteNonQuery();
         }
+
+        /// <summary>
+        /// AmolG[2020-Feb-20]
+        /// This function is used to update the Pending Qty.
+        /// 
+        /// </summary>
+        /// <param name="tblBookingExtTO"></param>
+        /// <param name="conn"></param>
+        /// <param name="tran"></param>
+        /// <returns></returns>
+        public int UpdateTblBookingExtBalanceQty(TblBookingExtTO tblBookingExtTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+                String sqlQuery = @" UPDATE [tblBookingExt] SET " +
+                              " [balanceQty] = @BalanceQty" +
+                              " ,[pendingUomQty] = @pendingUomQty" +
+                              " WHERE [idBookingExt] = @IdBookingExt ";
+
+                cmdUpdate.CommandText = sqlQuery;
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+
+                cmdUpdate.Parameters.Add("@IdBookingExt", System.Data.SqlDbType.Int).Value = tblBookingExtTO.IdBookingExt;
+                cmdUpdate.Parameters.Add("@BalanceQty", System.Data.SqlDbType.NVarChar).Value = tblBookingExtTO.BalanceQty;
+                cmdUpdate.Parameters.Add("@pendingUomQty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingExtTO.PendingUomQty);
+
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
         #endregion
 
         #region Deletion

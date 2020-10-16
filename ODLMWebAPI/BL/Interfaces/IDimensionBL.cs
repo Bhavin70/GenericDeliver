@@ -12,7 +12,7 @@ namespace ODLMWebAPI.BL.Interfaces
         List<DropDownTO> GetAllOrganizationType();
         List<DropDownTO> SelectDeliPeriodForDropDown();
         List<StateMasterTO> GetDistrictsForStateMaster(int stateId);
-        List<DropDownTO> SelectCDStructureForDropDown();
+        List<DropDownTO> SelectCDStructureForDropDown(Int32 moduleId);
         DropDownTO SelectCDDropDown(Int32 cdStructureId);
         List<Dictionary<string, string>> GetColumnName(string tableName, Int32 tableValue);
         List<DropDownTO> SelectCountriesForDropDown();
@@ -70,5 +70,10 @@ namespace ODLMWebAPI.BL.Interfaces
         List<DropDownTO> SelectDistrictForDropDownAccToBooking(int countryId, DateTime fromDate, DateTime toDate);
         List<DropDownTO> GetUserListDepartmentWise(string deptId);
         List<DropDownTO> SelectInvoiceCopyList();
+
+        DimFinYearTO GetCurrentFinancialYear(DateTime curDate);
+        List<DimExportTypeTO> GetExportTypeList();
+        List<DimIndustrySegmentTO> GetIndustryTypeList();
+        List<DimIndustrySegmentTypeTO> GetIndustrySegmentTypeList(Int32 industrySegmentId);
     }
 }

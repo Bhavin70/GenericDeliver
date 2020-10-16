@@ -46,10 +46,17 @@ namespace ODLMWebAPI.BL
             return _iTblEntityRangeDAO.SelectEntityRangeFromInvoiceType(invoiceTypeId,finYearId, conn, tran);
         }
 
+        
+
         // Vaibhav [07-Jan-2018] Added t select entity data
         public TblEntityRangeTO SelectTblEntityRangeTOByEntityName(string entityName, int finYearId, SqlConnection conn, SqlTransaction tran)
         {
             return _iTblEntityRangeDAO.SelectTblEntityRangeByEntityName(entityName, finYearId, conn, tran);
+        }
+
+        public TblEntityRangeTO SelectTblEntityRangeTOByEntityName(string entityName, int finYearId)
+        {
+            return _iTblEntityRangeDAO.SelectTblEntityRangeByEntityName(entityName, finYearId);
         }
         #endregion
 

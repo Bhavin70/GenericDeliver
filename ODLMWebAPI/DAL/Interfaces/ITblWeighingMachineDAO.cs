@@ -23,5 +23,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblWeighingMachine(Int32 idWeighingMachine);
         int DeleteTblWeighingMachine(Int32 idWeighingMachine, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idWeighingMachine, SqlCommand cmdDelete);
+        //Aniket [30-7-2019] added for IOT
+        List<TblWeighingMachineTO> SelectAllTblWeighingMachineOfWeighingList(int loadingId);
     }
 }

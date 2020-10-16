@@ -85,9 +85,12 @@ namespace ODLMWebAPI.Models
         int tranTableType;
         DateTime grossWtTakenDate; // Aniket [06-02-2019] to store gross weight taken date and time
         DateTime preparationDate; // Aniket [06-02-2019] to store invoice preparation date and time
+        Int32 isDBup;
+        Int32 loadingStatusId;
 
         Int32 invFromOrgFreeze;   //Saket [2019-09-17] Added For A1 customization
         Int32 checkSkipApprovalCondition; //Saket [2019-09-17]
+        Double otherTaxAmt;
         #endregion
 
         #region Constructor
@@ -503,7 +506,6 @@ namespace ODLMWebAPI.Models
             get { return preparationDate; }
             set { preparationDate = value; }
         }
-        #endregion
         public string GrossWtDateStr
         {
             get { return grossWtTakenDate.ToString("dd-MM-yyyy HH:mm"); }
@@ -513,11 +515,18 @@ namespace ODLMWebAPI.Models
             get { return preparationDate.ToString("dd-MM-yyyy HH:mm"); }
         }
 
+        public int IsDBup { get => isDBup; set => isDBup = value; }
+        public int LoadingStatusId { get => loadingStatusId; set => loadingStatusId = value; }
+        #endregion
+
+
+
         public int InvFromOrgFreeze { get => invFromOrgFreeze; set => invFromOrgFreeze = value; }
 
         public string SapMappedSalesOrderNo { get; set; }
         public string SapMappedSalesInvoiceNo { get; set; }
         public int CheckSkipApprovalCondition { get => checkSkipApprovalCondition; set => checkSkipApprovalCondition = value; }
+        public double OtherTaxAmt { get => otherTaxAmt; set => otherTaxAmt = value; }
 
         public TblInvoiceTO DeepCopy()
         {

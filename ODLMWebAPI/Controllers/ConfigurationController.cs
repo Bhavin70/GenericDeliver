@@ -44,6 +44,13 @@ namespace ODLMWebAPI.Controllers
             List<TblConfigParamsTO> list = _iTblConfigParamsBL.SelectAllTblConfigParamsList();
             return list;
         }
+        [Route("GetIOTSettingForDeliverModule")]
+        [HttpGet]
+        public Int32 GetIOTSettingForDeliverModule()
+        {
+            return _iTblConfigParamsBL.IotSetting();
+
+        }
 
         /// <summary>
         /// GJ@20170810 : Get the Configuration value by Name 

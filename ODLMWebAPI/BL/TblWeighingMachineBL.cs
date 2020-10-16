@@ -19,6 +19,11 @@ namespace ODLMWebAPI.BL
             _iTblWeighingMachineDAO = iTblWeighingMachineDAO;
         }
         #region Selection
+        //Aniket [30-7-2019] added for IOT
+        public List<TblWeighingMachineTO> SelectAllTblWeighingMachineOfWeighingList(int loadingId)
+        {
+            return _iTblWeighingMachineDAO.SelectAllTblWeighingMachineOfWeighingList(loadingId);
+        }
         public List<TblWeighingMachineTO> SelectAllTblWeighingMachineList()
         {
             return _iTblWeighingMachineDAO.SelectAllTblWeighingMachine();
