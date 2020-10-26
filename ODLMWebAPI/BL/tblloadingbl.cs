@@ -401,6 +401,44 @@ namespace ODLMWebAPI.BL {
                             //vipul[18/4/19] check allowed to remove or not
                             if (tblLoadingTO == null || tblLoadingTO.IsDBup == 0)
                             {
+
+                                //#region Add vehicle Out Entry
+
+                                //String statusDate = (String)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.StatusDate];
+
+                                //DateTime statusDateTime = _iIotCommunication.IoTDateTimeStringToDate(statusDate);
+
+                                //DateTime serverDate = _iCommon.ServerDateTime;
+
+                                //TimeSpan ts = statusDateTime - serverDate;
+
+                                //if (ts.TotalMinutes > 60)
+                                //{
+
+                                //    _iIotCommunication.GetItemDataFromIotAndMerge(tblLoadingTO, false, true);
+                                //    if (tblLoadingTO.LoadingStatusHistoryTOList != null && tblLoadingTO.LoadingStatusHistoryTOList.Count > 0)
+                                //    {
+                                //        var deliverTOList = tblLoadingTO.LoadingStatusHistoryTOList.Where(w => w.StatusId == (Int32)StaticStuff.Constants.TranStatusE.LOADING_DELIVERED).ToList();
+
+                                //        if (deliverTOList != null && deliverTOList.Count > 0)
+                                //        {
+                                //            if (deliverTOList.Count > 3)
+                                //            {
+                                //                continue;
+                                //            }
+                                //        }
+
+                                //        //Write Deliver status
+                                //        resultMessage = UpdateLoadingStatusToGateIoT(tblLoadingTO, conn, tran);
+                                //        if (resultMessage.MessageType != ResultMessageE.Information)
+                                //        {
+                                //            continue;
+
+                                //        }
+
+                                //}
+                                //#endregion
+
                                 continue;
                             }
                             //end
