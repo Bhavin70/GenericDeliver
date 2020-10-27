@@ -382,6 +382,7 @@ namespace ODLMWebAPI.BL {
             List<TblGateTO> tblGateTOList = _iTblGateBL.SelectAllTblGateList(Constants.ActiveSelectionTypeE.Active);
 
             tblGateTOList = tblGateTOList.Where(w => w.ModuleId == Constants.DefaultModuleID).ToList();
+            DateTime serverDate = _iCommon.ServerDateTime;
 
             for (int g = 0; g < tblGateTOList.Count; g++)
             {
@@ -402,42 +403,43 @@ namespace ODLMWebAPI.BL {
                             if (tblLoadingTO == null || tblLoadingTO.IsDBup == 0)
                             {
 
-                                //#region Add vehicle Out Entry
+                                #region Saket [2020-10-27] Add vehicle Out Entry if backup not done against vehicle
 
-                                //String statusDate = (String)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.StatusDate];
+                                String statusDate = (String)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.StatusDate];
 
-                                //DateTime statusDateTime = _iIotCommunication.IoTDateTimeStringToDate(statusDate);
+                                DateTime statusDateTime = _iIotCommunication.IoTDateTimeStringToDate(statusDate);
 
-                                //DateTime serverDate = _iCommon.ServerDateTime;
+                                TimeSpan ts = statusDateTime - serverDate;
 
-                                //TimeSpan ts = statusDateTime - serverDate;
+                                if (ts.TotalMinutes > 60)
+                                {
+                                    _iIotCommunication.GetItemDataFromIotAndMerge(tblLoadingTO, false, true);
+                                    if (tblLoadingTO.LoadingStatusHistoryTOList != null && tblLoadingTO.LoadingStatusHistoryTOList.Count > 0)
+                                    {
+                                        var deliverTOList = tblLoadingTO.LoadingStatusHistoryTOList.Where(w => w.StatusId == (Int32)StaticStuff.Constants.TranStatusE.LOADING_DELIVERED).ToList();
 
-                                //if (ts.TotalMinutes > 60)
-                                //{
+                                        if (deliverTOList != null && deliverTOList.Count > 0)
+                                        {
 
-                                //    _iIotCommunication.GetItemDataFromIotAndMerge(tblLoadingTO, false, true);
-                                //    if (tblLoadingTO.LoadingStatusHistoryTOList != null && tblLoadingTO.LoadingStatusHistoryTOList.Count > 0)
-                                //    {
-                                //        var deliverTOList = tblLoadingTO.LoadingStatusHistoryTOList.Where(w => w.StatusId == (Int32)StaticStuff.Constants.TranStatusE.LOADING_DELIVERED).ToList();
+                                            var distinctDate = deliverTOList.GroupBy(g1 => g1.StatusDate).Select(s => s.FirstOrDefault()).ToList();
 
-                                //        if (deliverTOList != null && deliverTOList.Count > 0)
-                                //        {
-                                //            if (deliverTOList.Count > 3)
-                                //            {
-                                //                continue;
-                                //            }
-                                //        }
+                                            if (distinctDate.Count > 3)
+                                            {
+                                                continue;
+                                            }
+                                        }
 
-                                //        //Write Deliver status
-                                //        resultMessage = UpdateLoadingStatusToGateIoT(tblLoadingTO, conn, tran);
-                                //        if (resultMessage.MessageType != ResultMessageE.Information)
-                                //        {
-                                //            continue;
+                                        //Write Deliver status
+                                        resultMessage = UpdateLoadingStatusToGateIoT(tblLoadingTO, null, null);
+                                        if (resultMessage.MessageType != ResultMessageE.Information)
+                                        {
+                                            continue;
 
-                                //        }
+                                        }
 
-                                //}
-                                //#endregion
+                                    }
+                                }
+                                #endregion
 
                                 continue;
                             }
@@ -4805,31 +4807,46 @@ namespace ODLMWebAPI.BL {
             return result;
         }
         //Aniket [30-7-2019] added for IOT
-        public ResultMessage UpdateLoadingStatusToGateIoT (TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran) {
-            ResultMessage resultMessage = new ResultMessage ();
+        public ResultMessage UpdateLoadingStatusToGateIoT(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran)
+        {
+            ResultMessage resultMessage = new ResultMessage();
             int result = 0;
-            DimStatusTO statusTO = _iDimStatusDAO.SelectDimStatus (tblLoadingTO.StatusId, conn, tran);
-            if (statusTO == null || statusTO.IotStatusId == 0) {
-                resultMessage.DefaultBehaviour ("iot status id not found for loading to pass at gate iot");
+            DimStatusTO statusTO;
+            if (conn != null)
+            {
+                statusTO = _iDimStatusDAO.SelectDimStatus(tblLoadingTO.StatusId, conn, tran);
+            }
+            else
+            {
+                statusTO = _iDimStatusDAO.SelectDimStatus(tblLoadingTO.StatusId);
+            }
+            if (statusTO == null || statusTO.IotStatusId == 0)
+            {
+                resultMessage.DefaultBehaviour("iot status id not found for loading to pass at gate iot");
                 return resultMessage;
             }
 
             // Call to post data to Gate IoT API
-            List<object[]> frameList = _iIotCommunication.GenerateGateIoTStatusFrameData (tblLoadingTO, statusTO.IotStatusId);
-            if (frameList != null && frameList.Count > 0) {
-                for (int f = 0; f < frameList.Count; f++) {
-                    result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi (tblLoadingTO, frameList[f]);
-                    if (result != 1) {
-                        resultMessage.DefaultBehaviour ("Error while PostGateAPIDataToModbusTcpApi");
+            List<object[]> frameList = _iIotCommunication.GenerateGateIoTStatusFrameData(tblLoadingTO, statusTO.IotStatusId);
+            if (frameList != null && frameList.Count > 0)
+            {
+                for (int f = 0; f < frameList.Count; f++)
+                {
+                    result = _iIotCommunication.UpdateLoadingStatusOnGateAPIToModbusTcpApi(tblLoadingTO, frameList[f]);
+                    if (result != 1)
+                    {
+                        resultMessage.DefaultBehaviour("Error while PostGateAPIDataToModbusTcpApi");
                         return resultMessage;
                     }
                 }
-            } else {
-                resultMessage.DefaultBehaviour ("frameList Found Null Or Empty while PostGateAPIDataToModbusTcpApi");
+            }
+            else
+            {
+                resultMessage.DefaultBehaviour("frameList Found Null Or Empty while PostGateAPIDataToModbusTcpApi");
                 return resultMessage;
             }
 
-            resultMessage.DefaultSuccessBehaviour ();
+            resultMessage.DefaultSuccessBehaviour();
             return resultMessage;
         }
 
