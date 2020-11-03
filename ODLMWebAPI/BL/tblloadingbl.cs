@@ -3953,7 +3953,14 @@ namespace ODLMWebAPI.BL {
                     return resultMessage;
                 }
 
-                String loadingSlipNo = tblLoadingTO.CreatedOn.Day + "" + tblLoadingTO.CreatedOn.Month + "" + tblLoadingTO.CreatedOn.Year + "/" + loadingEntityRangeTO.EntityPrevValue;
+                String Day = tblLoadingTO.CreatedOn.Day.ToString();
+                String Month = tblLoadingTO.CreatedOn.Month.ToString();
+                if (Day.Length == 1)
+                    Day= Day.Insert(0, "0");
+
+                if (Month.Length == 1)
+                    Month = Month.Insert(0, "0");
+                String loadingSlipNo = Day + "" + Month + "" + tblLoadingTO.CreatedOn.Year + "/" + loadingEntityRangeTO.EntityPrevValue;
                 #region IOT related code added
                 //Hrushikesh [30-7-2019] added code for IOT
                 int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
@@ -4517,8 +4524,14 @@ namespace ODLMWebAPI.BL {
                         resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
                         return resultMessage;
                     }
+                    String Day = tblLoadingTO.CreatedOn.Day.ToString();
+                    String Month = tblLoadingTO.CreatedOn.Month.ToString();
+                    if (Day.Length == 1)
+                        Day = Day.Insert(0, "0");
+                    if (Month.Length == 1)
+                        Month = Month.Insert(0, "0");
 
-                    slipNo = tblLoadingTO.CreatedOn.Day.ToString() + "" + tblLoadingTO.CreatedOn.Month.ToString() + "" + tblLoadingTO.CreatedOn.Year.ToString() + "/" + entityRangeTO.EntityPrevValue;
+                    slipNo = Day + "" + Month + "" + tblLoadingTO.CreatedOn.Year.ToString() + "/" + entityRangeTO.EntityPrevValue;
 
                     entityRangeTO.EntityPrevValue++;
                     result = _iTblEntityRangeDAO.UpdateTblEntityRange(entityRangeTO, conn, tran);
@@ -4546,7 +4559,13 @@ namespace ODLMWebAPI.BL {
                         return resultMessage;
                     }
 
-                    slipNo = tblLoadingTO.CreatedOn.Day.ToString() + "" + tblLoadingTO.CreatedOn.Month.ToString() + "" + tblLoadingTO.CreatedOn.Year.ToString() + "" + "NC/" + entityRangeTO.EntityPrevValue;
+                    String Day = tblLoadingTO.CreatedOn.Day.ToString();
+                    String Month = tblLoadingTO.CreatedOn.Month.ToString();
+                    if (Day.Length == 1)
+                        Day = Day.Insert(0, "0");
+                    if (Month.Length == 1)
+                        Month = Month.Insert(0, "0");
+                    slipNo = Day + "" + Month + "" + tblLoadingTO.CreatedOn.Year.ToString() + "" + "NC/" + entityRangeTO.EntityPrevValue;
 
                     entityRangeTO.EntityPrevValue++;
                     result = _iTblEntityRangeDAO.UpdateTblEntityRange(entityRangeTO, conn, tran);
