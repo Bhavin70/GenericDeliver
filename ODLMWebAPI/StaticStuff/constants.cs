@@ -783,6 +783,8 @@ namespace ODLMWebAPI.StaticStuff
 
         public static string CP_IS_INCLUDE_TCS_TO_AUTO_INVOICE = "CP_IS_INCLUDE_TCS_TO_AUTO_INVOICE";
 
+        public static string CP_SPLIT_BOOKING_AGAINST_INVOICE = "CP_SPLIT_BOOKING_AGAINST_INVOICE";
+
         #endregion
 
         //Harshala Added
