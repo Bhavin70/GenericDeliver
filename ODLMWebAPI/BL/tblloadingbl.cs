@@ -2095,11 +2095,20 @@ namespace ODLMWebAPI.BL {
                         }
                     }
 
-                    resultMessage = SpiltBookingAgainstInvoice(invoiceTO, tblLoadingTO, conn, tran);
-                    if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                    TblConfigParamsTO tblConfigParamsTO =  _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_SPLIT_BOOKING_AGAINST_INVOICE, conn, tran);
+                    if(tblConfigParamsTO!=null)
                     {
-                        return resultMessage;
+                        if(tblConfigParamsTO.ConfigParamVal=="1")
+                        {
+                            resultMessage = SpiltBookingAgainstInvoice(invoiceTO, tblLoadingTO, conn, tran);
+                            if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                            {
+                                return resultMessage;
+                            }
+                        }
                     }
+
+                  
 
                     #region Write Data to Invoice
 
