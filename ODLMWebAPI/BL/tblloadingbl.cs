@@ -399,17 +399,23 @@ namespace ODLMWebAPI.BL {
                             Int32 modBusLoadingRefId = Convert.ToInt32(gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.LoadingId]);
 
                             TblLoadingTO tblLoadingTO = SelectTblLoadingTOByModBusRefId(modBusLoadingRefId);
-                            //vipul[18/4/19] check allowed to remove or not
+
+                            if (tblLoadingTO == null)
+                            {
+                                continue;
+                            }
+
+                                //vipul[18/4/19] check allowed to remove or not
                             if (tblLoadingTO == null || tblLoadingTO.IsDBup == 0)
                             {
 
                                 #region Saket [2020-10-27] Add vehicle Out Entry if backup not done against vehicle
 
-                                String statusDate = (String)gateIoTResult.Data[0][(int)IoTConstants.GateIoTColE.StatusDate];
+                                String statusDate = (String)gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.StatusDate];
 
                                 DateTime statusDateTime = _iIotCommunication.IoTDateTimeStringToDate(statusDate);
 
-                                TimeSpan ts = statusDateTime - serverDate;
+                                TimeSpan ts = serverDate - statusDateTime;
 
                                 if (ts.TotalMinutes > 60)
                                 {
@@ -423,7 +429,7 @@ namespace ODLMWebAPI.BL {
 
                                             var distinctDate = deliverTOList.GroupBy(g1 => g1.StatusDate).Select(s => s.FirstOrDefault()).ToList();
 
-                                            if (distinctDate.Count > 3)
+                                            if (distinctDate.Count >= 3)
                                             {
                                                 continue;
                                             }

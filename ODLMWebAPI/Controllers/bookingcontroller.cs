@@ -158,8 +158,8 @@ namespace ODLMWebAPI.Controllers
                 var statusIds = list.GroupBy(g => g.StatusId).ToList();
                 for (int i = 0; i < statusIds.Count; i++)
                 {
-                    //var latestObj = list.Where(l => l.StatusId == statusIds[i].Key).OrderBy(s => s.StatusDate).FirstOrDefault();
-                    var latestObj = list.Where(l => l.StatusId == statusIds[i].Key).OrderBy(s => s.StatusDate).LastOrDefault(); //Pandurang[2018-07-17] For Finance Approval get latest entry.
+                    var latestObj = list.Where(l => l.StatusId == statusIds[i].Key).OrderBy(s => s.StatusDate).FirstOrDefault();  //Saket [2020-11-05] Reverse code of pandurang for SRJ as we need to show first record of the status.
+                    //var latestObj = list.Where(l => l.StatusId == statusIds[i].Key).OrderBy(s => s.StatusDate).LastOrDefault(); //Pandurang[2018-07-17] For Finance Approval get latest entry.
                     finalList.Add(latestObj);
                 }
 
