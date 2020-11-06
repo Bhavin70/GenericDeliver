@@ -1704,11 +1704,10 @@ namespace ODLMWebAPI.BL {
             try
             {
                 conn.Open();
+                tran = conn.BeginTransaction();
                 //Saket [2020-03-26]
                 lock (generateInvoiceNoLock)
                 {
-
-                    tran = conn.BeginTransaction();
                     int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
 
                     TblInvoiceTO invoiceTO = _iTblInvoiceBL.SelectTblInvoiceTOWithDetails(invoiceId, conn, tran);
