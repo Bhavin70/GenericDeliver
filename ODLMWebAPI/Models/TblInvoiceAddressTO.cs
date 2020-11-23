@@ -24,6 +24,7 @@ namespace ODLMWebAPI.Models
         String taluka;
         String district;
         String state;
+        string stateOrUTCode;
         String pinCode;
         Int32 addrSourceTypeId;
         String villageName;
@@ -122,6 +123,11 @@ namespace ODLMWebAPI.Models
         {
             get { return state; }
             set { state = value; }
+        }
+        public String StateOrUTCode
+        {
+            get { return stateOrUTCode; }
+            set { stateOrUTCode = value; }
         }
         public String PinCode
         {

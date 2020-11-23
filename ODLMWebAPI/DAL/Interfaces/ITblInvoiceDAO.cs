@@ -47,5 +47,10 @@ namespace ODLMWebAPI.DAL.Interfaces
 
         double GetTareWeightFromInvoice(String lodingSlipIds, SqlConnection conn, SqlTransaction tran);
         int UpdateMappedSAPInvoiceNo(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
+
+        int UpdateEInvoicNo(TblInvoiceTO tblInvoiceTO);
+        int UpdateEInvoicNo(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
+        int UpdateEWayBill(TblInvoiceTO tblInvoiceTO);
+        int UpdateEWayBill(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
     }
 }
