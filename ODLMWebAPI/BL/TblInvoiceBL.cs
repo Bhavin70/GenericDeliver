@@ -2252,6 +2252,15 @@ namespace ODLMWebAPI.BL
                             return resultMessage;
                         }
 
+
+                        Int32 isForItemWiseRoundup = 2;
+                        TblConfigParamsTO cPisForItemWiseRoundup = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.ITEM_GRAND_TOTAL_ROUNDUP_VALUE, conn, tran);
+                        if (cPisForItemWiseRoundup != null)
+                        {
+                            isForItemWiseRoundup = Convert.ToInt32(cPisForItemWiseRoundup.ConfigParamVal);
+                        }
+
+
                         TblConfigParamsTO tcsPercentConfigParamsTO = new TblConfigParamsTO();
 
                         if (isPanNoPresent)
@@ -2281,7 +2290,8 @@ namespace ODLMWebAPI.BL
                                 Double tcsTaxPercent = Convert.ToDouble(tcsPercentConfigParamsTO.ConfigParamVal);
                                 tcsItemTO.TaxPct = tcsTaxPercent;
                                 tcsItemTO.TaxableAmt = (grandTotal * tcsTaxPercent) / 100;
-                                tcsItemTO.TaxableAmt = Math.Round(tcsItemTO.TaxableAmt, 2);
+                                //tcsItemTO.TaxableAmt = Math.Round(tcsItemTO.TaxableAmt, 2);
+                                tcsItemTO.TaxableAmt = Math.Round(tcsItemTO.TaxableAmt, isForItemWiseRoundup);
                                 tcsGrandTotal += tcsItemTO.TaxableAmt;
                                 tcsItemTO.GrandTotal = tcsGrandTotal;
                                 // taxableTotal += tcsItemTO.TaxableAmt;
