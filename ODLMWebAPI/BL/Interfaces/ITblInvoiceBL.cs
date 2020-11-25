@@ -103,7 +103,7 @@ namespace ODLMWebAPI.BL.Interfaces
         /// <summary>
         /// Dhananjay[18-11-2020] : Added To Generate EWayBill.
         /// </summary>
-        ResultMessage GenerateEWayBill(Int32 loginUserId, Int32 idInvoice);
+        ResultMessage GenerateEWayBill(Int32 loginUserId, Int32 idInvoice, decimal distanceInKM);
         /// <summary>
         /// Dhananjay[18-11-2020] : Added To Cancel EWayBill.
         /// </summary>
