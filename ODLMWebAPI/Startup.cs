@@ -519,6 +519,12 @@ namespace ODLMWebAPI
             services.AddScoped<IWeighingCommunication, WeighingCommunication>();
             services.AddScoped<ITblGateBL, TblGateBL>();
             services.AddScoped<ITblGateDAO, TblGateDAO>();
+            services.AddScoped<ITblEInvoiceApiBL, TblEInvoiceApiBL>();
+            services.AddScoped<ITblEInvoiceApiDAO, TblEInvoiceApiDAO>();
+            services.AddScoped<ITblEInvoiceApiResponseBL, TblEInvoiceApiResponseBL>();
+            services.AddScoped<ITblEInvoiceApiResponseDAO, TblEInvoiceApiResponseDAO>();
+            services.AddScoped<ITblEInvoiceSessionApiResponseBL, TblEInvoiceSessionApiResponseBL>();
+            services.AddScoped<ITblEInvoiceSessionApiResponseDAO, TblEInvoiceSessionApiResponseDAO>();
 
 
             services.AddScoped<ITblInvoiceChangeOrgHistoryDAO, TblInvoiceChangeOrgHistoryDAO>();
