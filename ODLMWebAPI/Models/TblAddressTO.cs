@@ -26,6 +26,7 @@ namespace ODLMWebAPI.Models
         String talukaName;
         String districtName;
         String stateName;
+        string stateOrUTCode;
 
         Int32 addrTypeId;
         #endregion
@@ -119,6 +120,12 @@ namespace ODLMWebAPI.Models
         {
             get { return stateName; }
             set { stateName = value; }
+        }
+
+        public string StateOrUTCode
+        {
+            get { return stateOrUTCode; }
+            set { stateOrUTCode = value; }
         }
 
         public Int32 AddrTypeId

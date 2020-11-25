@@ -91,5 +91,22 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage CreateInvoiceAgainstLoadingSlips(TblLoadingTO loadingTO, SqlConnection conn, SqlTransaction tran, List<TblLoadingSlipTO> loadingSlipTOList, Int32 skipMergeSetting = 0);
         Byte[] DeleteFile(string saveLocation, string filePath);
         int UpdateMappedSAPInvoiceNo(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
+
+        /// <summary>
+        /// Dhananjay[18-11-2020] : Added To Generate eInvvoice.
+        /// </summary>
+        ResultMessage GenerateEInvoice(Int32 loginUserId, Int32 idInvoice);
+        /// <summary>
+        /// Dhananjay[18-11-2020] : Added To Cancel eInvvoice.
+        /// </summary>
+        ResultMessage CancelEInvoice(Int32 loginUserId, Int32 idInvoice);
+        /// <summary>
+        /// Dhananjay[18-11-2020] : Added To Generate EWayBill.
+        /// </summary>
+        ResultMessage GenerateEWayBill(Int32 loginUserId, Int32 idInvoice);
+        /// <summary>
+        /// Dhananjay[18-11-2020] : Added To Cancel EWayBill.
+        /// </summary>
+        ResultMessage CancelEWayBill(Int32 loginUserId, Int32 idInvoice);
     }
 }

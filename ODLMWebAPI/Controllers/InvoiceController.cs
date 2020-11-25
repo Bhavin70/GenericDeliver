@@ -1300,5 +1300,133 @@ namespace ODLMWebAPI.Controllers
         {
         }
 
+        /// <summary>
+        /// Dhananjay[18-11-2020] : Added To Generate eInvvoice.
+        /// </summary>
+        [Route("GenerateEInvoice")]
+        [HttpPost]
+        public ResultMessage GenerateEInvoice([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                var loginUserId = data["loginUserId"].ToString();
+                var idInvoice = data["idInvoice"].ToString();
+                //Int32 idInvoice = 29194;
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    resultMessage.DefaultBehaviour("loginUserId Not Found");
+                    return resultMessage;
+                }
+                return _iTblInvoiceBL.GenerateEInvoice(Convert.ToInt32(loginUserId), Convert.ToInt32(idInvoice));
+            }
+            catch (Exception ex)
+            {
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Text = ex.Message;
+                return resultMessage;
+            }
+            finally
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// Dhananjay[19-11-2020] : Added To Cancel eInvvoice.
+        /// </summary>
+        [Route("CancelEInvoice")]
+        [HttpPost]
+        public ResultMessage CancelEInvoice([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                var loginUserId = data["loginUserId"].ToString();
+                var idInvoice = data["idInvoice"].ToString();
+                //Int32 idInvoice = 29194;
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    resultMessage.DefaultBehaviour("loginUserId Not Found");
+                    return resultMessage;
+                }
+                return _iTblInvoiceBL.CancelEInvoice(Convert.ToInt32(loginUserId), Convert.ToInt32(idInvoice));
+            }
+            catch (Exception ex)
+            {
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Text = ex.Message;
+                return resultMessage;
+            }
+            finally
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// Dhananjay[18-11-2020] : Added To Generate EWayBill.
+        /// </summary>
+        [Route("GenerateEWayBill")]
+        [HttpPost]
+        public ResultMessage GenerateEWayBill([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                var loginUserId = data["loginUserId"].ToString();
+                var idInvoice = data["idInvoice"].ToString();
+                //Int32 idInvoice = 29194;
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    resultMessage.DefaultBehaviour("loginUserId Not Found");
+                    return resultMessage;
+                }
+                return _iTblInvoiceBL.GenerateEWayBill(Convert.ToInt32(loginUserId), Convert.ToInt32(idInvoice));
+            }
+            catch (Exception ex)
+            {
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Text = ex.Message;
+                return resultMessage;
+            }
+            finally
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// Dhananjay[19-11-2020] : Added To Cancel EWayBill.
+        /// </summary>
+        [Route("CancelEWayBill")]
+        [HttpPost]
+        public ResultMessage CancelEWayBill([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                var loginUserId = data["loginUserId"].ToString();
+                var idInvoice = data["idInvoice"].ToString();
+                //Int32 idInvoice = 29194;
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    resultMessage.DefaultBehaviour("loginUserId Not Found");
+                    return resultMessage;
+                }
+                return _iTblInvoiceBL.CancelEWayBill(Convert.ToInt32(loginUserId), Convert.ToInt32(idInvoice));
+            }
+            catch (Exception ex)
+            {
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Text = ex.Message;
+                return resultMessage;
+            }
+            finally
+            {
+
+            }
+        }
+
     }
 }

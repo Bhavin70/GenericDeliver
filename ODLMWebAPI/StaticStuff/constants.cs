@@ -1057,5 +1057,24 @@ namespace ODLMWebAPI.StaticStuff
             SKIP_BOOKING_APPROVAL = 265
         }
 
+        /// <summary>
+        /// Dhananjay [2020-11-19] For EInvoice API
+        /// </summary>
+        public enum EInvoiceAPIE
+        {
+            OAUTH_TOKEN = 1,
+            EINVOICE_AUTHENTICATE = 2,
+            GENERATE_EINVOICE = 3,
+            CANCEL_EINVOICE = 4,
+            GET_EINVOICE = 5,
+            GENERATE_EWAYBILL = 6,
+            CANCEL_EWAYBILL = 7
+        }
+
+        /// <summary>
+        /// Dhananjay [2020-11-19] For EInvoice API
+        /// </summary>
+        public static Int32 secsToBeDeductededFromTokenExpTime = 120;
+
     }
 }

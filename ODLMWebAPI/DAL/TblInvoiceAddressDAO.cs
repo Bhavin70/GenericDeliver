@@ -22,11 +22,12 @@ namespace ODLMWebAPI.DAL
         #region Methods
         public String SqlSelectQuery()
         {
-            String sqlSelectQry = " SELECT * FROM [tempInvoiceAddress]" +
-
+            String sqlSelectQry = " SELECT tempInvoiceAddress.*, stat.stateOrUTCode FROM [tempInvoiceAddress]" +
+                                  " LEFT JOIN dimState stat ON stat.idState = tempInvoiceAddress.stateId " +
                                   // Vaibhav [10-Jan-2018] Added to select from finalInvoiceAddress
                                   " UNION ALL " +
-                                  " SELECT * FROM [finalInvoiceAddress]";
+                                  " SELECT finalInvoiceAddress.*, stat.stateOrUTCode FROM [finalInvoiceAddress]" +
+                                  " LEFT JOIN dimState stat ON stat.idState = finalInvoiceAddress.stateId ";
             return sqlSelectQry;
         }
         #endregion
@@ -284,6 +285,9 @@ namespace ODLMWebAPI.DAL
                     //Sanjay 17-09-2019 Prev village was not included in master.
                     if (tblInvoiceAddressTODT["village"] != DBNull.Value)
                         tblInvoiceAddressTONew.VillageName = Convert.ToString(tblInvoiceAddressTODT["village"].ToString());
+
+                    if (tblInvoiceAddressTODT["stateOrUTCode"] != DBNull.Value)
+                        tblInvoiceAddressTONew.StateOrUTCode = Convert.ToString(tblInvoiceAddressTODT["stateOrUTCode"].ToString());
 
                     tblInvoiceAddressTOList.Add(tblInvoiceAddressTONew);
                 }
