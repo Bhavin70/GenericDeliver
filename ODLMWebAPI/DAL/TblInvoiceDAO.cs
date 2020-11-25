@@ -2558,7 +2558,7 @@ namespace ODLMWebAPI.DAL
 
                  "  [IrnNo] = @IrnNo " +
                  " ,[isEInvGenerated]= @IsEInvGenerated" +
-                 " ,[distanceInKM]= @DistanceInKM" +
+                 //" ,[distanceInKM]= @DistanceInKM" +
                  " ,[updatedBy]= @UpdatedBy" +
                  " ,[updatedOn]= @UpdatedOn" +
                  " WHERE [idInvoice] = @IdInvoice ";
@@ -2569,7 +2569,7 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Parameters.Add("@IdInvoice", System.Data.SqlDbType.Int).Value = tblInvoiceTO.IdInvoice;
                 cmdUpdate.Parameters.Add("@IrnNo", System.Data.SqlDbType.NVarChar).Value = tblInvoiceTO.IrnNo;
                 cmdUpdate.Parameters.Add("@IsEInvGenerated", System.Data.SqlDbType.Int).Value = tblInvoiceTO.IsEInvGenerated;
-                cmdUpdate.Parameters.Add("@DistanceInKM", System.Data.SqlDbType.Decimal).Value = tblInvoiceTO.DistanceInKM;
+                //cmdUpdate.Parameters.Add("@DistanceInKM", System.Data.SqlDbType.Decimal).Value = tblInvoiceTO.DistanceInKM;
                 cmdUpdate.Parameters.Add("@UpdatedBy", System.Data.SqlDbType.Int).Value = tblInvoiceTO.UpdatedBy;
                 cmdUpdate.Parameters.Add("@UpdatedOn", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.UpdatedOn;
 
@@ -2647,6 +2647,43 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Parameters.Add("@IdInvoice", System.Data.SqlDbType.Int).Value = tblInvoiceTO.IdInvoice;
                 cmdUpdate.Parameters.Add("@IsEwayBillGenerated", System.Data.SqlDbType.Int).Value = tblInvoiceTO.IsEWayBillGenerated;
                 cmdUpdate.Parameters.Add("@ElectronicRefNo", System.Data.SqlDbType.NVarChar).Value = tblInvoiceTO.ElectronicRefNo;
+                cmdUpdate.Parameters.Add("@UpdatedBy", System.Data.SqlDbType.Int).Value = tblInvoiceTO.UpdatedBy;
+                cmdUpdate.Parameters.Add("@UpdatedOn", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.UpdatedOn;
+
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
+
+        public int UpdateTempInvoiceDistanceInKM(TblInvoiceTO tblInvoiceTO)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                conn.Open();
+                cmdUpdate.Connection = conn;
+                
+                String sqlQuery = @" UPDATE [tempInvoice] SET " +
+
+                 " [distanceInKM]= @DistanceInKM" +
+                 " ,[updatedBy]= @UpdatedBy" +
+                 " ,[updatedOn]= @UpdatedOn" +
+                 " WHERE [idInvoice] = @IdInvoice ";
+
+                cmdUpdate.CommandText = sqlQuery;
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+
+                cmdUpdate.Parameters.Add("@IdInvoice", System.Data.SqlDbType.Int).Value = tblInvoiceTO.IdInvoice;
+                cmdUpdate.Parameters.Add("@DistanceInKM", System.Data.SqlDbType.Decimal).Value = tblInvoiceTO.DistanceInKM;
                 cmdUpdate.Parameters.Add("@UpdatedBy", System.Data.SqlDbType.Int).Value = tblInvoiceTO.UpdatedBy;
                 cmdUpdate.Parameters.Add("@UpdatedOn", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.UpdatedOn;
 
