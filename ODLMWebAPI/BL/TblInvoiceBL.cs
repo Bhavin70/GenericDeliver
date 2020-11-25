@@ -4257,11 +4257,17 @@ namespace ODLMWebAPI.BL
                     invoiceDT.Columns.Add("invoiceDateStr");
                     //headerDT.Columns.Add("deliveryLocation");
                     invoiceDT.Columns.Add("EWayBillNo"); //Aniket [26-6-2019]
-
+                    
                     invoiceDT.Rows[0]["invoiceNo"] = tblInvoiceTO.InvoiceNo;
                     invoiceDT.Rows[0]["invoiceDateStr"] = tblInvoiceTO.InvoiceDateStr;
                     if (!string.IsNullOrEmpty(tblInvoiceTO.ElectronicRefNo))
                         invoiceDT.Rows[0]["EWayBillNo"] = tblInvoiceTO.ElectronicRefNo;
+
+                    //Dhananjay [25-11-2020]
+                    invoiceDT.Columns.Add("IrnNo");
+                    if (!string.IsNullOrEmpty(tblInvoiceTO.IrnNo))
+                        invoiceDT.Rows[0]["IrnNo"] = tblInvoiceTO.IrnNo;
+
                     addressDT.Columns.Add("poNo");
                     addressDT.Columns.Add("poDateStr");
                     addressDT.Columns.Add("electronicRefNo");
