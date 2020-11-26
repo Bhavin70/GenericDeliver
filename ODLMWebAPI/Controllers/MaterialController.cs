@@ -981,10 +981,10 @@ namespace ODLMWebAPI.Controllers
         public ResultMessage PostCopyParityValuesForMultiBrands([FromBody] JObject data)
         {
             int brandId = JsonConvert.DeserializeObject<Int32>(data["brandId"].ToString());
-           List<DropDownToForParity> selectedBrands = JsonConvert.DeserializeObject<List<DropDownToForParity>>(data["selectedBrands"].ToString());
-        List<DropDownToForParity> selectedStates= JsonConvert.DeserializeObject<List<DropDownToForParity>>(data["selectedStates"].ToString());
+            List<DropDownToForParity> selectedBrands = JsonConvert.DeserializeObject<List<DropDownToForParity>>(data["selectedBrands"].ToString());
+            List<DropDownToForParity> selectedStates = JsonConvert.DeserializeObject<List<DropDownToForParity>>(data["selectedStates"].ToString());
             ResultMessage resultMessage = new StaticStuff.ResultMessage();
-           resultMessage = _iTblParityDetailsBL.GetParityDetialsForCopyBrand(brandId, selectedBrands, selectedStates);
+            resultMessage = _iTblParityDetailsBL.GetParityDetialsForCopyBrand(brandId, selectedBrands, selectedStates);
             return resultMessage;
 
         }
