@@ -36,6 +36,8 @@ namespace ODLMWebAPI.Models
         String displayName;
         Int32 currencyId;
         String itemName;
+        Int32 districtId; //Dhananjay [2020-11-25] to store District
+        Int32 talukaId; //Dhananjay [2020-11-25] to store Taluka
         #endregion
 
         #region Constructor
@@ -153,6 +155,8 @@ namespace ODLMWebAPI.Models
         public string BrandDesc { get => brandDesc; set => brandDesc = value; }
         public int CurrencyId { get => currencyId; set => currencyId = value; }
         public string ItemName { get => itemName; set => itemName = value; }
+        public int DistrictId { get => districtId; set => districtId = value; } //Dhananjay [2020-11-25] to store District
+        public int TalukaId { get => talukaId; set => talukaId = value; } //Dhananjay [2020-11-25] to store Taluka
         #endregion
     }
 }

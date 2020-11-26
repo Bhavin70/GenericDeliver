@@ -18,7 +18,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         TblParityDetailsTO SelectTblParityDetails(Int32 idParityDtl);
         TblParityDetailsTO SelectTblParityDetails(Int32 idParityDtl, SqlConnection conn, SqlTransaction tran);
         List<TblParityDetailsTO> SelectAllParityDetails();
-        List<TblParityDetailsTO> SelectAllParityDetailsOnProductItemId(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo, Int32 productSpecForRegular);
+        List<TblParityDetailsTO> SelectAllParityDetailsOnProductItemId(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo, Int32 productSpecForRegular, Int32 districtId, Int32 talukaId);
         List<TblParityDetailsTO> SelectParityDetailToListOnBooking(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate);
         List<TblParityDetailsTO> ConvertDTToList(SqlDataReader tblParityDetailsTODT);
         int InsertTblParityDetails(TblParityDetailsTO tblParityDetailsTO);

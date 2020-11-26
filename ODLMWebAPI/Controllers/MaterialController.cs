@@ -332,14 +332,16 @@ namespace ODLMWebAPI.Controllers
         /// <param name="stateId"></param>
         /// <param name="currencyId"></param>
         /// <param name="productSpecInfoListTo"></param>
+        /// <param name="districtId"></param>
+        /// <param name="talukaId"></param>
         /// <returns></returns>
         [Route("GetParityDetailsList")]
         [HttpGet]
-        public List<TblParityDetailsTO> GetParityDetailsList(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo = 0, Int32 productSpecForRegular = 0)
+        public List<TblParityDetailsTO> GetParityDetailsList(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo = 0, Int32 productSpecForRegular = 0, Int32 districtId = 0, Int32 talukaId = 0)
         {
             try
             {
-                List<TblParityDetailsTO> list = _iTblParityDetailsBL.SelectAllParityDetailsOnProductItemId(brandId, productItemId, prodCatId, stateId, currencyId, productSpecInfoListTo, productSpecForRegular);
+                List<TblParityDetailsTO> list = _iTblParityDetailsBL.SelectAllParityDetailsOnProductItemId(brandId, productItemId, prodCatId, stateId, currencyId, productSpecInfoListTo, productSpecForRegular, districtId, talukaId);
                 if (list != null)
                     return list;
                 else

@@ -394,7 +394,7 @@ namespace ODLMWebAPI.DAL
             }
         }
         //Priyanka [28-08-2018]
-        public List<TblParityDetailsTO> SelectAllParityDetailsOnProductItemId(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo, Int32 productSpecForRegular)
+        public List<TblParityDetailsTO> SelectAllParityDetailsOnProductItemId(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo, Int32 productSpecForRegular, Int32 districtId, Int32 talukaId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -404,6 +404,8 @@ namespace ODLMWebAPI.DAL
             String prodCatIdCondition1 = String.Empty;
             String prodCatIdCondition2 = String.Empty;
             String prodCatIdCondition3 = String.Empty;
+            String districtIdCondition = String.Empty;
+            String talukaIdCondition = String.Empty;
             String whereCondition = String.Empty;
             try
             {
@@ -415,7 +417,15 @@ namespace ODLMWebAPI.DAL
                     prodCatIdCondition2 = " and prodCatId = " + prodCatId;
                     prodCatIdCondition3 = " idProdCat = " + prodCatId;
                 }
-                if(prodCatId>0 || productSpecForRegular>0)
+                if (districtId > 0)
+                {
+                    districtIdCondition = " and districtId = " + districtId;
+                }
+                if (talukaId > 0)
+                {
+                    talukaIdCondition = " and talukaId = " + talukaId;
+                }
+                if (prodCatId>0 || productSpecForRegular>0)
                 {
                     whereCondition = " WHERE ";
                 }
@@ -446,7 +456,7 @@ namespace ODLMWebAPI.DAL
                                                            " full outer join dimBrand brand ON 1 = 1 and brand.idBrand = " + brandId +
                                                            " full outer join dimCurrency currency ON 1 = 1 and currency.idCurrency = " + currencyId +
                                                            " LEFT JOIN( select * from tblParityDetails where stateId= " + stateId + " and isActive = 1 and brandId = " + brandId +
-                                                           prodCatIdCondition2 + " and currencyId = " + currencyId + ") latestParity " +
+                                                           prodCatIdCondition2 + " and currencyId = " + currencyId + districtIdCondition + talukaIdCondition + ") latestParity " +
                                                            " ON material.idMaterial = latestParity.materialId AND prodCat.idProdCat = latestParity.prodCatId " +
                                                            " AND prodSpec.idProdSpec = latestParity.prodSpecId AND stateName.idState = latestParity.stateId " +
                                                            " AND currency.idCurrency = latestParity.currencyId " +
@@ -463,7 +473,7 @@ namespace ODLMWebAPI.DAL
                                                            " prodItem.idProdItem as prodItemId,stateName.idState As stateId from tblProductItem prodItem " +
                                                            " LEft Join tblProdClassification prodClass On prodClass.idProdClass = prodItem.prodClassId " +
                                                            " LEFT JOIN(select * from tblParityDetails where stateId= " + stateId + " and isActive = 1 " +
-                                                           " and currencyId = " + currencyId + ") latestParity ON prodItem.idProdItem = latestParity.prodItemId " +
+                                                           " and currencyId = " + currencyId + districtIdCondition + talukaIdCondition + ") latestParity ON prodItem.idProdItem = latestParity.prodItemId " +
                                                            " FULL outer join dimCurrency currency ON 1 = 1 and currency.idCurrency =  " + currencyId +
                                                            " FULL outer join dimState stateName ON 1 = 1 and stateName.idState =  " + stateId +
                                                            " where prodItem.prodClassId = " + productSpecInfoListTo + "and isParity = 1";
@@ -612,7 +622,12 @@ namespace ODLMWebAPI.DAL
 
                     if (tblParityDetailsTODT["currencyId"] != DBNull.Value)
                         tblParityDetailsTONew.CurrencyId = Convert.ToInt32(tblParityDetailsTODT["currencyId"].ToString());
-              
+
+                    //Added by Dhananjay [2020-11-25] 
+                    if (tblParityDetailsTODT["districtId"] != DBNull.Value)
+                        tblParityDetailsTONew.DistrictId = Convert.ToInt32(tblParityDetailsTODT["districtId"].ToString());
+                    if (tblParityDetailsTODT["talukaId"] != DBNull.Value)
+                        tblParityDetailsTONew.TalukaId = Convert.ToInt32(tblParityDetailsTODT["talukaId"].ToString());
 
                     tblParityDetailsTOList.Add(tblParityDetailsTONew);
                 }
@@ -759,6 +774,8 @@ namespace ODLMWebAPI.DAL
             " ,[otherAmt]" +
             " ,[remark]" +
             " ,[currencyId]" +
+            " ,[districtId]" +
+            " ,[talukaId]" +
             " )" +
 " VALUES (" +
             //"  @IdParityDtl " +
@@ -780,6 +797,8 @@ namespace ODLMWebAPI.DAL
             " ,@OtherAmt " +
             " ,@Remark " +
             " ,@CurrencyId "+
+            " ,@DistrictId " +
+            " ,@TalukaId " +
             " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
@@ -803,6 +822,8 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@OtherAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblParityDetailsTO.OtherAmt);
             cmdInsert.Parameters.Add("@Remark", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblParityDetailsTO.Remark);
             cmdInsert.Parameters.Add("@CurrencyId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblParityDetailsTO.CurrencyId);
+            cmdInsert.Parameters.Add("@DistrictId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblParityDetailsTO.DistrictId);
+            cmdInsert.Parameters.Add("@TalukaId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblParityDetailsTO.TalukaId);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
@@ -878,6 +899,8 @@ namespace ODLMWebAPI.DAL
             " ,[otherAmt]= @OtherAmt" +
             " ,[remark] = @Remark" +
             " ,[currencyId] @CurrencyId" +
+            " ,[districtId]= @DistrictId" +
+            " ,[talukaId]= @TalukaId" +
             " WHERE [idParityDtl] = @IdParityDtl ";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -902,6 +925,8 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@OtherAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblParityDetailsTO.OtherAmt);
             cmdUpdate.Parameters.Add("@Remark", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblParityDetailsTO.Remark);
             cmdUpdate.Parameters.Add("@CurrencyId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblParityDetailsTO.CurrencyId);
+            cmdUpdate.Parameters.Add("@DistrictId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblParityDetailsTO.DistrictId);
+            cmdUpdate.Parameters.Add("@TalukaId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblParityDetailsTO.TalukaId);
 
             return cmdUpdate.ExecuteNonQuery();
         }
@@ -975,6 +1000,8 @@ namespace ODLMWebAPI.DAL
                                    " AND ISNULL(prodCatId,0)=@ProdCatId " +
                                    " AND ISNULL(stateId,0)=@StateId " +
                                    " AND ISNULL(prodItemId,0)=@ProdItemId "+
+                                   " AND ISNULL(districtId,0)=@DistrictId " +
+                                   " AND ISNULL(talukaId,0)=@TalukaId " +
                                    " AND isActive=1";
 
                 cmdUpdate.CommandText = sqlQuery;
@@ -987,6 +1014,8 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Parameters.Add("@ProdCatId", System.Data.SqlDbType.Int).Value = tblParityDetailsTO.ProdCatId;
                 cmdUpdate.Parameters.Add("@ProdItemId", System.Data.SqlDbType.Int).Value = tblParityDetailsTO.ProdItemId;
                 cmdUpdate.Parameters.Add("@StateId", System.Data.SqlDbType.Int).Value = tblParityDetailsTO.StateId;
+                cmdUpdate.Parameters.Add("@DistrictId", System.Data.SqlDbType.Int).Value = tblParityDetailsTO.DistrictId;
+                cmdUpdate.Parameters.Add("@TalukaId", System.Data.SqlDbType.Int).Value = tblParityDetailsTO.TalukaId;
 
                 return cmdUpdate.ExecuteNonQuery();
             }
@@ -1023,6 +1052,8 @@ namespace ODLMWebAPI.DAL
                                    " AND ISNULL(materialId,0)=@MaterialId"+
                                    " AND ISNULL(prodSpecId,0)=@ProdSpecId"+
                                    " AND ISNULL(prodCatId,0)=@ProdCatId "+
+                                   " AND ISNULL(districtId,0)=@DistrictId " +
+                                   " AND ISNULL(talukaId,0)=@TalukaId " +
                                    " AND isActive=1";
 
                 cmdUpdate.CommandText = sqlQuery;
@@ -1034,6 +1065,8 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Parameters.Add("@MaterialId", System.Data.SqlDbType.Int).Value = tblParityDetailsTO.MaterialId;
                 cmdUpdate.Parameters.Add("@ProdSpecId", System.Data.SqlDbType.Int).Value = tblParityDetailsTO.ProdSpecId;
                 cmdUpdate.Parameters.Add("@ProdCatId", System.Data.SqlDbType.Int).Value = tblParityDetailsTO.ProdCatId;
+                cmdUpdate.Parameters.Add("@DistrictId", System.Data.SqlDbType.Int).Value = tblParityDetailsTO.DistrictId;
+                cmdUpdate.Parameters.Add("@TalukaId", System.Data.SqlDbType.Int).Value = tblParityDetailsTO.TalukaId;
 
                 return cmdUpdate.ExecuteNonQuery();
             }

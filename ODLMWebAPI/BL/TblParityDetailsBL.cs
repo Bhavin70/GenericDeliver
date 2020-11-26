@@ -283,9 +283,9 @@ namespace ODLMWebAPI.BL
         //        return null;
         //}
 
-        public List<TblParityDetailsTO> SelectAllParityDetailsToList(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo, Int32 productSpecForRegular)
+        public List<TblParityDetailsTO> SelectAllParityDetailsToList(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo, Int32 productSpecForRegular, Int32 districtId, Int32 talukaId)
         {
-            List<TblParityDetailsTO> parityDetailslist = _iTblParityDetailsDAO.SelectAllParityDetailsOnProductItemId(brandId, productItemId, prodCatId, stateId, currencyId, productSpecInfoListTo, productSpecForRegular);
+            List<TblParityDetailsTO> parityDetailslist = _iTblParityDetailsDAO.SelectAllParityDetailsOnProductItemId(brandId, productItemId, prodCatId, stateId, currencyId, productSpecInfoListTo, productSpecForRegular, districtId, talukaId);
             if (parityDetailslist != null && parityDetailslist.Count > 0)
                 return parityDetailslist;
             else
@@ -356,11 +356,11 @@ namespace ODLMWebAPI.BL
         /// <param name="currencyId"></param>
         /// <param name="productSpecInfoListTo"></param>
         /// <returns></returns>
-        public List<TblParityDetailsTO> SelectAllParityDetailsOnProductItemId(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo, Int32 productSpecForRegular)
+        public List<TblParityDetailsTO> SelectAllParityDetailsOnProductItemId(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo, Int32 productSpecForRegular, Int32 districtId, Int32 talukaId)
         {
             List<DimStateTO> allStateList = _iDimStateDAO.SelectAllDimState().OrderBy(ele => ele.StateName).ToList(); 
             //List<TblParityDetailsTO> allParityDetailsList = TblParityDetailsDAO.SelectAllParityDetails();
-            List<TblParityDetailsTO> productItemIdparityDetailsList = SelectAllParityDetailsToList(brandId, productItemId, prodCatId, stateId, currencyId, productSpecInfoListTo, productSpecForRegular);
+            List<TblParityDetailsTO> productItemIdparityDetailsList = SelectAllParityDetailsToList(brandId, productItemId, prodCatId, stateId, currencyId, productSpecInfoListTo, productSpecForRegular, districtId, talukaId);
             //List<TblParityDetailsTO> newParityDetailsList = new List<TblParityDetailsTO>();
             //if (allStateList != null && allStateList.Count > 0)
             //{
