@@ -52,5 +52,6 @@ namespace ODLMWebAPI.DAL.Interfaces
         int UpdateEInvoicNo(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
         int UpdateEWayBill(TblInvoiceTO tblInvoiceTO);
         int UpdateEWayBill(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
+        int UpdateTempInvoiceDistanceInKM(TblInvoiceTO tblInvoiceTO);
     }
 }

@@ -1376,13 +1376,14 @@ namespace ODLMWebAPI.Controllers
             {
                 var loginUserId = data["loginUserId"].ToString();
                 var idInvoice = data["idInvoice"].ToString();
+                var distanceInKM = data["distanceInKM"].ToString();
                 //Int32 idInvoice = 29194;
                 if (Convert.ToInt32(loginUserId) <= 0)
                 {
                     resultMessage.DefaultBehaviour("loginUserId Not Found");
                     return resultMessage;
                 }
-                return _iTblInvoiceBL.GenerateEWayBill(Convert.ToInt32(loginUserId), Convert.ToInt32(idInvoice));
+                return _iTblInvoiceBL.GenerateEWayBill(Convert.ToInt32(loginUserId), Convert.ToInt32(idInvoice), Convert.ToDecimal(distanceInKM));
             }
             catch (Exception ex)
             {

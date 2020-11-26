@@ -21,8 +21,8 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage SaveParityDetailsOtherItem(TblParitySummaryTO tblParitySummaryTO, Int32 isForUpdate);
         Int32 DeactivateParityDetails(TblParityDetailsTO tblParityDetailsTO, SqlConnection conn, SqlTransaction tran);
         Int32 DeactivateParityDetailsForUpdate(TblParityDetailsTO parityDetailsTO, SqlConnection conn, SqlTransaction tran);
-        List<TblParityDetailsTO> SelectAllParityDetailsToList(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo, Int32 productSpecForRegular);
-        List<TblParityDetailsTO> SelectAllParityDetailsOnProductItemId(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo, Int32 productSpecForRegular);
+        List<TblParityDetailsTO> SelectAllParityDetailsToList(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo, Int32 productSpecForRegular, Int32 districtId, Int32 talukaId);
+        List<TblParityDetailsTO> SelectAllParityDetailsOnProductItemId(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo, Int32 productSpecForRegular, Int32 districtId, Int32 talukaId);
         TblParityDetailsTO SelectParityDetailToListOnBooking(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate);
         TblParityDetailsTO CreateEmptyParityDetailsTo(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate);
         int InsertTblParityDetails(TblParityDetailsTO tblParityDetailsTO);
