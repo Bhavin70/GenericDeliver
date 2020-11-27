@@ -405,7 +405,9 @@ namespace ODLMWebAPI.DAL
             String prodCatIdCondition2 = String.Empty;
             String prodCatIdCondition3 = String.Empty;
             String districtIdCondition = String.Empty;
+            String districtIdCondition1 = String.Empty;
             String talukaIdCondition = String.Empty;
+            String talukaIdCondition1 = String.Empty;
             String whereCondition = String.Empty;
             try
             {
@@ -419,11 +421,13 @@ namespace ODLMWebAPI.DAL
                 }
                 if (districtId > 0)
                 {
-                    districtIdCondition = " and districtId = " + districtId;
+                    districtIdCondition = " and districtName.idDistrict = " + districtId;
+                    districtIdCondition1 = " and ISNULL(districtId, 0) = " + districtId;
                 }
                 if (talukaId > 0)
                 {
-                    talukaIdCondition = " and talukaId = " + talukaId;
+                    talukaIdCondition = " and talukaName.idTaluka = " + talukaId;
+                    talukaIdCondition1 = " and ISNULL(talukaId, 0) = " + talukaId;
                 }
                 if (prodCatId>0 || productSpecForRegular>0)
                 {
@@ -448,17 +452,20 @@ namespace ODLMWebAPI.DAL
                                                            " latestParity.isActive, latestParity.currencyId  ,material.idMaterial As materialId, " +
                                                            " material.materialSubType AS materialDesc,prodcat.idProdCat As prodCatId, itemName = '', displayName='', " +
                                                            " brand.idBrand As brandId,  brand.brandName As brandDesc, prodCat.prodCateDesc As prodCateDesc ," +
-                                                           " prodspec.idProdSpec As prodSpecId, prodSpec.prodSpecDesc As prodSpecDesc, stateName.idState As stateId " +
+                                                           " prodspec.idProdSpec As prodSpecId, prodSpec.prodSpecDesc As prodSpecDesc, stateName.idState As stateId, districtName.idDistrict As districtId, talukaName.idTaluka As talukaId " +
                                                            " FROM tblMaterial material " +
                                                            " FULL OUTER JOIN dimProdCat prodCat ON 1 = 1 "+ prodCatIdCondition1 + " and prodCat.isActive = 1 " +
                                                            " FULL OUTER JOIN dimProdSpec prodSpec ON 1 = 1  and prodSpec.isActive = 1 " +
                                                            " full outer join dimState stateName ON 1 = 1 and stateName.idState = " + stateId +
+                                                           " full outer join dimDistrict districtName ON 1 = 1 " + districtIdCondition +
+                                                           " full outer join dimTaluka talukaName ON 1 = 1 " + talukaIdCondition +
                                                            " full outer join dimBrand brand ON 1 = 1 and brand.idBrand = " + brandId +
                                                            " full outer join dimCurrency currency ON 1 = 1 and currency.idCurrency = " + currencyId +
                                                            " LEFT JOIN( select * from tblParityDetails where stateId= " + stateId + " and isActive = 1 and brandId = " + brandId +
-                                                           prodCatIdCondition2 + " and currencyId = " + currencyId + districtIdCondition + talukaIdCondition + ") latestParity " +
+                                                           prodCatIdCondition2 + " and currencyId = " + currencyId + districtIdCondition1 + talukaIdCondition1 + ") latestParity " +
                                                            " ON material.idMaterial = latestParity.materialId AND prodCat.idProdCat = latestParity.prodCatId " +
                                                            " AND prodSpec.idProdSpec = latestParity.prodSpecId AND stateName.idState = latestParity.stateId " +
+                                                           " AND districtName.idDistrict = latestParity.districtId AND talukaName.idTaluka = latestParity.talukaId " +
                                                            " AND currency.idCurrency = latestParity.currencyId " +
                                                            " AND brand.idBrand = latestParity.brandId  "+ whereCondition +prodCatIdCondition3 + regularSpecString + " order by prodSpec.displaySequence ,materialId";
                 }
@@ -470,12 +477,14 @@ namespace ODLMWebAPI.DAL
                                                            " prodCateDesc ='', prodSpecDesc ='',latestParity.prodSpecId, latestParity.brandId, brandDesc='', " +
                                                            " latestParity.prodCatId ,latestParity.otherAmt, " +
                                                            " latestParity.isActive, currency.idCurrency  As currencyId,prodClass.displayName ,prodItem.itemName ," +
-                                                           " prodItem.idProdItem as prodItemId,stateName.idState As stateId from tblProductItem prodItem " +
+                                                           " prodItem.idProdItem as prodItemId,stateName.idState As stateId, districtName.idDistrict As districtId, talukaName.idTaluka As talukaId  from tblProductItem prodItem " +
                                                            " LEft Join tblProdClassification prodClass On prodClass.idProdClass = prodItem.prodClassId " +
                                                            " LEFT JOIN(select * from tblParityDetails where stateId= " + stateId + " and isActive = 1 " +
-                                                           " and currencyId = " + currencyId + districtIdCondition + talukaIdCondition + ") latestParity ON prodItem.idProdItem = latestParity.prodItemId " +
+                                                           " and currencyId = " + currencyId + districtIdCondition1 + talukaIdCondition1 + ") latestParity ON prodItem.idProdItem = latestParity.prodItemId " +
                                                            " FULL outer join dimCurrency currency ON 1 = 1 and currency.idCurrency =  " + currencyId +
                                                            " FULL outer join dimState stateName ON 1 = 1 and stateName.idState =  " + stateId +
+                                                           " full outer join dimDistrict districtName ON 1 = 1 " + districtIdCondition +
+                                                           " full outer join dimTaluka talukaName ON 1 = 1 " + talukaIdCondition +
                                                            " where prodItem.prodClassId = " + productSpecInfoListTo + "and isParity = 1";
 
                 }
@@ -701,6 +710,12 @@ namespace ODLMWebAPI.DAL
                         tblParityDetailsTONew.DisplayName = tblParityDetailsTONew.MaterialDesc + "-" + tblParityDetailsTONew.ProdCatDesc + "-" + tblParityDetailsTONew.ProdSpecDesc
                                 + "(" + tblParityDetailsTONew.BrandDesc + ")";
                     }
+
+                    //Added by Dhananjay [2020-11-25] 
+                    if (tblParityDetailsTODT["districtId"] != DBNull.Value)
+                        tblParityDetailsTONew.DistrictId = Convert.ToInt32(tblParityDetailsTODT["districtId"].ToString());
+                    if (tblParityDetailsTODT["talukaId"] != DBNull.Value)
+                        tblParityDetailsTONew.TalukaId = Convert.ToInt32(tblParityDetailsTODT["talukaId"].ToString());
 
                     tblParityDetailsTOList.Add(tblParityDetailsTONew);
                 }

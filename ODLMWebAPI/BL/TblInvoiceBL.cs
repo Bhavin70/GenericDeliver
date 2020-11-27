@@ -9368,17 +9368,40 @@ namespace ODLMWebAPI.BL
                 tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerName", sellerName);
                 if (sellerAddressTO != null)
                 {
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerAddr1", sellerAddressTO.PlotNo);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerAddr2", sellerAddressTO.AreaName);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerLocation", sellerAddressTO.AreaName);
-                    if (sellerAddressTO.Pincode == 0)
+                    string sellerAddr1 = sellerAddressTO.PlotNo;
+                    string sellerAddr2 = "---";
+                    if (sellerAddressTO.AreaName != null && sellerAddressTO.AreaName != "")
+                    {
+                        sellerAddr2 = sellerAddressTO.AreaName;
+                    }
+                    else if (sellerAddressTO.VillageName != null && sellerAddressTO.VillageName != "")
+                    {
+                        sellerAddr2 = sellerAddressTO.VillageName;
+                    }
+                    else if (sellerAddressTO.TalukaName != null && sellerAddressTO.TalukaName != "")
+                    {
+                        sellerAddr2 = sellerAddressTO.TalukaName;
+                    }
+                    else if (sellerAddressTO.DistrictName != null && sellerAddressTO.DistrictName != "")
+                    {
+                        sellerAddr2 = sellerAddressTO.DistrictName;
+                    }
+
+                    if (sellerAddr1 == null || sellerAddr1 == "")
+                    {
+                        sellerAddr1 = sellerAddr2;
+                    }
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerAddr1", sellerAddr1);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerAddr2", sellerAddr2);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerLocation", sellerAddr2);
+                    /*if (sellerAddressTO.Pincode == 0)
                     {
                         tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerPincode", "110001");
                     }
                     else
-                    {
+                    {*/
                         tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerPincode", sellerAddressTO.Pincode.ToString());
-                    }
+                    //}
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerStateCode", sellerAddressTO.StateOrUTCode);
 
                     if (sellerPhoneNo != null)
@@ -9399,9 +9422,9 @@ namespace ODLMWebAPI.BL
                     }
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerEMail", "test@einv.com");
 
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromAddr1", sellerAddressTO.PlotNo);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromAddr2", sellerAddressTO.AreaName);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromLocation", sellerAddressTO.AreaName);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromAddr1", sellerAddr1);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromAddr2", sellerAddr2);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromLocation", sellerAddr2);
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromPincode", sellerAddressTO.Pincode.ToString());
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromStateCode", sellerAddressTO.StateOrUTCode);
                 }
@@ -9415,19 +9438,32 @@ namespace ODLMWebAPI.BL
                 }
                 if (billingAddrTO != null)
                 {
+                    string billingAddr2 = "---";
+                    if (billingAddrTO.VillageName != null && billingAddrTO.VillageName != "")
+                    {
+                        billingAddr2 = billingAddrTO.VillageName;
+                    }
+                    else if (billingAddrTO.Taluka != null && billingAddrTO.Taluka != "")
+                    {
+                        billingAddr2 = billingAddrTO.Taluka;
+                    }
+                    else if (billingAddrTO.District != null && billingAddrTO.District != "")
+                    {
+                        billingAddr2 = billingAddrTO.District;
+                    }
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerGstIn", billingAddrTO.GstinNo);
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerName", buyerName);
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerAddr1", billingAddrTO.Address);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerAddr2", billingAddrTO.VillageName);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerLocation", billingAddrTO.VillageName);
-                    if (billingAddrTO.PinCode == "0")
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerAddr2", billingAddr2);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerLocation", billingAddr2);
+                    /*if (billingAddrTO.PinCode == "0")
                     {
                         tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerPincode", "110001");
                     }
                     else
-                    {
+                    {*/
                         tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerPincode", billingAddrTO.PinCode);
-                    }
+                    //}
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerStateCode", billingAddrTO.StateOrUTCode);
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerSupplyStateCode", billingAddrTO.StateOrUTCode);
                     string contactNo = "9100000000";
@@ -9451,17 +9487,30 @@ namespace ODLMWebAPI.BL
 
                 if (shippingAddrTO != null)
                 {
+                    string shippingAddr2 = "---";
+                    if (shippingAddrTO.VillageName != null && shippingAddrTO.VillageName != "")
+                    {
+                        shippingAddr2 = shippingAddrTO.VillageName;
+                    }
+                    else if (shippingAddrTO.Taluka != null && shippingAddrTO.Taluka != "")
+                    {
+                        shippingAddr2 = shippingAddrTO.Taluka;
+                    }
+                    else if (shippingAddrTO.District != null && shippingAddrTO.District != "")
+                    {
+                        shippingAddr2 = shippingAddrTO.District;
+                    }
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToAddr1", shippingAddrTO.Address);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToAddr2", shippingAddrTO.VillageName);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToLocation", shippingAddrTO.VillageName);
-                    if (shippingAddrTO.PinCode == "0")
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToAddr2", shippingAddr2);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToLocation", shippingAddr2);
+                    /*if (shippingAddrTO.PinCode == "0")
                     {
                         tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToPincode", "110001");
                     }
                     else
-                    {
+                    {*/
                         tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToPincode", shippingAddrTO.PinCode);
-                    }
+                    //}
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToStateCode", shippingAddrTO.StateOrUTCode);
                 }
 
@@ -9586,6 +9635,7 @@ namespace ODLMWebAPI.BL
                 {
                     tran.Rollback();
                     resultMsg.DefaultExceptionBehaviour(ex, "EInvoice_Generate");
+                    return resultMsg;
                 }
                 finally
                 {
