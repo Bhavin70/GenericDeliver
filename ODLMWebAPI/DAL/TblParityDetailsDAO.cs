@@ -405,9 +405,7 @@ namespace ODLMWebAPI.DAL
             String prodCatIdCondition2 = String.Empty;
             String prodCatIdCondition3 = String.Empty;
             String districtIdCondition = String.Empty;
-            String districtIdCondition1 = String.Empty;
             String talukaIdCondition = String.Empty;
-            String talukaIdCondition1 = String.Empty;
             String whereCondition = String.Empty;
             try
             {
@@ -421,13 +419,11 @@ namespace ODLMWebAPI.DAL
                 }
                 if (districtId > 0)
                 {
-                    districtIdCondition = " and districtName.idDistrict = " + districtId;
-                    districtIdCondition1 = " and ISNULL(districtId, 0) = " + districtId;
+                    districtIdCondition = " and ISNULL(districtId, 0) = " + districtId;
                 }
                 if (talukaId > 0)
                 {
-                    talukaIdCondition = " and talukaName.idTaluka = " + talukaId;
-                    talukaIdCondition1 = " and ISNULL(talukaId, 0) = " + talukaId;
+                    talukaIdCondition = " and ISNULL(talukaId, 0) = " + talukaId;
                 }
                 if (prodCatId>0 || productSpecForRegular>0)
                 {
@@ -457,12 +453,12 @@ namespace ODLMWebAPI.DAL
                                                            " FULL OUTER JOIN dimProdCat prodCat ON 1 = 1 "+ prodCatIdCondition1 + " and prodCat.isActive = 1 " +
                                                            " FULL OUTER JOIN dimProdSpec prodSpec ON 1 = 1  and prodSpec.isActive = 1 " +
                                                            " full outer join dimState stateName ON 1 = 1 and stateName.idState = " + stateId +
-                                                           " full outer join dimDistrict districtName ON 1 = 1 " + districtIdCondition +
-                                                           " full outer join dimTaluka talukaName ON 1 = 1 " + talukaIdCondition +
+                                                           " full outer join dimDistrict districtName ON 1 = 1  and districtName.idDistrict = " + districtId +
+                                                           " full outer join dimTaluka talukaName ON 1 = 1 and talukaName.idTaluka = " + talukaId +
                                                            " full outer join dimBrand brand ON 1 = 1 and brand.idBrand = " + brandId +
                                                            " full outer join dimCurrency currency ON 1 = 1 and currency.idCurrency = " + currencyId +
                                                            " LEFT JOIN( select * from tblParityDetails where stateId= " + stateId + " and isActive = 1 and brandId = " + brandId +
-                                                           prodCatIdCondition2 + " and currencyId = " + currencyId + districtIdCondition1 + talukaIdCondition1 + ") latestParity " +
+                                                           prodCatIdCondition2 + " and currencyId = " + currencyId + districtIdCondition + talukaIdCondition + ") latestParity " +
                                                            " ON material.idMaterial = latestParity.materialId AND prodCat.idProdCat = latestParity.prodCatId " +
                                                            " AND prodSpec.idProdSpec = latestParity.prodSpecId AND stateName.idState = latestParity.stateId " +
                                                            " AND districtName.idDistrict = latestParity.districtId AND talukaName.idTaluka = latestParity.talukaId " +
@@ -480,11 +476,11 @@ namespace ODLMWebAPI.DAL
                                                            " prodItem.idProdItem as prodItemId,stateName.idState As stateId, districtName.idDistrict As districtId, talukaName.idTaluka As talukaId  from tblProductItem prodItem " +
                                                            " LEft Join tblProdClassification prodClass On prodClass.idProdClass = prodItem.prodClassId " +
                                                            " LEFT JOIN(select * from tblParityDetails where stateId= " + stateId + " and isActive = 1 " +
-                                                           " and currencyId = " + currencyId + districtIdCondition1 + talukaIdCondition1 + ") latestParity ON prodItem.idProdItem = latestParity.prodItemId " +
+                                                           " and currencyId = " + currencyId + districtIdCondition + talukaIdCondition + ") latestParity ON prodItem.idProdItem = latestParity.prodItemId " +
                                                            " FULL outer join dimCurrency currency ON 1 = 1 and currency.idCurrency =  " + currencyId +
                                                            " FULL outer join dimState stateName ON 1 = 1 and stateName.idState =  " + stateId +
-                                                           " full outer join dimDistrict districtName ON 1 = 1 " + districtIdCondition +
-                                                           " full outer join dimTaluka talukaName ON 1 = 1 " + talukaIdCondition +
+                                                           " full outer join dimDistrict districtName ON 1 = 1 and districtName.idDistrict = " + districtId +
+                                                           " full outer join dimTaluka talukaName ON 1 = 1  and talukaName.idTaluka = " + talukaId +
                                                            " where prodItem.prodClassId = " + productSpecInfoListTo + "and isParity = 1";
 
                 }
