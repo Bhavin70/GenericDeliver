@@ -526,6 +526,10 @@ namespace ODLMWebAPI.StaticStuff
         public static string DEFAULT_NOTFOUND_MSG = " Record Could not be found";
         public static string CP_POST_SALES_INVOICE_TO_SAP_DIRECTLY_AFTER_INVOICE_GENERATION = "CP_POST_SALES_INVOICE_TO_SAP_DIRECTLY_AFTER_INVOICE_GENERATION";
         public static String SAPB1_SERVICES_ENABLE = "SAPB1_SERVICES_ENABLE";
+        
+        //Dhananjay [2020-12-02] Parity level
+        public static string CP_PARITY_LEVEL = "PARITY_LEVEL";
+        
         #endregion
 
         #region Configuration Sections

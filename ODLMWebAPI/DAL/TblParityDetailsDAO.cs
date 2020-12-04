@@ -510,19 +510,33 @@ namespace ODLMWebAPI.DAL
         /// Sudhir[23-MARCH-2018] Added for Get ParityDetail List based on Booking DateTime and Other Combination
         /// </summary>
         /// <returns></returns>
-        public List<TblParityDetailsTO> SelectParityDetailToListOnBooking(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate)
+        public List<TblParityDetailsTO> SelectParityDetailToListOnBooking(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate, Int32 districtId, Int32 talukaId) //02-12-2020 Dhananjay added districtId and talukaId
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader sqlReader = null;
+            String districtIdCondition = String.Empty;
+            String talukaIdCondition = String.Empty;
+
             try
             {
+                //02-12-2020 Dhananjay added
+                if (districtId > 0)
+                {
+                    districtIdCondition = " AND ISNULL(parityDtl.districtId, 0) = " + districtId;
+                }
+                if (talukaId > 0)
+                {
+                    talukaIdCondition = " AND ISNULL(parityDtl.talukaId, 0) = " + talukaId;
+                }
                 conn.Open();
                 cmdSelect.CommandText = SqlSimpleSelectQuery() + " WHERE ISNULL(parityDtl.prodItemId,0)=" + productItemId + " AND ISNULL(parityDtl.brandId,0)=" + brandId
                                         + " AND ISNULL(parityDtl.prodCatId,0)=" + prodCatId + " AND ISNULL(parityDtl.prodSpecId,0)=" + prodSpecId
                                         + " AND ISNULL(parityDtl.materialId,0)=" + materialId
                                         + " AND  parityDtl.stateId=" + stateId
+                                        + districtIdCondition
+                                        + talukaIdCondition 
                                         + "  AND parityDtl.createdOn <=  @BookingDate order by parityDtl.createdOn DESC";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;

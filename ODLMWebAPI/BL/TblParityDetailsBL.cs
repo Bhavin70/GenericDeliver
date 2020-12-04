@@ -422,9 +422,9 @@ namespace ODLMWebAPI.BL
         /// Sudhir[23-MARCH-2018] Added for Get ParityDetail List based on Booking DateTime and Other Combination
         /// </summary>
         /// <returns></returns>
-        public TblParityDetailsTO SelectParityDetailToListOnBooking(Int32 materialId,Int32 prodCatId,Int32 prodSpecId,Int32 productItemId,Int32 brandId,Int32 stateId,DateTime boookingDate)
+        public TblParityDetailsTO SelectParityDetailToListOnBooking(Int32 materialId,Int32 prodCatId,Int32 prodSpecId,Int32 productItemId,Int32 brandId,Int32 stateId,DateTime boookingDate, Int32 districtId, Int32 talukaId) //02-12-2020 Dhananjay added districtId and talukaId
         {
-            List<TblParityDetailsTO> parityDetailslist = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate);
+            List<TblParityDetailsTO> parityDetailslist = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
             if(parityDetailslist != null && parityDetailslist.Count != 0)
             {
                 TblParityDetailsTO tblParityDetailsTO = parityDetailslist.FirstOrDefault();

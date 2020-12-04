@@ -105,6 +105,10 @@ namespace ODLMWebAPI.Models
         Int32 enquiryId;
         string enqDisplayNo;
 
+        //Dhananjay [02-12-2020]
+        int districtId;
+        int talukaId;
+        
         #endregion
 
         #region Constructor
@@ -524,12 +528,16 @@ namespace ODLMWebAPI.Models
         public int IsInUom { get => isInUom; set => isInUom = value; }
         public int IsItemized { get => isItemized; set => isItemized = value; }
         public int StateId { get => stateId; set => stateId = value; }
+
         public List<TblBookingExtTO> OrderDetailsLstForItemWise { get => orderDetailsLstForItemWise; set => orderDetailsLstForItemWise = value; }
         public double CreditLimit { get => creditLimit; set => creditLimit = value; }
 
         public int BookingRefId { get => bookingRefId; set => bookingRefId = value; }
         public string BookingDisplayNo { get => bookingDisplayNo; set => bookingDisplayNo = value; }
 
+        //Dhananjay [02-12-2020]
+        public int DistrictId { get => districtId; set => districtId = value; }
+        public int TalukaId { get => talukaId; set => talukaId = value; }
         #endregion
 
         #region Methods

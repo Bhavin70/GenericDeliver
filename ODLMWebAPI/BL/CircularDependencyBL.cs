@@ -234,7 +234,28 @@ namespace ODLMWebAPI.BL
                         {
                             foreach (var item in tblBookingScheduleTO.OrderDetailsLst)
                             {
-                                var parityList = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(item.MaterialId, item.ProdCatId, item.ProdSpecId, item.ProdItemId, item.BrandId, tblBookingsTO.StateId, tblBookingsTO.CreatedOn);
+
+                                //02-12-2020 Dhananjay added start
+                                Int32 districtId = 0;
+                                Int32 talukaId = 0;
+                                Int32 parityLevel;
+                                TblConfigParamsTO parityLevelConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_PARITY_LEVEL);
+
+                                if (parityLevelConfigParamsTO != null)
+                                {
+                                    parityLevel = Convert.ToInt32(parityLevelConfigParamsTO.ConfigParamVal);
+                                    if (parityLevel == 2)
+                                    {
+                                        districtId = tblBookingsTO.DistrictId;
+                                    }
+                                    else if (parityLevel == 3)
+                                    {
+                                        districtId = tblBookingsTO.DistrictId;
+                                        talukaId = tblBookingsTO.TalukaId;
+                                    }
+                                }
+                                //02-12-2020 Dhananjay added end
+                                var parityList = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(item.MaterialId, item.ProdCatId, item.ProdSpecId, item.ProdItemId, item.BrandId, tblBookingsTO.StateId, tblBookingsTO.CreatedOn, districtId, talukaId);
                                 if (parityList != null)
                                 {
                                     if (tblBookingsTO.IsConfirmed == 1)

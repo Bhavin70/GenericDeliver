@@ -58,7 +58,27 @@ namespace ODLMWebAPI.BL
                         double discount = 0;
                        
                          TblBookingExtTO tempTO = tblBookingExtTOList[i];
-                        var parityList = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(tempTO.MaterialId, tempTO.ProdCatId, tempTO.ProdSpecId, tempTO.ProdItemId, tempTO.BrandId, stateId, tblBookingsTO.CreatedOn);
+                    //02-12-2020 Dhananjay added start
+                    Int32 districtId = 0;
+                    Int32 talukaId = 0;
+                    Int32 parityLevel;
+                    TblConfigParamsTO parityLevelConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_PARITY_LEVEL);
+
+                    if (parityLevelConfigParamsTO != null)
+                    {
+                        parityLevel = Convert.ToInt32(parityLevelConfigParamsTO.ConfigParamVal);
+                        if (parityLevel == 2)
+                        {
+                            districtId = tblBookingsTO.DistrictId;
+                        }
+                        else if (parityLevel == 3)
+                        {
+                            districtId = tblBookingsTO.DistrictId;
+                            talukaId = tblBookingsTO.TalukaId;
+                        }
+                    }
+                    //02-12-2020 Dhananjay added end
+                    var parityList = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(tempTO.MaterialId, tempTO.ProdCatId, tempTO.ProdSpecId, tempTO.ProdItemId, tempTO.BrandId, stateId, tblBookingsTO.CreatedOn, districtId, talukaId);
                         
                         var result= tblProductInfoTOList.Where(a => a.MaterialId == tempTO.MaterialId && a.ProdCatId == tempTO.ProdCatId && a.ProdSpecId == tempTO.ProdSpecId).FirstOrDefault();
                         //var res = tblParityDetailsTOList.Where(a => a.MaterialId == tempTO.MaterialId && a.ProdCatId == tempTO.ProdCatId && a.ProdSpecId == tempTO.ProdSpecId).FirstOrDefault();

@@ -95,18 +95,18 @@ namespace ODLMWebAPI.BL.Interfaces
         /// <summary>
         /// Dhananjay[18-11-2020] : Added To Generate eInvvoice.
         /// </summary>
-        ResultMessage GenerateEInvoice(Int32 loginUserId, Int32 idInvoice);
+        ResultMessage GenerateEInvoice(Int32 loginUserId, Int32 idInvoice, bool forceToGetToken = false);
         /// <summary>
         /// Dhananjay[18-11-2020] : Added To Cancel eInvvoice.
         /// </summary>
-        ResultMessage CancelEInvoice(Int32 loginUserId, Int32 idInvoice);
+        ResultMessage CancelEInvoice(Int32 loginUserId, Int32 idInvoice, bool forceToGetToken = false);
         /// <summary>
         /// Dhananjay[18-11-2020] : Added To Generate EWayBill.
         /// </summary>
-        ResultMessage GenerateEWayBill(Int32 loginUserId, Int32 idInvoice, decimal distanceInKM);
+        ResultMessage GenerateEWayBill(Int32 loginUserId, Int32 idInvoice, decimal distanceInKM, bool forceToGetToken = false);
         /// <summary>
         /// Dhananjay[18-11-2020] : Added To Cancel EWayBill.
         /// </summary>
-        ResultMessage CancelEWayBill(Int32 loginUserId, Int32 idInvoice);
+        ResultMessage CancelEWayBill(Int32 loginUserId, Int32 idInvoice, bool forceToGetToken = false);
     }
 }
