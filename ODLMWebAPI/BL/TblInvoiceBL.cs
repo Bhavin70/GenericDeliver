@@ -9454,6 +9454,9 @@ namespace ODLMWebAPI.BL
                 }
                 if (billingAddrTO != null)
                 {
+                    //Saket Added
+                    buyerName = billingAddrTO.BillingName;
+
                     string billingAddr2 = "---";
                     if (billingAddrTO.VillageName != null && billingAddrTO.VillageName != "")
                     {
