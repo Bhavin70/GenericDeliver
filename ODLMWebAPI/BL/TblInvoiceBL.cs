@@ -2895,10 +2895,19 @@ namespace ODLMWebAPI.BL
                                 orcPerMt = tblLoadingSlipTO.OrcAmt / tblLoadingSlipTO.LoadingQty;
                             }
                         }
+                        Double baseRateDiff = 0;
+                        TblConfigParamsTO tblConfigParamForInternalItemBaseRate = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.INTERNAL_DEFAULT_ITEM_BASE_RATE_DIFF_AMT, conn, tran);
 
+                        if (tblConfigParamForInternalItemBaseRate != null)
+                        {
+                            if (tblConfigParamForInternalItemBaseRate.ConfigParamVal != null)
+                            {
+                                baseRateDiff = Convert.ToDouble(tblConfigParamForInternalItemBaseRate.ConfigParamVal);
+                            }
+                        }
 
-
-                        bookingRateTemp -= 400;
+                        bookingRateTemp -= baseRateDiff;
+                        //bookingRateTemp -= 400;
                         bookingRateTemp -= cdAmt;
                         bookingRateTemp -= orcPerMt;
 
