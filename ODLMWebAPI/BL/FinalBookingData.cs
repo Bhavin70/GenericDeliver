@@ -28,6 +28,7 @@ namespace ODLMWebAPI.BL
         private readonly ITblInvoiceDAO _iTblInvoiceDAO;
         private readonly ITblLoadingSlipExtHistoryDAO _iTblLoadingSlipExtHistoryDAO;
         private readonly ITblLoadingSlipExtDAO _iTblLoadingSlipExtDAO;
+        private readonly ITblEInvoiceApiResponseBL _iTblEInvoiceApiResponseBL; //Added Dhananjay [23-12-2020]
         private readonly ITblInvoiceAddressDAO _iTblInvoiceAddressDAO;
         private readonly ITblInvoiceItemDetailsDAO _iTblInvoiceItemDetailsDAO;
         private readonly ITblInvoiceHistoryDAO _iTblInvoiceHistoryDAO;
@@ -37,7 +38,7 @@ namespace ODLMWebAPI.BL
         private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
         private readonly IConnectionString _iConnectionString;
         private readonly ICommon _iCommon;
-        public FinalBookingData(ITblConfigParamsDAO iTblConfigParamsDAO, ITblInvoiceItemTaxDtlsDAO iTblInvoiceItemTaxDtlsDAO, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblInvoiceHistoryDAO iTblInvoiceHistoryDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblInvoiceDAO iTblInvoiceDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ICircularDependencyBL iCircularDependencyBL, ITblLoadingDAO iTblLoadingDAO, ICommon iCommon, IConnectionString iConnectionString)
+        public FinalBookingData(ITblConfigParamsDAO iTblConfigParamsDAO, ITblInvoiceItemTaxDtlsDAO iTblInvoiceItemTaxDtlsDAO, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblInvoiceHistoryDAO iTblInvoiceHistoryDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblInvoiceDAO iTblInvoiceDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ICircularDependencyBL iCircularDependencyBL, ITblLoadingDAO iTblLoadingDAO, ICommon iCommon, IConnectionString iConnectionString, ITblEInvoiceApiResponseBL iTblEInvoiceApiResponseBL)
         {
             _iTblLoadingDAO = iTblLoadingDAO;
             _iCircularDependencyBL = iCircularDependencyBL;
@@ -45,6 +46,7 @@ namespace ODLMWebAPI.BL
             _iTblInvoiceDAO = iTblInvoiceDAO;
             _iTblLoadingSlipExtHistoryDAO = iTblLoadingSlipExtHistoryDAO; 
             _iTblLoadingSlipExtDAO = iTblLoadingSlipExtDAO;
+            _iTblEInvoiceApiResponseBL = iTblEInvoiceApiResponseBL; //Added Dhananjay [23-12-2020]
             _iTblInvoiceAddressDAO = iTblInvoiceAddressDAO;
             _iTblInvoiceItemDetailsDAO = iTblInvoiceItemDetailsDAO;
             _iTblInvoiceHistoryDAO = iTblInvoiceHistoryDAO;
@@ -84,9 +86,8 @@ namespace ODLMWebAPI.BL
             tblBookingOpngBal,
             tblLoadingSlipRemovedItems,
             tblBookings,
-            tblBookingParities
-
-
+            tblBookingParities,
+            tempEInvoiceApiResponse //Dhananjay added [23-12-2020]
         }
 
         #endregion
@@ -295,6 +296,8 @@ namespace ODLMWebAPI.BL
                                 oldInvoiceId = invoiceTO.IdInvoice;
                                 if (!invoiceIdsList.ContainsKey(invoiceTO.IdInvoice))
                                 {
+                                    //Added Dhananjay [23-12-2020] Select invoice eInvoice API response.
+                                    List<TblEInvoiceApiResponseTO> eInvoiceApiResponseTOList = _iTblEInvoiceApiResponseBL.SelectTblEInvoiceApiResponseListForInvoiceId(invoiceTO.IdInvoice, conn, tran);
                                     // Select invoice address details.
                                     List<TblInvoiceAddressTO> invoiceAddressTOList = _iTblInvoiceAddressDAO.SelectAllTblInvoiceAddress(invoiceTO.IdInvoice, conn, tran);
                                     // Select invoice item details.
@@ -321,6 +324,22 @@ namespace ODLMWebAPI.BL
                                     }
 
                                     newInvoiceId = invoiceTO.IdInvoice;
+
+                                    //Added Dhananjay [23-12-2020] insert invoice eInvoice API response.
+                                    if (eInvoiceApiResponseTOList != null && eInvoiceApiResponseTOList.Count > 0)
+                                    {
+                                        foreach (var eInvoiceApiResponseTO in eInvoiceApiResponseTOList)
+                                        {
+                                            eInvoiceApiResponseTO.InvoiceId = invoiceTO.IdInvoice;
+                                            result = InsertFinalEInvoiceApiResponse(eInvoiceApiResponseTO, conn, tran);
+                                            if (result <= 0)
+                                            {
+                                                resultMessage.DefaultBehaviour("Error while Booking InsertFinalEInvoiceApiResponse");
+                                                return resultMessage;
+                                            }
+                                        }
+                                    }
+                                    
                                     // Insert invoice address details.
                                     if (invoiceAddressTOList != null && invoiceAddressTOList.Count > 0)
                                     {
@@ -1419,7 +1438,10 @@ namespace ODLMWebAPI.BL
                                 " ,[poDate]" +
                                 " ,[deliveredOn]" +
                                 " ,[orcPersonName]" +
-
+                                " ,[IrnNo] " + //Dhananjay added [23-12-2020]
+                                " ,[isEInvGenerated] " + //Dhananjay added [23-12-2020]
+                                " ,[isEwayBillGenerated] " + //Dhananjay added [23-12-2020]
+                                " ,[distanceInKM] " + //Dhananjay added [23-12-2020]
                                 " )" +
                     " VALUES (" +
                                 "  @InvoiceTypeId " +
@@ -1475,7 +1497,10 @@ namespace ODLMWebAPI.BL
                                 " ,@poDate" +
                                 " ,@deliveredOn " + //Vijaymala added [30-03-2018]
                                 " ,@ORCPersonName " +
-
+                                " ,@IrnNo " + //Dhananjay added [23-12-2020]
+                                " ,@isEInvGenerated " + //Dhananjay added [23-12-2020]
+                                " ,@isEwayBillGenerated " + //Dhananjay added [23-12-2020]
+                                " ,@distanceInKM " + //Dhananjay added [23-12-2020]
                                 " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
@@ -1534,6 +1559,10 @@ namespace ODLMWebAPI.BL
             cmdInsert.Parameters.Add("@poDate", System.Data.SqlDbType.DateTime).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.PoDate);//Vijaymala [2018-02-26] Added
             cmdInsert.Parameters.Add("@deliveredOn", System.Data.SqlDbType.DateTime).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.DeliveredOn);
             cmdInsert.Parameters.Add("@ORCPersonName", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.ORCPersonName);
+            cmdInsert.Parameters.Add("@IrnNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.IrnNo);//Dhananjay added [23-12-2020]
+            cmdInsert.Parameters.Add("@isEInvGenerated", System.Data.SqlDbType.Int).Value = tblInvoiceTO.IsEInvGenerated;//Dhananjay added [23-12-2020]
+            cmdInsert.Parameters.Add("@isEwayBillGenerated", System.Data.SqlDbType.Int).Value = tblInvoiceTO.IsEWayBillGenerated;//Dhananjay added [23-12-2020]
+            cmdInsert.Parameters.Add("@distanceInKM", System.Data.SqlDbType.Decimal).Value = tblInvoiceTO.DistanceInKM;//Dhananjay added [23-12-2020]
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
@@ -1544,7 +1573,26 @@ namespace ODLMWebAPI.BL
 
             return 0;
         }
-
+        
+        //Added Dhananjay [23-12-2020] insert invoice eInvoice API response.
+        private int InsertFinalEInvoiceApiResponse(TblEInvoiceApiResponseTO tblEInvoiceApiResponseTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdInsert = new SqlCommand();
+            try
+            {
+                cmdInsert.Connection = conn;
+                cmdInsert.Transaction = tran;
+                return ExecuteInsertionFinalEInvoiceApiResponseCommand(tblEInvoiceApiResponseTO, cmdInsert);
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdInsert.Dispose();
+            }
+        }
 
         private int InsertFinalInvoiceAddress(TblInvoiceAddressTO tblInvoiceAddressTO, SqlConnection conn, SqlTransaction tran)
         {
@@ -1563,6 +1611,46 @@ namespace ODLMWebAPI.BL
             {
                 cmdInsert.Dispose();
             }
+        }
+
+        //Added Dhananjay [23-12-2020] insert invoice eInvoice API response.
+        private int ExecuteInsertionFinalEInvoiceApiResponseCommand(TblEInvoiceApiResponseTO TblEInvoiceApiResponseTO, SqlCommand cmdInsert)
+        {
+            String sqlQuery = @" INSERT INTO [FinalEInvoiceApiResponse]( " +
+                                "  [apiId]" +
+                                " ,[invoiceId]" +
+                                " ,[responseStatus]" +
+                                " ,[response]" +
+                                " ,[createdBy]" +
+                                " ,[createdOn]" +
+                                " )" +
+                    " VALUES (" +
+                                "  @ApiId " +
+                                " ,@InvoiceId " +
+                                " ,@ResponseStatus " +
+                                " ,@Response " +
+                                " ,@CreatedBy " +
+                                " ,@CreatedOn " +
+                                " )";
+
+            cmdInsert.CommandText = sqlQuery;
+            cmdInsert.CommandType = System.Data.CommandType.Text;
+
+            //cmdInsert.Parameters.Add("@IdResponse", System.Data.SqlDbType.Int).Value = TblEInvoiceApiResponseTO.IdResponse;
+            cmdInsert.Parameters.Add("@ApiId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(TblEInvoiceApiResponseTO.ApiId);
+            cmdInsert.Parameters.Add("@InvoiceId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(TblEInvoiceApiResponseTO.InvoiceId);
+            cmdInsert.Parameters.Add("@ResponseStatus", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(TblEInvoiceApiResponseTO.ResponseStatus);
+            cmdInsert.Parameters.Add("@Response", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(TblEInvoiceApiResponseTO.Response);
+            cmdInsert.Parameters.Add("@CreatedBy", System.Data.SqlDbType.Int).Value = TblEInvoiceApiResponseTO.CreatedBy;
+            cmdInsert.Parameters.Add("@CreatedOn", System.Data.SqlDbType.DateTime).Value = TblEInvoiceApiResponseTO.CreatedOn;
+
+            if (cmdInsert.ExecuteNonQuery() == 1)
+            {
+                cmdInsert.CommandText = Constants.IdentityColumnQuery;
+                TblEInvoiceApiResponseTO.IdResponse = Convert.ToInt32(cmdInsert.ExecuteScalar());
+                return 1;
+            }
+            else return 0;
         }
 
         private int ExecuteInsertionFinalInvoiceAddressCommand(TblInvoiceAddressTO tblInvoiceAddressTO, SqlCommand cmdInsert)
@@ -2186,6 +2274,14 @@ namespace ODLMWebAPI.BL
                         return -1;
                     }
 
+                    //[23-12-2020]:Dhananjay added to delete tempEInvoiceApiResponse.
+                    result = DeleteTempData(DelTranTablesE.tempEInvoiceApiResponse.ToString(), loadingSlipTO.IdLoadingSlip, conn, tran);
+                    if (result < 0)
+                    {
+                        resultMessage.DefaultBehaviour("Error while Deleting TempEInvoiceApiResponse");
+                        return -1;
+                    }
+
                     //result = DeleteTempData(DelTranTablesE.tempInvoiceAddress.ToString(), loadingSlipTO.IdLoadingSlip, conn, tran);
                     result = DeleteTempData(DelTranTablesE.tempInvoiceAddress.ToString(), invoiceId, conn, tran);
                     if (result < 0)
@@ -2697,6 +2793,10 @@ namespace ODLMWebAPI.BL
                         sqlQuery = " DELETE FROM tempInvoiceDocumentDetails WHERE invoiceId IN ( " + strWhereCondtion + " ) ";
                         break;
 
+                    //[23-12-2020]:Dhananjay added to delete tempEInvoiceApiResponse.
+                    case DelTranTablesE.tempEInvoiceApiResponse:
+                        sqlQuery = " DELETE FROM tempEInvoiceApiResponse WHERE invoiceId IN (SELECT idInvoice FROM tempInvoice WHERE loadingSlipId = " + delId + " ) ";
+                        break;
                     case DelTranTablesE.tempInvoiceHistory:
                         //sqlQuery = " DELETE FROM tempInvoiceHistory WHERE invoiceId IN (SELECT idInvoice FROM tempInvoice WHERE loadingSlipId = " + delId + " ) ";
                         sqlQuery = " DELETE FROM tempInvoiceHistory WHERE invoiceId IN ( " + strWhereCondtion + " ) ";

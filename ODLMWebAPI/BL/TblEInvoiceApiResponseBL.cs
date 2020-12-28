@@ -38,6 +38,10 @@ namespace ODLMWebAPI.BL
         {
             return _iTblEInvoiceApiResponseDAO.SelectTblEInvoiceApiResponseListForInvoiceId(invoiceId);
         }
+        public List<TblEInvoiceApiResponseTO> SelectTblEInvoiceApiResponseListForInvoiceId(int invoiceId, SqlConnection conn, SqlTransaction tran)
+        {
+            return _iTblEInvoiceApiResponseDAO.SelectTblEInvoiceApiResponseListForInvoiceId(invoiceId, conn, tran);
+        }
 
         #endregion
 
