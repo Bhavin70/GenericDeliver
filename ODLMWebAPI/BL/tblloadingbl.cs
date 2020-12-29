@@ -3301,27 +3301,7 @@ namespace ODLMWebAPI.BL {
                                             }
                                         }
                                         //02-12-2020 Dhananjay added end
-lblSelectParityDetailToListOnBooking: //29-12-2020 Dhananjay added 
-                                        parityDtlTO = _iTblParityDetailsBL.SelectParityDetailToListOnBooking(tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.BrandId, addrTO.StateId, tblBookingsTO.BookingDatetime, districtId, talukaId);//02-12-2020 Dhananjay added districtId and talukaId
-                                        //29-12-2020 Dhananjay added start
-                                        if (parityDtlTO == null)
-                                        {
-                                            if (parityLevel == 1)
-                                            {
-                                                throw new Exception("parityDtlTO is NULL");
-                                            }
-                                            else if (parityLevel == 2)
-                                            {
-                                                districtId = 0;
-                                                talukaId = 0;
-                                            }
-                                            else if (parityLevel == 3)
-                                            {
-                                                talukaId = 0;
-                                            }
-                                            goto lblSelectParityDetailToListOnBooking;
-                                        }
-                                        //29-12-2020 Dhananjay added end
+                                        parityDtlTO = _iTblParityDetailsBL.GetParityDetailToOnBooking(tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.BrandId, addrTO.StateId, tblBookingsTO.BookingDatetime, districtId, talukaId, parityLevel); //29-12-2020 Dhananjay commented parityDtlTO = _iTblParityDetailsBL.SelectParityDetailToListOnBooking(tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.BrandId, addrTO.StateId, tblBookingsTO.BookingDatetime, districtId, talukaId);//02-12-2020 Dhananjay added districtId and talukaId
                                         if (parityDtlTO != null)
                                         {
                                             parityAmt = parityDtlTO.ParityAmt;

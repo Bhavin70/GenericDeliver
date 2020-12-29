@@ -614,10 +614,81 @@ namespace ODLMWebAPI.BL
             }
 
         }
-            #endregion
 
-            #region Insertion
-            public int InsertTblParityDetails(TblParityDetailsTO tblParityDetailsTO)
+        /// <summary>
+        /// 29-12-2020 Dhananjay added for Get ParityDetail based on parityLevel and Other Combination
+        /// </summary>
+        /// <returns></returns>
+        public TblParityDetailsTO GetParityDetailToOnBooking(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate, Int32 districtId, Int32 talukaId, Int32 parityLevel)
+        {
+            TblParityDetailsTO parityDtlTO = SelectParityDetailToListOnBooking(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
+            if (parityDtlTO == null)
+            {
+                if (parityLevel == 1)
+                {
+                    throw new Exception("parityDtlTO is NULL");
+                }
+                else if (parityLevel == 2)
+                {
+                    districtId = 0;
+                    parityDtlTO = SelectParityDetailToListOnBooking(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
+                }
+                else if (parityLevel == 3)
+                {
+                    talukaId = 0;
+                    parityDtlTO = SelectParityDetailToListOnBooking(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
+                    if (parityDtlTO == null)
+                    {
+                        districtId = 0;
+                        parityDtlTO = SelectParityDetailToListOnBooking(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
+                        if (parityDtlTO == null)
+                        {
+                            throw new Exception("parityDtlTO is NULL");
+                        }
+                    }
+                }
+            }
+            return parityDtlTO;
+        }
+        /// <summary>
+        /// 29-12-2020 Dhananjay added for Get ParityDetail List based on parityLevel and Other Combination
+        /// </summary>
+        /// <returns></returns>
+        public List<TblParityDetailsTO> GetParityDetailToListOnBooking(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate, Int32 districtId, Int32 talukaId, Int32 parityLevel)
+        {
+            List<TblParityDetailsTO> TblParityDetailsTOList = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
+            if (TblParityDetailsTOList == null)
+            {
+                if (parityLevel == 1)
+                {
+                    throw new Exception("parityDtlTO is NULL");
+                }
+                else if (parityLevel == 2)
+                {
+                    districtId = 0;
+                    TblParityDetailsTOList = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
+                }
+                else if (parityLevel == 3)
+                {
+                    talukaId = 0;
+                    TblParityDetailsTOList = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
+                    if (TblParityDetailsTOList == null)
+                    {
+                        districtId = 0;
+                        TblParityDetailsTOList = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
+                        if (TblParityDetailsTOList == null)
+                        {
+                            throw new Exception("parityDtlTO is NULL");
+                        }
+                    }
+                }
+            }
+            return TblParityDetailsTOList;
+        }
+        #endregion
+
+        #region Insertion
+        public int InsertTblParityDetails(TblParityDetailsTO tblParityDetailsTO)
         {
             return _iTblParityDetailsDAO.InsertTblParityDetails(tblParityDetailsTO);
         }

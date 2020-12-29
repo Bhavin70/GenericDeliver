@@ -544,7 +544,11 @@ namespace ODLMWebAPI.DAL
                 sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
                 List<TblParityDetailsTO> list = ConvertDTToList(sqlReader);
                 if (list != null)
-                    return list;
+                {
+                    if (list.Count > 0)
+                        return list;
+                    else return null;
+                }
                 else return null;
             }
             catch (Exception ex)

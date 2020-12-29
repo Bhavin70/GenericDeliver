@@ -1047,27 +1047,9 @@ namespace ODLMWebAPI.BL
 
 
                             //SUdhir[30-APR-2018] Added for the Get Parity Details List based on Material Id,ProdCat Id,ProdSpec Id ,State Id ,Brand Id and Booking Date.
-lblSelectParityDetailToListOnBooking: //29-12-2020 Dhananjay added 
-                            parityDtlTO = _iTblParityDetailsBL.SelectParityDetailToListOnBooking(tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.BrandId, addrTO.StateId, tblBookingsTO.BookingDatetime, districtId, talukaId);
-                            //29-12-2020 Dhananjay added start
-                            if (parityDtlTO == null)
-                            {
-                                if (parityLevel == 1)
-                                {
-                                    throw new Exception("parityDtlTO is NULL");
-                                }
-                                else if (parityLevel == 2)
-                                {
-                                    districtId = 0;
-                                    talukaId = 0;
-                                }
-                                else if (parityLevel == 3)
-                                {
-                                    talukaId = 0;
-                                }
-                                goto lblSelectParityDetailToListOnBooking;
-                            }
-                            //29-12-2020 Dhananjay added end
+
+                            parityDtlTO = _iTblParityDetailsBL.GetParityDetailToOnBooking(tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.BrandId, addrTO.StateId, tblBookingsTO.BookingDatetime, districtId, talukaId, parityLevel); //29-12-2020 Dhananjay added
+                            //29-12-2020 Dhananjay commnered parityDtlTO = _iTblParityDetailsBL.SelectParityDetailToListOnBooking(tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.BrandId, addrTO.StateId, tblBookingsTO.BookingDatetime, districtId, talukaId);
                             if (parityDtlTO != null)
                             {
                                 parityAmt = parityDtlTO.ParityAmt;
@@ -1209,10 +1191,7 @@ lblSelectParityDetailToListOnBooking: //29-12-2020 Dhananjay added
             {
             }
         }
-
-
-
-
+    
         #endregion
 
         #region Deletion
