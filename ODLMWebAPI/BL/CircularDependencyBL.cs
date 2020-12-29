@@ -27,7 +27,7 @@ namespace ODLMWebAPI.BL
         private readonly IConnectionString _iConnectionString;
         private readonly ITblParityDetailsDAO _iTblParityDetailsDAO;
         private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
-        public CircularDependencyBL(ITblConfigParamsDAO iTblConfigParamsDAO,ITblParityDetailsDAO iTblParityDetailsDAO,ITblLoadingSlipDAO iTblLoadingSlipDAO, IConnectionString iConnectionString, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceDAO iTblInvoiceDAO, ITblLoadingDAO iTblLoadingDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblBookingScheduleDAO iTblBookingScheduleDAO, ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblBookingExtDAO iTblBookingExtDAO)
+        public CircularDependencyBL(ITblConfigParamsDAO iTblConfigParamsDAO, ITblParityDetailsDAO iTblParityDetailsDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, IConnectionString iConnectionString, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceDAO iTblInvoiceDAO, ITblLoadingDAO iTblLoadingDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblBookingScheduleDAO iTblBookingScheduleDAO, ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblBookingExtDAO iTblBookingExtDAO)
         {
             _iTblBookingScheduleDAO = iTblBookingScheduleDAO;
             _iTblBookingDelAddrDAO = iTblBookingDelAddrDAO;
@@ -46,7 +46,7 @@ namespace ODLMWebAPI.BL
             _iTblConfigParamsDAO = iTblConfigParamsDAO;
         }
         public List<TblBookingScheduleTO> SelectBookingScheduleByBookingId(Int32 bookingId)
-        { 
+        {
             List<TblBookingScheduleTO> list = _iTblBookingScheduleDAO.SelectAllTblBookingScheduleList(bookingId);
             if (list != null && list.Count > 0)
             {
@@ -91,12 +91,12 @@ namespace ODLMWebAPI.BL
             }
             return tblWeighingMeasuresTOList;
         }
-        public ResultMessage CheckInvoiceNoGeneratedByVehicleNo(string vehicleNo, SqlConnection conn, SqlTransaction tran,int loadingId, Boolean isForOutOnly = false)
+        public ResultMessage CheckInvoiceNoGeneratedByVehicleNo(string vehicleNo, SqlConnection conn, SqlTransaction tran, int loadingId, Boolean isForOutOnly = false)
         {
             ResultMessage resMessage = new StaticStuff.ResultMessage();
             try
             {
-                int weightSourceConfigId= _iTblConfigParamsDAO.IoTSetting();
+                int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
                 List<TblLoadingTO> loadingList = new List<TblLoadingTO>();
                 if (isForOutOnly)
                 {
@@ -216,7 +216,7 @@ namespace ODLMWebAPI.BL
 
                 //[15-12-2017]Vijaymala :Added to  get booking schedule list against booking
                 List<TblBookingScheduleTO> tblBookingScheduleTOList = _iTblBookingScheduleDAO.SelectAllTblBookingScheduleList(idBooking);
-               
+
 
                 if (tblBookingScheduleTOList != null && tblBookingScheduleTOList.Count > 0)
                 {
@@ -225,12 +225,12 @@ namespace ODLMWebAPI.BL
 
                         TblBookingScheduleTO tblBookingScheduleTO = tblBookingScheduleTOList[i];
                         List<TblBookingExtTO> tblBookingExtTOLst = _iTblBookingExtDAO.SelectAllTblBookingExtListBySchedule(tblBookingScheduleTO.IdSchedule);
-                       
+
                         tblBookingScheduleTO.OrderDetailsLst = tblBookingExtTOLst;
                         List<TblBookingDelAddrTO> tblBookingDelAddrTOLst = _iTblBookingDelAddrDAO.SelectAllTblBookingDelAddrListBySchedule(tblBookingScheduleTO.IdSchedule);
                         tblBookingScheduleTO.DeliveryAddressLst = tblBookingDelAddrTOLst;
                         //Aniket [23-7-2019] added for shree balaji client, add rate + parity while edit booking
-                        if(tblBookingsTO.IsItemized==1)
+                        if (tblBookingsTO.IsItemized == 1)
                         {
                             foreach (var item in tblBookingScheduleTO.OrderDetailsLst)
                             {
@@ -238,7 +238,7 @@ namespace ODLMWebAPI.BL
                                 //02-12-2020 Dhananjay added start
                                 Int32 districtId = 0;
                                 Int32 talukaId = 0;
-                                Int32 parityLevel;
+                                Int32 parityLevel = 1;
                                 TblConfigParamsTO parityLevelConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_PARITY_LEVEL);
 
                                 if (parityLevelConfigParamsTO != null)
@@ -255,8 +255,26 @@ namespace ODLMWebAPI.BL
                                     }
                                 }
                                 //02-12-2020 Dhananjay added end
+lblSelectParityDetailToListOnBooking: //29-12-2020 Dhananjay added 
                                 var parityList = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(item.MaterialId, item.ProdCatId, item.ProdSpecId, item.ProdItemId, item.BrandId, tblBookingsTO.StateId, tblBookingsTO.CreatedOn, districtId, talukaId);
-                                if (parityList != null)
+                                //29-12-2020 Dhananjay added start
+                                if (parityList == null)
+                                {
+                                    if (parityLevel == 1)
+                                    {
+                                        throw new Exception("parityList is NULL");
+                                    }
+                                    else if (parityLevel == 2)
+                                    {
+                                        parityLevel = 1;
+                                    }
+                                    else if (parityLevel == 3)
+                                    {
+                                        parityLevel = 2;
+                                    }
+                                    goto lblSelectParityDetailToListOnBooking;
+                                }//29-12-2020 Dhananjay added end
+                                else
                                 {
                                     if (tblBookingsTO.IsConfirmed == 1)
                                         item.Rate = item.Rate + parityList[0].ParityAmt;
@@ -266,7 +284,7 @@ namespace ODLMWebAPI.BL
                             }
 
                         }
-                   
+
 
                     }
                 }
