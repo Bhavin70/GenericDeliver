@@ -61,7 +61,7 @@ namespace ODLMWebAPI.BL
                     //02-12-2020 Dhananjay added start
                     Int32 districtId = 0;
                     Int32 talukaId = 0;
-                    Int32 parityLevel;
+                    Int32 parityLevel = 1;
                     TblConfigParamsTO parityLevelConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_PARITY_LEVEL);
 
                     if (parityLevelConfigParamsTO != null)
@@ -78,9 +78,29 @@ namespace ODLMWebAPI.BL
                         }
                     }
                     //02-12-2020 Dhananjay added end
+lblSelectParityDetailToListOnBooking: //29-12-2020 Dhananjay added 
                     var parityList = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(tempTO.MaterialId, tempTO.ProdCatId, tempTO.ProdSpecId, tempTO.ProdItemId, tempTO.BrandId, stateId, tblBookingsTO.CreatedOn, districtId, talukaId);
-                        
-                        var result= tblProductInfoTOList.Where(a => a.MaterialId == tempTO.MaterialId && a.ProdCatId == tempTO.ProdCatId && a.ProdSpecId == tempTO.ProdSpecId).FirstOrDefault();
+                    //29-12-2020 Dhananjay added start
+                    if (parityList == null || parityList.Count == 0)
+                    {
+                        if (parityLevel == 1)
+                        {
+                            throw new Exception("parityList is NULL");
+                        }
+                        else if (parityLevel == 2)
+                        {
+                            districtId = 0;
+                            talukaId = 0;
+                        }
+                        else if (parityLevel == 3)
+                        {
+                            talukaId = 0;
+                        }
+                        goto lblSelectParityDetailToListOnBooking;
+                    }
+                    //29-12-2020 Dhananjay added end
+
+                    var result = tblProductInfoTOList.Where(a => a.MaterialId == tempTO.MaterialId && a.ProdCatId == tempTO.ProdCatId && a.ProdSpecId == tempTO.ProdSpecId).FirstOrDefault();
                         //var res = tblParityDetailsTOList.Where(a => a.MaterialId == tempTO.MaterialId && a.ProdCatId == tempTO.ProdCatId && a.ProdSpecId == tempTO.ProdSpecId).FirstOrDefault();
                          if(parityList != null && parityList.Count>0)
                          {

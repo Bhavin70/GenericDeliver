@@ -258,7 +258,7 @@ namespace ODLMWebAPI.BL
 lblSelectParityDetailToListOnBooking: //29-12-2020 Dhananjay added 
                                 var parityList = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(item.MaterialId, item.ProdCatId, item.ProdSpecId, item.ProdItemId, item.BrandId, tblBookingsTO.StateId, tblBookingsTO.CreatedOn, districtId, talukaId);
                                 //29-12-2020 Dhananjay added start
-                                if (parityList == null)
+                                if (parityList == null || parityList.Count==0)
                                 {
                                     if (parityLevel == 1)
                                     {
@@ -266,11 +266,12 @@ lblSelectParityDetailToListOnBooking: //29-12-2020 Dhananjay added
                                     }
                                     else if (parityLevel == 2)
                                     {
-                                        parityLevel = 1;
+                                        districtId = 0;
+                                        talukaId = 0;
                                     }
                                     else if (parityLevel == 3)
                                     {
-                                        parityLevel = 2;
+                                        talukaId = 0;
                                     }
                                     goto lblSelectParityDetailToListOnBooking;
                                 }//29-12-2020 Dhananjay added end
