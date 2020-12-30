@@ -522,14 +522,9 @@ namespace ODLMWebAPI.DAL
             try
             {
                 //02-12-2020 Dhananjay added
-                if (districtId > 0)
-                {
-                    districtIdCondition = " AND ISNULL(parityDtl.districtId, 0) = " + districtId;
-                }
-                if (talukaId > 0)
-                {
-                    talukaIdCondition = " AND ISNULL(parityDtl.talukaId, 0) = " + talukaId;
-                }
+                districtIdCondition = " AND ISNULL(parityDtl.districtId, 0) = " + districtId;
+                talukaIdCondition = " AND ISNULL(parityDtl.talukaId, 0) = " + talukaId;
+                
                 conn.Open();
                 cmdSelect.CommandText = SqlSimpleSelectQuery() + " WHERE ISNULL(parityDtl.prodItemId,0)=" + productItemId + " AND ISNULL(parityDtl.brandId,0)=" + brandId
                                         + " AND ISNULL(parityDtl.prodCatId,0)=" + prodCatId + " AND ISNULL(parityDtl.prodSpecId,0)=" + prodSpecId
