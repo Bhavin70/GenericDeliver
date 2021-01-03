@@ -44,7 +44,8 @@ namespace ODLMWebAPI.Controllers
         private readonly IFinalBookingData _iFinalBookingData;
         private readonly IIotCommunication _iIotCommunication;
         private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
-        public LoadSlipController(ITblConfigParamsDAO iTblConfigParamsDAO, IFinalBookingData iFinalBookingData,IIotCommunication iIotCommunication,ITblInvoiceBL iTblInvoiceBL, IDimStatusBL iDimStatusBL, ITblLoadingQuotaTransferBL iTblLoadingQuotaTransferBL, ITblGlobalRateBL iTblGlobalRateBL, ITblUnloadingStandDescBL iTblUnloadingStandDescBL, ITblUnLoadingBL iTblUnLoadingBL, ITblBookingDelAddrBL iTblBookingDelAddrBL, ITblConfigParamsBL iTblConfigParamsBL, ITblLoadingAllowedTimeBL iTblLoadingAllowedTimeBL, ITblLoadingSlipExtBL iTblLoadingSlipExtBL, ITblLoadingQuotaDeclarationBL iTblLoadingQuotaDeclarationBL, ITblLoadingQuotaConfigBL iTblLoadingQuotaConfigBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ICommon iCommon, ITblStatusReasonBL iTblStatusReasonBL, ITblUserBL iTblUserBL, ITblLoadingBL iTblLoadingBL, ITblTransportSlipBL iTblTransportSlipBL)
+        private readonly ITblParityDetailsBL _iTblParityDetailsBL;
+        public LoadSlipController(ITblConfigParamsDAO iTblConfigParamsDAO, IFinalBookingData iFinalBookingData,IIotCommunication iIotCommunication,ITblInvoiceBL iTblInvoiceBL, IDimStatusBL iDimStatusBL, ITblLoadingQuotaTransferBL iTblLoadingQuotaTransferBL, ITblGlobalRateBL iTblGlobalRateBL, ITblUnloadingStandDescBL iTblUnloadingStandDescBL, ITblUnLoadingBL iTblUnLoadingBL, ITblBookingDelAddrBL iTblBookingDelAddrBL, ITblConfigParamsBL iTblConfigParamsBL, ITblLoadingAllowedTimeBL iTblLoadingAllowedTimeBL, ITblLoadingSlipExtBL iTblLoadingSlipExtBL, ITblLoadingQuotaDeclarationBL iTblLoadingQuotaDeclarationBL, ITblLoadingQuotaConfigBL iTblLoadingQuotaConfigBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblLoadingVehDocExtBL iTblLoadingVehDocExtBL, ICommon iCommon, ITblStatusReasonBL iTblStatusReasonBL, ITblUserBL iTblUserBL, ITblLoadingBL iTblLoadingBL, ITblTransportSlipBL iTblTransportSlipBL, ITblParityDetailsBL iTblParityDetailsBL)
         {
             _iTblStatusReasonBL = iTblStatusReasonBL;
             _iTblUserBL = iTblUserBL;
@@ -68,6 +69,7 @@ namespace ODLMWebAPI.Controllers
             _iIotCommunication = iIotCommunication;
             _iTblConfigParamsDAO = iTblConfigParamsDAO;
             _iFinalBookingData = iFinalBookingData;
+            _iTblParityDetailsBL = iTblParityDetailsBL;
         }
         #region Get
         
@@ -463,6 +465,15 @@ namespace ODLMWebAPI.Controllers
             {
                 return null;
             }
+        }
+
+        [Route("GetParityDetailToOnBooking")]
+        [HttpGet]
+        public List<TblParityDetailsTO> GetParityDetailToOnBooking()
+        {
+            DateTime dt = new DateTime(2020, 12, 30);
+            List<TblParityDetailsTO> TblParityDetailsTOList = _iTblParityDetailsBL.GetParityDetailToListOnBooking(1025, 1, 2, 0, 1, 15, dt, 64, 253, 3);
+            return TblParityDetailsTOList;
         }
 
         [Route("GetCnfLoadingCofiguration")]

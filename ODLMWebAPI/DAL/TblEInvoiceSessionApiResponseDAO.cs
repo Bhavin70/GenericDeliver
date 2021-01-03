@@ -196,6 +196,7 @@ namespace ODLMWebAPI.DAL
                                 " ,[response]" +
                                 " ,[createdBy]" +
                                 " ,[createdOn]" +
+                                " ,[OrgId]" +
                                 " )" +
                     " VALUES (" +
                                 "  @ApiId " +
@@ -204,6 +205,7 @@ namespace ODLMWebAPI.DAL
                                 " ,@Response " +
                                 " ,@CreatedBy " +
                                 " ,@CreatedOn " +
+                                " ,@OrgId " +
                                 " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -216,7 +218,8 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@Response", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(TblEInvoiceSessionApiResponseTO.Response);
             cmdInsert.Parameters.Add("@CreatedBy", System.Data.SqlDbType.Int).Value = TblEInvoiceSessionApiResponseTO.CreatedBy;
             cmdInsert.Parameters.Add("@CreatedOn", System.Data.SqlDbType.DateTime).Value = TblEInvoiceSessionApiResponseTO.CreatedOn;
-            
+            cmdInsert.Parameters.Add("@OrgId", System.Data.SqlDbType.Int).Value = TblEInvoiceSessionApiResponseTO.OrgId;
+
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = Constants.IdentityColumnQuery;
