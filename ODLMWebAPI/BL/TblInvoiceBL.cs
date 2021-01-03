@@ -9578,10 +9578,17 @@ namespace ODLMWebAPI.BL
                     }
                     if (string.IsNullOrEmpty(shippingAddrTO.GstinNo))
                     {
-                        shippingAddrTO.GstinNo = billingAddrTO.GstinNo;
+                        //shippingAddrTO.GstinNo = billingAddrTO.GstinNo;
                     }
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingName", RemoveSpecialChars(shippingAddrTO.BillingName));
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingGstIn", RemoveSpecialChars(shippingAddrTO.GstinNo.ToUpper()));
+                    if (string.IsNullOrEmpty(shippingAddrTO.GstinNo))
+                    {
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("\"gstin\": \"@shippingGstIn\",\r\n            ", "");
+                    }
+                    else
+                    {
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingGstIn", RemoveSpecialChars(shippingAddrTO.GstinNo.ToUpper()));
+                    }
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToAddr1", padRight(shippingAddrTO.Address));
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToAddr2", padRight(shippingAddr2));
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToLocation", padRight(shippingAddr2));
