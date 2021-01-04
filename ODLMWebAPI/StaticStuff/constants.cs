@@ -1077,6 +1077,11 @@ namespace ODLMWebAPI.StaticStuff
         }
 
         /// <summary>
+        /// Dhananjay [2021-01-02] For EInvoice API
+        /// </summary>
+        public static string EINVOICE_AUTHENTICATE = "einvoice/Authenticate";
+        
+        /// <summary>
         /// Dhananjay [2020-11-19] For EInvoice API
         /// </summary>
         public static Int32 secsToBeDeductededFromTokenExpTime = 120;

@@ -9055,14 +9055,14 @@ namespace ODLMWebAPI.BL
                     {
                         if (TblOrgLicenseDtlTOList[i].LicenseId == (Int32)CommercialLicenseE.IGST_NO)
                         {
-                            sellerGstin = TblOrgLicenseDtlTOList[i].LicenseValue;
+                            sellerGstin = TblOrgLicenseDtlTOList[i].LicenseValue.ToUpper();
                             break;
                         }
                     }
                 }
 
                 string access_token_OauthToken = null;
-                resultMsg = EInvoice_OauthToken(loginUserId, sellerGstin, forceToGetToken);
+                resultMsg = EInvoice_OauthToken(loginUserId, sellerGstin, forceToGetToken, tblInvoiceTO.InvFromOrgId);
                 if (resultMsg.Result != 1)
                 {
                     throw new Exception("Error in EInvoice_OauthToken");
@@ -9075,7 +9075,7 @@ namespace ODLMWebAPI.BL
                 }
 
                 string access_token_Authentication = null;
-                resultMsg = EInvoice_Authentication(loginUserId, access_token_OauthToken, sellerGstin, forceToGetToken);
+                resultMsg = EInvoice_Authentication(loginUserId, access_token_OauthToken, sellerGstin, forceToGetToken, tblInvoiceTO.InvFromOrgId);
                 if (resultMsg.Result != 1)
                 {
                     throw new Exception("Error in EInvoice_Authentication");
@@ -9103,7 +9103,7 @@ namespace ODLMWebAPI.BL
         /// <summary>
         /// Dhananjay[18-11-2020] : Added To Get Oauth Token for eInvvoice.
         /// </summary>
-        public ResultMessage EInvoice_OauthToken(Int32 loginUserId, string sellerGstin, bool forceToGetToken)
+        public ResultMessage EInvoice_OauthToken(Int32 loginUserId, string sellerGstin, bool forceToGetToken, Int32 OrgId)
         {
             string access_token_OauthToken = null;
             DateTime tokenExpiresAt = _iCommon.ServerDateTime;
@@ -9142,7 +9142,7 @@ namespace ODLMWebAPI.BL
             {
                 conn.Open();
                 tran = conn.BeginTransaction();
-                resultMsg = InsertIntoTblEInvoiceSessionApiResponse(response, (int)EInvoiceAPIE.OAUTH_TOKEN, loginUserId, conn, tran);
+                resultMsg = InsertIntoTblEInvoiceSessionApiResponse(response, (int)EInvoiceAPIE.OAUTH_TOKEN, loginUserId, OrgId, conn, tran);
                 if (resultMsg.Result != 1)
                 {
                     tran.Rollback();
@@ -9186,12 +9186,12 @@ namespace ODLMWebAPI.BL
         /// <summary>
         /// Dhananjay[18-11-2020] : Added To Get Authentication for eInvvoice.
         /// </summary>
-        public ResultMessage EInvoice_Authentication(Int32 loginUserId, string access_token_OauthToken, string sellerGstin, bool forceToGetToken)
+        public ResultMessage EInvoice_Authentication(Int32 loginUserId, string access_token_OauthToken, string sellerGstin, bool forceToGetToken, int OrgId)
         {
             ResultMessage resultMsg = new ResultMessage();
             if (access_token_OauthToken == "")
             {
-                resultMsg = EInvoice_OauthToken(loginUserId, sellerGstin, forceToGetToken);
+                resultMsg = EInvoice_OauthToken(loginUserId, sellerGstin, forceToGetToken, OrgId);
                 if (resultMsg.Result != 1)
                 {
                     throw new Exception("Error in EInvoice_OauthToken");
@@ -9204,7 +9204,7 @@ namespace ODLMWebAPI.BL
             string access_Token_Authentication = null;
             DateTime tokenExpiresAt = _iCommon.ServerDateTime;
 
-            List<TblEInvoiceApiTO> tblEInvoiceApiTOList = _iTblEInvoiceApiDAO.SelectAllTblEInvoiceApi((int)EInvoiceAPIE.EINVOICE_AUTHENTICATE);
+            List<TblEInvoiceApiTO> tblEInvoiceApiTOList = _iTblEInvoiceApiDAO.SelectTblEInvoiceApi(Constants.EINVOICE_AUTHENTICATE, OrgId);
             if (tblEInvoiceApiTOList == null)
             {
                 resultMsg.DefaultExceptionBehaviour(new Exception("EInvoiceApiTOList is null"), "EInvoice_Authentication");
@@ -9240,7 +9240,7 @@ namespace ODLMWebAPI.BL
             {
                 conn.Open();
                 tran = conn.BeginTransaction();
-                resultMsg = InsertIntoTblEInvoiceSessionApiResponse(response, (int)EInvoiceAPIE.EINVOICE_AUTHENTICATE, loginUserId, conn, tran);
+                resultMsg = InsertIntoTblEInvoiceSessionApiResponse(response, tblEInvoiceApiTO.IdApi, loginUserId, OrgId, conn, tran);
                 if (resultMsg.Result != 1)
                 {
                     tran.Rollback();
@@ -9259,7 +9259,7 @@ namespace ODLMWebAPI.BL
                 int expires_in = (int)json["expires_in"];
                 tokenExpiresAt = _iCommon.ServerDateTime.AddSeconds(expires_in - secsToBeDeductededFromTokenExpTime);
 
-                resultMsg = UpdateTblEInvoiceApi((int)EInvoiceAPIE.EINVOICE_AUTHENTICATE, access_Token_Authentication, tokenExpiresAt, loginUserId, conn, tran);
+                resultMsg = UpdateTblEInvoiceApi(tblEInvoiceApiTO.IdApi, access_Token_Authentication, tokenExpiresAt, loginUserId, conn, tran);
                 if (resultMsg.Result != 1)
                 {
                     tran.Rollback();
@@ -9280,7 +9280,46 @@ namespace ODLMWebAPI.BL
             return resultMsg;
         }
 
-        private static string GetAreaFromAddress(TblInvoiceAddressTO tblInvoiceAddressTO)
+        private string padRight(string str, char pad = '-', int totalWidth = 3)
+        {
+            str = RemoveSpecialChars(str);
+            return str.PadRight(totalWidth, pad);
+        }
+
+        private string GetValidVehichleNumber(string vehicleNumber)
+        {
+            vehicleNumber = RemoveSpecialChars(vehicleNumber).Replace(" ", "").Replace("-", "");
+            int n, nOut;
+            string last4Digit = "";
+            if (vehicleNumber.Length >= 4)
+            {
+                for (n = 4; n > 0; n--)
+                {
+                    last4Digit = vehicleNumber.Substring(vehicleNumber.Length - n, n);
+                    if (int.TryParse(last4Digit, out nOut) == true)
+                    {
+                        if (n == 4) break;
+                    }
+                    else
+                    {
+                        last4Digit = last4Digit.PadLeft(4, char.Parse("0"));
+                        vehicleNumber = vehicleNumber.Substring(0, vehicleNumber.Length - n) + last4Digit;
+                        break;
+                    }
+                }
+            }
+            return vehicleNumber;
+        }
+        private string RemoveSpecialChars(string str)
+        {
+            if (String.IsNullOrEmpty(str)) return "";
+
+            str = str.Replace("\r\n", "");
+            str = str.Replace("\t", "");
+            return str;
+        }
+
+        private string GetAreaFromAddress(TblInvoiceAddressTO tblInvoiceAddressTO)
         {
             string area = "";
             if (tblInvoiceAddressTO.VillageName != null && tblInvoiceAddressTO.VillageName != "")
@@ -9304,6 +9343,12 @@ namespace ODLMWebAPI.BL
             {
                 area = area.Trim().TrimEnd(',');
             }
+
+            area = RemoveSpecialChars(area);
+            if (area.Length < 3)
+            {
+                area = padRight(area);
+            }
             return area;
         }
 
@@ -9317,7 +9362,7 @@ namespace ODLMWebAPI.BL
             {
                 if (access_Token_Authentication == "")
                 {
-                    resultMsg = EInvoice_Authentication(loginUserId, "", sellerGstin, false);
+                    resultMsg = EInvoice_Authentication(loginUserId, "", sellerGstin, false, tblInvoiceTO.InvFromOrgId);
                     if (resultMsg.Result != 1)
                     {
                         throw new Exception("Error in EInvoice_Authentication");
@@ -9410,12 +9455,12 @@ namespace ODLMWebAPI.BL
                         }
                     }
                 }
-                tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerGstIn", sellerGstin);
-                tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerName", sellerName);
+                tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerGstIn", RemoveSpecialChars(sellerGstin));
+                tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerName", RemoveSpecialChars(sellerName));
                 if (sellerAddressTO != null)
                 {
-                    string sellerAddr1 = sellerAddressTO.PlotNo.Replace("\r\n", "");
-                    string sellerAddr2 = sellerAddressTO.StreetName.Replace("\r\n", "");
+                    string sellerAddr1 = RemoveSpecialChars(sellerAddressTO.PlotNo);
+                    string sellerAddr2 = RemoveSpecialChars(sellerAddressTO.StreetName);
                     string sellerArea = "";
                     if (sellerAddressTO.AreaName != null && sellerAddressTO.AreaName != "")
                     {
@@ -9443,31 +9488,37 @@ namespace ODLMWebAPI.BL
                         sellerArea = sellerArea.Trim().TrimEnd(',');
                     }
 
+                    sellerArea = RemoveSpecialChars(sellerArea);
+                    if (sellerArea.Length < 3)
+                    {
+                        sellerArea = padRight(sellerArea);
+                    }
                     if (sellerAddr1 == null || sellerAddr1 == "")
                     {
                         sellerAddr1 = sellerArea;
                     }
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerAddr1", sellerAddr1);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerAddr2", sellerAddr2);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerLocation", sellerArea);
+
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerAddr1", padRight(sellerAddr1));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerAddr2", padRight(sellerAddr2));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerLocation", padRight(sellerArea));
                     /*if (sellerAddressTO.Pincode == 0)
                     {
                         tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerPincode", "110001");
                     }
                     else
                     {*/
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerPincode", sellerAddressTO.Pincode.ToString());
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerPincode", RemoveSpecialChars(sellerAddressTO.Pincode.ToString()));
                     //}
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerStateCode", sellerAddressTO.StateOrUTCode);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerStateCode", RemoveSpecialChars(sellerAddressTO.StateOrUTCode));
 
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerPhone", sellerPhoneNo);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerEMail", sellerEmailAddr);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerPhone", RemoveSpecialChars(sellerPhoneNo));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerEMail", RemoveSpecialChars(sellerEmailAddr));
                     
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromAddr1", sellerAddr1);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromAddr2", sellerAddr2);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromLocation", sellerArea);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromPincode", sellerAddressTO.Pincode.ToString());
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromStateCode", sellerAddressTO.StateOrUTCode);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromAddr1", padRight(sellerAddr1));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromAddr2", padRight(sellerAddr2));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromLocation", padRight(sellerArea));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromPincode", RemoveSpecialChars(sellerAddressTO.Pincode.ToString()));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromStateCode", RemoveSpecialChars(sellerAddressTO.StateOrUTCode));
                 }
                 string buyerName = tblInvoiceTO.DealerName;
                 string buyerEmailAddr = "";
@@ -9484,21 +9535,21 @@ namespace ODLMWebAPI.BL
 
                     string billingAddr2 = GetAreaFromAddress(billingAddrTO);
 
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerGstIn", billingAddrTO.GstinNo);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerName", buyerName);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerAddr1", billingAddrTO.Address.Replace("\r\n", ""));
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerAddr2", billingAddr2.Replace("\r\n", ""));
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerLocation", billingAddr2.Replace("\r\n", ""));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerGstIn", RemoveSpecialChars(billingAddrTO.GstinNo.ToUpper()));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerName", RemoveSpecialChars(buyerName));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerAddr1", padRight(billingAddrTO.Address));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerAddr2", padRight(billingAddr2));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerLocation", padRight(billingAddr2));
                     /*if (billingAddrTO.PinCode == "0")
                     {
                         tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerPincode", "110001");
                     }
                     else
                     {*/
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerPincode", billingAddrTO.PinCode);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerPincode", RemoveSpecialChars(billingAddrTO.PinCode));
                     //}
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerStateCode", billingAddrTO.StateOrUTCode);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerSupplyStateCode", billingAddrTO.StateOrUTCode);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerStateCode", RemoveSpecialChars(billingAddrTO.StateOrUTCode));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerSupplyStateCode", RemoveSpecialChars(billingAddrTO.StateOrUTCode));
                     string contactNo = "9100000000";
                     if (billingAddrTO.ContactNo != null)
                     {
@@ -9507,12 +9558,12 @@ namespace ODLMWebAPI.BL
                             contactNo = billingAddrTO.ContactNo;
                         }
                     }
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerPhone", contactNo);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerPhone", RemoveSpecialChars(contactNo));
                     if (buyerEmailAddr != null)
                     {
                         if (buyerEmailAddr.Length >= 3 && buyerEmailAddr.Length <= 100)
                         {
-                            tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerEMail", buyerEmailAddr);
+                            tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerEMail", RemoveSpecialChars(buyerEmailAddr));
                         }
                     }
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerEMail", "test@einv.com"); //if buyerEmailAddr is not available
@@ -9521,18 +9572,35 @@ namespace ODLMWebAPI.BL
                 if (shippingAddrTO != null)
                 {
                     string shippingAddr2 = GetAreaFromAddress(shippingAddrTO);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToAddr1", shippingAddrTO.Address.Replace("\r\n", ""));
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToAddr2", shippingAddr2.Replace("\r\n", ""));
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToLocation", shippingAddr2.Replace("\r\n", ""));
+                    if (string.IsNullOrEmpty(shippingAddrTO.BillingName))
+                    {
+                        shippingAddrTO.BillingName = buyerName;
+                    }
+                    if (string.IsNullOrEmpty(shippingAddrTO.GstinNo))
+                    {
+                        //shippingAddrTO.GstinNo = billingAddrTO.GstinNo;
+                    }
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingName", RemoveSpecialChars(shippingAddrTO.BillingName));
+                    if (string.IsNullOrEmpty(shippingAddrTO.GstinNo))
+                    {
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("\"gstin\": \"@shippingGstIn\",\r\n            ", "");
+                    }
+                    else
+                    {
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingGstIn", RemoveSpecialChars(shippingAddrTO.GstinNo.ToUpper()));
+                    }
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToAddr1", padRight(shippingAddrTO.Address));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToAddr2", padRight(shippingAddr2));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToLocation", padRight(shippingAddr2));
                     /*if (shippingAddrTO.PinCode == "0")
                     {
                         tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToPincode", "110001");
                     }
                     else
                     {*/
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToPincode", shippingAddrTO.PinCode);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToPincode", RemoveSpecialChars(shippingAddrTO.PinCode));
                     //}
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToStateCode", shippingAddrTO.StateOrUTCode);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToStateCode", RemoveSpecialChars(shippingAddrTO.StateOrUTCode));
                 }
 
                 //tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@othChrg", tblInvoiceTO.FreightAmt.ToString());
@@ -9542,7 +9610,7 @@ namespace ODLMWebAPI.BL
                 tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@grandTotal", tblInvoiceTO.GrandTotal.ToString());
                 tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@roundOffAmt", tblInvoiceTO.RoundOffAmt.ToString());
 
-                tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@vehicleNo", tblInvoiceTO.VehicleNo);
+                tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@vehicleNo", GetValidVehichleNumber(tblInvoiceTO.VehicleNo));
                 tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@distanceInKM", tblInvoiceTO.DistanceInKM.ToString());
 
                 int nStartIdx = tblEInvoiceApiTO.BodyParam.IndexOf("slNo");
@@ -9564,7 +9632,7 @@ namespace ODLMWebAPI.BL
                         {
                             if (otherTaxesTO.IsBefore == 1)
                             {
-                                itemListTobeReplaced = itemListTobeReplaced.Replace("@srNo", "-");
+                                //itemListTobeReplaced = itemListTobeReplaced.Replace("@srNo", "-");
                                 itemListTobeReplaced = itemListTobeReplaced.Replace("@gstinCodeNo", "9965");
                             }
                             else if (otherTaxesTO.IsAfter == 1)
@@ -9581,8 +9649,8 @@ namespace ODLMWebAPI.BL
                     taxableAmt += InvoiceItemDetailsTO.TaxableAmt;
                     nSrNo++;
                     itemListTobeReplaced = itemListTobeReplaced.Replace("@srNo", nSrNo.ToString());
-                    itemListTobeReplaced = itemListTobeReplaced.Replace("@prodItemDesc", InvoiceItemDetailsTO.ProdItemDesc.PadRight(3));
-                    itemListTobeReplaced = itemListTobeReplaced.Replace("@gstinCodeNo", InvoiceItemDetailsTO.GstinCodeNo);
+                    itemListTobeReplaced = itemListTobeReplaced.Replace("@prodItemDesc", padRight(InvoiceItemDetailsTO.ProdItemDesc, char.Parse(" ")));
+                    itemListTobeReplaced = itemListTobeReplaced.Replace("@gstinCodeNo", padRight(InvoiceItemDetailsTO.GstinCodeNo, char.Parse("-"), 4));
                     itemListTobeReplaced = itemListTobeReplaced.Replace("@invoiceQty", string.Format("{0:0.000}", InvoiceItemDetailsTO.InvoiceQty));
                     itemListTobeReplaced = itemListTobeReplaced.Replace("@unit", "MTS");
                     itemListTobeReplaced = itemListTobeReplaced.Replace("@rate", InvoiceItemDetailsTO.Rate.ToString());
@@ -9632,16 +9700,22 @@ namespace ODLMWebAPI.BL
                 }
 
                 tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace(itemList, itemListReplacedWithValue);
-                tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@taxableAmt", tblInvoiceTO.TaxableAmt.ToString());
+                tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@taxableAmt", Math.Round(taxableAmt, 2).ToString());
                 tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@othChrg", Math.Round(otherCharges, 2).ToString());
+
                 IRestResponse response = CallRestAPIs(tblEInvoiceApiTO.ApiBaseUri + tblEInvoiceApiTO.ApiFunctionName, tblEInvoiceApiTO.ApiMethod, tblEInvoiceApiTO.HeaderParam, tblEInvoiceApiTO.BodyParam);
 
                 string IrnNo = null;
+                string EwayBillNo = null;
                 JObject json = JObject.Parse(response.Content);
                 if (json.ContainsKey("data"))
                 {
                     JObject jsonData = JObject.Parse(json["data"].ToString());
                     IrnNo = (string)jsonData["Irn"];
+                    if (jsonData.ContainsKey("EwbNo"))
+                    {
+                        EwayBillNo = (string)jsonData["EwbNo"];
+                    }
                 }
                 if (json.ContainsKey("error"))
                 {
@@ -9693,6 +9767,22 @@ namespace ODLMWebAPI.BL
                     }
 
                     resultMsg.DisplayMessage = "eInvoice generated successfully;";
+
+                    if (EwayBillNo != null)
+                    {
+                        tblInvoiceTO.ElectronicRefNo = EwayBillNo;
+                        tblInvoiceTO.IsEWayBillGenerated = 1;
+                        tblInvoiceTO.UpdatedBy = Convert.ToInt32(loginUserId);
+
+                        resultMsg = UpdateTempInvoiceForEWayBill(tblInvoiceTO, conn, tran);
+                        if (resultMsg.Result == 0)
+                        {
+                            tran.Rollback();
+                            return resultMsg;
+                        }
+                        resultMsg.DisplayMessage = "eInvoice and eWayBill generated successfully;";
+                    }
+
                     tran.Commit();
                 }
                 catch (Exception ex)
@@ -9760,7 +9850,7 @@ namespace ODLMWebAPI.BL
             return client.Execute(request);
         }
 
-        private ResultMessage InsertIntoTblEInvoiceSessionApiResponse(IRestResponse response, Int32 apiId, Int32 loginUserId, SqlConnection conn, SqlTransaction tran)
+        private ResultMessage InsertIntoTblEInvoiceSessionApiResponse(IRestResponse response, Int32 apiId, Int32 loginUserId, Int32 OrgId, SqlConnection conn, SqlTransaction tran)
         {
             ResultMessage resultMessage = new ResultMessage();
             int result = 0;
@@ -9782,6 +9872,7 @@ namespace ODLMWebAPI.BL
             DateTime serverDate = _iCommon.ServerDateTime;
             tblEInvoiceSessionApiResponseTO.CreatedBy = Convert.ToInt32(loginUserId);
             tblEInvoiceSessionApiResponseTO.CreatedOn = serverDate;
+            tblEInvoiceSessionApiResponseTO.OrgId = OrgId;
             result = _iTblEInvoiceSessionApiResponseDAO.InsertTblEInvoiceSessionApiResponse(tblEInvoiceSessionApiResponseTO, conn, tran);
             if (result != 1)
             {
@@ -9942,14 +10033,14 @@ namespace ODLMWebAPI.BL
                 {
                     if (TblOrgLicenseDtlTOList[i].LicenseId == (Int32)CommercialLicenseE.IGST_NO)
                     {
-                        sellerGstin = TblOrgLicenseDtlTOList[i].LicenseValue;
+                        sellerGstin = TblOrgLicenseDtlTOList[i].LicenseValue.ToUpper();
                         break;
                     }
                 }
             }
 
             string access_token_OauthToken = null;
-            resultMessage = EInvoice_OauthToken(loginUserId, sellerGstin, forceToGetToken);
+            resultMessage = EInvoice_OauthToken(loginUserId, sellerGstin, forceToGetToken, tblInvoiceTO.InvFromOrgId);
             if (resultMessage.Result != 1)
             {
                 throw new Exception("Error in EInvoice_OauthToken");
@@ -9962,7 +10053,7 @@ namespace ODLMWebAPI.BL
             }
 
             string access_token_Authentication = null;
-            resultMessage = EInvoice_Authentication(loginUserId, access_token_OauthToken, sellerGstin, forceToGetToken);
+            resultMessage = EInvoice_Authentication(loginUserId, access_token_OauthToken, sellerGstin, forceToGetToken, tblInvoiceTO.InvFromOrgId);
             if (resultMessage.Result != 1)
             {
                 throw new Exception("Error in EInvoice_Authentication");
@@ -9982,7 +10073,7 @@ namespace ODLMWebAPI.BL
             ResultMessage resultMsg = new ResultMessage();
             if (access_token_Authentication == "")
             {
-                resultMsg = EInvoice_Authentication(loginUserId, "", sellerGstin, false);
+                resultMsg = EInvoice_Authentication(loginUserId, "", sellerGstin, false, tblInvoiceTO.InvFromOrgId);
                 if (resultMsg.Result != 1)
                 {
                     throw new Exception("Error in EInvoice_Authentication");
@@ -10122,14 +10213,14 @@ namespace ODLMWebAPI.BL
                 {
                     if (TblOrgLicenseDtlTOList[i].LicenseId == (Int32)CommercialLicenseE.IGST_NO)
                     {
-                        sellerGstin = TblOrgLicenseDtlTOList[i].LicenseValue;
+                        sellerGstin = TblOrgLicenseDtlTOList[i].LicenseValue.ToUpper();
                         break;
                     }
                 }
             }
 
             string access_token_OauthToken = null;
-            resultMessage = EInvoice_OauthToken(loginUserId, sellerGstin, forceToGetToken);
+            resultMessage = EInvoice_OauthToken(loginUserId, sellerGstin, forceToGetToken, tblInvoiceTO.InvFromOrgId);
             if (resultMessage.Result != 1)
             {
                 throw new Exception("Error in EInvoice_OauthToken");
@@ -10142,7 +10233,7 @@ namespace ODLMWebAPI.BL
             }
 
             string access_token_Authentication = null;
-            resultMessage = EInvoice_Authentication(loginUserId, access_token_OauthToken, sellerGstin, forceToGetToken);
+            resultMessage = EInvoice_Authentication(loginUserId, access_token_OauthToken, sellerGstin, forceToGetToken, tblInvoiceTO.InvFromOrgId);
             if (resultMessage.Result != 1)
             {
                 throw new Exception("Error in EInvoice_Authentication");
@@ -10162,7 +10253,7 @@ namespace ODLMWebAPI.BL
             ResultMessage resultMsg = new ResultMessage();
             if (access_token_Authentication == "")
             {
-                resultMsg = EInvoice_Authentication(loginUserId, "", sellerGstin, false);
+                resultMsg = EInvoice_Authentication(loginUserId, "", sellerGstin, false, tblInvoiceTO.InvFromOrgId);
                 if (resultMsg.Result != 1)
                 {
                     throw new Exception("Error in EInvoice_Authentication");
@@ -10184,7 +10275,7 @@ namespace ODLMWebAPI.BL
                     tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@token", access_token_Authentication);
 
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@IrnNo", tblInvoiceTO.IrnNo);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@VehNo", tblInvoiceTO.VehicleNo.Replace(" ", ""));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@VehNo", GetValidVehichleNumber(tblInvoiceTO.VehicleNo));
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@DistanceinKm", tblInvoiceTO.DistanceInKM.ToString());
 
                     IRestResponse response = CallRestAPIs(tblEInvoiceApiTO.ApiBaseUri + tblEInvoiceApiTO.ApiFunctionName, tblEInvoiceApiTO.ApiMethod, tblEInvoiceApiTO.HeaderParam, tblEInvoiceApiTO.BodyParam);
@@ -10294,14 +10385,14 @@ namespace ODLMWebAPI.BL
                 {
                     if (TblOrgLicenseDtlTOList[i].LicenseId == (Int32)CommercialLicenseE.IGST_NO)
                     {
-                        sellerGstin = TblOrgLicenseDtlTOList[i].LicenseValue;
+                        sellerGstin = TblOrgLicenseDtlTOList[i].LicenseValue.ToUpper();
                         break;
                     }
                 }
             }
 
             string access_token_OauthToken = null;
-            resultMessage = EInvoice_OauthToken(loginUserId, sellerGstin, forceToGetToken);
+            resultMessage = EInvoice_OauthToken(loginUserId, sellerGstin, forceToGetToken, tblInvoiceTO.InvFromOrgId);
             if (resultMessage.Result != 1)
             {
                 throw new Exception("Error in EInvoice_OauthToken");
@@ -10314,7 +10405,7 @@ namespace ODLMWebAPI.BL
             }
 
             string access_token_Authentication = null;
-            resultMessage = EInvoice_Authentication(loginUserId, access_token_OauthToken, sellerGstin, forceToGetToken);
+            resultMessage = EInvoice_Authentication(loginUserId, access_token_OauthToken, sellerGstin, forceToGetToken, tblInvoiceTO.InvFromOrgId);
             if (resultMessage.Result != 1)
             {
                 throw new Exception("Error in EInvoice_Authentication");
@@ -10334,7 +10425,7 @@ namespace ODLMWebAPI.BL
             ResultMessage resultMsg = new ResultMessage();
             if (access_token_Authentication == "")
             {
-                resultMsg = EInvoice_Authentication(loginUserId, "", sellerGstin, false);
+                resultMsg = EInvoice_Authentication(loginUserId, "", sellerGstin, false, tblInvoiceTO.InvFromOrgId);
                 if (resultMsg.Result != 1)
                 {
                     throw new Exception("Error in EInvoice_Authentication");
