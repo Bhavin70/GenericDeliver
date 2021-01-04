@@ -1312,13 +1312,32 @@ namespace ODLMWebAPI.Controllers
             {
                 var loginUserId = data["loginUserId"].ToString();
                 var idInvoice = data["idInvoice"].ToString();
+                Int32 eInvoiceCreationType = Convert.ToInt32(data["generateEInvoiceTypeE"].ToString());
                 //Int32 idInvoice = 29194;
                 if (Convert.ToInt32(loginUserId) <= 0)
                 {
                     resultMessage.DefaultBehaviour("loginUserId Not Found");
                     return resultMessage;
                 }
-                return _iTblInvoiceBL.GenerateEInvoice(Convert.ToInt32(loginUserId), Convert.ToInt32(idInvoice));
+                if (eInvoiceCreationType == 0)
+                {
+                    resultMessage.DefaultBehaviour("E-Invoice Creation type not found");
+                    return resultMessage;
+                }
+                
+                List<TblInvoiceAddressTO> tblInvoiceAddressTOList = JsonConvert.DeserializeObject<List<TblInvoiceAddressTO>>(data["invoiceAddressTOList"].ToString());
+                resultMessage = _iTblInvoiceBL.UpdateInvoiceAddress(tblInvoiceAddressTOList);
+                if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                {
+                    return resultMessage;
+                }
+
+                if (eInvoiceCreationType == (Int32)Constants.EGenerateEInvoiceCreationType.UPDATE_ONLY_ADDRESS)
+                {
+                    return resultMessage;
+                }
+                
+                return _iTblInvoiceBL.GenerateEInvoice(Convert.ToInt32(loginUserId), Convert.ToInt32(idInvoice), Convert.ToInt32(eInvoiceCreationType));
             }
             catch (Exception ex)
             {
