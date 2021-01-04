@@ -622,7 +622,7 @@ namespace ODLMWebAPI.BL
         public TblParityDetailsTO GetParityDetailToOnBooking(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate, Int32 districtId, Int32 talukaId, Int32 parityLevel)
         {
             TblParityDetailsTO parityDtlTO = SelectParityDetailToListOnBooking(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
-            if (parityDtlTO == null)
+            if (parityDtlTO == null || parityDtlTO.IdParityDtl == 0)
             {
                 if (parityLevel == 1)
                 {
