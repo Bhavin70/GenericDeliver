@@ -1085,6 +1085,15 @@ namespace ODLMWebAPI.StaticStuff
         /// Dhananjay [2020-11-19] For EInvoice API
         /// </summary>
         public static Int32 secsToBeDeductededFromTokenExpTime = 120;
+        ///<summary>
+        ///Aditee [04-01-2021] for generate invoice flag for Address Update
+        ///</summary>
+        public enum EGenerateEInvoiceCreationType
+        {
+            UPDATE_ONLY_ADDRESS = 1,
+            GENERATE_INVOICE_ONLY = 2,
+            INVOICE_WITH_EWAY_BILL = 3,
+        }
 
     }
 }

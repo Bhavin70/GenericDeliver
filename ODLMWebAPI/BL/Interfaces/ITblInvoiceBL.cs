@@ -95,7 +95,7 @@ namespace ODLMWebAPI.BL.Interfaces
         /// <summary>
         /// Dhananjay[18-11-2020] : Added To Generate eInvvoice.
         /// </summary>
-        ResultMessage GenerateEInvoice(Int32 loginUserId, Int32 idInvoice, bool forceToGetToken = false);
+        ResultMessage GenerateEInvoice(Int32 loginUserId, Int32 idInvoice, Int32 eInvoiceCreationType, bool forceToGetToken = false);
         /// <summary>
         /// Dhananjay[18-11-2020] : Added To Cancel eInvvoice.
         /// </summary>
@@ -108,5 +108,6 @@ namespace ODLMWebAPI.BL.Interfaces
         /// Dhananjay[18-11-2020] : Added To Cancel EWayBill.
         /// </summary>
         ResultMessage CancelEWayBill(Int32 loginUserId, Int32 idInvoice, bool forceToGetToken = false);
+        ResultMessage UpdateInvoiceAddress(List<TblInvoiceAddressTO> tblInvoiceAddressTOList);
     }
 }
