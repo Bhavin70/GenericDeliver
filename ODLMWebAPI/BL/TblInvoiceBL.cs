@@ -9036,7 +9036,7 @@ namespace ODLMWebAPI.BL
         /// <summary>
         /// Dhananjay[18-11-2020] : Added To Generate eInvvoice.
         /// </summary>
-        public ResultMessage GenerateEInvoice(Int32 loginUserId, Int32 idInvoice, Int32 eInvoiceType, bool forceToGetToken = false)
+        public ResultMessage GenerateEInvoice(Int32 loginUserId, Int32 idInvoice, Int32 eInvoiceCreationType, bool forceToGetToken = false)
         {
             ResultMessage resultMsg = new ResultMessage();
             try
@@ -9084,7 +9084,7 @@ namespace ODLMWebAPI.BL
                 access_token_Authentication = resultMsg.Tag.ToString();
                 if (access_token_Authentication != null)
                 {
-                    return EInvoice_Generate(tblInvoiceTO, loginUserId, access_token_Authentication, sellerGstin, eInvoiceType);
+                    return EInvoice_Generate(tblInvoiceTO, loginUserId, access_token_Authentication, sellerGstin, eInvoiceCreationType);
                 }
                 return resultMsg;
             }
