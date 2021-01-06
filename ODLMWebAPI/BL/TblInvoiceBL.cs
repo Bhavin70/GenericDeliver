@@ -9204,6 +9204,7 @@ namespace ODLMWebAPI.BL
             string access_Token_Authentication = null;
             DateTime tokenExpiresAt = _iCommon.ServerDateTime;
 
+            //List<TblEInvoiceApiTO> tblEInvoiceApiTOList = _iTblEInvoiceApiDAO.SelectAllTblEInvoiceApi((int)EInvoiceAPIE.EINVOICE_AUTHENTICATE);
             List<TblEInvoiceApiTO> tblEInvoiceApiTOList = _iTblEInvoiceApiDAO.SelectTblEInvoiceApi(Constants.EINVOICE_AUTHENTICATE, OrgId);
             if (tblEInvoiceApiTOList == null)
             {
