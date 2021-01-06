@@ -2895,10 +2895,19 @@ namespace ODLMWebAPI.BL
                                 orcPerMt = tblLoadingSlipTO.OrcAmt / tblLoadingSlipTO.LoadingQty;
                             }
                         }
+                        Double baseRateDiff = 0;
+                        TblConfigParamsTO tblConfigParamForInternalItemBaseRate = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.INTERNAL_DEFAULT_ITEM_BASE_RATE_DIFF_AMT, conn, tran);
 
+                        if (tblConfigParamForInternalItemBaseRate != null)
+                        {
+                            if (tblConfigParamForInternalItemBaseRate.ConfigParamVal != null)
+                            {
+                                baseRateDiff = Convert.ToDouble(tblConfigParamForInternalItemBaseRate.ConfigParamVal);
+                            }
+                        }
 
-
-                        bookingRateTemp -= 400;
+                        bookingRateTemp -= baseRateDiff;
+                        //bookingRateTemp -= 400;
                         bookingRateTemp -= cdAmt;
                         bookingRateTemp -= orcPerMt;
 
@@ -9036,7 +9045,7 @@ namespace ODLMWebAPI.BL
         /// <summary>
         /// Dhananjay[18-11-2020] : Added To Generate eInvvoice.
         /// </summary>
-        public ResultMessage GenerateEInvoice(Int32 loginUserId, Int32 idInvoice, bool forceToGetToken = false)
+        public ResultMessage GenerateEInvoice(Int32 loginUserId, Int32 idInvoice, Int32 eInvoiceCreationType, bool forceToGetToken = false)
         {
             ResultMessage resultMsg = new ResultMessage();
             try
@@ -9084,7 +9093,7 @@ namespace ODLMWebAPI.BL
                 access_token_Authentication = resultMsg.Tag.ToString();
                 if (access_token_Authentication != null)
                 {
-                    return EInvoice_Generate(tblInvoiceTO, loginUserId, access_token_Authentication, sellerGstin);
+                    return EInvoice_Generate(tblInvoiceTO, loginUserId, access_token_Authentication, sellerGstin, eInvoiceCreationType);
                 }
                 return resultMsg;
             }
@@ -9317,6 +9326,9 @@ namespace ODLMWebAPI.BL
 
             str = str.Replace("\r\n", "");
             str = str.Replace("\t", "");
+            str = str.Replace("\n", "");
+            str = str.Trim();
+
             return str;
         }
 
@@ -9356,7 +9368,7 @@ namespace ODLMWebAPI.BL
         /// <summary>
         /// Dhananjay[18-11-2020] : Added To Generate eInvvoice.
         /// </summary>
-        public ResultMessage EInvoice_Generate(TblInvoiceTO tblInvoiceTO, Int32 loginUserId, string access_Token_Authentication, string sellerGstin)
+        public ResultMessage EInvoice_Generate(TblInvoiceTO tblInvoiceTO, Int32 loginUserId, string access_Token_Authentication, string sellerGstin, Int32 eInvoiceCreationType)
         {
             ResultMessage resultMsg = new ResultMessage();
             try
@@ -9611,9 +9623,19 @@ namespace ODLMWebAPI.BL
                 tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@grandTotal", tblInvoiceTO.GrandTotal.ToString());
                 tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@roundOffAmt", tblInvoiceTO.RoundOffAmt.ToString());
 
-                tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@vehicleNo", GetValidVehichleNumber(tblInvoiceTO.VehicleNo));
-                tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@distanceInKM", tblInvoiceTO.DistanceInKM.ToString());
-
+                if (eInvoiceCreationType == (Int32)Constants.EGenerateEInvoiceCreationType.GENERATE_INVOICE_ONLY)
+                {
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("\"EwbDtls\":\r\n            {\r\n            \"VehType\": \"R\",\r\n            \"VehNo\": \"@vehicleNo\",\r\n            \"TransMode\": \"1\",\r\n            \"Distance\": \"@distanceInKM\"\r\n            }", "");
+                }
+                else if (eInvoiceCreationType == (Int32)Constants.EGenerateEInvoiceCreationType.INVOICE_WITH_EWAY_BILL)
+                {
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@vehicleNo", GetValidVehichleNumber(tblInvoiceTO.VehicleNo));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@distanceInKM", tblInvoiceTO.DistanceInKM.ToString());
+                }
+                else
+                {
+                    resultMsg.DefaultBehaviour("Wrong eInvoiceType");
+                }
                 int nStartIdx = tblEInvoiceApiTO.BodyParam.IndexOf("slNo");
                 int nEndIdx = tblEInvoiceApiTO.BodyParam.IndexOf("@idInvoiceItem");
                 string itemList = tblEInvoiceApiTO.BodyParam.Substring(nStartIdx - 20, ((nEndIdx - nStartIdx) + "@idInvoiceItem".Length + 36));
@@ -9728,7 +9750,7 @@ namespace ODLMWebAPI.BL
                         string errorMsg = (string)jsonError["errorMsg"];
                         if (errorCodes == "1005" && errorMsg == "Invalid Token")
                         {
-                            GenerateEInvoice(loginUserId, tblInvoiceTO.IdInvoice, true);
+                            GenerateEInvoice(loginUserId, tblInvoiceTO.IdInvoice, eInvoiceCreationType, true);
                             return null;
                         }
                     }
@@ -10001,6 +10023,46 @@ namespace ODLMWebAPI.BL
                 resultMessage.DefaultSuccessBehaviour();
             }
             return resultMessage;
+        }
+
+        public ResultMessage UpdateInvoiceAddress(List<TblInvoiceAddressTO> tblInvoiceAddressTOList)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlTransaction tran = null;
+            ResultMessage resultMessage = new ResultMessage();
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+                int result = 0;
+                if (tblInvoiceAddressTOList != null && tblInvoiceAddressTOList.Count > 0)
+                {
+                    for (int i = 0; i < tblInvoiceAddressTOList.Count; i++)
+                    {
+                        result = _iTblInvoiceAddressBL.UpdateTblInvoiceAddress(tblInvoiceAddressTOList[i], conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("Error in Insert UpdateTblInvoiceAddress");
+                            return resultMessage;
+                        }
+                    }
+                }
+                tran.Commit();
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                resultMessage.DefaultExceptionBehaviour(ex, "");
+                return resultMessage;
+            }
+            finally
+            {
+                conn.Close();
+            }
         }
 
         /// <summary>
