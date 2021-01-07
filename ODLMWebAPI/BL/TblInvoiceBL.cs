@@ -9117,26 +9117,22 @@ namespace ODLMWebAPI.BL
             string access_token_OauthToken = null;
             DateTime tokenExpiresAt = _iCommon.ServerDateTime;
             ResultMessage resultMsg = new ResultMessage();
-            List<TblEInvoiceApiTO> tblEInvoiceApiTOList = _iTblEInvoiceApiDAO.SelectAllTblEInvoiceApi((int)EInvoiceAPIE.OAUTH_TOKEN);
-            if (tblEInvoiceApiTOList == null)
+
+            TblEInvoiceApiTO tblEInvoiceApiTO = GetTblEInvoiceApiTO((int)EInvoiceAPIE.OAUTH_TOKEN);
+            if (tblEInvoiceApiTO == null)
             {
-                throw new Exception("EInvoiceApiTOList is null");
+                throw new Exception("EInvoiceApiTO is null");
             }
-            if (tblEInvoiceApiTOList.Count == 0)
-            {
-                throw new Exception("EInvoiceApiTOList not found");
-            }
+
             if (forceToGetToken == false)
             {
-                if (tblEInvoiceApiTOList[0].SessionExpiresAt > _iCommon.ServerDateTime)
+                if (tblEInvoiceApiTO.SessionExpiresAt > _iCommon.ServerDateTime)
                 {
                     resultMsg.DefaultSuccessBehaviour();
-                    resultMsg.Tag = tblEInvoiceApiTOList[0].AccessToken;
+                    resultMsg.Tag = tblEInvoiceApiTO.AccessToken;
                     return resultMsg;
                 }
             }
-
-            TblEInvoiceApiTO tblEInvoiceApiTO = tblEInvoiceApiTOList[0];
 
             tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@gstin", sellerGstin);
 
@@ -9151,7 +9147,7 @@ namespace ODLMWebAPI.BL
             {
                 conn.Open();
                 tran = conn.BeginTransaction();
-                resultMsg = InsertIntoTblEInvoiceSessionApiResponse(response, (int)EInvoiceAPIE.OAUTH_TOKEN, loginUserId, OrgId, conn, tran);
+                resultMsg = InsertIntoTblEInvoiceSessionApiResponse(response, tblEInvoiceApiTO.IdApi, loginUserId, OrgId, conn, tran);
                 if (resultMsg.Result != 1)
                 {
                     tran.Rollback();
@@ -9170,7 +9166,7 @@ namespace ODLMWebAPI.BL
                 int expires_in = (int)json["expires_in"];
                 tokenExpiresAt = _iCommon.ServerDateTime.AddSeconds(expires_in - secsToBeDeductededFromTokenExpTime);
 
-                resultMsg = UpdateTblEInvoiceApi((int)EInvoiceAPIE.OAUTH_TOKEN, access_token_OauthToken, tokenExpiresAt, loginUserId, conn, tran);
+                resultMsg = UpdateTblEInvoiceApi(tblEInvoiceApiTO.IdApi, access_token_OauthToken, tokenExpiresAt, loginUserId, conn, tran);
                 if (resultMsg.Result != 1)
                 {
                     tran.Rollback();
@@ -9362,6 +9358,23 @@ namespace ODLMWebAPI.BL
         }
 
         /// <summary>
+        /// Dhananjay[06-01-2021] : Added To Generate eInvvoice.
+        /// </summary>
+        public TblEInvoiceApiTO GetTblEInvoiceApiTO(int idAPI)
+        {
+            List<TblEInvoiceApiTO> tblEInvoiceApiTOList = _iTblEInvoiceApiDAO.SelectAllTblEInvoiceApi(idAPI);
+            if (tblEInvoiceApiTOList == null)
+            {
+                return null;
+            }
+            if (tblEInvoiceApiTOList.Count == 0)
+            {
+                return null;
+            }
+            TblEInvoiceApiTO tblEInvoiceApiTO = tblEInvoiceApiTOList[0];
+            return tblEInvoiceApiTO;
+        }
+        /// <summary>
         /// Dhananjay[18-11-2020] : Added To Generate eInvvoice.
         /// </summary>
         public ResultMessage EInvoice_Generate(TblInvoiceTO tblInvoiceTO, Int32 loginUserId, string access_Token_Authentication, string sellerGstin, Int32 eInvoiceCreationType)
@@ -9382,16 +9395,17 @@ namespace ODLMWebAPI.BL
                     }
                 }
 
-                List<TblEInvoiceApiTO> tblEInvoiceApiTOList = _iTblEInvoiceApiDAO.SelectAllTblEInvoiceApi((int)EInvoiceAPIE.GENERATE_EINVOICE);
-                if (tblEInvoiceApiTOList == null)
+                TblEInvoiceApiTO tblEInvoiceApiTO = GetTblEInvoiceApiTO((int)EInvoiceAPIE.GENERATE_EINVOICE);
+                if (tblEInvoiceApiTO == null)
                 {
                     throw new Exception("EInvoiceApiTO is null");
                 }
-                if (tblEInvoiceApiTOList.Count == 0)
+                TblEInvoiceApiTO tblEInvoiceApiTOEWayBill = GetTblEInvoiceApiTO((int)EInvoiceAPIE.GENERATE_EWAYBILL);
+                if (tblEInvoiceApiTOEWayBill == null)
                 {
-                    throw new Exception("EInvoice Api not found");
+                    throw new Exception("EInvoiceApiTO for eWayBill is null");
                 }
-                TblEInvoiceApiTO tblEInvoiceApiTO = tblEInvoiceApiTOList[0];
+
                 tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@gstin", sellerGstin);
                 tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@token", access_Token_Authentication);
 
@@ -9621,16 +9635,28 @@ namespace ODLMWebAPI.BL
 
                 if (eInvoiceCreationType == (Int32)Constants.EGenerateEInvoiceCreationType.GENERATE_INVOICE_ONLY)
                 {
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("\"EwbDtls\":\r\n            {\r\n            \"VehType\": \"R\",\r\n            \"VehNo\": \"@vehicleNo\",\r\n            \"TransMode\": \"1\",\r\n            \"Distance\": \"@distanceInKM\"\r\n            }", "");
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("\r\n\t\t@ewbDtls", "");
                 }
                 else if (eInvoiceCreationType == (Int32)Constants.EGenerateEInvoiceCreationType.INVOICE_WITH_EWAY_BILL)
                 {
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@vehicleNo", GetValidVehichleNumber(tblInvoiceTO.VehicleNo));
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@distanceInKM", tblInvoiceTO.DistanceInKM.ToString());
+                    //tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("\r\n\t\t@ewbDtls", ",\r\n        \"EwbDtls\":{\r\n        \"VehType\": \"R\",\r\n        \"VehNo\": \"@vehicleNo\",\r\n        \"TransMode\": \"1\",\r\n        \"Distance\": \"@distanceInKM\"\r\n        }");
+                    //tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@vehicleNo", GetValidVehichleNumber(tblInvoiceTO.VehicleNo));
+                    //tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@distanceInKM", RemoveSpecialChars(tblInvoiceTO.DistanceInKM.ToString()));
+
+                    tblEInvoiceApiTOEWayBill.BodyParam = tblEInvoiceApiTOEWayBill.BodyParam.Replace("{\r\n    \"action\": \"GENERATEEWB\",\r\n    ", "");
+                    tblEInvoiceApiTOEWayBill.BodyParam = tblEInvoiceApiTOEWayBill.BodyParam.Replace("data", "EwbDtls");
+                    tblEInvoiceApiTOEWayBill.BodyParam = tblEInvoiceApiTOEWayBill.BodyParam.Replace("\"Irn\": \"@IrnNo\",\r\n        ", "");
+                    tblEInvoiceApiTOEWayBill.BodyParam = tblEInvoiceApiTOEWayBill.BodyParam.Replace("}\r\n}", "}");
+
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("\r\n\t\t@ewbDtls", ",\r\n        " + tblEInvoiceApiTOEWayBill.BodyParam);
+
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@VehNo", GetValidVehichleNumber(tblInvoiceTO.VehicleNo));
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@DistanceinKm", RemoveSpecialChars(tblInvoiceTO.DistanceInKM.ToString()));
                 }
                 else
                 {
                     resultMsg.DefaultBehaviour("Wrong eInvoiceType");
+                    return resultMsg;
                 }
                 int nStartIdx = tblEInvoiceApiTO.BodyParam.IndexOf("slNo");
                 int nEndIdx = tblEInvoiceApiTO.BodyParam.IndexOf("@idInvoiceItem");
@@ -9652,6 +9678,7 @@ namespace ODLMWebAPI.BL
                             if (otherTaxesTO.IsBefore == 1)
                             {
                                 //itemListTobeReplaced = itemListTobeReplaced.Replace("@srNo", "-");
+                                itemListTobeReplaced = itemListTobeReplaced.Replace("@isServc", "Y");
                                 itemListTobeReplaced = itemListTobeReplaced.Replace("@gstinCodeNo", "9965");
                             }
                             else if (otherTaxesTO.IsAfter == 1)
@@ -9669,6 +9696,7 @@ namespace ODLMWebAPI.BL
                     nSrNo++;
                     itemListTobeReplaced = itemListTobeReplaced.Replace("@srNo", nSrNo.ToString());
                     itemListTobeReplaced = itemListTobeReplaced.Replace("@prodItemDesc", padRight(InvoiceItemDetailsTO.ProdItemDesc, char.Parse(" ")));
+                    itemListTobeReplaced = itemListTobeReplaced.Replace("@isServc", "N");
                     itemListTobeReplaced = itemListTobeReplaced.Replace("@gstinCodeNo", padRight(InvoiceItemDetailsTO.GstinCodeNo, char.Parse("-"), 4));
                     itemListTobeReplaced = itemListTobeReplaced.Replace("@invoiceQty", string.Format("{0:0.000}", InvoiceItemDetailsTO.InvoiceQty));
                     itemListTobeReplaced = itemListTobeReplaced.Replace("@unit", "MTS");
@@ -9758,7 +9786,7 @@ namespace ODLMWebAPI.BL
                     conn.Open();
                     tran = conn.BeginTransaction();
 
-                    resultMsg = InsertIntoTblEInvoiceApiResponse((int)EInvoiceAPIE.GENERATE_EINVOICE, tblInvoiceTO.IdInvoice, response, loginUserId, conn, tran);
+                    resultMsg = InsertIntoTblEInvoiceApiResponse(tblEInvoiceApiTO.IdApi, tblInvoiceTO.IdInvoice, response, loginUserId, conn, tran);
                     if (resultMsg.Result != 1)
                     {
                         tran.Rollback();
@@ -10142,93 +10170,91 @@ namespace ODLMWebAPI.BL
                     access_token_Authentication = resultMsg.Tag.ToString();
                 }
             }
-            List<TblEInvoiceApiTO> tblEInvoiceApiTOList = _iTblEInvoiceApiDAO.SelectAllTblEInvoiceApi((int)EInvoiceAPIE.CANCEL_EINVOICE);
-            if (tblEInvoiceApiTOList != null)
+
+            TblEInvoiceApiTO tblEInvoiceApiTO = GetTblEInvoiceApiTO((int)EInvoiceAPIE.CANCEL_EINVOICE);
+            if (tblEInvoiceApiTO == null)
             {
-                if (tblEInvoiceApiTOList.Count > 0)
+                throw new Exception("EInvoiceApiTO is null");
+            }
+
+            tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@gstin", sellerGstin);
+            tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@token", access_token_Authentication);
+
+            tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@IrnNo", tblInvoiceTO.IrnNo);
+
+            IRestResponse response = CallRestAPIs(tblEInvoiceApiTO.ApiBaseUri + tblEInvoiceApiTO.ApiFunctionName, tblEInvoiceApiTO.ApiMethod, tblEInvoiceApiTO.HeaderParam, tblEInvoiceApiTO.BodyParam);
+
+            string IrnNo = null;
+            JObject json = JObject.Parse(response.Content);
+            if (json.ContainsKey("data"))
+            {
+                JObject jsonData = JObject.Parse(json["data"].ToString());
+                IrnNo = (string)jsonData["Irn"];
+            }
+            if (json.ContainsKey("error"))
+            {
+                JArray arrError = JArray.Parse(json["error"].ToString());
+                foreach (var err in arrError)
                 {
-
-                    TblEInvoiceApiTO tblEInvoiceApiTO = tblEInvoiceApiTOList[0];
-                    tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@gstin", sellerGstin);
-                    tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@token", access_token_Authentication);
-
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@IrnNo", tblInvoiceTO.IrnNo);
-
-                    IRestResponse response = CallRestAPIs(tblEInvoiceApiTO.ApiBaseUri + tblEInvoiceApiTO.ApiFunctionName, tblEInvoiceApiTO.ApiMethod, tblEInvoiceApiTO.HeaderParam, tblEInvoiceApiTO.BodyParam);
-
-                    string IrnNo = null;
-                    JObject json = JObject.Parse(response.Content);
-                    if (json.ContainsKey("data"))
+                    JObject jsonError = JObject.Parse(err.ToString());
+                    string errorCodes = (string)jsonError["errorCodes"];
+                    string errorMsg = (string)jsonError["errorMsg"];
+                    if (errorCodes == "1005" && errorMsg == "Invalid Token")
                     {
-                        JObject jsonData = JObject.Parse(json["data"].ToString());
-                        IrnNo = (string)jsonData["Irn"];
+                        CancelEInvoice(loginUserId, tblInvoiceTO.IdInvoice, true);
+                        return null;
                     }
-                    if (json.ContainsKey("error"))
+                    if (errorCodes == "2270")
                     {
-                        JArray arrError = JArray.Parse(json["error"].ToString());
-                        foreach (var err in arrError)
-                        {
-                            JObject jsonError = JObject.Parse(err.ToString());
-                            string errorCodes = (string)jsonError["errorCodes"];
-                            string errorMsg = (string)jsonError["errorMsg"];
-                            if (errorCodes == "1005" && errorMsg == "Invalid Token")
-                            {
-                                CancelEInvoice(loginUserId, tblInvoiceTO.IdInvoice, true);
-                                return null;
-                            }
-                            if (errorCodes == "2270")
-                            {
-                                response.Content = response.Content.Replace("The allowed cancellation time limit is crossed, you cannot cancel the IRN", "You cannot cancel eInvoice after 24 hrs of generation.");
-                                json = JObject.Parse(response.Content);
-                            }
-                        }
-                    }
-
-                    SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
-                    SqlTransaction tran = null;
-                    try
-                    {
-                        conn.Open();
-                        tran = conn.BeginTransaction();
-
-                        resultMsg = InsertIntoTblEInvoiceApiResponse((int)EInvoiceAPIE.CANCEL_EINVOICE,tblInvoiceTO.IdInvoice, response, loginUserId, conn, tran);
-                        if (resultMsg.Result != 1)
-                        {
-                            tran.Rollback();
-                            return resultMsg;
-                        }
-
-                        if (IrnNo == null)
-                        {
-                            tran.Commit();
-                            resultMsg.DefaultBehaviour(json.ToString());
-                            resultMsg.DisplayMessage = json.ToString();
-                            resultMsg.Text = resultMsg.DisplayMessage;
-                            return resultMsg;
-                        }
-
-                        tblInvoiceTO.IrnNo = "";
-                        tblInvoiceTO.IsEInvGenerated = 0;
-                        tblInvoiceTO.UpdatedBy = Convert.ToInt32(loginUserId);
-                        resultMsg = UpdateTempInvoiceForEInvoice(tblInvoiceTO, conn, tran);
-                        if (resultMsg.Result != 1)
-                        {
-                            tran.Rollback();
-                            return resultMsg;
-                        }
-                        resultMsg.DisplayMessage = "eInvoice cancelled successfully;";
-                        tran.Commit();
-                    }
-                    catch (Exception ex)
-                    {
-                        tran.Rollback();
-                        resultMsg.DefaultExceptionBehaviour(ex, "EInvoice_Cancel");
-                    }
-                    finally
-                    {
-                        conn.Close();
+                        response.Content = response.Content.Replace("The allowed cancellation time limit is crossed, you cannot cancel the IRN", "You cannot cancel eInvoice after 24 hrs of generation.");
+                        json = JObject.Parse(response.Content);
                     }
                 }
+            }
+
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+
+                resultMsg = InsertIntoTblEInvoiceApiResponse(tblEInvoiceApiTO.IdApi, tblInvoiceTO.IdInvoice, response, loginUserId, conn, tran);
+                if (resultMsg.Result != 1)
+                {
+                    tran.Rollback();
+                    return resultMsg;
+                }
+
+                if (IrnNo == null)
+                {
+                    tran.Commit();
+                    resultMsg.DefaultBehaviour(json.ToString());
+                    resultMsg.DisplayMessage = json.ToString();
+                    resultMsg.Text = resultMsg.DisplayMessage;
+                    return resultMsg;
+                }
+
+                tblInvoiceTO.IrnNo = "";
+                tblInvoiceTO.IsEInvGenerated = 0;
+                tblInvoiceTO.UpdatedBy = Convert.ToInt32(loginUserId);
+                resultMsg = UpdateTempInvoiceForEInvoice(tblInvoiceTO, conn, tran);
+                if (resultMsg.Result != 1)
+                {
+                    tran.Rollback();
+                    return resultMsg;
+                }
+                resultMsg.DisplayMessage = "eInvoice cancelled successfully;";
+                tran.Commit();
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                resultMsg.DefaultExceptionBehaviour(ex, "EInvoice_Cancel");
+            }
+            finally
+            {
+                conn.Close();
             }
             return resultMsg;
         }
@@ -10323,92 +10349,89 @@ namespace ODLMWebAPI.BL
                 }
             }
 
-            List<TblEInvoiceApiTO> tblEInvoiceApiTOList = _iTblEInvoiceApiDAO.SelectAllTblEInvoiceApi((int)EInvoiceAPIE.GENERATE_EWAYBILL);
-            if (tblEInvoiceApiTOList != null)
+            TblEInvoiceApiTO tblEInvoiceApiTO = GetTblEInvoiceApiTO((int)EInvoiceAPIE.GENERATE_EWAYBILL);
+            if (tblEInvoiceApiTO == null)
             {
-                if (tblEInvoiceApiTOList.Count > 0)
+                throw new Exception("EInvoiceApiTO is null");
+            }
+
+            tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@gstin", sellerGstin);
+            tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@token", access_token_Authentication);
+
+            tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@IrnNo", tblInvoiceTO.IrnNo);
+            tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@VehNo", GetValidVehichleNumber(tblInvoiceTO.VehicleNo));
+            tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@DistanceinKm", tblInvoiceTO.DistanceInKM.ToString());
+
+            IRestResponse response = CallRestAPIs(tblEInvoiceApiTO.ApiBaseUri + tblEInvoiceApiTO.ApiFunctionName, tblEInvoiceApiTO.ApiMethod, tblEInvoiceApiTO.HeaderParam, tblEInvoiceApiTO.BodyParam);
+
+            string EwayBillNo = null;
+            JObject json = JObject.Parse(response.Content);
+            if (json.ContainsKey("data"))
+            {
+                JObject jsonData = JObject.Parse(json["data"].ToString());
+                EwayBillNo = (string)jsonData["EwbNo"];
+            }
+            if (json.ContainsKey("error"))
+            {
+                JArray arrError = JArray.Parse(json["error"].ToString());
+                foreach (var err in arrError)
                 {
-
-                    TblEInvoiceApiTO tblEInvoiceApiTO = tblEInvoiceApiTOList[0];
-                    tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@gstin", sellerGstin);
-                    tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@token", access_token_Authentication);
-
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@IrnNo", tblInvoiceTO.IrnNo);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@VehNo", GetValidVehichleNumber(tblInvoiceTO.VehicleNo));
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@DistanceinKm", tblInvoiceTO.DistanceInKM.ToString());
-
-                    IRestResponse response = CallRestAPIs(tblEInvoiceApiTO.ApiBaseUri + tblEInvoiceApiTO.ApiFunctionName, tblEInvoiceApiTO.ApiMethod, tblEInvoiceApiTO.HeaderParam, tblEInvoiceApiTO.BodyParam);
-
-                    string EwayBillNo = null;
-                    JObject json = JObject.Parse(response.Content);
-                    if (json.ContainsKey("data"))
+                    JObject jsonError = JObject.Parse(err.ToString());
+                    string errorCodes = (string)jsonError["errorCodes"];
+                    string errorMsg = (string)jsonError["errorMsg"];
+                    if (errorCodes == "1005" && errorMsg == "Invalid Token")
                     {
-                        JObject jsonData = JObject.Parse(json["data"].ToString());
-                        EwayBillNo = (string)jsonData["EwbNo"];
-                    }
-                    if (json.ContainsKey("error"))
-                    {
-                        JArray arrError = JArray.Parse(json["error"].ToString());
-                        foreach (var err in arrError)
-                        {
-                            JObject jsonError = JObject.Parse(err.ToString());
-                            string errorCodes = (string)jsonError["errorCodes"];
-                            string errorMsg = (string)jsonError["errorMsg"];
-                            if (errorCodes == "1005" && errorMsg == "Invalid Token")
-                            {
-                                GenerateEWayBill(loginUserId, tblInvoiceTO.IdInvoice, tblInvoiceTO.DistanceInKM, true);
-                                return null;
-                            }
-                        }
-                    }
-
-                    SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
-                    SqlTransaction tran = null;
-                    try
-                    {
-                        conn.Open();
-                        tran = conn.BeginTransaction();
-
-                        resultMsg = InsertIntoTblEInvoiceApiResponse((int)EInvoiceAPIE.GENERATE_EWAYBILL, tblInvoiceTO.IdInvoice, response, loginUserId, conn, tran);
-                        if (resultMsg.Result != 1)
-                        {
-                            tran.Rollback();
-                            return resultMsg;
-                        }
-
-                        if (EwayBillNo == null)
-                        {
-                            tran.Commit();
-                            resultMsg.DefaultBehaviour(json.ToString());
-                            resultMsg.DisplayMessage = json.ToString();
-                            resultMsg.Text = resultMsg.DisplayMessage;
-                            return resultMsg;
-                        }
-
-                        tblInvoiceTO.ElectronicRefNo = EwayBillNo;
-                        tblInvoiceTO.IsEWayBillGenerated = 1;
-                        tblInvoiceTO.UpdatedBy = Convert.ToInt32(loginUserId);
-
-                        resultMsg = UpdateTempInvoiceForEWayBill(tblInvoiceTO, conn, tran);
-                        if (resultMsg.Result != 1)
-                        {
-                            tran.Rollback();
-                            return resultMsg;
-                        }
-
-                        resultMsg.DisplayMessage = "eWayBill generated successfully;";
-                        tran.Commit();
-                    }
-                    catch (Exception ex)
-                    {
-                        tran.Rollback();
-                        resultMsg.DefaultExceptionBehaviour(ex, "EInvoice_EWayBill");
-                    }
-                    finally
-                    {
-                        conn.Close();
+                        GenerateEWayBill(loginUserId, tblInvoiceTO.IdInvoice, tblInvoiceTO.DistanceInKM, true);
+                        return null;
                     }
                 }
+            }
+
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+
+                resultMsg = InsertIntoTblEInvoiceApiResponse(tblEInvoiceApiTO.IdApi, tblInvoiceTO.IdInvoice, response, loginUserId, conn, tran);
+                if (resultMsg.Result != 1)
+                {
+                    tran.Rollback();
+                    return resultMsg;
+                }
+
+                if (EwayBillNo == null)
+                {
+                    tran.Commit();
+                    resultMsg.DefaultBehaviour(json.ToString());
+                    resultMsg.DisplayMessage = json.ToString();
+                    resultMsg.Text = resultMsg.DisplayMessage;
+                    return resultMsg;
+                }
+
+                tblInvoiceTO.ElectronicRefNo = EwayBillNo;
+                tblInvoiceTO.IsEWayBillGenerated = 1;
+                tblInvoiceTO.UpdatedBy = Convert.ToInt32(loginUserId);
+
+                resultMsg = UpdateTempInvoiceForEWayBill(tblInvoiceTO, conn, tran);
+                if (resultMsg.Result != 1)
+                {
+                    tran.Rollback();
+                    return resultMsg;
+                }
+
+                resultMsg.DisplayMessage = "eWayBill generated successfully;";
+                tran.Commit();
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                resultMsg.DefaultExceptionBehaviour(ex, "EInvoice_EWayBill");
+            }
+            finally
+            {
+                conn.Close();
             }
             return resultMsg;
         }
@@ -10494,105 +10517,103 @@ namespace ODLMWebAPI.BL
                     access_token_Authentication = resultMsg.Tag.ToString();
                 }
             }
-            List<TblEInvoiceApiTO> tblEInvoiceApiTOList = _iTblEInvoiceApiDAO.SelectAllTblEInvoiceApi((int)EInvoiceAPIE.CANCEL_EWAYBILL);
-            if (tblEInvoiceApiTOList != null)
+
+            TblEInvoiceApiTO tblEInvoiceApiTO = GetTblEInvoiceApiTO((int)EInvoiceAPIE.CANCEL_EWAYBILL);
+            if (tblEInvoiceApiTO == null)
             {
-                if (tblEInvoiceApiTOList.Count > 0)
+                throw new Exception("EInvoiceApiTO is null");
+            }
+
+            tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@gstin", sellerGstin);
+            tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@token", access_token_Authentication);
+
+            tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@irnNo", tblInvoiceTO.IrnNo);
+            tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@ewbNo", tblInvoiceTO.ElectronicRefNo);
+
+            IRestResponse response = CallRestAPIs(tblEInvoiceApiTO.ApiBaseUri + tblEInvoiceApiTO.ApiFunctionName, tblEInvoiceApiTO.ApiMethod, tblEInvoiceApiTO.HeaderParam, tblEInvoiceApiTO.BodyParam);
+
+            string EwayBillNo = null;
+            bool bPeriodLapsed = false;
+            JObject json = JObject.Parse(response.Content);
+            if (json.ContainsKey("data"))
+            {
+                JObject jsonData = JObject.Parse(json["data"].ToString());
+                EwayBillNo = (string)jsonData["ewayBillNo"];
+            }
+            if (json.ContainsKey("error"))
+            {
+                JArray arrError = JArray.Parse(json["error"].ToString());
+                foreach (var err in arrError)
                 {
-
-                    TblEInvoiceApiTO tblEInvoiceApiTO = tblEInvoiceApiTOList[0];
-                    tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@gstin", sellerGstin);
-                    tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@token", access_token_Authentication);
-
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@irnNo", tblInvoiceTO.IrnNo);
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@ewbNo", tblInvoiceTO.ElectronicRefNo);
-
-                    IRestResponse response = CallRestAPIs(tblEInvoiceApiTO.ApiBaseUri + tblEInvoiceApiTO.ApiFunctionName, tblEInvoiceApiTO.ApiMethod, tblEInvoiceApiTO.HeaderParam, tblEInvoiceApiTO.BodyParam);
-
-                    string EwayBillNo = null;
-                    bool bPeriodLapsed = false;
-                    JObject json = JObject.Parse(response.Content);
-                    if (json.ContainsKey("data"))
+                    JObject jsonError = JObject.Parse(err.ToString());
+                    string errorCodes = (string)jsonError["errorCodes"];
+                    string errorMsg = (string)jsonError["errorMsg"];
+                    if (errorCodes == "1005" && errorMsg == "Invalid Token")
                     {
-                        JObject jsonData = JObject.Parse(json["data"].ToString());
-                        EwayBillNo = (string)jsonData["ewayBillNo"];
+                        CancelEWayBill(loginUserId, tblInvoiceTO.IdInvoice, true);
+                        return null;
                     }
-                    if (json.ContainsKey("error"))
+                    else if (errorCodes == "315")
                     {
-                        JArray arrError = JArray.Parse(json["error"].ToString());
-                        foreach (var err in arrError)
-                        {
-                            JObject jsonError = JObject.Parse(err.ToString());
-                            string errorCodes = (string)jsonError["errorCodes"];
-                            string errorMsg = (string)jsonError["errorMsg"];
-                            if (errorCodes == "1005" && errorMsg == "Invalid Token")
-                            {
-                                CancelEWayBill(loginUserId, tblInvoiceTO.IdInvoice, true);
-                                return null;
-                            }
-                            else if (errorCodes == "315")
-                            {
-                                bPeriodLapsed = true;
-                            }
-                        }
-                    }
-
-                    SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
-                    SqlTransaction tran = null;
-                    try
-                    {
-                        conn.Open();
-                        tran = conn.BeginTransaction();
-
-                        resultMsg = InsertIntoTblEInvoiceApiResponse((int)EInvoiceAPIE.CANCEL_EWAYBILL, tblInvoiceTO.IdInvoice, response, loginUserId, conn, tran);
-
-                        if (resultMsg.Result != 1)
-                        {
-                            tran.Rollback();
-                            return resultMsg;
-                        }
-
-                        if (bPeriodLapsed == true)
-                        {
-                            tran.Commit();
-                            resultMsg.DefaultBehaviour(json.ToString());
-                            resultMsg.DisplayMessage = "You cannot cancel eWayBill after 24 hrs of generation.";
-                            resultMsg.Text = resultMsg.DisplayMessage;
-                            return resultMsg;
-                        }
-                        if (EwayBillNo == null)
-                        {
-                            tran.Commit();
-                            resultMsg.DefaultBehaviour(json.ToString());
-                            resultMsg.DisplayMessage = json.ToString();
-                            resultMsg.Text = resultMsg.DisplayMessage;
-                            return resultMsg;
-                        }
-
-                        tblInvoiceTO.ElectronicRefNo = "";
-                        tblInvoiceTO.IsEWayBillGenerated = 0;
-                        tblInvoiceTO.UpdatedBy = Convert.ToInt32(loginUserId);
-                        resultMsg = UpdateTempInvoiceForEWayBill(tblInvoiceTO, conn, tran);
-
-                        if (resultMsg.Result != 1)
-                        {
-                            tran.Rollback();
-                            return resultMsg;
-                        }
-
-                        resultMsg.DisplayMessage = "eWayBill cancelled successfully;";
-                        tran.Commit();
-                    }
-                    catch (Exception ex)
-                    {
-                        tran.Rollback();
-                        resultMsg.DefaultExceptionBehaviour(ex, "EInvoice_CancelEwayBill");
-                    }
-                    finally
-                    {
-                        conn.Close();
+                        bPeriodLapsed = true;
                     }
                 }
+            }
+
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+
+                resultMsg = InsertIntoTblEInvoiceApiResponse(tblEInvoiceApiTO.IdApi, tblInvoiceTO.IdInvoice, response, loginUserId, conn, tran);
+
+                if (resultMsg.Result != 1)
+                {
+                    tran.Rollback();
+                    return resultMsg;
+                }
+
+                if (bPeriodLapsed == true)
+                {
+                    tran.Commit();
+                    resultMsg.DefaultBehaviour(json.ToString());
+                    resultMsg.DisplayMessage = "You cannot cancel eWayBill after 24 hrs of generation.";
+                    resultMsg.Text = resultMsg.DisplayMessage;
+                    return resultMsg;
+                }
+                if (EwayBillNo == null)
+                {
+                    tran.Commit();
+                    resultMsg.DefaultBehaviour(json.ToString());
+                    resultMsg.DisplayMessage = json.ToString();
+                    resultMsg.Text = resultMsg.DisplayMessage;
+                    return resultMsg;
+                }
+
+                tblInvoiceTO.ElectronicRefNo = "";
+                tblInvoiceTO.IsEWayBillGenerated = 0;
+                tblInvoiceTO.UpdatedBy = Convert.ToInt32(loginUserId);
+                resultMsg = UpdateTempInvoiceForEWayBill(tblInvoiceTO, conn, tran);
+
+                if (resultMsg.Result != 1)
+                {
+                    tran.Rollback();
+                    return resultMsg;
+                }
+
+                resultMsg.DisplayMessage = "eWayBill cancelled successfully;";
+                tran.Commit();
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                resultMsg.DefaultExceptionBehaviour(ex, "EInvoice_CancelEwayBill");
+            }
+            finally
+            {
+                conn.Close();
             }
             return resultMsg;
         }
