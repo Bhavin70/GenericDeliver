@@ -9321,6 +9321,9 @@ namespace ODLMWebAPI.BL
 
             str = str.Replace("\r\n", "");
             str = str.Replace("\t", "");
+            str = str.Replace("\n", "");
+            str = str.Trim();
+
             return str;
         }
 

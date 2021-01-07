@@ -626,7 +626,7 @@ namespace ODLMWebAPI.BL
             {
                 if (parityLevel == 1)
                 {
-                    throw new Exception("parityDtlTO is NULL");
+                    //throw new Exception("parityDtlTO is NULL");
                 }
                 else if (parityLevel == 2)
                 {
@@ -643,7 +643,7 @@ namespace ODLMWebAPI.BL
                         parityDtlTO = SelectParityDetailToListOnBooking(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
                         if (parityDtlTO == null)
                         {
-                            throw new Exception("parityDtlTO is NULL");
+                            //throw new Exception("parityDtlTO is NULL");
                         }
                     }
                 }
