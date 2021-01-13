@@ -8784,7 +8784,7 @@ namespace ODLMWebAPI.BL {
                     return resultMessage;
                 }
                 int weightSourceConfigId = _iTblConfigParamsDAO.IoTSetting();
-                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT && tblLoadingTO.StatusId != (int)Constants.TranStatusE.LOADING_NOT_CONFIRM)
                 {
 
                     LoadingTO.VehicleNo = string.Empty;
@@ -8797,6 +8797,18 @@ namespace ODLMWebAPI.BL {
                 }
                 tblLoadingTO.UpdatedBy = LoadingTO.UpdatedBy;
                 tblLoadingTO.UpdatedOn = LoadingTO.UpdatedOn;
+
+                //chetan[07-feb-2020] added for update vehicle no on IOT
+                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT && tblLoadingTO.StatusId != (int)Constants.TranStatusE.LOADING_NOT_CONFIRM)
+                {
+                    int res = WriteDataOnIOT(LoadingTO, conn, tran, vehicleNumber, transporterId);
+                    if (result != 1)
+                    {
+                        tran.Rollback();
+                        resultMessage.DefaultBehaviour("error while update loadindingSlip");
+                        return resultMessage;
+                    }
+                }
 
                 result = UpdateTblLoading(tblLoadingTO, conn, tran);
                 if (result != 1)
@@ -8829,17 +8841,7 @@ namespace ODLMWebAPI.BL {
                     }
                 }
                 #endregion
-                //chetan[07-feb-2020] added for update vehicle no on IOT
-                if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
-                {
-                    int res = WriteDataOnIOT(LoadingTO, conn, tran, vehicleNumber, transporterId);
-                    if (result != 1)
-                    {
-                        tran.Rollback();
-                        resultMessage.DefaultBehaviour("error while update loadindingSlip");
-                        return resultMessage;
-                    }
-                }
+                
                 tran.Commit();
                 resultMessage.DefaultSuccessBehaviour();
                 return resultMessage;
