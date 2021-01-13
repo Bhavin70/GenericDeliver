@@ -19,6 +19,7 @@ namespace ODLMWebAPI.Models
         string response;
         Int32 createdBy;
         DateTime createdOn;
+        Int32 orgId;
 
         #endregion
 
@@ -66,6 +67,11 @@ namespace ODLMWebAPI.Models
         {
             get { return createdOn; }
             set { createdOn = value; }
+        }
+        public Int32 OrgId
+        {
+            get { return orgId; }
+            set { orgId = value; }
         }
 
         #endregion

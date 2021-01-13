@@ -526,6 +526,10 @@ namespace ODLMWebAPI.StaticStuff
         public static string DEFAULT_NOTFOUND_MSG = " Record Could not be found";
         public static string CP_POST_SALES_INVOICE_TO_SAP_DIRECTLY_AFTER_INVOICE_GENERATION = "CP_POST_SALES_INVOICE_TO_SAP_DIRECTLY_AFTER_INVOICE_GENERATION";
         public static String SAPB1_SERVICES_ENABLE = "SAPB1_SERVICES_ENABLE";
+        
+        //Dhananjay [2020-12-02] Parity level
+        public static string CP_PARITY_LEVEL = "PARITY_LEVEL";
+        
         #endregion
 
         #region Configuration Sections
@@ -563,6 +567,7 @@ namespace ODLMWebAPI.StaticStuff
         public static String ENTITY_RANGE_REGULAR_TAX_INVOICE_BMM = "REGULAR_TAX_INVOICE_BMM";
         public static String ENTITY_RANGE_REGULAR_TAX_INTERNALORG = "REGULAR_TAX_INVOICE_ORG_";
         public static String INTERNAL_DEFAULT_ITEM = "INTERNAL_DEFAULT_ITEM";
+        public static String INTERNAL_DEFAULT_ITEM_BASE_RATE_DIFF_AMT = "INTERNAL_DEFAULT_ITEM_BASE_RATE_DIFF_AMT";
 
         public static string CP_BRAND_WISE_INVOICE = "BRAND_WISE_INVOICE";
         public static string CP_SKIP_LOADING_APPROVAL = "SKIP_LOADING_APPROVAL";
@@ -1072,9 +1077,23 @@ namespace ODLMWebAPI.StaticStuff
         }
 
         /// <summary>
+        /// Dhananjay [2021-01-02] For EInvoice API
+        /// </summary>
+        public static string EINVOICE_AUTHENTICATE = "einvoice/Authenticate";
+        
+        /// <summary>
         /// Dhananjay [2020-11-19] For EInvoice API
         /// </summary>
         public static Int32 secsToBeDeductededFromTokenExpTime = 120;
+        ///<summary>
+        ///Aditee [04-01-2021] for generate invoice flag for Address Update
+        ///</summary>
+        public enum EGenerateEInvoiceCreationType
+        {
+            UPDATE_ONLY_ADDRESS = 1,
+            GENERATE_INVOICE_ONLY = 2,
+            INVOICE_WITH_EWAY_BILL = 3,
+        }
 
     }
 }

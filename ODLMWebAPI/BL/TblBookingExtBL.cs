@@ -18,14 +18,14 @@ namespace ODLMWebAPI.BL
         private readonly ITblBookingExtDAO _iTblBookingExtDAO;
         private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
 
-        private readonly ITblParityDetailsDAO _iTblParityDetailsDAO;
+        private readonly ITblParityDetailsBL _iTblParityDetailsBL;
         private readonly ITblProductInfoBL _iTblProductInfoBL;
         private readonly ITblBookingsDAO _iTblBookingsDAO;
-        public TblBookingExtBL(ITblBookingsDAO iTblBookingsDAO,ITblProductInfoBL iTblProductInfoBL,ITblConfigParamsDAO iTblConfigParamsDAO, ITblBookingExtDAO iTblBookingExtDAO,ITblParityDetailsDAO iTblParityDetailsDAO)
+        public TblBookingExtBL(ITblBookingsDAO iTblBookingsDAO,ITblProductInfoBL iTblProductInfoBL,ITblConfigParamsDAO iTblConfigParamsDAO, ITblBookingExtDAO iTblBookingExtDAO,ITblParityDetailsBL iTblParityDetailsBL)
         {
             _iTblBookingExtDAO = iTblBookingExtDAO;
             _iTblConfigParamsDAO = iTblConfigParamsDAO;
-            _iTblParityDetailsDAO = iTblParityDetailsDAO;
+            _iTblParityDetailsBL = iTblParityDetailsBL;
             _iTblProductInfoBL = iTblProductInfoBL;
             _iTblBookingsDAO = iTblBookingsDAO;
         }
@@ -58,9 +58,30 @@ namespace ODLMWebAPI.BL
                         double discount = 0;
                        
                          TblBookingExtTO tempTO = tblBookingExtTOList[i];
-                        var parityList = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(tempTO.MaterialId, tempTO.ProdCatId, tempTO.ProdSpecId, tempTO.ProdItemId, tempTO.BrandId, stateId, tblBookingsTO.CreatedOn);
-                        
-                        var result= tblProductInfoTOList.Where(a => a.MaterialId == tempTO.MaterialId && a.ProdCatId == tempTO.ProdCatId && a.ProdSpecId == tempTO.ProdSpecId).FirstOrDefault();
+                    //02-12-2020 Dhananjay added start
+                    Int32 districtId = 0;
+                    Int32 talukaId = 0;
+                    Int32 parityLevel = 1;
+                    TblConfigParamsTO parityLevelConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_PARITY_LEVEL);
+
+                    if (parityLevelConfigParamsTO != null)
+                    {
+                        parityLevel = Convert.ToInt32(parityLevelConfigParamsTO.ConfigParamVal);
+                        if (parityLevel == 2)
+                        {
+                            districtId = tblBookingsTO.DistrictId;
+                        }
+                        else if (parityLevel == 3)
+                        {
+                            districtId = tblBookingsTO.DistrictId;
+                            talukaId = tblBookingsTO.TalukaId;
+                        }
+                    }
+                    //02-12-2020 Dhananjay added end
+
+                    var parityList = _iTblParityDetailsBL.GetParityDetailToListOnBooking(tempTO.MaterialId, tempTO.ProdCatId, tempTO.ProdSpecId, tempTO.ProdItemId, tempTO.BrandId, stateId, tblBookingsTO.CreatedOn, districtId, talukaId, parityLevel); //02-12-2020 Dhananjay commented var parityList = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(tempTO.MaterialId, tempTO.ProdCatId, tempTO.ProdSpecId, tempTO.ProdItemId, tempTO.BrandId, stateId, tblBookingsTO.CreatedOn, districtId, talukaId);
+
+                    var result= tblProductInfoTOList.Where(a => a.MaterialId == tempTO.MaterialId && a.ProdCatId == tempTO.ProdCatId && a.ProdSpecId == tempTO.ProdSpecId).FirstOrDefault();
                         //var res = tblParityDetailsTOList.Where(a => a.MaterialId == tempTO.MaterialId && a.ProdCatId == tempTO.ProdCatId && a.ProdSpecId == tempTO.ProdSpecId).FirstOrDefault();
                          if(parityList != null && parityList.Count>0)
                          {

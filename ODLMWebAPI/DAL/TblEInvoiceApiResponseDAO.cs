@@ -22,7 +22,7 @@ namespace ODLMWebAPI.DAL
         public String SqlSelectQuery()
         {
             String sqlSelectQry = " SELECT idResponse, apiId, invoiceId, responseStatus, response, createdBy, createdOn " +
-                                  " FROM TblEInvoiceApiResponse";
+                                  " FROM TempEInvoiceApiResponse";
             return sqlSelectQry;
         }
         #endregion
@@ -144,6 +144,32 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public List<TblEInvoiceApiResponseTO> SelectTblEInvoiceApiResponseListForInvoiceId(int invoiceId, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader sqlReader = null;
+            try
+            {
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE invoiceId=" + invoiceId;
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblEInvoiceApiResponseTO> list = ConvertDTToList(sqlReader);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (sqlReader != null)
+                    sqlReader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
         public List<TblEInvoiceApiResponseTO> ConvertDTToList(SqlDataReader TblEInvoiceApiResponseTODT)
         {
             List<TblEInvoiceApiResponseTO> TblEInvoiceApiResponseTOList = new List<TblEInvoiceApiResponseTO>();
@@ -218,7 +244,7 @@ namespace ODLMWebAPI.DAL
 
         public int ExecuteInsertionCommand(TblEInvoiceApiResponseTO TblEInvoiceApiResponseTO, SqlCommand cmdInsert)
         {
-            String sqlQuery = @" INSERT INTO [TblEInvoiceApiResponse]( " +
+            String sqlQuery = @" INSERT INTO [TempEInvoiceApiResponse]( " +
                                 "  [apiId]" +
                                 " ,[invoiceId]" +
                                 " ,[responseStatus]" +
@@ -304,7 +330,7 @@ namespace ODLMWebAPI.DAL
 
         public int ExecuteDeletionCommand(Int32 idResponse, SqlCommand cmdDelete)
         {
-            cmdDelete.CommandText = "DELETE FROM [TblEInvoiceApiResponse] " +
+            cmdDelete.CommandText = "DELETE FROM [TempEInvoiceApiResponse] " +
             " WHERE idResponse = " + idResponse + "";
             cmdDelete.CommandType = System.Data.CommandType.Text;
 

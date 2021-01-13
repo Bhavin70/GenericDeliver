@@ -14,6 +14,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblEInvoiceApiResponseTO> SelectAllTblEInvoiceApiResponse(Int32 apiId);
         List<TblEInvoiceApiResponseTO> SelectTblEInvoiceApiResponseList(int idResponse);
         List<TblEInvoiceApiResponseTO> SelectTblEInvoiceApiResponseListForInvoiceId(int invoiceId);
+        List<TblEInvoiceApiResponseTO> SelectTblEInvoiceApiResponseListForInvoiceId(int invoiceId, SqlConnection conn, SqlTransaction tran);
         List<TblEInvoiceApiResponseTO> ConvertDTToList(SqlDataReader TblEInvoiceApiResponseTODT);
         int InsertTblEInvoiceApiResponse(TblEInvoiceApiResponseTO TblEInvoiceApiResponseTO);
         int InsertTblEInvoiceApiResponse(TblEInvoiceApiResponseTO TblEInvoiceApiResponseTO, SqlConnection conn, SqlTransaction tran);

@@ -86,7 +86,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblEInvoiceApiTO> SelectTblEInvoiceApi(string apiName)
+        public List<TblEInvoiceApiTO> SelectTblEInvoiceApi(string apiName, int OrgId = 0)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -94,7 +94,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE apiName='" + apiName + "'";
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE apiName='" + apiName + "' AND ISNULL(OrgId, 0) = " + OrgId;
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 

@@ -34,7 +34,8 @@ namespace ODLMWebAPI.DAL
                                   " orgDealer.firmName + ',' + " +
                                   " CASE WHEN orgDealer.addrId IS NULL THEN '' Else case WHEN address.villageName IS NOT NULL THEN address.villageName " +
                                   " ELSE CASE WHEN address.talukaName IS NOT NULL THEN address.talukaName ELSE CASE WHEN address.districtName IS NOT NULL THEN address.districtName ELSE address.stateName END END END END AS dealerName," +
-                                  " CONCAT (dimStatus.statusName,'-', ISNULL(userStatusBy.userDisplayName,'') ) AS statusName , brandDtl.brandName, address.stateId FROM tblbookings bookings LEFT JOIN tblOrganization orgCnf  ON bookings.cnfOrgId = orgCnf.idOrganization" +
+                                  " CONCAT (dimStatus.statusName,'-', ISNULL(userStatusBy.userDisplayName,'') ) AS statusName , brandDtl.brandName, address.stateId, address.districtId, address.talukaId " + //02-12-2020 Dhananjay added address.districtId, address.talukaId
+                                  " FROM tblbookings bookings LEFT JOIN tblOrganization orgCnf  ON bookings.cnfOrgId = orgCnf.idOrganization" +
 
                                   " LEFT JOIN tblTranActions tblTranAction ON tblTranAction.transId = bookings.idBooking AND tblTranAction.userId = "+ loginUserId +
                                   " AND tblTranAction.tranActionTypeId = "+ (Int32)Constants.TranActionTypeE.READ +
@@ -1888,6 +1889,12 @@ namespace ODLMWebAPI.DAL
 
                     if (tblBookingsTODT["enqDisplayNo"] != DBNull.Value)
                         tblBookingsTONew.EnqDisplayNo = Convert.ToString(tblBookingsTODT["enqDisplayNo"]);
+
+                    //Dhananjay [02-12-2020]
+                    if (tblBookingsTODT["districtId"] != DBNull.Value)
+                        tblBookingsTONew.DistrictId = Convert.ToInt32(tblBookingsTODT["districtId"]);
+                    if (tblBookingsTODT["talukaId"] != DBNull.Value)
+                        tblBookingsTONew.TalukaId = Convert.ToInt32(tblBookingsTODT["talukaId"]);
 
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }

@@ -12,7 +12,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         String SqlSelectQuery();
         List<TblEInvoiceApiTO> SelectAllTblEInvoiceApi();
         List<TblEInvoiceApiTO> SelectAllTblEInvoiceApi(Int32 idApi);
-        List<TblEInvoiceApiTO> SelectTblEInvoiceApi(string apiName);
+        List<TblEInvoiceApiTO> SelectTblEInvoiceApi(string apiName, int OrgId = 0);
         List<TblEInvoiceApiTO> ConvertDTToList(SqlDataReader tblEInvoiceApiTODT);
         int InsertTblEInvoiceApi(TblEInvoiceApiTO tblEInvoiceApiTO);
         int InsertTblEInvoiceApi(TblEInvoiceApiTO tblEInvoiceApiTO, SqlConnection conn, SqlTransaction tran);

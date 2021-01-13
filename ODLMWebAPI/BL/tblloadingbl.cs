@@ -3281,7 +3281,27 @@ namespace ODLMWebAPI.BL {
                                         //Get Latest To Based On -materialId, Date And Time Check Condition Actual TIme < = First Object.
                                         TblAddressTO addrTO = _iTblAddressDAO.SelectOrgAddressWrtAddrType(tblBookingsTO.DealerOrgId, Constants.AddressTypeE.OFFICE_ADDRESS, conn, tran);
 
-                                        parityDtlTO = _iTblParityDetailsBL.SelectParityDetailToListOnBooking(tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.BrandId, addrTO.StateId, tblBookingsTO.BookingDatetime);
+                                        //02-12-2020 Dhananjay added start
+                                        Int32 districtId = 0;
+                                        Int32 talukaId = 0;
+                                        Int32 parityLevel = 1;
+                                        TblConfigParamsTO parityLevelConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_PARITY_LEVEL, conn, tran);
+
+                                        if (parityLevelConfigParamsTO != null)
+                                        {
+                                            parityLevel = Convert.ToInt32(parityLevelConfigParamsTO.ConfigParamVal);
+                                            if(parityLevel == 2)
+                                            {
+                                                districtId = addrTO.DistrictId;
+                                            }
+                                            else if (parityLevel == 3)
+                                            {
+                                                districtId = addrTO.DistrictId;
+                                                talukaId = addrTO.TalukaId;
+                                            }
+                                        }
+                                        //02-12-2020 Dhananjay added end
+                                        parityDtlTO = _iTblParityDetailsBL.GetParityDetailToOnBooking(tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.BrandId, addrTO.StateId, tblBookingsTO.BookingDatetime, districtId, talukaId, parityLevel); //29-12-2020 Dhananjay commented parityDtlTO = _iTblParityDetailsBL.SelectParityDetailToListOnBooking(tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.BrandId, addrTO.StateId, tblBookingsTO.BookingDatetime, districtId, talukaId);//02-12-2020 Dhananjay added districtId and talukaId
                                         if (parityDtlTO != null)
                                         {
                                             parityAmt = parityDtlTO.ParityAmt;

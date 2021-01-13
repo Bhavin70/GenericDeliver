@@ -12,6 +12,7 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblEInvoiceApiResponseTO> SelectAllTblEInvoiceApiResponseList(Int32 apiId);
         List<TblEInvoiceApiResponseTO> SelectTblEInvoiceApiResponseList(Int32 idResponse);
         List<TblEInvoiceApiResponseTO> SelectTblEInvoiceApiResponseListForInvoiceId(Int32 invoiceId);
+        List<TblEInvoiceApiResponseTO> SelectTblEInvoiceApiResponseListForInvoiceId(Int32 invoiceId, SqlConnection conn, SqlTransaction tran);
         int InsertTblEInvoiceApiResponse(TblEInvoiceApiResponseTO TblEInvoiceApiResponseTO);
         int InsertTblEInvoiceApiResponse(TblEInvoiceApiResponseTO TblEInvoiceApiResponseTO, SqlConnection conn, SqlTransaction tran);
         int DeleteTblEInvoiceApiResponse(Int32 idApi);
