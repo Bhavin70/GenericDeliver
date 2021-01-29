@@ -9826,11 +9826,11 @@ namespace ODLMWebAPI.BL
                         JObject jsonError = JObject.Parse(err.ToString());
                         string errorCodes = (string)jsonError["errorCodes"];
                         string errorMsg = (string)jsonError["errorMsg"];
-                        if (errorCodes == "1005" && errorMsg == "Invalid Token")
-                        {
-                            GenerateEInvoice(loginUserId, tblInvoiceTO.IdInvoice, eInvoiceCreationType, true);
-                            return null;
-                        }
+                        //if (errorCodes == "1005" && errorMsg == "Invalid Token")
+                        //{
+                        //    GenerateEInvoice(loginUserId, tblInvoiceTO.IdInvoice, eInvoiceCreationType, true);
+                        //    return null;
+                        //}
                     }
                 }
                 SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
