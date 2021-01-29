@@ -17,6 +17,7 @@ using ODLMWebAPI.Models;
 using ODLMWebAPI.IoT;
 using System.Threading;
 using System.Text;
+using QRCoder;
 
 namespace ODLMWebAPI.DAL
 { 
@@ -131,14 +132,14 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 /*To get Server Date Time for Local DB*/
-                //String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
+                String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
 
                 ////To get Server Date Time for Azure Server DB
-                string sqlQuery = " declare @dfecha as datetime " +
-                                  " declare @d as datetimeoffset " +
-                                  " set @dfecha= sysdatetime()   " +
-                                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
-                                  " select convert(datetime, @d)";
+                //string sqlQuery = " declare @dfecha as datetime " +
+                //                  " declare @d as datetimeoffset " +
+                //                  " set @dfecha= sysdatetime()   " +
+                //                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
+                //                  " select convert(datetime, @d)";
 
                 cmdSelect = new SqlCommand(sqlQuery, conn);
 
@@ -500,6 +501,30 @@ public  string SelectApKLoginArray(int userId)
             {
                 throw ex;
             }
+        }
+        public byte[] convertQRStringToByteArray(String signedQRCode)
+        {
+            try
+            {
+                QRCoder.QRCodeGenerator qrGen = new QRCodeGenerator();
+                var qrData = qrGen.CreateQrCode(signedQRCode, QRCoder.QRCodeGenerator.ECCLevel.H);
+                var qrCode = new QRCoder.QRCode(qrData);
+                System.Drawing.Image image = qrCode.GetGraphic(100);
+
+                byte[] PhotoCodeInBytes = null;
+
+                using (var ms = new MemoryStream())
+                {
+                    image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    PhotoCodeInBytes = ms.ToArray();
+                }
+                return PhotoCodeInBytes;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
         }
     }
 }

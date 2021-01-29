@@ -58,6 +58,7 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Selection
+
         public List<TblInvoiceTO> SelectAllTblInvoice()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -313,6 +314,45 @@ namespace ODLMWebAPI.DAL
             {
                 if (reader != null) reader.Dispose();
                 cmdSelect.Dispose();
+            }
+        }
+
+        public String SelectresponseForPhotoInReport(Int32 idInvoice,Int32 ApiId)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            String response = String.Empty;
+            String whereCond = String.Empty;
+            String sqlQuery = String.Empty; 
+            try
+            {
+                conn.Open();
+                cmdSelect.Connection = conn;
+
+                sqlQuery = "SELECT response FROM tempEInvoiceApiResponse";
+                whereCond = " WHERE apiId = " + ApiId + " AND invoiceId = " + idInvoice;
+                cmdSelect.CommandText = sqlQuery + whereCond;
+                cmdSelect.CommandType = System.Data.CommandType.Text;                
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                while (reader.Read())
+                {
+                    // get the results of each column
+                    response = (string)reader["response"];
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                cmdSelect.Dispose();
+                conn.Close();
             }
         }
 

@@ -13,6 +13,8 @@ using static ODLMWebAPI.StaticStuff.Constants;
 using ODLMWebAPI.IoT;
 using RestSharp;
 using Newtonsoft.Json.Linq;
+using System.Net;
+
 
 namespace ODLMWebAPI.BL
 {
@@ -478,6 +480,28 @@ namespace ODLMWebAPI.BL
                 conn.Close();
             }
         }
+
+        public String SelectresponseForPhotoInReport(Int32 idInvoice,Int32 ApiId)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+                return _iTblInvoiceDAO.SelectresponseForPhotoInReport(idInvoice, ApiId);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+       
 
         public TblInvoiceTO SelectTblInvoiceTOWithDetails(Int32 idInvoice, SqlConnection conn, SqlTransaction tran)
         {
@@ -4012,7 +4036,10 @@ namespace ODLMWebAPI.BL
         public ResultMessage PrintReport(Int32 invoiceId, Boolean isPrinted = false, Boolean isSendEmailForInvoice = false)
         {
             ResultMessage resultMessage = new ResultMessage();
-
+            String response = String.Empty;
+            String signedQRCode = String.Empty;
+            Int32 apiId = 3;
+            byte[] PhotoCodeInBytes = null;
             try
             {
 
@@ -4028,6 +4055,7 @@ namespace ODLMWebAPI.BL
                 DataTable itemFooterDetailsDT = new DataTable();
                 DataTable commercialDT = new DataTable();
                 DataTable hsnItemTaxDT = new DataTable();
+                DataTable photoDT = new DataTable();
                 // DataTable shippingAddressDT = new DataTable();
                 //Aniket [1-02-2019] added to create multiple copy of tax invoice
                 DataTable multipleInvoiceCopyDT = new DataTable();
@@ -4039,7 +4067,7 @@ namespace ODLMWebAPI.BL
                 hsnItemTaxDT.TableName = "hsnItemTaxDT";
                 // shippingAddressDT.TableName = "shippingAddressDT";
                 multipleInvoiceCopyDT.TableName = "multipleInvoiceCopyDT";
-
+                photoDT.TableName = "photoDT";
                 //HeaderDT 
                 multipleInvoiceCopyDT.Columns.Add("idInvoiceCopy");
                 multipleInvoiceCopyDT.Columns.Add("invoiceCopyName");
@@ -4088,6 +4116,28 @@ namespace ODLMWebAPI.BL
                     }
                 }
 
+                photoDT.Columns.Add("photoImage");
+                photoDT.Rows.Add();
+                
+                response = _iTblInvoiceDAO.SelectresponseForPhotoInReport(invoiceId, apiId);
+                JObject json = JObject.Parse(response);
+                if (json.ContainsKey("data"))
+                {
+                    JObject jsonData = JObject.Parse(json["data"].ToString());
+                    
+                    if (jsonData.ContainsKey("signedQRCode"))
+                    {
+                        signedQRCode = (string)jsonData["signedQRCode"];
+                    }
+                }
+                if (!String.IsNullOrEmpty(signedQRCode))
+                {
+                    PhotoCodeInBytes = _iCommon.convertQRStringToByteArray(signedQRCode);
+                }
+
+                if (PhotoCodeInBytes != null)
+                    photoDT.Rows[0]["photoImage"] = PhotoCodeInBytes;               
+                
                 //HeaderDT 
                 //headerDT.Columns.Add("orgFirmName");
                 invoiceDT.Columns.Add("orgVillageNm");
@@ -5114,6 +5164,7 @@ namespace ODLMWebAPI.BL
                 headerDT.TableName = "headerDT";
 
                 printDataSet.Tables.Add(headerDT);
+                printDataSet.Tables.Add(photoDT);
                 printDataSet.Tables.Add(invoiceDT);
                 printDataSet.Tables.Add(invoiceItemDT);
                 printDataSet.Tables.Add(addressDT);

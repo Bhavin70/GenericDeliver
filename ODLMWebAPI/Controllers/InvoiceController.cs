@@ -12,6 +12,11 @@ using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.IoT.Interfaces;
 using static ODLMWebAPI.StaticStuff.Constants;
+using QRCoder;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using OfficeOpenXml;
+using System.IO;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -1447,6 +1452,32 @@ namespace ODLMWebAPI.Controllers
 
             }
         }
+
+        //Added by minal 22 Jan 2021
+        [HttpGet("QRCode")]
+        public IActionResult QRCode()
+        {
+            ResultMessage resultMessage = new ResultMessage();
+
+            QRCoder.QRCodeGenerator qrGen = new QRCodeGenerator();
+            string text = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjQ0NDQwNUM3ODFFNDgyNTA3MkIzNENBNEY4QkRDNjA2Qzg2QjU3MjAiLCJ0eXAiOiJKV1QiLCJ4NXQiOiJSRVFGeDRIa2dsQnlzMHlrLUwzR0JzaHJWeUEifQ.eyJkYXRhIjoie1wiU2VsbGVyR3N0aW5cIjpcIjM3QUFJQ0EzNzkxUDFaWVwiLFwiQnV5ZXJHc3RpblwiOlwiMzdBU1RQSjE3MzJCMVpVXCIsXCJEb2NOb1wiOlwiNDIxMlwiLFwiRG9jVHlwXCI6XCJJTlZcIixcIkRvY0R0XCI6XCIyNy8wMS8yMDIxXCIsXCJUb3RJbnZWYWxcIjo1NzA3NDMuMDAsXCJJdGVtQ250XCI6MSxcIk1haW5Ic25Db2RlXCI6XCI3MjE0XCIsXCJJcm5cIjpcIjQ3NmQ1ZDA4Yjg0OWVmOGQyMzQ4MjRiYzJmZGFkNzM2Mjk5OTZjZmE1ZmU1MjEyMjkwN2M1YjUwOGQ0NGE3Y2RcIixcIklybkR0XCI6XCIyMDIxLTAxLTI3IDE0OjQwOjAwXCJ9IiwiaXNzIjoiTklDIn0.NKiAV-wOoQflBYfhEjsyWLOuEs4L-MVoAGNcV5sMr6Lw5Akpip7HyHjHAHxLSq_R_NuI8Tu1H7SzdlcvFYh7kHwMPtKtyY_FFc_VAXeNxLCmMBrv9pfPVLBp-6oGZ8TmJtzi8_x_RDNuoK5j-M9SmAkPk98Four0mI0GiDYCvKInmJkUytDsSJW0ZXClDy5FVfkE6-tjqZ2owLqOmHG0gcdrvHRSSi1YJ1wH-_hKAQYIgzYEgjkxVC2YWrDQLHV3z7YJKrC7Dcert45gVMy7shJ9WrS72cKlEdu-lXar29ravVnnIdsKGat0rN3PFvbTVZrX3pLnelOVLwrnd8luxA";
+
+            var qrData = qrGen.CreateQrCode(text, QRCoder.QRCodeGenerator.ECCLevel.H);
+            var qrCode = new QRCoder.QRCode(qrData);
+            System.Drawing.Image image = qrCode.GetGraphic(100);
+
+            byte[] PhotoCodeInBytes = null;
+
+                using (var ms = new MemoryStream())
+                {
+                image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                PhotoCodeInBytes = ms.ToArray();
+                }
+           
+           
+            return Ok(resultMessage);
+        }
+
 
     }
 }
