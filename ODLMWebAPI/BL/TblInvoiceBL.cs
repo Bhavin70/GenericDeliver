@@ -4125,9 +4125,9 @@ namespace ODLMWebAPI.BL
                 {
                     JObject jsonData = JObject.Parse(json["data"].ToString());
                     
-                    if (jsonData.ContainsKey("signedQRCode"))
+                    if (jsonData.ContainsKey("SignedQRCode"))
                     {
-                        signedQRCode = (string)jsonData["signedQRCode"];
+                        signedQRCode = (string)jsonData["SignedQRCode"];
                     }
                 }
                 if (!String.IsNullOrEmpty(signedQRCode))
