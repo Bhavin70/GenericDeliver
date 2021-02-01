@@ -4116,7 +4116,7 @@ namespace ODLMWebAPI.BL
                     }
                 }
 
-                photoDT.Columns.Add("Photo");
+                photoDT.Columns.Add("Photo", System.Type.GetType("System.Byte[]"));
                 photoDT.Rows.Add();
                 
                 response = _iTblInvoiceDAO.SelectresponseForPhotoInReport(invoiceId, apiId);
@@ -4136,7 +4136,7 @@ namespace ODLMWebAPI.BL
                 }
 
                 if (PhotoCodeInBytes != null)
-                    photoDT.Rows[0]["Photo"] = PhotoCodeInBytes;               
+                photoDT.Rows[0]["Photo"] = PhotoCodeInBytes;               
                 
                 //HeaderDT 
                 //headerDT.Columns.Add("orgFirmName");
