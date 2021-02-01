@@ -125,8 +125,9 @@ namespace ODLMWebAPI.BL
                     //DownloadFile();
                     using (FlexCelReport ordersReport = CreateReport(dataSet))
                 {
-                   
-                    try
+                        ordersReport.GetImageData += OrdersReport_GetImageData1;
+                        //ordersReport.GetImageData += new GetImageDataEventHandler(OrdersReport_GetImageData);
+                        try
                     {
                         using (FileStream fs = File.OpenWrite(fileName))
                         {
@@ -180,11 +181,7 @@ namespace ODLMWebAPI.BL
                                 flexCelPdfExport1.PageLayout = TPageLayout.FullScreen; //To how the bookmarks when opening the file.
                                                                                    //flexCelPdfExport1.PageLayout = TPageLayout.None;
                                 flexCelPdfExport1.Compress = false; //To how the bookmarks when opening the file.
-                                //flexCelPdfExport1.PageSize = null;
-                                //flexCelPdfExport1.PrintRangeBottom = 0;
-                                //flexCelPdfExport1.PrintRangeTop = 0;
-                                //flexCelPdfExport1.PrintRangeLeft = 0;
-                                //flexCelPdfExport1.PrintRangeRight = 0;
+                               
                            
 
                                     if (isMultisheetReportAllow)
@@ -217,6 +214,31 @@ namespace ODLMWebAPI.BL
             }
         }
 
+        private void OrdersReport_GetImageData1(object sender, GetImageDataEventArgs e)
+        {
+            if (String.Compare(e.ImageName, "<#PhotoCode>", true) == 0)
+            {
+                byte[] RealImageData = ImageUtils.StripOLEHeader(e.ImageData); //On access databases, images are stored with an OLE 
+                //header that we have to strip to get the real image.
+                //This is done automatically by flexcel in most cases,
+                //but here we have the original image format.
+                using (MemoryStream MemStream = new MemoryStream(RealImageData)) //Keep stream open until bitmap has been used
+                {
+                    using (Bitmap bmp = new Bitmap(MemStream))
+                    {
+                        bmp.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                        using (MemoryStream OutStream = new MemoryStream())
+                        {
+                            bmp.Save(OutStream, System.Drawing.Imaging.ImageFormat.Png);
+                            //e.Width = bmp.Width;
+                            //e.Height = bmp.Height;
+                            e.ImageData = OutStream.ToArray();
+                        }
+                    }
+                }
+            }
+        }
+
 
         //public ResultMessage Run(DataSet dataSet, String templateFileName, String fileName)
         //{
@@ -231,7 +253,7 @@ namespace ODLMWebAPI.BL
         //            ordersReport.SetValue("Date", DateTime.Now);
         //            //saveFileDialog1.InitialDirectory = @"D:\VegaFlexcel\Reports\Excel Template";
         //            //ordersReport.Run("D:\\VegaFlexcel\\ExcelFiles\\employeedetails.template.xls", saveFileDialog1.FileName);
-                    
+
         //                //File.Create(fileName);
         //                //DirectoryInfo dirInfo = Directory.GetParent(fileName);
         //                //if (!Directory.Exists(dirInfo.FullName))
@@ -260,7 +282,7 @@ namespace ODLMWebAPI.BL
         //                //    }
         //                //}
 
-                    
+
         //            }
         //            catch (Exception ex)
         //            {
@@ -281,16 +303,16 @@ namespace ODLMWebAPI.BL
         //            CloudBlobContainer container = blobClient.GetContainerReference(Constants.AzureSourceContainerNameForDocument);
 
         //            //For Unique Id.
-                    
+
         //            //String fileName = tblDocumentDetailsTO.DocumentDesc + UUID + "." + tblDocumentDetailsTO.Extension;
 
         //           // CloudBlockBlob blockBlob = container.GetBlockBlobReference(file.FileName);
 
-                   
+
 
         //            //// full path to file in temp location
         //            var filePath = templateFileName;
-                                                    
+
         //            Stream instream=this.getfile(templateFileName);
 
 
@@ -311,7 +333,7 @@ namespace ODLMWebAPI.BL
 
 
         //                // TO GENERATE PDF FILE
-                        
+
         //            //Amol[2011-09-16] For Mulisheet report
         //                String reportFileName = System.IO.Path.GetFileNameWithoutExtension(templateFileName);
         //                reportFileName = reportFileName.Replace(".template", "");
@@ -322,18 +344,18 @@ namespace ODLMWebAPI.BL
 
         //                FlexCel.Render.FlexCelPdfExport flexCelPdfExport1 = new FlexCelPdfExport();
         //                flexCelPdfExport1.Workbook = new XlsFile();
-                    
+
         //                flexCelPdfExport1.Workbook.Open(fileName);
 
         //                using (FileStream Pdf = new FileStream(pdfFileName, FileMode.Create))
         //                {
-                            
+
         //                    int SaveSheet = flexCelPdfExport1.Workbook.ActiveSheet;
         //                    try
         //                    {
         //                        flexCelPdfExport1.BeginExport(Pdf);
         //                        flexCelPdfExport1.Workbook.PrintPaperSize = TPaperSize.A4;
-                                
+
         //                        flexCelPdfExport1.Compress = false;
 
         //                        flexCelPdfExport1.Workbook.PrintToFit = false;
@@ -414,6 +436,7 @@ namespace ODLMWebAPI.BL
 
                     using (FlexCelReport ordersReport = CreateReport(dataSet))
                     {
+                        ordersReport.GetImageData += new GetImageDataEventHandler(OrdersReport_GetImageData);
                         //SaveFileDialog saveXlsFile = new SaveFileDialog();
 
                         //ordersReport.SetValue("Date", DateTime.Now);
@@ -517,6 +540,32 @@ namespace ODLMWebAPI.BL
                 //VegaERPFrameWork.VErrorList.Add("Exception In Method Run(DataSet dataSet, String templateFileName, String fileName, SqlConnection conn, SqlTransaction tran) At Class VDLL.VegaFlexCel.RunVegaFlexCelReport", EMessageType.Error, ex, null);
                 return resultMessage;
             }
+        }
+
+        private void OrdersReport_GetImageData(object sender, GetImageDataEventArgs e)
+        {
+            if (String.Compare(e.ImageName, "<#PhotoCode>", true) == 0)
+            {
+                byte[] RealImageData = ImageUtils.StripOLEHeader(e.ImageData); //On access databases, images are stored with an OLE 
+                //header that we have to strip to get the real image.
+                //This is done automatically by flexcel in most cases,
+                //but here we have the original image format.
+                using (MemoryStream MemStream = new MemoryStream(RealImageData)) //Keep stream open until bitmap has been used
+                {
+                    using (Bitmap bmp = new Bitmap(MemStream))
+                    {
+                        bmp.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                        using (MemoryStream OutStream = new MemoryStream())
+                        {
+                            bmp.Save(OutStream, System.Drawing.Imaging.ImageFormat.Png);
+                            e.Width = bmp.Width;
+                            e.Height = bmp.Height;
+                            e.ImageData = OutStream.ToArray();
+                        }
+                    }
+                }
+            }
+            // throw new NotImplementedException();
         }
 
         private FlexCelReport CreateReport(DataSet dataSet)
