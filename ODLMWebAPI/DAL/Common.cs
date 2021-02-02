@@ -18,6 +18,7 @@ using ODLMWebAPI.IoT;
 using System.Threading;
 using System.Text;
 using QRCoder;
+using System.Drawing;
 
 namespace ODLMWebAPI.DAL
 { 
@@ -502,6 +503,13 @@ public  string SelectApKLoginArray(int userId)
                 throw ex;
             }
         }
+        public static Image resizeImage(Image imgToResize, Size size)
+        {
+            return (Image)(new Bitmap(imgToResize, size));
+        }
+
+       
+
         public byte[] convertQRStringToByteArray(String signedQRCode)
         {
             try
