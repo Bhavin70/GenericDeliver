@@ -86,6 +86,11 @@ namespace ODLMWebAPI.Models
         Double loadingQty;
         Double totalItemQty;
 
+        //Gokul Added [03-02-2021]
+        string ownerPersonFirstName;
+        string ownerPersonLastName;
+        //string ownerPersonFirstAndLastName;
+
         #endregion
 
         #region Constructor
@@ -94,6 +99,25 @@ namespace ODLMWebAPI.Models
         #endregion
 
         #region GetSet
+
+        public string OwnerPersonFirstName
+        {
+            get { return ownerPersonFirstName; }
+            set { ownerPersonFirstName = value; }
+        }
+
+        public string OwnerPersonLastName
+        {
+            get { return ownerPersonLastName; }
+            set { ownerPersonLastName = value; }
+        }
+
+        //public string OwnerPersonFirstAndLastName
+        //{
+        //    get { return ownerPersonFirstAndLastName; }
+        //    set { ownerPersonFirstAndLastName = this.OwnerPersonFirstName + this.ownerPersonLastName; }
+        //}
+
         public Int32 IdInvoice
         {
             get { return idInvoice; }
