@@ -1385,6 +1385,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
+
                 selectQuery = "select distinct  tblBookings.bookingRate,invoice.invFromOrgId,invoice.idInvoice,invoice.statusDate,invoice.invoiceDate,invoice.invoiceNo," +
                     " invAddrBill.txnAddrTypeId as billingTypeId,  invAddrBill.billingName + CASE WHEN invAddrBill.village IS NULL THEN '-' Else case WHEN invAddrBill.village IS NOT NULL THEN" +
                     " ',' + invAddrBill.village END END as buyer, invAddrBill.gstinNo as buyerGstNo,invoice.firmName as salesEngineer, invAddrBill.stateId,invAddrCons.txnAddrTypeId as consigneeTypeId, invAddrCons.billingName as consignee," +
