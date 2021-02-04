@@ -494,8 +494,8 @@ namespace ODLMWebAPI.StaticStuff
         // Vaibhav [17-Dec-2017] Added to file encrypt descrypt and upload to azure
         //public static string AzureConnectionStr = "DefaultEndpointsProtocol=https;AccountName=apkupdates;AccountKey=IvC+sc8RLDl3DeH8uZ97A4jX978v78bVFHRQk/qxg2C/J8w/DRslJlLsK7JTF+KhOM0MNUZg443GCVXe3jIanA==";
         //public static string EncryptDescryptKey = "MAKV2SPBNI99212";
-        public static string AzureSourceContainerName = "srjdocuments";
-        public static string AzureTargetContainerName = "srjnewdocuments";
+        public static string AzureSourceContainerName = "OrionDataExtract";
+        public static string AzureTargetContainerName = "OrionDataExtractNew";
         public static string ExcelSheetName = "TranData";
         public static string ExcelFileName = "Tran";
         public static int LoadingCountForDataExtraction = 50;
@@ -753,6 +753,9 @@ namespace ODLMWebAPI.StaticStuff
         //Aniket [27-02-2019] added to check whether allow or restrict CNF beyond booking quota 
         public static string ANNOUNCE_RATE_WITH_RATEBAND_CURRENT_QUOTA = "ANNOUNCE_RATE_WITH_RATEBAND_CURRENT_QUOTA";
         public static string RESTRICT_CNF_BEYOND_BOOKING_QUOTA = "RESTRICT_CNF_BEYOND_BOOKING_QUOTA";
+
+        public static string AVERAGE_BOOKING_QTY_DAYS_AND_DEV_PERCENT = "AVERAGE_BOOKING_QTY_DAYS_AND_DEV_PERCENT";
+
         //Aniket [06-03-2019] added to check Math.Round() function to be used in tax calculations or not
         public static string IS_ROUND_OFF_TAX_ON_PRINT_INVOICE = "IS_ROUND_OFF_TAX_ON_PRINT_INVOICE";
 
