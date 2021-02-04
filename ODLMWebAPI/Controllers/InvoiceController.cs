@@ -12,6 +12,11 @@ using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.IoT.Interfaces;
 using static ODLMWebAPI.StaticStuff.Constants;
+using QRCoder;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using OfficeOpenXml;
+using System.IO;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -1447,6 +1452,9 @@ namespace ODLMWebAPI.Controllers
 
             }
         }
+
+      
+
 
     }
 }

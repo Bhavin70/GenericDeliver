@@ -147,6 +147,13 @@ namespace ODLMWebAPI.Controllers
             return _iCircularDependencyBL.SelectBookingsTOWithDetails(bookingId);
         }
 
+        [Route("GetBookingAvgQtyDetailsStatus")]
+        [HttpGet]
+        public ResultMessage GetBookingAvgQtyDetailsStatus(int dealerOrgId, Int32 bookingId)
+        {
+            return _iTblBookingsBL.GetBookingAvgQtyDetailsStatus(dealerOrgId, bookingId);
+        }
+
         [Route("GetBookingStatusHistory")]
         [HttpGet]
         public List<TblBookingBeyondQuotaTO> GetBookingStatusHistory(int bookingId)

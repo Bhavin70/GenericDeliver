@@ -17,6 +17,8 @@ using ODLMWebAPI.Models;
 using ODLMWebAPI.IoT;
 using System.Threading;
 using System.Text;
+using QRCoder;
+using System.Drawing;
 
 namespace ODLMWebAPI.DAL
 { 
@@ -500,6 +502,37 @@ public  string SelectApKLoginArray(int userId)
             {
                 throw ex;
             }
+        }
+        public static Image resizeImage(Image imgToResize, Size size)
+        {
+            return (Image)(new Bitmap(imgToResize, size));
+        }
+
+       
+
+        public byte[] convertQRStringToByteArray(String signedQRCode)
+        {
+            try
+            {
+                QRCoder.QRCodeGenerator qrGen = new QRCodeGenerator();
+                var qrData = qrGen.CreateQrCode(signedQRCode, QRCoder.QRCodeGenerator.ECCLevel.H);
+                var qrCode = new QRCoder.QRCode(qrData);
+                System.Drawing.Image image = qrCode.GetGraphic(100);
+
+                byte[] PhotoCodeInBytes = null;
+
+                using (var ms = new MemoryStream())
+                {
+                    image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    PhotoCodeInBytes = ms.ToArray();
+                }
+                return PhotoCodeInBytes;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
         }
     }
 }
