@@ -357,6 +357,74 @@ namespace ODLMWebAPI.BL
 
         }
 
+
+        public ResultMessage GetBookingAvgQtyDetailsStatus(int dealerOrgId, Int32 bookingId)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+
+            try
+            {
+
+                Int32 avgBookingQtyDevDays = 0, avgBookingQtyDevPer = 0;
+
+                TblConfigParamsTO tblConfigParamTOForQuota = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.AVERAGE_BOOKING_QTY_DAYS_AND_DEV_PERCENT);
+                if (tblConfigParamTOForQuota != null && !String.IsNullOrEmpty(tblConfigParamTOForQuota.ConfigParamVal))
+                {
+                    List<String> tempList = tblConfigParamTOForQuota.ConfigParamVal.Split(',').ToList();
+                    if (tempList != null && tempList.Count >= 2)
+                    {
+                        avgBookingQtyDevDays = Convert.ToInt32(tempList[0]);
+                        avgBookingQtyDevPer = Convert.ToInt32(tempList[1]);
+                    }
+                }
+
+                //if (avgBookingQtyDevDays == 0)
+                //{
+                //    resultMessage.Tag = 0;
+                //    return resultMessage;
+                //}
+
+
+                DateTime currentDate = _iCommon.ServerDateTime;
+
+                DateTime toDate = currentDate;
+                DateTime fromDate = currentDate.AddDays(-avgBookingQtyDevDays);
+
+                fromDate = Constants.GetStartDateTime(fromDate);
+                toDate = Constants.GetEndDateTime(toDate);
+
+                List<TblBookingsTO> list = SelectBookingList(0, dealerOrgId, 0, fromDate, toDate, null, -1, 0, 0, 0, 0);
+
+                list = list.Where(w => w.IdBooking != bookingId).ToList();
+
+
+                if (list == null || list.Count == 0)
+                {
+                    resultMessage.DefaultSuccessBehaviour();
+                    resultMessage.Tag = 0;
+                    return resultMessage;
+                }
+
+                var a = list.Count();
+
+                Double totalQtyBetweenDays = list.Sum(g => g.BookingQty);
+
+                Double avgQty = totalQtyBetweenDays / a;
+
+                Double percentageValue = (avgQty * avgBookingQtyDevPer) / 100;
+
+                avgQty += percentageValue;
+
+                resultMessage.DefaultSuccessBehaviour();
+                resultMessage.Tag = avgQty;
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "GetBookingAvgQtyDetailsStatus");
+                return resultMessage;
+            }
+        }
         public List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords , Int32 bookingId)
         {
             List<TblBookingsTO> pendingList = _iTblBookingsDAO.SelectAllLatestBookingOfDealer(dealerId, lastNRecords, true, bookingId);
