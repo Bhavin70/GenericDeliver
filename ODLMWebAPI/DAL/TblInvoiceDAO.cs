@@ -1338,6 +1338,20 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["TotalItemQty"] != DBNull.Value)
                                     tblInvoiceRptTONew.TotalItemQty = Convert.ToDouble(tblInvoiceRptTODT["TotalItemQty"].ToString());
                             }
+
+                            if (tblInvoiceRptTODT.GetName(i).Equals("firstName"))
+                            {
+                                if (tblInvoiceRptTODT["firstName"] != DBNull.Value)
+                                    tblInvoiceRptTONew.OwnerPersonFirstName = Convert.ToString(tblInvoiceRptTODT["firstName"].ToString());
+                            }
+
+                            if (tblInvoiceRptTODT.GetName(i).Equals("lastName"))
+                            {
+                                if (tblInvoiceRptTODT["lastName"] != DBNull.Value)
+                                    tblInvoiceRptTONew.OwnerPersonLastName = Convert.ToString(tblInvoiceRptTODT["lastName"].ToString());
+                            }
+
+                            //tblInvoiceRptTONew.OwnerPersonFirstAndLastName = (tblInvoiceRptTONew.OwnerPersonFirstName +"  "+  tblInvoiceRptTONew.OwnerPersonLastName);
                         }
 
                         tblInvoiceRPtTOList.Add(tblInvoiceRptTONew);
@@ -1371,12 +1385,13 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
+
                 selectQuery = "select distinct  tblBookings.bookingRate,invoice.invFromOrgId,invoice.idInvoice,invoice.statusDate,invoice.invoiceDate,invoice.invoiceNo," +
                     " invAddrBill.txnAddrTypeId as billingTypeId,  invAddrBill.billingName + CASE WHEN invAddrBill.village IS NULL THEN '-' Else case WHEN invAddrBill.village IS NOT NULL THEN" +
                     " ',' + invAddrBill.village END END as buyer, invAddrBill.gstinNo as buyerGstNo,invoice.firmName as salesEngineer, invAddrBill.stateId,invAddrCons.txnAddrTypeId as consigneeTypeId, invAddrCons.billingName as consignee," +
                     " invAddrCons.gstinNo as consigneeGstNo,invoice.deliveryLocation , invoiceItem.invoiceQty ,basicAmt,discountAmt as cdAmt, invoice.isConfirmed,invoice.statusId,invoice.narration, taxableAmt,cgstAmt,sgstAmt,igstAmt,grandTotal,invoice.vehicleNo,invoice.createdOn," +
-                    " freightItem.freightAmt,tcsItem.tcsAmt,dimState.stateOrUTCode, invAddrCons.overdue_ref_id , invAddrBill.overdue_ref_id as buyer_overdue_ref_id,loadingSlip.cdStructure,loadingSlip.orcAmt,loadingSlip.OrcMeasure,loadingSlipDtl.loadingQty from(select org.firmName,loadingSlipId, invoiceDate, idInvoice, statusDate, invoiceNo, deliveryLocation, discountAmt, cgstAmt, sgstAmt," +
-                    " igstAmt, grandTotal, vehicleNo, invoice.createdOn, isConfirmed, statusId, narration,invFromOrgId from tempInvoice invoice  LEFT JOIN tblOrganization org on org.idOrganization = invoice.distributorOrgId INNER JOIN tempInvoiceAddress invoiceAdd on invoice.idInvoice = invoiceAdd.invoiceId)invoice" +
+                    " freightItem.freightAmt,tcsItem.tcsAmt,dimState.stateOrUTCode, invAddrCons.overdue_ref_id , invAddrBill.overdue_ref_id as buyer_overdue_ref_id,loadingSlip.cdStructure,loadingSlip.orcAmt,loadingSlip.OrcMeasure,loadingSlipDtl.loadingQty,invoice.firstName,invoice.lastName from(select org.firmName,loadingSlipId, person.firstName as firstName, person.lastName as lastName, invoiceDate, idInvoice, statusDate, invoiceNo, deliveryLocation, discountAmt, cgstAmt, sgstAmt," +
+                    " igstAmt, grandTotal, vehicleNo, invoice.createdOn, isConfirmed, statusId, narration,invFromOrgId from tempInvoice invoice  LEFT JOIN tblOrganization org on org.idOrganization = invoice.distributorOrgId LEFT JOIN tblPerson person on person.idPerson = org.firstOwnerPersonId INNER JOIN tempInvoiceAddress invoiceAdd on invoice.idInvoice = invoiceAdd.invoiceId)invoice" +
                     " INNER JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.village, invAddrB.txnAddrTypeId, invAddrB.gstinNo, invAddrB.stateId, orgB.overdue_ref_id from tempInvoiceAddress invAddrB LEFT JOIN tblOrganization orgB on orgB.idOrganization = invAddrB.billingOrgId where txnAddrTypeId = 1)invAddrBill" +
                     " inner join(select idState, stateOrUTCode from dimState)dimState on invAddrBill.stateId = dimState.idState on invAddrBill.invoiceId = invoice.idInvoice INNER JOIN(select invAddr.invoiceId, invAddr.billingName, invAddr.txnAddrTypeId, invAddr.gstinNo, org.overdue_ref_id" +
                     " from tempInvoiceAddress invAddr LEFT JOIN tblOrganization org on org.idOrganization = invAddr.billingOrgId where txnAddrTypeId = 2)invAddrCons on invAddrCons.invoiceId = invoice.idInvoice INNER JOIN(select invoiceId, sum(invoiceQty)as invoiceQty,sum(basicTotal) as basicAmt, sum(taxableAmt) as taxableAmt" +
@@ -1389,8 +1404,8 @@ namespace ODLMWebAPI.DAL
 
                     " UNION ALL" +
                     " select distinct  tblBookings.bookingRate,invoice.invFromOrgId,invoice.idInvoice,invoice.statusDate,invoice.invoiceDate,invoice.invoiceNo, invAddrBill.txnAddrTypeId as billingTypeId,  invAddrBill.billingName + CASE WHEN invAddrBill.village IS NULL THEN '-' Else case WHEN invAddrBill.village IS NOT NULL THEN ',' + invAddrBill.village END END as buyer,invAddrBill.gstinNo as buyerGstNo,invoice.firmName as salesEngineer," +
-                    " invAddrBill.stateId,invAddrCons.txnAddrTypeId as consigneeTypeId, invAddrCons.billingName as consignee, invAddrCons.gstinNo as consigneeGstNo,invoice.deliveryLocation , invoiceItem.invoiceQty ,basicAmt,discountAmt as cdAmt, invoice.isConfirmed,invoice.statusId,invoice.narration, taxableAmt,cgstAmt,sgstAmt,igstAmt,grandTotal,invoice.vehicleNo,invoice.createdOn, freightItem.freightAmt,tcsItem.tcsAmt,dimState.stateOrUTCode,  invAddrCons.overdue_ref_id , invAddrBill.overdue_ref_id as buyer_overdue_ref_id,loadingSlip.cdStructure,loadingSlip.orcAmt,loadingSlip.OrcMeasure,loadingSlipDtl.loadingQty" +
-                    " from(select org.firmName,loadingSlipId, invoiceDate, idInvoice, statusDate, invoiceNo, deliveryLocation, discountAmt, cgstAmt, sgstAmt, igstAmt, grandTotal, vehicleNo, invoice.createdOn, isConfirmed, statusId, narration,invFromOrgId from finalInvoice invoice  LEFT JOIN tblOrganization org on org.idOrganization = invoice.distributorOrgId INNER JOIN finalInvoiceAddress invoiceAdd on invoice.idInvoice = invoiceAdd.invoiceId)invoice" +
+                    " invAddrBill.stateId,invAddrCons.txnAddrTypeId as consigneeTypeId, invAddrCons.billingName as consignee, invAddrCons.gstinNo as consigneeGstNo,invoice.deliveryLocation , invoiceItem.invoiceQty ,basicAmt,discountAmt as cdAmt, invoice.isConfirmed,invoice.statusId,invoice.narration, taxableAmt,cgstAmt,sgstAmt,igstAmt,grandTotal,invoice.vehicleNo,invoice.createdOn, freightItem.freightAmt,tcsItem.tcsAmt,dimState.stateOrUTCode,  invAddrCons.overdue_ref_id , invAddrBill.overdue_ref_id as buyer_overdue_ref_id,loadingSlip.cdStructure,loadingSlip.orcAmt,loadingSlip.OrcMeasure,loadingSlipDtl.loadingQty, invoice.firstName,invoice.lastName" +
+                    " from(select org.firmName,loadingSlipId,person.firstName as firstName, person.lastName as lastName, invoiceDate, idInvoice, statusDate, invoiceNo, deliveryLocation, discountAmt, cgstAmt, sgstAmt, igstAmt, grandTotal, vehicleNo, invoice.createdOn, isConfirmed, statusId, narration,invFromOrgId from finalInvoice invoice  LEFT JOIN tblOrganization org on org.idOrganization = invoice.distributorOrgId Left Join tblPerson person on person.idPerson = org.firstOwnerPersonId INNER JOIN finalInvoiceAddress invoiceAdd on invoice.idInvoice = invoiceAdd.invoiceId)invoice" +
                     " INNER JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.village, invAddrB.txnAddrTypeId, invAddrB.gstinNo, invAddrB.stateId, orgB.overdue_ref_id from finalInvoiceAddress invAddrB LEFT JOIN tblOrganization orgB on orgB.idOrganization = invAddrB.billingOrgId where txnAddrTypeId = 1)invAddrBill" +
                     " inner join(select idState, stateOrUTCode from dimState)dimState on invAddrBill.stateId = dimState.idState on invAddrBill.invoiceId = invoice.idInvoice INNER JOIN(select invAddr.invoiceId, invAddr.billingName, invAddr.txnAddrTypeId, invAddr.gstinNo, org.overdue_ref_id" +
                     " from finalInvoiceAddress invAddr LEFT JOIN tblOrganization org on org.idOrganization = invAddr.billingOrgId where txnAddrTypeId = 2)invAddrCons on invAddrCons.invoiceId = invoice.idInvoice INNER JOIN(select invoiceId, sum(invoiceQty)as invoiceQty,sum(basicTotal) as basicAmt, sum(taxableAmt) as taxableAmt" +
