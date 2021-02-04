@@ -117,7 +117,6 @@ namespace ODLMWebAPI.Models
         //    get { return ownerPersonFirstAndLastName; }
         //    set { ownerPersonFirstAndLastName = this.OwnerPersonFirstName + this.ownerPersonLastName; }
         //}
-
         public Int32 IdInvoice
         {
             get { return idInvoice; }
