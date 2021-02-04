@@ -516,7 +516,7 @@ public  string SelectApKLoginArray(int userId)
             try
             {
                 QRCoder.QRCodeGenerator qrGen = new QRCodeGenerator();
-                var qrData = qrGen.CreateQrCode(signedQRCode, QRCoder.QRCodeGenerator.ECCLevel.H);
+                var qrData = qrGen.CreateQrCode(signedQRCode, QRCoder.QRCodeGenerator.ECCLevel.L);
                 var qrCode = new QRCoder.QRCode(qrData);
                 System.Drawing.Image image = qrCode.GetGraphic(50);
 
