@@ -4038,7 +4038,7 @@ namespace ODLMWebAPI.BL
             ResultMessage resultMessage = new ResultMessage();
             String response = String.Empty;
             String signedQRCode = String.Empty;
-            Int32 apiId = 3;
+            Int32 apiId = (int)EInvoiceAPIE.GENERATE_EINVOICE;
             byte[] PhotoCodeInBytes = null;
             try
             {
@@ -4153,6 +4153,8 @@ namespace ODLMWebAPI.BL
                 invoiceDT.Columns.Add("orgStateCode");
 
                 invoiceDT.Columns.Add("plotNo");
+                invoiceDT.Columns.Add("streetName");
+
                 invoiceDT.Columns.Add("areaName");
                 invoiceDT.Columns.Add("district");
                 invoiceDT.Columns.Add("pinCode");
@@ -4241,6 +4243,13 @@ namespace ODLMWebAPI.BL
                         orgAddrStr += tblAddressTO.PlotNo;
                         invoiceDT.Rows[0]["plotNo"] = tblAddressTO.PlotNo;
                     }
+
+                    if (!String.IsNullOrEmpty(tblAddressTO.StreetName))
+                    {
+                        orgAddrStr += " " + tblAddressTO.StreetName;
+                        invoiceDT.Rows[0]["streetName"] = tblAddressTO.StreetName;
+                    }
+
                     if (!String.IsNullOrEmpty(tblAddressTO.AreaName))
                     {
                         orgAddrStr += " " + tblAddressTO.AreaName;
