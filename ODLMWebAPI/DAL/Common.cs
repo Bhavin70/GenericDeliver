@@ -19,6 +19,7 @@ using System.Threading;
 using System.Text;
 using QRCoder;
 using System.Drawing;
+using System.IO.Compression;
 
 namespace ODLMWebAPI.DAL
 { 
@@ -515,9 +516,9 @@ public  string SelectApKLoginArray(int userId)
             try
             {
                 QRCoder.QRCodeGenerator qrGen = new QRCodeGenerator();
-                var qrData = qrGen.CreateQrCode(signedQRCode, QRCoder.QRCodeGenerator.ECCLevel.H);
+                var qrData = qrGen.CreateQrCode(signedQRCode, QRCoder.QRCodeGenerator.ECCLevel.L);
                 var qrCode = new QRCoder.QRCode(qrData);
-                System.Drawing.Image image = qrCode.GetGraphic(100);
+                System.Drawing.Image image = qrCode.GetGraphic(50);
 
                 byte[] PhotoCodeInBytes = null;
 
@@ -526,6 +527,8 @@ public  string SelectApKLoginArray(int userId)
                     image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                     PhotoCodeInBytes = ms.ToArray();
                 }
+                //byte[] compressedByte = Compress(PhotoCodeInBytes);
+
                 return PhotoCodeInBytes;
             }
             catch (Exception ex)
@@ -533,6 +536,31 @@ public  string SelectApKLoginArray(int userId)
                 return null;
             }
 
+        }
+        public static Byte[] Compress(Byte[] buffer)
+        {
+            byte[] imageBytes;
+
+            //Of course image bytes is set to the bytearray of your image      
+
+            using (MemoryStream ms = new MemoryStream(buffer, 0, buffer.Length))
+            {
+                using (Image img = Image.FromStream(ms))
+                {
+                    int h = 100;
+                    int w = 100;
+
+                    using (Bitmap b = new Bitmap(img, new Size(w, h)))
+                    {
+                        using (MemoryStream ms2 = new MemoryStream())
+                        {
+                            b.Save(ms2, System.Drawing.Imaging.ImageFormat.Png);
+                            imageBytes = ms2.ToArray();
+                        }
+                    }
+                }
+            }
+            return imageBytes;
         }
     }
 }

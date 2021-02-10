@@ -4038,7 +4038,7 @@ namespace ODLMWebAPI.BL
             ResultMessage resultMessage = new ResultMessage();
             String response = String.Empty;
             String signedQRCode = String.Empty;
-            Int32 apiId = 3;
+            Int32 apiId = (int)EInvoiceAPIE.GENERATE_EINVOICE;
             byte[] PhotoCodeInBytes = null;
             try
             {
@@ -4055,7 +4055,7 @@ namespace ODLMWebAPI.BL
                 DataTable itemFooterDetailsDT = new DataTable();
                 DataTable commercialDT = new DataTable();
                 DataTable hsnItemTaxDT = new DataTable();
-                DataTable photoDT = new DataTable();
+                DataTable qrCodeDT = new DataTable();
                 // DataTable shippingAddressDT = new DataTable();
                 //Aniket [1-02-2019] added to create multiple copy of tax invoice
                 DataTable multipleInvoiceCopyDT = new DataTable();
@@ -4067,7 +4067,7 @@ namespace ODLMWebAPI.BL
                 hsnItemTaxDT.TableName = "hsnItemTaxDT";
                 // shippingAddressDT.TableName = "shippingAddressDT";
                 multipleInvoiceCopyDT.TableName = "multipleInvoiceCopyDT";
-                photoDT.TableName = "photoDT";
+                qrCodeDT.TableName = "QRCodeDT";
                 //HeaderDT 
                 multipleInvoiceCopyDT.Columns.Add("idInvoiceCopy");
                 multipleInvoiceCopyDT.Columns.Add("invoiceCopyName");
@@ -4116,9 +4116,9 @@ namespace ODLMWebAPI.BL
                     }
                 }
 
-                photoDT.Columns.Add("Photo", System.Type.GetType("System.Byte[]"));
-                photoDT.Rows.Add();
-                
+                qrCodeDT.Columns.Add("QRCode", typeof(System.Byte[]));
+                qrCodeDT.Rows.Add();
+
                 response = _iTblInvoiceDAO.SelectresponseForPhotoInReport(invoiceId, apiId);
                 JObject json = JObject.Parse(response);
                 if (json.ContainsKey("data"))
@@ -4136,7 +4136,7 @@ namespace ODLMWebAPI.BL
                 }
 
                 if (PhotoCodeInBytes != null)
-                photoDT.Rows[0]["Photo"] = PhotoCodeInBytes;               
+                    qrCodeDT.Rows[0]["QRCode"] = PhotoCodeInBytes;                              
                 
                 //HeaderDT 
                 //headerDT.Columns.Add("orgFirmName");
@@ -4153,6 +4153,8 @@ namespace ODLMWebAPI.BL
                 invoiceDT.Columns.Add("orgStateCode");
 
                 invoiceDT.Columns.Add("plotNo");
+                invoiceDT.Columns.Add("streetName");
+
                 invoiceDT.Columns.Add("areaName");
                 invoiceDT.Columns.Add("district");
                 invoiceDT.Columns.Add("pinCode");
@@ -4241,6 +4243,13 @@ namespace ODLMWebAPI.BL
                         orgAddrStr += tblAddressTO.PlotNo;
                         invoiceDT.Rows[0]["plotNo"] = tblAddressTO.PlotNo;
                     }
+
+                    if (!String.IsNullOrEmpty(tblAddressTO.StreetName))
+                    {
+                        orgAddrStr += " " + tblAddressTO.StreetName;
+                        invoiceDT.Rows[0]["streetName"] = tblAddressTO.StreetName;
+                    }
+
                     if (!String.IsNullOrEmpty(tblAddressTO.AreaName))
                     {
                         orgAddrStr += " " + tblAddressTO.AreaName;
@@ -5164,7 +5173,7 @@ namespace ODLMWebAPI.BL
                 headerDT.TableName = "headerDT";
 
                 printDataSet.Tables.Add(headerDT);
-                printDataSet.Tables.Add(photoDT);
+                printDataSet.Tables.Add(qrCodeDT);
                 printDataSet.Tables.Add(invoiceDT);
                 printDataSet.Tables.Add(invoiceItemDT);
                 printDataSet.Tables.Add(addressDT);
