@@ -108,7 +108,10 @@ namespace ODLMWebAPI.Models
         //Dhananjay [02-12-2020]
         int districtId;
         int talukaId;
-        
+
+        //Gokul [06-02-2021]
+        Int32 changeCnfId;
+
         #endregion
 
         #region Constructor
@@ -538,6 +541,9 @@ namespace ODLMWebAPI.Models
         //Dhananjay [02-12-2020]
         public int DistrictId { get => districtId; set => districtId = value; }
         public int TalukaId { get => talukaId; set => talukaId = value; }
+
+        //Gokul [06-02-2021]
+        public int ChangeCnfId { get => changeCnfId; set => changeCnfId = value; }
         #endregion
 
         #region Methods

@@ -864,10 +864,19 @@ namespace ODLMWebAPI.DAL
             String notDelStatus = (int)Constants.TranStatusE.BOOKING_DELETE + "";
             int isConfEn = 0;
             int userId = 0;
+
+            String bookingCreatedBy = "";
+
             if (tblUserRoleTO != null)
             {
                 isConfEn = tblUserRoleTO.EnableAreaAlloc;
                 userId = tblUserRoleTO.UserId;
+
+                if (tblUserRoleTO.RoleTypeId == Convert.ToInt32(Constants.SystemRoleTypeE.C_AND_F_AGENT))
+                {
+                    bookingCreatedBy = " OR bookings.createdBy = " + userId;
+                }
+
             }
             if (RMId > 0)
             {
@@ -925,29 +934,54 @@ namespace ODLMWebAPI.DAL
                 if (isViewAllPendingEnq > 0)
                 {
                     fromDate = new DateTime(2001, 01, 01);
-                    whereCondtionStr = "WHERE CAST(bookings.createdOn AS DATE) > @fromDate  ";
+                    whereCondtionStr = "WHERE CAST(bookings.createdOn AS DATE) > @fromDate";
                 }
-              
-                if (cnfId == 0 && dealerId == 0 && statusId == 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.statusId NOT IN(" + notDelStatus + ")";
-                else if (cnfId == 0 && dealerId == 0 && statusId > 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.statusId IN(" + statusId + ")";
-                else if (cnfId == 0 && dealerId > 0 && statusId > 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.dealerOrgId=" + dealerId + "AND bookings.statusId IN(" + statusId + ")";
-                else if (cnfId == 0 && dealerId > 0 && statusId == 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.dealerOrgId=" + dealerId + "AND bookings.statusId NOT IN(" + notDelStatus + ")";
-                else if (cnfId > 0 && dealerId == 0 && statusId == 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + "AND bookings.statusId NOT IN(" + notDelStatus + ")";
-                else if (cnfId > 0 && dealerId > 0 && statusId == 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + " AND bookings.dealerOrgId=" + dealerId + " AND bookings.statusId NOT IN(" + notDelStatus + ")";
-                else if (cnfId > 0 && dealerId == 0 && statusId > 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + " AND bookings.statusId IN(" + statusId + ")";
-                else if (cnfId > 0 && dealerId > 0 && statusId > 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + " AND bookings.dealerOrgId=" + dealerId + " AND bookings.statusId IN(" + statusId + ")";
-                else
+
+                //Added By Gokul
+                sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr;
+
+                if (!String.IsNullOrEmpty(notDelStatus) && statusId == 0)
+                {
+                    sqlQuery += " AND bookings.statusId NOT IN(" + notDelStatus + ")";
+                }
+
+                if (cnfId > 0)
+                {
+                    sqlQuery += " AND ( bookings.cnFOrgId=" + cnfId + bookingCreatedBy + ")";
+                }
+                    
+                if (dealerId > 0)
+                    sqlQuery += " AND bookings.dealerOrgId=" + dealerId;
+
+                if (statusId > 0)
+                    sqlQuery += " AND bookings.statusId IN(" + statusId + ")";
+
+
+                if(String.IsNullOrEmpty(whereCondtionStr))
                 {
                     isWhereAddded = false;
                 }
+
+                //if (cnfId == 0 && dealerId == 0 && statusId == 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.statusId NOT IN(" + notDelStatus + ")";
+                //else if (cnfId == 0 && dealerId == 0 && statusId > 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.statusId IN(" + statusId + ")";
+                //else if (cnfId == 0 && dealerId > 0 && statusId > 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.dealerOrgId=" + dealerId + "AND bookings.statusId IN(" + statusId + ")";
+                //else if (cnfId == 0 && dealerId > 0 && statusId == 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.dealerOrgId=" + dealerId + "AND bookings.statusId NOT IN(" + notDelStatus + ")";
+                //else if (cnfId > 0 && dealerId == 0 && statusId == 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + "AND bookings.statusId NOT IN(" + notDelStatus + ")";
+                //else if (cnfId > 0 && dealerId > 0 && statusId == 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + " AND bookings.dealerOrgId=" + dealerId + " AND bookings.statusId NOT IN(" + notDelStatus + ")";
+                //else if (cnfId > 0 && dealerId == 0 && statusId > 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + " AND bookings.statusId IN(" + statusId + ")";
+                //else if (cnfId > 0 && dealerId > 0 && statusId > 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + " AND bookings.dealerOrgId=" + dealerId + " AND bookings.statusId IN(" + statusId + ")";
+                //else
+                //    {
+                //        isWhereAddded = false;
+                //    }
 
                 //Pandurang [2018-02-22] Added for Confirm and non Confirm View booking filter. 
 

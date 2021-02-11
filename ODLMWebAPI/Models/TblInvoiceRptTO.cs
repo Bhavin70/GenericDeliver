@@ -89,7 +89,7 @@ namespace ODLMWebAPI.Models
         //Gokul Added [03-02-2021]
         string ownerPersonFirstName;
         string ownerPersonLastName;
-        //string ownerPersonFirstAndLastName;
+        string contactName;
 
         #endregion
 
@@ -112,11 +112,12 @@ namespace ODLMWebAPI.Models
             set { ownerPersonLastName = value; }
         }
 
-        //public string OwnerPersonFirstAndLastName
-        //{
-        //    get { return ownerPersonFirstAndLastName; }
-        //    set { ownerPersonFirstAndLastName = this.OwnerPersonFirstName + this.ownerPersonLastName; }
-        //}
+        public string ContactName
+        {
+            get { return contactName; }
+            set {contactName = value;
+            }
+        }
         public Int32 IdInvoice
         {
             get { return idInvoice; }
