@@ -397,6 +397,10 @@ namespace ODLMWebAPI.BL
 
                 list = list.Where(w => w.IdBooking != bookingId).ToList();
 
+                list = list.Where(w => w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED_BY_MARKETING
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED_FINANCE
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR).ToList();
 
                 if (list == null || list.Count == 0)
                 {
