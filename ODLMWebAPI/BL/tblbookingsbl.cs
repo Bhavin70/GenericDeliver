@@ -296,7 +296,7 @@ namespace ODLMWebAPI.BL
         }
 
 
-        public Double SelectTotalPendingBookingQty(DateTime sysDate)
+        public List<PendingQtyOrderTypeTo> SelectTotalPendingBookingQty(DateTime sysDate)
         {
             return _iTblBookingsDAO.SelectTotalPendingBookingQty(sysDate);
 
@@ -397,6 +397,10 @@ namespace ODLMWebAPI.BL
 
                 list = list.Where(w => w.IdBooking != bookingId).ToList();
 
+                list = list.Where(w => w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED_BY_MARKETING
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED_FINANCE
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR).ToList();
 
                 if (list == null || list.Count == 0)
                 {
@@ -3728,6 +3732,8 @@ namespace ODLMWebAPI.BL
                 existingTblBookingsTO.IsSez = tblBookingsTO.IsSez;
                 existingTblBookingsTO.UomQty = tblBookingsTO.UomQty;
                 existingTblBookingsTO.PendingUomQty = tblBookingsTO.PendingUomQty;
+                existingTblBookingsTO.OrderTypeId = tblBookingsTO.OrderTypeId;
+                existingTblBookingsTO.OrderTypeName = tblBookingsTO.OrderTypeName;
 
                 //Aniket [24-7-2019] added to check scheduled NoOfDeliveries against booking
                 if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
