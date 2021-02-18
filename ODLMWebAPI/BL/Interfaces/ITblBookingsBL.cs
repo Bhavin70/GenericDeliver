@@ -50,6 +50,8 @@ namespace ODLMWebAPI.BL.Interfaces
         TblBookingsTO SelectBookingsDetailsFromInVoiceId(Int32 inInvoice);
         ResultMessage UpdatePendingQuantity(TblBookingQtyConsumptionTO tblBookingQtyConsumptionTO);
 
+        ResultMessage SendBookingDueNotification();
+
         //ResultMessage DeleteAllBookings(List<Int32> bookingsIdList);
         //ResultMessage DeleteAllBookings(List<int> bookingsIdsList, SqlConnection conn, SqlTransaction tran);
         //int DeleteDispatchBookingData(Int32 bookingId, SqlConnection conn, SqlTransaction tran);
