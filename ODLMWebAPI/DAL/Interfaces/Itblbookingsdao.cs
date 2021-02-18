@@ -13,7 +13,7 @@ namespace ODLMWebAPI.DAL.Interfaces
     {
         String SqlSelectQuery(Int32 loginUserId = 0);
         List<TblBookingsTO> SelectAllTblBookings();
-        Double SelectTotalPendingBookingQty(DateTime sysDate);
+        List<PendingQtyOrderTypeTo> SelectTotalPendingBookingQty(DateTime sysDate);
         List<TblBookingsTO> SelectAllBookingsListFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran);
         List<TblBookingsTO> SelectAllBookingsListForApproval(Int32 isConfirmed, Int32 idBrand);
         List<TblBookingsTO> SelectAllBookingsListForAcceptance(Int32 cnfId, TblUserRoleTO tblUserRoleTO, Int32 isConfirmed);
