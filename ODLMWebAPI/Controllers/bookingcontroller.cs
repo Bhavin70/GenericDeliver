@@ -560,6 +560,28 @@ namespace ODLMWebAPI.Controllers
             }
         }
 
+
+        [Route("SendBookingDueNotification")]
+        [HttpGet]
+        public ResultMessage SendBookingDueNotification()
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                return _iTblBookingsBL.SendBookingDueNotification();
+            }
+            catch (Exception ex)
+            {
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Text = "Exception In Method SendBookingDueNotification";
+                resultMessage.Result = -1;
+                resultMessage.Exception = ex;
+                return resultMessage;
+            }
+        }
+
+
+
         /// <summary>
         /// Vijaymala[2017-09-11]Added to get booking list to plot graph
         /// </summary>
