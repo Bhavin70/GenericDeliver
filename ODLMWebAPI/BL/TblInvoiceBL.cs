@@ -9269,6 +9269,7 @@ namespace ODLMWebAPI.BL
             string access_Token_Authentication = null;
             DateTime tokenExpiresAt = _iCommon.ServerDateTime;
 
+            //List<TblEInvoiceApiTO> tblEInvoiceApiTOList = _iTblEInvoiceApiDAO.SelectAllTblEInvoiceApi((int)EInvoiceAPIE.EINVOICE_AUTHENTICATE);
             List<TblEInvoiceApiTO> tblEInvoiceApiTOList = _iTblEInvoiceApiDAO.SelectTblEInvoiceApi(Constants.EINVOICE_AUTHENTICATE, OrgId);
             if (tblEInvoiceApiTOList == null)
             {
@@ -9658,6 +9659,26 @@ namespace ODLMWebAPI.BL
                 if (shippingAddrTO != null)
                 {
                     string shippingAddr2 = GetAreaFromAddress(shippingAddrTO);
+
+                    //[2021-02-26] Dhananjay added
+                    if (shippingAddrTO.BillingName.Trim() == billingAddrTO.BillingName.Trim() && shippingAddrTO.Address.Trim() == billingAddrTO.Address.Trim() && shippingAddrTO.GstinNo.Trim() == billingAddrTO.GstinNo.Trim())
+                    {
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingAddr", "");
+                    }
+                    else
+                    {
+                        TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_EINVOICE_SHIPPING_ADDRESS);
+                        if (tblConfigParamsTO == null)
+                        {
+                            tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingAddr", "");
+                        }
+                        else
+                        {
+                            tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingAddr", tblConfigParamsTO.ConfigParamVal);
+                        }
+                    }
+                    //[2021-02-26] Dhananjay end
+
                     if (string.IsNullOrEmpty(shippingAddrTO.BillingName))
                     {
                         shippingAddrTO.BillingName = buyerName;
@@ -9669,7 +9690,7 @@ namespace ODLMWebAPI.BL
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingName", RemoveSpecialChars(shippingAddrTO.BillingName));
                     if (string.IsNullOrEmpty(shippingAddrTO.GstinNo))
                     {
-                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("\"gstin\": \"@shippingGstIn\",\r\n            ", "");
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("\"gstin\": \"@shippingGstIn\",", "");
                     }
                     else
                     {
@@ -9698,7 +9719,7 @@ namespace ODLMWebAPI.BL
 
                 if (eInvoiceCreationType == (Int32)Constants.EGenerateEInvoiceCreationType.GENERATE_INVOICE_ONLY)
                 {
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("\r\n\t\t@ewbDtls", "");
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@ewbDtls", "");
                 }
                 else if (eInvoiceCreationType == (Int32)Constants.EGenerateEInvoiceCreationType.INVOICE_WITH_EWAY_BILL)
                 {
@@ -9706,12 +9727,12 @@ namespace ODLMWebAPI.BL
                     //tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@vehicleNo", GetValidVehichleNumber(tblInvoiceTO.VehicleNo));
                     //tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@distanceInKM", RemoveSpecialChars(tblInvoiceTO.DistanceInKM.ToString()));
 
-                    tblEInvoiceApiTOEWayBill.BodyParam = tblEInvoiceApiTOEWayBill.BodyParam.Replace("{\r\n    \"action\": \"GENERATEEWB\",\r\n    ", "");
+                    tblEInvoiceApiTOEWayBill.BodyParam = tblEInvoiceApiTOEWayBill.BodyParam.Replace("{\"action\": \"GENERATEEWB\",", "");
                     tblEInvoiceApiTOEWayBill.BodyParam = tblEInvoiceApiTOEWayBill.BodyParam.Replace("data", "EwbDtls");
-                    tblEInvoiceApiTOEWayBill.BodyParam = tblEInvoiceApiTOEWayBill.BodyParam.Replace("\"Irn\": \"@IrnNo\",\r\n        ", "");
+                    tblEInvoiceApiTOEWayBill.BodyParam = tblEInvoiceApiTOEWayBill.BodyParam.Replace("\"Irn\": \"@IrnNo\",", "");
                     tblEInvoiceApiTOEWayBill.BodyParam = tblEInvoiceApiTOEWayBill.BodyParam.Replace("}\r\n}", "}");
 
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("\r\n\t\t@ewbDtls", ",\r\n        " + tblEInvoiceApiTOEWayBill.BodyParam);
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@ewbDtls", ",\r\n        " + tblEInvoiceApiTOEWayBill.BodyParam);
 
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@VehNo", GetValidVehichleNumber(tblInvoiceTO.VehicleNo));
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@DistanceinKm", RemoveSpecialChars(tblInvoiceTO.DistanceInKM.ToString()));

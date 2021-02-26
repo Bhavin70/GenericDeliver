@@ -795,6 +795,9 @@ namespace ODLMWebAPI.StaticStuff
 
         public static string CP_SPLIT_BOOKING_AGAINST_INVOICE = "CP_SPLIT_BOOKING_AGAINST_INVOICE";
 
+        //[2021-02-26] Dhananjay added
+        public static string CP_EINVOICE_SHIPPING_ADDRESS = "CP_EINVOICE_SHIPPING_ADDRESS";
+
         #endregion
 
         //Harshala Added
