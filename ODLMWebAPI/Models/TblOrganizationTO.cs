@@ -87,6 +87,9 @@ namespace ODLMWebAPI.Models
         //Priyanka [22-10-18]
         TblKYCDetailsTO tblKYCDetailsTO;
 
+        //Added by Gokul [13-02-21]
+        Int32 consumerTypeId;
+        string consumerType;
         #endregion
 
         #region Constructor
@@ -352,6 +355,18 @@ namespace ODLMWebAPI.Models
             {
                 website = value;
             }
+        }
+
+        public int ConsumerTypeId
+        {
+            get { return consumerTypeId; }
+            set { consumerTypeId = value; }
+        }
+
+        public string ConsumerType
+        {
+            get { return consumerType; }
+            set { consumerType = value; }
         }
 
         public string RegisteredMobileNos { get => registeredMobileNos; set => registeredMobileNos = value; }

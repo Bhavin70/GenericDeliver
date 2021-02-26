@@ -949,10 +949,19 @@ namespace ODLMWebAPI.DAL
             string whereSupCond = string.Empty;
             int isConfEn = 0;
             int userId = 0;
+
+            String bookingCreatedBy = "";
+
             if (tblUserRoleTO != null)
             {
                 isConfEn = tblUserRoleTO.EnableAreaAlloc;
                 userId = tblUserRoleTO.UserId;
+
+                if (tblUserRoleTO.RoleTypeId == Convert.ToInt32(Constants.SystemRoleTypeE.C_AND_F_AGENT))
+                {
+                    bookingCreatedBy = " OR sq1.bookingCreatedBy = " + userId;
+                }
+
             }
             try
             {
@@ -975,7 +984,7 @@ namespace ODLMWebAPI.DAL
 
                 if (cnfId > 0)
                 {
-                    wherecnfIdTemp += " AND sq1.cnfOrgId = " + cnfId;
+                    wherecnfIdTemp += " AND (sq1.cnfOrgId = " + cnfId + bookingCreatedBy + ")";
                 //    wherecnfIdFinal += " AND finloadingSlip.cnfOrgId = " + cnfId;
                 }
 
@@ -1022,7 +1031,7 @@ namespace ODLMWebAPI.DAL
                                   " END END END END AS  dealerOrgName,transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName, tblLoadSlipdtl.bookingId " +
                                    " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
-                                   " , loading.modbusRefId, loading.gateId,loading.isDBup "+
+                                   " , loading.modbusRefId, loading.gateId,loading.isDBup,tblBookings.createdBy as bookingCreatedBy " +
                                   " FROM  tempLoadingSlip tblLoadingSlip " +
                                   " Left Join tempLoadingSlipDtl tblLoadSlipdtl ON tblLoadSlipdtl.loadingSlipId = tblLoadingSlip.idLoadingSlip " +
                                   " Left Join tblBookings tblBookings ON tblLoadSlipdtl.bookingId = tblBookings.idbooking " +
@@ -1047,7 +1056,7 @@ namespace ODLMWebAPI.DAL
                                   " transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName, tblLoadSlipdtl.bookingId " +
                                   " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
-                                   " , loading.modbusRefId, loading.gateId,loading.isDBup " +
+                                   " , loading.modbusRefId, loading.gateId,loading.isDBup,tblBookings.createdBy as bookingCreatedBy  " +
                                   " FROM finalLoadingSlip tblLoadingSlip  " +
                                   " Left Join finalLoadingSlipDtl tblLoadSlipdtl ON tblLoadSlipdtl.loadingSlipId = tblLoadingSlip.idLoadingSlip " +
                                   " Left Join tblBookings tblBookings ON tblLoadSlipdtl.bookingId = tblBookings.idbooking " +

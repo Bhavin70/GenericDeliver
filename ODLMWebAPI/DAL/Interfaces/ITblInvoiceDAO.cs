@@ -10,6 +10,7 @@ namespace ODLMWebAPI.DAL.Interfaces
     public interface ITblInvoiceDAO
     { 
         String SqlSelectQuery();
+        String SelectresponseForPhotoInReport(Int32 idInvoice,Int32 ApiId);
         List<TblInvoiceTO> SelectAllTblInvoice();
         List<TblInvoiceTO> SelectAllTblInvoice(DateTime frmDt, DateTime toDt, int isConfirm, Int32 cnfId, Int32 dealerId, TblUserRoleTO tblUserRoleTO, Int32 brandId, Int32 invoiceId, Int32 statusId, String internalOrgId);
         TblInvoiceTO SelectTblInvoice(Int32 idInvoice, SqlConnection conn, SqlTransaction tran);

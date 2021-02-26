@@ -108,7 +108,14 @@ namespace ODLMWebAPI.Models
         //Dhananjay [02-12-2020]
         int districtId;
         int talukaId;
-        
+
+        //Gokul [06-02-2021]
+        Int32 changeCnfId;
+
+        //Gokul [11-02-2021]
+        Int32 orderTypeId;
+        string orderTypeName;
+    
         #endregion
 
         #region Constructor
@@ -538,6 +545,20 @@ namespace ODLMWebAPI.Models
         //Dhananjay [02-12-2020]
         public int DistrictId { get => districtId; set => districtId = value; }
         public int TalukaId { get => talukaId; set => talukaId = value; }
+
+        //Gokul [06-02-2021]
+        public int ChangeCnfId { get => changeCnfId; set => changeCnfId = value; }
+
+        //Gokul [11-02-2021]
+        public int OrderTypeId {
+            get { return orderTypeId; }
+            set { orderTypeId = value; }
+        }
+        public string OrderTypeName
+        {
+            get { return orderTypeName; }
+            set { orderTypeName = value; }
+        }
         #endregion
 
         #region Methods
@@ -593,4 +614,26 @@ namespace ODLMWebAPI.Models
 
         #endregion
     }
+
+    //Added By Gokul To Send Pending Booking Qty Orderwise On StockUpDate SCreen
+    public class PendingQtyOrderTypeTo
+    {
+        #region Declaration
+        string consumerTypeName;
+        double bookingQty;
+        #endregion
+        #region GetSet
+        public  string ConsumerTypeName
+        {   get { return consumerTypeName; }
+            set { consumerTypeName = value; }
+        }
+
+        public double BookingQty
+        {
+            get { return bookingQty; }
+            set { bookingQty = value; }
+        }
+        #endregion
+    }
+
 }

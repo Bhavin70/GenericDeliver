@@ -47,6 +47,8 @@ namespace ODLMWebAPI.StaticStuff
             SUPERWISOR_ALLOCATION_FOR_VEHICLE=32,
 
             SIZE_CHANGES_IN_BOOKING = 33, //AmolG[2020-Feb-11]
+
+            BOOKING_DUE = 34,
         }
 
         #endregion

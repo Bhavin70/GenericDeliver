@@ -17,6 +17,9 @@ using ODLMWebAPI.Models;
 using ODLMWebAPI.IoT;
 using System.Threading;
 using System.Text;
+using QRCoder;
+using System.Drawing;
+using System.IO.Compression;
 
 namespace ODLMWebAPI.DAL
 { 
@@ -131,14 +134,14 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 /*To get Server Date Time for Local DB*/
-                //String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
+                String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
 
                 ////To get Server Date Time for Azure Server DB
-                string sqlQuery = " declare @dfecha as datetime " +
-                                  " declare @d as datetimeoffset " +
-                                  " set @dfecha= sysdatetime()   " +
-                                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
-                                  " select convert(datetime, @d)";
+                //string sqlQuery = " declare @dfecha as datetime " +
+                //                  " declare @d as datetimeoffset " +
+                //                  " set @dfecha= sysdatetime()   " +
+                //                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
+                //                  " select convert(datetime, @d)";
 
                 cmdSelect = new SqlCommand(sqlQuery, conn);
 
@@ -500,6 +503,64 @@ public  string SelectApKLoginArray(int userId)
             {
                 throw ex;
             }
+        }
+        public static Image resizeImage(Image imgToResize, Size size)
+        {
+            return (Image)(new Bitmap(imgToResize, size));
+        }
+
+       
+
+        public byte[] convertQRStringToByteArray(String signedQRCode)
+        {
+            try
+            {
+                QRCoder.QRCodeGenerator qrGen = new QRCodeGenerator();
+                var qrData = qrGen.CreateQrCode(signedQRCode, QRCoder.QRCodeGenerator.ECCLevel.L);
+                var qrCode = new QRCoder.QRCode(qrData);
+                System.Drawing.Image image = qrCode.GetGraphic(50);
+
+                byte[] PhotoCodeInBytes = null;
+
+                using (var ms = new MemoryStream())
+                {
+                    image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    PhotoCodeInBytes = ms.ToArray();
+                }
+                //byte[] compressedByte = Compress(PhotoCodeInBytes);
+
+                return PhotoCodeInBytes;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+        }
+        public static Byte[] Compress(Byte[] buffer)
+        {
+            byte[] imageBytes;
+
+            //Of course image bytes is set to the bytearray of your image      
+
+            using (MemoryStream ms = new MemoryStream(buffer, 0, buffer.Length))
+            {
+                using (Image img = Image.FromStream(ms))
+                {
+                    int h = 100;
+                    int w = 100;
+
+                    using (Bitmap b = new Bitmap(img, new Size(w, h)))
+                    {
+                        using (MemoryStream ms2 = new MemoryStream())
+                        {
+                            b.Save(ms2, System.Drawing.Imaging.ImageFormat.Png);
+                            imageBytes = ms2.ToArray();
+                        }
+                    }
+                }
+            }
+            return imageBytes;
         }
     }
 }

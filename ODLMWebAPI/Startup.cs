@@ -580,39 +580,52 @@ namespace ODLMWebAPI
                 SAPbobsCOM.Company companyObject;
                 //SAPbouiCOM.SboGuiApi sboGuiApi;
 
+
                 companyObject = new SAPbobsCOM.Company();
                 //sboGuiApi = new SAPbouiCOM.SboGuiApi();
 
-                companyObject.CompanyDB = "VEGA_NEW";
+
+                companyObject.CompanyDB = "OrionSAPDBTesting";
+
 
                 companyObject.UserName = "manager";
 
+
                 //companyObject.Password = "Sap@1234";
                 //companyObject.Password = "Vega@123";
-                companyObject.Password = "sap1";
+                companyObject.Password = "Sap@v1234";
                 companyObject.language = SAPbobsCOM.BoSuppLangs.ln_English;
                 companyObject.DbServerType = SAPbobsCOM.BoDataServerTypes.dst_MSSQL2017;
                 //companyObject.Server = "10.10.110.102";
-                companyObject.Server = "52.172.136.203";
+                companyObject.Server = "13.71.35.141";
 
-                companyObject.LicenseServer = "52.172.136.203:40000";
+
+                companyObject.LicenseServer = "13.71.35.141:30000";
+
 
                 //companyObject.SLDServer = "52.172.136.203\\SQLEXPRESS,1430";
-                companyObject.SLDServer = "52.172.136.203";
+                companyObject.SLDServer = "13.71.35.141";
                 companyObject.DbUserName = "sa";
+
 
                 companyObject.DbPassword = "Vega@123";
 
+
                 //companyObject.LicenseServer = "10.10.110.102:40000";
+
 
                 //companyObject.UseTrusted = false;
                 //string var = companyObject.GetLastErrorDescription();
 
+
                 //string Error = companyObject.GetLastErrorDescription();
+
 
                 int checkConnection = -1;
 
+
                 checkConnection = companyObject.Connect();
+
 
                 if (checkConnection == 0)
                     CompanyObject = companyObject;

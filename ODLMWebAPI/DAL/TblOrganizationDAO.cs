@@ -22,7 +22,7 @@ namespace ODLMWebAPI.DAL
         #region Methods
         public String SqlSelectQuery()
         {
-            String sqlSelectQry = " SELECT tblOrganization.*,cdStructure.cdValue,dimDelPeriod.deliveryPeriod, villageName,districtId FROM [tblOrganization] tblOrganization" +
+            String sqlSelectQry = " SELECT tblOrganization.*, cdStructure.cdValue,dimDelPeriod.deliveryPeriod, villageName,districtId FROM [tblOrganization] tblOrganization" +
                                   " LEFT JOIN " +
                                    " ( " +
                                    " SELECT tblAddress.*, organizationId FROM tblOrgAddress " +
@@ -1095,6 +1095,11 @@ namespace ODLMWebAPI.DAL
 
                     if (tblOrganizationTODT["creditLimit"] != DBNull.Value)
                         tblOrganizationTONew.CreditLimit = Convert.ToDouble(tblOrganizationTODT["creditLimit"].ToString());
+
+                    
+                    //Added By Gokul[14 - 02 - 21]
+                    if (tblOrganizationTODT["consumerTypeId"] != DBNull.Value)
+                        tblOrganizationTONew.ConsumerTypeId = Convert.ToInt32(tblOrganizationTODT["consumerTypeId"].ToString());
 
 
                     if (tblOrganizationTONew.OrgTypeE == Constants.OrgTypeE.C_AND_F_AGENT)
