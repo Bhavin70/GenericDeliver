@@ -9600,7 +9600,7 @@ namespace ODLMWebAPI.BL
 
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerPhone", RemoveSpecialChars(sellerPhoneNo));
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@sellerEMail", RemoveSpecialChars(sellerEmailAddr));
-                    
+
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromAddr1", padRight(sellerAddr1));
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromAddr2", padRight(sellerAddr2));
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@dispFromLocation", padRight(sellerArea));
@@ -9836,6 +9836,26 @@ namespace ODLMWebAPI.BL
 
                 IRestResponse response = CallRestAPIs(tblEInvoiceApiTO.ApiBaseUri + tblEInvoiceApiTO.ApiFunctionName, tblEInvoiceApiTO.ApiMethod, tblEInvoiceApiTO.HeaderParam, tblEInvoiceApiTO.BodyParam);
 
+                resultMsg = ProcessEInvoiceAPIResponse(tblInvoiceTO, (int)EInvoiceAPIE.GENERATE_EINVOICE, loginUserId, response, true);
+            }
+            catch (Exception ex)
+            {
+                resultMsg.MessageType = ResultMessageE.Error;
+                resultMsg.Text = ex.Message;
+                return resultMsg;
+            }
+            finally
+            {
+
+            }
+            return resultMsg;
+        }
+
+        private ResultMessage ProcessEInvoiceAPIResponse(TblInvoiceTO tblInvoiceTO, Int32 IdAPI, Int32 loginUserId, IRestResponse response, bool bNewInvoice)
+        {
+            ResultMessage resultMsg = new ResultMessage();
+            try
+            {
                 string IrnNo = null;
                 string EwayBillNo = null;
                 JObject json = JObject.Parse(response.Content);
@@ -9870,7 +9890,7 @@ namespace ODLMWebAPI.BL
                     conn.Open();
                     tran = conn.BeginTransaction();
 
-                    resultMsg = InsertIntoTblEInvoiceApiResponse(tblEInvoiceApiTO.IdApi, tblInvoiceTO.IdInvoice, response, loginUserId, conn, tran);
+                    resultMsg = InsertIntoTblEInvoiceApiResponse(IdAPI, tblInvoiceTO.IdInvoice, response, loginUserId, conn, tran);
                     if (resultMsg.Result != 1)
                     {
                         tran.Rollback();
@@ -9898,6 +9918,10 @@ namespace ODLMWebAPI.BL
                     }
 
                     resultMsg.DisplayMessage = "eInvoice generated successfully;";
+                    if (bNewInvoice == false)
+                    {
+                        resultMsg.DisplayMessage = "eInvoice details updated successfully;";
+                    }
 
                     if (EwayBillNo != null)
                     {
@@ -9912,6 +9936,10 @@ namespace ODLMWebAPI.BL
                             return resultMsg;
                         }
                         resultMsg.DisplayMessage = "eInvoice and eWayBill generated successfully;";
+                        if (bNewInvoice == false)
+                        {
+                            resultMsg.DisplayMessage = "eInvoice and eWayBill details updated successfully;";
+                        }
                     }
 
                     tran.Commit();
@@ -10340,6 +10368,107 @@ namespace ODLMWebAPI.BL
             {
                 conn.Close();
             }
+            return resultMsg;
+        }
+
+        /// <summary>
+        /// Dhananjay[01-03-2021] : Added To Get and Update eInvvoice.
+        /// </summary>
+        public ResultMessage GetAndUpdateEInvoice(Int32 loginUserId, Int32 idInvoice, bool forceToGetToken = false)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            string sellerGstin = "27AACCK4472B1ZS";
+
+            TblInvoiceTO tblInvoiceTO = new TblInvoiceTO();
+            tblInvoiceTO = SelectTblInvoiceTO(idInvoice);
+            if (tblInvoiceTO == null)
+            {
+                throw new Exception("InvoiceTO is null");
+            }
+
+            if (tblInvoiceTO.IsEInvGenerated != 1)
+            {
+                resultMessage.Text = "EInvoice is not generated for this invoice.";
+                resultMessage.DisplayMessage = "EInvoice is not generated for this invoice.";
+                resultMessage.Result = 0;
+                resultMessage.MessageType = ResultMessageE.Error;
+                return resultMessage;
+            }
+
+            List<TblOrgLicenseDtlTO> TblOrgLicenseDtlTOList = _iTblOrgLicenseDtlBL.SelectAllTblOrgLicenseDtlList(tblInvoiceTO.InvFromOrgId);
+            if (TblOrgLicenseDtlTOList != null)
+            {
+                for (int i = 0; i <= TblOrgLicenseDtlTOList.Count - 1; i++)
+                {
+                    if (TblOrgLicenseDtlTOList[i].LicenseId == (Int32)CommercialLicenseE.IGST_NO)
+                    {
+                        sellerGstin = TblOrgLicenseDtlTOList[i].LicenseValue.ToUpper();
+                        break;
+                    }
+                }
+            }
+
+            string access_token_OauthToken = null;
+            resultMessage = EInvoice_OauthToken(loginUserId, sellerGstin, forceToGetToken, tblInvoiceTO.InvFromOrgId);
+            if (resultMessage.Result != 1)
+            {
+                throw new Exception("Error in EInvoice_OauthToken");
+            }
+
+            access_token_OauthToken = resultMessage.Tag.ToString();
+            if (access_token_OauthToken == null)
+            {
+                throw new Exception("access_token_OauthToken is null");
+            }
+
+            string access_token_Authentication = null;
+            resultMessage = EInvoice_Authentication(loginUserId, access_token_OauthToken, sellerGstin, forceToGetToken, tblInvoiceTO.InvFromOrgId);
+            if (resultMessage.Result != 1)
+            {
+                throw new Exception("Error in EInvoice_Authentication");
+            }
+
+            access_token_Authentication = resultMessage.Tag.ToString();
+            if (access_token_Authentication == null)
+            {
+                throw new Exception("access_token_Authentication is null");
+            }
+
+            return EInvoice_GetAndUpdate(tblInvoiceTO, loginUserId, access_token_Authentication, sellerGstin);
+        }
+
+        /// <summary>
+        /// Dhananjay[01-03-2021] : Added To Get and Update eInvvoice.
+        /// </summary>
+        public ResultMessage EInvoice_GetAndUpdate(TblInvoiceTO tblInvoiceTO, Int32 loginUserId, string access_token_Authentication, string sellerGstin)
+        {
+            ResultMessage resultMsg = new ResultMessage();
+            if (access_token_Authentication == "")
+            {
+                resultMsg = EInvoice_Authentication(loginUserId, "", sellerGstin, false, tblInvoiceTO.InvFromOrgId);
+                if (resultMsg.Result != 1)
+                {
+                    throw new Exception("Error in EInvoice_Authentication");
+                }
+                else
+                {
+                    access_token_Authentication = resultMsg.Tag.ToString();
+                }
+            }
+
+            TblEInvoiceApiTO tblEInvoiceApiTO = GetTblEInvoiceApiTO((int)EInvoiceAPIE.GET_EINVOICE);
+            if (tblEInvoiceApiTO == null)
+            {
+                throw new Exception("EInvoiceApiTO is null");
+            }
+
+            tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@gstin", sellerGstin);
+            tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@token", access_token_Authentication);
+
+            string ApiFunctionName = tblEInvoiceApiTO.ApiFunctionName.Replace("IrnNo", tblInvoiceTO.IrnNo);
+            IRestResponse response = CallRestAPIs(tblEInvoiceApiTO.ApiBaseUri + ApiFunctionName, tblEInvoiceApiTO.ApiMethod, tblEInvoiceApiTO.HeaderParam, tblEInvoiceApiTO.BodyParam);
+
+            resultMsg = ProcessEInvoiceAPIResponse(tblInvoiceTO, (int)EInvoiceAPIE.GENERATE_EINVOICE, loginUserId, response, false);
             return resultMsg;
         }
 

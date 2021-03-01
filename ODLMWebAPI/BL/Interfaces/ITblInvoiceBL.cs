@@ -101,6 +101,10 @@ namespace ODLMWebAPI.BL.Interfaces
         /// </summary>
         ResultMessage CancelEInvoice(Int32 loginUserId, Int32 idInvoice, bool forceToGetToken = false);
         /// <summary>
+        /// Dhananjay[01-03-2021] : Added To Get And Update eInvvoice.
+        /// </summary>
+        ResultMessage GetAndUpdateEInvoice(Int32 loginUserId, Int32 idInvoice, bool forceToGetToken = false);
+        /// <summary>
         /// Dhananjay[18-11-2020] : Added To Generate EWayBill.
         /// </summary>
         ResultMessage GenerateEWayBill(Int32 loginUserId, Int32 idInvoice, decimal distanceInKM, bool forceToGetToken = false);
