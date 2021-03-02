@@ -9659,13 +9659,12 @@ namespace ODLMWebAPI.BL
                 if (shippingAddrTO != null)
                 {
                     string shippingAddr2 = GetAreaFromAddress(shippingAddrTO);
-
-                    //[2021-02-26] Dhananjay added
-                    if (shippingAddrTO.BillingName.Trim() == billingAddrTO.BillingName.Trim() && shippingAddrTO.Address.Trim() == billingAddrTO.Address.Trim() && shippingAddrTO.GstinNo.Trim() == billingAddrTO.GstinNo.Trim())
+                    if (string.IsNullOrEmpty(shippingAddrTO.BillingName))
                     {
-                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingAddr", "");
+                        shippingAddrTO.BillingName = buyerName;
                     }
-                    else
+
+                    if (String.IsNullOrEmpty(billingAddrTO.BillingName) || String.IsNullOrEmpty(billingAddrTO.Address) || String.IsNullOrEmpty(billingAddrTO.GstinNo) || String.IsNullOrEmpty(shippingAddrTO.BillingName) || String.IsNullOrEmpty(shippingAddrTO.Address) || String.IsNullOrEmpty(shippingAddrTO.GstinNo))
                     {
                         TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_EINVOICE_SHIPPING_ADDRESS);
                         if (tblConfigParamsTO == null)
@@ -9677,12 +9676,28 @@ namespace ODLMWebAPI.BL
                             tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingAddr", tblConfigParamsTO.ConfigParamVal);
                         }
                     }
-                    //[2021-02-26] Dhananjay end
-
-                    if (string.IsNullOrEmpty(shippingAddrTO.BillingName))
+                    else
                     {
-                        shippingAddrTO.BillingName = buyerName;
+                        //[2021-02-26] Dhananjay added
+                        if (shippingAddrTO.BillingName.Trim() == billingAddrTO.BillingName.Trim() && shippingAddrTO.Address.Trim() == billingAddrTO.Address.Trim() && shippingAddrTO.GstinNo.Trim() == billingAddrTO.GstinNo.Trim())
+                        {
+                            tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingAddr", "");
+                        }
+                        else
+                        {
+                            TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_EINVOICE_SHIPPING_ADDRESS);
+                            if (tblConfigParamsTO == null)
+                            {
+                                tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingAddr", "");
+                            }
+                            else
+                            {
+                                tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingAddr", tblConfigParamsTO.ConfigParamVal);
+                            }
+                        }
+                        //[2021-02-26] Dhananjay end
                     }
+
                     if (string.IsNullOrEmpty(shippingAddrTO.GstinNo))
                     {
                         //shippingAddrTO.GstinNo = billingAddrTO.GstinNo;
