@@ -4120,16 +4120,21 @@ namespace ODLMWebAPI.BL
                 qrCodeDT.Rows.Add();
 
                 response = _iTblInvoiceDAO.SelectresponseForPhotoInReport(invoiceId, apiId);
-                JObject json = JObject.Parse(response);
-                if (json.ContainsKey("data"))
+                if(!String.IsNullOrEmpty(response))
                 {
-                    JObject jsonData = JObject.Parse(json["data"].ToString());
-                    
-                    if (jsonData.ContainsKey("SignedQRCode"))
+                    JObject json = JObject.Parse(response);
+
+                    if (json.ContainsKey("data"))
                     {
-                        signedQRCode = (string)jsonData["SignedQRCode"];
+                        JObject jsonData = JObject.Parse(json["data"].ToString());
+
+                        if (jsonData.ContainsKey("SignedQRCode"))
+                        {
+                            signedQRCode = (string)jsonData["SignedQRCode"];
+                        }
                     }
                 }
+               
                 if (!String.IsNullOrEmpty(signedQRCode))
                 {
                     PhotoCodeInBytes = _iCommon.convertQRStringToByteArray(signedQRCode);
