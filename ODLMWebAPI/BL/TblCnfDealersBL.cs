@@ -54,6 +54,39 @@ namespace ODLMWebAPI.BL
             }
         }
 
+        public List<DropDownTO> SelectActiveCnfDealersList(Int32 dealerId, Boolean isSpecialOnly)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            List<DropDownTO> dealerList = new List<DropDownTO>();
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+                List<TblCnfDealersTO> tblCnfDealersTOList = _iTblCnfDealersDAO.SelectAllTblCnfDealers(dealerId, isSpecialOnly, conn, tran);
+                if(tblCnfDealersTOList != null && tblCnfDealersTOList.Count > 0)
+                {
+                    for (int i = 0; i < tblCnfDealersTOList.Count; i++)
+                    {
+                        DropDownTO dropDownTO = new DropDownTO();
+                        dropDownTO.Value = tblCnfDealersTOList[i].CnfOrgId;
+                        dropDownTO.Text = tblCnfDealersTOList[i].CnfOrgName;
+                        dealerList.Add(dropDownTO);
+
+                    }
+                }
+                return dealerList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
         public List<TblCnfDealersTO> SelectAllActiveCnfDealersList(Int32 dealerId, Boolean isSpecialOnly,SqlConnection conn,SqlTransaction tran)
         {
             return _iTblCnfDealersDAO.SelectAllTblCnfDealers(dealerId,isSpecialOnly, conn,tran);
