@@ -15,6 +15,7 @@ namespace ODLMWebAPI.DashboardModels
         private double soldStock;           //Priyanka [27-07-2018] : Added to show sold & unsold stock on dashboard.
         private double unsoldStock;
         private double todaysStock;         //Priyanka [02-08-2018]
+        private string pendingQtyWithOrderType;
         #endregion
 
         #region Get Set
@@ -24,7 +25,10 @@ namespace ODLMWebAPI.DashboardModels
         public double SoldStock { get => soldStock; set => soldStock = value; }
         public double UnsoldStock { get => unsoldStock; set => unsoldStock = value; }
         public double TodaysStock { get => todaysStock; set => todaysStock = value; }
+        public string PendingQtyWithOrderType { get => pendingQtyWithOrderType; set => pendingQtyWithOrderType = value; }
 
         #endregion
+
+
     }
 }

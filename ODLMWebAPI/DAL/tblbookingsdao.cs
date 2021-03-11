@@ -27,30 +27,32 @@ namespace ODLMWebAPI.DAL
         }
         #region Methods
         public String SqlSelectQuery(Int32 loginUserId = 0)
+
         {
-            
+
             String sqlSelectQry = "SELECT bookings.*,tblCRMEnquiry.enqDisplayNo,dimStat.statusName as dealerCat,dimStat.colorCode,orgDealer.creditLimit ,userCreatedBy.userDisplayName As createdByName,userUpdatedBy.userDisplayName As updatedByName, " +
                                   "orgCnf.firmName as cnfName,orgDealer.isOverdueExist  as isOrgOverDue, tblTranAction.tranActionTypeId As tranActionTypeId," +
                                   " orgDealer.firmName + ',' + " +
                                   " CASE WHEN orgDealer.addrId IS NULL THEN '' Else case WHEN address.villageName IS NOT NULL THEN address.villageName " +
                                   " ELSE CASE WHEN address.talukaName IS NOT NULL THEN address.talukaName ELSE CASE WHEN address.districtName IS NOT NULL THEN address.districtName ELSE address.stateName END END END END AS dealerName," +
-                                  " CONCAT (dimStatus.statusName,'-', ISNULL(userStatusBy.userDisplayName,'') ) AS statusName , brandDtl.brandName, address.stateId, address.districtId, address.talukaId " + //02-12-2020 Dhananjay added address.districtId, address.talukaId
+                                  " CONCAT (dimStatus.statusName,'-', ISNULL(userStatusBy.userDisplayName,'') ) AS statusName , brandDtl.brandName, address.stateId, address.districtId, address.talukaId,orderType.consumerType as consumerTypeName" + //02-12-2020 Dhananjay added address.districtId, address.talukaId
                                   " FROM tblbookings bookings LEFT JOIN tblOrganization orgCnf  ON bookings.cnfOrgId = orgCnf.idOrganization" +
 
-                                  " LEFT JOIN tblTranActions tblTranAction ON tblTranAction.transId = bookings.idBooking AND tblTranAction.userId = "+ loginUserId +
-                                  " AND tblTranAction.tranActionTypeId = "+ (Int32)Constants.TranActionTypeE.READ +
-                                  " AND tblTranAction.transTypeId = "+ (Int32)Constants.TransactionTypeE.BOOKING +
+                                  " LEFT JOIN tblTranActions tblTranAction ON tblTranAction.transId = bookings.idBooking AND tblTranAction.userId = " + loginUserId +
+                                  " AND tblTranAction.tranActionTypeId = " + (Int32)Constants.TranActionTypeE.READ +
+                                  " AND tblTranAction.transTypeId = " + (Int32)Constants.TransactionTypeE.BOOKING +
                                   " LEFT JOIN tblUser userCreatedBy ON userCreatedBy.idUser = bookings.createdBy " +
-                                  " LEFT JOIN tblUser userUpdatedBy ON userUpdatedBy.idUser = bookings.updatedBy "+
+                                  " LEFT JOIN tblUser userUpdatedBy ON userUpdatedBy.idUser = bookings.updatedBy " +
                                   " LEFT JOIN tblUser userStatusBy ON userStatusBy.idUser = bookings.statusBy " +
                                   " LEFT JOIN tblOrganization orgDealer  ON bookings.dealerOrgId = orgDealer.idOrganization " +
-                                  " LEFT JOIN dimStatus ON dimStatus.idStatus = bookings.statusId "+
+                                  " LEFT JOIN dimStatus ON dimStatus.idStatus = bookings.statusId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = orgDealer.orgStatusId" +
                                   " LEFT JOIN dimBrand brandDtl ON brandDtl.idBrand = bookings.brandId " +
                                   //" LEFT JOIN tblUserAreaAllocation userAreaAlloc on userAreaAlloc.cnfOrgId = bookings.cnFOrgId "+
                                   //" AND userAreaAlloc.userId = "+ RMId +
                                   " LEFT JOIN vAddressDetails address ON address.idAddr = orgDealer.addrId " +
-                                  " LEFT JOIN tblCRMEnquiry tblCRMEnquiry ON tblCRMEnquiry.idEnquiry = bookings.enquiryId ";
+                                  " LEFT JOIN tblCRMEnquiry tblCRMEnquiry ON tblCRMEnquiry.idEnquiry = bookings.enquiryId " +
+                                  "LEFT JOIN dimConsumerType orderType ON orderType.idConsumer = bookings.consumerTypeId ";
 
 
             //String sqlSelectQry = " SELECT bookings.*, orgCnf.firmName as cnfName,orgDealer.firmName as dealerName, dimStatus.statusName" +
@@ -155,7 +157,9 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public Double SelectTotalPendingBookingQty(DateTime sysDate)
+        //public Double SelectTotalPendingBookingQty(DateTime sysDate)
+        public List<PendingQtyOrderTypeTo> SelectTotalPendingBookingQty(DateTime sysDate)
+
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -178,31 +182,69 @@ namespace ODLMWebAPI.DAL
                 }
                 if(skipOtherQty==1)
                 {
-                    cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty from tblBookings where bookingType not IN(2) and statusId NOT IN( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate";
+                    //cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty from tblBookings where bookingType not IN(2) and statusId NOT IN( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate";
+                    cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty,dimConsumerType.consumerType from tblBookings " +
+                                            "left join dimConsumerType dimConsumerType on dimConsumerType.idConsumer = tblBookings.consumerTypeId " +
+                                            "where bookingType not IN(2) and statusId NOT IN ( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate group by dimConsumerType.consumerType";
+
                 }
                 else
                 {
-                    cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty from tblBookings where statusId NOT IN( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate";
+                    //cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty from tblBookings where statusId NOT IN( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate";
+                    cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty,dimConsumerType.consumerType from tblBookings " +
+                                            "left join dimConsumerType dimConsumerType on dimConsumerType.idConsumer = tblBookings.consumerTypeId " +
+                                            "where statusId NOT IN ( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate group by dimConsumerType.consumerType";
                 }
 
 
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
-                cmdSelect.Parameters.Add("@bookingDate", System.Data.SqlDbType.DateTime).Value = sysDate;
+                cmdSelect.Parameters.Add("@bookingDate", System.Data.SqlDbType.DateTime).Value = Constants.GetEndDateTime(sysDate);
 
                 tblLoadingTODT = cmdSelect.ExecuteReader(CommandBehavior.Default);
-                while (tblLoadingTODT.Read())
+
+                //Added by Gokul
+                List<PendingQtyOrderTypeTo> pendingQtyOrderTypeTOList = new List<PendingQtyOrderTypeTo>();
+                if (tblLoadingTODT!=null)
                 {
+                    while (tblLoadingTODT.Read())
+                    {
+                        PendingQtyOrderTypeTo pendingQtyOrderTypeTo = new PendingQtyOrderTypeTo();
 
-                    return Convert.ToDouble(tblLoadingTODT["bookingQty"].ToString()); ;
+                        if (tblLoadingTODT["consumerType"] != DBNull.Value)
+                            pendingQtyOrderTypeTo.ConsumerTypeName = Convert.ToString(tblLoadingTODT["consumerType"]);
+                        if (pendingQtyOrderTypeTo.ConsumerTypeName == null)
+                        {
+                            pendingQtyOrderTypeTo.ConsumerTypeName = "-";
+                        }
+                        if (tblLoadingTODT["bookingQty"] != DBNull.Value)
+                            pendingQtyOrderTypeTo.BookingQty = Convert.ToDouble(tblLoadingTODT["bookingQty"].ToString());
+
+                        pendingQtyOrderTypeTOList.Add(pendingQtyOrderTypeTo);
+
+                    }
+
+
                 }
+                return pendingQtyOrderTypeTOList;
 
-                return 0;
+
+                //while (tblLoadingTODT.Read())
+                //{
+
+                //    //return Convert.ToDouble(tblLoadingTODT["bookingQty"].ToString()); ;
+
+                ////List Created for booking qty and consumer Type
+
+
+                //}
+
+                //return ;
             }
             catch (Exception ex)
             {
-                return 0;
+                return null;
             }
             finally
             {
@@ -1929,6 +1971,11 @@ namespace ODLMWebAPI.DAL
                         tblBookingsTONew.DistrictId = Convert.ToInt32(tblBookingsTODT["districtId"]);
                     if (tblBookingsTODT["talukaId"] != DBNull.Value)
                         tblBookingsTONew.TalukaId = Convert.ToInt32(tblBookingsTODT["talukaId"]);
+                    if (tblBookingsTODT["consumerTypeid"] != DBNull.Value)
+                        tblBookingsTONew.OrderTypeId = Convert.ToInt32(tblBookingsTODT["consumerTypeid"]);
+                    if (tblBookingsTODT["consumerTypeName"] != DBNull.Value)
+                        tblBookingsTONew.OrderTypeName = Convert.ToString(tblBookingsTODT["consumerTypeName"]);
+
 
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }
@@ -2261,7 +2308,9 @@ namespace ODLMWebAPI.DAL
                             " ,[isItemized]" + //Aniket[13-6-2019]
                             " ,[bookingRefId]" + //kiran[06-09-2019]
                             " ,[bookingDisplayNo]" + //kiran[06-09-2019]
-                            " ,[enquiryId]" + //kiran[06-09-2019]
+                            " ,[enquiryId]" +
+                            //kiran[06-09-2019]
+                            ", [consumerTypeId]" + //Gokul [11-02-2021]
                             " )" +
                 " VALUES (" +
                             "  @CnFOrgId " +
@@ -2315,6 +2364,7 @@ namespace ODLMWebAPI.DAL
                             " ,@bookingRefId" +
                             " ,@bookingDisplayNo" +
                             " ,@enquiryId" +
+                            " ,@consumertypeid" +
                              " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -2374,6 +2424,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@bookingRefId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingRefId);
             cmdInsert.Parameters.Add("@bookingDisplayNo", System.Data.SqlDbType.VarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingDisplayNo);
             cmdInsert.Parameters.Add("@enquiryId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.EnquiryId);
+            cmdInsert.Parameters.Add("@consumertypeid", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.OrderTypeId);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
@@ -2514,6 +2565,7 @@ namespace ODLMWebAPI.DAL
                             " ,[bookingRefId] = @bookingRefId" +
                             " ,[bookingDisplayNo] = @bookingDisplayNo" +
                             " ,[enquiryId] = @enquiryId" +
+                            " , [consumerTypeId]=@consumerTypeId" +
                             " WHERE  [idBooking] = @IdBooking";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -2570,6 +2622,7 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@bookingRefId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingRefId);
             cmdUpdate.Parameters.Add("@bookingDisplayNo", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingDisplayNo);
             cmdUpdate.Parameters.Add("@enquiryId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.EnquiryId);
+            cmdUpdate.Parameters.Add("@consumerTypeId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.OrderTypeId);
 
 
             return cmdUpdate.ExecuteNonQuery();

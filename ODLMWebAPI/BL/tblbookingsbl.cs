@@ -296,7 +296,7 @@ namespace ODLMWebAPI.BL
         }
 
 
-        public Double SelectTotalPendingBookingQty(DateTime sysDate)
+        public List<PendingQtyOrderTypeTo> SelectTotalPendingBookingQty(DateTime sysDate)
         {
             return _iTblBookingsDAO.SelectTotalPendingBookingQty(sysDate);
 
@@ -397,6 +397,10 @@ namespace ODLMWebAPI.BL
 
                 list = list.Where(w => w.IdBooking != bookingId).ToList();
 
+                list = list.Where(w => w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED_BY_MARKETING
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED_FINANCE
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR).ToList();
 
                 if (list == null || list.Count == 0)
                 {
@@ -425,6 +429,176 @@ namespace ODLMWebAPI.BL
                 return resultMessage;
             }
         }
+
+
+        public ResultMessage SendBookingDueNotification()
+        {
+            ResultMessage resultMessage = new ResultMessage();
+
+
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+
+            try
+            {
+
+                conn.Open();
+                tran = conn.BeginTransaction();
+
+                List<TblAlertDefinitionTO> tblAlertDefinitionTOList = _iTblAlertDefinitionDAO.SelectAllTblAlertDefinition();
+
+                DateTime currentDate = _iCommon.ServerDateTime;
+
+                DateTime fromDate = Constants.GetEndDateTime(currentDate.AddDays(-90));
+                DateTime toDate = Constants.GetEndDateTime(currentDate);
+
+                List<TblBookingsTO> tblBookingsTOList = SelectBookingList(0, 0, 0, fromDate, toDate, null, -1, 1, 0, 1, 0);
+
+                tblBookingsTOList = tblBookingsTOList.Where(w => w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED_BY_MARKETING
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED_FINANCE
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR).ToList();
+
+
+                //List<TblBookingsTO> tblBookingsTOList = SelectAllPendingBookingsForReport();
+                //List<TblBookingsTO> tblBookingsTOList = _iTblBookingsDAO.SelectAllTblBookings();
+
+                Int32 dueDays = 0, notificationStartDays = 0;
+
+                TblConfigParamsTO tblConfigParamTODueDays = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.BOOKING_DUE_DAYS_WITH_START_NOTIFICATON_DAYS);
+                if (tblConfigParamTODueDays == null)
+                {
+                    throw new Exception("tblConfigParamTODueDays no found");
+                }
+
+                List<String> tempList = tblConfigParamTODueDays.ConfigParamVal.Split(',').ToList();
+                if (tempList != null && tempList.Count >= 2)
+                {
+                    dueDays = Convert.ToInt32(tempList[0]);
+                    notificationStartDays = Convert.ToInt32(tempList[1]);
+                }
+
+                if (dueDays == 0)
+                {
+                    resultMessage.DefaultSuccessBehaviour();
+                    return resultMessage;
+                }
+
+                if (notificationStartDays == 0)
+                {
+                    resultMessage.DefaultSuccessBehaviour();
+                    return resultMessage;
+                }
+
+                tblBookingsTOList = tblBookingsTOList.Where(w => w.PendingQty > 0).ToList();
+                tblBookingsTOList = tblBookingsTOList.Where(w => w.BookingDatetime.Date.AddDays(dueDays) >= currentDate.Date).ToList();
+                tblBookingsTOList = tblBookingsTOList.Where(w => w.BookingDatetime.Date.AddDays(notificationStartDays) <= currentDate.Date).ToList();
+
+                for (int i = 0; i < tblBookingsTOList.Count; i++)
+                {
+                    TblBookingsTO tblBookingsTO = tblBookingsTOList[i];
+
+                    TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
+                    List<TblAlertUsersTO> tblAlertUsersTOList = new List<TblAlertUsersTO>();
+                    List<TblUserTO> dealerUserList = _iTblUserDAO.SelectAllTblUser(tblBookingsTO.DealerOrgId, conn, tran);
+                    if (dealerUserList != null && dealerUserList.Count > 0)
+                    {
+                        for (int a = 0; a < dealerUserList.Count; a++)
+                        {
+                            TblAlertUsersTO tblAlertUsersTO = new TblAlertUsersTO();
+                            tblAlertUsersTO.UserId = dealerUserList[a].IdUser;
+                            tblAlertUsersTO.DeviceId = dealerUserList[a].RegisteredDeviceId;
+                            tblAlertUsersTOList.Add(tblAlertUsersTO);
+                        }
+                    }
+
+
+                    String dueDateStr = tblBookingsTO.BookingDatetime.Date.AddDays(dueDays).ToString("yyyy-MM-dd");
+
+
+                    TblAlertDefinitionTO tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_DUE);
+                    tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_DUE;
+                    tblAlertInstanceTO.AlertAction = "BOOKING_DUE";
+
+
+                    tblAlertInstanceTO.EffectiveFromDate = currentDate;
+                    tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(24);
+                    tblAlertInstanceTO.IsActive = 1;
+                    tblAlertInstanceTO.SourceDisplayId = "Booking";
+                    tblAlertInstanceTO.SourceEntityId = tblBookingsTO.IdBooking;
+                    tblAlertInstanceTO.RaisedBy = 1;
+                    tblAlertInstanceTO.RaisedOn = currentDate;
+                    tblAlertInstanceTO.IsAutoReset = 1;
+
+
+                    //tblAlertInstanceTO.AlertComment = "";
+                    tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
+
+                    if (!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                    {
+                        string tempSmsString = tblAlertDefinitionTO.DefaultAlertTxt;
+
+                        tempSmsString = tempSmsString.Replace("@QtyStr", tblBookingsTO.BookingQty.ToString());
+                        tempSmsString = tempSmsString.Replace("@RateStr", tblBookingsTO.BookingRate.ToString());
+                        tempSmsString = tempSmsString.Replace("@BookingNoStr", tblBookingsTO.BookingDisplayNo);
+                        tempSmsString = tempSmsString.Replace("@PendingQtyStr", tblBookingsTO.PendingQty.ToString());
+                        tempSmsString = tempSmsString.Replace("@DueDateStr", dueDateStr);
+
+                        tblAlertInstanceTO.AlertComment = tempSmsString;
+                    }
+
+
+                    tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
+                    // SMS to Dealer
+                    TblSmsTO smsTO = new TblSmsTO();
+                    Dictionary<Int32, String> orgMobileNoDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblBookingsTO.DealerOrgId.ToString(), conn, tran);
+                    if (orgMobileNoDCT != null && orgMobileNoDCT.Count == 1)
+                    {
+                        smsTO.MobileNo = orgMobileNoDCT[tblBookingsTO.DealerOrgId];
+                        if (!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
+                        {
+                            string tempSmsString = tblAlertDefinitionTO.DefaultSmsTxt;
+
+                            tempSmsString = tempSmsString.Replace("@QtyStr", tblBookingsTO.BookingQty.ToString());
+                            tempSmsString = tempSmsString.Replace("@RateStr", tblBookingsTO.BookingRate.ToString());
+                            tempSmsString = tempSmsString.Replace("@BookingNoStr", tblBookingsTO.BookingDisplayNo);
+                            tempSmsString = tempSmsString.Replace("@PendingQtyStr", tblBookingsTO.PendingQty.ToString());
+                            tempSmsString = tempSmsString.Replace("@DueDateStr", dueDateStr);
+
+                            smsTO.SmsTxt = tempSmsString;
+                        }
+                        else
+                        {
+                            smsTO.SmsTxt = "Your Order Of Pend Qty " + tblBookingsTO.PendingQty.ToString().Trim() + " MT with Rate " + tblBookingsTO.BookingRate + " (Rs/MT) is due on date - " + dueDateStr + " Your Ref No : " + tblBookingsTO.BookingDisplayNo + "";
+                        }
+                        tblAlertInstanceTO.SmsTOList.Add(smsTO);
+                    }
+
+
+                    ResultMessage rMessage = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
+
+                    if (rMessage.MessageType != ResultMessageE.Information)
+                    {
+                        return rMessage;
+                    }
+
+                }
+
+                tran.Commit();
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "SendBookingDueNotification");
+                return resultMessage;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
         public List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords , Int32 bookingId)
         {
             List<TblBookingsTO> pendingList = _iTblBookingsDAO.SelectAllLatestBookingOfDealer(dealerId, lastNRecords, true, bookingId);
@@ -3728,6 +3902,8 @@ namespace ODLMWebAPI.BL
                 existingTblBookingsTO.IsSez = tblBookingsTO.IsSez;
                 existingTblBookingsTO.UomQty = tblBookingsTO.UomQty;
                 existingTblBookingsTO.PendingUomQty = tblBookingsTO.PendingUomQty;
+                existingTblBookingsTO.OrderTypeId = tblBookingsTO.OrderTypeId;
+                existingTblBookingsTO.OrderTypeName = tblBookingsTO.OrderTypeName;
 
                 //Aniket [24-7-2019] added to check scheduled NoOfDeliveries against booking
                 if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
