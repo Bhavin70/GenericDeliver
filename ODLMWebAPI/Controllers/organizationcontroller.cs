@@ -243,6 +243,12 @@ namespace ODLMWebAPI.Controllers
         {
             return _iTblCnfDealersBL.SelectAllActiveCnfDealersList(dealerId, false);
         }
+        [Route("GetActiveDealersCnfList")]
+        [HttpGet]
+        public List<DropDownTO> SelectActiveCnfDealersList(Int32 dealerId)
+        {
+            return _iTblCnfDealersBL.SelectActiveCnfDealersList(dealerId, false);
+        }
         [Route("GetDealerForLoadingDropDownList")]
         [HttpGet]
         public List<DropDownTO> GetDealerForLoadingDropDownList(Int32 cnfId)
