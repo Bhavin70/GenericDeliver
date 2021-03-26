@@ -251,11 +251,56 @@ namespace ODLMWebAPI.BL
             {
                 tblUserRoleTO = _iTblUserRoleBL.SelectUserRoleTOAccToPriority(tblUserRoleTOList);
             }
+
+
+            //Gokul [20-03-21] Allow to show all dealer for a perticular CNF
+            //TblConfigParamsTO tblConfigParamsTOForAllowAllDealers = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.ALLOW_SHOW_ALL_DEALER);
+            //if (tblConfigParamsTOForAllowAllDealers != null)
+            //{
+            //    string cnfIdList = tblConfigParamsTOForAllowAllDealers.ConfigParamVal;
+            //    if (cnfIdList.Length>0)
+            //    {
+            //        string[] cnfArray = cnfIdList.Split(",");
+            //        foreach (string tempCnfId in cnfArray)
+            //        {
+            //            if (Convert.ToInt16(tempCnfId) == cnfId)
+            //            {
+            //                cnfId = 0;
+            //                break;
+            //            }
+            //        }
+            //    }
+            //}
+
+            //Gokul [20-03-21] Allow to show all dealer for a perticular CNF
+            TblConfigParamsTO tblConfigParamsTOForAllowAllDealers = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER);
+            if (tblConfigParamsTOForAllowAllDealers != null)
+            {
+                Boolean isAllowToShowAllDealers;
+                isAllowToShowAllDealers = Constants.IsStringContainInfoSeperatedByComma(tblConfigParamsTOForAllowAllDealers.ConfigParamVal, cnfId.ToString());
+                if (isAllowToShowAllDealers)
+                {
+                    cnfId = 0;
+                }
+            }
             return _iTblOrganizationDAO.SelectDealerListForDropDown(cnfId, tblUserRoleTO);
         }
 
         public List<DropDownTO> GetDealerForLoadingDropDownList(Int32 cnfId)
         {
+            //Gokul [20-03-21] Allow to show all dealer for a perticular CNF
+            TblConfigParamsTO tblConfigParamsTOForAllowAllDealers = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER);
+            if (tblConfigParamsTOForAllowAllDealers != null)
+            {
+                Boolean isAllowToShowAllDealers;
+                isAllowToShowAllDealers = Constants.IsStringContainInfoSeperatedByComma(tblConfigParamsTOForAllowAllDealers.ConfigParamVal, cnfId.ToString());
+                if (isAllowToShowAllDealers)
+                {
+                    cnfId = 0;
+                }
+            }
+            
+
             return _iTblOrganizationDAO.GetDealerForLoadingDropDownList(cnfId);
         }
 

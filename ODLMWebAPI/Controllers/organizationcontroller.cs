@@ -216,7 +216,7 @@ namespace ODLMWebAPI.Controllers
         [Route("GetDealerDropDownList")]
         [HttpGet]
         public List<DropDownTO> GetDealerDropDownList(Int32 cnfId, String userRoleTOList)
-        {
+       {
             List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleTOList);
             List<DropDownTO> list = _iTblOrganizationBL.SelectDealerListForDropDown(cnfId, tblUserRoleTOList).OrderBy(o => o.Text).ToList(); 
             return list;

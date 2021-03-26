@@ -793,6 +793,8 @@ namespace ODLMWebAPI.StaticStuff
 
         public static string CP_SPLIT_BOOKING_AGAINST_INVOICE = "CP_SPLIT_BOOKING_AGAINST_INVOICE";
 
+        public static string COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER = "COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER";
+
         #endregion
 
         //Harshala Added
@@ -934,6 +936,22 @@ namespace ODLMWebAPI.StaticStuff
         }
 
 
+        //Added By Gokul - To Seperate string by comma to find Target string or number
+        public static Boolean IsStringContainInfoSeperatedByComma(string availableStr,string target)
+        {
+            if (!String.IsNullOrEmpty(availableStr))
+            {
+                string[] strToArray = availableStr.Split(",");
+                foreach (string arr in strToArray)
+                {
+                    if (arr == target)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         #endregion
 
