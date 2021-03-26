@@ -1389,6 +1389,38 @@ namespace ODLMWebAPI.Controllers
         }
 
         /// <summary>
+        /// Dhananjay[01-03-2021] : Added To Get And Update eInvvoice.
+        /// </summary>
+        [Route("GetAndUpdateEInvoice")]
+        [HttpPost]
+        public ResultMessage GetAndUpdateEInvoice([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                var loginUserId = data["loginUserId"].ToString();
+                var idInvoice = data["idInvoice"].ToString();
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    resultMessage.DefaultBehaviour("loginUserId Not Found");
+                    return resultMessage;
+                }
+                
+                return _iTblInvoiceBL.GetAndUpdateEInvoice(Convert.ToInt32(loginUserId), Convert.ToInt32(idInvoice));
+            }
+            catch (Exception ex)
+            {
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Text = ex.Message;
+                return resultMessage;
+            }
+            finally
+            {
+
+            }
+        }
+
+        /// <summary>
         /// Dhananjay[18-11-2020] : Added To Generate EWayBill.
         /// </summary>
         [Route("GenerateEWayBill")]
