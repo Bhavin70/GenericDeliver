@@ -767,6 +767,8 @@ namespace ODLMWebAPI.StaticStuff
         //Aniket [22-4-2019] added to check whether vehicle suggestion is should show or hide
         public static string IS_HIDE_VEHICLE_LIST_SUGGESTION = "IS_HIDE_VEHICLE_LIST_SUGGESTION";
 
+        public static string SHOW_GST_CODE_UPTO_DIGITS = "SHOW_GST_CODE_UPTO_DIGITS";
+
         //Aniket [10-6-2019]
         public static string IS_BALAJI_CLIENT = "IS_BALAJI_CLIENT";
         //Aniket [9-9-2019]

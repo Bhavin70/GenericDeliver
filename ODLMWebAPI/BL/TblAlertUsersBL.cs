@@ -173,8 +173,11 @@ namespace ODLMWebAPI.BL
                 }
                 //Hrushikesh added to not to show empty notification
                 a.IsAcknowledged = 1;
-                a.IsLogOut = result;
-                list.Add(a);
+                if (result != (int)Constants.LogoutValueE.DirectLogout)
+                {
+                    a.IsLogOut = result;
+                    list.Add(a);
+                }
             }
             //end
             return list;
