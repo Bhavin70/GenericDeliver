@@ -109,7 +109,7 @@ namespace ODLMWebAPI.DAL
                     if (ModuleId != 0)
                         query += "AND moduleId = " + ModuleId + " ";
                     if (PageElementId != null && PageElementId != "null")
-                        query += "AND pageElementId = " + PageElementId + " ";
+                        query += "AND pageElementId = '" + PageElementId + "' ";
                 }else
                 {
                     query = "AND transId IN(" + transIds + ") AND transType = '" + TransactionType + "' ";
