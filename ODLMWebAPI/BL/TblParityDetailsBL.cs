@@ -661,7 +661,7 @@ namespace ODLMWebAPI.BL
             {
                 if (parityLevel == 1)
                 {
-                    throw new Exception("parityDtlTO is NULL");
+                    //throw new Exception("parityDtlTO is NULL");
                 }
                 else if (parityLevel == 2)
                 {
@@ -685,6 +685,27 @@ namespace ODLMWebAPI.BL
             }
             return TblParityDetailsTOList;
         }
+
+        public List<TblParityDetailsTO> GetCurrentParityDetailToListOnBooking(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate, Int32 districtId, Int32 talukaId, Int32 parityLevel)
+        {
+            if (parityLevel == 1)
+            {
+                districtId = 0;
+                talukaId = 0;
+            }
+            else if(parityLevel == 2)
+            {
+                talukaId = 0;
+            }
+            else if (parityLevel == 3)
+            {
+                districtId = 0;
+            }
+
+            List<TblParityDetailsTO> TblParityDetailsTOList = _iTblParityDetailsDAO.SelectCurrentParityDtlsList(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
+            return TblParityDetailsTOList;
+        }
+
         #endregion
 
         #region Insertion
