@@ -363,7 +363,7 @@ namespace ODLMWebAPI.Controllers
         }
         // Aniket [21-Jan-2019] added to fetch ParityDetailsList against brand
         //[Route("GetParityDetailsListFromBrand")]
-        //[HttpGet]
+        //[HttpGet] 
         //public List<TblParityDetailsTO> GetParityDetailsListFromBrand(Int32 fromBrand,Int32 toBrand,Int32 currencyId,Int32 categoryId, Int32 stateId)
         //{
         //    try
