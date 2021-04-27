@@ -1650,7 +1650,7 @@ namespace ODLMWebAPI.DAL
                 {
                     cmdSelect.CommandText = " SELECT vehicleNo,idUnLoading AS 'idLoading' ,org.firmName AS orgName FROM tblUnLoading tblunload " +
                                             " INNER JOIN tblOrganization org ON org.idOrganization=tblunload.SupplierOrgId " +
-                                            " WHERE statusId = " + (int)Constants.TranStatusE.UNLOADING_NEW;
+                                            " WHERE statusId = " + (int)Constants.TranStatusE.UNLOADING_NEW + " ORDER BY tblunload.createdOn DESC";
                 }
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
