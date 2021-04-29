@@ -28,12 +28,19 @@ using ODLMWebAPI.Authentication;
 using ODLMWebAPI.IoT;
 using ODLMWebAPI.IoT.Interfaces;
 using Newtonsoft.Json.Linq;
+using ODLMWebAPI.StaticStuff;
 
 namespace ODLMWebAPI
 {
     public class Startup
     {
-
+        //private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
+        //public ITblConfigParamsDAO _iTblConfigParamsDAO { get; }
+        public SAPLoginDetails sapLogindtls;
+        //public Startup(ITblConfigParamsDAO iTblConfigParamsDAO)
+        //{
+        //    _iTblConfigParamsDAO = iTblConfigParamsDAO;
+        //}
         public static string ConnectionString { get; set; }
         public static string RequestOriginString { get; set; }
         public static string AzureConnectionStr { get; set; }
@@ -54,10 +61,14 @@ namespace ODLMWebAPI
         public static SAPbobsCOM.Company CompanyObject { get; private set; }
         public static string StockUrl { get; private set; }
 
+        public static string SERVER_DATETIME_QUERY_STRING { get; private set; }
+        public static Boolean IsLocalAPI { get; private set; }
+
 
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            //_iTblConfigParamsDAO = iTblConfigParamsDAO;
 
             //Sanjay[2017-02-11] For Logging Configuration
 
@@ -529,6 +540,10 @@ namespace ODLMWebAPI
 
             services.AddScoped<ITblInvoiceChangeOrgHistoryDAO, TblInvoiceChangeOrgHistoryDAO>();
 
+            services.AddScoped<ITblConfigParamsDAO, TblConfigParamsDAO>();
+            services.AddScoped<ITblConfigParamsBL, TblConfigParamsBL>();
+
+
 
             //DOSapLogin();
             services.AddMvc();
@@ -537,7 +552,10 @@ namespace ODLMWebAPI
             NewConnectionString = Configuration.GetSection("Data:NewDefaultConnection").Value.ToString();
             DeliverUrl = Configuration.GetSection("Data:DeliverUrl").Value.ToString();
             StockUrl = Configuration.GetSection("Data:StockUrl").Value.ToString();
-            
+
+            GetDateTimeQueryString();
+            IsLocalApi();
+            SAPLoginDetails();
 
             ConnectionJsonFile = JObject.Parse(System.IO.File.ReadAllText(@".\connection.json"));
 
@@ -573,6 +591,43 @@ namespace ODLMWebAPI
             //        });
         }
 
+
+        public void GetDateTimeQueryString()
+        {
+            string sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
+
+            TblConfigParamsTO tblConfigParamsTO = TblConfigParamsDAO.SelectTblConfigParamValByName(Constants.SERVER_DATETIME_QUERY_STRING);
+            if (tblConfigParamsTO.ConfigParamVal != null)
+            {
+                sqlQuery = tblConfigParamsTO.ConfigParamVal;
+            }
+            SERVER_DATETIME_QUERY_STRING = sqlQuery;
+
+        }
+
+        public void IsLocalApi()
+        {
+            IsLocalAPI = false;
+            TblConfigParamsTO tblConfigParamsTO = TblConfigParamsDAO.SelectTblConfigParamValByName(Constants.IS_LOCAL_API);
+            if (tblConfigParamsTO != null)
+            {
+                Int32 isLocalAPI = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+                if (isLocalAPI == 1)
+                    IsLocalAPI = true;
+                else
+                    IsLocalAPI = false;
+            }
+        }
+
+        public void SAPLoginDetails()
+        {
+            TblConfigParamsTO tblConfigParamsTO = TblConfigParamsDAO.SelectTblConfigParamValByName(Constants.SAP_LOGIN_DETAILS);
+            if (tblConfigParamsTO != null)
+            {
+                sapLogindtls = Newtonsoft.Json.JsonConvert.DeserializeObject<SAPLoginDetails>(tblConfigParamsTO.ConfigParamVal);
+            }
+        }
+
         public void DOSapLogin()
         {
             try
@@ -585,30 +640,30 @@ namespace ODLMWebAPI
                 //sboGuiApi = new SAPbouiCOM.SboGuiApi();
 
 
-                companyObject.CompanyDB = "OrionSAPDBTesting";
+                companyObject.CompanyDB = sapLogindtls.CompanyDB;
 
 
-                companyObject.UserName = "manager";
+                companyObject.UserName = sapLogindtls.UserName;
 
 
                 //companyObject.Password = "Sap@1234";
                 //companyObject.Password = "Vega@123";
-                companyObject.Password = "Sap@v1234";
+                companyObject.Password = sapLogindtls.Password;
                 companyObject.language = SAPbobsCOM.BoSuppLangs.ln_English;
                 companyObject.DbServerType = SAPbobsCOM.BoDataServerTypes.dst_MSSQL2017;
                 //companyObject.Server = "10.10.110.102";
-                companyObject.Server = "13.71.35.141";
+                companyObject.Server = sapLogindtls.Server;
 
 
-                companyObject.LicenseServer = "13.71.35.141:30000";
+                companyObject.LicenseServer = sapLogindtls.LicenseServer;
 
 
                 //companyObject.SLDServer = "52.172.136.203\\SQLEXPRESS,1430";
-                companyObject.SLDServer = "13.71.35.141";
-                companyObject.DbUserName = "sa";
+                companyObject.SLDServer = sapLogindtls.SLDServer;
+                companyObject.DbUserName = sapLogindtls.DbUserName;
 
 
-                companyObject.DbPassword = "Vega@123";
+                companyObject.DbPassword = sapLogindtls.DbPassword;
 
 
                 //companyObject.LicenseServer = "10.10.110.102:40000";
@@ -689,5 +744,71 @@ namespace ODLMWebAPI
         }
     }
 
+
+    public class SAPLoginDetails
+    {
+
+
+        string companyDB;
+        string userName;
+        string password;
+        string server;
+        string licenseServer;
+        string sLDServer;
+        string dbUserName;
+        string dbPassword;
+
+
+        public string CompanyDB
+        {
+            get { return companyDB; }
+            set { companyDB = value; }
+        }
+
+        public string UserName
+        {
+            get { return userName; }
+            set { userName = value; }
+        }
+
+        public string Password
+        {
+            get { return password; }
+            set { password = value; }
+        }
+
+        public string Server
+        {
+            get { return server; }
+            set { server = value; }
+        }
+
+        public string LicenseServer
+        {
+            get { return licenseServer; }
+            set { licenseServer = value; }
+        }
+
+        public string SLDServer
+        {
+            get { return sLDServer; }
+            set { sLDServer = value; }
+        }
+
+        public string DbUserName
+        {
+            get { return dbUserName; }
+            set { dbUserName = value; }
+        }
+
+
+        public string DbPassword
+        {
+            get { return dbPassword; }
+            set { dbPassword = value; }
+        }
+
+
+    }
 
 }

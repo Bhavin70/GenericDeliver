@@ -62,32 +62,107 @@ namespace ODLMWebAPI.BL
             return "";
         }
 
-        public ResultMessage myLocationAddress(string lat, string logn)
+        //public ResultMessage myLocationAddress(string lat, string logn)
+        //{
+
+        //    ResultMessage resultMessage = new ResultMessage();
+        //    TblConfigParamsTO mapApiUrl = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.MAP_API_URL);
+        //    if(mapApiUrl == null || mapApiUrl.ConfigParamVal == null)
+        //    {
+        //        resultMessage.DefaultBehaviour("MAP API URL not found");
+        //        return resultMessage;
+        //    }
+        //    //String key = "AIzaSyA4k9_UHCaEiT58pomWx4AWBcD-SJ0B9Vg";
+        //    //String key = "AIzaSyBLrwHzpQaNieX7CCXRkmx3Pf8UQzmlP50"; 
+        //    //String key = "AIzaSyCkLbSDnkG5FxxMMTFwaBzs9JticPPMsRM";
+        //    //String mapMyIndiaKey = "x6a9yupqaxh2ppibyu7847wwfdj8fn9p";
+        //    String key = mapApiUrl.ConfigParamVal;
+        //    String mapMyIndiaKey = mapApiUrl.ConfigParamVal;
+        //    String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + logn + "&key=" + key;
+        //    String mapMyIndiaUrl = "https://apis.mapmyindia.com/advancedmaps/v1/"+mapMyIndiaKey+"/rev_geocode?lat=" + lat + "&lng=" + logn;
+        //    StreamWriter myWriter = null;
+
+        //    TblConfigParamsTO mapConfigTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_MAP_MY_INDIA);
+        //    HttpWebRequest objRequest;
+        //    if (mapConfigTO != null && Convert.ToInt32(mapConfigTO.ConfigParamVal) == 1)
+        //         objRequest = (HttpWebRequest)WebRequest.Create(mapMyIndiaUrl);
+        //    else
+        //        objRequest = (HttpWebRequest)WebRequest.Create(url);
+        //    String result;
+        //    objRequest.Method = "POST";
+        //    objRequest.ContentType = "application/x-www-form-urlencoded";
+        //    try
+        //    {
+        //        Stream aa = objRequest.GetRequestStreamAsync().Result;
+        //        myWriter = new StreamWriter(aa);
+        //        myWriter.Write(aa);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        resultMessage.DefaultExceptionBehaviour(ex, "MAP API URL not found");
+        //        return resultMessage;
+        //    }
+        //    finally
+        //    {
+        //        myWriter.Dispose();
+        //    }
+
+        //    WebResponse objResponse = objRequest.GetResponseAsync().Result;
+        //    using (StreamReader sr = new StreamReader(objResponse.GetResponseStream()))
+        //    {
+        //        result = sr.ReadToEnd();
+        //    }
+        //     resultMessage.Tag = result;
+        //    return resultMessage;
+        //}
+
+
+        public string myLocationAddress(string lat, string logn)
         {
-             
-            ResultMessage resultMessage = new ResultMessage();
-            TblConfigParamsTO mapApiUrl = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.MAP_API_URL);
-            if(mapApiUrl == null || mapApiUrl.ConfigParamVal == null)
+            String key = "AIzaSyBHzCAnCe-VAqQEdONE0PEewbPnjtqeI2Q";
+            String mapMyIndiaKey = "x6a9yupqaxh2ppibyu7847wwfdj8fn9p";
+            TblConfigParamsTO mapConfigTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_MAP_MY_INDIA);
+            TblConfigParamsTO MapAPIConfigTO = new TblConfigParamsTO();
+            String url = null;
+            //String mapMyIndiaUrl = null;
+            if (mapConfigTO != null && Convert.ToInt32(mapConfigTO.ConfigParamVal) == 1)
             {
-                resultMessage.DefaultBehaviour("MAP API URL not found");
-                return resultMessage;
+                MapAPIConfigTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.MAP_MY_INDIA_URL_FOR_myLocationAddress);
+                if (MapAPIConfigTO != null)
+                {
+                    url = MapAPIConfigTO.ConfigParamVal;
+                    url = url.Replace("@lat", lat);
+                    url = url.Replace("@logn", logn);
+                }
+                else
+                {
+                    url = "https://apis.mapmyindia.com/advancedmaps/v1/" + mapMyIndiaKey + "/rev_geocode?lat=" + lat + "&lng=" + logn;
+
+                }
             }
-            //String key = "AIzaSyA4k9_UHCaEiT58pomWx4AWBcD-SJ0B9Vg";
-            //String key = "AIzaSyBLrwHzpQaNieX7CCXRkmx3Pf8UQzmlP50"; 
-            //String key = "AIzaSyCkLbSDnkG5FxxMMTFwaBzs9JticPPMsRM";
-            //String mapMyIndiaKey = "x6a9yupqaxh2ppibyu7847wwfdj8fn9p";
-            String key = mapApiUrl.ConfigParamVal;
-            String mapMyIndiaKey = mapApiUrl.ConfigParamVal;
-            String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + logn + "&key=" + key;
-            String mapMyIndiaUrl = "https://apis.mapmyindia.com/advancedmaps/v1/"+mapMyIndiaKey+"/rev_geocode?lat=" + lat + "&lng=" + logn;
+            else
+            {
+                MapAPIConfigTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.GOOGLE_MAP_API_URL_FOR_LAT_LONG);
+                if (MapAPIConfigTO != null)
+                {
+                    url = MapAPIConfigTO.ConfigParamVal;
+                    url = url.Replace("@lat", lat);
+                    url = url.Replace("@logn", logn);
+                }
+                else
+                {
+                    url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + logn + "&key=" + key;
+
+                }
+            }
+
             StreamWriter myWriter = null;
 
-            TblConfigParamsTO mapConfigTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_MAP_MY_INDIA);
             HttpWebRequest objRequest;
-            if (mapConfigTO != null && Convert.ToInt32(mapConfigTO.ConfigParamVal) == 1)
-                 objRequest = (HttpWebRequest)WebRequest.Create(mapMyIndiaUrl);
-            else
-                objRequest = (HttpWebRequest)WebRequest.Create(url);
+            //if (mapConfigTO != null && Convert.ToInt32(mapConfigTO.ConfigParamVal) == 1)
+            //     objRequest = (HttpWebRequest)WebRequest.Create(mapMyIndiaUrl);
+            //else
+            objRequest = (HttpWebRequest)WebRequest.Create(url);
             String result;
             objRequest.Method = "POST";
             objRequest.ContentType = "application/x-www-form-urlencoded";
@@ -97,10 +172,9 @@ namespace ODLMWebAPI.BL
                 myWriter = new StreamWriter(aa);
                 myWriter.Write(aa);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                resultMessage.DefaultExceptionBehaviour(ex, "MAP API URL not found");
-                return resultMessage;
+                return null;
             }
             finally
             {
@@ -112,9 +186,13 @@ namespace ODLMWebAPI.BL
             {
                 result = sr.ReadToEnd();
             }
-             resultMessage.Tag = result;
-            return resultMessage;
+            return result;
+
         }
+
+
+
+
 
         public string myLatLngByAddress(string address)
         {

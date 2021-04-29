@@ -134,7 +134,7 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 /*To get Server Date Time for Local DB*/
-                String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
+                String sqlQuery = Startup.SERVER_DATETIME_QUERY_STRING;
 
                 ////To get Server Date Time for Azure Server DB
                 //string sqlQuery = " declare @dfecha as datetime " +
