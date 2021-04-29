@@ -810,6 +810,8 @@ namespace ODLMWebAPI.StaticStuff
 
         public static string COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER = "COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER";
 
+        public static string ADD_ITEMWISE_RATE_WHILE_BOOKING = "ADD_ITEMWISE_RATE_WHILE_BOOKING";
+
         #endregion
 
         //Harshala Added

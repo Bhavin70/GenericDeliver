@@ -1156,6 +1156,7 @@ namespace ODLMWebAPI.BL
             resultMessage.MessageType = ResultMessageE.None;
 
             int restrictBeyondQuota = 0;
+            Boolean isAddItemWiseRate = false;
             try
             {
 
@@ -1200,6 +1201,19 @@ namespace ODLMWebAPI.BL
 
                     #endregion
 
+                    //Prajakta[2021-04-26] Added to add itemwise rate while booking
+                    TblConfigParamsTO addItemWiseRateConfigTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.ADD_ITEMWISE_RATE_WHILE_BOOKING);
+                    if(addItemWiseRateConfigTO != null)
+                    {
+                        if(addItemWiseRateConfigTO.ConfigParamVal == "1")
+                        {
+                            isAddItemWiseRate = true;
+                        }
+                        else
+                        {
+                            isAddItemWiseRate = false;
+                        }
+                    }
 
 
                     // Aniket [27-02-2019] added to check whether CNF has sufficient balance quota against current booking
@@ -1932,7 +1946,10 @@ namespace ODLMWebAPI.BL
                                     TblBookingExtTO tblBookingExtTO = tblBookingScheduleTO.OrderDetailsLst[j];
                                     tblBookingExtTO.BookingId = tblBookingsTO.IdBooking;
                                     //if(isBalajiClient==0)
-                                    tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
+                                    //Prajakta[2021-04-23] Commented as rate will get as per parity from GUI
+                                    if(!isAddItemWiseRate)
+                                        tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
+
                                     tblBookingExtTO.ScheduleId = tblBookingScheduleTO.IdSchedule;
                                     if (!isRegular)
                                     {
@@ -1998,7 +2015,10 @@ namespace ODLMWebAPI.BL
                             tblBookingExtTO.BookingId = tblBookingsTO.IdBooking;
                             tblBookingExtTO.BalanceQty = tblBookingExtTO.BookedQty;
                             //if(isBalajiClient==0)
-                            tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
+                            //Prajakta[2021-04-23] Commented as rate will get as per parity from GUI
+                            if (!isAddItemWiseRate)
+                                tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
+
                             result = _iTblBookingExtDAO.InsertTblBookingExt(tblBookingExtTO, conn, tran);
                             if (result != 1)
                             {

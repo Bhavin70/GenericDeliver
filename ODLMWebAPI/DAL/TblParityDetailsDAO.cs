@@ -558,6 +558,113 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+
+        /// <summary>
+        /// Prajakta[2021-04-26] Added to get current parity 
+        /// </summary>
+        /// <param name="materialId"></param>
+        /// <param name="prodCatId"></param>
+        /// <param name="prodSpecId"></param>
+        /// <param name="productItemId"></param>
+        /// <param name="brandId"></param>
+        /// <param name="stateId"></param>
+        /// <param name="boookingDate"></param>
+        /// <param name="districtId"></param>
+        /// <param name="talukaId"></param>
+        /// <returns></returns>
+        public List<TblParityDetailsTO> SelectCurrentParityDtlsList(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate, Int32 districtId, Int32 talukaId) //02-12-2020 Dhananjay added districtId and talukaId
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader sqlReader = null;
+            String districtIdCondition = String.Empty;
+            String talukaIdCondition = String.Empty;
+
+            try
+            {
+                districtIdCondition = " AND ISNULL(parityDtl.districtId, 0) = " + districtId;
+                talukaIdCondition = " AND ISNULL(parityDtl.talukaId, 0) = " + talukaId;
+
+                conn.Open();
+
+                cmdSelect.CommandText = SqlSimpleSelectQuery();
+
+                cmdSelect.CommandText += " WHERE parityDtl.isActive = 1";
+
+                if(productItemId > 0)
+                {
+                    cmdSelect.CommandText += " WHERE ISNULL(parityDtl.prodItemId,0)=" + productItemId;
+                }
+
+                if(brandId > 0)
+                {
+                    cmdSelect.CommandText += " AND ISNULL(parityDtl.brandId,0)=" + brandId;
+                }
+
+                if(prodCatId > 0)
+                {
+                    cmdSelect.CommandText += " AND ISNULL(parityDtl.prodCatId,0)=" + prodCatId;
+                }
+
+                if(prodSpecId > 0)
+                {
+                    cmdSelect.CommandText += "  AND ISNULL(parityDtl.prodSpecId,0)=" + prodSpecId;
+                }
+
+                if(materialId > 0)
+                {
+                    cmdSelect.CommandText += " AND ISNULL(parityDtl.materialId,0)=" + materialId;
+                }
+
+                if(stateId > 0)
+                {
+                    cmdSelect.CommandText += " AND  parityDtl.stateId=" + stateId;
+                }
+
+                if(districtId > 0)
+                {
+                    cmdSelect.CommandText += districtIdCondition;
+                }
+                 
+                if(talukaId > 0)
+                {
+                    cmdSelect.CommandText += talukaIdCondition;
+                }
+
+                if(boookingDate != DateTime.MinValue)
+                {
+                    cmdSelect.CommandText += " AND parityDtl.createdOn <=  @BookingDate ";
+                }
+
+                cmdSelect.CommandText += " order by parityDtl.createdOn DESC";
+
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Parameters.Add("@BookingDate", System.Data.SqlDbType.DateTime).Value = boookingDate;//.ToString(Constants.AzureDateFormat);
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblParityDetailsTO> list = ConvertDTToList(sqlReader);
+                if (list != null)
+                {
+                    if (list.Count > 0)
+                        return list;
+                    else return null;
+                }
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (sqlReader != null)
+                    sqlReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
         //Aniket[29-01-2019] for copy from one brand to multiple brand, fetch parity details for selected brand
         public List<TblParityDetailsTO> GetParityDetailsForBrand(Int32 brandId)
         {

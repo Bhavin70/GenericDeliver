@@ -79,7 +79,9 @@
 
   <ItemGroup>
     <Reference Include="Interop.SAPbobsCOM">
-      <HintPath>..\..\..\..\..\..\it29\Projects\SAP\New Ref Dll\Interop.SAPbobsCOM.dll</HintPath>
+      <HintPath>..\..\..\..\..\Setup\Interop.SAPbobsCOM.dll</HintPath>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+      <Private>true</Private>
     </Reference>
   </ItemGroup>
 
