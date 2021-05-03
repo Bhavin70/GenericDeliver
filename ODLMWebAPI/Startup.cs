@@ -623,7 +623,7 @@ namespace ODLMWebAPI
         public void SAPLoginDetails()
         {
             TblConfigParamsTO tblConfigParamsTO = TblConfigParamsDAO.SelectTblConfigParamValByName(Constants.SAP_LOGIN_DETAILS);
-            if (tblConfigParamsTO != null)
+            if (tblConfigParamsTO != null && tblConfigParamsTO.ConfigParamVal != null)
             {
                 sapLogindtls = Newtonsoft.Json.JsonConvert.DeserializeObject<SAPLoginDetails>(tblConfigParamsTO.ConfigParamVal);
             }
