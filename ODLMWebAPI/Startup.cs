@@ -552,19 +552,22 @@ namespace ODLMWebAPI
             NewConnectionString = Configuration.GetSection("Data:NewDefaultConnection").Value.ToString();
             DeliverUrl = Configuration.GetSection("Data:DeliverUrl").Value.ToString();
             StockUrl = Configuration.GetSection("Data:StockUrl").Value.ToString();
+            AzureConnectionStr = Configuration.GetSection("Data:AzureConnectionStr").Value.ToString();
+
+            ConnectionJsonFile = JObject.Parse(System.IO.File.ReadAllText(@".\connection.json"));
 
             GetDateTimeQueryString();
             IsLocalApi();
             SAPLoginDetails();
 
-            ConnectionJsonFile = JObject.Parse(System.IO.File.ReadAllText(@".\connection.json"));
+            
 
             //TblConfigParamsTO tblConfigParamsTO = BL.TblConfigParamsBL.SelectTblConfigParamsValByName(StaticStuff.Constants.CP_AZURE_CONNECTIONSTRING_FOR_DOCUMENTATION);
             //if (tblConfigParamsTO != null)
             //{
             //    AzureConnectionStr = tblConfigParamsTO.ConfigParamVal;
             //}
-            AzureConnectionStr = Configuration.GetSection("Data:AzureConnectionStr").Value.ToString();
+            
             //if (isLive)
             //{
             //    TblConfigParamsTO tblConfigParamsTO = BL.TblConfigParamsBL.SelectTblConfigParamsValByName(StaticStuff.Constants.CP_AZURE_CONNECTIONSTRING_FOR_DOCUMENTATION);
