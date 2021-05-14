@@ -480,7 +480,14 @@ namespace ODLMWebAPI.DAL
                 // Vaibhav [09-Jan-2018] Commented and added to select from finalLoading
                 String sqlQuery = " SELECT loading.* ,org.digitalSign, org.firmName as cnfOrgName,transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName  " +
-                                  " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
+                                  " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP, " +
+                                  //Added by minal 12 May 2021 For show dealer to approval screen
+                                  " tblOrganization.firmName  + ',' +  CASE WHEN tblOrganization.addrId IS NULL THEN '' ELSE " +
+                                  " CASE WHEN address.villageName IS NOT NULL  THEN address.villageName ELSE " +
+                                  " CASE WHEN address.talukaName IS NOT NULL THEN address.talukaName  ELSE " +
+                                  " CASE WHEN address.districtName IS NOT NULL THEN address.districtName ELSE " +
+                                  " address.stateName END END END END AS  dealerOrgName " +
+                                  //Added by minal 12 May 2021 For show dealer to approval screen
                                   " FROM tempLoading loading " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = loading.cnfOrgId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = loading.statusId " +
@@ -488,13 +495,25 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
                                   " LEFT JOIN tblGate tblGate ON tblGate.idGate = loading.gateId " +
+                                  //Added by minal 12 May 2021 For show dealer to approval screen
+                                  " LEFT JOIN tempLoadingSlip loadingSlip ON loadingSlip.loadingId = loading.idLoading " +
+                                  " LEFT JOIN tblOrganization ON tblOrganization.idOrganization = loadingSlip.dealerOrgId " +
+                                  " LEFT JOIN vAddressDetails address ON address.idAddr = tblOrganization.addrId " +
+                                  //Added by minal 12 May 2021 For show dealer to approval screen
                                   " LEFT JOIN tblUser ON idUser=loading.createdBy " + areConfJoin + whereCond + wherecnfIdTemp + whereisConTemp + whereSupCond+
                                   
                                   " UNION ALL " +
 
                                   " SELECT loading.* ,org.digitalSign, org.firmName as cnfOrgName,transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName " +
-                                   " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
+                                  " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP, " +
+                                  //Added by minal 12 May 2021 For show dealer to approval screen
+                                  " tblOrganization.firmName  + ',' +  CASE WHEN tblOrganization.addrId IS NULL THEN '' ELSE " +
+                                  " CASE WHEN address.villageName IS NOT NULL  THEN address.villageName ELSE " +
+                                  " CASE WHEN address.talukaName IS NOT NULL THEN address.talukaName  ELSE " +
+                                  " CASE WHEN address.districtName IS NOT NULL THEN address.districtName ELSE " +
+                                  " address.stateName END END END END AS  dealerOrgName " +
+                                  //Added by minal 12 May 2021 For show dealer to approval screen
                                   " FROM finalLoading loading " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = loading.cnfOrgId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = loading.statusId " +
@@ -502,6 +521,11 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
                                   " LEFT JOIN tblGate tblGate ON tblGate.idGate = loading.gateId " +
+                                  //Added by minal 12 May 2021 For show dealer to approval screen
+                                  " LEFT JOIN finalLoadingSlip loadingSlip ON loadingSlip.loadingId = loading.idLoading " +
+                                  " LEFT JOIN tblOrganization ON tblOrganization.idOrganization = loadingSlip.dealerOrgId " +
+                                  " LEFT JOIN vAddressDetails address ON address.idAddr = tblOrganization.addrId " +
+                                  //Added by minal 12 May 2021 For show dealer to approval screen
                                   " LEFT JOIN tblUser ON idUser=loading.createdBy " + areConfJoin + whereCond + wherecnfIdFinal + whereisConFinal  +whereSupCond;
 
 
@@ -1512,7 +1536,10 @@ namespace ODLMWebAPI.DAL
                         tblLoadingTONew.IgnoreGrossWt = Convert.ToInt32(tblLoadingTODT["ignoreGrossWt"]);
                     if (tblLoadingTODT["fromOrgId"] != DBNull.Value)
                         tblLoadingTONew.FromOrgId = Convert.ToInt32(tblLoadingTODT["fromOrgId"]);
-
+                    //Added by minal 12 may 2021 for show dealer name in approval screen
+                    if (tblLoadingTODT["dealerOrgName"] != DBNull.Value)
+                        tblLoadingTONew.DealerOrgName = Convert.ToString(tblLoadingTODT["dealerOrgName"]);
+                    //Added by minal 12 may 2021
                     tblLoadingTOList.Add(tblLoadingTONew);
                 }
             }
