@@ -470,10 +470,13 @@ namespace ODLMWebAPI.DAL
                 }
 
                     //Priyanka [31-05-2018] : Added to show the confirm and non-confirm loading slip.
-                    if (isConfirm == 0 || isConfirm == 1)
+                if (isConfirm == 0 || isConfirm == 1)
                 {
-                    whereisConTemp += " AND loading.idLoading IN ( select loadingId from tempLoadingSlip where ISNULL(isConfirmed,0) = " + isConfirm + ")";
-                    whereisConFinal += " AND loading.idLoading IN ( select loadingId from finalLoadingSlip where ISNULL(isConfirmed,0) = " + isConfirm + ")";
+                    whereisConTemp += " AND ISNULL(loadingSlip.isConfirmed,0) = " + isConfirm;
+                    whereisConFinal += " AND ISNULL(loadingSlip.isConfirmed,0) = " + isConfirm;
+
+                    //    whereisConTemp += " AND loading.idLoading IN ( select loadingId from tempLoadingSlip where ISNULL(isConfirmed,0) = " + isConfirm + ")";
+                    //    whereisConFinal += " AND loading.idLoading IN ( select loadingId from finalLoadingSlip where ISNULL(isConfirmed,0) = " + isConfirm + ")";
                 }
                 //cmdSelect.CommandText = SqlSelectQuery() + areConfJoin + whereCond;
 
@@ -536,7 +539,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.DateTime).Value = toDate.Date.ToString(Constants.AzureDateFormat);
 
                 sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
-                List<TblLoadingTO> list = ConvertDTToList(sqlReader);
+                List<TblLoadingTO> list = ConvertDTToListForDealer(sqlReader);
                 return list;
             }
             catch (Exception ex)
@@ -1433,6 +1436,120 @@ namespace ODLMWebAPI.DAL
         }
 
         public List<TblLoadingTO> ConvertDTToList(SqlDataReader tblLoadingTODT)
+        {
+            List<TblLoadingTO> tblLoadingTOList = new List<TblLoadingTO>();
+            if (tblLoadingTODT != null)
+            {
+                while (tblLoadingTODT.Read())
+                {
+                    TblLoadingTO tblLoadingTONew = new TblLoadingTO();
+                    if (tblLoadingTODT["idLoading"] != DBNull.Value)
+                        tblLoadingTONew.IdLoading = Convert.ToInt32(tblLoadingTODT["idLoading"].ToString());
+                    if (tblLoadingTODT["isJointDelivery"] != DBNull.Value)
+                        tblLoadingTONew.IsJointDelivery = Convert.ToInt32(tblLoadingTODT["isJointDelivery"].ToString());
+                    if (tblLoadingTODT["noOfDeliveries"] != DBNull.Value)
+                        tblLoadingTONew.NoOfDeliveries = Convert.ToInt32(tblLoadingTODT["noOfDeliveries"].ToString());
+                    if (tblLoadingTODT["statusId"] != DBNull.Value)
+                        tblLoadingTONew.StatusId = Convert.ToInt32(tblLoadingTODT["statusId"].ToString());
+                    if (tblLoadingTODT["createdBy"] != DBNull.Value)
+                        tblLoadingTONew.CreatedBy = Convert.ToInt32(tblLoadingTODT["createdBy"].ToString());
+                    if (tblLoadingTODT["updatedBy"] != DBNull.Value)
+                        tblLoadingTONew.UpdatedBy = Convert.ToInt32(tblLoadingTODT["updatedBy"].ToString());
+                    if (tblLoadingTODT["statusDate"] != DBNull.Value)
+                        tblLoadingTONew.StatusDate = Convert.ToDateTime(tblLoadingTODT["statusDate"].ToString());
+                    if (tblLoadingTODT["loadingDatetime"] != DBNull.Value)
+                        tblLoadingTONew.LoadingDatetime = Convert.ToDateTime(tblLoadingTODT["loadingDatetime"].ToString());
+                    if (tblLoadingTODT["createdOn"] != DBNull.Value)
+                        tblLoadingTONew.CreatedOn = Convert.ToDateTime(tblLoadingTODT["createdOn"].ToString());
+                    if (tblLoadingTODT["updatedOn"] != DBNull.Value)
+                        tblLoadingTONew.UpdatedOn = Convert.ToDateTime(tblLoadingTODT["updatedOn"].ToString());
+                    if (tblLoadingTODT["loadingSlipNo"] != DBNull.Value)
+                        tblLoadingTONew.LoadingSlipNo = Convert.ToString(tblLoadingTODT["loadingSlipNo"].ToString());
+                    if (tblLoadingTODT["vehicleNo"] != DBNull.Value)
+                        tblLoadingTONew.VehicleNo = Convert.ToString(tblLoadingTODT["vehicleNo"].ToString().ToUpper());
+                    if (tblLoadingTODT["statusReason"] != DBNull.Value)
+                        tblLoadingTONew.StatusReason = Convert.ToString(tblLoadingTODT["statusReason"].ToString());
+
+                    if (tblLoadingTODT["cnfOrgId"] != DBNull.Value)
+                        tblLoadingTONew.CnfOrgId = Convert.ToInt32(tblLoadingTODT["cnfOrgId"].ToString());
+                    if (tblLoadingTODT["cnfOrgName"] != DBNull.Value)
+                        tblLoadingTONew.CnfOrgName = Convert.ToString(tblLoadingTODT["cnfOrgName"].ToString());
+                    if (tblLoadingTODT["totalLoadingQty"] != DBNull.Value)
+                        tblLoadingTONew.TotalLoadingQty = Convert.ToDouble(tblLoadingTODT["totalLoadingQty"].ToString());
+
+                    if (tblLoadingTODT["statusName"] != DBNull.Value)
+                        tblLoadingTONew.StatusDesc = Convert.ToString(tblLoadingTODT["statusName"].ToString());
+                    if (tblLoadingTODT["statusReasonId"] != DBNull.Value)
+                        tblLoadingTONew.StatusReasonId = Convert.ToInt32(tblLoadingTODT["statusReasonId"].ToString());
+                    if (tblLoadingTODT["transporterOrgId"] != DBNull.Value)
+                        tblLoadingTONew.TransporterOrgId = Convert.ToInt32(tblLoadingTODT["transporterOrgId"].ToString());
+                    if (tblLoadingTODT["freightAmt"] != DBNull.Value)
+                        tblLoadingTONew.FreightAmt = Convert.ToDouble(tblLoadingTODT["freightAmt"].ToString());
+
+                    if (tblLoadingTODT["transporterOrgName"] != DBNull.Value)
+                        tblLoadingTONew.TransporterOrgName = Convert.ToString(tblLoadingTODT["transporterOrgName"].ToString());
+
+                    if (tblLoadingTODT["superwisorId"] != DBNull.Value)
+                        tblLoadingTONew.SuperwisorId = Convert.ToInt32(tblLoadingTODT["superwisorId"].ToString());
+                    if (tblLoadingTODT["superwisorName"] != DBNull.Value)
+                        tblLoadingTONew.SuperwisorName = Convert.ToString(tblLoadingTODT["superwisorName"].ToString());
+                    if (tblLoadingTODT["isFreightIncluded"] != DBNull.Value)
+                        tblLoadingTONew.IsFreightIncluded = Convert.ToInt32(tblLoadingTODT["isFreightIncluded"].ToString());
+
+                    if (tblLoadingTODT["contactNo"] != DBNull.Value)
+                        tblLoadingTONew.ContactNo = Convert.ToString(tblLoadingTODT["contactNo"].ToString());
+                    if (tblLoadingTODT["driverName"] != DBNull.Value)
+                        tblLoadingTONew.DriverName = Convert.ToString(tblLoadingTODT["driverName"].ToString());
+
+                    //Pandurang [2018-03-21] commented as discussed with Saket(Multiple CnF into single loading and query optimization)
+                    //if (tblLoadingTODT["digitalSign"] != DBNull.Value)
+                    //    tblLoadingTONew.DigitalSign = Convert.ToString(tblLoadingTODT["digitalSign"].ToString());
+                    if (tblLoadingTODT["userDisplayName"] != DBNull.Value)
+                        tblLoadingTONew.CreatedByUserName = Convert.ToString(tblLoadingTODT["userDisplayName"].ToString());
+                    if (tblLoadingTODT["parentLoadingId"] != DBNull.Value)
+                        tblLoadingTONew.ParentLoadingId = Convert.ToInt32(tblLoadingTODT["parentLoadingId"].ToString());
+                    if (tblLoadingTODT["callFlag"] != DBNull.Value)
+                        tblLoadingTONew.CallFlag = Convert.ToInt32(tblLoadingTODT["callFlag"].ToString());
+                    if (tblLoadingTODT["flagUpdatedOn"] != DBNull.Value)
+                        tblLoadingTONew.FlagUpdatedOn = Convert.ToDateTime(tblLoadingTODT["flagUpdatedOn"].ToString());
+                    if (tblLoadingTODT["isAllowNxtLoading"] != DBNull.Value)
+                        tblLoadingTONew.IsAllowNxtLoading = Convert.ToInt32(tblLoadingTODT["isAllowNxtLoading"].ToString());
+                    if (tblLoadingTODT["loadingType"] != DBNull.Value)
+                        tblLoadingTONew.LoadingType = Convert.ToInt32(tblLoadingTODT["loadingType"]);
+                    if (tblLoadingTODT["currencyId"] != DBNull.Value)
+                        tblLoadingTONew.CurrencyId = Convert.ToInt32(tblLoadingTODT["currencyId"]);
+                    if (tblLoadingTODT["currencyRate"] != DBNull.Value)
+                        tblLoadingTONew.CurrencyRate = Convert.ToDouble(tblLoadingTODT["currencyRate"]);
+
+                    if (tblLoadingTODT["maxWeighingOty"] != DBNull.Value)
+                        tblLoadingTONew.MaxWeighingOty = Convert.ToDouble(tblLoadingTODT["maxWeighingOty"]);
+                    if (tblLoadingTODT["modbusRefId"] != DBNull.Value)
+                        tblLoadingTONew.ModbusRefId = Convert.ToInt32(tblLoadingTODT["modbusRefId"]);
+                    if (tblLoadingTODT["gateId"] != DBNull.Value)
+                        tblLoadingTONew.GateId = Convert.ToInt32(tblLoadingTODT["gateId"]);
+                    if (tblLoadingTODT["portNumber"] != DBNull.Value)
+                        tblLoadingTONew.PortNumber = Convert.ToString(tblLoadingTODT["portNumber"]);
+                    if (tblLoadingTODT["ioTUrl"] != DBNull.Value)
+                        tblLoadingTONew.IoTUrl = Convert.ToString(tblLoadingTODT["ioTUrl"]);
+                    if (tblLoadingTODT["machineIP"] != DBNull.Value)
+                        tblLoadingTONew.MachineIP = Convert.ToString(tblLoadingTODT["machineIP"]);
+                    if (tblLoadingTODT["isDBup"] != DBNull.Value)
+                        tblLoadingTONew.IsDBup = Convert.ToInt32(tblLoadingTODT["isDBup"]);
+                    if (tblLoadingTODT["ignoreGrossWt"] != DBNull.Value)
+                        tblLoadingTONew.IgnoreGrossWt = Convert.ToInt32(tblLoadingTODT["ignoreGrossWt"]);
+                    if (tblLoadingTODT["fromOrgId"] != DBNull.Value)
+                        tblLoadingTONew.FromOrgId = Convert.ToInt32(tblLoadingTODT["fromOrgId"]);
+                    //Added by minal 12 may 2021 for show dealer name in approval screen
+                    //if (tblLoadingTODT["dealerOrgName"] != DBNull.Value)
+                    //    tblLoadingTONew.DealerOrgName = Convert.ToString(tblLoadingTODT["dealerOrgName"]);
+                    //Added by minal 12 may 2021
+                    tblLoadingTOList.Add(tblLoadingTONew);
+                }
+            }
+            return tblLoadingTOList;
+        }
+
+        public List<TblLoadingTO> ConvertDTToListForDealer(SqlDataReader tblLoadingTODT)
         {
             List<TblLoadingTO> tblLoadingTOList = new List<TblLoadingTO>();
             if (tblLoadingTODT != null)
