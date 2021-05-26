@@ -105,14 +105,23 @@ namespace ODLMWebAPI.DAL
                 var query = "";
                 if (transIds == null || transIds == "null")
                 {
-                    query = "AND transId = " + transId + " AND transType = '" + TransactionType + "' ";
+                    query = " AND transId = " + transId;
+
+                    if (!String.IsNullOrEmpty(TransactionType) && TransactionType != "undefined")
+                        query += " AND transType = '" + TransactionType + "' ";
+
                     if (ModuleId != 0)
-                        query += "AND moduleId = " + ModuleId + " ";
+                        query += " AND moduleId = " + ModuleId + " ";
+
                     if (PageElementId != null && PageElementId != "null")
-                        query += "AND pageElementId = " + PageElementId + " ";
-                }else
+                        query += " AND pageElementId = '" + PageElementId + "' ";
+                }
+                else
                 {
-                    query = "AND transId IN(" + transIds + ") AND transType = '" + TransactionType + "' ";
+                    query = "AND transId IN(" + transIds + ") ";
+
+                    if (!String.IsNullOrEmpty(TransactionType) && TransactionType != "undefined")
+                        query += " AND transType = '" + TransactionType + "' ";
                 }
                 cmdSelect.CommandText = SqlSelectQuery() + query;// "AND transId = " + transId + " ";
                 cmdSelect.Connection = conn;

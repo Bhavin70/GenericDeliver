@@ -352,9 +352,18 @@ namespace ODLMWebAPI.Controllers
                 return null;
             }
         }
+        [Route("GetParityDetailToOnBooking")]
+        [HttpGet]
+        public List<TblParityDetailsTO> GetParityDetailToOnBooking(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate, Int32 districtId, Int32 talukaId, Int32 parityLevel)
+        {
+            boookingDate = _iCommon.ServerDateTime;
+            
+            List<TblParityDetailsTO> TblParityDetailsTOList = _iTblParityDetailsBL.GetCurrentParityDetailToListOnBooking(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId, parityLevel);
+            return TblParityDetailsTOList;
+        }
         // Aniket [21-Jan-2019] added to fetch ParityDetailsList against brand
         //[Route("GetParityDetailsListFromBrand")]
-        //[HttpGet]
+        //[HttpGet] 
         //public List<TblParityDetailsTO> GetParityDetailsListFromBrand(Int32 fromBrand,Int32 toBrand,Int32 currencyId,Int32 categoryId, Int32 stateId)
         //{
         //    try

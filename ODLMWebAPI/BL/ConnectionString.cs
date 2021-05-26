@@ -37,7 +37,8 @@ namespace ODLMWebAPI.BL
         }
         public string SetConnectionString(String ConfigName)
         {
-            if(Constants.Local_API == true)
+            //if(Constants.Local_API == true)
+            if (Startup.IsLocalAPI == true)
             {
                 if (Constants.CONNECTION_STRING == ConfigName)
                     return Startup.ConnectionString;

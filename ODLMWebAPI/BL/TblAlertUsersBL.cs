@@ -173,8 +173,12 @@ namespace ODLMWebAPI.BL
                 }
                 //Hrushikesh added to not to show empty notification
                 a.IsAcknowledged = 1;
-                a.IsLogOut = result;
-                list.Add(a);
+                //Prajakta[2021-04-6] dont show empty notification when we dont want to logout
+                if (result == (int)Constants.LogoutValueE.DirectLogout)
+                {
+                    a.IsLogOut = result;
+                    list.Add(a);
+                }
             }
             //end
             return list;

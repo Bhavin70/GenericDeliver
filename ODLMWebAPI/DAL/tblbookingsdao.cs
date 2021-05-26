@@ -1027,8 +1027,8 @@ namespace ODLMWebAPI.DAL
 
                 //Pandurang [2018-02-22] Added for Confirm and non Confirm View booking filter. 
 
-                if (confirm > 0)
-                {
+                //if (confirm > 0)
+                //{
                     if (confirm == 1)
                     {
                         if (isWhereAddded)
@@ -1036,14 +1036,14 @@ namespace ODLMWebAPI.DAL
                         else
                             sqlQuery += " WHERE bookings.isConfirmed = 1";
                     }
-                    else
+                    else if (confirm == 0)
                     {
                         if (isWhereAddded)
                             sqlQuery += " AND ISNULL(bookings.isConfirmed, 0) = 0";
                         else
                             sqlQuery += " WHERE ISNULL(bookings.isConfirmed,0) = 0";
                     }
-                }
+                //}
 
                
                 //Priyanka [14-08-2018] : Added flag for view pending enquiry.

@@ -661,7 +661,7 @@ namespace ODLMWebAPI.BL
             {
                 if (parityLevel == 1)
                 {
-                    throw new Exception("parityDtlTO is NULL");
+                    //throw new Exception("parityDtlTO is NULL");
                 }
                 else if (parityLevel == 2)
                 {
@@ -685,6 +685,40 @@ namespace ODLMWebAPI.BL
             }
             return TblParityDetailsTOList;
         }
+
+        public List<TblParityDetailsTO> GetCurrentParityDetailToListOnBooking(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate, Int32 districtId, Int32 talukaId, Int32 parityLevel)
+        {
+            List<TblParityDetailsTO> tblParityDetailsTOList = new List<TblParityDetailsTO>();
+            if (parityLevel == 1)
+            {
+                districtId = 0;
+                talukaId = 0;
+                tblParityDetailsTOList = _iTblParityDetailsDAO.SelectCurrentParityDtlsList(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
+            }
+            else if(parityLevel == 2)
+            {
+                talukaId = 0;
+                tblParityDetailsTOList = _iTblParityDetailsDAO.SelectCurrentParityDtlsList(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
+                if(tblParityDetailsTOList == null || tblParityDetailsTOList.Count == 0)
+                {
+                    districtId = 0;
+                    tblParityDetailsTOList = _iTblParityDetailsDAO.SelectCurrentParityDtlsList(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
+                }
+            }
+            else if (parityLevel == 3)
+            {
+                talukaId = 0;
+                tblParityDetailsTOList = _iTblParityDetailsDAO.SelectCurrentParityDtlsList(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
+                if (tblParityDetailsTOList == null || tblParityDetailsTOList.Count == 0)
+                {
+                    districtId = 0;
+                    tblParityDetailsTOList = _iTblParityDetailsDAO.SelectCurrentParityDtlsList(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId);
+                }
+            }
+
+            return tblParityDetailsTOList;
+        }
+
         #endregion
 
         #region Insertion

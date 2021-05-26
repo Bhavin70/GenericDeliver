@@ -470,7 +470,7 @@ namespace ODLMWebAPI.StaticStuff
         public static String Local_URL = "http://localhost:4200";
         //Added by Kiran for set current module id as per tblmodule sequence
         public static Int32 DefaultModuleID = 1;
-        public static Boolean Local_API = true;
+        public static Boolean Local_API = Startup.IsLocalAPI;
         public static String CONNECTION_STRING = "ConnectionString";
         public static String AZURE_CONNECTION_STRING = "AzureConnectionStr";
         public static String REQUEST_ORIGIN_STRING = "RequestOriginString";
@@ -529,7 +529,15 @@ namespace ODLMWebAPI.StaticStuff
         
         //Dhananjay [2020-12-02] Parity level
         public static string CP_PARITY_LEVEL = "PARITY_LEVEL";
-        
+
+        public static string SERVER_DATETIME_QUERY_STRING = "SERVER_DATETIME_QUERY_STRING";
+        public static string IS_LOCAL_API = "IS_LOCAL_API";
+        public static string SAP_LOGIN_DETAILS = "SAP_LOGIN_DETAILS";
+
+        //public static string IS_MAP_MY_INDIA = "IS_MAP_MY_INDIA";
+        public static string MAP_MY_INDIA_URL_FOR_myLocationAddress = "MAP_MY_INDIA_URL_FOR_myLocationAddress";
+        public static string GOOGLE_MAP_API_URL_FOR_LAT_LONG = "GOOGLE_MAP_API_URL_FOR_LAT_LONG";
+
         #endregion
 
         #region Configuration Sections
@@ -767,6 +775,8 @@ namespace ODLMWebAPI.StaticStuff
         //Aniket [22-4-2019] added to check whether vehicle suggestion is should show or hide
         public static string IS_HIDE_VEHICLE_LIST_SUGGESTION = "IS_HIDE_VEHICLE_LIST_SUGGESTION";
 
+        public static string SHOW_GST_CODE_UPTO_DIGITS = "SHOW_GST_CODE_UPTO_DIGITS";
+
         //Aniket [10-6-2019]
         public static string IS_BALAJI_CLIENT = "IS_BALAJI_CLIENT";
         //Aniket [9-9-2019]
@@ -799,6 +809,8 @@ namespace ODLMWebAPI.StaticStuff
         public static string CP_EINVOICE_SHIPPING_ADDRESS = "CP_EINVOICE_SHIPPING_ADDRESS";
 
         public static string COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER = "COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER";
+
+        public static string ADD_ITEMWISE_RATE_WHILE_BOOKING = "ADD_ITEMWISE_RATE_WHILE_BOOKING";
 
         #endregion
 

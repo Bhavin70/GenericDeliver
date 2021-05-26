@@ -4565,6 +4565,15 @@ namespace ODLMWebAPI.BL
                         invoiceItemDT.Columns.Add("SGSTPct", typeof(double));
                         invoiceItemDT.Columns.Add("hsn");
 
+                        //Prajakta[2021-03-31] Added to show GST code upto given digits
+                        Int32 gstCodeUptoDigits = 0;
+                        TblConfigParamsTO gstCodeUptoDigitTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.SHOW_GST_CODE_UPTO_DIGITS);
+                        if (gstCodeUptoDigitTO != null && gstCodeUptoDigitTO.ConfigParamVal != null
+                            && gstCodeUptoDigitTO.ConfigParamVal.ToString() != "")
+                        {
+                            gstCodeUptoDigits = Convert.ToInt32(gstCodeUptoDigitTO.ConfigParamVal);
+                        }
+
                         for (int i = 0; i < invoiceItemlist.Count; i++)
                         {
                             TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = invoiceItemlist[i];
@@ -4591,6 +4600,9 @@ namespace ODLMWebAPI.BL
                                 invoiceItemDT.Rows[invoiceItemDTCount]["GrandTotal"] = Math.Round(tblInvoiceItemDetailsTO.GrandTotal, 2);
                                 invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = Math.Round((tblInvoiceItemDetailsTO.GrandTotal / tblInvoiceItemDetailsTO.InvoiceQty), 2);
                             }
+
+                            if(gstCodeUptoDigits > 0)
+                                tblInvoiceItemDetailsTO.GstinCodeNo = tblInvoiceItemDetailsTO.GstinCodeNo.Substring(0, gstCodeUptoDigits);
 
                             invoiceItemDT.Rows[invoiceItemDTCount]["hsn"] = tblInvoiceItemDetailsTO.GstinCodeNo;
 

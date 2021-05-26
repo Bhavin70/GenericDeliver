@@ -69,6 +69,10 @@ namespace ODLMWebAPI.Models
         // Double orcAmt;
         //Saket [2018-02-21] Added.
         List<TblLoadingVehDocExtTO> loadingVehDocExtTOList = new List<TblLoadingVehDocExtTO>();
+
+        //Added by minal 12 May 2021 For DealerOrgName to show approval table screen
+        String dealerOrgName;
+
         public Int32 FromOrgId
         {
             get { return fromOrgId; }
@@ -84,6 +88,8 @@ namespace ODLMWebAPI.Models
         public List<TblLoadingStatusHistoryTO> LoadingStatusHistoryTOList { get => loadingStatusHistoryTOList; set => loadingStatusHistoryTOList = value; }
         public int IsBackup { get => isBackup; set => isBackup = value; }
         public int IsDBup { get => isDBup; set => isDBup = value; }
+
+        public string DealerOrgName { get => dealerOrgName; set => dealerOrgName = value; }
 
         // Vaibhav [23-Feb-2018]
         Double maxWeighingOty;

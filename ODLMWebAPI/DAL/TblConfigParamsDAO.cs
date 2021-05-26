@@ -113,6 +113,41 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        //Gokul - To Access statically
+        public static TblConfigParamsTO SelectTblConfigParamValByName(string configParamName)
+        {
+            String sqlConnStr = Startup.ConnectionString;
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = "SELECT * FROM [tblConfigParams] WHERE 1=1 "
+                    + "and configParamName = '" + configParamName + "'";
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                SqlDataReader sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblConfigParamsTO> list = ConvertToList(sqlReader);
+                TblConfigParamsTO tblConfigParamsTO = new TblConfigParamsTO();
+                if (list.Count > 0)
+                {
+                    tblConfigParamsTO = list[0];
+                }
+                sqlReader.Dispose();
+                return tblConfigParamsTO;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
         public TblConfigParamsTO SelectTblConfigParams(Int32 idConfigParam)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -224,6 +259,50 @@ namespace ODLMWebAPI.DAL
 					}
 					tblConfigParamsTOList.Add(tblConfigParamsTONew);
 				}
+            }
+            return tblConfigParamsTOList;
+        }
+
+        //Added By Gokul
+        public static List<TblConfigParamsTO> ConvertToList(SqlDataReader tblConfigParamsTODT)
+        {
+            List<TblConfigParamsTO> tblConfigParamsTOList = new List<TblConfigParamsTO>();
+            if (tblConfigParamsTODT != null)
+            {
+                while (tblConfigParamsTODT.Read())
+                {
+                    TblConfigParamsTO tblConfigParamsTONew = new TblConfigParamsTO();
+                    if (tblConfigParamsTODT["idConfigParam"] != DBNull.Value)
+                        tblConfigParamsTONew.IdConfigParam = Convert.ToInt32(tblConfigParamsTODT["idConfigParam"].ToString());
+                    if (tblConfigParamsTODT["configParamValType"] != DBNull.Value)
+                        tblConfigParamsTONew.ConfigParamValType = Convert.ToInt32(tblConfigParamsTODT["configParamValType"].ToString());
+                    if (tblConfigParamsTODT["createdOn"] != DBNull.Value)
+                        tblConfigParamsTONew.CreatedOn = Convert.ToDateTime(tblConfigParamsTODT["createdOn"].ToString());
+                    if (tblConfigParamsTODT["configParamName"] != DBNull.Value)
+                        tblConfigParamsTONew.ConfigParamName = Convert.ToString(tblConfigParamsTODT["configParamName"].ToString());
+                    if (tblConfigParamsTODT["configParamVal"] != DBNull.Value)
+                        tblConfigParamsTONew.ConfigParamVal = Convert.ToString(tblConfigParamsTODT["configParamVal"].ToString());
+                    if (tblConfigParamsTODT["moduleId"] != DBNull.Value)
+                        tblConfigParamsTONew.ModuleId = Convert.ToInt32(tblConfigParamsTODT["moduleId"].ToString());
+                    ///Hrishikesh[27 - 03 - 2018] Added
+                    if (tblConfigParamsTODT["isActive"] != DBNull.Value)
+                        tblConfigParamsTONew.IsActive = Convert.ToInt32(Convert.ToString(tblConfigParamsTODT["isActive"]));
+
+                    if (tblConfigParamsTODT["configParamDisplayVal"] != DBNull.Value)
+                        tblConfigParamsTONew.ConfigParamDisplayVal = Convert.ToString(tblConfigParamsTODT["configParamDisplayVal"].ToString());
+
+                    if (tblConfigParamsTONew.ConfigParamVal == "1")
+                    {
+                        tblConfigParamsTONew.BooleanFlag = "ON";
+                        tblConfigParamsTONew.Slider = true;
+                    }
+                    else
+                    {
+                        tblConfigParamsTONew.BooleanFlag = "OFF";
+                        tblConfigParamsTONew.Slider = false;
+                    }
+                    tblConfigParamsTOList.Add(tblConfigParamsTONew);
+                }
             }
             return tblConfigParamsTOList;
         }

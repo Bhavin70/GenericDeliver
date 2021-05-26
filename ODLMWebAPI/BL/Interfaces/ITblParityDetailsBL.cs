@@ -34,5 +34,6 @@ namespace ODLMWebAPI.BL.Interfaces
         int DeleteTblParityDetails(Int32 idParityDtl);
         int DeleteTblParityDetails(Int32 idParityDtl, SqlConnection conn, SqlTransaction tran);
         ResultMessage GetParityDetialsForCopyBrand(Int32 brandId, List<DropDownToForParity> selectedBrands, List<DropDownToForParity> selectedStates);
+        List<TblParityDetailsTO> GetCurrentParityDetailToListOnBooking(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate, Int32 districtId, Int32 talukaId, Int32 parityLevel);
     }
 }

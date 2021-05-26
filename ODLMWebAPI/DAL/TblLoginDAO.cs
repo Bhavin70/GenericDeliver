@@ -14,6 +14,8 @@ namespace ODLMWebAPI.DAL
     public class TblLoginDAO : ITblLoginDAO
     {
         private readonly IConnectionString _iConnectionString;
+        private readonly ICommon _iCommon;
+
         public TblLoginDAO(IConnectionString iConnectionString)
         {
             _iConnectionString = iConnectionString;
@@ -299,6 +301,7 @@ namespace ODLMWebAPI.DAL
 
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
+           
 
             //cmdInsert.Parameters.Add("@IdLogin", System.Data.SqlDbType.Int).Value = tblLoginTO.IdLogin;
             cmdInsert.Parameters.Add("@UserId", System.Data.SqlDbType.Int).Value = tblLoginTO.UserId;
