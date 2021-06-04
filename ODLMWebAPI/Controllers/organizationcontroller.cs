@@ -215,10 +215,13 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetDealerDropDownList")]
         [HttpGet]
-        public List<DropDownTO> GetDealerDropDownList(Int32 cnfId, String userRoleTOList)
+        public List<DropDownTO> GetDealerDropDownList(Int32 cnfId, String userRoleTOList, Int32 consumerType = 0)
        {
-            List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleTOList);
-            List<DropDownTO> list = _iTblOrganizationBL.SelectDealerListForDropDown(cnfId, tblUserRoleTOList).OrderBy(o => o.Text).ToList(); 
+            //List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleTOList);
+            List<TblUserRoleTO> tblUserRoleTOList = new List<TblUserRoleTO>();
+            if (!string.IsNullOrEmpty(userRoleTOList))
+                tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleTOList);
+            List<DropDownTO> list = _iTblOrganizationBL.SelectDealerListForDropDown(cnfId, tblUserRoleTOList, consumerType).OrderBy(o => o.Text).ToList(); 
             return list;
         }
 

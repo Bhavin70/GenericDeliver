@@ -236,7 +236,7 @@ namespace ODLMWebAPI.BL
             return _iTblOrganizationDAO.SelectAllSpecialCnfListForDropDown(userRoleTO);
         }
 
-        public List<DropDownTO> SelectDealerListForDropDown(Int32 cnfId, List<TblUserRoleTO> tblUserRoleTOList)
+        public List<DropDownTO> SelectDealerListForDropDown(Int32 cnfId, List<TblUserRoleTO> tblUserRoleTOList, Int32 consumerType = 0)
         {
             TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
             if (tblConfigParamsTO != null)
@@ -283,7 +283,7 @@ namespace ODLMWebAPI.BL
                     cnfId = 0;
                 }
             }
-            return _iTblOrganizationDAO.SelectDealerListForDropDown(cnfId, tblUserRoleTO);
+            return _iTblOrganizationDAO.SelectDealerListForDropDown(cnfId, tblUserRoleTO, consumerType);
         }
 
         public List<DropDownTO> GetDealerForLoadingDropDownList(Int32 cnfId)

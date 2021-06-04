@@ -808,6 +808,9 @@ namespace ODLMWebAPI.StaticStuff
         //[2021-02-26] Dhananjay added
         public static string CP_EINVOICE_SHIPPING_ADDRESS = "CP_EINVOICE_SHIPPING_ADDRESS";
 
+        //[2021-05-12] Dhananjay added
+        public static string CP_EINVOICE_EWAY_BILL = "CP_EINVOICE_EWAY_BILL";
+
         public static string COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER = "COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER";
 
         public static string ADD_ITEMWISE_RATE_WHILE_BOOKING = "ADD_ITEMWISE_RATE_WHILE_BOOKING";

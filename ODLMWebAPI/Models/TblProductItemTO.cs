@@ -30,6 +30,7 @@ namespace ODLMWebAPI.Models
         Int32 isBaseItemForRate;
         Int32 isNonCommercialItem;
         string weightMeasureUnitDesc;  // Aniket [6-6-2019]
+        String mappedEInvoiceUOM;
         #endregion
 
         #region Constructor
@@ -128,6 +129,7 @@ namespace ODLMWebAPI.Models
         public int CodeTypeId { get => codeTypeId; set => codeTypeId = value; }
         public double BasePrice { get => basePrice; set => basePrice = value; }
         public string WeightMeasureUnitDesc { get => weightMeasureUnitDesc; set => weightMeasureUnitDesc = value; }
+        public string MappedEInvoiceUOM { get => mappedEInvoiceUOM; set => mappedEInvoiceUOM = value; }
         #endregion
     }
 }
