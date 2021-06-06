@@ -589,7 +589,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<DropDownTO> SelectDealerListForDropDown(Int32 cnfId, TblUserRoleTO tblUserRoleTO)
+        public List<DropDownTO> SelectDealerListForDropDown(Int32 cnfId, TblUserRoleTO tblUserRoleTO, Int32 consumerType = 0)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -680,6 +680,10 @@ namespace ODLMWebAPI.DAL
                                    "WHERE  tblOrganization.isActive=1 AND tblCnfDealers.isActive=1 AND orgTypeId=" + (int)Constants.OrgTypeE.DEALER + " AND areaConf.userId=" + userId + " AND areaConf.isActive=1 ";
 
                     }
+                }
+                if (consumerType != 0)
+                {
+                    sqlQuery += " AND consumerTypeId = " + consumerType;
                 }
 
                 cmdSelect.CommandText = sqlQuery;
