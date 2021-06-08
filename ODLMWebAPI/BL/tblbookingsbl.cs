@@ -146,6 +146,7 @@ namespace ODLMWebAPI.BL
                     }
                     tblBookingPendingRptTO.IdBooking = tblBookingTOList[i].IdBooking;
                     tblBookingPendingRptTO.BookingDisplayNo = tblBookingTOList[i].BookingDisplayNo;
+                    tblBookingPendingRptTO.BookingDateStr = tblBookingTOList[i].BookingDatetime.ToShortDateString();
                     tblBookingPendingRptTO.DealerId = tblBookingTOList[i].DealerOrgId;
                     tblBookingPendingRptTO.DealerName = tblBookingTOList[i].DealerName;
                     tblBookingPendingRptTO.TotalBookedQty = tblBookingTOList[i].BookingQty;
