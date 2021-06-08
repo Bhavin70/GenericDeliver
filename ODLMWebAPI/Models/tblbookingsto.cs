@@ -611,6 +611,7 @@ namespace ODLMWebAPI.Models
         public string CnfName { get => cnfName; set => cnfName = value; }
         public double PendingQty { get => pendingQty; set => pendingQty = value; }
         public string BookingDisplayNo { get => bookingDisplayNo; set => bookingDisplayNo = value; }
+        public string BookingDateStr { get ; set; }
 
         #endregion
     }
