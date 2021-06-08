@@ -545,7 +545,7 @@ namespace ODLMWebAPI
 
 
 
-            //DOSapLogin();
+            DOSapLogin();
             services.AddMvc();
             ConnectionString = Configuration.GetSection("Data:DefaultConnection").Value.ToString();
             RequestOriginString = Configuration.GetSection("Data:RequestOriginString").Value.ToString();
@@ -559,15 +559,15 @@ namespace ODLMWebAPI
             GetDateTimeQueryString();
             IsLocalApi();
             SAPLoginDetails();
+            DOSapLogin();
 
-            
 
             //TblConfigParamsTO tblConfigParamsTO = BL.TblConfigParamsBL.SelectTblConfigParamsValByName(StaticStuff.Constants.CP_AZURE_CONNECTIONSTRING_FOR_DOCUMENTATION);
             //if (tblConfigParamsTO != null)
             //{
             //    AzureConnectionStr = tblConfigParamsTO.ConfigParamVal;
             //}
-            
+
             //if (isLive)
             //{
             //    TblConfigParamsTO tblConfigParamsTO = BL.TblConfigParamsBL.SelectTblConfigParamsValByName(StaticStuff.Constants.CP_AZURE_CONNECTIONSTRING_FOR_DOCUMENTATION);
