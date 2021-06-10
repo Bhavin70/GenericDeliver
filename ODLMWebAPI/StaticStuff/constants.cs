@@ -1100,7 +1100,8 @@ namespace ODLMWebAPI.StaticStuff
 
         public enum pageElements
         {
-            SKIP_BOOKING_APPROVAL = 265
+            SKIP_BOOKING_APPROVAL = 265,
+            CONSUMERTYPE = 21021
         }
 
         /// <summary>
