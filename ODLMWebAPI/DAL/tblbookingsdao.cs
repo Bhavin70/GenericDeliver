@@ -1440,7 +1440,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<BookingInfo> SelectBookingDashboardInfo(TblUserRoleTO tblUserRoleTO, int orgId,Int32 dealerId, DateTime date,string ids,Int32 isHideCorNC)
+        public List<BookingInfo> SelectBookingDashboardInfo(TblUserRoleTO tblUserRoleTO, int orgId,Int32 dealerId, DateTime date,string ids,Int32 isHideCorNC, Boolean bWithConsumerType)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -1532,17 +1532,24 @@ namespace ODLMWebAPI.DAL
                 //                        " AND globalRateId IN ( SELECT idGlobalRate FROM tblGlobalRate WHERE createdOn = (SELECT top 1 createdOn FROM tblGlobalRate ORDER BY createdOn DESC) )" +
                 //                        " ) AS qryRes";
 
-
-
-                cmdSelect.CommandText = " SELECT bookingType,bookingQty, COST as totalCost ,COST / bookingQty avgPrice, isConfirmed,brandName,shortNm " +
+                string sConsumerType = "";
+                string sConsumerTypeJoin = "";
+                if (bWithConsumerType == true)
+                {
+                    sConsumerType = ", consumerType ";
+                    sConsumerTypeJoin = " LEFT JOIN dimConsumerType On tblBookings.consumerTypeId = dimConsumerType.idConsumer  ";
+                }
+                cmdSelect.CommandText = " SELECT bookingType,bookingQty, COST as totalCost ,COST / bookingQty avgPrice, isConfirmed,brandName,shortNm " + sConsumerType +
                                         " FROM " +
                                         " ( " +
                                         " SELECT sum(bookingQty) AS bookingQty, dimBrand.brandName, isConfirmed, sum((bookingQty * bookingRate))" +
-                                        " AS cost,bookingType,dimBrand.shortNm FROM tblBookings " + areConfJoin +
-                                        " LEFT JOIN dimBrand On tblBookings.brandId = dimBrand.idBrand " + 
+                                        " AS cost,bookingType,dimBrand.shortNm " + sConsumerType + " FROM tblBookings " + areConfJoin +
+                                        " LEFT JOIN dimBrand On tblBookings.brandId = dimBrand.idBrand " +
+                                        sConsumerTypeJoin +
                                         " WHERE DAY(bookingDatetime) = " + date.Day + " AND MONTH(bookingDatetime) = " + date.Month +
                                         " AND YEAR(bookingDatetime) = " + date.Year + statusIds + whereCond + isConfirm +
-                                        " GROUP BY isConfirmed, brandName,bookingType,dimBrand.shortNm)AS qryRes  order by bookingType,brandName asc  ";
+                                        " GROUP BY isConfirmed, brandName,bookingType,dimBrand.shortNm" + sConsumerType +
+                                        ")AS qryRes  order by bookingType,brandName asc  ";
 
 
                 cmdSelect.Connection = conn;
@@ -1569,6 +1576,12 @@ namespace ODLMWebAPI.DAL
                             tblBookingsTONew.BookingType = Convert.ToInt32(tblBookingsTODT["bookingType"].ToString());
                         if (tblBookingsTODT["shortNm"] != DBNull.Value)
                             tblBookingsTONew.ShortNm = Convert.ToString(tblBookingsTODT["shortNm"].ToString());
+
+                        if (hasColumn(tblBookingsTODT, "consumerType") == true)
+                        {
+                            if (tblBookingsTODT["consumerType"] != DBNull.Value)
+                                tblBookingsTONew.ConsumerType = Convert.ToString(tblBookingsTODT["consumerType"].ToString());
+                        }
                         if (tblBookingsTONew.BookingType==(int)Constants.BookingType.IsOther)
                         {
                             tblBookingsTONew.BrandName = "Others";
@@ -1595,6 +1608,13 @@ namespace ODLMWebAPI.DAL
                 conn.Close();
                 cmdSelect.Dispose();
             }
+        }
+
+        private Boolean hasColumn(SqlDataReader reader, string columnName)
+        {
+            var columns = Enumerable.Range(0, reader.FieldCount).Select(reader.GetName).ToList();
+
+            return columns.Any(s => s == columnName) ? true : false;
         }
         //Aniket [16-Jan-2019] added to view cnFList against confirm and not confirmbooking
         public List<CnFWiseReportTO> ConvertDTCNCcnFBookingReport(SqlDataReader CnFWiseReportTOList)
