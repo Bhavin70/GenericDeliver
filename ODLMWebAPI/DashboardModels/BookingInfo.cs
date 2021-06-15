@@ -19,7 +19,7 @@ namespace ODLMWebAPI.DashboardModels
         string brandName;
         Int32 bookingType;
         string shortNm;
-
+        string consumerType;
         #endregion
 
         #region GetSet
@@ -31,7 +31,7 @@ namespace ODLMWebAPI.DashboardModels
         public int BookingType { get => bookingType; set => bookingType = value; }
         public string ShortNm { get => shortNm; set => shortNm = value; }
 
-
+        public string ConsumerType { get => consumerType; set => consumerType = value; }
         #endregion
     }
 }

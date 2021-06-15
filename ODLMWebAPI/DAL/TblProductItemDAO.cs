@@ -21,7 +21,7 @@ namespace ODLMWebAPI.DAL
         #region Methods
         public String SqlSelectQuery()
         {
-            String sqlSelectQry = "  SELECT p.*,uom.weightMeasurUnitDesc, dimUnitMeasures.mappedEInvoiceUOM FROM tblProductItem p " +
+            String sqlSelectQry = "  SELECT p.*,uom.weightMeasurUnitDesc, uom.mappedEInvoiceUOM FROM tblProductItem p " +
                                   " LEFT JOIN dimunitmeasures uom on uom.idWeightMeasurUnit = p.weightMeasureUnitId"; 
             return sqlSelectQry;
         }
