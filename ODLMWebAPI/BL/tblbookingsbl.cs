@@ -812,8 +812,8 @@ namespace ODLMWebAPI.BL
 
                     if (sysEleAccessDCT != null || sysEleAccessDCT.Count > 0)
                     {
-                        if (sysEleAccessDCT.ContainsKey(Convert.ToInt32(Constants.pageElements.CONSUMERTYPE)) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMERTYPE)] != null
-                            && !string.IsNullOrEmpty(sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMERTYPE)].ToString()) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMERTYPE)] == "RW")
+                        if (sysEleAccessDCT.ContainsKey(Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)] != null
+                            && !string.IsNullOrEmpty(sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)].ToString()) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)] == "RW")
                         {
                             List<ODLMWebAPI.DashboardModels.BookingInfo> tblBookingsTOList1 = _iTblBookingsDAO.SelectBookingDashboardInfo(tblUserRoleTO, orgId, dealerId, date, ids, isHideCorNC, true);
 
