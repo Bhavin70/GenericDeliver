@@ -29,7 +29,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         TblBookingsTO SelectTblBookings(Int32 idBooking);
         TblBookingsTO SelectBookingsTOWithDetails(Int32 idBooking);
         TblBookingsTO SelectTblBookings(Int32 idBooking, SqlConnection conn, SqlTransaction tran);
-        List<ODLMWebAPI.DashboardModels.BookingInfo> SelectBookingDashboardInfo(TblUserRoleTO tblUserRoleTO, int orgId, Int32 dealerId, DateTime date, string ids, Int32 isHideCorNC);
+        List<ODLMWebAPI.DashboardModels.BookingInfo> SelectBookingDashboardInfo(TblUserRoleTO tblUserRoleTO, int orgId, Int32 dealerId, DateTime date, string ids, Int32 isHideCorNC, Boolean bWithConsumerType);
         List<TblBookingsTO> ConvertDTToList(SqlDataReader tblBookingsTODT);
         List<TblBookingSummaryTO> ConvertDTToListForBookingSummaryRpt(SqlDataReader tblBookingsSummaryTODT);
         Dictionary<Int32, Double> SelectBookingsPendingQtyDCT(SqlConnection conn, SqlTransaction tran);
