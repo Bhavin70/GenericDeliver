@@ -785,8 +785,7 @@ namespace ODLMWebAPI.BL
                     //isPriorityOther = BL.TblUserRoleBL.selectRolePriorityForOther(tblUserRoleTOList);
                 }
 
-                List<ODLMWebAPI.DashboardModels.BookingInfo> tblBookingsTOList = _iTblBookingsDAO.SelectBookingDashboardInfo(tblUserRoleTO, orgId, dealerId, date, ids, isHideCorNC);
-
+                List<ODLMWebAPI.DashboardModels.BookingInfo> tblBookingsTOList = _iTblBookingsDAO.SelectBookingDashboardInfo(tblUserRoleTO, orgId, dealerId, date, ids, isHideCorNC, false);
 
                 Double grandTotal = 0;
                 Double grandTotalQty = 0;
@@ -795,7 +794,6 @@ namespace ODLMWebAPI.BL
                 Int32 count = 0, otherCount = 0;
                 for (int i = 0; i < tblBookingsTOList.Count; i++)
                 {
-
                     ODLMWebAPI.DashboardModels.BookingInfo bookingInfo = tblBookingsTOList[i];
 
                     if (bookingInfo.BookingType == (int)Constants.BookingType.IsRegular)
@@ -813,6 +811,30 @@ namespace ODLMWebAPI.BL
                     }
 
                 }
+
+                if (tblUserRoleTO != null)
+                {
+                    Dictionary<int, string> sysEleAccessDCT = _iTblSysElementsBL.SelectSysElementUserEntitlementDCT(tblUserRoleTO.UserId, tblUserRoleTO.RoleId);
+
+                    if (sysEleAccessDCT != null || sysEleAccessDCT.Count > 0)
+                    {
+                        if (sysEleAccessDCT.ContainsKey(Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)] != null
+                            && !string.IsNullOrEmpty(sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)].ToString()) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)] == "RW")
+                        {
+                            List<ODLMWebAPI.DashboardModels.BookingInfo> tblBookingsTOList1 = _iTblBookingsDAO.SelectBookingDashboardInfo(tblUserRoleTO, orgId, dealerId, date, ids, isHideCorNC, true);
+
+                            if (tblBookingsTOList != null && tblBookingsTOList1 != null)
+                            {
+                                for (int j = 0; j < tblBookingsTOList1.Count; j++)
+                                {
+                                    tblBookingsTOList1[j].ShortNm = tblBookingsTOList1[j].ConsumerType;
+                                    tblBookingsTOList.Add(tblBookingsTOList1[j]);
+                                }
+                            }
+                        }
+                    }
+                }
+
                 if (grandTotal != 0)
                 {
                     ODLMWebAPI.DashboardModels.BookingInfo tempBookingInfo = new DashboardModels.BookingInfo();
