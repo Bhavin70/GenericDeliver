@@ -349,7 +349,7 @@ namespace ODLMWebAPI.IoT
             //Int32 maxRecordPerCylce = 24;
             Int32 maxRecordPerCylce = 83;
 
-            List<DimStatusTO> dimStatusTOList = _iDimStatusBL.SelectAllDimStatusList((Int32)StaticStuff.Constants.TransactionTypeE.LOADING);
+            List<DimStatusTO> dimStatusTOList = _iDimStatusBL.SelectAllDimStatusList((Int32)StaticStuff.Constants.TransactionTypeE.SAUDA);
 
             GateIoTResult gateIoTResult = new GateIoTResult();
             try

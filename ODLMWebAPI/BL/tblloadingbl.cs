@@ -374,6 +374,99 @@ namespace ODLMWebAPI.BL {
             return tblLoadingTOList;
         }
 
+        public ResultMessage CheckIotConnectivity()
+        {
+            try
+            {
+                ResultMessage resultMessage = new StaticStuff.ResultMessage();
+                //String statusStr = Convert.ToString((Int32)Constants.TranStatusE.LOADING_DELIVERED);
+                String statusStr = 510.ToString();
+
+                #region Gate
+                List<TblGateTO> tblGateTOList = _iTblGateBL.SelectAllTblGateList(Constants.ActiveSelectionTypeE.Active);
+                tblGateTOList = tblGateTOList.Where(w => w.ModuleId == Constants.DefaultModuleID).ToList();
+                DateTime serverDate = _iCommon.ServerDateTime;
+
+                for (int g = 0; g < tblGateTOList.Count; g++) 
+                {
+                    TblGateTO tblGateTO = tblGateTOList[g];
+
+                    GateIoTResult gateIoTResult = _iIotCommunication.GetLoadingSlipsByStatusFromIoTByStatusId(statusStr, tblGateTO);
+                    if (gateIoTResult == null)
+                    {
+                        gateIoTResult = _iIotCommunication.GetLoadingSlipsByStatusFromIoTByStatusId(statusStr, tblGateTO);
+                        if (gateIoTResult == null)
+                        {
+                            string tempPortNo = tblGateTO.PortNumber;
+                            string tempIp = tblGateTO.MachineIP;
+
+                            tblGateTO.PortNumber = tblGateTO.AltPortNo;
+                            tblGateTO.MachineIP = tblGateTO.AltMachineIP;
+
+                            tblGateTO.AltPortNo = tempPortNo;
+                            tblGateTO.AltMachineIP = tempIp;
+
+                            Int32 result = _iTblGateBL.UpdateTblGatePortAndIp(tblGateTO);
+                            if(result == -1)
+                            {
+                                resultMessage.DefaultBehaviour();
+                                return resultMessage;
+                            }
+                        }
+                    }
+                }
+                #endregion
+
+                #region Weight
+                Int32 loadingId = 1;
+                List<TblWeighingMachineTO> tblWeighingMachineTOList = _iTblWeighingMachineDAO.SelectAllTblWeighingMachine();
+                if(tblWeighingMachineTOList != null && tblWeighingMachineTOList.Count > 0)
+                {
+                    //tblWeighingMachineTOList = tblWeighingMachineTOList.Where(a => a.ModuleId == Constants.DefaultModuleID).ToList();
+                    tblWeighingMachineTOList = tblWeighingMachineTOList.Where(a => a.ModuleId == 5).ToList();
+
+                    for (int k = 0; k < tblWeighingMachineTOList.Count; k++)
+                    {
+                        TblWeighingMachineTO tblWeighingMachineTO = tblWeighingMachineTOList[k];
+
+                        NodeJsResult itemList = _iWeighingCommunication.GetLoadingLayerData(loadingId,1, tblWeighingMachineTO);
+                        if(itemList == null)
+                        {
+                            itemList = _iWeighingCommunication.GetLoadingLayerData(loadingId, 1, tblWeighingMachineTO);
+                            if(itemList == null)
+                            {
+                                string tempPortNo = tblWeighingMachineTO.PortNumber;
+                                string tempIp = tblWeighingMachineTO.MachineIP;
+
+                                tblWeighingMachineTO.PortNumber = tblWeighingMachineTO.AltPortNo;
+                                tblWeighingMachineTO.MachineIP = tblWeighingMachineTO.AltMachineIP;
+
+                                tblWeighingMachineTO.AltPortNo = tempPortNo;
+                                tblWeighingMachineTO.AltMachineIP = tempIp;
+
+                                Int32 result = _iTblWeighingMachineDAO.UpdateTblWeighingMachinePortAndIp(tblWeighingMachineTO);
+                                if (result == -1)
+                                {
+                                    resultMessage.DefaultBehaviour();
+                                    return resultMessage;
+                                }
+                            }
+                        }
+
+                    }
+
+                }
+
+                #endregion
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public ResultMessage RemoveDatFromIotDevice()
         {
             ResultMessage resultMessage = new StaticStuff.ResultMessage();
@@ -409,7 +502,7 @@ namespace ODLMWebAPI.BL {
                             if (tblLoadingTO == null || tblLoadingTO.IsDBup == 0)
                             {
 
-                                #region Saket [2020-10-27] Add vehicle Out Entry if backup not done against vehicle
+                               #region Saket [2020-10-27] Add vehicle Out Entry if backup not done against vehicle
 
                                 String statusDate = (String)gateIoTResult.Data[i][(int)IoTConstants.GateIoTColE.StatusDate];
 

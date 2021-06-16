@@ -27,6 +27,10 @@ namespace ODLMWebAPI.Models
         int weightMeasurTypeId;
         int idWeightMeasure;
         String userIds;
+        String altPortNo;
+        String altMachineIP;
+        Int32 moduleId;
+
         #endregion
 
         #region Constructor
@@ -98,6 +102,7 @@ namespace ODLMWebAPI.Models
             set { machineIP = value; }
         }
 
+        public int ModuleId { get => moduleId; set => moduleId = value; }
         public string PortNumber { get => portNumber; set => portNumber = value; }
         public string IoTUrl { get => ioTUrl; set => ioTUrl = value; }
         public int IsActive { get => isActive; set => isActive = value; }
@@ -105,6 +110,17 @@ namespace ODLMWebAPI.Models
         public int WeightMeasurTypeId { get => weightMeasurTypeId; set => weightMeasurTypeId = value; }
         public int IdWeightMeasure { get => idWeightMeasure; set => idWeightMeasure = value; }
         public string UserIds { get => userIds; set => userIds = value; }
+        public String AltPortNo
+        {
+            get { return altPortNo; }
+            set { altPortNo = value; }
+        }
+        public String AltMachineIP
+        {
+            get { return altMachineIP; }
+            set { altMachineIP = value; }
+        }
+
         #endregion
     }
 }
