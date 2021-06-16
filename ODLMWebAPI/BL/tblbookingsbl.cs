@@ -133,7 +133,10 @@ namespace ODLMWebAPI.BL
                 Dictionary<int, double> bookingDictionary = null;
                 for (int i = 0; i < tblBookingTOList.Count; i++)
                 {
+                    if(tblBookingTOList[i].IdBooking == 111891)
+                    {
 
+                    }
                     // fetch loading qty against each booking consumsion of qty 
                     //  tblLoadingTOList = TblLoadingBL.SelectAllTblLoadingByBookingId(tblBookingTOList[i].IdBooking);
                     List<TblLoadingSlipExtTO> loadingSlipExtList = _iTblLoadingSlipExtDAO.GetAllLoadingExtByBookingId(tblBookingTOList[i].IdBooking, configval);
@@ -153,10 +156,13 @@ namespace ODLMWebAPI.BL
                     tblBookingPendingRptTO.PendingQty = tblBookingTOList[i].PendingQty;
                     tblBookingPendingRptTO.CnfName = tblBookingTOList[i].CnfName;
 
+                    //Deepali Added to get all layers qty.[16-06-2021]
+                    bookingDictionary = new Dictionary<int, double>();
+
                     foreach (var bookingSchedule in tblBookingTOList[i].BookingScheduleTOLst)
                     {
-
-                        bookingDictionary = new Dictionary<int, double>();
+                        //Deepali Commented to get all layers qty.[16-06-2021]
+                        //bookingDictionary = new Dictionary<int, double>();
                         foreach (var item in bookingSchedule.OrderDetailsLst)
                         {
                             if (!bookingDictionary.ContainsKey(item.MaterialId))
