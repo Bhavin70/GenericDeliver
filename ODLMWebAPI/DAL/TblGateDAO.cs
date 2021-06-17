@@ -170,6 +170,13 @@ namespace ODLMWebAPI.DAL
                         tblGateTONew.MachineIP = Convert.ToString(tblGateTODT["machineIP"].ToString());
                     if (tblGateTODT["moduleId"] != DBNull.Value)
                         tblGateTONew.ModuleId = Convert.ToInt32(tblGateTODT["moduleId"].ToString());
+
+                    if (tblGateTODT["altPortNo"] != DBNull.Value)
+                        tblGateTONew.AltPortNo = Convert.ToString(tblGateTODT["altPortNo"].ToString());
+
+                    if (tblGateTODT["altMachineIP"] != DBNull.Value)
+                        tblGateTONew.AltMachineIP = Convert.ToString(tblGateTODT["altMachineIP"].ToString());
+
                     tblGateTOList.Add(tblGateTONew);
                 }
             }
@@ -306,7 +313,7 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Connection = conn;
 
                 String sqlQuery = @" UPDATE [tblGate] SET " +
-            " ,[updatedBy]= @UpdatedBy" +
+            "  [updatedBy]= @UpdatedBy" +
             " ,[updatedOn]= @UpdatedOn" +
             " ,[portNumber]= @PortNumber" +
             " ,[machineIP] = @MachineIP" +

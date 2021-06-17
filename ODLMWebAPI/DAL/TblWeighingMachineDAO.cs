@@ -254,6 +254,12 @@ namespace ODLMWebAPI.DAL
                         tblWeighingMachineTONew.IsActive = Convert.ToInt32(tblWeighingMachineTODT["isActive"].ToString());
                     if (tblWeighingMachineTODT["userIds"] != DBNull.Value)
                         tblWeighingMachineTONew.UserIds = Convert.ToString(tblWeighingMachineTODT["userIds"].ToString());
+                    if (tblWeighingMachineTODT["moduleId"] != DBNull.Value)
+                        tblWeighingMachineTONew.ModuleId = Convert.ToInt32(tblWeighingMachineTODT["moduleId"].ToString());
+                    if (tblWeighingMachineTODT["altPortNo"] != DBNull.Value)
+                        tblWeighingMachineTONew.AltPortNo = Convert.ToString(tblWeighingMachineTODT["altPortNo"].ToString());
+                    if (tblWeighingMachineTODT["altMachineIP"] != DBNull.Value)
+                        tblWeighingMachineTONew.AltMachineIP = Convert.ToString(tblWeighingMachineTODT["altMachineIP"].ToString());
                     tblWeighingMachineTOList.Add(tblWeighingMachineTONew);
                 }
             }
