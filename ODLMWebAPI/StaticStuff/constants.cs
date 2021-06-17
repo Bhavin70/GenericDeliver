@@ -110,7 +110,8 @@ namespace ODLMWebAPI.StaticStuff
             LOADING = 2,
             DELIVERY = 3,
             SPECIAL_REQUIREMENT = 4,
-            UNLOADING = 5
+            UNLOADING = 5,
+                SAUDA = 501
         }
 
         //public static DateTime ServerDateTime

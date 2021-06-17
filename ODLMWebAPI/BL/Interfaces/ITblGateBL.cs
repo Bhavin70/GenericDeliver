@@ -18,5 +18,6 @@ namespace ODLMWebAPI.BL.Interfaces
         int UpdateTblGate(TblGateTO tblGateTO, SqlConnection conn, SqlTransaction tran);
         int DeleteTblGate(Int32 idGate);
         int DeleteTblGate(Int32 idGate, SqlConnection conn, SqlTransaction tran);
+        int UpdateTblGatePortAndIp(TblGateTO tblGateTO);
     }
 }

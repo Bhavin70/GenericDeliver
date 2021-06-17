@@ -112,5 +112,6 @@ namespace ODLMWebAPI.BL.Interfaces
 
         List<TblInvoiceTO> SelectAllInvoiceListByVehicleNo(string vehicleNo, DateTime frmDt, DateTime toDt);
         ResultMessage ChangeLoadingSlipConfirmationStatus(TblLoadingSlipTO tblLoadingSlipTO, Int32 loginUserId);
+        ResultMessage CheckIotConnectivity();
     }
 }
