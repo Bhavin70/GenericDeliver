@@ -133,7 +133,10 @@ namespace ODLMWebAPI.BL
                 Dictionary<int, double> bookingDictionary = null;
                 for (int i = 0; i < tblBookingTOList.Count; i++)
                 {
+                    if(tblBookingTOList[i].IdBooking == 111891)
+                    {
 
+                    }
                     // fetch loading qty against each booking consumsion of qty 
                     //  tblLoadingTOList = TblLoadingBL.SelectAllTblLoadingByBookingId(tblBookingTOList[i].IdBooking);
                     List<TblLoadingSlipExtTO> loadingSlipExtList = _iTblLoadingSlipExtDAO.GetAllLoadingExtByBookingId(tblBookingTOList[i].IdBooking, configval);
@@ -153,10 +156,13 @@ namespace ODLMWebAPI.BL
                     tblBookingPendingRptTO.PendingQty = tblBookingTOList[i].PendingQty;
                     tblBookingPendingRptTO.CnfName = tblBookingTOList[i].CnfName;
 
+                    //Deepali Added to get all layers qty.[16-06-2021]
+                    bookingDictionary = new Dictionary<int, double>();
+
                     foreach (var bookingSchedule in tblBookingTOList[i].BookingScheduleTOLst)
                     {
-
-                        bookingDictionary = new Dictionary<int, double>();
+                        //Deepali Commented to get all layers qty.[16-06-2021]
+                        //bookingDictionary = new Dictionary<int, double>();
                         foreach (var item in bookingSchedule.OrderDetailsLst)
                         {
                             if (!bookingDictionary.ContainsKey(item.MaterialId))
@@ -647,7 +653,7 @@ namespace ODLMWebAPI.BL
             return _iTblBookingsDAO.GetOrderwiseDealerList();
 
         }
-        public List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, List<TblUserRoleTO> tblUserRoleTOList, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId)
+        public List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, List<TblUserRoleTO> tblUserRoleTOList, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId,Int32 orderTypeId=0)
         {
             TblUserRoleTO tblUserRoleTO = new TblUserRoleTO();
 
@@ -655,7 +661,7 @@ namespace ODLMWebAPI.BL
             {
                 tblUserRoleTO = _iTblUserRoleBL.SelectUserRoleTOAccToPriority(tblUserRoleTOList);
             }
-            return _iTblBookingsDAO.SelectBookingList(cnfId, dealerId, statusId, fromDate, toDate, tblUserRoleTO, confirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId);
+            return _iTblBookingsDAO.SelectBookingList(cnfId, dealerId, statusId, fromDate, toDate, tblUserRoleTO, confirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId,orderTypeId);
 
         }
         //Aniket [16-Jan-2019] added to view cnFList against confirm and not confirmbooking
@@ -812,8 +818,8 @@ namespace ODLMWebAPI.BL
 
                     if (sysEleAccessDCT != null || sysEleAccessDCT.Count > 0)
                     {
-                        if (sysEleAccessDCT.ContainsKey(Convert.ToInt32(Constants.pageElements.CONSUMERTYPE)) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMERTYPE)] != null
-                            && !string.IsNullOrEmpty(sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMERTYPE)].ToString()) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMERTYPE)] == "RW")
+                        if (sysEleAccessDCT.ContainsKey(Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)] != null
+                            && !string.IsNullOrEmpty(sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)].ToString()) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)] == "RW")
                         {
                             List<ODLMWebAPI.DashboardModels.BookingInfo> tblBookingsTOList1 = _iTblBookingsDAO.SelectBookingDashboardInfo(tblUserRoleTO, orgId, dealerId, date, ids, isHideCorNC, true);
 

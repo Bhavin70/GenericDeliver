@@ -118,6 +118,7 @@ namespace ODLMWebAPI.IoT
                 }
                 catch (Exception ex)
                 {
+                    nodeJsResult.Exception = ex;
                     nodeJsResult.DefaultErrorBehavior(0, "Error in GetLoadingLayerData");
                     return nodeJsResult;
                 }

@@ -170,6 +170,13 @@ namespace ODLMWebAPI.DAL
                         tblGateTONew.MachineIP = Convert.ToString(tblGateTODT["machineIP"].ToString());
                     if (tblGateTODT["moduleId"] != DBNull.Value)
                         tblGateTONew.ModuleId = Convert.ToInt32(tblGateTODT["moduleId"].ToString());
+
+                    if (tblGateTODT["altPortNo"] != DBNull.Value)
+                        tblGateTONew.AltPortNo = Convert.ToString(tblGateTODT["altPortNo"].ToString());
+
+                    if (tblGateTODT["altMachineIP"] != DBNull.Value)
+                        tblGateTONew.AltMachineIP = Convert.ToString(tblGateTODT["altMachineIP"].ToString());
+
                     tblGateTOList.Add(tblGateTONew);
                 }
             }
@@ -282,6 +289,49 @@ namespace ODLMWebAPI.DAL
                 conn.Open();
                 cmdUpdate.Connection = conn;
                 return ExecuteUpdationCommand(tblGateTO, cmdUpdate);
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                conn.Close();
+                cmdUpdate.Dispose();
+            }
+        }
+
+
+        public int UpdateTblGatePortAndIp(TblGateTO tblGateTO)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                conn.Open();
+                cmdUpdate.Connection = conn;
+
+                String sqlQuery = @" UPDATE [tblGate] SET " +
+            "  [updatedBy]= @UpdatedBy" +
+            " ,[updatedOn]= @UpdatedOn" +
+            " ,[portNumber]= @PortNumber" +
+            " ,[machineIP] = @MachineIP" +
+            " ,[altPortNo]= @AltPortNo" +
+            " ,[altMachineIP] = @AltMachineIP" +
+            " WHERE [idGate] = @IdGate ";
+
+                cmdUpdate.CommandText = sqlQuery;
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+
+                cmdUpdate.Parameters.Add("@IdGate", System.Data.SqlDbType.Int).Value = tblGateTO.IdGate;
+                cmdUpdate.Parameters.Add("@UpdatedBy", System.Data.SqlDbType.Int).Value = tblGateTO.UpdatedBy;
+                cmdUpdate.Parameters.Add("@UpdatedOn", System.Data.SqlDbType.DateTime).Value = tblGateTO.UpdatedOn;
+                cmdUpdate.Parameters.Add("@PortNumber", System.Data.SqlDbType.NVarChar).Value = tblGateTO.PortNumber;
+                cmdUpdate.Parameters.Add("@MachineIP", System.Data.SqlDbType.NVarChar).Value = tblGateTO.MachineIP;
+                cmdUpdate.Parameters.Add("@AltPortNo", System.Data.SqlDbType.NVarChar).Value = tblGateTO.AltPortNo;
+                cmdUpdate.Parameters.Add("@AltMachineIP", System.Data.SqlDbType.NVarChar).Value = tblGateTO.AltMachineIP;
+                return cmdUpdate.ExecuteNonQuery();
             }
             catch (Exception ex)
             {

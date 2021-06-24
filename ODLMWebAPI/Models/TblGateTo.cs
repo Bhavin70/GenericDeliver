@@ -22,6 +22,8 @@ namespace ODLMWebAPI.Models
         Int32 previousGateId;
         string previousGateName;
         Int32 moduleId;
+        String altPortNo;
+        String altMachineIP;
         #endregion
 
         #region Constructor
@@ -98,6 +100,18 @@ namespace ODLMWebAPI.Models
         public int ModuleId { get => moduleId; set => moduleId = value; }
 
         public string PreviousGateName { get => previousGateName; set => previousGateName = value; }
+
+        public String AltPortNo
+        {
+            get { return altPortNo; }
+            set { altPortNo = value; }
+        }
+        public String AltMachineIP
+        {
+            get { return altMachineIP; }
+            set { altMachineIP = value; }
+        }
+
         #endregion
     }
 

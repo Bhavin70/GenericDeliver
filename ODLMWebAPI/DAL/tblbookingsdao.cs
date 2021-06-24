@@ -896,7 +896,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-        public List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq ,Int32 RMId)
+        public List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq ,Int32 RMId, Int32 orderTypeId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -1058,7 +1058,12 @@ namespace ODLMWebAPI.DAL
                     sqlQuery += " AND bookings.statusId IN ( " + (int)Constants.TranStatusE.BOOKING_NEW +"," + (int)Constants.TranStatusE.BOOKING_HOLD_BY_ADMIN_OR_DIRECTOR + ") ";
                     sqlQuery += " AND bookings.isWithinQuotaLimit=0";
                 }
-          
+
+                if (orderTypeId > 0)
+                {
+                    sqlQuery += " AND bookings.consumerTypeId= "+ orderTypeId;
+                }
+
                 cmdSelect.CommandText = sqlQuery;
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;

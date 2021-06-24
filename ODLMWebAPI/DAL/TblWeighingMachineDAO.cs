@@ -254,6 +254,12 @@ namespace ODLMWebAPI.DAL
                         tblWeighingMachineTONew.IsActive = Convert.ToInt32(tblWeighingMachineTODT["isActive"].ToString());
                     if (tblWeighingMachineTODT["userIds"] != DBNull.Value)
                         tblWeighingMachineTONew.UserIds = Convert.ToString(tblWeighingMachineTODT["userIds"].ToString());
+                    if (tblWeighingMachineTODT["moduleId"] != DBNull.Value)
+                        tblWeighingMachineTONew.ModuleId = Convert.ToInt32(tblWeighingMachineTODT["moduleId"].ToString());
+                    if (tblWeighingMachineTODT["altPortNo"] != DBNull.Value)
+                        tblWeighingMachineTONew.AltPortNo = Convert.ToString(tblWeighingMachineTODT["altPortNo"].ToString());
+                    if (tblWeighingMachineTODT["altMachineIP"] != DBNull.Value)
+                        tblWeighingMachineTONew.AltMachineIP = Convert.ToString(tblWeighingMachineTODT["altMachineIP"].ToString());
                     tblWeighingMachineTOList.Add(tblWeighingMachineTONew);
                 }
             }
@@ -370,6 +376,49 @@ namespace ODLMWebAPI.DAL
                 return ExecuteUpdationCommand(tblWeighingMachineTO, cmdUpdate);
             }
             catch(Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                conn.Close();
+                cmdUpdate.Dispose();
+            }
+        }
+
+        public int UpdateTblWeighingMachinePortAndIp(TblWeighingMachineTO tblWeighingMachineTO)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                conn.Open();
+                cmdUpdate.Connection = conn;
+
+                String sqlQuery = @" UPDATE [tblWeighingMachine] SET " +
+                            "  [updatedBy]= @UpdatedBy" +
+                            " ,[updatedOn]= @UpdatedOn" +
+                            " ,[portNumber]= @PortNumber" +
+                            " ,[machineIP] = @MachineIP" +
+                            " ,[altPortNo]= @AltPortNo" +
+                            " ,[altMachineIP] = @AltMachineIP" +
+                            " WHERE [idWeighingMachine] = @IdWeighingMachine";
+
+                cmdUpdate.CommandText = sqlQuery;
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+
+                cmdUpdate.Parameters.Add("@IdWeighingMachine", System.Data.SqlDbType.Int).Value = tblWeighingMachineTO.IdWeighingMachine;
+                cmdUpdate.Parameters.Add("@UpdatedBy", System.Data.SqlDbType.Int).Value = tblWeighingMachineTO.UpdatedBy;
+                cmdUpdate.Parameters.Add("@UpdatedOn", System.Data.SqlDbType.DateTime).Value = tblWeighingMachineTO.UpdatedOn;
+                cmdUpdate.Parameters.Add("@MachineIP", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblWeighingMachineTO.MachineIP);
+                cmdUpdate.Parameters.Add("@PortNumber", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblWeighingMachineTO.PortNumber);
+
+                cmdUpdate.Parameters.Add("@AltPortNo", System.Data.SqlDbType.NVarChar).Value = tblWeighingMachineTO.AltPortNo;
+                cmdUpdate.Parameters.Add("@AltMachineIP", System.Data.SqlDbType.NVarChar).Value = tblWeighingMachineTO.AltMachineIP;
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
             {
                 return -1;
             }

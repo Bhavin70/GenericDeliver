@@ -10,8 +10,13 @@ namespace ODLMWebAPI.IoT
         string msg;
         int code;
         List<int[]> data;
+        Exception exception;
 
-
+        public Exception Exception
+        {
+            get { return exception; }
+            set { exception = value; }
+        }
         public string Msg { get => msg; set => msg = value; }
         public int Code { get => code; set => code = value; }
         public List<int[]> Data { get => data; set => data = value; }
