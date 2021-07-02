@@ -816,7 +816,7 @@ namespace ODLMWebAPI.StaticStuff
         public static string COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER = "COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER";
 
         public static string ADD_ITEMWISE_RATE_WHILE_BOOKING = "ADD_ITEMWISE_RATE_WHILE_BOOKING";
-
+        public static string CP_DELIVER_INVOICE_TDS_TAX_PCT = "CP_DELIVER_INVOICE_TDS_TAX_PCT";
         #endregion
 
         //Harshala Added
