@@ -10548,6 +10548,28 @@ namespace ODLMWebAPI.BL {
 
                 exiInvoiceTO.IsConfirmed = calculatedInvoiceTO.IsConfirmed;
                 exiInvoiceTO.GrandTotal = calculatedInvoiceTO.GrandTotal;
+                Double tdsTaxPct = 0;
+                if (calculatedInvoiceTO != null)
+                {
+                    if (calculatedInvoiceTO.IsTcsApplicable == 0)
+                    {
+                        TblConfigParamsTO tdsConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_INVOICE_TDS_TAX_PCT);
+                        if (tdsConfigParamsTO != null)
+                        {
+                            if (!String.IsNullOrEmpty(tdsConfigParamsTO.ConfigParamVal))
+                            {
+                                tdsTaxPct = Convert.ToDouble(tdsConfigParamsTO.ConfigParamVal);
+                            }
+                        }
+                    }
+                }
+                exiInvoiceTO.TdsAmt = 0;
+                if (calculatedInvoiceTO.IsConfirmed == 1)
+                {
+                    exiInvoiceTO.TdsAmt = (exiInvoiceTO.GrandTotal * tdsTaxPct) / 100;
+                    exiInvoiceTO.TdsAmt = Math.Ceiling(exiInvoiceTO.TdsAmt);
+                }
+               
                 exiInvoiceTO.RoundOffAmt = calculatedInvoiceTO.RoundOffAmt;
                 exiInvoiceTO.BasicAmt = calculatedInvoiceTO.BasicAmt;
                 calculatedInvoiceTO.InvoiceItemDetailsTOList.ForEach(ele => ele.InvoiceId = invoiceId);

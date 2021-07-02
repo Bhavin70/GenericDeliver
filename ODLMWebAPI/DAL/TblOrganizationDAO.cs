@@ -1171,6 +1171,8 @@ namespace ODLMWebAPI.DAL
                     if (tblOrganizationTODT["dateOfEstablishment"] != DBNull.Value)
                         tblOrganizationTONew.DateOfEstablishment = Convert.ToDateTime(tblOrganizationTODT["dateOfEstablishment"].ToString());
 
+                    if (tblOrganizationTODT["isTcsApplicable"] != DBNull.Value)
+                        tblOrganizationTONew.IsTcsApplicable = Convert.ToInt32(tblOrganizationTODT["isTcsApplicable"].ToString());
 
                     tblOrganizationTOList.Add(tblOrganizationTONew);
                 }

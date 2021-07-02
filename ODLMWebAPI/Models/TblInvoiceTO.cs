@@ -96,7 +96,8 @@ namespace ODLMWebAPI.Models
         Int32 isEInvGenerated; //Dhananjay [2020-11-19] to store eInvoice generated Y/N
         Int32 isEWayBillGenerated; //Dhananjay [2020-11-19] to store eWay bill generated Y/N
         Decimal distanceInKM; //Dhananjay [2020-11-19] to store distanceInKM
-
+        Double tdsAmt;
+        Int32 isTcsApplicable;
         #endregion
 
         #region Constructor
@@ -538,6 +539,8 @@ namespace ODLMWebAPI.Models
         public Int32 IsEInvGenerated { get => isEInvGenerated; set => isEInvGenerated = value; }
         public Int32 IsEWayBillGenerated { get => isEWayBillGenerated; set => isEWayBillGenerated = value; }
         public Decimal DistanceInKM { get => distanceInKM; set => distanceInKM = value; }
+        public double TdsAmt { get => tdsAmt; set => tdsAmt = value; }
+        public int IsTcsApplicable { get => isTcsApplicable; set => isTcsApplicable = value; }
 
         public TblInvoiceTO DeepCopy()
         {
