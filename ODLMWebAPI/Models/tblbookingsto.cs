@@ -115,7 +115,9 @@ namespace ODLMWebAPI.Models
         //Gokul [11-02-2021]
         Int32 orderTypeId;
         string orderTypeName;
-    
+
+        Int32 cnfChkSelected;
+
         #endregion
 
         #region Constructor
@@ -270,6 +272,7 @@ namespace ODLMWebAPI.Models
             set { status = value; }
         }
 
+        
 
         /// <summary>
         /// Sanjay [2017-02-17] This is pending qty for loading
@@ -559,6 +562,14 @@ namespace ODLMWebAPI.Models
             get { return orderTypeName; }
             set { orderTypeName = value; }
         }
+
+        public Int32 CnfChkSelected
+        {
+            get { return cnfChkSelected; }
+            set { cnfChkSelected = value; }
+        }
+
+        
         #endregion
 
         #region Methods
