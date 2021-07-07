@@ -10564,9 +10564,9 @@ namespace ODLMWebAPI.BL {
                     }
                 }
                 exiInvoiceTO.TdsAmt = 0;
-                if (calculatedInvoiceTO.IsConfirmed == 1)
+                if (calculatedInvoiceTO.IsConfirmed == 1 && calculatedInvoiceTO.InvoiceTypeE != Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
                 {
-                    exiInvoiceTO.TdsAmt = (exiInvoiceTO.GrandTotal * tdsTaxPct) / 100;
+                    exiInvoiceTO.TdsAmt = (_iTblInvoiceBL.CalculateTDS(exiInvoiceTO) * tdsTaxPct) / 100;
                     exiInvoiceTO.TdsAmt = Math.Ceiling(exiInvoiceTO.TdsAmt);
                 }
                

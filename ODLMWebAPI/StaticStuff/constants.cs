@@ -824,6 +824,9 @@ namespace ODLMWebAPI.StaticStuff
         //Harshala Added
         public static string WeighmentSlip = "WeighmentSlip";
         public static string GatePassSlip = "GatePassSlip";
+        public static string DEFAULT_TCS_PERCENT_IF_DECLARATION_NOT_RECEIVED = "DEFAULT_TCS_PERCENT_IF_DECLARATION_NOT_RECEIVED";
+
+        
 
         #region Common functions
 
