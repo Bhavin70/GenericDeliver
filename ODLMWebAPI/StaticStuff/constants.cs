@@ -817,6 +817,7 @@ namespace ODLMWebAPI.StaticStuff
 
         public static string ADD_ITEMWISE_RATE_WHILE_BOOKING = "ADD_ITEMWISE_RATE_WHILE_BOOKING";
         public static string CP_DELIVER_INVOICE_TDS_TAX_PCT = "CP_DELIVER_INVOICE_TDS_TAX_PCT";
+        public static string CHECK_IS_DECLARATION_RECEIVED = "CHECK_IS_DECLARATION_RECEIVED";
         #endregion
 
         //Harshala Added

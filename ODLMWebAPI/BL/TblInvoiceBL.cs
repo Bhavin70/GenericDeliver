@@ -2350,17 +2350,37 @@ namespace ODLMWebAPI.BL
 
 
                         TblConfigParamsTO tcsPercentConfigParamsTO = new TblConfigParamsTO();
-                        if(isDeclarationRec == 1)
+                        Int32 IsCheckDeclarationRec = 0;
+                        TblConfigParamsTO declarationRecConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CHECK_IS_DECLARATION_RECEIVED, conn, tran);
+                        if(declarationRecConfigParamsTO != null)
+                        {
+                            if (!String.IsNullOrEmpty(declarationRecConfigParamsTO.ConfigParamVal))
+                            {
+                                IsCheckDeclarationRec = Convert.ToInt32(declarationRecConfigParamsTO.ConfigParamVal);
+                            }
+                        }
+                        if(IsCheckDeclarationRec == 1)
+                        {
+                            if (isDeclarationRec == 1)
+                            {
+                                if (isPanNoPresent)
+                                    tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_PAN_PRESENT, conn, tran);
+                                else
+                                    tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_PAN_NOT_PRESENT, conn, tran);
+                            }
+                            else
+                            {
+                                tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_DECLARATION_NOT_RECEIVED, conn, tran);
+                            }
+                        }
+                        else
                         {
                             if (isPanNoPresent)
                                 tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_PAN_PRESENT, conn, tran);
                             else
                                 tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_PAN_NOT_PRESENT, conn, tran);
                         }
-                        else
-                        {
-                            tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_DECLARATION_NOT_RECEIVED, conn, tran);
-                        }
+                        
                        
 
                         if (tcsPercentConfigParamsTO != null)
