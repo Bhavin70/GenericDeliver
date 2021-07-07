@@ -661,7 +661,25 @@ namespace ODLMWebAPI.BL
             {
                 tblUserRoleTO = _iTblUserRoleBL.SelectUserRoleTOAccToPriority(tblUserRoleTOList);
             }
-            return _iTblBookingsDAO.SelectBookingList(cnfId, dealerId, statusId, fromDate, toDate, tblUserRoleTO, confirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId,orderTypeId);
+            List<TblBookingsTO> bookingList =  _iTblBookingsDAO.SelectBookingList(cnfId, dealerId, statusId, fromDate, toDate, tblUserRoleTO, confirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId,orderTypeId);
+            if(bookingList != null && bookingList.Count > 0)
+            {
+                //Prajakta[2021-07-06] Added 
+                var isCnfChkSelectedList = bookingList.Where(a => a.CnfChkSelected == 1).ToList();
+                if(isCnfChkSelectedList != null && isCnfChkSelectedList.Count > 0)
+                {
+                    TblConfigParamsTO configParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.IS_INTERNAL_CNF_SELECTION_ON_CHECKBOX_NEW);
+                    if(configParamsTO != null && !String.IsNullOrEmpty(configParamsTO.ConfigParamVal) && configParamsTO.ConfigParamVal != "0")
+                    {
+                        String cnfName = configParamsTO.ConfigParamVal.ToString();
+
+                        isCnfChkSelectedList.ForEach(cc => cc.CnfName = cnfName);
+                    }
+                }
+
+            }
+
+            return bookingList;
 
         }
         //Aniket [16-Jan-2019] added to view cnFList against confirm and not confirmbooking
@@ -3953,6 +3971,7 @@ namespace ODLMWebAPI.BL
                 existingTblBookingsTO.PendingUomQty = tblBookingsTO.PendingUomQty;
                 existingTblBookingsTO.OrderTypeId = tblBookingsTO.OrderTypeId;
                 existingTblBookingsTO.OrderTypeName = tblBookingsTO.OrderTypeName;
+                existingTblBookingsTO.CnfChkSelected = tblBookingsTO.CnfChkSelected;
 
                 //Aniket [24-7-2019] added to check scheduled NoOfDeliveries against booking
                 if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)

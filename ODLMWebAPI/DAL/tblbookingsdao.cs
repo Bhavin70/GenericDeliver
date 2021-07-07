@@ -2001,6 +2001,9 @@ namespace ODLMWebAPI.DAL
                     if (tblBookingsTODT["consumerTypeName"] != DBNull.Value)
                         tblBookingsTONew.OrderTypeName = Convert.ToString(tblBookingsTODT["consumerTypeName"]);
 
+                    if (tblBookingsTODT["cnfChkSelected"] != DBNull.Value)
+                        tblBookingsTONew.CnfChkSelected = Convert.ToInt32(tblBookingsTODT["cnfChkSelected"]);
+
 
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }
@@ -2336,6 +2339,7 @@ namespace ODLMWebAPI.DAL
                             " ,[enquiryId]" +
                             //kiran[06-09-2019]
                             ", [consumerTypeId]" + //Gokul [11-02-2021]
+                            ", [cnfChkSelected]" +
                             " )" +
                 " VALUES (" +
                             "  @CnFOrgId " +
@@ -2390,6 +2394,7 @@ namespace ODLMWebAPI.DAL
                             " ,@bookingDisplayNo" +
                             " ,@enquiryId" +
                             " ,@consumertypeid" +
+                            " ,@CnfChkSelected" +
                              " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -2450,6 +2455,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@bookingDisplayNo", System.Data.SqlDbType.VarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingDisplayNo);
             cmdInsert.Parameters.Add("@enquiryId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.EnquiryId);
             cmdInsert.Parameters.Add("@consumertypeid", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.OrderTypeId);
+            cmdInsert.Parameters.Add("@CnfChkSelected", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.CnfChkSelected);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
@@ -2591,6 +2597,7 @@ namespace ODLMWebAPI.DAL
                             " ,[bookingDisplayNo] = @bookingDisplayNo" +
                             " ,[enquiryId] = @enquiryId" +
                             " , [consumerTypeId]=@consumerTypeId" +
+                            " , [cnfChkSelected]=@CnfChkSelected" +
                             " WHERE  [idBooking] = @IdBooking";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -2648,6 +2655,7 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@bookingDisplayNo", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingDisplayNo);
             cmdUpdate.Parameters.Add("@enquiryId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.EnquiryId);
             cmdUpdate.Parameters.Add("@consumerTypeId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.OrderTypeId);
+            cmdUpdate.Parameters.Add("@CnfChkSelected", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.CnfChkSelected);
 
 
             return cmdUpdate.ExecuteNonQuery();
