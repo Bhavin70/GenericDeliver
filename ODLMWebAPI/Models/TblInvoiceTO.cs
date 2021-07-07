@@ -98,6 +98,7 @@ namespace ODLMWebAPI.Models
         Decimal distanceInKM; //Dhananjay [2020-11-19] to store distanceInKM
         Double tdsAmt;
         Int32 isTcsApplicable;
+        Int32 isDeclarationRec;
         #endregion
 
         #region Constructor
@@ -541,6 +542,7 @@ namespace ODLMWebAPI.Models
         public Decimal DistanceInKM { get => distanceInKM; set => distanceInKM = value; }
         public double TdsAmt { get => tdsAmt; set => tdsAmt = value; }
         public int IsTcsApplicable { get => isTcsApplicable; set => isTcsApplicable = value; }
+        public int IsDeclarationRec { get => isDeclarationRec; set => isDeclarationRec = value; }
 
         public TblInvoiceTO DeepCopy()
         {

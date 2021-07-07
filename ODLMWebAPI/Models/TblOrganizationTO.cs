@@ -91,6 +91,7 @@ namespace ODLMWebAPI.Models
         Int32 consumerTypeId;
         string consumerType;
         Int32 isTcsApplicable;
+        Int32 isDeclarationRec;
         #endregion
 
         #region Constructor
@@ -445,6 +446,7 @@ namespace ODLMWebAPI.Models
         public List<TblPurchaseCompetitorExtTO> PurchaseCompetitorExtTOList { get => purchaseCompetitorExtTOList; set => purchaseCompetitorExtTOList = value; }
         public double CreditLimit { get => creditLimit; set => creditLimit = value; }
         public int IsTcsApplicable { get => isTcsApplicable; set => isTcsApplicable = value; }
+        public int IsDeclarationRec { get => isDeclarationRec; set => isDeclarationRec = value; }
 
 
 

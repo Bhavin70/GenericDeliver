@@ -1174,6 +1174,9 @@ namespace ODLMWebAPI.DAL
                     if (tblOrganizationTODT["isTcsApplicable"] != DBNull.Value)
                         tblOrganizationTONew.IsTcsApplicable = Convert.ToInt32(tblOrganizationTODT["isTcsApplicable"].ToString());
 
+                    if (tblOrganizationTODT["isDeclarationRec"] != DBNull.Value)
+                        tblOrganizationTONew.IsDeclarationRec = Convert.ToInt32(tblOrganizationTODT["isDeclarationRec"].ToString());
+
                     tblOrganizationTOList.Add(tblOrganizationTONew);
                 }
             }

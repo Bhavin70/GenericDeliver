@@ -844,6 +844,9 @@ namespace ODLMWebAPI.DAL
                     if (tblInvoiceTODT["distanceInKM"] != DBNull.Value)
                         tblInvoiceTONew.DistanceInKM = Convert.ToDecimal(tblInvoiceTODT["distanceInKM"].ToString());
 
+                    if (tblInvoiceTODT["tdsAmt"] != DBNull.Value)
+                        tblInvoiceTONew.TdsAmt = Convert.ToDouble(tblInvoiceTODT["tdsAmt"].ToString());
+
                     tblInvoiceTOList.Add(tblInvoiceTONew);
                 }
             }
