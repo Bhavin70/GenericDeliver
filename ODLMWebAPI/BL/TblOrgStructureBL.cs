@@ -244,6 +244,11 @@ public List<TblUserReportingDetailsTO> GetOrgStructureUserDetailsForBom(Int16 or
             return _iTblOrgStructureDAO.SelectAllTblOrgStructureHierarchy(orgStrctureId, parentOrgStrctureId, reportingTypeId, conn, tran);
         }
 
+        public TblOrganizationTO SelectTblOrganizationTO(Int32 idOrganization)
+        {
+            return _iTblOrganizationDAO.SelectTblOrganizationTO(idOrganization);
+        }
+
         // Vaibhav [11-Oct-2017] added to get all reporting to employee list
         public List<DropDownTO> SelectReportingToUserList(Int32 orgStructureId,Int32 type)
         {

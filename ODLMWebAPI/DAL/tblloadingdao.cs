@@ -472,11 +472,11 @@ namespace ODLMWebAPI.DAL
                     //Priyanka [31-05-2018] : Added to show the confirm and non-confirm loading slip.
                 if (isConfirm == 0 || isConfirm == 1)
                 {
-                    whereisConTemp += " AND ISNULL(loadingSlip.isConfirmed,0) = " + isConfirm;
-                    whereisConFinal += " AND ISNULL(loadingSlip.isConfirmed,0) = " + isConfirm;
+                    //whereisConTemp += " AND ISNULL(loadingSlip.isConfirmed,0) = " + isConfirm;
+                    //whereisConFinal += " AND ISNULL(loadingSlip.isConfirmed,0) = " + isConfirm;
 
-                    //    whereisConTemp += " AND loading.idLoading IN ( select loadingId from tempLoadingSlip where ISNULL(isConfirmed,0) = " + isConfirm + ")";
-                    //    whereisConFinal += " AND loading.idLoading IN ( select loadingId from finalLoadingSlip where ISNULL(isConfirmed,0) = " + isConfirm + ")";
+                    whereisConTemp += " AND loading.idLoading IN ( select loadingId from tempLoadingSlip where ISNULL(isConfirmed,0) = " + isConfirm + " AND CONVERT (DATE,tempLoadingSlip.createdOn,103) BETWEEN @fromDate AND @toDate)";
+                    whereisConFinal += " AND loading.idLoading IN ( select loadingId from finalLoadingSlip where ISNULL(isConfirmed,0) = " + isConfirm + " AND CONVERT (DATE,finalLoadingSlip.createdOn,103) BETWEEN @fromDate AND @toDate)";
                 }
                 //cmdSelect.CommandText = SqlSelectQuery() + areConfJoin + whereCond;
 
@@ -485,7 +485,7 @@ namespace ODLMWebAPI.DAL
                                   " ,tblUser.userDisplayName  " +
                                   " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP, " +
                                   //Added by minal 12 May 2021 For show dealer to approval screen
-                                  //" tblOrganization.firmName  + ',' +  CASE WHEN tblOrganization.addrId IS NULL THEN '' ELSE " +
+                                   //" tblOrganization.firmName  + ',' +  CASE WHEN tblOrganization.addrId IS NULL THEN '' ELSE " +
                                   //" CASE WHEN address.villageName IS NOT NULL  THEN address.villageName ELSE " +
                                   //" CASE WHEN address.talukaName IS NOT NULL THEN address.talukaName  ELSE " +
                                   //" CASE WHEN address.districtName IS NOT NULL THEN address.districtName ELSE " +

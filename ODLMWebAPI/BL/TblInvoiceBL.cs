@@ -1434,6 +1434,27 @@ namespace ODLMWebAPI.BL
             foreach (var loadingSlipTo in loadingSlipTOList)
             {
                 TblInvoiceTO tblInvoiceTO = PrepareInvoiceAgainstLoadingSlip(loadingTO, conn, tran, internalOrgId, ofcAddrTO, rcmConfigParamsTO, invoiceDateConfigTO, loadingSlipTo);
+                Double tdsTaxPct = 0;
+                if (tblInvoiceTO != null)
+                {
+                    if (tblInvoiceTO.IsTcsApplicable == 0)
+                    {
+                        TblConfigParamsTO tdsConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_INVOICE_TDS_TAX_PCT);
+                        if (tdsConfigParamsTO != null)
+                        {
+                            if (!String.IsNullOrEmpty(tdsConfigParamsTO.ConfigParamVal))
+                            {
+                                tdsTaxPct = Convert.ToDouble(tdsConfigParamsTO.ConfigParamVal);
+                            }
+                        }
+                    }
+                }
+                tblInvoiceTO.TdsAmt = 0;
+                if (tblInvoiceTO.IsConfirmed == 1 && tblInvoiceTO.InvoiceTypeE != Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+                {
+                    tblInvoiceTO.TdsAmt = (CalculateTDS(tblInvoiceTO) * tdsTaxPct) / 100;
+                    tblInvoiceTO.TdsAmt = Math.Ceiling(tblInvoiceTO.TdsAmt);
+                }
                 tblInvoiceTOList.Add(tblInvoiceTO);
             }
 
@@ -1541,7 +1562,36 @@ namespace ODLMWebAPI.BL
             resultMsg.Tag = tblInvoiceTOList;
             return resultMsg;
         }
-
+        public Double CalculateTDS(TblInvoiceTO tblInvoiceTO)
+        {
+            Double TdsAmt = 0;
+            List<TblOtherTaxesTO> TblOtherTaxesTOList = _iTblOtherTaxesDAO.SelectAllTblOtherTaxes();
+            if (tblInvoiceTO != null)
+            {
+                if (tblInvoiceTO.InvoiceItemDetailsTOList != null && tblInvoiceTO.InvoiceItemDetailsTOList.Count > 0)
+                {
+                    tblInvoiceTO.InvoiceItemDetailsTOList.ForEach(element =>
+                    {
+                        if (element.OtherTaxId == 0)
+                        {
+                            TdsAmt += element.TaxableAmt;
+                        }
+                        else if (element.OtherTaxId > 0 && TblOtherTaxesTOList != null && TblOtherTaxesTOList.Count > 0)
+                        {
+                            var matchTO = TblOtherTaxesTOList.Where(w => w.IdOtherTax == element.OtherTaxId).FirstOrDefault();
+                            if (matchTO != null)
+                            {
+                                if (matchTO.IsBefore == 1)
+                                {
+                                    TdsAmt += element.TaxableAmt;
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            return TdsAmt;
+        }
         public TblInvoiceTO PrepareInvoiceAgainstLoadingSlip(TblLoadingTO loadingTO, SqlConnection conn, SqlTransaction tran, int internalOrgId, TblAddressTO ofcAddrTO, TblConfigParamsTO rcmConfigParamsTO, TblConfigParamsTO invoiceDateConfigTO, TblLoadingSlipTO loadingSlipTo)
         {
             /*GJ@20170915 :  Default Weighing is done in  KG UOM , hence we need to convert it MT while we assign this*/
@@ -1606,6 +1656,11 @@ namespace ODLMWebAPI.BL
             //tblInvoiceTO.DistributorOrgId = loadingTO.CnfOrgId;
             tblInvoiceTO.DistributorOrgId = loadingSlipTo.CnfOrgId;
             tblInvoiceTO.DealerOrgId = loadingSlipTo.DealerOrgId;
+            TblOrganizationTO tblOrganizationTO = _iTblOrganizationBL.SelectTblOrganizationTO(loadingSlipTo.DealerOrgId);
+            if(tblOrganizationTO == null)
+            {
+                resultMsg.DefaultBehaviour("Failed to get dealer org details");
+            }
             //Aniket [06-02-2019]
             tblInvoiceTO.GrossWtTakenDate = _iCommon.ServerDateTime;
             tblInvoiceTO.PreparationDate = _iCommon.ServerDateTime;
@@ -2163,13 +2218,18 @@ namespace ODLMWebAPI.BL
                     grandTotal += freightGrandTotal;
                 }
 
-
-                resultMsg = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableTotal, ref basicTotal, isPanNoPresent, tblInvoiceItemDetailsTOList, tblInvoiceTO, ref otherTaxAmt);
-                if (resultMsg == null || resultMsg.MessageType != ResultMessageE.Information)
+                if(tblOrganizationTO != null && tblOrganizationTO.IsTcsApplicable == 1)
                 {
-                    resultMsg.DefaultBehaviour(resultMsg.Text);
-                    //return resultMsg;
+                    tblInvoiceTO.IsTcsApplicable = tblOrganizationTO.IsTcsApplicable;
+                    resultMsg = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableTotal, ref basicTotal, isPanNoPresent, tblInvoiceItemDetailsTOList, tblInvoiceTO, ref otherTaxAmt, tblOrganizationTO.IsDeclarationRec);
+                    if (resultMsg == null || resultMsg.MessageType != ResultMessageE.Information)
+                    {
+                        resultMsg.DefaultBehaviour(resultMsg.Text);
+                        //return resultMsg;
+                    }
                 }
+
+                
 
 
 
@@ -2258,7 +2318,7 @@ namespace ODLMWebAPI.BL
         }
 
         //Harshala[30/09/3030] added to calculate TCS 
-        private ResultMessage AddTcsTOInTaxItemDtls(SqlConnection conn, SqlTransaction tran, ref double grandTotal, ref double taxableTotal, ref double basicTotal, bool isPanNoPresent, List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOList, TblInvoiceTO tblInvoiceTo, ref double otherTaxAmt)
+        private ResultMessage AddTcsTOInTaxItemDtls(SqlConnection conn, SqlTransaction tran, ref double grandTotal, ref double taxableTotal, ref double basicTotal, bool isPanNoPresent, List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOList, TblInvoiceTO tblInvoiceTo, ref double otherTaxAmt, Int32 isDeclarationRec)
         {
 
             ResultMessage resultMessage = new ResultMessage();
@@ -2290,11 +2350,38 @@ namespace ODLMWebAPI.BL
 
 
                         TblConfigParamsTO tcsPercentConfigParamsTO = new TblConfigParamsTO();
-
-                        if (isPanNoPresent)
-                            tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_PAN_PRESENT, conn, tran);
+                        Int32 IsCheckDeclarationRec = 0;
+                        TblConfigParamsTO declarationRecConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CHECK_IS_DECLARATION_RECEIVED, conn, tran);
+                        if(declarationRecConfigParamsTO != null)
+                        {
+                            if (!String.IsNullOrEmpty(declarationRecConfigParamsTO.ConfigParamVal))
+                            {
+                                IsCheckDeclarationRec = Convert.ToInt32(declarationRecConfigParamsTO.ConfigParamVal);
+                            }
+                        }
+                        if(IsCheckDeclarationRec == 1)
+                        {
+                            if (isDeclarationRec == 1)
+                            {
+                                if (isPanNoPresent)
+                                    tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_PAN_PRESENT, conn, tran);
+                                else
+                                    tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_PAN_NOT_PRESENT, conn, tran);
+                            }
+                            else
+                            {
+                                tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_DECLARATION_NOT_RECEIVED, conn, tran);
+                            }
+                        }
                         else
-                            tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_PAN_NOT_PRESENT, conn, tran);
+                        {
+                            if (isPanNoPresent)
+                                tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_PAN_PRESENT, conn, tran);
+                            else
+                                tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.DEFAULT_TCS_PERCENT_IF_PAN_NOT_PRESENT, conn, tran);
+                        }
+                        
+                       
 
                         if (tcsPercentConfigParamsTO != null)
                         {
@@ -2433,7 +2520,27 @@ namespace ODLMWebAPI.BL
                         {
                             //Update Existing Invoice
                             TblInvoiceTO invToUpdateTO = tblInvoiceTOList[0]; //Taken 0th Object as it will always go for single invoice at a time.List is return as existing code is used.
-
+                            Double tdsTaxPct = 0;
+                            if (invToUpdateTO != null)
+                            {
+                                if (invToUpdateTO.IsTcsApplicable == 0)
+                                {
+                                    TblConfigParamsTO tdsConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_INVOICE_TDS_TAX_PCT);
+                                    if (tdsConfigParamsTO != null)
+                                    {
+                                        if (!String.IsNullOrEmpty(tdsConfigParamsTO.ConfigParamVal))
+                                        {
+                                            tdsTaxPct = Convert.ToDouble(tdsConfigParamsTO.ConfigParamVal);
+                                        }
+                                    }
+                                }
+                            }
+                            invToUpdateTO.TdsAmt = 0;
+                            if (invoiceTO.IsConfirmed == 1 && invoiceTO.InvoiceTypeE != Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+                            {
+                                invToUpdateTO.TdsAmt = (CalculateTDS(invToUpdateTO) * tdsTaxPct) / 100;
+                                invToUpdateTO.TdsAmt = Math.Ceiling(invToUpdateTO.TdsAmt);
+                            }
                             //Delete existing invoice item taxes details
                             result = _iTblInvoiceItemTaxDtlsBL.DeleteInvoiceItemTaxDtlsByInvId(invToUpdateTO.IdInvoice, conn, tran);
                             if (result <= -1)
@@ -2560,7 +2667,28 @@ namespace ODLMWebAPI.BL
                                     tblInvoiceTOList[i].InvFromOrgFreeze = 1;
 
                                     RemoveIotFieldsFromDB(tblInvoiceTOList[i]);
-
+                                    Double tdsTaxPct = 0;
+                                    if (tblInvoiceTOList[i] != null)
+                                    {
+                                        if (tblInvoiceTOList[i].IsTcsApplicable == 0)
+                                        {
+                                            TblConfigParamsTO tdsConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_INVOICE_TDS_TAX_PCT);
+                                            if (tdsConfigParamsTO != null)
+                                            {
+                                                if (!String.IsNullOrEmpty(tdsConfigParamsTO.ConfigParamVal))
+                                                {
+                                                    tdsTaxPct = Convert.ToDouble(tdsConfigParamsTO.ConfigParamVal);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    tblInvoiceTOList[i].TdsAmt = 0;
+                                    if (invoiceTO.IsConfirmed == 1 && invoiceTO.InvoiceTypeE != Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+                                    {
+                                        tblInvoiceTOList[i].TdsAmt = (CalculateTDS(tblInvoiceTOList[i]) * tdsTaxPct) / 100;
+                                        tblInvoiceTOList[i].TdsAmt = Math.Ceiling(tblInvoiceTOList[i].TdsAmt);
+                                    }
+                                    
                                     resultMsg = SaveNewInvoice(tblInvoiceTOList[i], conn, tran);
                                     if (resultMsg.MessageType != ResultMessageE.Information)
                                     {
@@ -2688,7 +2816,7 @@ namespace ODLMWebAPI.BL
                     }
 
                     tblInvoiceTO.DealerOrgId = internalBMOrgId;  //BMM AS dealer.
-
+                    tblInvoiceTO.IsTcsApplicable = bmOrgTO.IsTcsApplicable;
                     List<TblOrgLicenseDtlTO> licenseList = _iTblOrgLicenseDtlDAO.SelectAllTblOrgLicenseDtl(internalBMOrgId, conn, tran);
                     String aadharNo = string.Empty;
                     String gstNo = string.Empty;
@@ -2773,6 +2901,7 @@ namespace ODLMWebAPI.BL
                     resultMsg.DefaultBehaviour("Billing State Not Found");
                     return resultMsg;
                 }
+
                 #endregion
 
                 #region 3 Added Invoice Item details
@@ -2990,7 +3119,17 @@ namespace ODLMWebAPI.BL
 
                             }
                         });
-                        message = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal1, ref taxableAmt, ref basicTotalAmt, isPanPresent, invoiceItemTOList, tblInvoiceTO, ref otherTaxAmt);
+                        TblOrganizationTO tblOrganizationTO = _iTblOrganizationBL.SelectTblOrganizationTO(tblInvoiceTO.DealerOrgId);
+                        if (tblOrganizationTO == null)
+                        {
+                            resultMsg.DefaultBehaviour("Failed to get dealer org details");
+                            return resultMsg;
+                        }
+                        if (tblOrganizationTO.IsTcsApplicable == 1)
+                        {
+                            tblInvoiceTO.IsTcsApplicable = tblOrganizationTO.IsTcsApplicable;
+                            message = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal1, ref taxableAmt, ref basicTotalAmt, isPanPresent, invoiceItemTOList, tblInvoiceTO, ref otherTaxAmt, tblOrganizationTO.IsDeclarationRec);
+                        }
                         tblInvoiceTO.GrandTotal = grandTotal1;
                         tblInvoiceTO.TaxableAmt = taxableAmt;
                         tblInvoiceTO.BasicAmt = basicTotalAmt;
@@ -3007,113 +3146,126 @@ namespace ODLMWebAPI.BL
                     tcsOtherTaxId = Convert.ToInt32(configParamTO.ConfigParamVal);
                 }
                 //
-
+                Int32 tcsId = 5;
+                TblConfigParamsTO tcsConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_TCS_OTHER_TAX_ID, conn, tran);
+                if (tcsConfigParamsTO != null)
+                {
+                    tcsId = Convert.ToInt32(tcsConfigParamsTO.ConfigParamVal);
+                }
                 foreach (var existingInvItemTO in invoiceItemTOList)
                 {
-                    TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = existingInvItemTO.DeepCopy();
-                    List<TblInvoiceItemTaxDtlsTO> tblInvoiceItemTaxDtlsTOList = new List<TblInvoiceItemTaxDtlsTO>();
-                    TblProdGstCodeDtlsTO tblProdGstCodeDtlsTO = new TblProdGstCodeDtlsTO();
-                    TblProductItemTO tblProductItemTO = new TblProductItemTO();
-                    Double itemGrandTotal = 0;
-
-                    tblProdGstCodeDtlsTO = _iTblProdGstCodeDtlsDAO.SelectTblProdGstCodeDtls(tblInvoiceItemDetailsTO.ProdGstCodeId, conn, tran);
-                    if (tblProdGstCodeDtlsTO == null)
+                    Boolean ItsTcs = false;
+                    if (invoiceGenerateModeE == (int)InvoiceGenerateModeE.DUPLICATE && existingInvItemTO.OtherTaxId == tcsId && swap == 1)
                     {
-                        resultMsg.DefaultBehaviour("ProdGSTCodeDetails found null against IdInvoiceItem is : " + tblInvoiceItemDetailsTO.IdInvoiceItem + ".");
-                        resultMsg.DisplayMessage = "GSTIN Not Defined for Item :" + tblInvoiceItemDetailsTO.ProdItemDesc;
-                        return resultMsg;
+                        ItsTcs = true;
                     }
-                    TblGstCodeDtlsTO gstCodeDtlsTO = _iTblGstCodeDtlsDAO.SelectTblGstCodeDtls(tblProdGstCodeDtlsTO.GstCodeId, conn, tran);
-                    if (gstCodeDtlsTO != null)
+                    if (ItsTcs == false)
                     {
-                        gstCodeDtlsTO.TaxRatesTOList = _iTblTaxRatesDAO.SelectAllTblTaxRates(tblProdGstCodeDtlsTO.GstCodeId, conn, tran);
-                    }
-                    if (gstCodeDtlsTO == null)
-                    {
-                        resultMsg.DefaultBehaviour("GST code details found null : " + tblInvoiceItemDetailsTO.ProdItemDesc + ".");
-                        resultMsg.DisplayMessage = "GSTIN Not Defined for Item :" + tblInvoiceItemDetailsTO.ProdItemDesc;
-                        return resultMsg;
-                    }
+                        TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = existingInvItemTO.DeepCopy();
+                        List<TblInvoiceItemTaxDtlsTO> tblInvoiceItemTaxDtlsTOList = new List<TblInvoiceItemTaxDtlsTO>();
+                        TblProdGstCodeDtlsTO tblProdGstCodeDtlsTO = new TblProdGstCodeDtlsTO();
+                        TblProductItemTO tblProductItemTO = new TblProductItemTO();
+                        Double itemGrandTotal = 0;
 
-                    tblInvoiceItemDetailsTO.GstinCodeNo = gstCodeDtlsTO.CodeNumber;
-
-                    #region 4 Added Invoice Item Tax details
-
-                    foreach (var taxRateTo in gstCodeDtlsTO.TaxRatesTOList)
-                    {
-                        TblInvoiceItemTaxDtlsTO tblInvoiceItemTaxDtlsTO = new TblInvoiceItemTaxDtlsTO();
-                        tblInvoiceItemTaxDtlsTO.TaxRateId = taxRateTo.IdTaxRate;
-                        tblInvoiceItemTaxDtlsTO.TaxPct = taxRateTo.TaxPct;
-                        //Harshala added
-                        if (existingInvItemTO.OtherTaxId > 0)
+                        tblProdGstCodeDtlsTO = _iTblProdGstCodeDtlsDAO.SelectTblProdGstCodeDtls(tblInvoiceItemDetailsTO.ProdGstCodeId, conn, tran);
+                        if (tblProdGstCodeDtlsTO == null)
                         {
-                            TblOtherTaxesTO tblOtherTaxesTO = _iTblOtherTaxesDAO.SelectTblOtherTaxes(existingInvItemTO.OtherTaxId);
-                            if (tblOtherTaxesTO != null && tblOtherTaxesTO.IsAfter == 1)
-                            {
-                                taxRateTo.TaxPct = 0;
-                                tblInvoiceItemTaxDtlsTO.TaxPct = 0;
-                            }
+                            resultMsg.DefaultBehaviour("ProdGSTCodeDetails found null against IdInvoiceItem is : " + tblInvoiceItemDetailsTO.IdInvoiceItem + ".");
+                            resultMsg.DisplayMessage = "GSTIN Not Defined for Item :" + tblInvoiceItemDetailsTO.ProdItemDesc;
+                            return resultMsg;
                         }
-                        //
-                        tblInvoiceItemTaxDtlsTO.TaxRatePct = (gstCodeDtlsTO.TaxPct * taxRateTo.TaxPct) / 100;
-                        tblInvoiceItemTaxDtlsTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
-
-                        //Saket [2020-02-18] Added SEZ conditons.
-                        if (tblInvoiceTO.InvoiceTypeE == Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+                        TblGstCodeDtlsTO gstCodeDtlsTO = _iTblGstCodeDtlsDAO.SelectTblGstCodeDtls(tblProdGstCodeDtlsTO.GstCodeId, conn, tran);
+                        if (gstCodeDtlsTO != null)
                         {
-                            tblInvoiceItemTaxDtlsTO.TaxRatePct = 0;
-                            tblInvoiceItemTaxDtlsTO.TaxableAmt = 0;
+                            gstCodeDtlsTO.TaxRatesTOList = _iTblTaxRatesDAO.SelectAllTblTaxRates(tblProdGstCodeDtlsTO.GstCodeId, conn, tran);
+                        }
+                        if (gstCodeDtlsTO == null)
+                        {
+                            resultMsg.DefaultBehaviour("GST code details found null : " + tblInvoiceItemDetailsTO.ProdItemDesc + ".");
+                            resultMsg.DisplayMessage = "GSTIN Not Defined for Item :" + tblInvoiceItemDetailsTO.ProdItemDesc;
+                            return resultMsg;
                         }
 
-                        tblInvoiceItemTaxDtlsTO.TaxAmt = ((tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100);
-                        tblInvoiceItemTaxDtlsTO.TaxTypeId = taxRateTo.TaxTypeId;
+                        tblInvoiceItemDetailsTO.GstinCodeNo = gstCodeDtlsTO.CodeNumber;
 
+                        #region 4 Added Invoice Item Tax details
 
-
-                        if (billingStateId == ofcAddrTO.StateId)
+                        foreach (var taxRateTo in gstCodeDtlsTO.TaxRatesTOList)
                         {
-                            if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.CGST)
+                            TblInvoiceItemTaxDtlsTO tblInvoiceItemTaxDtlsTO = new TblInvoiceItemTaxDtlsTO();
+                            tblInvoiceItemTaxDtlsTO.TaxRateId = taxRateTo.IdTaxRate;
+                            tblInvoiceItemTaxDtlsTO.TaxPct = taxRateTo.TaxPct;
+                            //Harshala added
+                            if (existingInvItemTO.OtherTaxId > 0)
                             {
-                                cgstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
+                                TblOtherTaxesTO tblOtherTaxesTO = _iTblOtherTaxesDAO.SelectTblOtherTaxes(existingInvItemTO.OtherTaxId);
+                                if (tblOtherTaxesTO != null && tblOtherTaxesTO.IsAfter == 1)
+                                {
+                                    taxRateTo.TaxPct = 0;
+                                    tblInvoiceItemTaxDtlsTO.TaxPct = 0;
+                                }
                             }
-                            else if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.SGST)
+                            //
+                            tblInvoiceItemTaxDtlsTO.TaxRatePct = (gstCodeDtlsTO.TaxPct * taxRateTo.TaxPct) / 100;
+                            tblInvoiceItemTaxDtlsTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
+
+                            //Saket [2020-02-18] Added SEZ conditons.
+                            if (tblInvoiceTO.InvoiceTypeE == Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
                             {
-                                sgstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
+                                tblInvoiceItemTaxDtlsTO.TaxRatePct = 0;
+                                tblInvoiceItemTaxDtlsTO.TaxableAmt = 0;
                             }
-                            else continue;
+
+                            tblInvoiceItemTaxDtlsTO.TaxAmt = ((tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100);
+                            tblInvoiceItemTaxDtlsTO.TaxTypeId = taxRateTo.TaxTypeId;
+
+
+
+                            if (billingStateId == ofcAddrTO.StateId)
+                            {
+                                if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.CGST)
+                                {
+                                    cgstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                    itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                    tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
+                                }
+                                else if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.SGST)
+                                {
+                                    sgstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                    itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                    tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
+                                }
+                                else continue;
+                            }
+                            else
+                            {
+                                if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.IGST)
+                                {
+                                    igstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                    itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                    tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
+                                }
+                                else continue;
+                            }
                         }
+                        #endregion
+
+                        basicTotal += existingInvItemTO.BasicTotal;
+
+                        if (tcsOtherTaxId == existingInvItemTO.OtherTaxId)  //added by harshala 
+                            otherTaxAmount += existingInvItemTO.TaxableAmt;
                         else
-                        {
-                            if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.IGST)
-                            {
-                                igstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
-                            }
-                            else continue;
-                        }
+                            taxableTotal += existingInvItemTO.TaxableAmt;
+
+                        discountTotal += existingInvItemTO.CdAmt;
+
+                        itemGrandTotal += existingInvItemTO.TaxableAmt;
+
+                        grandTotal += itemGrandTotal;
+                        tblInvoiceItemDetailsTO.GrandTotal = Math.Round(itemGrandTotal, isForItemWiseRoundup);
+                        tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList = tblInvoiceItemTaxDtlsTOList;
+                        tblInvoiceItemDetailsTOList.Add(tblInvoiceItemDetailsTO);
                     }
-                    #endregion
-
-                    basicTotal += existingInvItemTO.BasicTotal;
-
-                    if (tcsOtherTaxId == existingInvItemTO.OtherTaxId)  //added by harshala 
-                        otherTaxAmount += existingInvItemTO.TaxableAmt;
-                    else
-                        taxableTotal += existingInvItemTO.TaxableAmt;
-
-                    discountTotal += existingInvItemTO.CdAmt;
-
-                    itemGrandTotal += existingInvItemTO.TaxableAmt;
-
-                    grandTotal += itemGrandTotal;
-                    tblInvoiceItemDetailsTO.GrandTotal = Math.Round(itemGrandTotal, isForItemWiseRoundup);
-                    tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList = tblInvoiceItemTaxDtlsTOList;
-                    tblInvoiceItemDetailsTOList.Add(tblInvoiceItemDetailsTO);
                 }
 
                 #endregion
@@ -3138,6 +3290,24 @@ namespace ODLMWebAPI.BL
                 RoundOffInvoiceValuesBySetting(tblInvoiceTO);
 
                 tblInvoiceTO.InvoiceItemDetailsTOList = tblInvoiceItemDetailsTOList;
+                if (invoiceGenerateModeE == (int)InvoiceGenerateModeE.DUPLICATE && swap == 1 && tblInvoiceTO.IsTcsApplicable == 0)
+                {
+                    Double tdsTaxPct = 0;
+                    TblConfigParamsTO tdsConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DELIVER_INVOICE_TDS_TAX_PCT, conn, tran);
+                    if (tdsConfigParamsTO != null)
+                    {
+                        if (!String.IsNullOrEmpty(tdsConfigParamsTO.ConfigParamVal))
+                        {
+                            tdsTaxPct = Convert.ToDouble(tdsConfigParamsTO.ConfigParamVal);
+                        }
+                    }
+                    tblInvoiceTO.TdsAmt = 0;
+                    if (tblInvoiceTO.IsConfirmed == 1 && tblInvoiceTO.InvoiceTypeE != Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+                    {
+                        tblInvoiceTO.TdsAmt = (CalculateTDS(tblInvoiceTO) * tdsTaxPct) / 100;
+                        tblInvoiceTO.TdsAmt = Math.Ceiling(tblInvoiceTO.TdsAmt);
+                    }
+                }
                 #endregion
 
                 tblInvoiceTOList.Add(tblInvoiceTO);
@@ -6406,7 +6576,27 @@ namespace ODLMWebAPI.BL
                     //tblInvoiceTO.GrandTotal = existingInvoiceTO.GrandTotal;
 
                     tblInvoiceTO.InvoiceItemDetailsTOList = existingInvoiceTO.InvoiceItemDetailsTOList;
-
+                    Double tdsTaxPct = 0;
+                    if (existingInvoiceTO != null)
+                    {
+                        if (existingInvoiceTO.IsTcsApplicable == 0)
+                        {
+                            TblConfigParamsTO tdsConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_INVOICE_TDS_TAX_PCT);
+                            if (tdsConfigParamsTO != null)
+                            {
+                                if (!String.IsNullOrEmpty(tdsConfigParamsTO.ConfigParamVal))
+                                {
+                                    tdsTaxPct = Convert.ToDouble(tdsConfigParamsTO.ConfigParamVal);
+                                }
+                            }
+                        }
+                    }
+                    tblInvoiceTO.TdsAmt = 0;
+                    if (existingInvoiceTO.IsConfirmed == 1 && existingInvoiceTO.InvoiceTypeE != Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+                    {
+                        tblInvoiceTO.TdsAmt = (CalculateTDS(tblInvoiceTO) * tdsTaxPct) / 100;
+                        tblInvoiceTO.TdsAmt = Math.Ceiling(tblInvoiceTO.TdsAmt);
+                    }
                 }
 
                 RemoveIotFieldsFromDB(tblInvoiceTO);
@@ -7211,7 +7401,12 @@ namespace ODLMWebAPI.BL
 
                     }
                 });
-                message = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableAmt, ref basicTotalAmt, isPanPresent, tblInvoiceTo.InvoiceItemDetailsTOList, tblInvoiceTo, ref otherTaxAmt);
+                TblOrganizationTO tblOrganizationTO = _iTblOrganizationBL.SelectTblOrganizationTO(tblInvoiceTo.DealerOrgId);
+                if(tblOrganizationTO != null && tblOrganizationTO.IsTcsApplicable == 1)
+                {
+                    tblInvoiceTo.IsTcsApplicable = tblOrganizationTO.IsTcsApplicable;
+                    message = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableAmt, ref basicTotalAmt, isPanPresent, tblInvoiceTo.InvoiceItemDetailsTOList, tblInvoiceTo, ref otherTaxAmt, tblOrganizationTO.IsDeclarationRec);
+                }
                 tblInvoiceTo.GrandTotal = grandTotal;
                 tblInvoiceTo.TaxableAmt = taxableAmt;
                 tblInvoiceTo.BasicAmt = basicTotalAmt;

@@ -113,5 +113,6 @@ namespace ODLMWebAPI.BL.Interfaces
         /// </summary>
         ResultMessage CancelEWayBill(Int32 loginUserId, Int32 idInvoice, bool forceToGetToken = false);
         ResultMessage UpdateInvoiceAddress(List<TblInvoiceAddressTO> tblInvoiceAddressTOList);
+        Double CalculateTDS(TblInvoiceTO tblInvoiceTO);
     }
 }

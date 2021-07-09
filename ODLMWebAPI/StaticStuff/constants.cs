@@ -816,12 +816,18 @@ namespace ODLMWebAPI.StaticStuff
         public static string COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER = "COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER";
 
         public static string ADD_ITEMWISE_RATE_WHILE_BOOKING = "ADD_ITEMWISE_RATE_WHILE_BOOKING";
+        public static string CP_DELIVER_INVOICE_TDS_TAX_PCT = "CP_DELIVER_INVOICE_TDS_TAX_PCT";
+        public static string CHECK_IS_DECLARATION_RECEIVED = "CHECK_IS_DECLARATION_RECEIVED";
+        public static string IS_INTERNAL_CNF_SELECTION_ON_CHECKBOX_NEW = "IS_INTERNAL_CNF_SELECTION_ON_CHECKBOX_NEW";
 
         #endregion
 
         //Harshala Added
         public static string WeighmentSlip = "WeighmentSlip";
         public static string GatePassSlip = "GatePassSlip";
+        public static string DEFAULT_TCS_PERCENT_IF_DECLARATION_NOT_RECEIVED = "DEFAULT_TCS_PERCENT_IF_DECLARATION_NOT_RECEIVED";
+
+        
 
         #region Common functions
 
