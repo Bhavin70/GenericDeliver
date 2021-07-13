@@ -690,6 +690,7 @@ namespace ODLMWebAPI.StaticStuff
         //Pandurang[2018-09-10] added for Stop web services
         public static string STOP_WEB_API_SERVICE_KEYS = "STOP_WEB_API_SERVICE_KEYS";
         public static string STOP_WEB_GUI_SERVICE_KEYS = "STOP_WEB_GUI_SERVICE_KEYS";
+        public static string STOP_WEB_VM_SERVICE_KEYS = "STOP_WEB_VM_SERVICE_KEYS";
 
         public static string CP_STATUS_TO_CALCULATE_ENQUIRY_OPENING_BALANCE = "STATUS_TO_CALCULATE_ENQUIRY_OPENING_BALANCE";
 
