@@ -1656,11 +1656,7 @@ namespace ODLMWebAPI.BL
             //tblInvoiceTO.DistributorOrgId = loadingTO.CnfOrgId;
             tblInvoiceTO.DistributorOrgId = loadingSlipTo.CnfOrgId;
             tblInvoiceTO.DealerOrgId = loadingSlipTo.DealerOrgId;
-            TblOrganizationTO tblOrganizationTO = _iTblOrganizationBL.SelectTblOrganizationTO(InvoiceDealerOrgId);
-            if(tblOrganizationTO == null)
-            {
-                resultMsg.DefaultBehaviour("Failed to get dealer org details");
-            }
+           
             //Aniket [06-02-2019]
             tblInvoiceTO.GrossWtTakenDate = _iCommon.ServerDateTime;
             tblInvoiceTO.PreparationDate = _iCommon.ServerDateTime;
@@ -2218,7 +2214,21 @@ namespace ODLMWebAPI.BL
                     grandTotal += freightGrandTotal;
                 }
 
-                if(tblOrganizationTO != null && tblOrganizationTO.IsTcsApplicable == 1)
+                Int32 BillingOrgId = InvoiceDealerOrgId;
+                if (tblInvoiceTO.InvoiceAddressTOList != null && tblInvoiceTO.InvoiceAddressTOList.Count > 0)
+                {
+                    var matchTO = tblInvoiceTO.InvoiceAddressTOList.Where(w => w.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS).FirstOrDefault();
+                    if (matchTO != null && matchTO.BillingOrgId > 0)
+                    {
+                        BillingOrgId = matchTO.BillingOrgId;
+                    }
+                }
+                TblOrganizationTO tblOrganizationTO = _iTblOrganizationBL.SelectTblOrganizationTO(BillingOrgId);
+                if (tblOrganizationTO == null)
+                {
+                    resultMsg.DefaultBehaviour("Failed to get dealer org details");
+                }
+                if (tblOrganizationTO != null && tblOrganizationTO.IsTcsApplicable == 1)
                 {
                     tblInvoiceTO.IsTcsApplicable = tblOrganizationTO.IsTcsApplicable;
                     resultMsg = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableTotal, ref basicTotal, isPanNoPresent, tblInvoiceItemDetailsTOList, tblInvoiceTO, ref otherTaxAmt, tblOrganizationTO.IsDeclarationRec);
@@ -3318,22 +3328,25 @@ namespace ODLMWebAPI.BL
                 RoundOffInvoiceValuesBySetting(tblInvoiceTO);
 
                 tblInvoiceTO.InvoiceItemDetailsTOList = tblInvoiceItemDetailsTOList;
-                if (invoiceGenerateModeE == (int)InvoiceGenerateModeE.DUPLICATE && swap == 1 && tblInvoiceTO.IsTcsApplicable == 0)
+                if (invoiceGenerateModeE == (int)InvoiceGenerateModeE.DUPLICATE && swap == 1)
                 {
-                    Double tdsTaxPct = 0;
-                    TblConfigParamsTO tdsConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DELIVER_INVOICE_TDS_TAX_PCT, conn, tran);
-                    if (tdsConfigParamsTO != null)
-                    {
-                        if (!String.IsNullOrEmpty(tdsConfigParamsTO.ConfigParamVal))
-                        {
-                            tdsTaxPct = Convert.ToDouble(tdsConfigParamsTO.ConfigParamVal);
-                        }
-                    }
                     tblInvoiceTO.TdsAmt = 0;
-                    if (tblInvoiceTO.IsConfirmed == 1 && tblInvoiceTO.InvoiceTypeE != Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+                    if (tblInvoiceTO.IsTcsApplicable == 0)
                     {
-                        tblInvoiceTO.TdsAmt = (CalculateTDS(tblInvoiceTO) * tdsTaxPct) / 100;
-                        tblInvoiceTO.TdsAmt = Math.Ceiling(tblInvoiceTO.TdsAmt);
+                        Double tdsTaxPct = 0;
+                        TblConfigParamsTO tdsConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DELIVER_INVOICE_TDS_TAX_PCT, conn, tran);
+                        if (tdsConfigParamsTO != null)
+                        {
+                            if (!String.IsNullOrEmpty(tdsConfigParamsTO.ConfigParamVal))
+                            {
+                                tdsTaxPct = Convert.ToDouble(tdsConfigParamsTO.ConfigParamVal);
+                            }
+                        }
+                        if (tblInvoiceTO.IsConfirmed == 1 && tblInvoiceTO.InvoiceTypeE != Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+                        {
+                            tblInvoiceTO.TdsAmt = (CalculateTDS(tblInvoiceTO) * tdsTaxPct) / 100;
+                            tblInvoiceTO.TdsAmt = Math.Ceiling(tblInvoiceTO.TdsAmt);
+                        }
                     }
                 }
                 #endregion
@@ -7421,15 +7434,23 @@ namespace ODLMWebAPI.BL
             ResultMessage message = new ResultMessage();
             if (tblInvoiceTo.IsConfirmed == 1)
             {
-                tblInvoiceTo.InvoiceAddressTOList.ForEach(element =>
+                Int32 BillingOrgId = tblInvoiceTo.DealerOrgId;
+                if (tblInvoiceTo.InvoiceAddressTOList != null && tblInvoiceTo.InvoiceAddressTOList.Count > 0)
                 {
-                    if (element.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS)
+                    tblInvoiceTo.InvoiceAddressTOList.ForEach(element =>
                     {
-                        isPanPresent = IsPanOrGstPresent(element.PanNo, element.GstinNo);
-
-                    }
-                });
-                TblOrganizationTO tblOrganizationTO = _iTblOrganizationBL.SelectTblOrganizationTO(tblInvoiceTo.DealerOrgId);
+                        if (element.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS)
+                        {
+                            isPanPresent = IsPanOrGstPresent(element.PanNo, element.GstinNo);
+                            if (element.BillingOrgId > 0)
+                            {
+                                BillingOrgId = element.BillingOrgId;
+                            }
+                        }
+                    });
+                }
+                
+                TblOrganizationTO tblOrganizationTO = _iTblOrganizationBL.SelectTblOrganizationTO(BillingOrgId);
                 if(tblOrganizationTO != null && tblOrganizationTO.IsTcsApplicable == 1)
                 {
                     tblInvoiceTo.IsTcsApplicable = tblOrganizationTO.IsTcsApplicable;
