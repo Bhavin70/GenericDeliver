@@ -10520,7 +10520,7 @@ namespace ODLMWebAPI.BL {
                 loadingSlipTO.IsConfirmed = tblInvoiceTO.IsConfirmed;
 
                 Int32 billingStateId = 0;
-                TblInvoiceTO calculatedInvoiceTO = _iTblInvoiceBL.PrepareInvoiceAgainstLoadingSlip (tblLoadingTO, conn, tran, internalOrgId, ofcAddrTO, rcmConfigParamsTO, invoiceDateConfigTO, loadingSlipTO);
+                TblInvoiceTO calculatedInvoiceTO = _iTblInvoiceBL.PrepareInvoiceAgainstLoadingSlip (tblLoadingTO, conn, tran, internalOrgId, ofcAddrTO, rcmConfigParamsTO, invoiceDateConfigTO, loadingSlipTO, exiInvoiceTO.DealerOrgId);
 
                 if (calculatedInvoiceTO == null) {
                     resultMessage.DefaultBehaviour ("calculatedInvoiceTO  found NULL");
@@ -10548,6 +10548,22 @@ namespace ODLMWebAPI.BL {
 
                 exiInvoiceTO.IsConfirmed = calculatedInvoiceTO.IsConfirmed;
                 exiInvoiceTO.GrandTotal = calculatedInvoiceTO.GrandTotal;
+                Double tdsTaxPct = 0;
+                if (calculatedInvoiceTO != null)
+                {
+                    if (calculatedInvoiceTO.IsTcsApplicable == 0)
+                    {
+                        TblConfigParamsTO tdsConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_INVOICE_TDS_TAX_PCT);
+                        if (tdsConfigParamsTO != null)
+                        {
+                            if (!String.IsNullOrEmpty(tdsConfigParamsTO.ConfigParamVal))
+                            {
+                                tdsTaxPct = Convert.ToDouble(tdsConfigParamsTO.ConfigParamVal);
+                            }
+                        }
+                    }
+                }
+               
                 exiInvoiceTO.RoundOffAmt = calculatedInvoiceTO.RoundOffAmt;
                 exiInvoiceTO.BasicAmt = calculatedInvoiceTO.BasicAmt;
                 calculatedInvoiceTO.InvoiceItemDetailsTOList.ForEach(ele => ele.InvoiceId = invoiceId);
@@ -10571,7 +10587,13 @@ namespace ODLMWebAPI.BL {
 
                 exiInvoiceTO.InvoiceItemDetailsTOList = calculatedInvoiceTO.InvoiceItemDetailsTOList;
 
-                
+                exiInvoiceTO.TdsAmt = 0;
+                if (calculatedInvoiceTO.IsConfirmed == 1 && calculatedInvoiceTO.InvoiceTypeE != Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+                {
+                    exiInvoiceTO.TdsAmt = (_iTblInvoiceBL.CalculateTDS(exiInvoiceTO) * tdsTaxPct) / 100;
+                    exiInvoiceTO.TdsAmt = Math.Ceiling(exiInvoiceTO.TdsAmt);
+                }
+
                 #endregion
 
                 //exiInvoiceTO = updateInvoiceToCalc(exiInvoiceTO, conn, tran, false);
