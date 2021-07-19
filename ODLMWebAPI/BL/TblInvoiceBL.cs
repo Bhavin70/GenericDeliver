@@ -5513,6 +5513,7 @@ namespace ODLMWebAPI.BL
                         headerDT.Columns.Add("VehicleNo");
                         headerDT.Columns.Add("LoadingSlipId");
                         headerDT.Columns.Add("loadingLayerDesc");
+                        headerDT.Columns.Add("DateTime");
                         headerDT.Columns.Add("Date");
                         headerDT.Columns.Add("TotalBundles");
                         headerDT.Columns.Add("TotalNetWt", typeof(double));
@@ -5603,11 +5604,15 @@ namespace ODLMWebAPI.BL
                             //headerDT.Rows[0]["Date"] = tblInvoiceTO.CreatedOnStr;
                             if (tblInvoiceTO != null && tblInvoiceTO.CreatedOn != new DateTime())
                             {
-                                headerDT.Rows[0]["Date"] = tblInvoiceTO.CreatedOnStr;
+                                string dtStr = tblInvoiceTO.CreatedOn.ToShortDateString();
+                                headerDT.Rows[0]["DateTime"] = tblInvoiceTO.CreatedOnStr;
+                                headerDT.Rows[0]["Date"] = dtStr;
                             }
                             else
                             {
-                                headerDT.Rows[0]["Date"] = TblLoadingSlipTO.CreatedOnStr;
+                                string dtStr = TblLoadingSlipTO.CreatedOn.ToShortDateString();
+                                headerDT.Rows[0]["DateTime"] = TblLoadingSlipTO.CreatedOnStr;
+                                headerDT.Rows[0]["Date"] = dtStr;
                             }
 
                             if (TblLoadingSlipTO.LoadingSlipExtTOList != null && TblLoadingSlipTO.LoadingSlipExtTOList.Count > 0)
