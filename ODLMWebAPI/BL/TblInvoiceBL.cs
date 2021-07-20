@@ -2927,7 +2927,7 @@ namespace ODLMWebAPI.BL
                     List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOsList = new List<TblInvoiceItemDetailsTO>();
                     TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = invoiceItemTOList[0];
 
-                    tblInvoiceItemDetailsTO.InvoiceQty = invoiceItemTOList.Sum(s => s.InvoiceQty);
+                    tblInvoiceItemDetailsTO.InvoiceQty = invoiceItemTOList.Where(w => w.OtherTaxId == 0).ToList().Sum(s => s.InvoiceQty);
                     tblInvoiceItemDetailsTO.CdStructure = 0;
                     tblInvoiceItemDetailsTO.CdAmt = 0;
                     tblInvoiceItemDetailsTO.LoadingSlipExtId = 0;
