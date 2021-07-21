@@ -2927,7 +2927,7 @@ namespace ODLMWebAPI.BL
                     List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOsList = new List<TblInvoiceItemDetailsTO>();
                     TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = invoiceItemTOList[0];
 
-                    tblInvoiceItemDetailsTO.InvoiceQty = invoiceItemTOList.Sum(s => s.InvoiceQty);
+                    tblInvoiceItemDetailsTO.InvoiceQty = invoiceItemTOList.Where(w => w.OtherTaxId == 0).ToList().Sum(s => s.InvoiceQty);
                     tblInvoiceItemDetailsTO.CdStructure = 0;
                     tblInvoiceItemDetailsTO.CdAmt = 0;
                     tblInvoiceItemDetailsTO.LoadingSlipExtId = 0;
@@ -3461,6 +3461,18 @@ namespace ODLMWebAPI.BL
             TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO = new TempLoadingSlipInvoiceTO();
             List<TempInvoiceDocumentDetailsTO> tempInvoiceDocumentDetailsTOList = new List<TempInvoiceDocumentDetailsTO>();
             Boolean isWithinState = false;
+            Int32 tcsOtherTaxId = 0;
+            TblConfigParamsTO configParamTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_TCS_OTHER_TAX_ID);
+            if (configParamTO != null)
+            {
+                tcsOtherTaxId = Convert.ToInt32(configParamTO.ConfigParamVal);
+            }
+            if(tcsOtherTaxId == 0)
+            {
+                tran.Rollback();
+                resultMessage.DefaultBehaviour("TCS Tax Id Not Found");
+                return resultMessage;
+            }
             try
             {
                 #region 1.To get data to combine invoices
@@ -3483,6 +3495,17 @@ namespace ODLMWebAPI.BL
                             resultMessage.DefaultBehaviour("invoiceTO Found NULL");
                             return resultMessage;
                         }
+                        invoiceTO.IsTcsApplicable = 0;
+                        if (invoiceTO.InvoiceItemDetailsTOList != null && invoiceTO.InvoiceItemDetailsTOList.Count > 0)
+                        {
+                            var matchTO = invoiceTO.InvoiceItemDetailsTOList.Where(w => w.OtherTaxId == tcsOtherTaxId).FirstOrDefault();
+                            if(matchTO != null)
+                            {
+                                invoiceTO.IsTcsApplicable = 1;
+                            }
+                        }
+                        
+
                         tblInvoiceTOList.Add(invoiceTO);
                         //all item list
                         finalInvoiceItemDetailsTOList.AddRange(invoiceTO.InvoiceItemDetailsTOList);
@@ -3540,7 +3563,10 @@ namespace ODLMWebAPI.BL
                         if (f == 0)
                         {
                             TblInvoiceTO finalInvoiceTO = tblInvoiceTOList[0];
-
+                            if(finalInvoiceTO.IsTcsApplicable == 0)
+                            {
+                                finalInvoiceItemDetailsTOList = finalInvoiceItemDetailsTOList.Where(w => w.OtherTaxId != tcsOtherTaxId).ToList();
+                            }
 
                             //To calculate tare,gross and net weight
                             var minTareWt = tblInvoiceTOList.Min(minEle => minEle.TareWeight);
@@ -3869,7 +3895,20 @@ namespace ODLMWebAPI.BL
                             finalInvoiceTO.StatusId = (int)Constants.InvoiceStatusE.NEW;
                             finalInvoiceTO.InvoiceModeE = Constants.InvoiceModeE.AUTO_INVOICE_EDIT;
                             finalInvoiceTO.InvoiceModeId = (int)Constants.InvoiceModeE.AUTO_INVOICE_EDIT;
-
+                            if(finalInvoiceTO.TdsAmt != null && finalInvoiceTO.TdsAmt > 0 && finalInvoiceTO.IsConfirmed == 1 && finalInvoiceTO.InvoiceTypeE != Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+                            {
+                                Double tdsTaxPct = 0;
+                                TblConfigParamsTO tdsConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DELIVER_INVOICE_TDS_TAX_PCT, conn, tran);
+                                if (tdsConfigParamsTO != null)
+                                {
+                                    if (!String.IsNullOrEmpty(tdsConfigParamsTO.ConfigParamVal))
+                                    {
+                                        tdsTaxPct = Convert.ToDouble(tdsConfigParamsTO.ConfigParamVal);
+                                    }
+                                }
+                                finalInvoiceTO.TdsAmt = (CalculateTDS(finalInvoiceTO) * tdsTaxPct) / 100;
+                                finalInvoiceTO.TdsAmt = Math.Ceiling(finalInvoiceTO.TdsAmt);
+                            }
                             result = UpdateTblInvoice(finalInvoiceTO, conn, tran);
                             if (result != 1)
                             {
