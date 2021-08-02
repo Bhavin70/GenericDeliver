@@ -4855,9 +4855,17 @@ namespace ODLMWebAPI.BL
                                 invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = Math.Round((tblInvoiceItemDetailsTO.GrandTotal / tblInvoiceItemDetailsTO.InvoiceQty), 2);
                             }
 
-                            if(gstCodeUptoDigits > 0)
-                                tblInvoiceItemDetailsTO.GstinCodeNo = tblInvoiceItemDetailsTO.GstinCodeNo.Substring(0, gstCodeUptoDigits);
-
+                            if (gstCodeUptoDigits > 0)
+                            {
+                                if (!String.IsNullOrEmpty(tblInvoiceItemDetailsTO.GstinCodeNo))
+                                {
+                                    if (gstCodeUptoDigits > tblInvoiceItemDetailsTO.GstinCodeNo.Length)
+                                    {
+                                        gstCodeUptoDigits = tblInvoiceItemDetailsTO.GstinCodeNo.Length;
+                                    }
+                                    tblInvoiceItemDetailsTO.GstinCodeNo = tblInvoiceItemDetailsTO.GstinCodeNo.Substring(0, gstCodeUptoDigits);
+                                }
+                            }
                             invoiceItemDT.Rows[invoiceItemDTCount]["hsn"] = tblInvoiceItemDetailsTO.GstinCodeNo;
 
 
