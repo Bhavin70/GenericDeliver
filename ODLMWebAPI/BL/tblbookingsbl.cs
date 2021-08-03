@@ -924,6 +924,9 @@ namespace ODLMWebAPI.BL
 
                 //List<TblBookingsTO> openingBalBookingList = DAL.TblBookingsDAO.SelectAllTodaysBookingsWithOpeningBalance(cnfId, serverDate, isTransporterScopeYn, isConfirmed);
                 //List<TblBookingsTO> todaysList = DAL.TblBookingsDAO.SelectAllPendingBookingsList(cnfId, "=", false,isTransporterScopeYn,isConfirmed, serverDate, tblUserRoleTO);
+                //List<TblBookingsTO> openingBalBookingList = _iTblBookingsDAO.SelectAllTodaysBookingsWithOpeningBalance(cnfId, serverDate, isTransporterScopeYn, isConfirmed, brandId);
+                //List<TblBookingsTO> todaysList = _iTblBookingsDAO.SelectAllPendingBookingsList(cnfId, "=", false, isTransporterScopeYn, isConfirmed, serverDate, brandId, tblUserRoleTO);
+
                 List<TblBookingsTO> openingBalBookingList = _iTblBookingsDAO.SelectAllTodaysBookingsWithOpeningBalance(cnfId, serverDate, isTransporterScopeYn, isConfirmed, brandId);
                 List<TblBookingsTO> todaysList = _iTblBookingsDAO.SelectAllPendingBookingsList(cnfId, "=", false, isTransporterScopeYn, isConfirmed, serverDate, brandId, tblUserRoleTO);
                 List<TblBookingOpngBalTO> openingBalQtyList = _iTblBookingOpngBalDAO.SelectAllTblBookingOpngBal(serverDate);
@@ -1043,7 +1046,8 @@ namespace ODLMWebAPI.BL
                         pendingBookingRptTO.ClosingBalance = closingBal;
                         pendingBookingRptTO.TransporterScopeYn = bookingTO.TransporterScopeYn;
                         pendingBookingRptTO.IsConfirmed = bookingTO.IsConfirmed;
-
+                        pendingBookingRptTO.TotalAmountOfBookings = ((bookingTO.BookingQty) * (bookingTO.BookingRate));
+                        pendingBookingRptTO.BookingQty = bookingTO.BookingQty;
                         list.Add(pendingBookingRptTO);
                     }
                 }

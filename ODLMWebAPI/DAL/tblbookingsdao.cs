@@ -221,6 +221,8 @@ namespace ODLMWebAPI.DAL
                         if (tblLoadingTODT["bookingQty"] != DBNull.Value)
                             pendingQtyOrderTypeTo.BookingQty = Convert.ToDouble(tblLoadingTODT["bookingQty"].ToString());
 
+                        pendingQtyOrderTypeTo.BookingQty = Math.Round(pendingQtyOrderTypeTo.BookingQty, 2);
+
                         pendingQtyOrderTypeTOList.Add(pendingQtyOrderTypeTo);
 
                     }
