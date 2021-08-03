@@ -691,6 +691,15 @@ namespace ODLMWebAPI.Controllers
 
             }
         }
+
+
+        //Deepali added for task 1272 [03-08-2021]
+        [Route("GetBookingAnalysisReport")]
+        [HttpGet]
+        public List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate,Int32 distributorId,Int32 cOrNcId,Int32 brandId, int skipDate)
+        {
+            return _iTblBookingsBL.GetBookingAnalysisReport(startDate, endDate, distributorId, cOrNcId, brandId, skipDate);
+        }
         #endregion
 
         #region Post

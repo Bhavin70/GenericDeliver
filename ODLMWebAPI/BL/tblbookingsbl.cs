@@ -1100,6 +1100,66 @@ namespace ODLMWebAPI.BL
 
         }
 
+        //Deepali added for task 1272 [03-08-2021]
+        public List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate)
+        {
+            List<TblBookingAnalysisReportTO> listReturn = new List<TblBookingAnalysisReportTO>();
+            List<TblBookingAnalysisReportTO> list = new List<TblBookingAnalysisReportTO>();
+            List<TblBookingAnalysisReportTO> listGroupbyCnf = new List<TblBookingAnalysisReportTO>();
+            list = _iTblBookingsDAO.GetBookingAnalysisReport(startDate, endDate, distributorId, cOrNcId, brandId, skipDate);
+            if (list != null && list.Count > 0)
+            {
+                listGroupbyCnf = list.GroupBy(g => new { g.DistributorId }).Select(s => s.FirstOrDefault()).ToList();
+                double totalQty = 0;
+                double totalAvgRate = 0;
+                totalQty = (from x in list select x.BookingQty).Sum();
+                totalAvgRate = (from x in list select x.BookingRate).Average();
+                totalQty = Math.Round(totalQty, 3);
+                totalAvgRate = Math.Round(totalAvgRate, 2);
+                for (int i = 0; i < listGroupbyCnf.Count; i++)
+                {
+                    double totalDays = 0;
+
+                    List<TblBookingAnalysisReportTO> listTemp = new List<TblBookingAnalysisReportTO>();
+                    listTemp = list.Where(s => s.DistributorId == listGroupbyCnf[i].DistributorId).ToList();
+                    for (int j = 0; j < listTemp.Count; j++)
+                    {
+                        if (j < listTemp.Count - 1)
+                        {
+                            totalDays += (listTemp[j].CreatedOn - listTemp[j+1].CreatedOn).TotalDays;
+                        }
+
+                        if (j > 0)
+                        {
+                            listTemp[j].DistributorName = "";
+                        }
+                        else
+                        {
+                            listTemp[j].SrNo = i + 1;
+                        }
+                        listTemp[j].TotalAvgQty = totalQty;
+                        listTemp[j].TotalAvgRate = totalAvgRate;
+
+                        listReturn.Add(listTemp[j]);
+                    }
+                    TblBookingAnalysisReportTO tblBookingAnalysisReportTO = new TblBookingAnalysisReportTO();
+                    tblBookingAnalysisReportTO.DistributorName = "Total";
+                    tblBookingAnalysisReportTO.BookingQty = (from x in listTemp select x.BookingQty).Sum();
+                    tblBookingAnalysisReportTO.BookingRate = (from x in listTemp select x.BookingRate).Average();
+                    tblBookingAnalysisReportTO.BookingRate = Math.Round(tblBookingAnalysisReportTO.BookingRate, 2);
+                    tblBookingAnalysisReportTO.BookingQty = Math.Round(tblBookingAnalysisReportTO.BookingQty, 3);
+                    tblBookingAnalysisReportTO.TotalAvgQty = totalQty;
+                    tblBookingAnalysisReportTO.TotalAvgRate = totalAvgRate;
+                    tblBookingAnalysisReportTO.AvgBookingFrequency = totalDays/listTemp.Count;
+                    tblBookingAnalysisReportTO.AvgBookingFrequency = Math.Round(tblBookingAnalysisReportTO.AvgBookingFrequency, 3);
+
+                    tblBookingAnalysisReportTO.SrNo = -1;
+                    listReturn.Add(tblBookingAnalysisReportTO);
+                }
+            }
+            return listReturn;
+        }
+
         #endregion
 
         #region Insertion
