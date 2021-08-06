@@ -1122,17 +1122,11 @@ namespace ODLMWebAPI.BL
                 totalAvgRate = Math.Round(totalAvgRate, 2);
                 for (int i = 0; i < listGroupbyCnf.Count; i++)
                 {
-                    double totalDays = 0;
-
                     List<TblBookingAnalysisReportTO> listTemp = new List<TblBookingAnalysisReportTO>();
                     listTemp = list.Where(s => s.DistributorId == listGroupbyCnf[i].DistributorId).ToList();
+
                     for (int j = 0; j < listTemp.Count; j++)
                     {
-                        if (j < listTemp.Count - 1)
-                        {
-                            totalDays += (listTemp[j].CreatedOn - listTemp[j+1].CreatedOn).TotalDays;
-                        }
-
                         if (j > 0)
                         {
                             listTemp[j].DistributorName = "";
@@ -1141,11 +1135,43 @@ namespace ODLMWebAPI.BL
                         {
                             listTemp[j].SrNo = i + 1;
                         }
-                        listTemp[j].TotalAvgQty = totalQty;
-                        listTemp[j].TotalAvgRate = totalAvgRate;
-
-                        listReturn.Add(listTemp[j]);
                     }
+                    List<TblBookingAnalysisReportTO> listGroupbyDealer = new List<TblBookingAnalysisReportTO>();
+                    listGroupbyDealer = listTemp.GroupBy(g => new { g.DealerId }).Select(s => s.FirstOrDefault()).ToList();
+                    for (int dealer = 0; dealer < listGroupbyDealer.Count; dealer++)
+                    {
+                        double totalDays = 0;
+
+                        List<TblBookingAnalysisReportTO> listTempDealer = new List<TblBookingAnalysisReportTO>();
+                        listTempDealer = listTemp.Where(s => s.DealerId == listGroupbyDealer[dealer].DealerId).ToList();
+                        for (int d = 0; d < listTempDealer.Count; d++)
+                        {
+                            if (d < listTempDealer.Count - 1)
+                            {
+                                totalDays += (listTempDealer[d+1].CreatedOn - listTempDealer[d].CreatedOn).TotalDays;
+                            }
+                            listReturn.Add(listTempDealer[d]);
+                        }
+
+                        listReturn[listReturn.Count-1].AvgBookingFrequency = totalDays / listTemp.Count;
+                        listReturn[listReturn.Count - 1].AvgBookingFrequency = Math.Round(listReturn[listReturn.Count - 1].AvgBookingFrequency, 3);
+                    }
+                    //for (int j = 0; j < listTemp.Count; j++)
+                    //{
+                        //if (j > 0)
+                        //{
+                        //    listTemp[j].DistributorName = "";
+                        //}
+                        //else
+                        //{
+                        //    listTemp[j].SrNo = i + 1;
+                        //}
+                        //listTemp[j].TotalAvgQty = totalQty;
+                        //listTemp[j].TotalAvgRate = totalAvgRate;
+
+                        //listReturn.Add(listTemp[j]);
+                    //}
+
                     TblBookingAnalysisReportTO tblBookingAnalysisReportTO = new TblBookingAnalysisReportTO();
                     tblBookingAnalysisReportTO.DistributorName = "Total";
                     tblBookingAnalysisReportTO.BookingQty = (from x in listTemp select x.BookingQty).Sum();
@@ -1154,8 +1180,8 @@ namespace ODLMWebAPI.BL
                     tblBookingAnalysisReportTO.BookingQty = Math.Round(tblBookingAnalysisReportTO.BookingQty, 3);
                     tblBookingAnalysisReportTO.TotalAvgQty = totalQty;
                     tblBookingAnalysisReportTO.TotalAvgRate = totalAvgRate;
-                    tblBookingAnalysisReportTO.AvgBookingFrequency = totalDays/listTemp.Count;
-                    tblBookingAnalysisReportTO.AvgBookingFrequency = Math.Round(tblBookingAnalysisReportTO.AvgBookingFrequency, 3);
+                    //tblBookingAnalysisReportTO.AvgBookingFrequency = totalDays/listTemp.Count;
+                    //tblBookingAnalysisReportTO.AvgBookingFrequency = Math.Round(tblBookingAnalysisReportTO.AvgBookingFrequency, 3);
 
                     tblBookingAnalysisReportTO.SrNo = -1;
                     listReturn.Add(tblBookingAnalysisReportTO);

@@ -2295,6 +2295,9 @@ namespace ODLMWebAPI.DAL
                         if (tblBookingsTODT["createdOn"] != DBNull.Value)
                             tblBookingsTONew.CreatedOn = Convert.ToDateTime(tblBookingsTODT["createdOn"].ToString());
 
+                        if (tblBookingsTODT["dealerOrgId"] != DBNull.Value)
+                            tblBookingsTONew.DealerId = Convert.ToInt32(tblBookingsTODT["dealerOrgId"].ToString());
+
                         if (tblBookingsTODT["cnFOrgId"] != DBNull.Value)
                             tblBookingsTONew.DistributorId = Convert.ToInt32(tblBookingsTODT["cnFOrgId"].ToString());
                         if (hasColumn(tblBookingsTODT, "consumerType") == true)
