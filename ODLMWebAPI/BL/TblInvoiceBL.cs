@@ -453,7 +453,9 @@ namespace ODLMWebAPI.BL
             {
                 conn.Open();
                 tran = conn.BeginTransaction();
-                return _iTblInvoiceDAO.SelectTblInvoiceByStatus(statusId, distributorOrgId, invoiceId, conn, tran, isConfirm);
+                List<TblInvoiceTO> tblInvoiceTOList = _iTblInvoiceDAO.SelectTblInvoiceByStatus(statusId, distributorOrgId, invoiceId, conn, tran, isConfirm);
+                SetGateIotDataToInvoiceTOV2(tblInvoiceTOList);
+                return tblInvoiceTOList;
             }
             catch (Exception ex)
             {
