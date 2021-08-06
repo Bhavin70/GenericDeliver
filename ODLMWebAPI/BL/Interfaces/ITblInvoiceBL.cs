@@ -77,7 +77,7 @@ namespace ODLMWebAPI.BL.Interfaces
         int sendInvoiceFromMail(SendMail sendMail);
         List<TblOtherTaxRpt> SelectOtherTaxDetailsReport(DateTime frmDt, DateTime toDt, int isConfirm, Int32 otherTaxId,int fromOrgId);
         int UpdateIdentityFinalTables(SqlConnection conn, SqlTransaction tran);
-        TblInvoiceTO PrepareInvoiceAgainstLoadingSlip(TblLoadingTO loadingTO, SqlConnection conn, SqlTransaction tran, int internalOrgId, TblAddressTO ofcAddrTO, TblConfigParamsTO rcmConfigParamsTO, TblConfigParamsTO invoiceDateConfigTO, TblLoadingSlipTO loadingSlipTo);
+        TblInvoiceTO PrepareInvoiceAgainstLoadingSlip(TblLoadingTO loadingTO, SqlConnection conn, SqlTransaction tran, int internalOrgId, TblAddressTO ofcAddrTO, TblConfigParamsTO rcmConfigParamsTO, TblConfigParamsTO invoiceDateConfigTO, TblLoadingSlipTO loadingSlipTo, int InvoiceDealerOrgId);
         TblEntityRangeTO GenerateInvoiceNumberFromEntityRange(Int32 idInvoice);
 
         //Aniket [22-4-2019]

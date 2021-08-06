@@ -527,16 +527,32 @@ namespace ODLMWebAPI.Controllers
         public List<PendingBookingRptTO> GetAllPendingBookingsForReport(Int32 cnfOrgId,Int32 dealerOrgId, string userRoleTOList,int isTransporterScopeYn, int isConfirmed, string fromDate, string toDate,Boolean isDateFilter, Int32 brandId)
       //  public List<PendingBookingRptTO> GetAllPendingBookingsForReport(Int32 cnfOrgId,Int32 dealerOrgId, string userRoleTO,int isTransporterScopeYn, int isConfirmed, string fromDate, string toDate,Boolean isDateFilter,Int32 brandId)
         {
-            DateTime from_Date = DateTime.MinValue;
-            DateTime to_Date = DateTime.MinValue;
+            //DateTime from_Date = DateTime.MinValue;
+            //DateTime to_Date = DateTime.MinValue;
 
+            //if (Constants.IsDateTime(fromDate))
+            //    from_Date = Convert.ToDateTime(Convert.ToDateTime(fromDate).ToString(Constants.AzureDateFormat));
+            //if (Constants.IsDateTime(toDate))
+            //    to_Date = Convert.ToDateTime(Convert.ToDateTime(toDate).ToString(Constants.AzureDateFormat));
+            DateTime frmDt = DateTime.MinValue;
+            DateTime toDt = DateTime.MinValue;
             if (Constants.IsDateTime(fromDate))
-                from_Date = Convert.ToDateTime(Convert.ToDateTime(fromDate).ToString(Constants.AzureDateFormat));
+            {
+                frmDt = Convert.ToDateTime(fromDate);
+
+            }
             if (Constants.IsDateTime(toDate))
-                to_Date = Convert.ToDateTime(Convert.ToDateTime(toDate).ToString(Constants.AzureDateFormat));
+            {
+                toDt = Convert.ToDateTime(toDate);
+            }
+
+            if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
+                frmDt = _iCommon.ServerDateTime.Date;
+            if (Convert.ToDateTime(toDt) == DateTime.MinValue)
+                toDt = _iCommon.ServerDateTime.Date;
 
             List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleTOList);
-            return _iTblBookingsBL.SelectAllPendingBookingsForReport(cnfOrgId,dealerOrgId, tblUserRoleTOList,  isTransporterScopeYn, isConfirmed, from_Date, to_Date,isDateFilter, brandId);
+            return _iTblBookingsBL.SelectAllPendingBookingsForReport(cnfOrgId,dealerOrgId, tblUserRoleTOList,  isTransporterScopeYn, isConfirmed, frmDt, toDt, isDateFilter, brandId);
             //TblUserRoleTO tblUserRoleTO = JsonConvert.DeserializeObject<TblUserRoleTO>(userRoleTO);
             //return BL._iTblBookingsBL.SelectAllPendingBookingsForReport(cnfOrgId,dealerOrgId, tblUserRoleTO,  isTransporterScopeYn, isConfirmed, from_Date, to_Date,isDateFilter,brandId);
         }
@@ -690,6 +706,15 @@ namespace ODLMWebAPI.Controllers
             {
 
             }
+        }
+
+
+        //Deepali added for task 1272 [03-08-2021]
+        [Route("GetBookingAnalysisReport")]
+        [HttpGet]
+        public List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate,Int32 distributorId,Int32 cOrNcId,Int32 brandId, int skipDate)
+        {
+            return _iTblBookingsBL.GetBookingAnalysisReport(startDate, endDate, distributorId, cOrNcId, brandId, skipDate);
         }
         #endregion
 
