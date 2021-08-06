@@ -1105,12 +1105,12 @@ namespace ODLMWebAPI.BL
         }
 
         //Deepali added for task 1272 [03-08-2021]
-        public List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate)
+        public List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate, int isFromProject)
         {
             List<TblBookingAnalysisReportTO> listReturn = new List<TblBookingAnalysisReportTO>();
             List<TblBookingAnalysisReportTO> list = new List<TblBookingAnalysisReportTO>();
             List<TblBookingAnalysisReportTO> listGroupbyCnf = new List<TblBookingAnalysisReportTO>();
-            list = _iTblBookingsDAO.GetBookingAnalysisReport(startDate, endDate, distributorId, cOrNcId, brandId, skipDate);
+            list = _iTblBookingsDAO.GetBookingAnalysisReport(startDate, endDate, distributorId, cOrNcId, brandId, skipDate,isFromProject);
             if (list != null && list.Count > 0)
             {
                 listGroupbyCnf = list.GroupBy(g => new { g.DistributorId }).Select(s => s.FirstOrDefault()).ToList();

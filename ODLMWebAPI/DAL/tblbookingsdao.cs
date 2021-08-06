@@ -2239,7 +2239,7 @@ namespace ODLMWebAPI.DAL
             return bookingGraphRptTOList;
         }
 
-        public List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate)
+        public List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate, int isFromProject)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -2255,7 +2255,7 @@ namespace ODLMWebAPI.DAL
                     " from tblBookings tblBookings " +
                     " LEFT JOIN tblOrganization orgCNf ON orgCNf.idOrganization = tblBookings.cnFOrgId " +
                     " LEFT JOIN tblOrganization dealerOrg ON dealerOrg.idOrganization = tblBookings.dealerOrgId LEFT JOIN dimConsumerType orderType ON orderType.idConsumer = tblBookings.consumerTypeId  " +
-                    " where tblBookings.statusId NOT IN(13) ";
+                    " where tblBookings.statusId  IN (11) ";
 
 
                 if (skipDate == 0)
@@ -2270,7 +2270,12 @@ namespace ODLMWebAPI.DAL
                 if (brandId >0)
                     cmdSelect.CommandText += " AND ISNULL(tblBookings.brandId,0) = " + brandId;
 
-                cmdSelect.CommandText += " order by idBooking desc ";
+                if (isFromProject > 0)
+                    cmdSelect.CommandText += " AND ISNULL(tblBookings.consumerTypeId,0) IN (" + Convert.ToInt32(Constants.ConsumerTypeE.Government_Project) + "," + Convert.ToInt32(Constants.ConsumerTypeE.Private_Project) +")";
+                else
+                    cmdSelect.CommandText += " AND ISNULL(tblBookings.consumerTypeId,0) = " + Convert.ToInt32( Constants.ConsumerTypeE.Dealer);
+
+                cmdSelect.CommandText += " order by distributorName asc  ";
 
                 
                 cmdSelect.Connection = conn;
