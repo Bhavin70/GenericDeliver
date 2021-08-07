@@ -119,7 +119,7 @@ namespace ODLMWebAPI.BL
                     string access = (string)json["access_token"];
 
                     var client = new HttpClient();
-                    String url = "https://management.azure.com/subscriptions/f107e6d7-3d8f-4cbd-ba8c-0488d4697682/resourceGroups/" + resourceName + "/providers/Microsoft.Web/sites/" + appName + "/stop?api-version=2016-08-01";
+                    String url = "https://management.azure.com/subscriptions/d3f31a43-b546-4560-a72b-2a62668d157c/resourceGroups/" + resourceName + "/providers/Microsoft.Web/sites/" + appName + "/stop?api-version=2016-08-01";
                     String access_result;
                     System.IO.StreamWriter myWriter = null;
                     System.Net.WebRequest request = System.Net.WebRequest.Create(url);
@@ -174,7 +174,7 @@ namespace ODLMWebAPI.BL
                     string access_gui = (string)json_gui["access_token"];
 
                     var client_gui = new HttpClient();
-                    String url_gui = "https://management.azure.com/subscriptions/f107e6d7-3d8f-4cbd-ba8c-0488d4697682/resourceGroups/" + resourceName_gui + "/providers/Microsoft.Web/sites/" + appName_gui + "/stop?api-version=2016-08-01";
+                    String url_gui = "https://management.azure.com/subscriptions/d3f31a43-b546-4560-a72b-2a62668d157c/resourceGroups/" + resourceName_gui + "/providers/Microsoft.Web/sites/" + appName_gui + "/stop?api-version=2016-08-01";
                     String access_result_gui;
                     System.IO.StreamWriter myWriter1 = null;
                     System.Net.WebRequest request_gui1 = System.Net.WebRequest.Create(url_gui);
@@ -230,9 +230,9 @@ namespace ODLMWebAPI.BL
                     string access_vm = (string)json_vm["access_token"];
 
                     var client_vm = new HttpClient();
-                    //String url_vm = "https://management.azure.com/subscriptions/f107e6d7-3d8f-4cbd-ba8c-0488d4697682/resourceGroups/" + resourceName_vm + "/providers/Microsoft.Web/sites/" + appName_vm + "/stop?api-version=2016-08-01";
+                    //String url_vm = "https://management.azure.com/subscriptions/d3f31a43-b546-4560-a72b-2a62668d157c/resourceGroups/" + resourceName_vm + "/providers/Microsoft.Web/sites/" + appName_vm + "/stop?api-version=2016-08-01";
 
-                    String url_vm = "https://management.azure.com/subscriptions/f107e6d7-3d8f-4cbd-ba8c-0488d4697682/resourceGroups/" + resourceName_vm + "/providers/Microsoft.Compute/virtualMachines/" + appName_vm + "/powerOff?api-version=2021-03-01";
+                    String url_vm = "https://management.azure.com/subscriptions/d3f31a43-b546-4560-a72b-2a62668d157c/resourceGroups/" + resourceName_vm + "/providers/Microsoft.Compute/virtualMachines/" + appName_vm + "/powerOff?api-version=2021-03-01";
 
                     String access_result_vm;
                     System.IO.StreamWriter myWriter2 = null;
