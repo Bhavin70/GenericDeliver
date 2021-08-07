@@ -404,6 +404,14 @@ namespace ODLMWebAPI.StaticStuff
             SITE_SUBCATEGORY = 3
         }
 
+        public enum ConsumerTypeE
+        {
+            Dealer =1,
+            Private_Project=2,
+            Government_Project=3,
+            Individual =4
+        }
+
         // Vaibhav [24-Oct-2017] added to visit project type
         public enum VisitProjectTypeE
         {
