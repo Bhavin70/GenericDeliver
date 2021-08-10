@@ -104,5 +104,6 @@ namespace ODLMWebAPI.Models
         public string DistributorName { get; set; }
         public string ConsumerType { get; set; }
         public Int32 DistributorId { get; set; }
+        public Int32 DealerId { get; set; }
     }
 }
