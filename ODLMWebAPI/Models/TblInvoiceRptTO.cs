@@ -107,6 +107,7 @@ namespace ODLMWebAPI.Models
         String transactionDate;
         string invoiceMode;
         Double tdsAmt;
+        string salesLedger;
         #endregion
 
         #region Constructor
@@ -491,7 +492,22 @@ namespace ODLMWebAPI.Models
         }
         public String TermsofDelivery { get => termsofDelivery; set => termsofDelivery = value; }
         public String DeliveryNoteAndNo { get => deliveryNoteAndNo; set => deliveryNoteAndNo = value; }
-        public String DispatchDocNo { get => dispatchDocNo; set => dispatchDocNo = value; }
+
+        public String DispatchDocNo
+        {
+            get { return dispatchDocNo; }
+            set { dispatchDocNo = value; }
+        }
+        public String SalesLedger
+        {
+            get { return salesLedger; }
+            set { salesLedger = value; }
+        }
+
+        
+
+
+        //public String DispatchDocNo { get => dispatchDocNo; set => dispatchDocNo = value; }
         public String VoucherClass { get => voucherClass; set => voucherClass = value; }
         
 

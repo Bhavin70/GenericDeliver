@@ -856,6 +856,9 @@ namespace ODLMWebAPI.DAL
                     if (tblInvoiceTODT["voucherClassId"] != DBNull.Value)
                         tblInvoiceTONew.VoucherClassId = Convert.ToInt32(tblInvoiceTODT["voucherClassId"].ToString());
 
+                    if (tblInvoiceTODT["salesLedgerId"] != DBNull.Value)
+                        tblInvoiceTONew.SalesLedgerId = Convert.ToInt32(tblInvoiceTODT["salesLedgerId"].ToString());
+
 
                     tblInvoiceTOList.Add(tblInvoiceTONew);
                 }
@@ -1540,6 +1543,43 @@ namespace ODLMWebAPI.DAL
                                     tblInvoiceRptTONew.TransactionDate = Convert.ToString(tblInvoiceRptTODT["transactionDate"].ToString());
                             }
 
+                            if (tblInvoiceRptTODT.GetName(i).Equals("deliveryNoteNo"))
+                            {
+                                if (tblInvoiceRptTODT["deliveryNoteNo"] != DBNull.Value)
+                                    tblInvoiceRptTONew.DeliveryNoteAndNo = Convert.ToString(tblInvoiceRptTODT["deliveryNoteNo"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("dispatchDocNo"))
+                            {
+                                if (tblInvoiceRptTODT["dispatchDocNo"] != DBNull.Value)
+                                    tblInvoiceRptTONew.DispatchDocNo = Convert.ToString(tblInvoiceRptTODT["dispatchDocNo"].ToString());
+                            }
+
+                            if (tblInvoiceRptTODT.GetName(i).Equals("voucherClass"))
+                            {
+                                if (tblInvoiceRptTODT["voucherClass"] != DBNull.Value)
+                                    tblInvoiceRptTONew.VoucherClass = Convert.ToString(tblInvoiceRptTODT["voucherClass"].ToString());
+                            }
+
+                            if (tblInvoiceRptTODT.GetName(i).Equals("paymentTerm"))
+                            {
+                                if (tblInvoiceRptTODT["paymentTerm"] != DBNull.Value)
+                                    tblInvoiceRptTONew.PaymentTerms = Convert.ToString(tblInvoiceRptTODT["paymentTerm"].ToString());
+                            }
+
+                            if (tblInvoiceRptTODT.GetName(i).Equals("termOfDelivery"))
+                            {
+                                if (tblInvoiceRptTODT["termOfDelivery"] != DBNull.Value)
+                                    tblInvoiceRptTONew.TermsofDelivery = Convert.ToString(tblInvoiceRptTODT["termOfDelivery"].ToString());
+                            }
+
+                            if (tblInvoiceRptTODT.GetName(i).Equals("salesLedgerName"))
+                            {
+                                if (tblInvoiceRptTODT["salesLedgerName"] != DBNull.Value)
+                                    tblInvoiceRptTONew.SalesLedger = Convert.ToString(tblInvoiceRptTODT["salesLedgerName"].ToString());
+                            }
+
+                            
+
                             tblInvoiceRptTONew.ContactName = ""+tblInvoiceRptTONew.OwnerPersonFirstName +"  "+  tblInvoiceRptTONew.OwnerPersonLastName+"";
                         }
 
@@ -1979,7 +2019,7 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 selectQuery =
-                       " Select distinct invoice.idInvoice,invoice.invoiceNo,invoice.narration, " +
+                       " Select distinct invoice.idInvoice,invoice.invoiceNo,invoice.narration,invoice.deliveryNoteNo,invoice.dispatchDocNo,dimMasterValue.masterValueDesc AS voucherClass,dimMasterValueForsalesLedger.masterValueDesc AS salesLedgerName,ISNULL(paymentTerm.paymentTermsDescription,paymentTerm.paymentTermOption) as paymentTerm ,ISNULL(termOfDelivery.paymentTermsDescription,termOfDelivery.paymentTermOption) as termOfDelivery," +
                     " invoice.statusDate ,invoice.invoiceDate,invoice.createdOn,invAddrBill.billingName as partyName, " +
                     " invAddrBill.stateName as buyerState ,invAddrBill.gstinNo as buyerGstNo,invAddrBill.txnAddrTypeId as billingTypeId, " +
                     " invAddrBill.buyerAddress,invAddrBill.buyerDistrict,invAddrBill.buyerTaluka,invAddrBill.buyerPinCode,invAddrBill.panNo," +
@@ -1995,7 +2035,7 @@ namespace ODLMWebAPI.DAL
                     " invoice.lrDate , invoice.lrNumber ,invAddrCons.overdue_ref_id,invAddrBill.overdue_ref_id as buyer_overdue_ref_id ," +
                     " invoice.taxableAmt as invoiceTaxableAmt ,invoice.discountAmt as invoiceDiscountAmt,tblItemTallyRefDtls.overdueTallyRefId" +
                     " ,invoice.deliveredOn," +
-                    " CASE WHEN brand.brandName = 'Metaroll' THEN 'Meta Dealer' ELSE brand.brandName + ' Dealer' END AS dealers,"+
+                    " CASE WHEN brand.brandName = 'Metaroll' THEN 'Meta Dealer' ELSE brand.brandName + ' Dealer' END AS dealers," +
                     " loadingSlip.loadingSlipNo + ' and ' + FORMAT(loadingSlip.createdOn,'dd-MM-yyyy') AS orderNoandDate,prodCat.prodCateDesc ," +
                     " globalRate.rate as basicRate,FORMAT(loadingSlip.createdOn,'dd-MM-yyyy') AS loadingSlipDate," +
                     " FORMAT(invoice.statusDate ,'dd-MMM-yy') AS transactionDate " +
@@ -2040,10 +2080,25 @@ namespace ODLMWebAPI.DAL
                     " LEFT JOIN tempLoading loading on loading.idLoading = loadingSlip.loadingId" +
                     " LEFT JOIN dimBrand brand ON brand.idBrand = invoice.brandId " +
                     " LEFT JOIN dimProdCat prodCat on prodCat.idProdCat = prodGstCodeDtl.prodCatId " +
-                    // Vaibhav [17-Jan-2018] To select from final tables.
-                    " UNION ALL " +
+                    " LEFT JOIN dimMasterValue dimMasterValue on dimMasterValue.idMasterValue = invoice.voucherClassId" +
+                    " LEFT JOIN dimMasterValue dimMasterValueForsalesLedger on dimMasterValueForsalesLedger.idMasterValue = invoice.salesLedgerId" +
 
-                    " Select distinct invoice.idInvoice,invoice.invoiceNo,invoice.narration, " +
+                    " LEFT JOIN(select invoiceId, paymentTermRelation.isActive, tblPaymentTermOptions.paymentTermOption, " +
+                    " paymentTermRelation.paymentTermsDescription from tblPaymentTermOptionRelation paymentTermRelation " +
+                    " LEFT JOIN tblPaymentTermOptions tblPaymentTermOptions on tblPaymentTermOptions.idPaymentTermOption = paymentTermRelation.paymentTermOptionId " +
+                    " and tblPaymentTermOptions.isActive = 1 where tblPaymentTermOptions.paymentTermId = 1) as paymentTerm " +
+                    "  on paymentTerm.invoiceId = invoice.idInvoice and paymentTerm.isActive = 1 " +
+
+                    " LEFT JOIN(select invoiceId, paymentTermRelation.isActive, tblPaymentTermOptions.paymentTermOption, " +
+                    " paymentTermRelation.paymentTermsDescription from tblPaymentTermOptionRelation paymentTermRelation " +
+                    " LEFT JOIN tblPaymentTermOptions tblPaymentTermOptions on tblPaymentTermOptions.idPaymentTermOption = paymentTermRelation.paymentTermOptionId " +
+                    " and tblPaymentTermOptions.isActive = 1 where tblPaymentTermOptions.paymentTermId = 2) as termOfDelivery " +
+                    "  on termOfDelivery.invoiceId = invoice.idInvoice and termOfDelivery.isActive = 1 " +
+
+                // Vaibhav [17-Jan-2018] To select from final tables.
+                " UNION ALL " +
+
+                    " Select distinct invoice.idInvoice,invoice.invoiceNo,invoice.narration,invoice.deliveryNoteNo,invoice.dispatchDocNo,dimMasterValue.masterValueDesc AS voucherClass,dimMasterValueForsalesLedger.masterValueDesc AS salesLedgerName,ISNULL(paymentTerm.paymentTermsDescription,paymentTerm.paymentTermOption) as paymentTerm ,ISNULL(termOfDelivery.paymentTermsDescription,termOfDelivery.paymentTermOption) as termOfDelivery, " +
                     " invoice.statusDate ,invoice.invoiceDate,invoice.createdOn,invAddrBill.billingName as partyName, " +
                     " invAddrBill.stateName as buyerState ,invAddrBill.gstinNo as buyerGstNo,invAddrBill.txnAddrTypeId as billingTypeId, " +
                     " invAddrBill.buyerAddress,invAddrBill.buyerDistrict,invAddrBill.buyerTaluka,invAddrBill.buyerPinCode,invAddrBill.panNo," +
@@ -2100,9 +2155,25 @@ namespace ODLMWebAPI.DAL
                     " LEFT JOIN(select invoiceId, taxableAmt as tcsAmt " +
                     " from finalInvoiceItemDetails where otherTaxId = 4  )tcsItem On tcsItem.invoiceId = invoice.idInvoice " +
                     " LEFT JOIN finalLoadingSlip loadingSlip on loadingSlip.idLoadingSlip = invoice.loadingSlipId " +
-                    " LEFT JOIN finalLoading loading on loading.idLoading = loadingSlip.loadingId"+
-                    " LEFT JOIN dimBrand brand ON brand.idBrand = invoice.brandId "+
-                    " LEFT JOIN dimProdCat prodCat on prodCat.idProdCat = prodGstCodeDtl.prodCatId";
+                    " LEFT JOIN finalLoading loading on loading.idLoading = loadingSlip.loadingId" +
+                    " LEFT JOIN dimBrand brand ON brand.idBrand = invoice.brandId " +
+                    " LEFT JOIN dimProdCat prodCat on prodCat.idProdCat = prodGstCodeDtl.prodCatId" +
+                    " LEFT JOIN dimMasterValue dimMasterValue on dimMasterValue.idMasterValue = invoice.voucherClassId" +
+                    " LEFT JOIN dimMasterValue dimMasterValueForsalesLedger on dimMasterValueForsalesLedger.idMasterValue = invoice.salesLedgerId" +
+
+                    " LEFT JOIN(select invoiceId, paymentTermRelation.isActive, tblPaymentTermOptions.paymentTermOption, " +
+                    " paymentTermRelation.paymentTermsDescription from tblPaymentTermOptionRelation paymentTermRelation " +
+                    " LEFT JOIN tblPaymentTermOptions tblPaymentTermOptions on tblPaymentTermOptions.idPaymentTermOption = paymentTermRelation.paymentTermOptionId " +
+                    " and tblPaymentTermOptions.isActive = 1 where tblPaymentTermOptions.paymentTermId = 1) as paymentTerm " +
+                    "  on paymentTerm.invoiceId = invoice.idInvoice and paymentTerm.isActive = 1 " +
+
+                      " LEFT JOIN(select invoiceId, paymentTermRelation.isActive, tblPaymentTermOptions.paymentTermOption, " +
+                    " paymentTermRelation.paymentTermsDescription from tblPaymentTermOptionRelation paymentTermRelation " +
+                    " LEFT JOIN tblPaymentTermOptions tblPaymentTermOptions on tblPaymentTermOptions.idPaymentTermOption = paymentTermRelation.paymentTermOptionId " +
+                    " and tblPaymentTermOptions.isActive = 1 where tblPaymentTermOptions.paymentTermId = 2) as termOfDelivery " +
+                    "  on termOfDelivery.invoiceId = invoice.idInvoice and termOfDelivery.isActive = 1 ";
+
+
                 //chetan[13-feb-2020] added get data from org id
                 String formOrgIdCondtion = String.Empty;
                 if (fromOrgId > 0)
@@ -2665,6 +2736,7 @@ namespace ODLMWebAPI.DAL
                                 " ,[deliveryNoteNo]" +
                                 " ,[dispatchDocNo]" +
                                 " ,[voucherClassId]" +
+                                " ,[salesLedgerId]" +
 
                                 " )" +
                     " VALUES (" +
@@ -2729,6 +2801,7 @@ namespace ODLMWebAPI.DAL
                                 " ,@DeliveryNoteNo" +
                                 " ,@DispatchDocNo" +
                                 " ,@VoucherClassId" +
+                                " ,@SalesLedgerId" +
                                  " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
@@ -2795,6 +2868,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@DispatchDocNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.DispatchDocNo);
             cmdInsert.Parameters.Add("@DeliveryNoteNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.DeliveryNoteNo);
             cmdInsert.Parameters.Add("@VoucherClassId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.VoucherClassId);
+            cmdInsert.Parameters.Add("@SalesLedgerId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.SalesLedgerId);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
@@ -3044,6 +3118,7 @@ namespace ODLMWebAPI.DAL
                              " ,[deliveryNoteNo]=@DeliveryNoteNo " +
                              " ,[dispatchDocNo]=@DispatchDocNo " +
                              " ,[voucherClassId]=@VoucherClassId " +
+                             " ,[salesLedgerId]=@SalesLedgerId " +
 
                              " WHERE [idInvoice] = @IdInvoice";
 
@@ -3109,6 +3184,7 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@DeliveryNoteNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.DeliveryNoteNo);
             cmdUpdate.Parameters.Add("@DispatchDocNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.DispatchDocNo);
             cmdUpdate.Parameters.Add("@VoucherClassId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.VoucherClassId);
+            cmdUpdate.Parameters.Add("@SalesLedgerId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.SalesLedgerId);
 
 
             return cmdUpdate.ExecuteNonQuery();

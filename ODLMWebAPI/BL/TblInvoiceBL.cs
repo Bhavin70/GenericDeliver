@@ -739,6 +739,8 @@ namespace ODLMWebAPI.BL
                     tblInvoiceRptTotalTO.SgstTaxAmt += summuryGroupList[i].FirstOrDefault().SgstTaxAmt;
                     tblInvoiceRptTotalTO.IgstTaxAmt += summuryGroupList[i].FirstOrDefault().IgstTaxAmt;
                     tblInvoiceRptTotalTO.GrandTotal += summuryGroupList[i].FirstOrDefault().GrandTotal;
+
+                    
                 }
                 itemWiseSalesExportCList.Add(tblInvoiceRptTotalTO);
             }         

@@ -102,6 +102,7 @@ namespace ODLMWebAPI.Models
         string deliveryNoteNo;
         string dispatchDocNo;
         Int32 voucherClassId;
+        Int32 salesLedgerId;
         #endregion
 
         #region Constructor
@@ -552,7 +553,9 @@ namespace ODLMWebAPI.Models
 
         public Int32 VoucherClassId { get => voucherClassId; set => voucherClassId = value; }
 
+        public Int32 SalesLedgerId { get => salesLedgerId; set => salesLedgerId = value; }
         
+
         public TblInvoiceTO DeepCopy()
         {
             TblInvoiceTO other = (TblInvoiceTO)this.MemberwiseClone();
