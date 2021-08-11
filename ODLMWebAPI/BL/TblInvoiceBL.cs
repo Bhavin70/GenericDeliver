@@ -695,6 +695,14 @@ namespace ODLMWebAPI.BL
             List<Object> resultMessageMulti = new List<Object>();
             
             List<TblInvoiceRptTO> itemWiseSalesExportCList = _iTblInvoiceDAO.SelectItemWiseSalesExportCListForReport(frmDt, toDt, isConfirm, fromOrgId);
+
+            if (itemWiseSalesExportCList == null || itemWiseSalesExportCList.Count == 0)
+            {
+                resultMessage.DefaultBehaviour();
+                resultMessage.DisplayMessage = "No record found";
+                return resultMessage;
+            }
+
             var summuryGroupList = itemWiseSalesExportCList.ToLookup(p => p.IdInvoice).ToList();
             if (summuryGroupList != null)
             {
