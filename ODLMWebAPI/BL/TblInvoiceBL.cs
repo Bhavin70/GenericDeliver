@@ -695,54 +695,57 @@ namespace ODLMWebAPI.BL
             List<Object> resultMessageMulti = new List<Object>();
             
             List<TblInvoiceRptTO> itemWiseSalesExportCList = _iTblInvoiceDAO.SelectItemWiseSalesExportCListForReport(frmDt, toDt, isConfirm, fromOrgId);
-            var summuryGroupList = itemWiseSalesExportCList.ToLookup(p => p.IdInvoice).ToList();
-            if (summuryGroupList != null)
+            if (itemWiseSalesExportCList != null && itemWiseSalesExportCList.Count > 0)
             {
-                TblInvoiceRptTO tblInvoiceRptTotalTO = new TblInvoiceRptTO();
-                for (int i = 0; i < summuryGroupList.Count; i++)
+                var summuryGroupList = itemWiseSalesExportCList.ToLookup(p => p.IdInvoice).ToList();
+                if (summuryGroupList != null)
                 {
-                    String narration1 = String.Empty, narration2 = String.Empty, narration3 = String.Empty, narration4 = String.Empty, prevProdCateDesc = String.Empty;
-                   
-                    narration1 = "Invoice No. " + summuryGroupList[i].FirstOrDefault().InvoiceNo + "  ";
-                    narration4 = "  Vehicle No. " + summuryGroupList[i].FirstOrDefault().VehicleNo + " ( " + summuryGroupList[i].FirstOrDefault().TotalItemQty + "  in mt )" +
-                                 " ,Basic Rate : " + summuryGroupList[i].FirstOrDefault().BasicRate + "  ,DO Date : " + summuryGroupList[i].FirstOrDefault().LoadingSlipDate;
-                    foreach (var item in summuryGroupList[i])
+                    TblInvoiceRptTO tblInvoiceRptTotalTO = new TblInvoiceRptTO();
+                    for (int i = 0; i < summuryGroupList.Count; i++)
                     {
-                        if (!String.IsNullOrEmpty(prevProdCateDesc))
+                        String narration1 = String.Empty, narration2 = String.Empty, narration3 = String.Empty, narration4 = String.Empty, prevProdCateDesc = String.Empty;
+
+                        narration1 = "Invoice No. " + summuryGroupList[i].FirstOrDefault().InvoiceNo + "  ";
+                        narration4 = "  Vehicle No. " + summuryGroupList[i].FirstOrDefault().VehicleNo + " ( " + summuryGroupList[i].FirstOrDefault().TotalItemQty + "  in mt )" +
+                                     " ,Basic Rate : " + summuryGroupList[i].FirstOrDefault().BasicRate + "  ,DO Date : " + summuryGroupList[i].FirstOrDefault().LoadingSlipDate;
+                        foreach (var item in summuryGroupList[i])
                         {
-                            if (prevProdCateDesc != item.ProdCateDesc)
+                            if (!String.IsNullOrEmpty(prevProdCateDesc))
                             {
-                                narration2 =  " For " + item.ProdCateDesc + "  ";
+                                if (prevProdCateDesc != item.ProdCateDesc)
+                                {
+                                    narration2 = " For " + item.ProdCateDesc + "  ";
+                                    narration3 = narration3 + narration2;
+                                    prevProdCateDesc = item.ProdCateDesc;
+                                }
+                            }
+                            else
+                            {
+                                narration2 = " For " + item.ProdCateDesc + "  ";
                                 narration3 = narration3 + narration2;
                                 prevProdCateDesc = item.ProdCateDesc;
                             }
+                            narration3 += item.MaterialName + " ( " + item.InvoiceQty + " mt* " + item.Rate + "  ),";
                         }
-                        else
+                        narration1 = narration1 + narration3 + narration4;
+                        foreach (var item in summuryGroupList[i])
                         {
-                            narration2 = " For " + item.ProdCateDesc + "  ";
-                            narration3 = narration3 + narration2;
-                            prevProdCateDesc = item.ProdCateDesc;
+                            item.NarrationConcat = narration1;
                         }
-                        narration3 += item.MaterialName + " ( " + item.InvoiceQty + " mt* " + item.Rate + "  ),";
+                        tblInvoiceRptTotalTO.InvoiceNo = "Grand Total";
+                        tblInvoiceRptTotalTO.InvoiceQty += summuryGroupList[i].Sum(a => a.InvoiceQty);
+                        tblInvoiceRptTotalTO.TaxableAmt += summuryGroupList[i].Sum(a => a.TaxableAmt);
+                        tblInvoiceRptTotalTO.InvoiceTaxableAmt += summuryGroupList[i].FirstOrDefault().InvoiceTaxableAmt;
+                        tblInvoiceRptTotalTO.FreightAmt += summuryGroupList[i].FirstOrDefault().FreightAmt;
+                        tblInvoiceRptTotalTO.CgstTaxAmt += summuryGroupList[i].FirstOrDefault().CgstTaxAmt;
+                        tblInvoiceRptTotalTO.SgstTaxAmt += summuryGroupList[i].FirstOrDefault().SgstTaxAmt;
+                        tblInvoiceRptTotalTO.IgstTaxAmt += summuryGroupList[i].FirstOrDefault().IgstTaxAmt;
+                        tblInvoiceRptTotalTO.GrandTotal += summuryGroupList[i].FirstOrDefault().GrandTotal;
                     }
-                    narration1 = narration1 + narration3 + narration4;
-                    foreach (var item in summuryGroupList[i])
-                    {
-                        item.NarrationConcat = narration1;
-                    }
-                    tblInvoiceRptTotalTO.InvoiceNo = "Grand Total";                    
-                    tblInvoiceRptTotalTO.InvoiceQty += summuryGroupList[i].Sum(a => a.InvoiceQty);
-                    tblInvoiceRptTotalTO.TaxableAmt += summuryGroupList[i].Sum(a => a.TaxableAmt);
-                    tblInvoiceRptTotalTO.InvoiceTaxableAmt += summuryGroupList[i].FirstOrDefault().InvoiceTaxableAmt;
-                    tblInvoiceRptTotalTO.FreightAmt += summuryGroupList[i].FirstOrDefault().FreightAmt;
-                    tblInvoiceRptTotalTO.CgstTaxAmt += summuryGroupList[i].FirstOrDefault().CgstTaxAmt;
-                    tblInvoiceRptTotalTO.SgstTaxAmt += summuryGroupList[i].FirstOrDefault().SgstTaxAmt;
-                    tblInvoiceRptTotalTO.IgstTaxAmt += summuryGroupList[i].FirstOrDefault().IgstTaxAmt;
-                    tblInvoiceRptTotalTO.GrandTotal += summuryGroupList[i].FirstOrDefault().GrandTotal;
+                    itemWiseSalesExportCList.Add(tblInvoiceRptTotalTO);
                 }
-                itemWiseSalesExportCList.Add(tblInvoiceRptTotalTO);
-            }         
-            
+
+            }
             DataSet printDataSet = new DataSet();
             DataTable itemWiseSalesExportCListDT = new DataTable();
             if (itemWiseSalesExportCList != null && itemWiseSalesExportCList.Count > 0)
