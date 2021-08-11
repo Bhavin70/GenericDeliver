@@ -99,6 +99,9 @@ namespace ODLMWebAPI.Models
         Double tdsAmt;
         Int32 isTcsApplicable;
         Int32 isDeclarationRec;
+        string deliveryNoteNo;
+        string dispatchDocNo;
+        Int32 voucherClassId;
         #endregion
 
         #region Constructor
@@ -544,6 +547,12 @@ namespace ODLMWebAPI.Models
         public int IsTcsApplicable { get => isTcsApplicable; set => isTcsApplicable = value; }
         public int IsDeclarationRec { get => isDeclarationRec; set => isDeclarationRec = value; }
 
+        public string DeliveryNoteNo { get => deliveryNoteNo; set => deliveryNoteNo = value; }
+        public string DispatchDocNo { get => dispatchDocNo; set => dispatchDocNo = value; }
+
+        public Int32 VoucherClassId { get => voucherClassId; set => voucherClassId = value; }
+
+        
         public TblInvoiceTO DeepCopy()
         {
             TblInvoiceTO other = (TblInvoiceTO)this.MemberwiseClone();

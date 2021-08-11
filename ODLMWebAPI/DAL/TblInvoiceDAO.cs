@@ -847,6 +847,16 @@ namespace ODLMWebAPI.DAL
                     if (tblInvoiceTODT["tdsAmt"] != DBNull.Value)
                         tblInvoiceTONew.TdsAmt = Convert.ToDouble(tblInvoiceTODT["tdsAmt"].ToString());
 
+                    if (tblInvoiceTODT["deliveryNoteNo"] != DBNull.Value)
+                        tblInvoiceTONew.DeliveryNoteNo = Convert.ToString(tblInvoiceTODT["deliveryNoteNo"].ToString());
+
+                    if (tblInvoiceTODT["dispatchDocNo"] != DBNull.Value)
+                        tblInvoiceTONew.DispatchDocNo = Convert.ToString(tblInvoiceTODT["dispatchDocNo"].ToString());
+
+                    if (tblInvoiceTODT["voucherClassId"] != DBNull.Value)
+                        tblInvoiceTONew.VoucherClassId = Convert.ToInt32(tblInvoiceTODT["voucherClassId"].ToString());
+
+
                     tblInvoiceTOList.Add(tblInvoiceTONew);
                 }
             }
@@ -2652,6 +2662,9 @@ namespace ODLMWebAPI.DAL
                                 " ,[invFromOrgFreeze]" +
                                 " ,[comment]" +
                                 " ,[tdsAmt]" +
+                                " ,[deliveryNoteNo]" +
+                                " ,[dispatchDocNo]" +
+                                " ,[voucherClassId]" +
 
                                 " )" +
                     " VALUES (" +
@@ -2713,6 +2726,9 @@ namespace ODLMWebAPI.DAL
                                 " ,@InvFromOrgFreeze" +
                                 " ,@comment" +
                                 " ,@tdsAmt" +
+                                " ,@DeliveryNoteNo" +
+                                " ,@DispatchDocNo" +
+                                " ,@VoucherClassId" +
                                  " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
@@ -2776,6 +2792,9 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@InvFromOrgFreeze", System.Data.SqlDbType.Int).Value = tblInvoiceTO.InvFromOrgFreeze;
             cmdInsert.Parameters.Add("@comment", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.InvComment);
             cmdInsert.Parameters.Add("@tdsAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.TdsAmt);
+            cmdInsert.Parameters.Add("@DispatchDocNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.DispatchDocNo);
+            cmdInsert.Parameters.Add("@DeliveryNoteNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.DeliveryNoteNo);
+            cmdInsert.Parameters.Add("@VoucherClassId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.VoucherClassId);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
@@ -2851,6 +2870,8 @@ namespace ODLMWebAPI.DAL
                             " ,[narration]= @Narration" +
                             " ,[bankDetails] = @BankDetails" +
                             " ,[deliveryLocation] = @deliveryLocation " +
+                            " ,[deliveryNoteNo] = @DeliveryNoteNo " +
+                            " ,[dispatchDocNo] = @DispatchDocNo " +
                             " WHERE [idInvoice] = @IdInvoice";
 
                 cmdUpdate.CommandText = sqlQuery;
@@ -2869,6 +2890,8 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Parameters.Add("@Narration", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.Narration);
                 cmdUpdate.Parameters.Add("@BankDetails", System.Data.SqlDbType.NChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.BankDetails);
                 cmdUpdate.Parameters.Add("@deliveryLocation", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.DeliveryLocation);
+                cmdUpdate.Parameters.Add("@DispatchDocNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.DispatchDocNo);
+                cmdUpdate.Parameters.Add("@DeliveryNoteNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.DeliveryNoteNo);
 
                 return cmdUpdate.ExecuteNonQuery();
 
@@ -3018,6 +3041,9 @@ namespace ODLMWebAPI.DAL
                              " ,[invFromOrgFreeze]=@InvFromOrgFreeze " +
                              " ,[comment]=@comment " +
                              " ,[tdsAmt]=@tdsAmt " +
+                             " ,[deliveryNoteNo]=@DeliveryNoteNo " +
+                             " ,[dispatchDocNo]=@DispatchDocNo " +
+                             " ,[voucherClassId]=@VoucherClassId " +
 
                              " WHERE [idInvoice] = @IdInvoice";
 
@@ -3080,6 +3106,9 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@InvFromOrgFreeze", System.Data.SqlDbType.Int).Value = tblInvoiceTO.InvFromOrgFreeze;
             cmdUpdate.Parameters.Add("@comment", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.InvComment);
             cmdUpdate.Parameters.Add("@tdsAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.TdsAmt);
+            cmdUpdate.Parameters.Add("@DeliveryNoteNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.DeliveryNoteNo);
+            cmdUpdate.Parameters.Add("@DispatchDocNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.DispatchDocNo);
+            cmdUpdate.Parameters.Add("@VoucherClassId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.VoucherClassId);
 
 
             return cmdUpdate.ExecuteNonQuery();
