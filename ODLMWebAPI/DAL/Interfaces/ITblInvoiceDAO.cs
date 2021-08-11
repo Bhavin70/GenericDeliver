@@ -54,5 +54,9 @@ namespace ODLMWebAPI.DAL.Interfaces
         int UpdateEWayBill(TblInvoiceTO tblInvoiceTO);
         int UpdateEWayBill(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
         int UpdateTempInvoiceDistanceInKM(TblInvoiceTO tblInvoiceTO);
+
+        List<TblInvoiceRptTO> SelectItemWiseSalesExportCListForReport(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
+
+        List<TblInvoiceRptTO> SelectSalesPurchaseListForReport(DateTime frmDt, DateTime toDt,int isConfirm, string selectedOrg,int defualtOrgId,int isFromPurchase);
     }
 }

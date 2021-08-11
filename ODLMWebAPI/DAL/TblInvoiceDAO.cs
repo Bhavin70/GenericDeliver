@@ -977,6 +977,11 @@ namespace ODLMWebAPI.DAL
                         TblInvoiceRptTO tblInvoiceRptTONew = new TblInvoiceRptTO();
                         for (int i = 0; i < tblInvoiceRptTODT.FieldCount; i++)
                         {
+                            if (tblInvoiceRptTODT.GetName(i).Equals("mode"))
+                            {
+                                if (tblInvoiceRptTODT["mode"] != DBNull.Value)
+                                    tblInvoiceRptTONew.InvoiceMode = Convert.ToString(tblInvoiceRptTODT["mode"].ToString());
+                            }
                             if (tblInvoiceRptTODT.GetName(i).Equals("idInvoice"))
                             {
                                 if (tblInvoiceRptTODT["idInvoice"] != DBNull.Value)
@@ -997,6 +1002,27 @@ namespace ODLMWebAPI.DAL
                             {
                                 if (tblInvoiceRptTODT["invoiceDate"] != DBNull.Value)
                                     tblInvoiceRptTONew.InvoiceDate = Convert.ToDateTime(tblInvoiceRptTODT["invoiceDate"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("electronicRefNo"))
+                            {
+                                if (tblInvoiceRptTODT["electronicRefNo"] != DBNull.Value)
+                                    tblInvoiceRptTONew.ElectronicRefNo = Convert.ToString(tblInvoiceRptTODT["electronicRefNo"].ToString());
+                            }
+
+                            if (tblInvoiceRptTODT.GetName(i).Equals("invoiceTypeDesc"))
+                            {
+                                if (tblInvoiceRptTODT["invoiceTypeDesc"] != DBNull.Value)
+                                    tblInvoiceRptTONew.InvoiceTypeDesc = Convert.ToString(tblInvoiceRptTODT["invoiceTypeDesc"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("IrnNo"))
+                            {
+                                if (tblInvoiceRptTODT["IrnNo"] != DBNull.Value)
+                                    tblInvoiceRptTONew.IrnNo = Convert.ToString(tblInvoiceRptTODT["IrnNo"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("codeNumber"))
+                            {
+                                if (tblInvoiceRptTODT["codeNumber"] != DBNull.Value)
+                                    tblInvoiceRptTONew.CodeNumber = Convert.ToString(tblInvoiceRptTODT["codeNumber"].ToString());
                             }
                             if (tblInvoiceRptTODT.GetName(i).Equals("partyName"))
                             {
@@ -1027,6 +1053,44 @@ namespace ODLMWebAPI.DAL
                             {
                                 if (tblInvoiceRptTODT["bundles"] != DBNull.Value)
                                     tblInvoiceRptTONew.Bundles = Convert.ToString(tblInvoiceRptTODT["bundles"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("tareWeight"))
+                            {
+                                if (tblInvoiceRptTODT["tareWeight"] != DBNull.Value)
+                                    tblInvoiceRptTONew.TareWeight = Convert.ToDouble(tblInvoiceRptTODT["tareWeight"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("igstPct"))
+                            {
+                                if (tblInvoiceRptTODT["igstPct"] != DBNull.Value)
+                                    tblInvoiceRptTONew.IgstPct = Convert.ToDouble(tblInvoiceRptTODT["igstPct"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("sgstPct"))
+                            {
+                                if (tblInvoiceRptTODT["sgstPct"] != DBNull.Value)
+                                    tblInvoiceRptTONew.SgstPct = Convert.ToDouble(tblInvoiceRptTODT["sgstPct"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("cgstPct"))
+                            {
+                                if (tblInvoiceRptTODT["cgstPct"] != DBNull.Value)
+                                    tblInvoiceRptTONew.CgstPct = Convert.ToDouble(tblInvoiceRptTODT["cgstPct"].ToString());
+                            }
+
+                            if (tblInvoiceRptTODT.GetName(i).Equals("grossWeight"))
+                            {
+                                if (tblInvoiceRptTODT["grossWeight"] != DBNull.Value)
+                                    tblInvoiceRptTONew.GrossWeight = Convert.ToDouble(tblInvoiceRptTODT["grossWeight"].ToString());
+                            }
+
+                            if (tblInvoiceRptTODT.GetName(i).Equals("netWeight"))
+                            {
+                                if (tblInvoiceRptTODT["netWeight"] != DBNull.Value)
+                                    tblInvoiceRptTONew.NetWeight = Convert.ToDouble(tblInvoiceRptTODT["netWeight"].ToString());
+                            }
+
+                            if (tblInvoiceRptTODT.GetName(i).Equals("roundOffAmt"))
+                            {
+                                if (tblInvoiceRptTODT["roundOffAmt"] != DBNull.Value)
+                                    tblInvoiceRptTONew.RoundOffAmt = Convert.ToDouble(tblInvoiceRptTODT["roundOffAmt"].ToString());
                             }
                             if (tblInvoiceRptTODT.GetName(i).Equals("rate"))
                             {
@@ -1101,10 +1165,71 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["buyer"] != DBNull.Value)
                                     tblInvoiceRptTONew.Buyer = Convert.ToString(tblInvoiceRptTODT["buyer"].ToString());
                             }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("OrgstateName"))
+                            {
+                                if (tblInvoiceRptTODT["OrgstateName"] != DBNull.Value)
+                                    tblInvoiceRptTONew.OrgstateName = Convert.ToString(tblInvoiceRptTODT["OrgstateName"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("OrgvillageName"))
+                            {
+                                if (tblInvoiceRptTODT["OrgcountryName"] != DBNull.Value)
+                                    tblInvoiceRptTONew.OrgcountryName = Convert.ToString(tblInvoiceRptTODT["OrgcountryName"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("OrgvillageName"))
+                            {
+                                if (tblInvoiceRptTODT["OrgvillageName"] != DBNull.Value)
+                                    tblInvoiceRptTONew.OrgvillageName = Convert.ToString(tblInvoiceRptTODT["OrgvillageName"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("OrgdistrictName"))
+                            {
+                                if (tblInvoiceRptTODT["OrgdistrictName"] != DBNull.Value)
+                                    tblInvoiceRptTONew.OrgdistrictName = Convert.ToString(tblInvoiceRptTODT["OrgdistrictName"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("invFromOrgName"))
+                            {
+                                if (tblInvoiceRptTODT["invFromOrgName"] != DBNull.Value)
+                                    tblInvoiceRptTONew.InvFromOrgName = Convert.ToString(tblInvoiceRptTODT["invFromOrgName"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("OrgareaName"))
+                            {
+                                if (tblInvoiceRptTODT["OrgareaName"] != DBNull.Value)
+                                    tblInvoiceRptTONew.OrgareaName = Convert.ToString(tblInvoiceRptTODT["OrgareaName"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("Orgpincode"))
+                            {
+                                if (tblInvoiceRptTODT["Orgpincode"] != DBNull.Value)
+                                    tblInvoiceRptTONew.Orgpincode = Convert.ToString(tblInvoiceRptTODT["Orgpincode"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("OrgplotNo"))
+                            {
+                                if (tblInvoiceRptTODT["OrgplotNo"] != DBNull.Value)
+                                    tblInvoiceRptTONew.OrgplotNo = Convert.ToString(tblInvoiceRptTODT["OrgplotNo"].ToString());
+                            }
                             if (tblInvoiceRptTODT.GetName(i).Equals("buyerGstNo"))
                             {
                                 if (tblInvoiceRptTODT["buyerGstNo"] != DBNull.Value)
                                     tblInvoiceRptTONew.BuyerGstNo = Convert.ToString(tblInvoiceRptTODT["buyerGstNo"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("buyerAddress"))
+                            {
+                                if (tblInvoiceRptTODT["buyerAddress"] != DBNull.Value)
+                                    tblInvoiceRptTONew.BuyerAddress = Convert.ToString(tblInvoiceRptTODT["buyerAddress"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("buyerDistrict"))
+                            {
+                                if (tblInvoiceRptTODT["buyerDistrict"] != DBNull.Value)
+                                    tblInvoiceRptTONew.BuyerDistrict = Convert.ToString(tblInvoiceRptTODT["buyerDistrict"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("buyerPinCode"))
+                            {
+                                if (tblInvoiceRptTODT["buyerPinCode"] != DBNull.Value)
+                                    tblInvoiceRptTONew.BuyerPinCode = Convert.ToString(tblInvoiceRptTODT["buyerPinCode"].ToString());
+                            }
+
+                            if (tblInvoiceRptTODT.GetName(i).Equals("buyerTaluka"))
+                            {
+                                if (tblInvoiceRptTODT["buyerTaluka"] != DBNull.Value)
+                                    tblInvoiceRptTONew.BuyerTaluka = Convert.ToString(tblInvoiceRptTODT["buyerTaluka"].ToString());
                             }
                             if (tblInvoiceRptTODT.GetName(i).Equals("consigneeTypeId"))
                             {
@@ -1353,7 +1478,57 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["lastName"] != DBNull.Value)
                                     tblInvoiceRptTONew.OwnerPersonLastName = Convert.ToString(tblInvoiceRptTODT["lastName"].ToString());
                             }
-
+                            //Added by minal 06 Aug 2021 for Item wise Sales Export C
+                            //if (tblInvoiceRptTODT.GetName(i).Equals("buyerAddress"))
+                            //{
+                            //    if (tblInvoiceRptTODT["buyerAddress"] != DBNull.Value)
+                            //        tblInvoiceRptTONew.BuyersAddressLine1 = Convert.ToString(tblInvoiceRptTODT["buyerAddress"].ToString());
+                            //}
+                            //if (tblInvoiceRptTODT.GetName(i).Equals("buyerDistrict"))
+                            //{
+                            //    if (tblInvoiceRptTODT["buyerDistrict"] != DBNull.Value)
+                            //        tblInvoiceRptTONew.BuyersAddressLine2 = Convert.ToString(tblInvoiceRptTODT["buyerDistrict"].ToString());
+                            //}
+                            //if (tblInvoiceRptTODT.GetName(i).Equals("buyerPincode"))
+                            //{
+                            //    if (tblInvoiceRptTODT["buyerPincode"] != DBNull.Value)
+                            //        tblInvoiceRptTONew.BuyersAddressLine3 = Convert.ToString(tblInvoiceRptTODT["buyerPincode"].ToString());
+                            //}
+                            if (tblInvoiceRptTODT.GetName(i).Equals("panNo"))
+                            {
+                                if (tblInvoiceRptTODT["panNo"] != DBNull.Value)
+                                    tblInvoiceRptTONew.PanNo = Convert.ToString(tblInvoiceRptTODT["panNo"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("dealers"))
+                            {
+                                if (tblInvoiceRptTODT["dealers"] != DBNull.Value)
+                                    tblInvoiceRptTONew.Dealers = Convert.ToString(tblInvoiceRptTODT["dealers"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("orderNoandDate"))
+                            {
+                                if (tblInvoiceRptTODT["orderNoandDate"] != DBNull.Value)
+                                    tblInvoiceRptTONew.OrderNoandDate = Convert.ToString(tblInvoiceRptTODT["orderNoandDate"].ToString());
+                            }                          
+                            if (tblInvoiceRptTODT.GetName(i).Equals("prodCateDesc"))
+                            {
+                                if (tblInvoiceRptTODT["prodCateDesc"] != DBNull.Value)
+                                    tblInvoiceRptTONew.ProdCateDesc = Convert.ToString(tblInvoiceRptTODT["prodCateDesc"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("basicRate"))
+                            {
+                                if (tblInvoiceRptTODT["basicRate"] != DBNull.Value)
+                                    tblInvoiceRptTONew.BasicRate = Convert.ToDouble(tblInvoiceRptTODT["basicRate"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("loadingSlipDate"))
+                            {
+                                if (tblInvoiceRptTODT["loadingSlipDate"] != DBNull.Value)
+                                    tblInvoiceRptTONew.LoadingSlipDate = Convert.ToString(tblInvoiceRptTODT["loadingSlipDate"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("transactionDate"))
+                            {
+                                if (tblInvoiceRptTODT["transactionDate"] != DBNull.Value)
+                                    tblInvoiceRptTONew.TransactionDate = Convert.ToString(tblInvoiceRptTODT["transactionDate"].ToString());
+                            }
 
                             tblInvoiceRptTONew.ContactName = ""+tblInvoiceRptTONew.OwnerPersonFirstName +"  "+  tblInvoiceRptTONew.OwnerPersonLastName+"";
                         }
@@ -1781,6 +1956,374 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+
+        public List<TblInvoiceRptTO> SelectItemWiseSalesExportCListForReport(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            string selectQuery = String.Empty;
+            DateTime sysDate = _iCommon.ServerDateTime;
+            try
+            {
+                conn.Open();
+                selectQuery =
+                       " Select distinct invoice.idInvoice,invoice.invoiceNo,invoice.narration, " +
+                    " invoice.statusDate ,invoice.invoiceDate,invoice.createdOn,invAddrBill.billingName as partyName, " +
+                    " invAddrBill.stateName as buyerState ,invAddrBill.gstinNo as buyerGstNo,invAddrBill.txnAddrTypeId as billingTypeId, " +
+                    " invAddrBill.buyerAddress,invAddrBill.buyerDistrict,invAddrBill.buyerTaluka,invAddrBill.buyerPinCode,invAddrBill.panNo," +
+                    " org.firmName cnfName, invAddrCons.billingName as consignee,invAddrCons.consigneeAddress,invAddrCons.consigneeDistict," +
+                    " invAddrCons.consigneePinCode,invAddrCons.stateName as consigneeState,invAddrCons.gstinNo as consigneeGstNo, " +
+                    " invAddrCons.txnAddrTypeId as consigneeTypeId,booking.bookingRate,itemDetails.prodItemDesc,mat.materialSubType " +
+                    " as materialName, itemDetails.bundles, itemDetails.cdStructure,itemDetails.invoiceQty,itemDetails.basicTotal " +
+                    " as taxableAmt  ,freightItem.freightAmt,totalItemQtyTbl.TotalItemQty,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId,   " +
+                    " invoice.cgstAmt,invoice.igstAmt,invoice.sgstAmt,itemDetails.rate,   itemDetails.cdAmt,itemDetails.otherTaxId, " +
+                    " transportOrg.firmName as transporterName,invoice.deliveryLocation,invoice.vehicleNo,transportOrg.registeredMobileNos as contactNo , " +
+                    " invoice.grandTotal, invoice.isConfirmed , invoice.statusId, invoice.invFromOrgId ," +
+                    " org.registeredMobileNos as cnfMobNo , dealerOrg.registeredMobileNos as dealerMobNo , " +
+                    " invoice.lrDate , invoice.lrNumber ,invAddrCons.overdue_ref_id,invAddrBill.overdue_ref_id as buyer_overdue_ref_id ," +
+                    " invoice.taxableAmt as invoiceTaxableAmt ,invoice.discountAmt as invoiceDiscountAmt,tblItemTallyRefDtls.overdueTallyRefId" +
+                    " ,invoice.deliveredOn," +
+                    " CASE WHEN brand.brandName = 'Metaroll' THEN 'Meta Dealer' ELSE brand.brandName + ' Dealer' END AS dealers,"+
+                    " loadingSlip.loadingSlipNo + ' and ' + FORMAT(loadingSlip.createdOn,'dd-MM-yyyy') AS orderNoandDate,prodCat.prodCateDesc ," +
+                    " globalRate.rate as basicRate,FORMAT(loadingSlip.createdOn,'dd-MM-yyyy') AS loadingSlipDate," +
+                    " FORMAT(invoice.statusDate ,'dd-MMM-yy') AS transactionDate " +
+                    " FROM tempInvoice invoice " +
+
+                    " LEFT JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.txnAddrTypeId,invAddrB.taluka as buyerTaluka, " +
+                    " invAddrB.address as buyerAddress,invAddrB.district as buyerDistrict,invAddrB.pinCode as buyerPinCode,invAddrB.panNo," +
+                    " invAddrB.gstinNo, invAddrB.state as stateName ,orgB.overdue_ref_id  from tempInvoiceAddress invAddrB " +
+                    " LEFT JOIN tblOrganization orgB on orgB.idOrganization = invAddrB.billingOrgId" +
+                    " where txnAddrTypeId =  " + (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS + ")invAddrBill " +
+                    " on invAddrBill.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN(select invAddrC.invoiceId, invAddrC.billingName, invAddrC.address as consigneeAddress, " +
+                    " invAddrC.district as consigneeDistict,invAddrC.pinCode as consigneePinCode, " +
+                    " invAddrC.txnAddrTypeId, invAddrC.gstinNo, invAddrC.state as stateName,org.overdue_ref_id " +
+                    " from tempInvoiceAddress invAddrC   " +
+                    " LEFT JOIN tblOrganization org on org.idOrganization = invAddrC.billingOrgId" +
+                    " where txnAddrTypeId = " + (int)Constants.TxnDeliveryAddressTypeE.CONSIGNEE_ADDRESS + ")invAddrCons " +
+                    " on invAddrCons.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN tblOrganization org  ON org.idOrganization = invoice.distributorOrgId " +
+                    " LEFT JOIN tblOrganization dealerOrg  ON dealerOrg.idOrganization = invoice.dealerOrgId " +
+                    " LEFT JOIN tblOrganization transportOrg ON transportOrg.idOrganization = invoice.transportOrgId " +
+                    " INNER JOIN tempInvoiceItemDetails itemDetails  ON itemDetails.invoiceId = invoice.idInvoice " +
+                    " AND itemDetails.otherTaxId is  NULL" +
+                    " LEFT JOIN tempLoadingSlipExt lExt ON lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId " +
+                     " LEFT JOIN tempLoadingSlipDtl LoadingSlipDtl on LoadingSlipDtl.loadingSlipId=invoice.loadingSlipId " +
+                    " LEFT JOIN tblBookings booking ON LoadingSlipDtl.bookingId = booking.idBooking " +
+                    " LEFT JOIN tblGlobalRate  globalRate ON globalRate.idGlobalRate = booking.globalRateId " +
+                    " LEFT JOIN  tblProdGstCodeDtls prodGstCodeDtl on prodGstCodeDtl.idProdGstCode = itemDetails.prodGstCodeId " +
+                    " LEFT JOIN tblItemTallyRefDtls ON ISNULL(prodGstCodeDtl.prodCatId,0) =  ISNULL(tblItemTallyRefDtls.prodCatId,0) AND" +
+                    " ISNULL(prodGstCodeDtl.prodSpecId,0) = ISNULL(tblItemTallyRefDtls.prodSpecId,0) AND " +
+                    " ISNULL(prodGstCodeDtl.materialId,0) = ISNULL(tblItemTallyRefDtls.materialId,0) AND " +
+                    " ISNULL(prodGstCodeDtl.prodItemId,0) = ISNULL(tblitemtallyrefDtls.prodItemId,0) " +
+                    " AND tblitemtallyrefDtls.isActive = 1" +
+                    " LEFT JOIN tblMaterial mat on mat.idMaterial = prodGstCodeDtl.materialId " +
+                    " LEFT JOIN( select invoiceId,SUM(invoiceQty) as TotalItemQty " +
+                    " from tempInvoiceItemDetails where otherTaxId is null GROUP BY invoiceId )totalItemQtyTbl On totalItemQtyTbl.invoiceId = invoice.idInvoice" +
+                    " LEFT JOIN(select invoiceId, taxableAmt as freightAmt " +
+                    " from tempInvoiceItemDetails where otherTaxId = 2  )freightItem On freightItem.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN(select invoiceId, taxableAmt as tcsAmt " +
+                    " from tempInvoiceItemDetails where otherTaxId = 4  )tcsItem On tcsItem.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN tempLoadingSlip loadingSlip on loadingSlip.idLoadingSlip = invoice.loadingSlipId " +
+                    " LEFT JOIN tempLoading loading on loading.idLoading = loadingSlip.loadingId" +
+                    " LEFT JOIN dimBrand brand ON brand.idBrand = invoice.brandId " +
+                    " LEFT JOIN dimProdCat prodCat on prodCat.idProdCat = prodGstCodeDtl.prodCatId " +
+                    // Vaibhav [17-Jan-2018] To select from final tables.
+                    " UNION ALL " +
+
+                    " Select distinct invoice.idInvoice,invoice.invoiceNo,invoice.narration, " +
+                    " invoice.statusDate ,invoice.invoiceDate,invoice.createdOn,invAddrBill.billingName as partyName, " +
+                    " invAddrBill.stateName as buyerState ,invAddrBill.gstinNo as buyerGstNo,invAddrBill.txnAddrTypeId as billingTypeId, " +
+                    " invAddrBill.buyerAddress,invAddrBill.buyerDistrict,invAddrBill.buyerTaluka,invAddrBill.buyerPinCode,invAddrBill.panNo," +
+                    " org.firmName cnfName, invAddrCons.billingName as consignee,invAddrCons.consigneeAddress,invAddrCons.consigneeDistict," +
+                    " invAddrCons.consigneePinCode,invAddrCons.stateName as consigneeState,invAddrCons.gstinNo as consigneeGstNo, " +
+                    " invAddrCons.txnAddrTypeId as consigneeTypeId,booking.bookingRate,itemDetails.prodItemDesc,mat.materialSubType " +
+                    " as materialName, itemDetails.bundles, itemDetails.cdStructure,itemDetails.invoiceQty,itemDetails.basicTotal " +
+                    " as taxableAmt  ,freightItem.freightAmt,totalItemQtyTbl.TotalItemQty,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId,  " +
+                    " invoice.cgstAmt,invoice.igstAmt,invoice.sgstAmt,itemDetails.rate,   itemDetails.cdAmt,itemDetails.otherTaxId,  " +
+                    " transportOrg.firmName as transporterName,invoice.deliveryLocation,invoice.vehicleNo,transportOrg.registeredMobileNos as contactNo, " +
+                    " invoice.grandTotal, invoice.isConfirmed ,invoice.statusId, invoice.invFromOrgId ," +
+                    " org.registeredMobileNos as cnfMobNo , dealerOrg.registeredMobileNos as dealerMobNo , invoice.lrDate , invoice.lrNumber,invAddrCons.overdue_ref_id" +
+                    " ,invAddrBill.overdue_ref_id as buyer_overdue_ref_id , invoice.taxableAmt as invoiceTaxableAmt ,invoice.discountAmt as invoiceDiscountAmt" +
+                    " ,tblItemTallyRefDtls.overdueTallyRefId ,invoice.deliveredOn, " +
+                    " CASE WHEN brand.brandName = 'Metaroll' THEN 'Meta Dealer' ELSE brand.brandName + ' Dealer' END AS dealers," +
+                    " loadingSlip.loadingSlipNo + ' and ' + FORMAT(loadingSlip.createdOn,'dd-MM-yyyy') AS orderNoandDate,prodCat.prodCateDesc, " +
+                    " globalRate.rate as basicRate,FORMAT(loadingSlip.createdOn,'dd-MM-yyyy') AS loadingSlipDate," +
+                    " FORMAT(invoice.statusDate ,'dd-MMM-yy') AS transactionDate " +
+                    " FROM finalInvoice invoice " +
+
+                    " LEFT JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.txnAddrTypeId,invAddrB.taluka as buyerTaluka, " +
+                    " invAddrB.address as buyerAddress,invAddrB.district as buyerDistrict,invAddrB.pinCode as buyerPinCode,invAddrB.panNo," +
+                    " invAddrB.gstinNo, invAddrB.state as stateName ,orgB.overdue_ref_id  from finalInvoiceAddress invAddrB " +
+                    " LEFT JOIN tblOrganization orgB on orgB.idOrganization = invAddrB.billingOrgId" +
+                    " where txnAddrTypeId =  " + (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS + ")invAddrBill " +
+                    " on invAddrBill.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN(select invAddrC.invoiceId, invAddrC.billingName, invAddrC.address as consigneeAddress, " +
+                    " invAddrC.district as consigneeDistict,invAddrC.pinCode as consigneePinCode, " +
+                    " invAddrC.txnAddrTypeId, invAddrC.gstinNo,invAddrC.state as stateName ,org.overdue_ref_id" +
+                    " from finalInvoiceAddress invAddrC   " +
+                    " LEFT JOIN tblOrganization org on org.idOrganization = invAddrC.billingOrgId" +
+                    " where txnAddrTypeId = " + (int)Constants.TxnDeliveryAddressTypeE.CONSIGNEE_ADDRESS + ")invAddrCons " +
+                    " on invAddrCons.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN tblOrganization org  ON org.idOrganization = invoice.distributorOrgId " +
+                    " LEFT JOIN tblOrganization dealerOrg  ON dealerOrg.idOrganization = invoice.dealerOrgId " +
+                    " LEFT JOIN tblOrganization transportOrg ON transportOrg.idOrganization = invoice.transportOrgId " +
+                    " INNER JOIN finalInvoiceItemDetails itemDetails  ON itemDetails.invoiceId = invoice.idInvoice " +
+                    " AND itemDetails.otherTaxId is  NULL" +
+                    " LEFT JOIN finalLoadingSlipExt lExt ON lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId " +
+                    "  LEFT JOIN finalLoadingSlipDtl LoadingSlipDtl on LoadingSlipDtl.loadingSlipId = invoice.loadingSlipId" +
+                    " LEFT JOIN tblBookings booking ON lExt.bookingId = booking.idBooking " +
+                    " LEFT JOIN tblGlobalRate  globalRate ON globalRate.idGlobalRate = booking.globalRateId " +
+                    " LEFT JOIN tblProdGstCodeDtls prodGstCodeDtl on prodGstCodeDtl.idProdGstCode = itemDetails.prodGstCodeId " +
+                    " LEFT JOIN tblItemTallyRefDtls ON ISNULL(prodGstCodeDtl.prodCatId,0) =  ISNULL(tblItemTallyRefDtls.prodCatId,0) AND" +
+                    " ISNULL(prodGstCodeDtl.prodSpecId,0) = ISNULL(tblItemTallyRefDtls.prodSpecId,0) AND " +
+                    " ISNULL(prodGstCodeDtl.materialId,0) = ISNULL(tblItemTallyRefDtls.materialId,0) AND " +
+                    " ISNULL(prodGstCodeDtl.prodItemId,0) = ISNULL(tblitemtallyrefDtls.prodItemId,0) " +
+                    " AND tblitemtallyrefDtls.isActive = 1" +
+                    " LEFT JOIN tblMaterial mat on mat.idMaterial = prodGstCodeDtl.materialId " +
+                    " LEFT JOIN( select invoiceId,SUM(invoiceQty) as TotalItemQty " +
+                    " from finalInvoiceItemDetails where otherTaxId is null GROUP BY invoiceId )totalItemQtyTbl On totalItemQtyTbl.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN(select invoiceId, taxableAmt as freightAmt " +
+                    " from finalInvoiceItemDetails where otherTaxId = 2  )freightItem On freightItem.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN(select invoiceId, taxableAmt as tcsAmt " +
+                    " from finalInvoiceItemDetails where otherTaxId = 4  )tcsItem On tcsItem.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN finalLoadingSlip loadingSlip on loadingSlip.idLoadingSlip = invoice.loadingSlipId " +
+                    " LEFT JOIN finalLoading loading on loading.idLoading = loadingSlip.loadingId"+
+                    " LEFT JOIN dimBrand brand ON brand.idBrand = invoice.brandId "+
+                    " LEFT JOIN dimProdCat prodCat on prodCat.idProdCat = prodGstCodeDtl.prodCatId";
+                //chetan[13-feb-2020] added get data from org id
+                String formOrgIdCondtion = String.Empty;
+                if (fromOrgId > 0)
+                {
+                    formOrgIdCondtion = " AND isnull(sq1.invFromOrgId," + fromOrgId + ") = " + fromOrgId;
+                }
+                cmdSelect.CommandText = "SELECT * FROM (" + selectQuery + ")sq1 WHERE sq1.isConfirmed =" + isConfirm +
+                     //" AND CAST(sq1.deliveredOn AS DATE) BETWEEN @fromDate AND @toDate" +
+                     " AND CAST(sq1.statusDate AS DATE) BETWEEN @fromDate AND @toDate" + formOrgIdCondtion +
+                     " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED +
+                     " order by sq1.invoiceNo asc"; ;
+
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.DateTime).Value = frmDt;
+                cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.DateTime).Value = toDt;
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblInvoiceRptTO> list = ConvertDTToListForRPTInvoice(reader);
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+        public List<TblInvoiceRptTO> SelectSalesPurchaseListForReport(DateTime frmDt, DateTime toDt, int isConfirm, string selectedOrg, int defualtOrg, int isFromPurchase = 0)
+        {
+            String sqlConnStr = Startup.ConnectionString;
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            string selectQuery = String.Empty;
+            //DateTime sysDate = _iCommon.ServerDateTime;
+            try
+            {
+                conn.Open();
+                selectQuery =
+                    " Select distinct case when invoice.invoiceModeId = " + Convert.ToInt32(Constants.InvoiceModeE.MANUAL_INVOICE) + " then 'Yes' else 'No' end as mode,invoice.idInvoice,invoice.invoiceNo,invoice.electronicRefNo,invoice.IrnNo,invoice.dealerOrgId, " +
+                    " tblGstCodeDtls.codeNumber, invoice.tareWeight,invoice.grossWeight,invoice.netWeight, invoice.roundOffAmt,invoice.narration, invoice.tdsAmt, " +
+                    " invoice.statusDate ,invoice.invoiceDate,invoice.createdOn,invAddrBill.billingName as partyName, " +
+                    " invAddrBill.stateName as buyerState ,invAddrBill.gstinNo as buyerGstNo,invAddrBill.address as buyerAddress," +
+                    " invAddrBill.district as buyerDistrict,invAddrBill.pinCode as buyerPinCode," +
+                    " invAddrBill.taluka as buyerTaluka,invAddrBill.txnAddrTypeId as billingTypeId, " +
+                    " org.firmName cnfName, invAddrCons.billingName as consignee,invAddrCons.consigneeAddress,invAddrCons.consigneeTaluka,invAddrCons.consigneeDistict," +
+                    " invAddrCons.consigneePinCode,invAddrCons.stateName as consigneeState,invAddrCons.gstinNo as consigneeGstNo, " +
+                    " invAddrCons.txnAddrTypeId as consigneeTypeId,booking.bookingRate,itemDetails.prodItemDesc,mat.materialSubType " +
+                    " as materialName, itemDetails.bundles, itemDetails.cdStructure,itemDetails.invoiceQty,itemDetails.taxableAmt " +
+                    " as taxableAmt  ,freightItem.freightAmt,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId,   " +
+                    " (SELECT itemTax.taxAmt FROM [tempInvoiceItemTaxDtls] itemTax  LEFT JOIN tblTaxRates taxRate ON itemTax.taxRateId = taxRate.idTaxRate" +
+                    " where itemTax.invoiceItemId = itemDetails.idInvoiceItem AND taxRate.taxTypeId = 2) as cgstAmt," +
+                    " (SELECT itemTax.taxAmt FROM[tempInvoiceItemTaxDtls] itemTax  LEFT JOIN tblTaxRates taxRate ON itemTax.taxRateId = taxRate.idTaxRate " +
+                    " where itemTax.invoiceItemId = itemDetails.idInvoiceItem AND taxRate.taxTypeId = 3) as sgstAmt, " +
+                    " (SELECT itemTax.taxAmt FROM[tempInvoiceItemTaxDtls] itemTax  LEFT JOIN tblTaxRates taxRate ON itemTax.taxRateId = taxRate.idTaxRate " +
+                    " where itemTax.invoiceItemId = itemDetails.idInvoiceItem AND taxRate.taxTypeId = 1) as igstAmt ," +
+                    " (SELECT itemTax.taxRatePct FROM[tempInvoiceItemTaxDtls] itemTax LEFT JOIN tblTaxRates taxRate ON itemTax.taxRateId = taxRate.idTaxRate " +
+                    " where itemTax.invoiceItemId = itemDetails.idInvoiceItem AND taxRate.taxTypeId = 1) as igstPct , " +
+                    " (SELECT itemTax.taxRatePct FROM[tempInvoiceItemTaxDtls] itemTax LEFT JOIN tblTaxRates taxRate ON itemTax.taxRateId = taxRate.idTaxRate " +
+                    " where itemTax.invoiceItemId = itemDetails.idInvoiceItem AND taxRate.taxTypeId = 3) as sgstPct , " +
+                    " (SELECT itemTax.taxRatePct FROM[tempInvoiceItemTaxDtls] itemTax LEFT JOIN tblTaxRates taxRate ON itemTax.taxRateId = taxRate.idTaxRate " +
+                    " where itemTax.invoiceItemId = itemDetails.idInvoiceItem AND taxRate.taxTypeId = 2) as cgstPct ," +
+                    " itemDetails.rate,   itemDetails.cdAmt,itemDetails.otherTaxId, " +
+                    " transportOrg.firmName as transporterName,invoice.deliveryLocation,invoice.vehicleNo,transportOrg.registeredMobileNos as contactNo , " +
+                    " invoice.grandTotal, invoice.isConfirmed , invoice.statusId, invoice.invFromOrgId ," +
+                    " org.registeredMobileNos as cnfMobNo , dealerOrg.registeredMobileNos as dealerMobNo , " +
+                    " invoice.lrDate , invoice.lrNumber,invoice.deliveredOn, dimInvoiceTypes.invoiceTypeDesc,invFromOrg.firmName As invFromOrgName,tblAddress.areaName as OrgareaName,tblAddress.pincode as Orgpincode " +
+                    " ,tblAddress.plotNo as OrgplotNo,tblAddress.villageName as OrgvillageName ,dimDistrict.districtName as OrgdistrictName," +
+                    " dimState.stateName as OrgstateName,dimCountry.countryName As OrgcountryName FROM tempInvoice invoice " +
+
+                    " LEFT JOIN(select invAddrB.invoiceId,invAddrB.address,invAddrB.district,invAddrB.pinCode,invAddrB.taluka, invAddrB.billingName, invAddrB.txnAddrTypeId, " +
+                    " invAddrB.gstinNo, invAddrB.state as stateName from tempInvoiceAddress invAddrB " +
+                    " where txnAddrTypeId =  " + (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS + ")invAddrBill " +
+                    " on invAddrBill.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN(select invAddrC.invoiceId, invAddrC.billingName, invAddrC.address as consigneeAddress, " +
+                    " invAddrC.district as consigneeDistict,invAddrC.taluka as consigneeTaluka,invAddrC.pinCode as consigneePinCode, " +
+                    " invAddrC.txnAddrTypeId, invAddrC.gstinNo, invAddrC.state as stateName " +
+                    " from tempInvoiceAddress invAddrC   " +
+                    " where txnAddrTypeId = " + (int)Constants.TxnDeliveryAddressTypeE.CONSIGNEE_ADDRESS + ")invAddrCons " +
+                    " on invAddrCons.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN tblOrganization org  ON org.idOrganization = invoice.distributorOrgId " +
+                    " LEFT JOIN tblOrganization dealerOrg  ON dealerOrg.idOrganization = invoice.dealerOrgId " +
+                    " LEFT JOIN tblOrganization invFromOrg  ON invFromOrg.idOrganization = invoice.invFromOrgId " +
+                    " LEFT JOIN tblOrgAddress tblOrgAddress  ON tblOrgAddress.organizationId = invoice.invFromOrgId " +
+                    " and tblOrgAddress.addrTypeId = 5 " +
+                    " LEFT JOIN tblAddress tblAddress  ON tblAddress.idAddr = tblOrgAddress.addressId " +
+                    " LEFT JOIN dimDistrict dimDistrict  ON dimDistrict.idDistrict = tblAddress.districtId " +
+                    " LEFT JOIN dimState dimState  ON dimState.idState = tblAddress.stateId " +
+                    " LEFT JOIN dimCountry dimCountry  ON dimCountry.idCountry = tblAddress.countryId  " +
+                    " LEFT JOIN tblOrganization transportOrg ON transportOrg.idOrganization = invoice.transportOrgId " +
+                    " INNER JOIN tempInvoiceItemDetails itemDetails  ON itemDetails.invoiceId = invoice.idInvoice " +
+                    " AND itemDetails.otherTaxId is  NULL" +
+                    " LEFT JOIN tempLoadingSlipExt lExt ON lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId " +
+                    " LEFT JOIN tblBookings booking ON lExt.bookingId = booking.idBooking " +
+                    " LEFT JOIN  tblProdGstCodeDtls prodGstCodeDtl on prodGstCodeDtl.idProdGstCode = itemDetails.prodGstCodeId " +
+                    " LEFT JOIN  tblGstCodeDtls tblGstCodeDtls on prodGstCodeDtl.gstCodeId = tblGstCodeDtls.idGstCode" +
+                    " LEFT JOIN tblMaterial mat on mat.idMaterial = prodGstCodeDtl.materialId " +
+                    " LEFT JOIN(select invoiceId, taxableAmt as freightAmt " +
+                    " from tempInvoiceItemDetails where otherTaxId = 2  )freightItem On freightItem.invoiceId = invoice.idInvoice " +
+                     " LEFT JOIN(select invoiceId, taxableAmt as tcsAmt " +
+                    " from tempInvoiceItemDetails where otherTaxId = 5  )tcsItem On tcsItem.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN tempLoadingSlip loadingSlip on loadingSlip.idLoadingSlip = invoice.loadingSlipId " +
+                    " LEFT JOIN tempLoading loading on loading.idLoading = loadingSlip.loadingId  " +
+                    " LEFT JOIN dimInvoiceTypes dimInvoiceTypes on dimInvoiceTypes.idInvoiceType = invoice.invoiceTypeId  " +
+
+                    // Vaibhav [17-Jan-2018] To select from final tables.
+                    " UNION ALL " +
+
+                    " Select distinct case when invoice.invoiceModeId = " + Convert.ToInt32(Constants.InvoiceModeE.MANUAL_INVOICE) + " then 'Yes' else 'No' end as mode,invoice.idInvoice,invoice.invoiceNo,invoice.electronicRefNo,invoice.IrnNo,invoice.dealerOrgId,tblGstCodeDtls.codeNumber," +
+                    " invoice.tareWeight,invoice.grossWeight,invoice.netWeight,invoice.roundOffAmt, invoice.narration, invoice.tdsAmt, " +
+                    " invoice.statusDate ,invoice.invoiceDate,invoice.createdOn,invAddrBill.billingName as partyName, " +
+                    " invAddrBill.stateName as buyerState ,invAddrBill.gstinNo as buyerGstNo,invAddrBill.address as buyerAddress," +
+                    " invAddrBill.district as buyerDistrict,invAddrBill.pinCode as buyerPinCode," +
+                    " invAddrBill.taluka as buyerTaluka,invAddrBill.txnAddrTypeId as billingTypeId, " +
+                    " org.firmName cnfName, invAddrCons.billingName as consignee,invAddrCons.consigneeAddress,invAddrCons.consigneeTaluka,invAddrCons.consigneeDistict," +
+                    " invAddrCons.consigneePinCode,invAddrCons.stateName as consigneeState,invAddrCons.gstinNo as consigneeGstNo, " +
+                    " invAddrCons.txnAddrTypeId as consigneeTypeId,booking.bookingRate,itemDetails.prodItemDesc,mat.materialSubType " +
+                    " as materialName, itemDetails.bundles, itemDetails.cdStructure,itemDetails.invoiceQty,itemDetails.taxableAmt " +
+                    " as taxableAmt  ,freightItem.freightAmt,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId,  " +
+                    " (SELECT itemTax.taxAmt FROM [finalInvoiceItemTaxDtls] itemTax " +
+                    " LEFT JOIN tblTaxRates taxRate ON itemTax.taxRateId = taxRate.idTaxRate " +
+                    " where itemTax.invoiceItemId = itemDetails.idInvoiceItem AND taxRate.taxTypeId = 2) as cgstAmt," +
+                    " (SELECT itemTax.taxAmt FROM[finalInvoiceItemTaxDtls] itemTax " +
+                    " LEFT JOIN tblTaxRates taxRate ON itemTax.taxRateId = taxRate.idTaxRate " +
+                    " where itemTax.invoiceItemId = itemDetails.idInvoiceItem AND taxRate.taxTypeId = 3) as sgstAmt," +
+                    " (SELECT itemTax.taxAmt FROM[finalInvoiceItemTaxDtls] itemTax " +
+                    " LEFT JOIN tblTaxRates taxRate ON itemTax.taxRateId = taxRate.idTaxRate " +
+                    " where itemTax.invoiceItemId = itemDetails.idInvoiceItem AND taxRate.taxTypeId = 1) as igstAmt " +
+                    "  ,(SELECT itemTax.taxRatePct FROM[finalInvoiceItemTaxDtls] itemTax " +
+                    " LEFT JOIN tblTaxRates taxRate ON itemTax.taxRateId = taxRate.idTaxRate  where itemTax.invoiceItemId = itemDetails.idInvoiceItem " +
+                    " AND taxRate.taxTypeId = 1) as igstPct , " +
+                    " (SELECT itemTax.taxRatePct FROM[finalInvoiceItemTaxDtls] itemTax " +
+                    " LEFT JOIN tblTaxRates taxRate ON itemTax.taxRateId = taxRate.idTaxRate  where itemTax.invoiceItemId = itemDetails.idInvoiceItem " +
+                    " AND taxRate.taxTypeId = 3) as sgstPct ," +
+                    " (SELECT itemTax.taxRatePct FROM[finalInvoiceItemTaxDtls] itemTax " +
+                    " LEFT JOIN tblTaxRates taxRate ON itemTax.taxRateId = taxRate.idTaxRate  where itemTax.invoiceItemId = itemDetails.idInvoiceItem " +
+                    " AND taxRate.taxTypeId = 2) as cgstPct ," +
+                    " itemDetails.rate,   itemDetails.cdAmt,itemDetails.otherTaxId,  " +
+                    " transportOrg.firmName as transporterName,invoice.deliveryLocation,invoice.vehicleNo,transportOrg.registeredMobileNos as contactNo, " +
+                    " invoice.grandTotal, invoice.isConfirmed ,invoice.statusId, invoice.invFromOrgId ," +
+                    " org.registeredMobileNos as cnfMobNo , dealerOrg.registeredMobileNos as dealerMobNo , invoice.lrDate , invoice.lrNumber" +
+                    " ,invoice.deliveredOn,dimInvoiceTypes.invoiceTypeDesc,invFromOrg.firmName As invFromOrgName,tblAddress.areaName as OrgareaName, " +
+                    " tblAddress.pincode as Orgpincode ,tblAddress.plotNo as OrgplotNo,tblAddress.villageName as OrgvillageName," +
+                    " dimDistrict.districtName as OrgdistrictName,dimState.stateName as OrgstateName,dimCountry.countryName As OrgcountryName FROM finalInvoice invoice " +
+
+                    " LEFT JOIN(select invAddrB.invoiceId,invAddrB.address,invAddrB.district,invAddrB.pinCode,invAddrB.taluka, invAddrB.billingName, invAddrB.txnAddrTypeId, " +
+                    " invAddrB.gstinNo, invAddrB.state as stateName from finalInvoiceAddress invAddrB " +
+                    " where txnAddrTypeId =  " + (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS + ")invAddrBill " +
+                    " on invAddrBill.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN(select invAddrC.invoiceId, invAddrC.billingName, invAddrC.address as consigneeAddress, " +
+                    " invAddrC.district as consigneeDistict,invAddrC.taluka as consigneeTaluka,invAddrC.pinCode as consigneePinCode, " +
+                    " invAddrC.txnAddrTypeId, invAddrC.gstinNo,invAddrC.state as stateName " +
+                    " from finalInvoiceAddress invAddrC   " +
+                    " where txnAddrTypeId = " + (int)Constants.TxnDeliveryAddressTypeE.CONSIGNEE_ADDRESS + ")invAddrCons " +
+                    " on invAddrCons.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN tblOrganization org  ON org.idOrganization = invoice.distributorOrgId " +
+                    " LEFT JOIN tblOrganization dealerOrg  ON dealerOrg.idOrganization = invoice.dealerOrgId " +
+                    " LEFT JOIN tblOrganization invFromOrg  ON invFromOrg.idOrganization = invoice.invFromOrgId " +
+                    " LEFT JOIN tblOrgAddress tblOrgAddress  ON tblOrgAddress.organizationId = invoice.invFromOrgId " +
+                    " and tblOrgAddress.addrTypeId = 5 " +
+                    " LEFT JOIN tblAddress tblAddress  ON tblAddress.idAddr = tblOrgAddress.addressId " +
+                    " LEFT JOIN dimDistrict dimDistrict  ON dimDistrict.idDistrict = tblAddress.districtId " +
+                    " LEFT JOIN dimState dimState  ON dimState.idState = tblAddress.stateId " +
+                    " LEFT JOIN dimCountry dimCountry  ON dimCountry.idCountry = tblAddress.countryId  " +
+                    " LEFT JOIN tblOrganization transportOrg ON transportOrg.idOrganization = invoice.transportOrgId " +
+                    " INNER JOIN finalInvoiceItemDetails itemDetails  ON itemDetails.invoiceId = invoice.idInvoice " +
+                    " AND itemDetails.otherTaxId is  NULL" +
+                    " LEFT JOIN finalLoadingSlipExt lExt ON lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId " +
+                    " LEFT JOIN tblBookings booking ON lExt.bookingId = booking.idBooking " +
+                    " LEFT JOIN tblProdGstCodeDtls prodGstCodeDtl on prodGstCodeDtl.idProdGstCode = itemDetails.prodGstCodeId " +
+                    " LEFT JOIN  tblGstCodeDtls tblGstCodeDtls on prodGstCodeDtl.gstCodeId = tblGstCodeDtls.idGstCode" +
+                    " LEFT JOIN tblMaterial mat on mat.idMaterial = prodGstCodeDtl.materialId " +
+
+                    " LEFT JOIN(select invoiceId, taxableAmt as freightAmt " +
+                    " from finalInvoiceItemDetails where otherTaxId = 2  )freightItem On freightItem.invoiceId = invoice.idInvoice " +
+                     " LEFT JOIN(select invoiceId, taxableAmt as tcsAmt " +
+                    " from finalInvoiceItemDetails where otherTaxId = 5  )tcsItem On tcsItem.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN finalLoadingSlip loadingSlip on loadingSlip.idLoadingSlip = invoice.loadingSlipId " +
+                    " LEFT JOIN finalLoading loading on loading.idLoading = loadingSlip.loadingId  " +
+                    "LEFT JOIN dimInvoiceTypes dimInvoiceTypes on dimInvoiceTypes.idInvoiceType = invoice.invoiceTypeId ";
+
+
+                String strWhere = String.Empty;
+                //if (selectedOrg > 0)
+                //{
+                //    if(defualtOrg == selectedOrg)
+                //    {
+
+                //        strWhere = " AND sq1.invFromOrgId  IN (" + selectedOrg + ",0)";
+                //    }
+                //    else
+                //        strWhere = " AND sq1.invFromOrgId  IN (" + selectedOrg + ")";
+                //}
+                if (isFromPurchase == 1)
+                {
+                    strWhere = " AND sq1.dealerOrgId  IN (" + selectedOrg + ")";
+                }
+                else
+                {
+                    strWhere = " AND sq1.invFromOrgId  IN (" + selectedOrg + ")";
+                }
+                cmdSelect.CommandText = " SELECT * FROM (" + selectQuery + ")sq1 WHERE sq1.isConfirmed =" + isConfirm +
+                     " AND CAST(sq1.invoiceDate AS DATE) BETWEEN @fromDate AND @toDate" +
+                     " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED + strWhere + " order by sq1.invoiceNo asc";
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.Date).Value = frmDt;
+                cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.Date).Value = toDt;
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblInvoiceRptTO> list = ConvertDTToListForRPTInvoice(reader);
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
         public List<TblInvoiceTO> SelectAllTempInvoice(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);

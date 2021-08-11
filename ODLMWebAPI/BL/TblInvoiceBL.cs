@@ -14,7 +14,7 @@ using ODLMWebAPI.IoT;
 using RestSharp;
 using Newtonsoft.Json.Linq;
 using System.Net;
-
+using ODLMWebAPI.DAL;
 
 namespace ODLMWebAPI.BL
 {
@@ -485,7 +485,7 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        public String SelectresponseForPhotoInReport(Int32 idInvoice,Int32 ApiId)
+        public String SelectresponseForPhotoInReport(Int32 idInvoice, Int32 ApiId)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -505,7 +505,7 @@ namespace ODLMWebAPI.BL
             }
         }
 
-       
+
 
         public TblInvoiceTO SelectTblInvoiceTOWithDetails(Int32 idInvoice, SqlConnection conn, SqlTransaction tran)
         {
@@ -685,6 +685,232 @@ namespace ODLMWebAPI.BL
             return _iTblInvoiceDAO.SelectSalesInvoiceListForReport(frmDt, toDt, isConfirm, fromOrgId);
         }
 
+        //Added by minal 06 Aug 2021 
+
+        public ResultMessage SelectItemWiseSalesExportCListForReport(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            List<Object> resultMessageMulti = new List<Object>();
+            
+            List<TblInvoiceRptTO> itemWiseSalesExportCList = _iTblInvoiceDAO.SelectItemWiseSalesExportCListForReport(frmDt, toDt, isConfirm, fromOrgId);
+            var summuryGroupList = itemWiseSalesExportCList.ToLookup(p => p.IdInvoice).ToList();
+            if (summuryGroupList != null)
+            {
+                TblInvoiceRptTO tblInvoiceRptTotalTO = new TblInvoiceRptTO();
+                for (int i = 0; i < summuryGroupList.Count; i++)
+                {
+                    String narration1 = String.Empty, narration2 = String.Empty, narration3 = String.Empty, narration4 = String.Empty, prevProdCateDesc = String.Empty;
+                   
+                    narration1 = "Invoice No. " + summuryGroupList[i].FirstOrDefault().InvoiceNo + "  ";
+                    narration4 = "  Vehicle No. " + summuryGroupList[i].FirstOrDefault().VehicleNo + " ( " + summuryGroupList[i].FirstOrDefault().TotalItemQty + "  in mt )" +
+                                 " ,Basic Rate : " + summuryGroupList[i].FirstOrDefault().BasicRate + "  ,DO Date : " + summuryGroupList[i].FirstOrDefault().LoadingSlipDate;
+                    foreach (var item in summuryGroupList[i])
+                    {
+                        if (!String.IsNullOrEmpty(prevProdCateDesc))
+                        {
+                            if (prevProdCateDesc != item.ProdCateDesc)
+                            {
+                                narration2 =  " For " + item.ProdCateDesc + "  ";
+                                narration3 = narration3 + narration2;
+                                prevProdCateDesc = item.ProdCateDesc;
+                            }
+                        }
+                        else
+                        {
+                            narration2 = " For " + item.ProdCateDesc + "  ";
+                            narration3 = narration3 + narration2;
+                            prevProdCateDesc = item.ProdCateDesc;
+                        }
+                        narration3 += item.MaterialName + " ( " + item.InvoiceQty + " mt* " + item.Rate + "  ),";
+                    }
+                    narration1 = narration1 + narration3 + narration4;
+                    foreach (var item in summuryGroupList[i])
+                    {
+                        item.NarrationConcat = narration1;
+                    }
+                    tblInvoiceRptTotalTO.InvoiceNo = "Grand Total";                    
+                    tblInvoiceRptTotalTO.InvoiceQty += summuryGroupList[i].Sum(a => a.InvoiceQty);
+                    tblInvoiceRptTotalTO.TaxableAmt += summuryGroupList[i].Sum(a => a.TaxableAmt);
+                    tblInvoiceRptTotalTO.InvoiceTaxableAmt += summuryGroupList[i].FirstOrDefault().InvoiceTaxableAmt;
+                    tblInvoiceRptTotalTO.FreightAmt += summuryGroupList[i].FirstOrDefault().FreightAmt;
+                    tblInvoiceRptTotalTO.CgstTaxAmt += summuryGroupList[i].FirstOrDefault().CgstTaxAmt;
+                    tblInvoiceRptTotalTO.SgstTaxAmt += summuryGroupList[i].FirstOrDefault().SgstTaxAmt;
+                    tblInvoiceRptTotalTO.IgstTaxAmt += summuryGroupList[i].FirstOrDefault().IgstTaxAmt;
+                    tblInvoiceRptTotalTO.GrandTotal += summuryGroupList[i].FirstOrDefault().GrandTotal;
+                }
+                itemWiseSalesExportCList.Add(tblInvoiceRptTotalTO);
+            }         
+            
+            DataSet printDataSet = new DataSet();
+            DataTable itemWiseSalesExportCListDT = new DataTable();
+            if (itemWiseSalesExportCList != null && itemWiseSalesExportCList.Count > 0)
+            {
+                itemWiseSalesExportCListDT = Common.ToDataTable(itemWiseSalesExportCList);
+            }
+            itemWiseSalesExportCListDT.TableName = "itemWiseSalesExportCListDT";
+            printDataSet.Tables.Add(itemWiseSalesExportCListDT);
+            String ReportTemplateName = "ItemWiseSalesExportCRpt";
+            String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(ReportTemplateName);
+            String fileName = "Doc-" + DateTime.Now.Ticks;
+            String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
+            Boolean IsProduction = true;
+            TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName("IS_PRODUCTION_ENVIRONMENT_ACTIVE");
+            if (tblConfigParamsTO != null)
+            {
+                if (Convert.ToInt32(tblConfigParamsTO.ConfigParamVal) == 0)
+                {
+                    IsProduction = false;
+                }
+            }
+            resultMessage = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePath, saveLocation, Constants.ReportE.EXCEL_DONT_OPEN, IsProduction);
+            if (resultMessage.MessageType == ResultMessageE.Information)
+            {
+                String filePath = String.Empty;
+                if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
+                {
+                    filePath = resultMessage.Tag.ToString();
+                }
+                //driveName + path;
+                int returnPath = 0;
+                if (returnPath != 1)
+                {
+                    String fileName1 = Path.GetFileName(saveLocation);
+                    Byte[] bytes = File.ReadAllBytes(filePath);
+                    if (bytes != null && bytes.Length > 0)
+                    {
+                        resultMessage.Tag = bytes;
+
+                        string resFname = Path.GetFileNameWithoutExtension(saveLocation);
+                        string directoryName;
+                        directoryName = Path.GetDirectoryName(saveLocation);
+                        string[] fileEntries = Directory.GetFiles(directoryName, "*Doc*");
+                        string[] filesList = Directory.GetFiles(directoryName, "*Doc*");
+
+                        foreach (string file in filesList)
+                        {
+                            //if (file.ToUpper().Contains(resFname.ToUpper()))
+                            {
+                                File.Delete(file);
+                            }
+                        }
+                    }
+
+                    if (resultMessage.MessageType == ResultMessageE.Information)
+                    {
+                        resultMessageMulti.Add(resultMessage.Tag);
+                        //return resultMessage;
+                    }
+                }
+
+            }
+            else
+            {
+                resultMessage.Text = "Something wents wrong please try again";
+                resultMessage.DisplayMessage = "Something wents wrong please try again";
+                resultMessage.Result = 0;
+            }
+        
+            resultMessage.DefaultSuccessBehaviour();
+            //resultMessage.TagList = resultMessageMulti;
+            return resultMessage;
+        }
+
+        public ResultMessage PrintSaleReport(DateTime frmDt, DateTime toDt, int isConfirm, string selectedOrg, int isFromPurchase = 0)
+        {
+            Int32 defualtOrgId = 0;
+            ResultMessage resultMessage = new ResultMessage();
+            
+            List<TblInvoiceRptTO> TblReportsTOList = _iTblInvoiceDAO.SelectSalesPurchaseListForReport(frmDt, toDt, isConfirm, selectedOrg, defualtOrgId, isFromPurchase);
+
+            if (TblReportsTOList != null && TblReportsTOList.Count > 0)
+            {
+                DataSet printDataSet = new DataSet();
+                DataTable headerDT = new DataTable();
+                if (TblReportsTOList != null && TblReportsTOList.Count > 0)
+                {
+                    headerDT = Common.ToDataTable(TblReportsTOList);
+                }
+                headerDT.TableName = "headerDT";
+
+                printDataSet.Tables.Add(headerDT);
+                String ReportTemplateName = "SalesReportRpt";
+                if (isFromPurchase == 1)
+                {
+                    ReportTemplateName = "PurchaseReportRpt";
+                }
+
+                String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(ReportTemplateName);
+                String fileName = "Doc-" + DateTime.Now.Ticks;
+                String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
+                Boolean IsProduction = true;
+
+                TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName("IS_PRODUCTION_ENVIRONMENT_ACTIVE");
+                if (tblConfigParamsTO != null)
+                {
+                    if (Convert.ToInt32(tblConfigParamsTO.ConfigParamVal) == 0)
+                    {
+                        IsProduction = false;
+                    }
+                }
+                resultMessage = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePath, saveLocation, Constants.ReportE.EXCEL_DONT_OPEN, IsProduction);
+                if (resultMessage.MessageType == ResultMessageE.Information)
+                {
+                    String filePath = String.Empty;
+                    if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
+                    {
+                        filePath = resultMessage.Tag.ToString();
+                    }
+                    //driveName + path;
+                    int returnPath = 0;
+                    if (returnPath != 1)
+                    {
+                        String fileName1 = Path.GetFileName(saveLocation);
+                        Byte[] bytes = File.ReadAllBytes(filePath);
+                        if (bytes != null && bytes.Length > 0)
+                        {
+                            resultMessage.Tag = bytes;
+
+                            string resFname = Path.GetFileNameWithoutExtension(saveLocation);
+                            string directoryName;
+                            directoryName = Path.GetDirectoryName(saveLocation);
+                            string[] fileEntries = Directory.GetFiles(directoryName, "*Doc*");
+                            string[] filesList = Directory.GetFiles(directoryName, "*Doc*");
+
+                            foreach (string file in filesList)
+                            {
+                                //if (file.ToUpper().Contains(resFname.ToUpper()))
+                                {
+                                    File.Delete(file);
+                                }
+                            }
+                        }
+
+                        if (resultMessage.MessageType == ResultMessageE.Information)
+                        {
+                            return resultMessage;
+                        }
+                    }
+
+                }
+                else
+                {
+                    resultMessage.Text = "Something wents wrong please try again";
+                    resultMessage.DisplayMessage = "Something wents wrong please try again";
+                    resultMessage.Result = 0;
+                }
+            }
+            else
+            {
+                resultMessage.DefaultBehaviour();
+                return resultMessage;
+
+            }
+            resultMessage.DefaultSuccessBehaviour();
+            return resultMessage;
+        }
+
+
+        //Added by minal 06 Aug 2021
         // Vaibhav [14-Nov-2017] added to select invoice details by loading id
         public List<TblInvoiceTO> SelectTempInvoiceTOList(Int32 loadingSlipId)
         {

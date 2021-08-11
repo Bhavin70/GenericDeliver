@@ -114,5 +114,8 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage CancelEWayBill(Int32 loginUserId, Int32 idInvoice, bool forceToGetToken = false);
         ResultMessage UpdateInvoiceAddress(List<TblInvoiceAddressTO> tblInvoiceAddressTOList);
         Double CalculateTDS(TblInvoiceTO tblInvoiceTO);
+
+        ResultMessage SelectItemWiseSalesExportCListForReport(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
+        ResultMessage PrintSaleReport(DateTime frmDt, DateTime toDt, int isConfirm, string selectedOrg, int isFromPurchase = 0);
     }
 }
