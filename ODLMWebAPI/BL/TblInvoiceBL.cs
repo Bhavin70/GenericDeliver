@@ -716,20 +716,41 @@ namespace ODLMWebAPI.BL
                                  " ,Basic Rate : " + summuryGroupList[i].FirstOrDefault().BasicRate + "  ,DO Date : " + summuryGroupList[i].FirstOrDefault().LoadingSlipDate;
                     foreach (var item in summuryGroupList[i])
                     {
+                        if(item.InvoiceNo.ToString() == "26".ToString())
+                        {
+
+                        }
+
                         if (!String.IsNullOrEmpty(prevProdCateDesc))
                         {
                             if (prevProdCateDesc != item.ProdCateDesc)
                             {
-                                narration2 =  " For " + item.ProdCateDesc + "  ";
+                                string desc = item.ProdCateDesc;
+                                if (String.IsNullOrEmpty(desc))
+                                {
+                                    desc = item.ProdItemDesc;
+                                }
+
+                                //narration2 =  " For " + item.ProdCateDesc + "  ";
+                                narration2 = " For " + desc + "  ";
                                 narration3 = narration3 + narration2;
-                                prevProdCateDesc = item.ProdCateDesc;
+                                //prevProdCateDesc = item.ProdCateDesc;
+                                prevProdCateDesc = desc;
                             }
                         }
                         else
                         {
-                            narration2 = " For " + item.ProdCateDesc + "  ";
+                            string desc = item.ProdCateDesc;
+                            if(String.IsNullOrEmpty(desc))
+                            {
+                                desc = item.ProdItemDesc;
+                            }
+
+                            //narration2 = " For " + item.ProdCateDesc + "  ";
+                            narration2 = " For " + desc + "  ";
                             narration3 = narration3 + narration2;
-                            prevProdCateDesc = item.ProdCateDesc;
+                            //prevProdCateDesc = item.ProdCateDesc;
+                            prevProdCateDesc = desc;
                         }
                         narration3 += item.MaterialName + " ( " + item.InvoiceQty + " mt* " + item.Rate + "  ),";
                     }
