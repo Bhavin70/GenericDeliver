@@ -713,7 +713,8 @@ namespace ODLMWebAPI.BL
                    
                     narration1 = "Invoice No. " + summuryGroupList[i].FirstOrDefault().InvoiceNo + "  ";
                     narration4 = "  Vehicle No. " + summuryGroupList[i].FirstOrDefault().VehicleNo + " ( " + summuryGroupList[i].FirstOrDefault().TotalItemQty + "  in mt )" +
-                                 " ,Basic Rate : " + summuryGroupList[i].FirstOrDefault().BasicRate + "  ,DO Date : " + summuryGroupList[i].FirstOrDefault().LoadingSlipDate;
+                                 //" ,Basic Rate : " + summuryGroupList[i].FirstOrDefault().BasicRate + "  ,DO Date : " + summuryGroupList[i].FirstOrDefault().LoadingSlipDate;
+                                 " ,Basic Rate : " + summuryGroupList[i].FirstOrDefault().BookingRate + "  ,DO Date : " + summuryGroupList[i].FirstOrDefault().LoadingSlipDate;
                     foreach (var item in summuryGroupList[i])
                     {
                         if(item.InvoiceNo.ToString() == "26".ToString())
