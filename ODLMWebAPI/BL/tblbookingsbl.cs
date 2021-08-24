@@ -1104,6 +1104,30 @@ namespace ODLMWebAPI.BL
 
         }
 
+        public List<TblBookingAnalysisReportTO> GetGroupByDealerBookingList(List<TblBookingAnalysisReportTO> tblBookingTOList)
+        {
+            var dist = tblBookingTOList.GroupBy(g => new { g.DealerId, g.DistributorId }).Select(s => s.FirstOrDefault()).ToList();
+
+            for (int i = 0; i < dist.Count; i++)
+            {
+                TblBookingAnalysisReportTO tblBookingsTO = dist[i];
+                List<TblBookingAnalysisReportTO> temp = tblBookingTOList.Where(w => w.DealerId == tblBookingsTO.DealerId && w.DistributorId == tblBookingsTO.DistributorId).ToList();
+                //tblBookingsTO.BookingQty = temp.Sum(s => s.BookingQty);
+
+                temp = temp.OrderBy(a => a.CreatedOn).ToList();
+                double totalDays = (temp[temp.Count - 1].CreatedOn - temp[0].CreatedOn).TotalDays;
+                tblBookingsTO.BookingQty = (from x in temp select x.BookingQty).Sum();
+                tblBookingsTO.BookingRate = (from x in temp select x.BookingRate).Average();
+                tblBookingsTO.DispatchedQty = (from x in temp select x.DispatchedQty).Sum();
+                tblBookingsTO.BookingRate = Math.Round(tblBookingsTO.BookingRate, 2);
+                tblBookingsTO.BookingQty = Math.Round(tblBookingsTO.BookingQty, 3);
+                tblBookingsTO.AvgBookingFrequency = Math.Round(Math.Round(totalDays) / temp.Count, 3);
+
+            }
+
+            return dist;
+        }
+
         //Deepali added for task 1272 [03-08-2021]
         public List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate, int isFromProject)
         {
@@ -1113,6 +1137,10 @@ namespace ODLMWebAPI.BL
             list = _iTblBookingsDAO.GetBookingAnalysisReport(startDate, endDate, distributorId, cOrNcId, brandId, skipDate,isFromProject);
             if (list != null && list.Count > 0)
             {
+
+
+                list = GetGroupByDealerBookingList(list);
+
                 listGroupbyCnf = list.GroupBy(g => new { g.DistributorId }).Select(s => s.FirstOrDefault()).ToList();
                 double totalQty = 0;
                 double totalAvgRate = 0;
@@ -1130,47 +1158,44 @@ namespace ODLMWebAPI.BL
                         if (j > 0)
                         {
                             listTemp[j].DistributorName = "";
+
                         }
                         else
                         {
                             listTemp[j].SrNo = i + 1;
                         }
                     }
+
                     List<TblBookingAnalysisReportTO> listGroupbyDealer = new List<TblBookingAnalysisReportTO>();
                     listGroupbyDealer = listTemp.GroupBy(g => new { g.DealerId }).Select(s => s.FirstOrDefault()).ToList();
                     for (int dealer = 0; dealer < listGroupbyDealer.Count; dealer++)
                     {
+                        
                         double totalDays = 0;
 
                         List<TblBookingAnalysisReportTO> listTempDealer = new List<TblBookingAnalysisReportTO>();
                         listTempDealer = listTemp.Where(s => s.DealerId == listGroupbyDealer[dealer].DealerId).ToList();
-                        for (int d = 0; d < listTempDealer.Count; d++)
-                        {
-                            if (d < listTempDealer.Count - 1)
-                            {
-                                totalDays += (listTempDealer[d+1].CreatedOn - listTempDealer[d].CreatedOn).TotalDays;
-                            }
-                            listReturn.Add(listTempDealer[d]);
-                        }
+                        
+                        //for (int d = 0; d < listTempDealer.Count; d++)
+                        //{
+                        //    if (d < listTempDealer.Count - 1)
+                        //    {
+                        //        totalDays += (listTempDealer[d+1].CreatedOn - listTempDealer[d].CreatedOn).TotalDays;
+                        //    }
+                        //    listReturn.Add(listTempDealer[d]);
+                        //}
+                        //listTempDealer = listTempDealer.OrderBy(a => a.CreatedOn).ToList();
+                        //totalDays = (listTempDealer[listTempDealer.Count - 1].CreatedOn - listTempDealer[0].CreatedOn).TotalDays;
 
-                        listReturn[listReturn.Count-1].AvgBookingFrequency = totalDays / listTemp.Count;
-                        listReturn[listReturn.Count - 1].AvgBookingFrequency = Math.Round(listReturn[listReturn.Count - 1].AvgBookingFrequency, 3);
+                        
+
+                        listReturn.AddRange(listTempDealer);
+
+                        //listReturn[listReturn.Count - 1].AvgBookingFrequency = Math.Round(totalDays) / listTempDealer.Count;
+                        //listReturn[listReturn.Count - 1].AvgBookingFrequency = Math.Round(listReturn[listReturn.Count - 1].AvgBookingFrequency, 3);
+
                     }
-                    //for (int j = 0; j < listTemp.Count; j++)
-                    //{
-                        //if (j > 0)
-                        //{
-                        //    listTemp[j].DistributorName = "";
-                        //}
-                        //else
-                        //{
-                        //    listTemp[j].SrNo = i + 1;
-                        //}
-                        //listTemp[j].TotalAvgQty = totalQty;
-                        //listTemp[j].TotalAvgRate = totalAvgRate;
 
-                        //listReturn.Add(listTemp[j]);
-                    //}
 
                     TblBookingAnalysisReportTO tblBookingAnalysisReportTO = new TblBookingAnalysisReportTO();
                     tblBookingAnalysisReportTO.DistributorName = "Total";
@@ -1178,13 +1203,16 @@ namespace ODLMWebAPI.BL
                     tblBookingAnalysisReportTO.BookingRate = (from x in listTemp select x.BookingRate).Average();
                     tblBookingAnalysisReportTO.BookingRate = Math.Round(tblBookingAnalysisReportTO.BookingRate, 2);
                     tblBookingAnalysisReportTO.BookingQty = Math.Round(tblBookingAnalysisReportTO.BookingQty, 3);
-                    tblBookingAnalysisReportTO.TotalAvgQty = totalQty;
-                    tblBookingAnalysisReportTO.TotalAvgRate = totalAvgRate;
-                    //tblBookingAnalysisReportTO.AvgBookingFrequency = totalDays/listTemp.Count;
-                    //tblBookingAnalysisReportTO.AvgBookingFrequency = Math.Round(tblBookingAnalysisReportTO.AvgBookingFrequency, 3);
 
                     tblBookingAnalysisReportTO.SrNo = -1;
                     listReturn.Add(tblBookingAnalysisReportTO);
+
+                   
+                }
+                if(listReturn != null && listReturn.Count > 0)
+                {
+                    listReturn[0].TotalAvgQty = totalQty;
+                    listReturn[0].TotalAvgRate = totalAvgRate;
                 }
             }
             return listReturn;

@@ -2251,10 +2251,11 @@ namespace ODLMWebAPI.DAL
                 conn.Open();
                 
                 cmdSelect.CommandText = " select bookingDisplayNo, cnFOrgId,orgCNf.firmName as distributorName,tblBookings.consumerTypeId,orderType.consumerType," +
-                    " tblBookings.createdOn, dealerOrgId,dealerOrg.firmName as dealerName,bookingQty,bookingRate ,tblBookings.bookingQty - tblBookings.pendingQty as dispatchedQty " +
+                    " tblBookings.createdOn, dealerOrgId,dealerOrg.firmName as dealerName,bookingQty,bookingRate ,tblBookings.bookingQty - ISNULL(tblBookingQtyConsumption.consumptionQty,tblBookings.pendingQty) as dispatchedQty " +
                     " from tblBookings tblBookings " +
                     " LEFT JOIN tblOrganization orgCNf ON orgCNf.idOrganization = tblBookings.cnFOrgId " +
                     " LEFT JOIN tblOrganization dealerOrg ON dealerOrg.idOrganization = tblBookings.dealerOrgId LEFT JOIN dimConsumerType orderType ON orderType.idConsumer = tblBookings.consumerTypeId  " +
+                    " LEFT JOIN tblBookingQtyConsumption tblBookingQtyConsumption on tblBookingQtyConsumption.bookingId = tblBookings.idBooking " +
                     " where tblBookings.statusId  IN (11) ";
 
 
