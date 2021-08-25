@@ -1116,8 +1116,9 @@ namespace ODLMWebAPI.BL
 
                 temp = temp.OrderBy(a => a.CreatedOn).ToList();
                 double totalDays = (temp[temp.Count - 1].CreatedOn - temp[0].CreatedOn).TotalDays;
-                tblBookingsTO.BookingQty = (from x in temp select x.BookingQty).Sum();
-                tblBookingsTO.BookingRate = (from x in temp select x.BookingRate).Average();
+                double sumOfBookingQty = (from x in temp select x.BookingQty).Sum();
+                tblBookingsTO.BookingRate = ((from x in temp select x.BookingRate * x.BookingQty).Sum()) / sumOfBookingQty;
+                tblBookingsTO.BookingQty = sumOfBookingQty;
                 tblBookingsTO.DispatchedQty = (from x in temp select x.DispatchedQty).Sum();
                 tblBookingsTO.BookingRate = Math.Round(tblBookingsTO.BookingRate, 2);
                 tblBookingsTO.BookingQty = Math.Round(tblBookingsTO.BookingQty, 3);
@@ -1145,7 +1146,7 @@ namespace ODLMWebAPI.BL
                 double totalQty = 0;
                 double totalAvgRate = 0;
                 totalQty = (from x in list select x.BookingQty).Sum();
-                totalAvgRate = (from x in list select x.BookingRate).Average();
+                totalAvgRate = ((from x in list select x.BookingRate * x.BookingQty).Sum()) / totalQty;
                 totalQty = Math.Round(totalQty, 3);
                 totalAvgRate = Math.Round(totalAvgRate, 2);
                 for (int i = 0; i < listGroupbyCnf.Count; i++)
