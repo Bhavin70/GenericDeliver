@@ -2263,9 +2263,9 @@ namespace ODLMWebAPI.DAL
                     " LEFT JOIN tblOrganization org  ON org.idOrganization = invoice.distributorOrgId " +
                     " LEFT JOIN tblOrganization dealerOrg  ON dealerOrg.idOrganization = invoice.dealerOrgId " +
                     " LEFT JOIN tblOrganization invFromOrg  ON invFromOrg.idOrganization = invoice.invFromOrgId " +
-                    " LEFT JOIN tblOrgAddress tblOrgAddress  ON tblOrgAddress.organizationId = invoice.invFromOrgId " +
-                    " and tblOrgAddress.addrTypeId = 5 " +
-                    " LEFT JOIN tblAddress tblAddress  ON tblAddress.idAddr = tblOrgAddress.addressId " +
+                    //" LEFT JOIN tblOrgAddress tblOrgAddress  ON tblOrgAddress.organizationId = invoice.invFromOrgId " +
+                    //" and tblOrgAddress.addrTypeId = 5 " +
+                    " LEFT JOIN tblAddress tblAddress  ON tblAddress.idAddr = invFromOrg.addrId " +
                     " LEFT JOIN dimDistrict dimDistrict  ON dimDistrict.idDistrict = tblAddress.districtId " +
                     " LEFT JOIN dimState dimState  ON dimState.idState = tblAddress.stateId " +
                     " LEFT JOIN dimCountry dimCountry  ON dimCountry.idCountry = tblAddress.countryId  " +
@@ -2338,9 +2338,9 @@ namespace ODLMWebAPI.DAL
                     " LEFT JOIN tblOrganization org  ON org.idOrganization = invoice.distributorOrgId " +
                     " LEFT JOIN tblOrganization dealerOrg  ON dealerOrg.idOrganization = invoice.dealerOrgId " +
                     " LEFT JOIN tblOrganization invFromOrg  ON invFromOrg.idOrganization = invoice.invFromOrgId " +
-                    " LEFT JOIN tblOrgAddress tblOrgAddress  ON tblOrgAddress.organizationId = invoice.invFromOrgId " +
-                    " and tblOrgAddress.addrTypeId = 5 " +
-                    " LEFT JOIN tblAddress tblAddress  ON tblAddress.idAddr = tblOrgAddress.addressId " +
+                    //" LEFT JOIN tblOrgAddress tblOrgAddress  ON tblOrgAddress.organizationId = invoice.invFromOrgId " +
+                    //" and tblOrgAddress.addrTypeId = 5 " +
+                    " LEFT JOIN tblAddress tblAddress  ON tblAddress.idAddr = invFromOrg.addrId " +
                     " LEFT JOIN dimDistrict dimDistrict  ON dimDistrict.idDistrict = tblAddress.districtId " +
                     " LEFT JOIN dimState dimState  ON dimState.idState = tblAddress.stateId " +
                     " LEFT JOIN dimCountry dimCountry  ON dimCountry.idCountry = tblAddress.countryId  " +
