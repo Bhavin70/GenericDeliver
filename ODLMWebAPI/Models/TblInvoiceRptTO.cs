@@ -108,6 +108,7 @@ namespace ODLMWebAPI.Models
         string invoiceMode;
         Double tdsAmt;
         string salesLedger;
+        String orgGstNo;
         #endregion
 
         #region Constructor
@@ -235,6 +236,13 @@ namespace ODLMWebAPI.Models
             get { return createdOn; }
             set { createdOn = value; }
         }
+        public String OrgGstNo
+        {
+            get { return orgGstNo; }
+            set { orgGstNo = value; }
+        }
+
+        
         public String InvoiceDateStr
         {
             get { return invoiceDate.ToString("dd-MM-yyyy"); }

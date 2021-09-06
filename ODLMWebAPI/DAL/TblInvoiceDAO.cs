@@ -1577,6 +1577,11 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["salesLedgerName"] != DBNull.Value)
                                     tblInvoiceRptTONew.SalesLedger = Convert.ToString(tblInvoiceRptTODT["salesLedgerName"].ToString());
                             }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("orgGstNo"))
+                            {
+                                if (tblInvoiceRptTODT["orgGstNo"] != DBNull.Value)
+                                    tblInvoiceRptTONew.OrgGstNo = Convert.ToString(tblInvoiceRptTODT["orgGstNo"].ToString());
+                            }
 
                             
 
@@ -2219,8 +2224,8 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 selectQuery =
-                    " Select distinct case when invoice.invoiceModeId = " + Convert.ToInt32(Constants.InvoiceModeE.MANUAL_INVOICE) + " then 'Yes' else 'No' end as mode,invoice.idInvoice,invoice.invoiceNo,invoice.electronicRefNo,invoice.IrnNo,invoice.dealerOrgId, " +
-                    " tblGstCodeDtls.codeNumber, invoice.tareWeight,invoice.grossWeight,invoice.netWeight, invoice.roundOffAmt,invoice.narration, invoice.tdsAmt, " +
+                    " Select distinct case when invoice.invoiceModeId = " + Convert.ToInt32(Constants.InvoiceModeE.MANUAL_INVOICE) + " then 'Yes' else 'No' end as mode,invoice.idInvoice,invoice.invoiceNo,invoice.electronicRefNo,invoice.IrnNo,invoice.dealerOrgId " +
+                    " ,tblOrgLicenseDtl.licenseValue as orgGstNo,tblGstCodeDtls.codeNumber, invoice.tareWeight,invoice.grossWeight,invoice.netWeight, invoice.roundOffAmt,invoice.narration, invoice.tdsAmt, " +
                     " invoice.statusDate ,invoice.invoiceDate,invoice.createdOn,invAddrBill.billingName as partyName, " +
                     " invAddrBill.stateName as buyerState ,invAddrBill.gstinNo as buyerGstNo,invAddrBill.address as buyerAddress," +
                     " invAddrBill.district as buyerDistrict,invAddrBill.pinCode as buyerPinCode," +
@@ -2263,9 +2268,10 @@ namespace ODLMWebAPI.DAL
                     " LEFT JOIN tblOrganization org  ON org.idOrganization = invoice.distributorOrgId " +
                     " LEFT JOIN tblOrganization dealerOrg  ON dealerOrg.idOrganization = invoice.dealerOrgId " +
                     " LEFT JOIN tblOrganization invFromOrg  ON invFromOrg.idOrganization = invoice.invFromOrgId " +
+                    " LEFT JOIN tblOrgLicenseDtl tblOrgLicenseDtl on tblOrgLicenseDtl.organizationId = invoice.invFromOrgId  and tblOrgLicenseDtl.licenseId = " + (Int32)Constants.CommercialLicenseE.IGST_NO +
                     //" LEFT JOIN tblOrgAddress tblOrgAddress  ON tblOrgAddress.organizationId = invoice.invFromOrgId " +
                     //" and tblOrgAddress.addrTypeId = 5 " +
-                    " LEFT JOIN tblAddress tblAddress  ON tblAddress.idAddr = invFromOrg.addrId " +
+                " LEFT JOIN tblAddress tblAddress  ON tblAddress.idAddr = invFromOrg.addrId " +
                     " LEFT JOIN dimDistrict dimDistrict  ON dimDistrict.idDistrict = tblAddress.districtId " +
                     " LEFT JOIN dimState dimState  ON dimState.idState = tblAddress.stateId " +
                     " LEFT JOIN dimCountry dimCountry  ON dimCountry.idCountry = tblAddress.countryId  " +
@@ -2288,8 +2294,8 @@ namespace ODLMWebAPI.DAL
                     // Vaibhav [17-Jan-2018] To select from final tables.
                     " UNION ALL " +
 
-                    " Select distinct case when invoice.invoiceModeId = " + Convert.ToInt32(Constants.InvoiceModeE.MANUAL_INVOICE) + " then 'Yes' else 'No' end as mode,invoice.idInvoice,invoice.invoiceNo,invoice.electronicRefNo,invoice.IrnNo,invoice.dealerOrgId,tblGstCodeDtls.codeNumber," +
-                    " invoice.tareWeight,invoice.grossWeight,invoice.netWeight,invoice.roundOffAmt, invoice.narration, invoice.tdsAmt, " +
+                    " Select distinct case when invoice.invoiceModeId = " + Convert.ToInt32(Constants.InvoiceModeE.MANUAL_INVOICE) + " then 'Yes' else 'No' end as mode,invoice.idInvoice,invoice.invoiceNo,invoice.electronicRefNo,invoice.IrnNo,invoice.dealerOrgId,tblGstCodeDtls.codeNumber" +
+                    " ,tblOrgLicenseDtl.licenseValue as orgGstNo,invoice.tareWeight,invoice.grossWeight,invoice.netWeight,invoice.roundOffAmt, invoice.narration, invoice.tdsAmt, " +
                     " invoice.statusDate ,invoice.invoiceDate,invoice.createdOn,invAddrBill.billingName as partyName, " +
                     " invAddrBill.stateName as buyerState ,invAddrBill.gstinNo as buyerGstNo,invAddrBill.address as buyerAddress," +
                     " invAddrBill.district as buyerDistrict,invAddrBill.pinCode as buyerPinCode," +
@@ -2338,9 +2344,10 @@ namespace ODLMWebAPI.DAL
                     " LEFT JOIN tblOrganization org  ON org.idOrganization = invoice.distributorOrgId " +
                     " LEFT JOIN tblOrganization dealerOrg  ON dealerOrg.idOrganization = invoice.dealerOrgId " +
                     " LEFT JOIN tblOrganization invFromOrg  ON invFromOrg.idOrganization = invoice.invFromOrgId " +
+                    " LEFT JOIN tblOrgLicenseDtl tblOrgLicenseDtl on tblOrgLicenseDtl.organizationId = invoice.invFromOrgId  and tblOrgLicenseDtl.licenseId = " + (Int32)Constants.CommercialLicenseE.IGST_NO +
                     //" LEFT JOIN tblOrgAddress tblOrgAddress  ON tblOrgAddress.organizationId = invoice.invFromOrgId " +
                     //" and tblOrgAddress.addrTypeId = 5 " +
-                    " LEFT JOIN tblAddress tblAddress  ON tblAddress.idAddr = invFromOrg.addrId " +
+                " LEFT JOIN tblAddress tblAddress  ON tblAddress.idAddr = invFromOrg.addrId " +
                     " LEFT JOIN dimDistrict dimDistrict  ON dimDistrict.idDistrict = tblAddress.districtId " +
                     " LEFT JOIN dimState dimState  ON dimState.idState = tblAddress.stateId " +
                     " LEFT JOIN dimCountry dimCountry  ON dimCountry.idCountry = tblAddress.countryId  " +
