@@ -26,7 +26,8 @@ namespace ODLMWebAPI.Models
         Double avgPrice;
         Double pendingQty;
         Double closingBalance;
-        Int32 noOfDayElapsed;
+        Int32 noOfDayElapsed;    
+
 
         // Vaibhav [21-Mar-2018] Added to show in view pending booking report.
         int isConfirmed;
@@ -36,6 +37,9 @@ namespace ODLMWebAPI.Models
         int bookingType;
         String bookingDisplayNo;
 
+        //Added by minal 19 July 2021
+        Double totalAmountOfBookings;
+        Double bookingQty;
         #endregion
 
         #region Get Set
@@ -99,6 +103,9 @@ namespace ODLMWebAPI.Models
 
         public Int32 BookingType { get => bookingType; set => bookingType = value; }
         public string BookingDisplayNo { get => bookingDisplayNo; set => bookingDisplayNo = value; }
+
+        public Double TotalAmountOfBookings { get => totalAmountOfBookings; set => totalAmountOfBookings = value; }
+        public Double BookingQty { get => bookingQty; set => bookingQty = value; }
 
         #endregion
     }

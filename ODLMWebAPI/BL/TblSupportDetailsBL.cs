@@ -89,93 +89,174 @@ namespace ODLMWebAPI.BL
                     resultMessage.Result = 0;
                     return resultMessage;
                 }
-
-                string client_id = "";
-                string client_secret = "";
-                string resourceName = "";
-                string appName = "";
-
-                TblConfigParamsTO tblConfigParamsTOKeys = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.STOP_WEB_API_SERVICE_KEYS);
-                if (tblConfigParamsTOKeys != null)
+                try
                 {
-                    client_id = tblConfigParamsTOKeys.ConfigParamVal.Split(",")[0];
-                    client_secret = tblConfigParamsTOKeys.ConfigParamVal.Split(",")[1];
-                    resourceName = tblConfigParamsTOKeys.ConfigParamVal.Split(",")[2];
-                    appName = tblConfigParamsTOKeys.ConfigParamVal.Split(",")[3];
+                    #region API
+
+                    string client_id = "";
+                    string client_secret = "";
+                    string resourceName = "";
+                    string appName = "";
+
+                    TblConfigParamsTO tblConfigParamsTOKeys = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.STOP_WEB_API_SERVICE_KEYS);
+                    if (tblConfigParamsTOKeys != null)
+                    {
+                        client_id = tblConfigParamsTOKeys.ConfigParamVal.Split(",")[0];
+                        client_secret = tblConfigParamsTOKeys.ConfigParamVal.Split(",")[1];
+                        resourceName = tblConfigParamsTOKeys.ConfigParamVal.Split(",")[2];
+                        appName = tblConfigParamsTOKeys.ConfigParamVal.Split(",")[3];
+                    }
+
+                    //Stop Web API Services
+                    var access_token_client = new RestSharp.RestClient("https://login.microsoftonline.com/75005177-0a8b-4c2a-990b-e299cae56dbb/oauth2/token");
+                    var request1 = new RestSharp.RestRequest(RestSharp.Method.POST);
+                    request1.AddParameter("grant_type", "client_credentials");
+                    request1.AddParameter("client_id", client_id);
+                    request1.AddParameter("client_secret", client_secret);
+                    request1.AddParameter("resource", "https://management.azure.com/");
+                    RestSharp.IRestResponse response = access_token_client.Execute(request1);
+                    JObject json = JObject.Parse(response.Content);
+                    string access = (string)json["access_token"];
+
+                    var client = new HttpClient();
+                    String url = "https://management.azure.com/subscriptions/d3f31a43-b546-4560-a72b-2a62668d157c/resourceGroups/" + resourceName + "/providers/Microsoft.Web/sites/" + appName + "/stop?api-version=2016-08-01";
+                    String access_result;
+                    System.IO.StreamWriter myWriter = null;
+                    System.Net.WebRequest request = System.Net.WebRequest.Create(url);
+                    request.UseDefaultCredentials = true;
+                    request.PreAuthenticate = true;
+                    request.Headers.Add("Authorization", "Bearer " + access);
+                    request.Method = "POST";
+                    request.ContentLength = 0;
+                    request.ContentType = "application/json";
+                    System.Net.WebResponse objResponse = request.GetResponseAsync().Result;
+                    using (System.IO.StreamReader sr = new System.IO.StreamReader(objResponse.GetResponseStream()))
+                    {
+                        access_result = sr.ReadToEnd();
+                        sr.Dispose();
+                    }
+
+                    #endregion
+
                 }
-       
-                //Stop Web API Services
-                var access_token_client = new RestSharp.RestClient("https://login.microsoftonline.com/75005177-0a8b-4c2a-990b-e299cae56dbb/oauth2/token");
-                var request1 = new RestSharp.RestRequest(RestSharp.Method.POST);
-                request1.AddParameter("grant_type", "client_credentials");
-                request1.AddParameter("client_id", client_id);
-                request1.AddParameter("client_secret", client_secret);
-                request1.AddParameter("resource", "https://management.azure.com/");
-                RestSharp.IRestResponse response = access_token_client.Execute(request1);
-                JObject json = JObject.Parse(response.Content);
-                string access = (string)json["access_token"];
-
-                var client = new HttpClient();
-                String url = "https://management.azure.com/subscriptions/f107e6d7-3d8f-4cbd-ba8c-0488d4697682/resourceGroups/" + resourceName + "/providers/Microsoft.Web/sites/"+appName+"/stop?api-version=2016-08-01";
-                String access_result;
-                System.IO.StreamWriter myWriter = null;
-                System.Net.WebRequest request = System.Net.WebRequest.Create(url);
-                request.UseDefaultCredentials = true;
-                request.PreAuthenticate = true;
-                request.Headers.Add("Authorization", "Bearer " + access);
-                request.Method = "POST";
-                request.ContentLength = 0;
-                request.ContentType = "application/json";
-                System.Net.WebResponse objResponse = request.GetResponseAsync().Result;
-                using (System.IO.StreamReader sr = new System.IO.StreamReader(objResponse.GetResponseStream()))
+                catch (Exception ex)
                 {
-                    access_result = sr.ReadToEnd();
-                    sr.Dispose();
+
                 }
-
-                //Stop Web GUI Services
-
-                string client_id_gui = "";
-                string client_secret_gui = "";
-                string resourceName_gui = "";
-                string appName_gui = "";
-
-                TblConfigParamsTO tblConfigParamsTOKeysGui = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.STOP_WEB_GUI_SERVICE_KEYS);
-                if (tblConfigParamsTOKeysGui != null)
+                try
                 {
-                    client_id_gui = tblConfigParamsTOKeysGui.ConfigParamVal.Split(",")[0];
-                    client_secret_gui = tblConfigParamsTOKeysGui.ConfigParamVal.Split(",")[1];
-                    resourceName_gui = tblConfigParamsTOKeysGui.ConfigParamVal.Split(",")[2];
-                    appName_gui = tblConfigParamsTOKeysGui.ConfigParamVal.Split(",")[3];
+                    #region GUI
+
+                    //Stop Web GUI Services
+
+                    string client_id_gui = "";
+                    string client_secret_gui = "";
+                    string resourceName_gui = "";
+                    string appName_gui = "";
+
+                    TblConfigParamsTO tblConfigParamsTOKeysGui = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.STOP_WEB_GUI_SERVICE_KEYS);
+                    if (tblConfigParamsTOKeysGui != null)
+                    {
+                        client_id_gui = tblConfigParamsTOKeysGui.ConfigParamVal.Split(",")[0];
+                        client_secret_gui = tblConfigParamsTOKeysGui.ConfigParamVal.Split(",")[1];
+                        resourceName_gui = tblConfigParamsTOKeysGui.ConfigParamVal.Split(",")[2];
+                        appName_gui = tblConfigParamsTOKeysGui.ConfigParamVal.Split(",")[3];
+                    }
+
+                    var access_token = new RestSharp.RestClient("https://login.microsoftonline.com/75005177-0a8b-4c2a-990b-e299cae56dbb/oauth2/token");
+                    var request_gui = new RestSharp.RestRequest(RestSharp.Method.POST);
+                    request_gui.AddParameter("grant_type", "client_credentials");
+                    request_gui.AddParameter("client_id", client_id_gui);
+                    request_gui.AddParameter("client_secret", client_secret_gui);
+                    request_gui.AddParameter("resource", "https://management.azure.com/");
+                    RestSharp.IRestResponse response_gui = access_token.Execute(request_gui);
+                    JObject json_gui = JObject.Parse(response_gui.Content);
+                    string access_gui = (string)json_gui["access_token"];
+
+                    var client_gui = new HttpClient();
+                    String url_gui = "https://management.azure.com/subscriptions/d3f31a43-b546-4560-a72b-2a62668d157c/resourceGroups/" + resourceName_gui + "/providers/Microsoft.Web/sites/" + appName_gui + "/stop?api-version=2016-08-01";
+                    String access_result_gui;
+                    System.IO.StreamWriter myWriter1 = null;
+                    System.Net.WebRequest request_gui1 = System.Net.WebRequest.Create(url_gui);
+                    request_gui1.UseDefaultCredentials = true;
+                    request_gui1.PreAuthenticate = true;
+                    //request.Headers.Add("Authorization", "Bearer " + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjdfWnVmMXR2a3dMeFlhSFMzcTZsVWpVWUlHdyIsImtpZCI6IjdfWnVmMXR2a3dMeFlhSFMzcTZsVWpVWUlHdyJ9.eyJhdWQiOiJodHRwczovL21hbmFnZW1lbnQuYXp1cmUuY29tLyIsImlzcyI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0Lzc1MDA1MTc3LTBhOGItNGMyYS05OTBiLWUyOTljYWU1NmRiYi8iLCJpYXQiOjE1MzUwOTA0MzEsIm5iZiI6MTUzNTA5MDQzMSwiZXhwIjoxNTM1MDk0MzMxLCJhaW8iOiI0MkJnWUFoTldNVjVZSmZJM2RYbmRxOFBtRklrQVFBPSIsImFwcGlkIjoiYzkzMTg5NTItMWIzNy00NGUzLWI3MzktNTFhNjMyMmZiNGVhIiwiYXBwaWRhY3IiOiIxIiwiaWRwIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvNzUwMDUxNzctMGE4Yi00YzJhLTk5MGItZTI5OWNhZTU2ZGJiLyIsIm9pZCI6IjVhYzhlOTlkLTIxZGYtNGIxNi04ZWRhLTVmNzMzZWE1NGQzOSIsInN1YiI6IjVhYzhlOTlkLTIxZGYtNGIxNi04ZWRhLTVmNzMzZWE1NGQzOSIsInRpZCI6Ijc1MDA1MTc3LTBhOGItNGMyYS05OTBiLWUyOTljYWU1NmRiYiIsInV0aSI6IjhyTU9mUnZiNmtDR1QyOGc2S3dsQUEiLCJ2ZXIiOiIxLjAifQ.ciFESh5BN96Mo9JRlYg89uhpMhrIECh68RjMPYRwPi3vCumfHU59EHVu6SOkSlGKmITh59I_LMyE0VLLjZAwIuZsNLMCykl_U6lUGOwYIogfh2EOal2q8MxxWBkJOJ8eCnI0iW_Xhtyj5lIoSLpM6TP98RlB59rGQy5fvwnU87fhWcW4DR9tSj5Y4NzS2PMxq22SZkYySUSJJnwxe6f-97gYlXc2OmCP5PYBbZoajUDWvbGkx6z4qLos2fIJU9sx5O2tVpQCqtFmbkbb-KeCAyTWDonB538s5s_HxBBayPc4LwvwDClICxiNNaaRzN_ZEGb-jb0n1QLar2b8kdRt3g");
+                    request_gui1.Headers.Add("Authorization", "Bearer " + access_gui);
+                    request_gui1.Method = "POST";
+                    request_gui1.ContentLength = 0;
+                    request_gui1.ContentType = "application/json";
+                    System.Net.WebResponse objResponse_gui = request_gui1.GetResponseAsync().Result;
+                    using (System.IO.StreamReader sr = new System.IO.StreamReader(objResponse_gui.GetResponseStream()))
+                    {
+                        access_result_gui = sr.ReadToEnd();
+                        sr.Dispose();
+                    }
+
+                    #endregion
+
                 }
-
-                var access_token = new RestSharp.RestClient("https://login.microsoftonline.com/75005177-0a8b-4c2a-990b-e299cae56dbb/oauth2/token");
-                var request_gui = new RestSharp.RestRequest(RestSharp.Method.POST);
-                request_gui.AddParameter("grant_type", "client_credentials");
-                request_gui.AddParameter("client_id", client_id_gui);
-                request_gui.AddParameter("client_secret", client_secret_gui);
-                request_gui.AddParameter("resource", "https://management.azure.com/");
-                RestSharp.IRestResponse response_gui = access_token.Execute(request_gui);
-                JObject json_gui = JObject.Parse(response_gui.Content);
-                string access_gui = (string)json_gui["access_token"];
-
-                var client_gui = new HttpClient();
-                String url_gui = "https://management.azure.com/subscriptions/f107e6d7-3d8f-4cbd-ba8c-0488d4697682/resourceGroups/" +resourceName_gui+ "/providers/Microsoft.Web/sites/" +appName_gui+ "/stop?api-version=2016-08-01";
-                String access_result_gui;
-                System.IO.StreamWriter myWriter1 = null;
-                System.Net.WebRequest request_gui1 = System.Net.WebRequest.Create(url_gui);
-                request_gui1.UseDefaultCredentials = true;
-                request_gui1.PreAuthenticate = true;
-                //request.Headers.Add("Authorization", "Bearer " + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjdfWnVmMXR2a3dMeFlhSFMzcTZsVWpVWUlHdyIsImtpZCI6IjdfWnVmMXR2a3dMeFlhSFMzcTZsVWpVWUlHdyJ9.eyJhdWQiOiJodHRwczovL21hbmFnZW1lbnQuYXp1cmUuY29tLyIsImlzcyI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0Lzc1MDA1MTc3LTBhOGItNGMyYS05OTBiLWUyOTljYWU1NmRiYi8iLCJpYXQiOjE1MzUwOTA0MzEsIm5iZiI6MTUzNTA5MDQzMSwiZXhwIjoxNTM1MDk0MzMxLCJhaW8iOiI0MkJnWUFoTldNVjVZSmZJM2RYbmRxOFBtRklrQVFBPSIsImFwcGlkIjoiYzkzMTg5NTItMWIzNy00NGUzLWI3MzktNTFhNjMyMmZiNGVhIiwiYXBwaWRhY3IiOiIxIiwiaWRwIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvNzUwMDUxNzctMGE4Yi00YzJhLTk5MGItZTI5OWNhZTU2ZGJiLyIsIm9pZCI6IjVhYzhlOTlkLTIxZGYtNGIxNi04ZWRhLTVmNzMzZWE1NGQzOSIsInN1YiI6IjVhYzhlOTlkLTIxZGYtNGIxNi04ZWRhLTVmNzMzZWE1NGQzOSIsInRpZCI6Ijc1MDA1MTc3LTBhOGItNGMyYS05OTBiLWUyOTljYWU1NmRiYiIsInV0aSI6IjhyTU9mUnZiNmtDR1QyOGc2S3dsQUEiLCJ2ZXIiOiIxLjAifQ.ciFESh5BN96Mo9JRlYg89uhpMhrIECh68RjMPYRwPi3vCumfHU59EHVu6SOkSlGKmITh59I_LMyE0VLLjZAwIuZsNLMCykl_U6lUGOwYIogfh2EOal2q8MxxWBkJOJ8eCnI0iW_Xhtyj5lIoSLpM6TP98RlB59rGQy5fvwnU87fhWcW4DR9tSj5Y4NzS2PMxq22SZkYySUSJJnwxe6f-97gYlXc2OmCP5PYBbZoajUDWvbGkx6z4qLos2fIJU9sx5O2tVpQCqtFmbkbb-KeCAyTWDonB538s5s_HxBBayPc4LwvwDClICxiNNaaRzN_ZEGb-jb0n1QLar2b8kdRt3g");
-                request_gui1.Headers.Add("Authorization", "Bearer " + access_gui);
-                request_gui1.Method = "POST";
-                request_gui1.ContentLength = 0;
-                request_gui1.ContentType = "application/json";
-                System.Net.WebResponse objResponse_gui = request_gui1.GetResponseAsync().Result;
-                using (System.IO.StreamReader sr = new System.IO.StreamReader(objResponse_gui.GetResponseStream()))
+                catch (Exception ex)
                 {
-                    access_result_gui = sr.ReadToEnd();
-                    sr.Dispose();
+
+                }
+                try
+                {
+                    #region VM
+
+                    //Stop Web GUI Services
+
+                    string client_id_vm = "";
+                    string client_secret_vm = "";
+                    string resourceName_vm = "";
+                    string appName_vm = "";
+
+                    TblConfigParamsTO tblConfigParamsTOKeysVm = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.STOP_WEB_VM_SERVICE_KEYS);
+                    if (tblConfigParamsTOKeysVm != null)
+                    {
+                        client_id_vm = tblConfigParamsTOKeysVm.ConfigParamVal.Split(",")[0];
+                        client_secret_vm = tblConfigParamsTOKeysVm.ConfigParamVal.Split(",")[1];
+                        resourceName_vm = tblConfigParamsTOKeysVm.ConfigParamVal.Split(",")[2];
+                        appName_vm = tblConfigParamsTOKeysVm.ConfigParamVal.Split(",")[3];
+                    }
+
+                    var access_token_vm = new RestSharp.RestClient("https://login.microsoftonline.com/75005177-0a8b-4c2a-990b-e299cae56dbb/oauth2/token");
+                    var request_vm = new RestSharp.RestRequest(RestSharp.Method.POST);
+                    request_vm.AddParameter("grant_type", "client_credentials");
+                    request_vm.AddParameter("client_id", client_id_vm);
+                    request_vm.AddParameter("client_secret", client_secret_vm);
+                    request_vm.AddParameter("resource", "https://management.azure.com/");
+                    RestSharp.IRestResponse response_vm = access_token_vm.Execute(request_vm);
+                    JObject json_vm = JObject.Parse(response_vm.Content);
+                    string access_vm = (string)json_vm["access_token"];
+
+                    var client_vm = new HttpClient();
+                    //String url_vm = "https://management.azure.com/subscriptions/f107e6d7-3d8f-4cbd-ba8c-0488d4697682/resourceGroups/" + resourceName_vm + "/providers/Microsoft.Web/sites/" + appName_vm + "/stop?api-version=2016-08-01";
+
+                    String url_vm = "https://management.azure.com/subscriptions/d3f31a43-b546-4560-a72b-2a62668d157c/resourceGroups/" + resourceName_vm + "/providers/Microsoft.Compute/virtualMachines/" + appName_vm + "/powerOff?api-version=2021-03-01";
+
+                    String access_result_vm;
+                    System.IO.StreamWriter myWriter2 = null;
+                    System.Net.WebRequest request_vm2 = System.Net.WebRequest.Create(url_vm);
+                    request_vm2.UseDefaultCredentials = true;
+                    request_vm2.PreAuthenticate = true;
+                    //request.Headers.Add("Authorization", "Bearer " + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjdfWnVmMXR2a3dMeFlhSFMzcTZsVWpVWUlHdyIsImtpZCI6IjdfWnVmMXR2a3dMeFlhSFMzcTZsVWpVWUlHdyJ9.eyJhdWQiOiJodHRwczovL21hbmFnZW1lbnQuYXp1cmUuY29tLyIsImlzcyI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0Lzc1MDA1MTc3LTBhOGItNGMyYS05OTBiLWUyOTljYWU1NmRiYi8iLCJpYXQiOjE1MzUwOTA0MzEsIm5iZiI6MTUzNTA5MDQzMSwiZXhwIjoxNTM1MDk0MzMxLCJhaW8iOiI0MkJnWUFoTldNVjVZSmZJM2RYbmRxOFBtRklrQVFBPSIsImFwcGlkIjoiYzkzMTg5NTItMWIzNy00NGUzLWI3MzktNTFhNjMyMmZiNGVhIiwiYXBwaWRhY3IiOiIxIiwiaWRwIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvNzUwMDUxNzctMGE4Yi00YzJhLTk5MGItZTI5OWNhZTU2ZGJiLyIsIm9pZCI6IjVhYzhlOTlkLTIxZGYtNGIxNi04ZWRhLTVmNzMzZWE1NGQzOSIsInN1YiI6IjVhYzhlOTlkLTIxZGYtNGIxNi04ZWRhLTVmNzMzZWE1NGQzOSIsInRpZCI6Ijc1MDA1MTc3LTBhOGItNGMyYS05OTBiLWUyOTljYWU1NmRiYiIsInV0aSI6IjhyTU9mUnZiNmtDR1QyOGc2S3dsQUEiLCJ2ZXIiOiIxLjAifQ.ciFESh5BN96Mo9JRlYg89uhpMhrIECh68RjMPYRwPi3vCumfHU59EHVu6SOkSlGKmITh59I_LMyE0VLLjZAwIuZsNLMCykl_U6lUGOwYIogfh2EOal2q8MxxWBkJOJ8eCnI0iW_Xhtyj5lIoSLpM6TP98RlB59rGQy5fvwnU87fhWcW4DR9tSj5Y4NzS2PMxq22SZkYySUSJJnwxe6f-97gYlXc2OmCP5PYBbZoajUDWvbGkx6z4qLos2fIJU9sx5O2tVpQCqtFmbkbb-KeCAyTWDonB538s5s_HxBBayPc4LwvwDClICxiNNaaRzN_ZEGb-jb0n1QLar2b8kdRt3g");
+                    request_vm2.Headers.Add("Authorization", "Bearer " + access_vm);
+                    request_vm2.Method = "POST";
+                    request_vm2.ContentLength = 0;
+                    request_vm2.ContentType = "application/json";
+                    System.Net.WebResponse objResponse_vm = request_vm2.GetResponseAsync().Result;
+                    using (System.IO.StreamReader sr = new System.IO.StreamReader(objResponse_vm.GetResponseStream()))
+                    {
+                        access_result_vm = sr.ReadToEnd();
+                        sr.Dispose();
+                    }
+
+
+                    #endregion
+                }
+                catch (Exception ex)
+                {
+
                 }
 
             }
@@ -193,10 +274,10 @@ namespace ODLMWebAPI.BL
         }
 
 
-            #endregion
+        #endregion
 
         #region Insertion
-            public int InsertTblSupportDetails(TblSupportDetailsTO tblSupportDetailsTO)
+        public int InsertTblSupportDetails(TblSupportDetailsTO tblSupportDetailsTO)
         {
             return _iTblSupportDetailsDAO.InsertTblSupportDetails(tblSupportDetailsTO);
         }

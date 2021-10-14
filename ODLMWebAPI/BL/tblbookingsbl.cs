@@ -661,7 +661,25 @@ namespace ODLMWebAPI.BL
             {
                 tblUserRoleTO = _iTblUserRoleBL.SelectUserRoleTOAccToPriority(tblUserRoleTOList);
             }
-            return _iTblBookingsDAO.SelectBookingList(cnfId, dealerId, statusId, fromDate, toDate, tblUserRoleTO, confirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId,orderTypeId);
+            List<TblBookingsTO> bookingList =  _iTblBookingsDAO.SelectBookingList(cnfId, dealerId, statusId, fromDate, toDate, tblUserRoleTO, confirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId,orderTypeId);
+            if(bookingList != null && bookingList.Count > 0)
+            {
+                //Prajakta[2021-07-06] Added 
+                var isCnfChkSelectedList = bookingList.Where(a => a.CnfChkSelected == 1).ToList();
+                if(isCnfChkSelectedList != null && isCnfChkSelectedList.Count > 0)
+                {
+                    TblConfigParamsTO configParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.IS_INTERNAL_CNF_SELECTION_ON_CHECKBOX_NEW);
+                    if(configParamsTO != null && !String.IsNullOrEmpty(configParamsTO.ConfigParamVal) && configParamsTO.ConfigParamVal != "0")
+                    {
+                        String cnfName = configParamsTO.ConfigParamVal.ToString();
+
+                        isCnfChkSelectedList.ForEach(cc => cc.CnfName = cnfName);
+                    }
+                }
+
+            }
+
+            return bookingList;
 
         }
         //Aniket [16-Jan-2019] added to view cnFList against confirm and not confirmbooking
@@ -906,6 +924,9 @@ namespace ODLMWebAPI.BL
 
                 //List<TblBookingsTO> openingBalBookingList = DAL.TblBookingsDAO.SelectAllTodaysBookingsWithOpeningBalance(cnfId, serverDate, isTransporterScopeYn, isConfirmed);
                 //List<TblBookingsTO> todaysList = DAL.TblBookingsDAO.SelectAllPendingBookingsList(cnfId, "=", false,isTransporterScopeYn,isConfirmed, serverDate, tblUserRoleTO);
+                //List<TblBookingsTO> openingBalBookingList = _iTblBookingsDAO.SelectAllTodaysBookingsWithOpeningBalance(cnfId, serverDate, isTransporterScopeYn, isConfirmed, brandId);
+                //List<TblBookingsTO> todaysList = _iTblBookingsDAO.SelectAllPendingBookingsList(cnfId, "=", false, isTransporterScopeYn, isConfirmed, serverDate, brandId, tblUserRoleTO);
+
                 List<TblBookingsTO> openingBalBookingList = _iTblBookingsDAO.SelectAllTodaysBookingsWithOpeningBalance(cnfId, serverDate, isTransporterScopeYn, isConfirmed, brandId);
                 List<TblBookingsTO> todaysList = _iTblBookingsDAO.SelectAllPendingBookingsList(cnfId, "=", false, isTransporterScopeYn, isConfirmed, serverDate, brandId, tblUserRoleTO);
                 List<TblBookingOpngBalTO> openingBalQtyList = _iTblBookingOpngBalDAO.SelectAllTblBookingOpngBal(serverDate);
@@ -1025,7 +1046,8 @@ namespace ODLMWebAPI.BL
                         pendingBookingRptTO.ClosingBalance = closingBal;
                         pendingBookingRptTO.TransporterScopeYn = bookingTO.TransporterScopeYn;
                         pendingBookingRptTO.IsConfirmed = bookingTO.IsConfirmed;
-
+                        pendingBookingRptTO.TotalAmountOfBookings = ((bookingTO.BookingQty) * (bookingTO.BookingRate));
+                        pendingBookingRptTO.BookingQty = bookingTO.BookingQty;
                         list.Add(pendingBookingRptTO);
                     }
                 }
@@ -1080,6 +1102,122 @@ namespace ODLMWebAPI.BL
         {
             return _iTblBookingsDAO.SelectBookingsTOWithDetails(idBooking);
 
+        }
+
+        public List<TblBookingAnalysisReportTO> GetGroupByDealerBookingList(List<TblBookingAnalysisReportTO> tblBookingTOList)
+        {
+            var dist = tblBookingTOList.GroupBy(g => new { g.DealerId, g.DistributorId }).Select(s => s.FirstOrDefault()).ToList();
+
+            for (int i = 0; i < dist.Count; i++)
+            {
+                TblBookingAnalysisReportTO tblBookingsTO = dist[i];
+                List<TblBookingAnalysisReportTO> temp = tblBookingTOList.Where(w => w.DealerId == tblBookingsTO.DealerId && w.DistributorId == tblBookingsTO.DistributorId).ToList();
+                //tblBookingsTO.BookingQty = temp.Sum(s => s.BookingQty);
+
+                temp = temp.OrderBy(a => a.CreatedOn).ToList();
+                double totalDays = (temp[temp.Count - 1].CreatedOn - temp[0].CreatedOn).TotalDays;
+                double sumOfBookingQty = (from x in temp select x.BookingQty).Sum();
+                tblBookingsTO.BookingRate = ((from x in temp select x.BookingRate * x.BookingQty).Sum()) / sumOfBookingQty;
+                tblBookingsTO.BookingQty = sumOfBookingQty;
+                tblBookingsTO.DispatchedQty = (from x in temp select x.DispatchedQty).Sum();
+                tblBookingsTO.BookingRate = Math.Round(tblBookingsTO.BookingRate, 2);
+                tblBookingsTO.BookingQty = Math.Round(tblBookingsTO.BookingQty, 3);
+                tblBookingsTO.AvgBookingFrequency = Math.Round(Math.Round(totalDays) / temp.Count, 3);
+
+            }
+
+            return dist;
+        }
+
+        //Deepali added for task 1272 [03-08-2021]
+        public List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate, int isFromProject)
+        {
+            List<TblBookingAnalysisReportTO> listReturn = new List<TblBookingAnalysisReportTO>();
+            List<TblBookingAnalysisReportTO> list = new List<TblBookingAnalysisReportTO>();
+            List<TblBookingAnalysisReportTO> listGroupbyCnf = new List<TblBookingAnalysisReportTO>();
+            list = _iTblBookingsDAO.GetBookingAnalysisReport(startDate, endDate, distributorId, cOrNcId, brandId, skipDate,isFromProject);
+            if (list != null && list.Count > 0)
+            {
+
+
+                list = GetGroupByDealerBookingList(list);
+
+                listGroupbyCnf = list.GroupBy(g => new { g.DistributorId }).Select(s => s.FirstOrDefault()).ToList();
+                double totalQty = 0;
+                double totalAvgRate = 0;
+                totalQty = (from x in list select x.BookingQty).Sum();
+                totalAvgRate = ((from x in list select x.BookingRate * x.BookingQty).Sum()) / totalQty;
+                totalQty = Math.Round(totalQty, 3);
+                totalAvgRate = Math.Round(totalAvgRate, 2);
+                for (int i = 0; i < listGroupbyCnf.Count; i++)
+                {
+                    List<TblBookingAnalysisReportTO> listTemp = new List<TblBookingAnalysisReportTO>();
+                    listTemp = list.Where(s => s.DistributorId == listGroupbyCnf[i].DistributorId).ToList();
+
+                    for (int j = 0; j < listTemp.Count; j++)
+                    {
+                        if (j > 0)
+                        {
+                            listTemp[j].DistributorName = "";
+
+                        }
+                        else
+                        {
+                            listTemp[j].SrNo = i + 1;
+                        }
+                    }
+
+                    List<TblBookingAnalysisReportTO> listGroupbyDealer = new List<TblBookingAnalysisReportTO>();
+                    listGroupbyDealer = listTemp.GroupBy(g => new { g.DealerId }).Select(s => s.FirstOrDefault()).ToList();
+                    for (int dealer = 0; dealer < listGroupbyDealer.Count; dealer++)
+                    {
+                        
+                        double totalDays = 0;
+
+                        List<TblBookingAnalysisReportTO> listTempDealer = new List<TblBookingAnalysisReportTO>();
+                        listTempDealer = listTemp.Where(s => s.DealerId == listGroupbyDealer[dealer].DealerId).ToList();
+                        
+                        //for (int d = 0; d < listTempDealer.Count; d++)
+                        //{
+                        //    if (d < listTempDealer.Count - 1)
+                        //    {
+                        //        totalDays += (listTempDealer[d+1].CreatedOn - listTempDealer[d].CreatedOn).TotalDays;
+                        //    }
+                        //    listReturn.Add(listTempDealer[d]);
+                        //}
+                        //listTempDealer = listTempDealer.OrderBy(a => a.CreatedOn).ToList();
+                        //totalDays = (listTempDealer[listTempDealer.Count - 1].CreatedOn - listTempDealer[0].CreatedOn).TotalDays;
+
+                        
+
+                        listReturn.AddRange(listTempDealer);
+
+                        //listReturn[listReturn.Count - 1].AvgBookingFrequency = Math.Round(totalDays) / listTempDealer.Count;
+                        //listReturn[listReturn.Count - 1].AvgBookingFrequency = Math.Round(listReturn[listReturn.Count - 1].AvgBookingFrequency, 3);
+
+                    }
+
+
+                    TblBookingAnalysisReportTO tblBookingAnalysisReportTO = new TblBookingAnalysisReportTO();
+                    tblBookingAnalysisReportTO.DistributorName = "Total";
+                    double sumOfBookingQty = (from x in listTemp select x.BookingQty).Sum();
+                    tblBookingAnalysisReportTO.BookingQty = sumOfBookingQty;
+                    tblBookingAnalysisReportTO.BookingRate = ((from x in listTemp select x.BookingRate * x.BookingQty).Sum()) / sumOfBookingQty;
+                    tblBookingAnalysisReportTO.BookingRate = Math.Round(tblBookingAnalysisReportTO.BookingRate, 2);
+                    tblBookingAnalysisReportTO.BookingQty = Math.Round(tblBookingAnalysisReportTO.BookingQty, 3);
+
+                    tblBookingAnalysisReportTO.SrNo = -1;
+                    listReturn.Add(tblBookingAnalysisReportTO);
+
+                   
+                }
+                if(listReturn != null && listReturn.Count > 0)
+                {
+                    listReturn[0].TotalAvgQty = totalQty;
+                    listReturn[0].TotalAvgRate = totalAvgRate;
+                }
+            }
+            return listReturn;
         }
 
         #endregion
@@ -3953,6 +4091,7 @@ namespace ODLMWebAPI.BL
                 existingTblBookingsTO.PendingUomQty = tblBookingsTO.PendingUomQty;
                 existingTblBookingsTO.OrderTypeId = tblBookingsTO.OrderTypeId;
                 existingTblBookingsTO.OrderTypeName = tblBookingsTO.OrderTypeName;
+                existingTblBookingsTO.CnfChkSelected = tblBookingsTO.CnfChkSelected;
 
                 //Aniket [24-7-2019] added to check scheduled NoOfDeliveries against booking
                 if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)

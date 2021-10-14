@@ -329,6 +329,7 @@ namespace ODLMWebAPI.Controllers
             try
             {
                 return _iTblInvoiceBL.SelectTblInvoiceByStatus(statusId, distributorOrgId, invoiceId, isConfirm);
+               
             }
             catch (Exception ex)
             {
@@ -456,6 +457,62 @@ namespace ODLMWebAPI.Controllers
                 toDt = _iCommon.ServerDateTime.Date;
             return _iTblInvoiceBL.SelectSalesInvoiceListForReport(frmDt, toDt, isConfirm, fromOrgId);
         }
+
+        //For Metaroll changes in Item Wise sales export C report
+        [Route("GetItemWiseSalesExportCListForReport")]
+        [HttpGet]
+        public ResultMessage GetItemWiseSalesExportCListForReport(string fromDate, string toDate, int isConfirm, int fromOrgId)
+        {
+            DateTime frmDt = DateTime.MinValue;
+            DateTime toDt = DateTime.MinValue;
+            if (Constants.IsDateTime(fromDate))
+            {
+                frmDt = Convert.ToDateTime(fromDate);
+
+            }
+            if (Constants.IsDateTime(toDate))
+            {
+                toDt = Convert.ToDateTime(toDate);
+            }
+
+            if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
+                frmDt = _iCommon.ServerDateTime.Date;
+            if (Convert.ToDateTime(toDt) == DateTime.MinValue)
+                toDt = _iCommon.ServerDateTime.Date;
+            return _iTblInvoiceBL.SelectItemWiseSalesExportCListForReport(frmDt, toDt, isConfirm, fromOrgId);
+        }
+
+        [Route("PrintSaleReport")]
+        [HttpGet]
+        public ResultMessage PrintSaleReport(string fromDate, string toDate, int isConfirm, string selectedOrg, int isFromPurchase)
+        {
+            DateTime frmDt = DateTime.MinValue;
+            DateTime toDt = DateTime.MinValue;
+            if (Constants.IsDateTime(fromDate))
+            {
+                frmDt = Convert.ToDateTime(fromDate);
+
+            }
+            if (Constants.IsDateTime(toDate))
+            {
+                toDt = Convert.ToDateTime(toDate);
+            }
+
+            if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
+                frmDt = _iCommon.ServerDateTime.Date;
+            if (Convert.ToDateTime(toDt) == DateTime.MinValue)
+                toDt = _iCommon.ServerDateTime.Date;
+            if (string.IsNullOrEmpty(selectedOrg))
+            {
+                TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                if (tblConfigParamsTO != null)
+                {
+                    selectedOrg = Convert.ToString(tblConfigParamsTO.ConfigParamVal) + ",0";
+                }
+            }
+            return _iTblInvoiceBL.PrintSaleReport(frmDt, toDt, isConfirm, selectedOrg, isFromPurchase);
+        }
+
 
 
         [Route("GetOtherItemListForReport")]

@@ -404,6 +404,14 @@ namespace ODLMWebAPI.StaticStuff
             SITE_SUBCATEGORY = 3
         }
 
+        public enum ConsumerTypeE
+        {
+            Dealer =1,
+            Private_Project=2,
+            Government_Project=3,
+            Individual =4
+        }
+
         // Vaibhav [24-Oct-2017] added to visit project type
         public enum VisitProjectTypeE
         {
@@ -690,6 +698,7 @@ namespace ODLMWebAPI.StaticStuff
         //Pandurang[2018-09-10] added for Stop web services
         public static string STOP_WEB_API_SERVICE_KEYS = "STOP_WEB_API_SERVICE_KEYS";
         public static string STOP_WEB_GUI_SERVICE_KEYS = "STOP_WEB_GUI_SERVICE_KEYS";
+        public static string STOP_WEB_VM_SERVICE_KEYS = "STOP_WEB_VM_SERVICE_KEYS";
 
         public static string CP_STATUS_TO_CALCULATE_ENQUIRY_OPENING_BALANCE = "STATUS_TO_CALCULATE_ENQUIRY_OPENING_BALANCE";
 
@@ -816,12 +825,18 @@ namespace ODLMWebAPI.StaticStuff
         public static string COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER = "COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER";
 
         public static string ADD_ITEMWISE_RATE_WHILE_BOOKING = "ADD_ITEMWISE_RATE_WHILE_BOOKING";
+        public static string CP_DELIVER_INVOICE_TDS_TAX_PCT = "CP_DELIVER_INVOICE_TDS_TAX_PCT";
+        public static string CHECK_IS_DECLARATION_RECEIVED = "CHECK_IS_DECLARATION_RECEIVED";
+        public static string IS_INTERNAL_CNF_SELECTION_ON_CHECKBOX_NEW = "IS_INTERNAL_CNF_SELECTION_ON_CHECKBOX_NEW";
 
         #endregion
 
         //Harshala Added
         public static string WeighmentSlip = "WeighmentSlip";
         public static string GatePassSlip = "GatePassSlip";
+        public static string DEFAULT_TCS_PERCENT_IF_DECLARATION_NOT_RECEIVED = "DEFAULT_TCS_PERCENT_IF_DECLARATION_NOT_RECEIVED";
+
+        
 
         #region Common functions
 

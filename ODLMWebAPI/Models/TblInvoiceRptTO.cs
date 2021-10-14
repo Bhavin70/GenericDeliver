@@ -91,6 +91,24 @@ namespace ODLMWebAPI.Models
         string ownerPersonLastName;
         string contactName;
 
+        //Added by minal
+        String panNo;       
+        String dealers;
+        String paymentTerms;
+        String orderNoandDate;
+        String termsofDelivery;
+        String deliveryNoteAndNo;
+        String dispatchDocNo;
+        String voucherClass;  
+        String narrationConcat;
+        String prodCateDesc;
+        Double basicRate;
+        String loadingSlipDate;
+        String transactionDate;
+        string invoiceMode;
+        Double tdsAmt;
+        string salesLedger;
+        String orgGstNo;
         #endregion
 
         #region Constructor
@@ -218,6 +236,13 @@ namespace ODLMWebAPI.Models
             get { return createdOn; }
             set { createdOn = value; }
         }
+        public String OrgGstNo
+        {
+            get { return orgGstNo; }
+            set { orgGstNo = value; }
+        }
+
+        
         public String InvoiceDateStr
         {
             get { return invoiceDate.ToString("dd-MM-yyyy"); }
@@ -466,6 +491,67 @@ namespace ODLMWebAPI.Models
         public string OrcMeasure { get => orcMeasure; set => orcMeasure = value; }
         public double LoadingQty { get => loadingQty; set => loadingQty = value; }
         public double TotalItemQty { get => totalItemQty; set => totalItemQty = value; }
+        public String PanNo { get => panNo; set => panNo = value; }       
+        public String Dealers { get => dealers; set => dealers = value; }
+        public String PaymentTerms { get => paymentTerms; set => paymentTerms = value; }
+        public String OrderNoandDate
+        {
+             get => orderNoandDate; set => orderNoandDate = value; 
+        }
+        public String TermsofDelivery { get => termsofDelivery; set => termsofDelivery = value; }
+        public String DeliveryNoteAndNo { get => deliveryNoteAndNo; set => deliveryNoteAndNo = value; }
+
+        public String DispatchDocNo
+        {
+            get { return dispatchDocNo; }
+            set { dispatchDocNo = value; }
+        }
+        public String SalesLedger
+        {
+            get { return salesLedger; }
+            set { salesLedger = value; }
+        }
+
+        
+
+
+        //public String DispatchDocNo { get => dispatchDocNo; set => dispatchDocNo = value; }
+        public String VoucherClass { get => voucherClass; set => voucherClass = value; }
+        
+
+        public String NarrationConcat { get => narrationConcat; set => narrationConcat = value; }
+
+        public String ProdCateDesc { get => prodCateDesc; set => prodCateDesc = value; }
+
+        public Double BasicRate { get => basicRate; set => basicRate = value; }
+        public String LoadingSlipDate { get => loadingSlipDate; set => loadingSlipDate = value; }
+        public String TransactionDate { get => transactionDate; set => transactionDate = value; }
+
+        public string InvoiceMode { get => invoiceMode; set => invoiceMode = value; }
+
+        public string ElectronicRefNo { get; set; }
+        public string IrnNo { get; set; }
+        public string CodeNumber { get; set; }
+        public double TareWeight { get; set; }
+        public double GrossWeight { get; set; }
+        public double NetWeight { get; set; }
+        public double RoundOffAmt { get; set; }
+        public string InvoiceTypeDesc { get; set; }
+        
+        public string BuyerAddress { get; set; }
+        public string BuyerDistrict { get; set; }
+        public string BuyerPinCode { get; set; }
+        public string BuyerTaluka { get; set; }
+        public string ConsigneeTaluka { get; set; }
+        public string InvFromOrgName { get; set; }
+        public string Orgpincode { get; set; }
+        public string OrgareaName { get; set; }
+        public string OrgplotNo { get; set; }
+        public string OrgvillageName { get; set; }
+        public string OrgdistrictName { get; set; }
+        public string OrgstateName { get; set; }
+        public string OrgcountryName { get; set; }
+        public double TdsAmt { get => tdsAmt; set => tdsAmt = value; }
         #endregion
     }
 }
