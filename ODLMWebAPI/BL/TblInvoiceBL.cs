@@ -5510,6 +5510,7 @@ namespace ODLMWebAPI.BL
                         headerDT.Columns.Add("InvoiceId");
                         headerDT.Columns.Add("FirmName");
                         headerDT.Columns.Add("dealername");
+                        headerDT.Columns.Add("ContactNo");
                         headerDT.Columns.Add("VehicleNo");
                         headerDT.Columns.Add("LoadingSlipId");
                         headerDT.Columns.Add("loadingLayerDesc");
@@ -5594,6 +5595,7 @@ namespace ODLMWebAPI.BL
                                 TblInvoiceAddressTO tblInvoiceAddressTO = invoiceAddressTOList.Where(w => w.TxnAddrTypeId == (Int32)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS).FirstOrDefault();
                                 headerDT.Rows[0]["FirmName"] = tblInvoiceAddressTO.BillingName;
                                 headerDT.Rows[0]["dealername"] = tblInvoiceAddressTO.BillingName;
+                                headerDT.Rows[0]["ContactNo"] = tblInvoiceAddressTO.ContactNo;
                             }
                             headerDT.Rows[0]["VehicleNo"] = TblLoadingSlipTO.VehicleNo;
                             headerDT.Rows[0]["loadingLayerDesc"] = TblLoadingSlipTO.LoadingSlipExtTOList[0].LoadingLayerDesc;
@@ -5799,13 +5801,17 @@ namespace ODLMWebAPI.BL
                         else if (reportType == Constants.GatePassSlip)
                         {
                             templateName = "GatePassSlip";
+                            if (TblLoadingSlipTO.IsConfirmed != 1)
+                            {
+                                templateName = "WeighingSlipNonConfirm";
+                            }
                         }
 
                         //creating template'''''''''''''''''
-                        if (TblLoadingSlipTO.IsConfirmed != 1)
-                        {
-                            templateName = "WeighingSlipNonConfirm";
-                        }
+                        //if (TblLoadingSlipTO.IsConfirmed != 1)
+                        //{
+                        //    templateName = "WeighingSlipNonConfirm";
+                        //}
 
                         String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
                         String fileName = "Bill-" + DateTime.Now.Ticks;
