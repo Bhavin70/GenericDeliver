@@ -6324,11 +6324,12 @@ namespace ODLMWebAPI.BL
                         else if (reportType == Constants.GatePassSlip)
                         {
                             templateName = "GatePassSlip";
-                            //[2021-10-13] Dhananjay Added
-                            if (TblLoadingSlipTO.IsConfirmed != 1)
-                            {
-                                templateName = "WeighingSlipNonConfirm";
-                            }
+                            //[2021-10-20] Dhananjay Commented following condition
+                            ////[2021-10-13] Dhananjay Added
+                            //if (TblLoadingSlipTO.IsConfirmed != 1)
+                            //{
+                            //    templateName = "WeighingSlipNonConfirm";
+                            //}
                         }
 
                         //[2021-10-13] Dhananjay commented
