@@ -6325,10 +6325,10 @@ namespace ODLMWebAPI.BL
                         {
                             templateName = "GatePassSlip";
                             //[2021-10-13] Dhananjay Added
-                            if (TblLoadingSlipTO.IsConfirmed != 1)
-                            {
-                                templateName = "WeighingSlipNonConfirm";
-                            }
+                            //if (TblLoadingSlipTO.IsConfirmed != 1)
+                            //{
+                            //    templateName = "WeighingSlipNonConfirm";
+                            //}
                         }
 
                         ////creating template'''''''''''''''''
