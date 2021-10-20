@@ -6029,6 +6029,7 @@ namespace ODLMWebAPI.BL
                         headerDT.Columns.Add("FirmName");
                         headerDT.Columns.Add("dealername");
                         headerDT.Columns.Add("ContactNo"); //[2021-10-13] Dhananjay Added
+                        headerDT.Columns.Add("VillageName"); //[2021-10-20] Dhananjay Added
                         headerDT.Columns.Add("VehicleNo");
                         headerDT.Columns.Add("LoadingSlipId");
                         headerDT.Columns.Add("loadingLayerDesc");
@@ -6115,6 +6116,7 @@ namespace ODLMWebAPI.BL
                                 headerDT.Rows[0]["FirmName"] = tblInvoiceAddressTO.BillingName;
                                 headerDT.Rows[0]["dealername"] = tblInvoiceAddressTO.BillingName;
                                 headerDT.Rows[0]["ContactNo"] = tblInvoiceAddressTO.ContactNo; //[2021-10-13] Dhananjay Added
+                                headerDT.Rows[0]["VillageName"] = tblInvoiceAddressTO.VillageName; //[2021-10-20] Dhananjay Added
                             }
                             headerDT.Rows[0]["VehicleNo"] = TblLoadingSlipTO.VehicleNo;
                             headerDT.Rows[0]["loadingLayerDesc"] = TblLoadingSlipTO.LoadingSlipExtTOList[0].LoadingLayerDesc;
@@ -6319,7 +6321,9 @@ namespace ODLMWebAPI.BL
                         if (reportType == Constants.WeighmentSlip)
                         {
                             //templateName = "WeighingSlip";
-                            templateName = "WeighmentSlip";
+                            //templateName = "WeighmentSlip";
+                            //[2021-10-20] Dhananjay Commented templateName = "WeighmentSlip";
+                            templateName = "WeighingSlipNonConfirm"; //[2021-10-20] Dhananjay Added
                         }
                         else if (reportType == Constants.GatePassSlip)
                         {
