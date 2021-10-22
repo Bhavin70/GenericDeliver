@@ -5203,7 +5203,10 @@ namespace ODLMWebAPI.BL {
             string loadingSlipNo = tblLoadingTO.LoadingSlipNo;
             Int32 result = 0;
             ResultMessage resultMessage = new ResultMessage ();
-
+            if (tblBookingExtTOList != null && tblBookingExtTOList.Count > 0)
+            {
+                tblBookingExtTOList = tblBookingExtTOList.Where(w => w.ScheduleId > 0).ToList();
+            }
             if (tblLoadingSlipTO.LoadingSlipExtTOList != null && tblLoadingSlipTO.LoadingSlipExtTOList.Count > 0) {
                 if (tblLoadingTO.LoadingType == (int) Constants.LoadingTypeE.OTHER) {
                     for (int stk = 0; stk < tblLoadingSlipTO.LoadingSlipExtTOList.Count; stk++) {

@@ -3516,7 +3516,11 @@ namespace ODLMWebAPI.BL
                 excelWorksheet.Cells[1, 20].Value = "CD VALUE";
                 excelWorksheet.Cells[1, 21].Value = "PARTY RECEIVABLE";
 
-                excelWorksheet.Cells[1, 1, 1, 21].Style.Font.Bold = true;
+                excelWorksheet.Cells[1, 22].Value = "Gross Weight";
+                excelWorksheet.Cells[1, 23].Value = "Tare Weight";
+                excelWorksheet.Cells[1, 24].Value = "Net Weight";
+
+                excelWorksheet.Cells[1, 1, 1, 24].Style.Font.Bold = true;
 
                 for (int i = 0; i < TblInvoiceRptTOListByInvoiceItemId.Count; i++)
                 {
