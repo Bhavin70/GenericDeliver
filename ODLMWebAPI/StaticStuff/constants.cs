@@ -605,6 +605,7 @@ namespace ODLMWebAPI.StaticStuff
         public static string CP_DELETE_PREVIOUS_STOCK_AND_PREVIOUS_QUOTADECLARATION_DAYS = "DELETE_PREVIOUS_STOCK_AND_PREVIOUS_QUOTADECLARATION_DAYS";
         public static string CP_MIGRATE_ENQUIRY_DATA = "MIGRATE_ENQUIRY_DATA";
         public static string CP_MIGRATE_BEFORE_DAYS = "MIGRATE_BEFORE_DAYS";
+        public static string CP_DELIVER_IS_REQUIRE_DIFFERENT_DT_FOR_6MM_MATERIAL = "CP_DELIVER_IS_REQUIRE_DIFFERENT_DT_FOR_6MM_MATERIAL";
         //Pandurang[2018-10-03]Added for Delete Dispatch data
         public static string CP_DELETE_BEFORE_DAYS = "MIGRATE_BEFORE_DAYS";
         public static string CP_DATA_EXTRACTION_TYPE = "DATA_EXTRACTION_TYPE";
@@ -1154,6 +1155,9 @@ namespace ODLMWebAPI.StaticStuff
             GENERATE_INVOICE_ONLY = 2,
             INVOICE_WITH_EWAY_BILL = 3,
         }
-
+        public enum TblMaterialEnum
+        {
+            SIX_MM = 1034
+        }
     }
 }
