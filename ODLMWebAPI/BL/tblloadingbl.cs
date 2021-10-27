@@ -11318,6 +11318,12 @@ namespace ODLMWebAPI.BL {
                 TblLoadingTO LoadingTO = SelectLoadingTOWithDetails(idLoading);
                 if (LoadingTO != null)
                 {
+                    Int32 IS_REQUIRE_DIFFERENT_DT_FOR_6MM_MATERIAL = 0;
+                    TblConfigParamsTO ConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DELIVER_IS_REQUIRE_DIFFERENT_DT_FOR_6MM_MATERIAL);
+                    if (ConfigParamsTO != null)
+                    {
+                        IS_REQUIRE_DIFFERENT_DT_FOR_6MM_MATERIAL = Convert.ToInt32(ConfigParamsTO.ConfigParamVal);
+                    }
                     DataSet printDataSet = new DataSet();
 
                     //headerDT
@@ -11325,6 +11331,7 @@ namespace ODLMWebAPI.BL {
                     DataTable addressDT = new DataTable();
                     DataTable loadingDT = new DataTable();
                     DataTable loadingItemDT = new DataTable();
+                    DataTable specificItemLoadingDT = new DataTable();
                     DataTable itemFooterDetailsDT = new DataTable();
 
                     DataTable multipleInvoiceCopyDT = new DataTable();
@@ -11332,6 +11339,7 @@ namespace ODLMWebAPI.BL {
                     loadingDT.TableName = "loadingDT";
                     addressDT.TableName = "addressDT";
                     loadingItemDT.TableName = "loadingItemDT";
+                    specificItemLoadingDT.TableName = "specificItemLoadingDT";
                     itemFooterDetailsDT.TableName = "itemFooterDetailsDT";
 
                     headerDT.Columns.Add("CreatedOnStr");
@@ -11360,6 +11368,9 @@ namespace ODLMWebAPI.BL {
                     headerDT.Columns.Add("DriverContactNo");
                     headerDT.Columns.Add("PreparedBy");
                     headerDT.Columns.Add("Comment");
+                    headerDT.Columns.Add("LayerNo");
+                    headerDT.Columns.Add("BrandDesc");
+                    
 
 
                     loadingItemDT.Columns.Add("DisplayName");
@@ -11378,6 +11389,22 @@ namespace ODLMWebAPI.BL {
                     loadingItemDT.Columns.Add("ItemName");
                     loadingItemDT.Columns.Add("DisplayField");
 
+                    specificItemLoadingDT.Columns.Add("DisplayName");
+                    specificItemLoadingDT.Columns.Add("MaterialDesc");
+                    specificItemLoadingDT.Columns.Add("ProdItemDesc");
+                    specificItemLoadingDT.Columns.Add("LoadingQty");
+                    specificItemLoadingDT.Columns.Add("Bundles");
+                    specificItemLoadingDT.Columns.Add("LoadedWeight");
+                    specificItemLoadingDT.Columns.Add("MstLoadedBundles");
+                    specificItemLoadingDT.Columns.Add("LoadedBundles");
+                    specificItemLoadingDT.Columns.Add("RatePerMT");
+                    specificItemLoadingDT.Columns.Add("LoadingSlipId");
+                    specificItemLoadingDT.Columns.Add("BrandDesc");
+                    specificItemLoadingDT.Columns.Add("ProdSpecDesc");
+                    specificItemLoadingDT.Columns.Add("ProdcatDesc");
+                    specificItemLoadingDT.Columns.Add("ItemName");
+                    specificItemLoadingDT.Columns.Add("DisplayField");
+
                     if (LoadingTO.LoadingSlipList != null && LoadingTO.LoadingSlipList.Count > 0)
                     {
                         for (int i = 0; i < LoadingTO.LoadingSlipList.Count; i++)
@@ -11386,6 +11413,7 @@ namespace ODLMWebAPI.BL {
                             headerDT.Rows.Add();
                             Int32 loadHeaderDTCount = headerDT.Rows.Count - 1;
 
+                            headerDT.Rows[loadHeaderDTCount]["LayerNo"] = i+1;
                             headerDT.Rows[loadHeaderDTCount]["CreatedOnStr"] = LoadingTO.CreatedOnStr;
                             headerDT.Rows[loadHeaderDTCount]["CnfOrgName"] = LoadingTO.CnfOrgName;
                             headerDT.Rows[loadHeaderDTCount]["TransporterOrgName"] = LoadingTO.TransporterOrgName;
@@ -11453,76 +11481,158 @@ namespace ODLMWebAPI.BL {
                             for (int j = 0; j < loadingSlipTo.LoadingSlipExtTOList.Count; j++)
                             {
                                 TblLoadingSlipExtTO tblLoadingSlipExtTO = loadingSlipTo.LoadingSlipExtTOList[j];
-                                loadingItemDT.Rows.Add();
-                                Int32 loadItemDTCount = loadingItemDT.Rows.Count - 1;
-
-                                loadingItemDT.Rows[loadItemDTCount]["DisplayName"] = tblLoadingSlipExtTO.DisplayName;
-
-                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
+                                if(IS_REQUIRE_DIFFERENT_DT_FOR_6MM_MATERIAL == 1 && tblLoadingSlipExtTO.MaterialId == (Int32)Constants.TblMaterialEnum.SIX_MM)
                                 {
-                                    loadingItemDT.Rows[loadItemDTCount]["DisplayField"] = tblLoadingSlipExtTO.MaterialDesc;
+                                    specificItemLoadingDT.Rows.Add();
+                                    Int32 loadItemDTCount = specificItemLoadingDT.Rows.Count - 1;
+
+                                    specificItemLoadingDT.Rows[loadItemDTCount]["DisplayName"] = tblLoadingSlipExtTO.DisplayName;
+
+                                    if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
+                                    {
+                                        specificItemLoadingDT.Rows[loadItemDTCount]["DisplayField"] = tblLoadingSlipExtTO.MaterialDesc;
+                                    }
+                                    else
+                                    {
+                                        specificItemLoadingDT.Rows[loadItemDTCount]["DisplayField"] = tblLoadingSlipExtTO.ItemName;
+                                    }
+                                    if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
+                                    {
+                                        specificItemLoadingDT.Rows[loadItemDTCount]["MaterialDesc"] = tblLoadingSlipExtTO.MaterialDesc;
+                                    }
+                                    else
+                                    {
+                                        specificItemLoadingDT.Rows[loadItemDTCount]["MaterialDesc"] = "";
+                                    }
+
+                                    if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ItemName))
+                                    {
+                                        specificItemLoadingDT.Rows[loadItemDTCount]["ItemName"] = tblLoadingSlipExtTO.ItemName;
+                                    }
+                                    else
+                                    {
+                                        specificItemLoadingDT.Rows[loadItemDTCount]["ItemName"] = "";
+                                    }
+
+                                    if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ProdCatDesc))
+                                    {
+                                        specificItemLoadingDT.Rows[loadItemDTCount]["ProdCatDesc"] = tblLoadingSlipExtTO.ProdCatDesc;
+                                    }
+                                    else
+                                    {
+                                        specificItemLoadingDT.Rows[loadItemDTCount]["ProdCatDesc"] = "";
+
+                                    }
+
+                                    if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ProdSpecDesc))
+                                    {
+                                        specificItemLoadingDT.Rows[loadItemDTCount]["ProdSpecDesc"] = tblLoadingSlipExtTO.ProdSpecDesc;
+                                    }
+                                    else
+                                    {
+                                        specificItemLoadingDT.Rows[loadItemDTCount]["ProdSpecDesc"] = "";
+
+                                    }
+                                    if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.BrandDesc))
+                                    {
+                                        specificItemLoadingDT.Rows[loadItemDTCount]["BrandDesc"] = tblLoadingSlipExtTO.BrandDesc;
+                                    }
+                                    else
+                                    {
+                                        specificItemLoadingDT.Rows[loadItemDTCount]["BrandDesc"] = "";
+
+                                    }
+
+                                    specificItemLoadingDT.Rows[loadItemDTCount]["ProdItemDesc"] = tblLoadingSlipExtTO.ProdItemDesc;
+                                    specificItemLoadingDT.Rows[loadItemDTCount]["LoadingQty"] = tblLoadingSlipExtTO.LoadingQty;
+                                    specificItemLoadingDT.Rows[loadItemDTCount]["Bundles"] = tblLoadingSlipExtTO.Bundles;
+                                    specificItemLoadingDT.Rows[loadItemDTCount]["LoadedWeight"] = tblLoadingSlipExtTO.LoadedWeight;
+                                    specificItemLoadingDT.Rows[loadItemDTCount]["MstLoadedBundles"] = tblLoadingSlipExtTO.MstLoadedBundles;
+                                    specificItemLoadingDT.Rows[loadItemDTCount]["LoadedBundles"] = tblLoadingSlipExtTO.LoadedBundles;
+                                    specificItemLoadingDT.Rows[loadItemDTCount]["RatePerMT"] = tblLoadingSlipExtTO.RatePerMT;
+                                    specificItemLoadingDT.Rows[loadItemDTCount]["LoadingSlipId"] = tblLoadingSlipExtTO.LoadingSlipId;
                                 }
                                 else
                                 {
-                                    loadingItemDT.Rows[loadItemDTCount]["DisplayField"] = tblLoadingSlipExtTO.ItemName;
-                                }
-                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
-                                {
-                                    loadingItemDT.Rows[loadItemDTCount]["MaterialDesc"] = tblLoadingSlipExtTO.MaterialDesc;
-                                }
-                                else
-                                {
-                                    loadingItemDT.Rows[loadItemDTCount]["MaterialDesc"] = "";
-                                }
+                                    loadingItemDT.Rows.Add();
+                                    Int32 loadItemDTCount = loadingItemDT.Rows.Count - 1;
 
-                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ItemName))
-                                {
-                                    loadingItemDT.Rows[loadItemDTCount]["ItemName"] = tblLoadingSlipExtTO.ItemName;
-                                }
-                                else
-                                {
-                                    loadingItemDT.Rows[loadItemDTCount]["ItemName"] = "";
-                                }
+                                    loadingItemDT.Rows[loadItemDTCount]["DisplayName"] = tblLoadingSlipExtTO.DisplayName;
 
-                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ProdCatDesc))
-                                {
-                                    loadingItemDT.Rows[loadItemDTCount]["ProdCatDesc"] = tblLoadingSlipExtTO.ProdCatDesc;
-                                }
-                                else
-                                {
-                                    loadingItemDT.Rows[loadItemDTCount]["ProdCatDesc"] = "";
+                                    if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
+                                    {
+                                        loadingItemDT.Rows[loadItemDTCount]["DisplayField"] = tblLoadingSlipExtTO.MaterialDesc;
+                                    }
+                                    else
+                                    {
+                                        loadingItemDT.Rows[loadItemDTCount]["DisplayField"] = tblLoadingSlipExtTO.ItemName;
+                                    }
+                                    if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
+                                    {
+                                        loadingItemDT.Rows[loadItemDTCount]["MaterialDesc"] = tblLoadingSlipExtTO.MaterialDesc;
+                                    }
+                                    else
+                                    {
+                                        loadingItemDT.Rows[loadItemDTCount]["MaterialDesc"] = "";
+                                    }
 
-                                }
+                                    if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ItemName))
+                                    {
+                                        loadingItemDT.Rows[loadItemDTCount]["ItemName"] = tblLoadingSlipExtTO.ItemName;
+                                    }
+                                    else
+                                    {
+                                        loadingItemDT.Rows[loadItemDTCount]["ItemName"] = "";
+                                    }
 
-                                if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ProdSpecDesc))
-                                {
-                                    loadingItemDT.Rows[loadItemDTCount]["ProdSpecDesc"] = tblLoadingSlipExtTO.ProdSpecDesc;
-                                }
-                                else
-                                {
-                                    loadingItemDT.Rows[loadItemDTCount]["ProdSpecDesc"] = "";
+                                    if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ProdCatDesc))
+                                    {
+                                        loadingItemDT.Rows[loadItemDTCount]["ProdCatDesc"] = tblLoadingSlipExtTO.ProdCatDesc;
+                                    }
+                                    else
+                                    {
+                                        loadingItemDT.Rows[loadItemDTCount]["ProdCatDesc"] = "";
 
+                                    }
+
+                                    if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ProdSpecDesc))
+                                    {
+                                        loadingItemDT.Rows[loadItemDTCount]["ProdSpecDesc"] = tblLoadingSlipExtTO.ProdSpecDesc;
+                                    }
+                                    else
+                                    {
+                                        loadingItemDT.Rows[loadItemDTCount]["ProdSpecDesc"] = "";
+
+                                    }
+                                    if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.BrandDesc))
+                                    {
+                                        loadingItemDT.Rows[loadItemDTCount]["BrandDesc"] = tblLoadingSlipExtTO.BrandDesc;
+                                    }
+                                    else
+                                    {
+                                        loadingItemDT.Rows[loadItemDTCount]["BrandDesc"] = "";
+
+                                    }
+
+                                    loadingItemDT.Rows[loadItemDTCount]["ProdItemDesc"] = tblLoadingSlipExtTO.ProdItemDesc;
+                                    loadingItemDT.Rows[loadItemDTCount]["LoadingQty"] = tblLoadingSlipExtTO.LoadingQty;
+                                    loadingItemDT.Rows[loadItemDTCount]["Bundles"] = tblLoadingSlipExtTO.Bundles;
+                                    loadingItemDT.Rows[loadItemDTCount]["LoadedWeight"] = tblLoadingSlipExtTO.LoadedWeight;
+                                    loadingItemDT.Rows[loadItemDTCount]["MstLoadedBundles"] = tblLoadingSlipExtTO.MstLoadedBundles;
+                                    loadingItemDT.Rows[loadItemDTCount]["LoadedBundles"] = tblLoadingSlipExtTO.LoadedBundles;
+                                    loadingItemDT.Rows[loadItemDTCount]["RatePerMT"] = tblLoadingSlipExtTO.RatePerMT;
+                                    loadingItemDT.Rows[loadItemDTCount]["LoadingSlipId"] = tblLoadingSlipExtTO.LoadingSlipId;
                                 }
+                                headerDT.Rows[loadHeaderDTCount]["LoadingLayerDesc"] = tblLoadingSlipExtTO.LoadingLayerDesc;
                                 if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.BrandDesc))
                                 {
-                                    loadingItemDT.Rows[loadItemDTCount]["BrandDesc"] = tblLoadingSlipExtTO.BrandDesc;
+                                    headerDT.Rows[loadHeaderDTCount]["BrandDesc"] = tblLoadingSlipExtTO.BrandDesc;
                                 }
                                 else
                                 {
-                                    loadingItemDT.Rows[loadItemDTCount]["BrandDesc"] = "";
+                                    headerDT.Rows[loadHeaderDTCount]["BrandDesc"] = "";
 
                                 }
-
-                                loadingItemDT.Rows[loadItemDTCount]["ProdItemDesc"] = tblLoadingSlipExtTO.ProdItemDesc;
-                                loadingItemDT.Rows[loadItemDTCount]["LoadingQty"] = tblLoadingSlipExtTO.LoadingQty;
-                                loadingItemDT.Rows[loadItemDTCount]["Bundles"] = tblLoadingSlipExtTO.Bundles;
-                                loadingItemDT.Rows[loadItemDTCount]["LoadedWeight"] = tblLoadingSlipExtTO.LoadedWeight;
-                                loadingItemDT.Rows[loadItemDTCount]["MstLoadedBundles"] = tblLoadingSlipExtTO.MstLoadedBundles;
-                                loadingItemDT.Rows[loadItemDTCount]["LoadedBundles"] = tblLoadingSlipExtTO.LoadedBundles;
-                                loadingItemDT.Rows[loadItemDTCount]["RatePerMT"] = tblLoadingSlipExtTO.RatePerMT;
-                                loadingItemDT.Rows[loadItemDTCount]["LoadingSlipId"] = tblLoadingSlipExtTO.LoadingSlipId;
-                                headerDT.Rows[loadHeaderDTCount]["LoadingLayerDesc"] = tblLoadingSlipExtTO.LoadingLayerDesc;
-
                             }
 
                         }
@@ -11533,7 +11643,9 @@ namespace ODLMWebAPI.BL {
 
                     printDataSet.Tables.Add(headerDT);
                     loadingItemDT.TableName = "loadingItemDT";
+                    specificItemLoadingDT.TableName = "specificItemLoadingDT";
                     printDataSet.Tables.Add(loadingItemDT);
+                    printDataSet.Tables.Add(specificItemLoadingDT);
 
                     //creating template'''''''''''''''''
                     string templateName = "LoadingSlip";
