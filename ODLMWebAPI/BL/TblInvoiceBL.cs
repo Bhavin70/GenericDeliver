@@ -6031,6 +6031,7 @@ namespace ODLMWebAPI.BL
                         headerDT.Columns.Add("ContactNo"); //[2021-10-13] Dhananjay Added
                         headerDT.Columns.Add("VillageName"); //[2021-10-20] Dhananjay Added
                         headerDT.Columns.Add("VehicleNo");
+                        headerDT.Columns.Add("DriverContactNo"); //[2021-10-29] Dhananjay Added
                         headerDT.Columns.Add("LoadingSlipId");
                         headerDT.Columns.Add("loadingLayerDesc");
                         headerDT.Columns.Add("DateTime");
@@ -6119,6 +6120,7 @@ namespace ODLMWebAPI.BL
                                 headerDT.Rows[0]["VillageName"] = tblInvoiceAddressTO.VillageName; //[2021-10-20] Dhananjay Added
                             }
                             headerDT.Rows[0]["VehicleNo"] = TblLoadingSlipTO.VehicleNo;
+                            headerDT.Rows[0]["DriverContactNo"] = TblLoadingSlipTO.ContactNo; //[2021-10-29] Dhananjay Added
                             headerDT.Rows[0]["loadingLayerDesc"] = TblLoadingSlipTO.LoadingSlipExtTOList[0].LoadingLayerDesc;
                             headerDT.Rows[0]["LoadingSlipId"] = TblLoadingSlipTO.IdLoadingSlip;
                             //headerDT.Rows[0]["Date"] = TblLoadingSlipTO.CreatedOnStr;
