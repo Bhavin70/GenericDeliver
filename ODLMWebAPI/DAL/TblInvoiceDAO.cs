@@ -881,7 +881,7 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 selectQuery =
-                    " Select invoice.invFromOrgId,invoice.idInvoice,invoice.invoiceNo,invoice.narration,invoice.statusDate ,invoice.vehicleNo,invoice.invoiceDate,invoice.createdOn,   " +
+                    " Select invoice.netWeight, invoice.tareWeight, invoice.grossWeight, invoice.invFromOrgId,invoice.idInvoice,invoice.invoiceNo,invoice.narration,invoice.statusDate ,invoice.vehicleNo,invoice.invoiceDate,invoice.createdOn,   " +
                            " invoiceAddress.billingName as partyName, org.firmName cnfName,  " +
                            "  booking.bookingRate,itemDetails.idInvoiceItem as invoiceItemId,  " +
                            "  itemDetails.prodItemDesc, itemDetails.bundles,itemDetails.rate, " +
@@ -911,7 +911,7 @@ namespace ODLMWebAPI.DAL
                             // Vaibhav [10-Jan-2018] Added to select from finalInvoice.
 
                             " UNION ALL " +
-                            " Select invoice.invFromOrgId,invoice.idInvoice,invoice.invoiceNo,invoice.narration,invoice.statusDate ,invoice.vehicleNo,invoice.invoiceDate,invoice.createdOn,   " +
+                            " Select invoice.netWeight, invoice.tareWeight, invoice.grossWeight, invoice.invFromOrgId,invoice.idInvoice,invoice.invoiceNo,invoice.narration,invoice.statusDate ,invoice.vehicleNo,invoice.invoiceDate,invoice.createdOn,   " +
                            " invoiceAddress.billingName as partyName, org.firmName cnfName,  " +
                            "  booking.bookingRate,itemDetails.idInvoiceItem as invoiceItemId,  " +
                            "  itemDetails.prodItemDesc, itemDetails.bundles,itemDetails.rate, " +
@@ -1873,7 +1873,7 @@ namespace ODLMWebAPI.DAL
                 conn.Open();
                 selectQuery =
                        " Select distinct invoice.idInvoice,invoice.invoiceNo,invoice.narration, " +
-                    " invoice.statusDate ,invoice.invoiceDate,invoice.createdOn,invAddrBill.billingName as partyName, " +
+                    " invoice.statusDate ,invoice.invoiceDate,invoice.createdOn,lExt.loadedWeight netWeight, lExt.calcTareWeight tareWeight, (lExt.calcTareWeight - lExt.loadedWeight) grossWeight,invAddrBill.billingName as partyName, " +
                     " invAddrBill.stateName as buyerState ,invAddrBill.gstinNo as buyerGstNo,invAddrBill.txnAddrTypeId as billingTypeId, " +
                     " org.firmName cnfName, invAddrCons.billingName as consignee,invAddrCons.consigneeAddress,invAddrCons.consigneeDistict," +
                     " invAddrCons.consigneePinCode,invAddrCons.stateName as consigneeState,invAddrCons.gstinNo as consigneeGstNo, " +
@@ -1928,7 +1928,7 @@ namespace ODLMWebAPI.DAL
                     " UNION ALL " +
 
                     " Select distinct invoice.idInvoice,invoice.invoiceNo,invoice.narration, " +
-                    " invoice.statusDate ,invoice.invoiceDate,invoice.createdOn,invAddrBill.billingName as partyName, " +
+                    " invoice.statusDate ,invoice.invoiceDate,invoice.createdOn,lExt.loadedWeight netWeight, lExt.calcTareWeight tareWeight, (lExt.calcTareWeight - lExt.loadedWeight) grossWeight,invAddrBill.billingName as partyName, " +
                     " invAddrBill.stateName as buyerState ,invAddrBill.gstinNo as buyerGstNo,invAddrBill.txnAddrTypeId as billingTypeId, " +
                     " org.firmName cnfName, invAddrCons.billingName as consignee,invAddrCons.consigneeAddress,invAddrCons.consigneeDistict," +
                     " invAddrCons.consigneePinCode,invAddrCons.stateName as consigneeState,invAddrCons.gstinNo as consigneeGstNo, " +
