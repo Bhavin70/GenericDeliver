@@ -684,6 +684,8 @@ namespace ODLMWebAPI.StaticStuff
         //Priyanka [02-08-2018] Added for show the todays stock on dashboard.
         public static string CP_TODAYS_BOOKING_OPENING_BALANCE = "TODAYS_BOOKING_OPENING_BALANCE";
 
+        public static string CP_DELIVER_SKIP_CONSUMER_TYPE_ID_IN_SOLD_STOCK_DISPLAY_ON_DASHBOARD = "CP_DELIVER_SKIP_CONSUMER_TYPE_ID_IN_SOLD_STOCK_DISPLAY_ON_DASHBOARD";
+
         //Priyanka [02-08-2018] Added for set the status for view enquiry statistics graphs
         public static string CP_ENQUIRY_STATISTICS_REPORT_STATUS = "ENQUIRY_STATISTICS_REPORT_STATUS";
 

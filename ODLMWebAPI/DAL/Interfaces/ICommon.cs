@@ -31,6 +31,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int GetAvailNumber(List<int> list, int maxNumber);
         dynamic PostSalesInvoiceToSAP(TblInvoiceTO tblInvoiceTO);
         byte[] convertQRStringToByteArray(String signedQRCode);
+        List<DropDownTO> GetConsumerCategoryList(String idConsumerStr = "");
 
     }
 }
