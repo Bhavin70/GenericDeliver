@@ -590,5 +590,48 @@ public  string SelectApKLoginArray(int userId)
             //put a breakpoint here and check datatable
             return dataTable;
         }
+        public List<DropDownTO> GetConsumerCategoryList(String idConsumerStr = "")
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlDataReader sqlReader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = " SELECT * FROM dimConsumerType WHERE isActive = 1";
+                if (!String.IsNullOrEmpty(idConsumerStr))
+                {
+                    cmdSelect.CommandText += " AND idConsumer IN(" + idConsumerStr + ")";
+                }
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Connection = conn;
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DropDownTO> list = new List<DropDownTO>();
+                if (sqlReader != null)
+                {
+                    while (sqlReader.Read())
+                    {
+                        DropDownTO dropDownTO = new DropDownTO();
+                        if (sqlReader["consumerType"] != DBNull.Value)
+                            dropDownTO.Text = Convert.ToString(sqlReader["consumerType"].ToString());
+                        if (sqlReader["idConsumer"] != DBNull.Value)
+                            dropDownTO.Value = Convert.ToInt32(sqlReader["idConsumer"].ToString());
+                        list.Add(dropDownTO);
+                    }
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                sqlReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
     }
 }

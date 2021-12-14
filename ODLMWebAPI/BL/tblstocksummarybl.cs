@@ -122,8 +122,16 @@ namespace ODLMWebAPI.BL
             {
                 stockUpdateInfo = new DashboardModels.StockUpdateInfo();
             }
-
-
+            List<DropDownTO> ConsumerTypeList = new List<DropDownTO>();
+            TblConfigParamsTO ConsumerTypeConfTo = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DELIVER_SKIP_CONSUMER_TYPE_ID_IN_SOLD_STOCK_DISPLAY_ON_DASHBOARD);
+            if(ConsumerTypeConfTo != null)
+            {
+                if (!String.IsNullOrEmpty(ConsumerTypeConfTo.ConfigParamVal))
+                {
+                    ConsumerTypeList = _iCommon.GetConsumerCategoryList(ConsumerTypeConfTo.ConfigParamVal);
+                }
+            }
+            
             TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_TODAYS_BOOKING_OPENING_BALANCE);
 
             //SoldStock will be set from ConfigParamVal as per booking type.
@@ -135,7 +143,18 @@ namespace ODLMWebAPI.BL
                 {
                     foreach (PendingQtyOrderTypeTo PendingQtyWithOrderType in PendingQtyWithOrderTypeList)
                     {
-                        stockUpdateInfo.SoldStock += PendingQtyWithOrderType.BookingQty;
+                        if(ConsumerTypeList != null && ConsumerTypeList.Count > 0)
+                        {
+                            var matchTO = ConsumerTypeList.Where(w => w.Text == PendingQtyWithOrderType.ConsumerTypeName).ToList();
+                            if(matchTO == null || matchTO.Count == 0)
+                            {
+                                stockUpdateInfo.SoldStock += PendingQtyWithOrderType.BookingQty;
+                            }
+                        }
+                        else
+                        {
+                            stockUpdateInfo.SoldStock += PendingQtyWithOrderType.BookingQty;
+                        }
                     }
                 }
                
