@@ -183,17 +183,19 @@ namespace ODLMWebAPI.DAL
                 if (skipOtherQty == 1)
                 {
                     //cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty from tblBookings where bookingType not IN(2) and statusId NOT IN( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate";
-                    cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty,dimConsumerType.consumerType from tblBookings " +
+                    cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty,dimConsumerType.consumerType from tblBookings, dimConsumerType.displaySeqNo " +
                                             "left join dimConsumerType dimConsumerType on dimConsumerType.idConsumer = tblBookings.consumerTypeId " +
-                                            "where bookingType not IN(2) and statusId NOT IN ( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate group by dimConsumerType.consumerType";
+                                            "where bookingType not IN(2) and statusId NOT IN ( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate group by dimConsumerType.consumerType, dimConsumerType.displaySeqNo " +
+                                            "ORDER BY dimConsumerType.displaySeqNo";
 
                 }
                 else
                 {
                     //cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty from tblBookings where statusId NOT IN( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate";
-                    cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty,dimConsumerType.consumerType from tblBookings " +
+                    cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty,dimConsumerType.consumerType from tblBookings, dimConsumerType.displaySeqNo " +
                                             "left join dimConsumerType dimConsumerType on dimConsumerType.idConsumer = tblBookings.consumerTypeId " +
-                                            "where statusId NOT IN ( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate group by dimConsumerType.consumerType";
+                                            "where statusId NOT IN ( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate group by dimConsumerType.consumerType, dimConsumerType.displaySeqNo " +
+                                            "ORDER BY dimConsumerType.displaySeqNo";
                 }
 
 
