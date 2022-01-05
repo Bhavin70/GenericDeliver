@@ -4686,6 +4686,9 @@ namespace ODLMWebAPI.BL
                 invoiceDT.Columns.Add("poNo");
                 invoiceDT.Columns.Add("poDateStr");
 
+                invoiceDT.Columns.Add("DeliveryNoteNo");
+                invoiceDT.Columns.Add("DispatchDocNo");
+
                 invoiceDT.Columns.Add("TotalTaxAmt", typeof(double));
                 invoiceDT.Columns.Add("TotalTaxAmtWordStr");
                 //chetan[14-feb-2020] added
@@ -4923,6 +4926,9 @@ namespace ODLMWebAPI.BL
 
                     invoiceDT.Rows[0]["TotalTaxAmt"] = totalTaxAmt;
                     invoiceDT.Rows[0]["TotalTaxAmtWordStr"] = currencyTowords(totalTaxAmt, tblInvoiceTO.CurrencyId); ;
+
+                    invoiceDT.Rows[0]["DeliveryNoteNo"] = tblInvoiceTO.DeliveryNoteNo;
+                    invoiceDT.Rows[0]["DispatchDocNo"] = tblInvoiceTO.DispatchDocNo;
 
                     //if (isMathRoundoff == 1)
                     if (isMathRoundoff == 1)  //Not applicable as each value will round off upto 2
