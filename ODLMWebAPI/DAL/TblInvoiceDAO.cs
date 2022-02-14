@@ -2635,6 +2635,68 @@ namespace ODLMWebAPI.DAL
         }
 
 
+        public List<InvoiceReportTO> SelectAllInvoices(DateTime frmDt, DateTime toDt)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataAdapter dq = null;
+            DataTable dt = new DataTable();
+            List<InvoiceReportTO> invoiceReportTOList = new List<InvoiceReportTO>();
+            try
+            {
+
+                String query = "select tempInvoice.idInvoice, dimProdCat.prodCateDesc,dimProdSpec.prodSpecDesc,tblMaterial.materialSubType " +
+                    " ,tempInvoice.invoiceNo, tempInvoice.invoiceDate,tempInvoiceItemDetails.invoiceQty,  tempLoadingSlipExt.* " +
+                    " from[dbo].[tempInvoiceItemDetails] " +
+                    " Join tempInvoice On tempInvoice.idInvoice = tempInvoiceItemDetails.invoiceId " +
+                    " Join tempLoadingSlipExt On tempLoadingSlipExt.idLoadingSlipExt = tempInvoiceItemDetails.loadingSlipExtId " +
+                    " Left Join dimProdCat On dimProdCat.idProdCat = tempLoadingSlipExt.prodCatId " +
+                    " Left Join dimProdSpec On dimProdSpec.idProdSpec = tempLoadingSlipExt.prodSpecId " +
+                    " Left Join tblMaterial On tblMaterial.idMaterial = tempLoadingSlipExt.materialId "+
+                    " Where  CAST(tempInvoice.invoiceDate AS Date) BETWEEN @fromDate AND @toDate Order by tempInvoice.invoiceDate";
+                conn.Open();
+                cmdSelect.CommandText = query;
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.DateTime).Value = frmDt;
+                cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.DateTime).Value = toDt;
+
+                dq = new SqlDataAdapter(cmdSelect);
+                dq.Fill(dt);
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        InvoiceReportTO invoiceReportTO = new InvoiceReportTO();
+                        invoiceReportTO.InvoiceId = Convert.ToInt32(dt.Rows[i]["idInvoice"]);
+                        invoiceReportTO.ProdCat = Convert.ToString(dt.Rows[i]["prodCateDesc"]);
+                        invoiceReportTO.MaterialSubType = Convert.ToString(dt.Rows[i]["materialSubType"]);
+                        invoiceReportTO.InvoiceDate = Convert.ToDateTime(dt.Rows[i]["invoiceDate"]);
+                        invoiceReportTO.InvoiceQty = Convert.ToDouble(dt.Rows[i]["invoiceQty"]);
+                        invoiceReportTO.InvoiceNo = Convert.ToString(dt.Rows[i]["invoiceNo"]);
+
+                        invoiceReportTOList.Add(invoiceReportTO);
+
+                    }
+                }
+                
+                return invoiceReportTOList;
+              
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+
         #endregion
 
         #region Insertion

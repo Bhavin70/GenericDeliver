@@ -117,5 +117,7 @@ namespace ODLMWebAPI.BL.Interfaces
 
         ResultMessage SelectItemWiseSalesExportCListForReport(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
         ResultMessage PrintSaleReport(DateTime frmDt, DateTime toDt, int isConfirm, string selectedOrg, int isFromPurchase = 0);
+
+        List<InvoiceReportTO> GetAllInvoices(DateTime fromDate, DateTime toDate, ref String errorMsg);
     }
 }

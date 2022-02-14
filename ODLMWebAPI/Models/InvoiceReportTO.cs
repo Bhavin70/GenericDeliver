@@ -1,0 +1,50 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace ODLMWebAPI.Models
+{
+    public class InvoiceReportTO
+    {
+        #region Declarations
+
+        String invoiceNo;
+        String partyName;
+        String consigneeName;
+        DateTime invoiceDate;
+        Dictionary<String, Double> prodMaterialQtyDCT = new Dictionary<string, double>();
+
+        Int32 invoiceId;
+        String materialSubType;
+        String prodCat;
+        Double invoiceQty;
+        Double totalQty;
+        Double grandTotalQty;
+        #endregion
+
+        #region Constructor
+        public InvoiceReportTO()
+        {
+
+        }
+
+        public string InvoiceNo { get => invoiceNo; set => invoiceNo = value; }
+        public string PartyName { get => partyName; set => partyName = value; }
+        public string ConsigneeName { get => consigneeName; set => consigneeName = value; }
+        public DateTime InvoiceDate { get => invoiceDate; set => invoiceDate = value; }
+        public Dictionary<string, double> ProdMaterialQtyDCT { get => prodMaterialQtyDCT; set => prodMaterialQtyDCT = value; }
+        public int InvoiceId { get => invoiceId; set => invoiceId = value; }
+        public string MaterialSubType { get => materialSubType; set => materialSubType = value; }
+        public string ProdCat { get => prodCat; set => prodCat = value; }
+        public double InvoiceQty { get => invoiceQty; set => invoiceQty = value; }
+        public double TotalQty { get => totalQty; set => totalQty = value; }
+        public double GrandTotalQty { get => grandTotalQty; set => grandTotalQty = value; }
+
+        #endregion
+
+        #region GetSet
+
+        #endregion
+    }
+}

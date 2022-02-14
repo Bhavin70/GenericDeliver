@@ -652,6 +652,47 @@ namespace ODLMWebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// AmolG[2022-Feb-14] For Invoice Size wise Report
+        /// </summary>
+        /// <param name="fromDate"></param>
+        /// <param name="toDate"></param>
+        /// <returns></returns>
+        [Route("GetAllInvoices")]
+        [HttpGet]
+        public List<InvoiceReportTO> GetAllInvoices(string fromDate, string toDate)
+        {
+            try
+            {
+                DateTime frmDt = DateTime.MinValue;
+                DateTime toDt = DateTime.MinValue;
+                if (Constants.IsDateTime(fromDate))
+                {
+                    frmDt = Convert.ToDateTime(fromDate);
+                }
+                if (Constants.IsDateTime(toDate))
+                {
+                    toDt = Convert.ToDateTime(toDate);
+                }
+
+                if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
+                    frmDt = _iCommon.ServerDateTime.Date;
+                if (Convert.ToDateTime(toDt) == DateTime.MinValue)
+                    toDt = _iCommon.ServerDateTime.Date;
+
+                String errorMsg = "";
+                return _iTblInvoiceBL.GetAllInvoices(frmDt, toDt, ref errorMsg);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+
+            }
+        }
+
 
         [Route("GetInvoiceDocumentDetails")]
         [HttpGet]

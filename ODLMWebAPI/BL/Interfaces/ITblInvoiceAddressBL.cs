@@ -20,5 +20,8 @@ namespace ODLMWebAPI.BL.Interfaces
         int DeleteTblInvoiceAddress(Int32 idInvoiceAddr);
         int DeleteTblInvoiceAddress(Int32 idInvoiceAddr, SqlConnection conn, SqlTransaction tran);
         int DeleteTblInvoiceAddressByinvoiceId(Int32 invoiceId, SqlConnection conn, SqlTransaction tran);
+
+        List<TblInvoiceAddressTO> SelectTblInvoice(Int32 invoiceId);
+
     }
 }

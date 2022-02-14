@@ -58,5 +58,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblInvoiceRptTO> SelectItemWiseSalesExportCListForReport(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
 
         List<TblInvoiceRptTO> SelectSalesPurchaseListForReport(DateTime frmDt, DateTime toDt,int isConfirm, string selectedOrg,int defualtOrgId,int isFromPurchase);
+
+        List<InvoiceReportTO> SelectAllInvoices(DateTime frmDt, DateTime toDt);
     }
 }

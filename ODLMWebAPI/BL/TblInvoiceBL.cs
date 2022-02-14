@@ -1114,6 +1114,101 @@ namespace ODLMWebAPI.BL
         {
             return _iTblInvoiceDAO.SelectAllTNotifiedblInvoiceList(frmDt, toDt, isConfirm, fromOrgId);
         }
+
+        /// <summary>
+        /// AmolG[2022-Feb-14] This function is used for Size wise report
+        /// </summary>
+        /// <param name="fromDate"></param>
+        /// <param name="toDate"></param>
+        /// <param name="errorMsg"></param>
+        /// <returns></returns>
+        public List<InvoiceReportTO> GetAllInvoices(DateTime fromDate, DateTime toDate, ref String errorMsg)
+        {
+            try
+            {
+                List<InvoiceReportTO> invoiceReportTOListFinal = new List<InvoiceReportTO>();
+                List<InvoiceReportTO> invoiceReportTOList = _iTblInvoiceDAO.SelectAllInvoices(fromDate, toDate);
+                if (invoiceReportTOList != null && invoiceReportTOList .Count> 0)
+                {
+                    List<int> invoiceIdList = invoiceReportTOList.Select(x => x.InvoiceId).Distinct().ToList();
+                    Double grandTotal = 0;
+                    for (int i = 0; i < invoiceIdList.Count; i++)
+                    {
+                        int invoiceId = invoiceIdList[i];
+                        InvoiceReportTO invoiceReportTO = new InvoiceReportTO();
+                        invoiceReportTO.ProdMaterialQtyDCT = new Dictionary<string, double>();
+                        
+                        List<InvoiceReportTO> invoiceReportTOListLocal = invoiceReportTOList.Where(x => x.InvoiceId == invoiceId).ToList();
+                        //Find the Party and Consinee name suing invoice id
+
+                        List<TblInvoiceAddressTO> tblInvoiceAddressTOList =  _iTblInvoiceAddressBL.SelectTblInvoice(invoiceId);
+
+                        if (tblInvoiceAddressTOList != null && tblInvoiceAddressTOList.Count > 0)
+                        {
+                            //Party Address
+                            var exist = from lst in tblInvoiceAddressTOList
+                                        where lst.TxnAddrTypeId == 1
+                                        select lst;
+                            if (exist != null && exist.Any())
+                            {
+                                invoiceReportTO.PartyName = exist.FirstOrDefault().BillingName;
+                            }
+
+                            var exisCon = from lst in tblInvoiceAddressTOList
+                                        where lst.TxnAddrTypeId == 2
+                                        select lst;
+                            if (exisCon != null && exisCon.Any())
+                            {
+                                invoiceReportTO.ConsigneeName = exisCon.FirstOrDefault().BillingName;
+                            }
+                        }
+
+                        if (invoiceReportTOListLocal != null && invoiceReportTOListLocal.Count > 0)
+                        {
+                            invoiceReportTO.InvoiceNo = invoiceReportTOListLocal[0].InvoiceNo;
+                            invoiceReportTO.InvoiceDate= invoiceReportTOListLocal[0].InvoiceDate;
+                            invoiceReportTO.InvoiceId = invoiceReportTOListLocal[0].InvoiceId;
+
+                            Double total = 0;
+                            for (int iC = 0; iC < invoiceReportTOListLocal.Count; iC++)
+                            {
+                                String colName = invoiceReportTOListLocal[iC].MaterialSubType + "-" + invoiceReportTOListLocal[iC].ProdCat;
+                                total += invoiceReportTOListLocal[iC].InvoiceQty;
+                                if (invoiceReportTO.ProdMaterialQtyDCT.ContainsKey(colName))
+                                {
+                                    invoiceReportTO.ProdMaterialQtyDCT[colName] += invoiceReportTOListLocal[iC].InvoiceQty;
+                                }
+                                else
+                                {
+                                    invoiceReportTO.ProdMaterialQtyDCT.Add(colName, invoiceReportTOListLocal[iC].InvoiceQty);
+                                }
+                            }
+
+                            invoiceReportTO.TotalQty = total;
+                        }
+
+                        grandTotal += invoiceReportTO.TotalQty;
+                        invoiceReportTO.GrandTotalQty = grandTotal;
+
+                        invoiceReportTOListFinal.Add(invoiceReportTO);
+
+                    }
+
+                    return invoiceReportTOListFinal;
+                }
+                else
+                {
+                    errorMsg = "No Invoice Found";
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                errorMsg = "Exception When GetInvoices. Ex : " + ex.GetBaseException().ToString() + ". StackTrace : " + ex.StackTrace.ToString();
+                return null;
+            }
+        }
         #endregion
 
         #region Insertion

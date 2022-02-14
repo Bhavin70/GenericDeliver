@@ -164,6 +164,56 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public List<TblInvoiceAddressTO> SelectTblInvoice(Int32 invoiceId)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataAdapter dq = null;
+            DataTable dt = new DataTable();
+            try
+            {
+                conn.Open();
+
+                String query = " Select * From tempInvoiceAddress " +
+                    " Join tblOrganization tblOrganization On tblOrganization.idOrganization = tempInvoiceAddress.billingOrgId " +
+                    " Where tempInvoiceAddress.invoiceId = @invoiceId ";
+                cmdSelect.Parameters.AddWithValue("@invoiceId", DbType.Int32).Value = invoiceId;
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.CommandText = query;
+
+                dq = new SqlDataAdapter(cmdSelect);
+                dq.Fill(dt);
+
+                List<TblInvoiceAddressTO> tblInvoiceAddressTOList = new List<TblInvoiceAddressTO>();
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        TblInvoiceAddressTO tblInvoiceAddressTO = new TblInvoiceAddressTO();
+                        tblInvoiceAddressTO.BillingName = dt.Rows[i]["firmName"].ToString();
+                        tblInvoiceAddressTO.TxnAddrTypeId =Convert.ToInt32( dt.Rows[i]["txnAddrTypeId"].ToString());
+                        tblInvoiceAddressTO.BillingOrgId = Convert.ToInt32(dt.Rows[i]["billingOrgId"].ToString());
+                        tblInvoiceAddressTOList.Add(tblInvoiceAddressTO);
+                    }
+                }
+
+                return tblInvoiceAddressTOList;
+            }
+            catch (Exception ex)
+            {
+
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+
+        }
+
         public List<TblInvoiceAddressTO> ConvertInvoiceAddressDTToList(SqlDataReader tblInvoiceAddressTODT)
         {
             List<TblInvoiceAddressTO> tblInvoiceAddressTOList = new List<TblInvoiceAddressTO>();
