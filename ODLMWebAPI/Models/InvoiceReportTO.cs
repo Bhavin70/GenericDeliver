@@ -13,7 +13,7 @@ namespace ODLMWebAPI.Models
         String partyName;
         String consigneeName;
         DateTime invoiceDate;
-        Dictionary<String, Double> prodMaterialQtyDCT = new Dictionary<string, double>();
+        Dictionary<String, string > prodMaterialQtyDCT = new Dictionary<string, string >();
 
         Int32 invoiceId;
         String materialSubType;
@@ -33,7 +33,7 @@ namespace ODLMWebAPI.Models
         public string PartyName { get => partyName; set => partyName = value; }
         public string ConsigneeName { get => consigneeName; set => consigneeName = value; }
         public DateTime InvoiceDate { get => invoiceDate; set => invoiceDate = value; }
-        public Dictionary<string, double> ProdMaterialQtyDCT { get => prodMaterialQtyDCT; set => prodMaterialQtyDCT = value; }
+        public Dictionary<string, string> ProdMaterialQtyDCT { get => prodMaterialQtyDCT; set => prodMaterialQtyDCT = value; }
         public int InvoiceId { get => invoiceId; set => invoiceId = value; }
         public string MaterialSubType { get => materialSubType; set => materialSubType = value; }
         public string ProdCat { get => prodCat; set => prodCat = value; }

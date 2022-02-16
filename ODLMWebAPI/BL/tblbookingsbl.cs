@@ -131,6 +131,8 @@ namespace ODLMWebAPI.BL
             {
                 Dictionary<int, double> loadingDictionary = null;
                 Dictionary<int, double> bookingDictionary = null;
+                Dictionary<int, double> globalLoadingDictionary = new Dictionary<int, double> ();
+                Dictionary<int, double> globalBookingDictionary = new Dictionary<int, double>();
                 for (int i = 0; i < tblBookingTOList.Count; i++)
                 {
                     if(tblBookingTOList[i].IdBooking == 111891)
@@ -222,6 +224,21 @@ namespace ODLMWebAPI.BL
                                 bookedQty = Convert.ToDouble(bookingDictionary[eachMaterial.Value]);
                                 totalBookedQty += bookedQty;
                             }
+                            //Reshma Added
+                            if (!globalBookingDictionary.ContainsKey(eachMaterial.Value))
+                            {
+                                globalBookingDictionary.Add(eachMaterial.Value, bookedQty);
+                            }
+                            else
+                            {
+                                if (bookedQty > 0)
+                                {
+                                    double val = Convert.ToDouble(globalBookingDictionary[eachMaterial.Value]);
+                                    double bookingQtytemp = bookedQty;
+                                    bookingQtytemp += val;
+                                    globalBookingDictionary[eachMaterial.Value] = bookingQtytemp;
+                                }
+                            }
                         }
                         if (loadingDictionary != null)
                         {
@@ -229,6 +246,21 @@ namespace ODLMWebAPI.BL
                             {
                                 loadQty = Convert.ToDouble(loadingDictionary[eachMaterial.Value]);
                                 totalLoadQty += loadQty;
+                            }
+                            //Reshma Added
+                            if (!globalLoadingDictionary.ContainsKey(eachMaterial.Value))
+                            {
+                                globalLoadingDictionary.Add(eachMaterial.Value, loadQty);
+                            }
+                            else
+                            {
+                                if (loadQty > 0)
+                                {
+                                    double val = Convert.ToDouble(globalLoadingDictionary[eachMaterial.Value]);
+                                    double loadQtytemp = loadQty;
+                                    loadQtytemp += val;
+                                    globalLoadingDictionary[eachMaterial.Value] = loadQtytemp;
+                                }
                             }
                         }
 
@@ -242,7 +274,46 @@ namespace ODLMWebAPI.BL
                     tblBookingPendingRptTO.FinalDictionaryList.Add(finalBookingpendingQty);
                     tblBookingPendingRptTOList.Add(tblBookingPendingRptTO);
                 }
-
+                //Reshma Added For Sum
+                if (tblBookingPendingRptTOList != null && tblBookingPendingRptTOList.Count > 0)
+                {
+                    TblBookingPendingRptTO tblBookingPendingRptTO = new TblBookingPendingRptTO();
+                    double bookedQty = 0; double totalBookedQty = 0; double loadQty = 0; double totalLoadQty = 0;
+                    string finalData = "";
+                    string totalQty = "";
+                    Dictionary<string, string> finalBookingpendingQty = new Dictionary<string, string>();
+                    if (MaterialList != null && MaterialList.Count > 0)
+                    {
+                        //for (int i = 0; i < MaterialList.Count; i++)
+                        {
+                            foreach (var eachMaterial in MaterialList)
+                            {
+                                if (globalBookingDictionary != null)
+                                {
+                                    if (globalBookingDictionary.ContainsKey(eachMaterial.Value))
+                                    {
+                                        bookedQty = Convert.ToDouble(globalBookingDictionary[eachMaterial.Value]);
+                                        totalBookedQty += bookedQty;
+                                    }
+                                }
+                                if (globalLoadingDictionary != null)
+                                {
+                                    if (globalLoadingDictionary.ContainsKey(eachMaterial.Value))
+                                    {
+                                        loadQty = Convert.ToDouble(globalLoadingDictionary[eachMaterial.Value]);
+                                        totalLoadQty += loadQty;
+                                    }
+                                }
+                                finalData = bookedQty.ToString("N1") + "/" + loadQty.ToString("N1");
+                                finalBookingpendingQty.Add(eachMaterial.Text, finalData);
+                            }
+                        }
+                    }
+                    totalQty = totalBookedQty.ToString("N1") + "/" + totalLoadQty.ToString("N1");
+                    tblBookingPendingRptTO.DealerName = "Total"; 
+                    tblBookingPendingRptTO.FinalDictionaryList.Add(finalBookingpendingQty);
+                    tblBookingPendingRptTOList.Add(tblBookingPendingRptTO);
+                }
 
             }
             return tblBookingPendingRptTOList;

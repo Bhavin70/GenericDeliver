@@ -1136,7 +1136,7 @@ namespace ODLMWebAPI.BL
                     {
                         int invoiceId = invoiceIdList[i];
                         InvoiceReportTO invoiceReportTO = new InvoiceReportTO();
-                        invoiceReportTO.ProdMaterialQtyDCT = new Dictionary<string, double>();
+                        invoiceReportTO.ProdMaterialQtyDCT = new Dictionary<string, string >();
                         
                         List<InvoiceReportTO> invoiceReportTOListLocal = invoiceReportTOList.Where(x => x.InvoiceId == invoiceId).ToList();
                         //Find the Party and Consinee name suing invoice id
@@ -1172,15 +1172,16 @@ namespace ODLMWebAPI.BL
                             Double total = 0;
                             for (int iC = 0; iC < invoiceReportTOListLocal.Count; iC++)
                             {
-                                String colName = invoiceReportTOListLocal[iC].MaterialSubType + "-" + invoiceReportTOListLocal[iC].ProdCat;
-                                total += invoiceReportTOListLocal[iC].InvoiceQty;
+                                String colName = invoiceReportTOListLocal[iC].MaterialSubType;
+                                //+ "-" + invoiceReportTOListLocal[iC].ProdCat;
+                                total +=(Double) invoiceReportTOListLocal[iC].InvoiceQty;
                                 if (invoiceReportTO.ProdMaterialQtyDCT.ContainsKey(colName))
                                 {
                                     invoiceReportTO.ProdMaterialQtyDCT[colName] += invoiceReportTOListLocal[iC].InvoiceQty;
                                 }
                                 else
                                 {
-                                    invoiceReportTO.ProdMaterialQtyDCT.Add(colName, invoiceReportTOListLocal[iC].InvoiceQty);
+                                    invoiceReportTO.ProdMaterialQtyDCT.Add(colName, invoiceReportTOListLocal[iC].InvoiceQty.ToString ());
                                 }
                             }
 
