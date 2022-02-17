@@ -504,7 +504,7 @@ namespace ODLMWebAPI.StaticStuff
         //public static string AzureConnectionStr = "DefaultEndpointsProtocol=https;AccountName=apkupdates;AccountKey=IvC+sc8RLDl3DeH8uZ97A4jX978v78bVFHRQk/qxg2C/J8w/DRslJlLsK7JTF+KhOM0MNUZg443GCVXe3jIanA==";
         //public static string EncryptDescryptKey = "MAKV2SPBNI99212";
         //public static string AzureSourceContainerName = "simplideliver";
-        public static string AzureSourceContainerName = "metarolldataextract";
+        public static string AzureSourceContainerName = "simplideliver";
         
         //public static string AzureSourceContainerName = "srjdocuments";
         public static string AzureTargetContainerName = "srjnewdocuments";
