@@ -1071,7 +1071,8 @@ namespace ODLMWebAPI.StaticStuff
             PF = 1,
             FREIGHT = 2,
             CESS = 3,
-            AFTERCESS = 4
+            AFTERCESS = 4,
+            INSURANCE_ON_SALE=5
         }
 
         // Vaibhva [25-April-2018] Added to seperate transaction table

@@ -100,7 +100,7 @@ namespace ODLMWebAPI.BL
 
             //fetch all bookings against selected dates
             List<TblBookingsTO> tblBookingTOList = _iTblBookingsDAO.SelectAllBookingDateWise(fromDate, toDate);
-            if (reportType == 1)
+            if (reportType == 1 && tblBookingTOList!=null && tblBookingTOList.Count >0)
             {
                 tblBookingTOList = tblBookingTOList.Where(x => x.PendingQty > 0 && x.StatusId != (Int32)Constants.TranStatusE.BOOKING_DELETE).ToList();
             }
@@ -274,6 +274,190 @@ namespace ODLMWebAPI.BL
                     tblBookingPendingRptTO.FinalDictionaryList.Add(finalBookingpendingQty);
                     tblBookingPendingRptTOList.Add(tblBookingPendingRptTO);
                 }
+            }
+            return tblBookingPendingRptTOList;
+            // return tblBookingTOList;
+        }
+
+        public List<TblBookingPendingRptTO> SelectBookingPendingOrderQtyRpt(DateTime fromDate, DateTime toDate, int reportType)
+        {
+
+            //fetch all bookings against selected dates
+            List<TblBookingsTO> tblBookingTOList = _iTblBookingsDAO.SelectAllBookingDateWise(fromDate, toDate);
+            if (reportType == 1 && tblBookingTOList != null && tblBookingTOList.Count > 0)
+            {
+                tblBookingTOList = tblBookingTOList.Where(x => x.PendingQty > 0 && x.StatusId != (Int32)Constants.TranStatusE.BOOKING_DELETE).ToList();
+            }
+
+            //// created object to get loading details against each booking
+            List<TblLoadingTO> tblLoadingTOList = new List<TblLoadingTO>();
+            List<DropDownTO> MaterialList = _iTblMaterialDAO.SelectAllMaterialForDropDown();
+            string configval = "";
+            string[] statusId = null;
+            int[] myInts = null;
+            TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CNF_BOOKING_REPORT_EXCLUDE_STATUSID);
+            if (tblConfigParamsTO != null)
+            {
+                configval = tblConfigParamsTO.ConfigParamVal;
+
+            }
+            if (!String.IsNullOrEmpty(configval))
+            {
+                statusId = configval.Split(',');
+                myInts = Array.ConvertAll(statusId, int.Parse);
+            }
+
+
+            // TblBookingsTO tblBookingsTO = new TblBookingsTO();
+
+            List<TblBookingPendingRptTO> tblBookingPendingRptTOList = new List<TblBookingPendingRptTO>();
+            if (tblBookingTOList != null && tblBookingTOList.Count > 0)
+            {
+                Dictionary<int, double> loadingDictionary = null;
+                Dictionary<int, double> bookingDictionary = null;
+                Dictionary<int, double> globalLoadingDictionary = new Dictionary<int, double>();
+                Dictionary<int, double> globalBookingDictionary = new Dictionary<int, double>();
+                for (int i = 0; i < tblBookingTOList.Count; i++)
+                {
+                    if (tblBookingTOList[i].IdBooking == 111891)
+                    {
+
+                    }
+                    // fetch loading qty against each booking consumsion of qty 
+                    //  tblLoadingTOList = TblLoadingBL.SelectAllTblLoadingByBookingId(tblBookingTOList[i].IdBooking);
+                    List<TblLoadingSlipExtTO> loadingSlipExtList = _iTblLoadingSlipExtDAO.GetAllLoadingExtByBookingId(tblBookingTOList[i].IdBooking, configval);
+                    //BookingList with schedule and sizewise qty
+                    TblBookingPendingRptTO tblBookingPendingRptTO = new TblBookingPendingRptTO();
+                    tblBookingTOList[i].BookingScheduleTOLst = _iCircularDependencyBL.SelectBookingScheduleByBookingId(tblBookingTOList[i].IdBooking);
+                    foreach (int a in myInts)
+                    {
+                        tblBookingTOList.ForEach(x => x.StatusId = a);
+                    }
+                    tblBookingPendingRptTO.IdBooking = tblBookingTOList[i].IdBooking;
+                    tblBookingPendingRptTO.BookingDisplayNo = tblBookingTOList[i].BookingDisplayNo;
+                    tblBookingPendingRptTO.BookingDateStr = tblBookingTOList[i].BookingDatetime.ToShortDateString();
+                    tblBookingPendingRptTO.DealerId = tblBookingTOList[i].DealerOrgId;
+                    tblBookingPendingRptTO.DealerName = tblBookingTOList[i].DealerName;
+                    tblBookingPendingRptTO.TotalBookedQty = tblBookingTOList[i].BookingQty;
+                    tblBookingPendingRptTO.PendingQty = tblBookingTOList[i].PendingQty;
+                    tblBookingPendingRptTO.CnfName = tblBookingTOList[i].CnfName;
+
+                    //Deepali Added to get all layers qty.[16-06-2021]
+                    bookingDictionary = new Dictionary<int, double>();
+
+                    foreach (var bookingSchedule in tblBookingTOList[i].BookingScheduleTOLst)
+                    {
+                        //Deepali Commented to get all layers qty.[16-06-2021]
+                        //bookingDictionary = new Dictionary<int, double>();
+                        foreach (var item in bookingSchedule.OrderDetailsLst)
+                        {
+                            if (!bookingDictionary.ContainsKey(item.MaterialId))
+                            {
+                                bookingDictionary.Add(item.MaterialId, item.BookedQty);
+                            }
+                            else
+                            {
+                                double val = Convert.ToDouble(bookingDictionary[item.MaterialId]);
+                                item.BookedQty += val;
+                                bookingDictionary[item.MaterialId] = item.BookedQty;
+                            }
+                        }
+
+                        tblBookingPendingRptTO.BookingDictionaryList.Add(bookingDictionary);
+                    }
+
+                    //if (loadingSlipExtList != null && loadingSlipExtList.Count > 0)
+                    //{
+
+                    loadingDictionary = new Dictionary<int, double>();
+                    foreach (var loadingSlipExt in loadingSlipExtList)
+                    {
+                        if (!loadingDictionary.ContainsKey(loadingSlipExt.MaterialId))
+                        {
+                            loadingDictionary.Add(loadingSlipExt.MaterialId, loadingSlipExt.LoadingQty);
+                        }
+                        else
+                        {
+                            double val = Convert.ToDouble(loadingDictionary[loadingSlipExt.MaterialId]);
+                            loadingSlipExt.LoadingQty += val;
+                            loadingDictionary[loadingSlipExt.MaterialId] = loadingSlipExt.LoadingQty;
+                        }
+                    }
+                    tblBookingPendingRptTO.LoadingDictionaryList.Add(loadingDictionary);
+                    //}
+                    Dictionary<string, string> finalBookingpendingQty = new Dictionary<string, string>();
+                    // use for loop against material and check using containskey
+                    double bookedQty = 0.0, totalBookedQty = 0.0;
+                    double loadQty = 0.0, totalLoadQty = 0.0;
+                    string finalData = "";
+                    string totalQty = "";
+
+                    foreach (var eachMaterial in MaterialList)
+                    {
+                        bookedQty = 0.0;
+                        loadQty = 0.0;
+                        finalData = "";
+                        //    finalTotal = "";
+                        // totalQty = "";
+                        // totalBookedQty = 0;
+                        //totalLoadQty = 0;
+                        if (bookingDictionary != null)
+                        {
+                            if (bookingDictionary.ContainsKey(eachMaterial.Value))
+                            {
+                                bookedQty = Convert.ToDouble(bookingDictionary[eachMaterial.Value]);
+                                totalBookedQty += bookedQty;
+                            }
+                            //Reshma Added
+                            if (!globalBookingDictionary.ContainsKey(eachMaterial.Value))
+                            {
+                                globalBookingDictionary.Add(eachMaterial.Value, bookedQty);
+                            }
+                            else
+                            {
+                                if (bookedQty > 0)
+                                {
+                                    double val = Convert.ToDouble(globalBookingDictionary[eachMaterial.Value]);
+                                    double bookingQtytemp = bookedQty;
+                                    bookingQtytemp += val;
+                                    globalBookingDictionary[eachMaterial.Value] = bookingQtytemp;
+                                }
+                            }
+                        }
+                        if (loadingDictionary != null)
+                        {
+                            if (loadingDictionary.ContainsKey(eachMaterial.Value))
+                            {
+                                loadQty = Convert.ToDouble(loadingDictionary[eachMaterial.Value]);
+                                totalLoadQty += loadQty;
+                            }
+                            //Reshma Added
+                            if (!globalLoadingDictionary.ContainsKey(eachMaterial.Value))
+                            {
+                                globalLoadingDictionary.Add(eachMaterial.Value, loadQty);
+                            }
+                            else
+                            {
+                                if (loadQty > 0)
+                                {
+                                    double val = Convert.ToDouble(globalLoadingDictionary[eachMaterial.Value]);
+                                    double loadQtytemp = loadQty;
+                                    loadQtytemp += val;
+                                    globalLoadingDictionary[eachMaterial.Value] = loadQtytemp;
+                                }
+                            }
+                        }
+
+                        double pendingQty = bookedQty- loadQty;
+                        finalData = pendingQty.ToString("N1") ;
+                        finalBookingpendingQty.Add(eachMaterial.Text, finalData);
+                    }
+                    double totalPendingQty = totalBookedQty - totalLoadQty;
+                    totalQty = totalPendingQty.ToString("N1");
+                    tblBookingPendingRptTO.TotalQty = totalQty;
+                    tblBookingPendingRptTO.FinalDictionaryList.Add(finalBookingpendingQty);
+                    tblBookingPendingRptTOList.Add(tblBookingPendingRptTO);
+                }
                 //Reshma Added For Sum
                 if (tblBookingPendingRptTOList != null && tblBookingPendingRptTOList.Count > 0)
                 {
@@ -304,13 +488,15 @@ namespace ODLMWebAPI.BL
                                         totalLoadQty += loadQty;
                                     }
                                 }
-                                finalData = bookedQty.ToString("N1") + "/" + loadQty.ToString("N1");
+                                double totalPendimngQty = bookedQty - loadQty;
+                                finalData = totalPendimngQty.ToString("N1") ;
                                 finalBookingpendingQty.Add(eachMaterial.Text, finalData);
                             }
                         }
                     }
-                    totalQty = totalBookedQty.ToString("N1") + "/" + totalLoadQty.ToString("N1");
-                    tblBookingPendingRptTO.DealerName = "Total"; 
+                    double totalPenQty = totalBookedQty - totalLoadQty;
+                    totalQty = totalPenQty.ToString("N1");
+                    tblBookingPendingRptTO.DealerName = "Total";
                     tblBookingPendingRptTO.FinalDictionaryList.Add(finalBookingpendingQty);
                     tblBookingPendingRptTOList.Add(tblBookingPendingRptTO);
                 }

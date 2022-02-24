@@ -4972,6 +4972,8 @@ namespace ODLMWebAPI.BL
                     invoiceDT.Columns.Add("pfAmt", typeof(double));
                     invoiceDT.Columns.Add("cessAmt", typeof(double));
                     invoiceDT.Columns.Add("afterCessAmt", typeof(double));
+                    invoiceDT.Columns.Add("insuranceAmt", typeof(double));
+
 
                     invoiceDT.Columns.Add("taxableAmt", typeof(double));
                     invoiceDT.Columns.Add("taxableAmtStr");
@@ -5279,6 +5281,11 @@ namespace ODLMWebAPI.BL
                             }
 
                         }
+                        //if (Convert.ToDouble(invoiceDT.Rows[0]["freightAmt"]) == 0)
+                            else
+                        {
+                            invoiceDT.Rows[0]["freightAmt"] = tblInvoiceTO.FreightAmt;
+                        }
                         var pfResTO = tblInvoiceTO.InvoiceItemDetailsTOList.Where(ele => ele.OtherTaxId == (Int32)Constants.OtherTaxTypeE.PF).FirstOrDefault();
                         if (pfResTO != null)
                         {
@@ -5319,7 +5326,19 @@ namespace ODLMWebAPI.BL
                             }
 
                         }
+                        var insuranceTo = tblInvoiceTO.InvoiceItemDetailsTOList.Where(ele => ele.OtherTaxId == (Int32)Constants.OtherTaxTypeE.INSURANCE_ON_SALE ).FirstOrDefault();
+                        if (insuranceTo != null)
+                        {
+                            if (isMathRoundoff == 1)
+                            {
+                                invoiceDT.Rows[0]["insuranceAmt"] = insuranceTo.TaxableAmt;
+                            }
+                            else
+                            {
+                                invoiceDT.Rows[0]["insuranceAmt"] = Math.Round(insuranceTo.TaxableAmt, 2);
+                            }
 
+                        }
                         itemFooterDetailsDT.Rows.Add();
                         itemFooterDetailsDT.Columns.Add("totalQty", typeof(double));
                         itemFooterDetailsDT.Columns.Add("totalBundles");

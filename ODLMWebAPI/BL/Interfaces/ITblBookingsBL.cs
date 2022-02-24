@@ -45,6 +45,8 @@ namespace ODLMWebAPI.BL.Interfaces
         List<CnFWiseReportTO> SelectCnfCNCBookingReport(DateTime fromDate, DateTime toDate);
         List<TblOrganizationTO> SelectSalesAgentListWithBrandAndRate();
         List<TblBookingPendingRptTO> SelectBookingPendingQryRpt(DateTime fromDate, DateTime toDate,int reportType);
+        List<TblBookingPendingRptTO> SelectBookingPendingOrderQtyRpt(DateTime fromDate, DateTime toDate, int reportType);
+
         TblBookingsTO SelectBookingsDetailsFromInVoiceId(Int32 inInvoice, SqlConnection conn, SqlTransaction tran);
 
         TblBookingsTO SelectBookingsDetailsFromInVoiceId(Int32 inInvoice);

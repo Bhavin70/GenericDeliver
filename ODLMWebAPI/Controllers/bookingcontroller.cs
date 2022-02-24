@@ -288,6 +288,28 @@ namespace ODLMWebAPI.Controllers
             return _iTblBookingsBL.SelectBookingPendingQryRpt(frmDt, toDt,reportType);
         }
 
+        [HttpGet]
+        [Route("BookingPendingOrderQtyRpt")]
+        public List<TblBookingPendingRptTO> BookingPendingOrderQtyRpt(string fromDate, string toDate, int reportType)
+        {
+            DateTime frmDt = DateTime.MinValue;
+            DateTime toDt = DateTime.MinValue;
+            if (Constants.IsDateTime(fromDate))
+            {
+                frmDt = Convert.ToDateTime(fromDate);
+            }
+            if (Constants.IsDateTime(toDate))
+            {
+                toDt = Convert.ToDateTime(toDate);
+            }
+
+            if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
+                frmDt = _iCommon.ServerDateTime.Date;
+            if (Convert.ToDateTime(toDt) == DateTime.MinValue)
+                toDt = _iCommon.ServerDateTime.Date;
+            return _iTblBookingsBL.SelectBookingPendingOrderQtyRpt(frmDt, toDt, reportType);
+        }
+
         //Aniket [11-6-2019]
         [Route("SelectAllTblBookingExtListByBookingId")]
         [HttpGet]

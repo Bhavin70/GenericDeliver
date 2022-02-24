@@ -84,7 +84,7 @@ namespace ODLMWebAPI.Controllers
         [Route("GetInvoiceList")]
         [HttpGet]
         public List<TblInvoiceTO> GetInvoiceList(string fromDate, string toDate, int isConfirm, Int32 cnfId,  Int32 dealerID, String userRoleTOList, Int32 brandId = 0, Int32 invoiceId = 0, Int32 statusId = 0,String internalOrgId="")
-        {
+       {
             try
             {
 
