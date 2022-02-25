@@ -449,6 +449,8 @@ namespace ODLMWebAPI.BL
                         }
 
                         double pendingQty = bookedQty- loadQty;
+                        if (pendingQty < 0)
+                            pendingQty = 0;
                         finalData = pendingQty.ToString("N1") ;
                         finalBookingpendingQty.Add(eachMaterial.Text, finalData);
                     }
