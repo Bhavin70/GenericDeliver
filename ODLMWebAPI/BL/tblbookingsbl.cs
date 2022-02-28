@@ -455,6 +455,8 @@ namespace ODLMWebAPI.BL
                         finalBookingpendingQty.Add(eachMaterial.Text, finalData);
                     }
                     double totalPendingQty = totalBookedQty - totalLoadQty;
+                    if (totalPendingQty < 0)
+                        totalPendingQty = 0;
                     totalQty = totalPendingQty.ToString("N1");
                     tblBookingPendingRptTO.TotalQty = totalQty;
                     tblBookingPendingRptTO.FinalDictionaryList.Add(finalBookingpendingQty);
@@ -479,7 +481,8 @@ namespace ODLMWebAPI.BL
                                     if (globalBookingDictionary.ContainsKey(eachMaterial.Value))
                                     {
                                         bookedQty = Convert.ToDouble(globalBookingDictionary[eachMaterial.Value]);
-                                        totalBookedQty += bookedQty;
+                                        if(bookedQty >0)
+                                            totalBookedQty += bookedQty;
                                     }
                                 }
                                 if (globalLoadingDictionary != null)
@@ -487,16 +490,21 @@ namespace ODLMWebAPI.BL
                                     if (globalLoadingDictionary.ContainsKey(eachMaterial.Value))
                                     {
                                         loadQty = Convert.ToDouble(globalLoadingDictionary[eachMaterial.Value]);
-                                        totalLoadQty += loadQty;
+                                        if(loadQty >0)
+                                            totalLoadQty += loadQty;
                                     }
                                 }
                                 double totalPendimngQty = bookedQty - loadQty;
-                                finalData = totalPendimngQty.ToString("N1") ;
+                                if (totalPendimngQty < 0)
+                                    totalPendimngQty = 0;
+                                finalData = bookedQty.ToString("N1") ;
                                 finalBookingpendingQty.Add(eachMaterial.Text, finalData);
                             }
                         }
                     }
                     double totalPenQty = totalBookedQty - totalLoadQty;
+                    if (totalPenQty < 0)
+                        totalPenQty = 0;
                     totalQty = totalPenQty.ToString("N1");
                     tblBookingPendingRptTO.DealerName = "Total";
                     tblBookingPendingRptTO.FinalDictionaryList.Add(finalBookingpendingQty);
