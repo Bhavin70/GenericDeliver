@@ -22,7 +22,7 @@ namespace ODLMWebAPI.DAL
         public String SqlSelectQuery()
         {
             String sqlSelectQry = " SELECT tempLoadingSlip.* ,tempLoadSlipdtl.loadingQty, " +
-                                  " cnfOrg.firmName as cnfOrgName ,dimStat.statusName ,tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tblBookings.comments  ,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
+                                  " cnfOrg.firmName as cnfOrgName ,dimStat.statusName ,tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tempLoadingSlip.comment as comments  ,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
                                   " ,loading.modbusRefId,loading.gateId,loading.isDBup,gate.portNumber,gate.IoTUrl,gate.machineIP "+
                                   " FROM tempLoadingSlip" +
                                   " LEFT JOIN tblOrganization " +
@@ -42,7 +42,7 @@ namespace ODLMWebAPI.DAL
             " UNION ALL " +
 
                                   " SELECT finalLoadingSlip.* , tempLoadSlipdtl.loadingQty, " +
-                                  " cnfOrg.firmName as cnfOrgName, dimStat.statusName, tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tblBookings.comments  ,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
+                                  " cnfOrg.firmName as cnfOrgName, dimStat.statusName, tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,finalLoadingSlip.comment as comments  ,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
                                   " , loading.modbusRefId,loading.gateId,loading.isDBup,gate.portNumber,gate.IoTUrl,gate.machineIP "+
                                   " FROM finalLoadingSlip " +
                                   " LEFT JOIN tblOrganization " +
