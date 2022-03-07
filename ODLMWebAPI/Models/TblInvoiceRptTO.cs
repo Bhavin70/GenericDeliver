@@ -532,6 +532,7 @@ namespace ODLMWebAPI.Models
         public string ElectronicRefNo { get; set; }
         public string IrnNo { get; set; }
         public string CodeNumber { get; set; }
+        public string GstCodeNo { get; set; }
         public double TareWeight { get; set; }
         public double GrossWeight { get; set; }
         public double NetWeight { get; set; }

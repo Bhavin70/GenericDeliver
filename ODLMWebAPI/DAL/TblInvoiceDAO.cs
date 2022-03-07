@@ -1037,6 +1037,11 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["codeNumber"] != DBNull.Value)
                                     tblInvoiceRptTONew.CodeNumber = Convert.ToString(tblInvoiceRptTODT["codeNumber"].ToString());
                             }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("GST_Code_No"))
+                            {
+                                if (tblInvoiceRptTODT["GST_Code_No"] != DBNull.Value)
+                                    tblInvoiceRptTONew.GstCodeNo = Convert.ToString(tblInvoiceRptTODT["GST_Code_No"].ToString());
+                            }
                             if (tblInvoiceRptTODT.GetName(i).Equals("partyName"))
                             {
                                 if (tblInvoiceRptTODT["partyName"] != DBNull.Value)
@@ -1879,7 +1884,7 @@ namespace ODLMWebAPI.DAL
                     " invAddrCons.consigneePinCode,invAddrCons.stateName as consigneeState,invAddrCons.gstinNo as consigneeGstNo, " +
                     " invAddrCons.txnAddrTypeId as consigneeTypeId,booking.bookingRate,itemDetails.prodItemDesc,mat.materialSubType " +
                     " as materialName, itemDetails.bundles, itemDetails.cdStructure,itemDetails.invoiceQty,itemDetails.basicTotal " +
-                    " as taxableAmt  ,freightItem.freightAmt,Insurance.InsuranceAmt ,totalItemQtyTbl.TotalItemQty,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId,   " +
+                    " as taxableAmt  ,freightItem.freightAmt,Insurance.InsuranceAmt ,totalItemQtyTbl.TotalItemQty,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId, itemDetails.gstinCodeNo as 'GST_Code_No',   " +
                     " invoice.cgstAmt,invoice.igstAmt,invoice.sgstAmt,itemDetails.rate,   itemDetails.cdAmt,itemDetails.otherTaxId, " +
                     " transportOrg.firmName as transporterName,invoice.deliveryLocation,invoice.vehicleNo,transportOrg.registeredMobileNos as contactNo , " +
                     " invoice.grandTotal, invoice.isConfirmed , invoice.statusId, invoice.invFromOrgId ," +
@@ -1936,7 +1941,7 @@ namespace ODLMWebAPI.DAL
                     " invAddrCons.consigneePinCode,invAddrCons.stateName as consigneeState,invAddrCons.gstinNo as consigneeGstNo, " +
                     " invAddrCons.txnAddrTypeId as consigneeTypeId,booking.bookingRate,itemDetails.prodItemDesc,mat.materialSubType " +
                     " as materialName, itemDetails.bundles, itemDetails.cdStructure,itemDetails.invoiceQty,itemDetails.basicTotal " +
-                    " as taxableAmt  ,freightItem.freightAmt,Insurance.InsuranceAmt ,totalItemQtyTbl.TotalItemQty,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId,  " +
+                    " as taxableAmt  ,freightItem.freightAmt,Insurance.InsuranceAmt ,totalItemQtyTbl.TotalItemQty,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId,itemDetails.gstinCodeNo as 'GST_Code_No',  " +
                     " invoice.cgstAmt,invoice.igstAmt,invoice.sgstAmt,itemDetails.rate,   itemDetails.cdAmt,itemDetails.otherTaxId,  " +
                     " transportOrg.firmName as transporterName,invoice.deliveryLocation,invoice.vehicleNo,transportOrg.registeredMobileNos as contactNo, " +
                     " invoice.grandTotal, invoice.isConfirmed ,invoice.statusId, invoice.invFromOrgId ," +
