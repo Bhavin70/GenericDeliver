@@ -350,7 +350,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetRptInvoiceList")]
         [HttpGet]
-        public List<TblInvoiceRptTO> GetRptInvoiceList(string fromDate, string toDate, int isConfirm,int fromOrgId)
+        public ResultMessage  GetRptInvoiceList(string fromDate, string toDate, int isConfirm,int fromOrgId)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -368,7 +368,7 @@ namespace ODLMWebAPI.Controllers
                 frmDt = _iCommon.ServerDateTime.Date;
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date;
-            return _iTblInvoiceBL.SelectAllRptInvoiceList(frmDt, toDt, isConfirm, fromOrgId);
+            return  _iTblInvoiceBL.SelectAllRptInvoiceList(frmDt, toDt, isConfirm, fromOrgId);
         }
 
         /// <summary>
