@@ -1034,6 +1034,7 @@ namespace ODLMWebAPI.DAL
                                   " ,tblUser.userDisplayName, tblLoadSlipdtl.bookingId " +
                                    " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
                                    " , loading.modbusRefId, loading.gateId,loading.isDBup,tblBookings.createdBy as bookingCreatedBy " +
+                                   " ,tblLoadingSlip.comment 'comments'" +//Reshma Added
                                   " FROM  tempLoadingSlip tblLoadingSlip " +
                                   " Left Join tempLoadingSlipDtl tblLoadSlipdtl ON tblLoadSlipdtl.loadingSlipId = tblLoadingSlip.idLoadingSlip " +
                                   " Left Join tblBookings tblBookings ON tblLoadSlipdtl.bookingId = tblBookings.idbooking " +
@@ -1059,6 +1060,7 @@ namespace ODLMWebAPI.DAL
                                   " ,tblUser.userDisplayName, tblLoadSlipdtl.bookingId " +
                                   " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
                                    " , loading.modbusRefId, loading.gateId,loading.isDBup,tblBookings.createdBy as bookingCreatedBy  " +
+                                   " ,tblLoadingSlip.comment 'comments'" +//Reshma Added
                                   " FROM finalLoadingSlip tblLoadingSlip  " +
                                   " Left Join finalLoadingSlipDtl tblLoadSlipdtl ON tblLoadSlipdtl.loadingSlipId = tblLoadingSlip.idLoadingSlip " +
                                   " Left Join tblBookings tblBookings ON tblLoadSlipdtl.bookingId = tblBookings.idbooking " +

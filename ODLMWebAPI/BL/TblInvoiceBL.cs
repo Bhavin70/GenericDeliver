@@ -5027,6 +5027,8 @@ namespace ODLMWebAPI.BL
                 invoiceDT.Columns.Add("poNo");
                 invoiceDT.Columns.Add("poDateStr");
 
+                headerDT.Columns.Add("poNo");
+                headerDT.Columns.Add("poDateStr");
                 invoiceDT.Columns.Add("DeliveryNoteNo");
                 invoiceDT.Columns.Add("DispatchDocNo");
 
@@ -5703,12 +5705,15 @@ namespace ODLMWebAPI.BL
                     invoiceDT.Columns.Add("lblShippingPanNo");
                     addressDT.Rows.Add();
                     addressDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
+                    headerDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
                     invoiceDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
                     if (!String.IsNullOrEmpty(tblInvoiceTO.PoDateStr))
                     {
                         DateTime poDate = Convert.ToDateTime(tblInvoiceTO.PoDateStr);
                         addressDT.Rows[0]["poDateStr"] = poDate.ToString("dd/MM/yyyy");
                         invoiceDT.Rows[0]["poDateStr"] = poDate.ToString("dd/MM/yyyy");
+                        headerDT.Rows[0]["poDateStr"] = poDate.ToString("dd/MM/yyyy");
+
                     }
                     addressDT.Rows[0]["electronicRefNo"] = tblInvoiceTO.ElectronicRefNo;
                     string finalAddr = "", addr1 = "";
