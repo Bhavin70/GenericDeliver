@@ -30,6 +30,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <COMReference Include="SAPbobsCOM.dll">
+      <Guid>fc8030be-f5d2-4b8e-8f92-44228fe30090</Guid>
+      <VersionMajor>9</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>false</Isolated>
+      <Private>true</Private>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -62,14 +75,6 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Interop.SAPbobsCOM">
-      <HintPath>..\..\..\..\..\..\Share Folder\SAP DLL New\Interop.SAPbobsCOM.dll</HintPath>
-      <Private>true</Private>
-      <EmbedInteropTypes>true</EmbedInteropTypes>
-    </Reference>
   </ItemGroup>
 
 </Project>

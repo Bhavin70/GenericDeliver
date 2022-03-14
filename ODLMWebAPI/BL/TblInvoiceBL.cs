@@ -1360,7 +1360,7 @@ namespace ODLMWebAPI.BL
                     List<int> invoiceIdList = invoiceReportTOList.Select(x => x.InvoiceId).Distinct().ToList();
                     Double grandTotal = 0;
                     for (int i = 0; i < invoiceIdList.Count; i++)
-                    {
+                    { 
                         int invoiceId = invoiceIdList[i];
                         InvoiceReportTO invoiceReportTO = new InvoiceReportTO();
                         invoiceReportTO.ProdMaterialQtyDCT = new Dictionary<string, string >();
@@ -1392,6 +1392,10 @@ namespace ODLMWebAPI.BL
 
                         if (invoiceReportTOListLocal != null && invoiceReportTOListLocal.Count > 0)
                         {
+                            int idInvoie = invoiceReportTOListLocal[0].InvoiceId;
+                            if (idInvoie == 949)
+                            {
+                            }
                             invoiceReportTO.InvoiceNo = invoiceReportTOListLocal[0].InvoiceNo;
                             invoiceReportTO.InvoiceDate= invoiceReportTOListLocal[0].InvoiceDate;
                             invoiceReportTO.InvoiceId = invoiceReportTOListLocal[0].InvoiceId;
@@ -1404,7 +1408,12 @@ namespace ODLMWebAPI.BL
                                 total +=(Double) invoiceReportTOListLocal[iC].InvoiceQty;
                                 if (invoiceReportTO.ProdMaterialQtyDCT.ContainsKey(colName))
                                 {
-                                    invoiceReportTO.ProdMaterialQtyDCT[colName] += invoiceReportTOListLocal[iC].InvoiceQty;
+                                    //Reshma Added
+                                    double Qty =Convert .ToDouble ( invoiceReportTO.ProdMaterialQtyDCT[colName]);
+                                    Qty += invoiceReportTOListLocal[iC].InvoiceQty;
+                                    //invoiceReportTO.ProdMaterialQtyDCT[colName] += invoiceReportTOListLocal[iC].InvoiceQty;
+                                    invoiceReportTO.ProdMaterialQtyDCT[colName] = Qty.ToString(); ;
+
                                 }
                                 else
                                 {
