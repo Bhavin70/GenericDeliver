@@ -1444,7 +1444,8 @@ namespace ODLMWebAPI.BL
                     if (invoiceReportTOListFinal != null && invoiceReportTOListFinal.Count > 0)
                     {
                         InvoiceReportTO invoiceReportTO = new InvoiceReportTO();
-                        invoiceReportTO.InvoiceNo = "Total";
+                        invoiceReportTO.InvoiceNo = "Total"; 
+                        invoiceReportTO.TotalQty = Math.Round(grandTotal, 2);
                         invoiceReportTO.ProdMaterialQtyDCT = ProdMaterialQtyDCT;
                         invoiceReportTOListFinal.Add(invoiceReportTO);
 

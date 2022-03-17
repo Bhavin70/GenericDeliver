@@ -317,6 +317,7 @@ namespace ODLMWebAPI.BL
                 Dictionary<int, double> bookingDictionary = null;
                 Dictionary<int, double> globalLoadingDictionary = new Dictionary<int, double>();
                 Dictionary<int, double> globalBookingDictionary = new Dictionary<int, double>();
+                double totalPendingBookedQty = 0.0;
                 for (int i = 0; i < tblBookingTOList.Count; i++)
                 {
                     if (tblBookingTOList[i].IdBooking == 111891)
@@ -341,7 +342,7 @@ namespace ODLMWebAPI.BL
                     tblBookingPendingRptTO.TotalBookedQty = tblBookingTOList[i].BookingQty;
                     tblBookingPendingRptTO.PendingQty = tblBookingTOList[i].PendingQty;
                     tblBookingPendingRptTO.CnfName = tblBookingTOList[i].CnfName;
-
+                    totalPendingBookedQty = totalPendingBookedQty + tblBookingPendingRptTO.PendingQty;
                     //Deepali Added to get all layers qty.[16-06-2021]
                     bookingDictionary = new Dictionary<int, double>();
 
@@ -391,7 +392,6 @@ namespace ODLMWebAPI.BL
                     double loadQty = 0.0, totalLoadQty = 0.0;
                     string finalData = "";
                     string totalQty = "";
-
                     foreach (var eachMaterial in MaterialList)
                     {
                         bookedQty = 0.0;
@@ -507,6 +507,7 @@ namespace ODLMWebAPI.BL
                         totalPenQty = 0;
                     totalQty = totalPenQty.ToString("N1");
                     tblBookingPendingRptTO.DealerName = "Total";
+                    tblBookingPendingRptTO.PendingQty =Math.Round ( totalPendingBookedQty,2);
                     tblBookingPendingRptTO.FinalDictionaryList.Add(finalBookingpendingQty);
                     tblBookingPendingRptTOList.Add(tblBookingPendingRptTO);
                 }

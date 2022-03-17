@@ -1891,7 +1891,7 @@ namespace ODLMWebAPI.DAL
                     " org.registeredMobileNos as cnfMobNo , dealerOrg.registeredMobileNos as dealerMobNo , " +
                     " invoice.lrDate , invoice.lrNumber ,invAddrCons.overdue_ref_id,invAddrBill.overdue_ref_id as buyer_overdue_ref_id ," +
                     " invoice.taxableAmt as invoiceTaxableAmt ,invoice.discountAmt as invoiceDiscountAmt,tblItemTallyRefDtls.overdueTallyRefId" +
-                    " ,invoice.deliveredOn ,invoice.IrnNo ,invoice.electronicRefNo  as 'E_Way_Bill_No' FROM tempInvoice invoice " +
+                    " ,invoice.deliveredOn ,invoice.IrnNo ,invoice.electronicRefNo  FROM tempInvoice invoice " +
 
                     " LEFT JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.txnAddrTypeId, " +
                     " invAddrB.gstinNo, invAddrB.state as stateName ,orgB.overdue_ref_id  from tempInvoiceAddress invAddrB " +
@@ -1947,7 +1947,7 @@ namespace ODLMWebAPI.DAL
                     " invoice.grandTotal, invoice.isConfirmed ,invoice.statusId, invoice.invFromOrgId ," +
                     " org.registeredMobileNos as cnfMobNo , dealerOrg.registeredMobileNos as dealerMobNo , invoice.lrDate , invoice.lrNumber,invAddrCons.overdue_ref_id" +
                     " ,invAddrBill.overdue_ref_id as buyer_overdue_ref_id , invoice.taxableAmt as invoiceTaxableAmt ,invoice.discountAmt as invoiceDiscountAmt" +
-                    " ,tblItemTallyRefDtls.overdueTallyRefId ,invoice.deliveredOn ,invoice.IrnNo ,invoice.electronicRefNo  as 'E_Way_Bill_No' FROM finalInvoice invoice " +
+                    " ,tblItemTallyRefDtls.overdueTallyRefId ,invoice.deliveredOn ,invoice.IrnNo ,invoice.electronicRefNo  FROM finalInvoice invoice " +
 
                     " LEFT JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.txnAddrTypeId, " +
                     " invAddrB.gstinNo, invAddrB.state as stateName ,orgB.overdue_ref_id  from finalInvoiceAddress invAddrB " +

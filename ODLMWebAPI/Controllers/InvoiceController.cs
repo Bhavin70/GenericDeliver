@@ -371,6 +371,19 @@ namespace ODLMWebAPI.Controllers
             return  _iTblInvoiceBL.SelectAllRptInvoiceList(frmDt, toDt, isConfirm, fromOrgId);
         }
 
+        [Route("GetRptNCInvoiceList")]
+        [HttpGet]
+        public ResultMessage GetRptNCInvoiceList(int isConfirm, int fromOrgId)
+        {
+            DateTime frmDt = DateTime.MinValue;
+            DateTime toDt = DateTime.MinValue; 
+            if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
+                frmDt = _iCommon.ServerDateTime.Date.AddDays (-1);
+            if (Convert.ToDateTime(toDt) == DateTime.MinValue)
+                toDt = _iCommon.ServerDateTime.Date;
+            return _iTblInvoiceBL.SelectAllRptInvoiceList(frmDt, toDt, isConfirm, fromOrgId);
+        }
+
         /// <summary>
         /// Vijaymala[06-10-2017] Added To Get Invoice List To Generate Invoice Excel
         /// </summary>
