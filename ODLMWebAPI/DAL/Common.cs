@@ -27,14 +27,13 @@ namespace ODLMWebAPI.DAL
     public class Common : ICommon
     {
         private readonly IConnectionString _iConnectionString;
-        private readonly IModbusRefConfig _iModbusRefConfig;
-
+        private readonly IModbusRefConfig _iModbusRefConfig; 
         static readonly object uniqueModBusRefIdLock = new object();
 
-        public Common(IConnectionString iConnectionString, IModbusRefConfig iModbusRefConfig)
+        public Common(IConnectionString iConnectionString, IModbusRefConfig iModbusRefConfi)
         {
             _iConnectionString = iConnectionString;
-         _iModbusRefConfig =iModbusRefConfig;
+            _iModbusRefConfig = iModbusRefConfi; 
         }
 
         public List<int> GeModRefMaxData()
@@ -633,5 +632,6 @@ public  string SelectApKLoginArray(int userId)
                 cmdSelect.Dispose();
             }
         }
+         
     }
 }

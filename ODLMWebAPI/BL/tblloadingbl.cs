@@ -7104,7 +7104,7 @@ namespace ODLMWebAPI.BL {
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.LOADING_SLIP_CONFIRMED;
                         tblAlertInstanceTO.AlertAction = "LOADING_SLIP_CONFIRMED";
                         //Aniket [6-8-2019] 
-                        if(!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        if (!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
                         {
                             tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
                             tempTxt = tempTxt.Replace("@LoadingSlipStr", tblLoadingTO.LoadingSlipNo);
@@ -7117,7 +7117,7 @@ namespace ODLMWebAPI.BL {
                             tblAlertInstanceTO.AlertComment = tempTxt;
                         }
                         else
-                        tblAlertInstanceTO.AlertComment = "Loading slip  " + tblLoadingTO.LoadingSlipNo + "  For Vehicle No :" + tblLoadingTO.VehicleNo + "  is approved";
+                            tblAlertInstanceTO.AlertComment = "Loading slip  " + tblLoadingTO.LoadingSlipNo + "  For Vehicle No :" + tblLoadingTO.VehicleNo + "  is approved";
 
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
@@ -7127,21 +7127,21 @@ namespace ODLMWebAPI.BL {
                         }
 
                         tblAlertInstanceTO.SourceDisplayId = "LOADING_SLIP_CONFIRMED";
-                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO> ();
-                        Dictionary<int, string> cnfDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT (tblLoadingTO.CnfOrgId.ToString (), conn, tran);
+                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
+                        Dictionary<int, string> cnfDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblLoadingTO.CnfOrgId.ToString(), conn, tran);
                         if (cnfDCT != null) {
                             foreach (var item in cnfDCT.Keys) {
-                                TblSmsTO smsTO = new TblSmsTO ();
+                                TblSmsTO smsTO = new TblSmsTO();
                                 smsTO.MobileNo = cnfDCT[item];
                                 smsTO.SourceTxnDesc = "LOADING_SLIP_CONFIRMED";
                                 smsTO.SmsTxt = tblAlertInstanceTO.AlertComment;
-                                tblAlertInstanceTO.SmsTOList.Add (smsTO);
+                                tblAlertInstanceTO.SmsTOList.Add(smsTO);
                             }
                         }
 
                         tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
 
-                        result = _iTblAlertInstanceBL.ResetAlertInstance ((int) NotificationConstants.NotificationsE.LOADING_SLIP_CONFIRMATION_REQUIRED, tblLoadingTO.IdLoading, 0, conn, tran);
+                        result = _iTblAlertInstanceBL.ResetAlertInstance((int)NotificationConstants.NotificationsE.LOADING_SLIP_CONFIRMATION_REQUIRED, tblLoadingTO.IdLoading, 0, conn, tran);
                         if (result < 0) {
                             //tran.Rollback();
                             resultMessage.MessageType = ResultMessageE.Error;
@@ -7158,7 +7158,7 @@ namespace ODLMWebAPI.BL {
                         string tempTxt = "";
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.LOADING_SLIP_CANCELLED;
                         tblAlertInstanceTO.AlertAction = "LOADING_SLIP_CANCELLED";
-                        if(!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
                         {
                             tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
                             tempTxt = tempTxt.Replace("@LoadingSlipNoStr", tblLoadingTO.LoadingSlipNo);
@@ -7168,7 +7168,7 @@ namespace ODLMWebAPI.BL {
                             tblAlertInstanceTO.AlertComment = tempTxt;
                         }
                         else
-                        tblAlertInstanceTO.AlertComment = "Your Generated Loading Slip (Ref " + tblLoadingTO.LoadingSlipNo + ")  is cancelled due to " + tblLoadingTO.StatusReason;
+                            tblAlertInstanceTO.AlertComment = "Your Generated Loading Slip (Ref " + tblLoadingTO.LoadingSlipNo + ")  is cancelled due to " + tblLoadingTO.StatusReason;
 
                         if (dealerNameActive == 1) //Vijaymala added[03-05-2018]
                         {
@@ -7179,7 +7179,7 @@ namespace ODLMWebAPI.BL {
                         }
 
                         tblAlertInstanceTO.SourceDisplayId = "LOADING_SLIP_CANCELLED";
-                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO> ();
+                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
 
                         //SMS is not required for loading slip cancellation. Notification is already sent
                         //Dictionary<int, string> cnfDCT = BL._iTblOrganizationBL.SelectRegisteredMobileNoDCT(tblLoadingTO.CnfOrgId.ToString(), conn, tran);
@@ -7197,7 +7197,7 @@ namespace ODLMWebAPI.BL {
 
                         tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
 
-                        result = _iTblAlertInstanceBL.ResetAlertInstance ((int) NotificationConstants.NotificationsE.LOADING_SLIP_CONFIRMATION_REQUIRED, tblLoadingTO.IdLoading, 0, conn, tran);
+                        result = _iTblAlertInstanceBL.ResetAlertInstance((int)NotificationConstants.NotificationsE.LOADING_SLIP_CONFIRMATION_REQUIRED, tblLoadingTO.IdLoading, 0, conn, tran);
                         if (result < 0) {
                             //tran.Rollback();
                             resultMessage.MessageType = ResultMessageE.Error;
@@ -7213,7 +7213,7 @@ namespace ODLMWebAPI.BL {
                         string tempTxt = "";
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.VEHICLE_OUT_FOR_DELIVERY;
                         tblAlertInstanceTO.AlertAction = "VEHICLE_OUT_FOR_DELIVERY";
-                        if(!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
                         {
                             tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
                             tempTxt = tempTxt.Replace("@LoadingSlipNoStr", tblLoadingTO.LoadingSlipNo);
@@ -7223,7 +7223,7 @@ namespace ODLMWebAPI.BL {
                             tblAlertInstanceTO.AlertComment = tempTxt;
                         }
                         else
-                        tblAlertInstanceTO.AlertComment = "Your Loading Slip (Ref " + tblLoadingTO.LoadingSlipNo + ")  of Vehicle No " + tblLoadingTO.VehicleNo + " is out for delivery";
+                            tblAlertInstanceTO.AlertComment = "Your Loading Slip (Ref " + tblLoadingTO.LoadingSlipNo + ")  of Vehicle No " + tblLoadingTO.VehicleNo + " is out for delivery";
 
                         if (dealerNameActive == 1) //Vijaymala added[03-05-2018]
                         {
@@ -7234,11 +7234,11 @@ namespace ODLMWebAPI.BL {
                         }
 
                         tblAlertInstanceTO.SourceDisplayId = "VEHICLE_OUT_FOR_DELIVERY";
-                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO> ();
+                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
 
                         //SMS to Dealer
                         //Aniket [31-7-2019] added to set sms text dynamically
-                       // TblAlertDefinitionTO tblAlertDefinitionTO = _iTblAlertDefinitionDAO.SelectTblAlertDefinition((int)NotificationConstants.NotificationsE.VEHICLE_OUT_FOR_DELIVERY, conn, tran);
+                        // TblAlertDefinitionTO tblAlertDefinitionTO = _iTblAlertDefinitionDAO.SelectTblAlertDefinition((int)NotificationConstants.NotificationsE.VEHICLE_OUT_FOR_DELIVERY, conn, tran);
 
                         Dictionary<int, string> dealerDCT = _iTblLoadingSlipBL.SelectRegMobileNoDCTForLoadingDealers(tblLoadingTO.IdLoading.ToString(), conn, tran);
                         if (dealerDCT != null)
@@ -7248,28 +7248,28 @@ namespace ODLMWebAPI.BL {
                                 TblSmsTO smsTO = new TblSmsTO();
                                 smsTO.MobileNo = dealerDCT[item];
                                 smsTO.SourceTxnDesc = "VEHICLE_OUT_FOR_DELIVERY";
-                                if(!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
+                                if (!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
                                 {
                                     string tempSmsString = tblAlertDefinitionTO.DefaultSmsTxt;
-                                    tempSmsString= tempSmsString.Replace("@QtyStr",tblLoadingTO.TotalLoadingQty.ToString());
-                                    if(!string.IsNullOrEmpty(tblLoadingTO.VehicleNo))
-                                        tempSmsString=tempSmsString.Replace("@TruckNoStr", tblLoadingTO.VehicleNo);
+                                    tempSmsString = tempSmsString.Replace("@QtyStr", tblLoadingTO.TotalLoadingQty.ToString());
+                                    if (!string.IsNullOrEmpty(tblLoadingTO.VehicleNo))
+                                        tempSmsString = tempSmsString.Replace("@TruckNoStr", tblLoadingTO.VehicleNo);
                                     else
-                                        tempSmsString=tempSmsString.Replace("@TruckNoStr", "-");
+                                        tempSmsString = tempSmsString.Replace("@TruckNoStr", "-");
                                     if (!string.IsNullOrEmpty(tblLoadingTO.ContactNo))
-                                        tempSmsString=tempSmsString.Replace("@NoStr",tblLoadingTO.ContactNo);
+                                        tempSmsString = tempSmsString.Replace("@NoStr", tblLoadingTO.ContactNo);
                                     else
-                                        tempSmsString= tempSmsString.Replace("@NoStr", "-");
+                                        tempSmsString = tempSmsString.Replace("@NoStr", "-");
 
                                     if (!string.IsNullOrEmpty(tblLoadingTO.DriverName))
-                                        tempSmsString= tempSmsString.Replace("@NameStr",tblLoadingTO.DriverName);
+                                        tempSmsString = tempSmsString.Replace("@NameStr", tblLoadingTO.DriverName);
                                     else
-                                        tempSmsString= tempSmsString.Replace("@NameStr", "-");
-                                   
+                                        tempSmsString = tempSmsString.Replace("@NameStr", "-");
+
                                     smsTO.SmsTxt = tempSmsString;
                                 }
                                 else
-                                smsTO.SmsTxt = "Your Loading Slip Ref. " + tblLoadingTO.LoadingSlipNo + " is out for delivery";
+                                    smsTO.SmsTxt = "Your Loading Slip Ref. " + tblLoadingTO.LoadingSlipNo + " is out for delivery";
 
                                 tblAlertInstanceTO.SmsTOList.Add(smsTO);
                             }
@@ -7289,7 +7289,7 @@ namespace ODLMWebAPI.BL {
                         string tempTxt = "";
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.LOADING_GATE_IN;
                         tblAlertInstanceTO.AlertAction = "LOADING_GATE_IN";
-                        if(!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                        if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
                         {
                             tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
                             tempTxt = tempTxt.Replace("@VehicleNoStr", tblLoadingTO.VehicleNo);
@@ -7298,17 +7298,68 @@ namespace ODLMWebAPI.BL {
                             tblAlertInstanceTO.AlertComment = tempTxt;
                         }
                         else
-                        tblAlertInstanceTO.AlertComment = "Vehicle No " + tblLoadingTO.VehicleNo + " is gate in for loading.";
+                            tblAlertInstanceTO.AlertComment = "Vehicle No " + tblLoadingTO.VehicleNo + " is gate in for loading.";
+                        //Reshma Added For SMS Template Changes.
+                        String AlertComment = "";
+                        TblConfigParamsTO tblConfigParamsTOTemp = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_NOTIFICATIONS);
+                        if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
+                        {
+                            Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
+                            if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                            {
+                                TblConfigParamsTO MessageTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_VEHICLE_GATE_IN_SMS_STRING);
+                                if (MessageTO != null && !String.IsNullOrEmpty(MessageTO.ConfigParamVal))
+                                {
+                                    List<TblBookingsTO> TblBookingsTOList = new List<TblBookingsTO>();
+                                    if (tblLoadingTO != null)
+                                    {
+                                        AlertComment = MessageTO.ConfigParamVal;
+                                        AlertComment = AlertComment.Replace("@Dealer_Name", tblLoadingTO.DealerOrgName);
+                                        AlertComment = AlertComment.Replace("@date", _iCommon.ServerDateTime.ToString("dd MMMM yyyy"));
+                                        List<TblLoadingSlipTO> tblLoadingSlipTempTOList = _iTblLoadingSlipBL.SelectAllTblLoadingSlip(tblLoadingTO.IdLoading, conn, tran);
+                                        if (tblLoadingSlipTempTOList != null && tblLoadingSlipTempTOList.Count > 1)
+                                        {
+                                            List<TblLoadingSlipTO> distinctLoadingSlipList = tblLoadingSlipTOList.GroupBy(w => w.IdLoadingSlip).Select(s => s.FirstOrDefault()).ToList();
+                                            if (distinctLoadingSlipList != null && distinctLoadingSlipList.Count > 0)
+                                            {
+                                                for (int x = 0; x < distinctLoadingSlipList.Count; x++)
+                                                {
+                                                    TblBookingsTO tblBookingsTO = _iTblBookingsDAO.SelectTblBookings(distinctLoadingSlipList[x].BookingId, conn, tran);
+                                                    if (tblBookingsTO != null)
+                                                        TblBookingsTOList.Add(tblBookingsTO);
+                                                }
+                                            }
 
+                                        }
+                                        if (TblBookingsTOList != null && TblBookingsTOList.Count > 0)
+                                        {
+                                            TblBookingsTO TblBookingsTOTemp = TblBookingsTOList.OrderByDescending(o => o.BookingQty).First();
+                                            if (TblBookingsTOTemp != null)
+                                            {
+                                                AlertComment = AlertComment.Replace("@Order_No", TblBookingsTOTemp.BookingDisplayNo);
+                                            }
+                                        }
+                                        TblOrganizationTO organizationTO = _iTblOrganizationDAO.SelectTblOrganizationTO(tblLoadingTO.FromOrgId);
+                                        AlertComment = AlertComment.Replace("@Vehicle_No", tblLoadingTO.VehicleNo);
+                                        AlertComment = AlertComment.Replace("@Org_Name", organizationTO.FirmName);
+                                    }
+                                }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(AlertComment))
+                        {
+                            tblAlertInstanceTO.AlertComment = AlertComment;
+
+                        }
                         if (dealerNameActive == 1) //Vijaymala added[03-05-2018]
                         {
                             tempTxt = tempTxt.Replace("@DealerNameStr", dealerOrgNames);
                             tblAlertInstanceTO.SmsComment = tempTxt;
-                           // tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ").";//      
+                            // tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ").";//      
                         }
 
                         tblAlertInstanceTO.SourceDisplayId = "LOADING_GATE_IN";
-                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO> ();
+                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
                         tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
                     }
 
@@ -7339,12 +7390,12 @@ namespace ODLMWebAPI.BL {
                         }
 
                         tblAlertInstanceTO.SourceDisplayId = "VEHICLE_REPORTED_FOR_LOADING";
-                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO> ();
+                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
                         tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
                     }
 
-                    
-                     else if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_VEHICLE_CLERANCE_TO_SEND_IN)
+
+                    else if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_VEHICLE_CLERANCE_TO_SEND_IN)
                     {
                         //Aniket [6-8-2019]
                         var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.LOADING_VEHICLE_CLEARANCE_TO_SEND_IN);
@@ -7367,11 +7418,61 @@ namespace ODLMWebAPI.BL {
                         {
                             tempTxt = tempTxt.Replace("@DealerNameStr", dealerOrgNames);
                             tblAlertInstanceTO.SmsComment = tempTxt;
-                           // tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ").";//      
+                            // tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ").";//      
                         }
 
                         tblAlertInstanceTO.SourceDisplayId = "LOADING_VEHICLE_CLEARANCE_TO_SEND_IN";
-                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO> ();
+                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
+                        tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
+                    }
+                    else if (tblLoadingTO.TranStatusE == Constants.TranStatusE.LOADING_DELIVERED)//Reshma Added For Parmeshwar Changes.
+                    { 
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.LOADING_VEHICLE_OUT);
+                        string tempTxt = "";
+                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.LOADING_VEHICLE_OUT;
+                        tblAlertInstanceTO.AlertAction = "LOADING_VEHICLE_OUT"; 
+                        //Reshma Added For SMS Template Changes.
+                        String AlertComment = "";
+                        List<TblBookingsTO> TblBookingsTOList = new List<TblBookingsTO>();
+                        if (tblLoadingTO != null && tblAlertDefinitionTO !=null)
+                        {
+                            AlertComment = tblAlertDefinitionTO.DefaultAlertTxt ;
+                            AlertComment = AlertComment.Replace("@Dealer_Name", tblLoadingTO.DealerOrgName);
+                            AlertComment = AlertComment.Replace("@date", _iCommon.ServerDateTime.ToString("dd MMMM yyyy"));
+                            List<TblLoadingSlipTO> tblLoadingSlipTempTOList = _iTblLoadingSlipBL.SelectAllTblLoadingSlip(tblLoadingTO.IdLoading, conn, tran);
+                            if (tblLoadingSlipTempTOList != null && tblLoadingSlipTempTOList.Count > 1)
+                            {
+                                List<TblLoadingSlipTO> distinctLoadingSlipList = tblLoadingSlipTOList.GroupBy(w => w.IdLoadingSlip).Select(s => s.FirstOrDefault()).ToList();
+                                if (distinctLoadingSlipList != null && distinctLoadingSlipList.Count > 0)
+                                {
+                                    for (int x = 0; x < distinctLoadingSlipList.Count; x++)
+                                    {
+                                        TblBookingsTO tblBookingsTO = _iTblBookingsDAO.SelectTblBookings(distinctLoadingSlipList[x].BookingId, conn, tran);
+                                        if (tblBookingsTO != null)
+                                            TblBookingsTOList.Add(tblBookingsTO);
+                                    }
+                                }
+
+                            }
+                            if (TblBookingsTOList != null && TblBookingsTOList.Count > 0)
+                            {
+                                TblBookingsTO TblBookingsTOTemp = TblBookingsTOList.OrderByDescending(o => o.BookingQty).First();
+                                if (TblBookingsTOTemp != null)
+                                {
+                                    AlertComment = AlertComment.Replace("@Order_No", TblBookingsTOTemp.BookingDisplayNo);
+                                }
+                            }
+                            TblOrganizationTO organizationTO = _iTblOrganizationDAO.SelectTblOrganizationTO(tblLoadingTO.FromOrgId);
+                            AlertComment = AlertComment.Replace("@Vehicle_No", tblLoadingTO.VehicleNo);
+                            AlertComment = AlertComment.Replace("@Org_Name", organizationTO.FirmName);
+                        } 
+                        if (!string.IsNullOrEmpty(AlertComment))
+                        {
+                            tblAlertInstanceTO.AlertComment = AlertComment; 
+                        } 
+
+                        tblAlertInstanceTO.SourceDisplayId = "LOADING_VEHICLE_OUT";
+                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
                         tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
                     }
                     tblAlertInstanceTO.EffectiveFromDate = tblLoadingTO.UpdatedOn;

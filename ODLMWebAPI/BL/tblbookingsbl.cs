@@ -2606,7 +2606,48 @@ namespace ODLMWebAPI.BL
                         var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_CONFIRMED);
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_CONFIRMED;
                         tblAlertInstanceTO.AlertAction = "BOOKING_CONFIRMED";
-                        tblAlertInstanceTO.AlertComment = "Your Booking #" + tblBookingsTO.BookingDisplayNo + " is confirmed. Rate : " + tblBookingsTO.BookingRate + " AND Qty : " + tblBookingsTO.BookingQty;
+                        tblAlertInstanceTO.AlertComment = "";
+                        //Reshma Added For Parmeshwar SMS Changes.
+                        String AlertComment = "";
+                        TblConfigParamsTO tblConfigParamsTOTemp = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_NOTIFICATIONS);
+                        if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
+                        { 
+                            Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
+                            if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                            {
+                                TblConfigParamsTO MessageTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_ORDER_CONFIRMATION_SMS_STRING);
+                                if (MessageTO != null && !String.IsNullOrEmpty(MessageTO.ConfigParamVal))
+                                {
+                                    if (tblBookingsTO != null && tblBookingsTO.OrderDetailsLst != null && tblBookingsTO.OrderDetailsLst.Count > 0)
+                                    {
+                                        AlertComment = MessageTO.ConfigParamVal;
+                                        AlertComment = AlertComment.Replace("@DEALER_NAME", tblBookingsTO.DealerName);
+                                        String SMS_CONTENT = tblBookingsTO.CreatedOn.ToString("dd MMMM yyyy") + " Rate " + tblBookingsTO.BookingRate + " Size ";
+                                        for (int i = 0; i < tblBookingsTO.OrderDetailsLst.Count; i++)
+                                        {
+                                            if (i == 0)
+                                            {
+                                                SMS_CONTENT = SMS_CONTENT + tblBookingsTO.OrderDetailsLst[i].DisplayName + " Qty " + tblBookingsTO.OrderDetailsLst[i].BookedQty + " MT";
+                                            }
+                                            else
+                                            {
+                                                SMS_CONTENT = SMS_CONTENT + " , " + tblBookingsTO.OrderDetailsLst[i].DisplayName + " Qty " + tblBookingsTO.OrderDetailsLst[i].BookedQty + " MT";
+                                            }
+                                        }
+                                        AlertComment = AlertComment.Replace("@SMS_CONTENT", SMS_CONTENT);
+                                    }
+                                }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(AlertComment))
+                        {
+                            tblAlertInstanceTO.AlertComment = AlertComment;
+
+                        }
+                        if (String.IsNullOrEmpty(tblAlertInstanceTO.AlertComment))
+                        {
+                            tblAlertInstanceTO.AlertComment = "Your Booking #" + tblBookingsTO.BookingDisplayNo + " is confirmed. Rate : " + tblBookingsTO.BookingRate + " AND Qty : " + tblBookingsTO.BookingQty;
+                        }
                         tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
                         // SMS to Dealer
                         TblSmsTO smsTO = new TblSmsTO();

@@ -841,7 +841,11 @@ namespace ODLMWebAPI.StaticStuff
         public static string GatePassSlip = "GatePassSlip";
         public static string DEFAULT_TCS_PERCENT_IF_DECLARATION_NOT_RECEIVED = "DEFAULT_TCS_PERCENT_IF_DECLARATION_NOT_RECEIVED";
 
-        
+        public static string CP_DELIVER_IS_SEND_CUSTOM_NOTIFICATIONS = "CP_DELIVER_IS_SEND_CUSTOM_NOTIFICATIONS";
+        public static string CP_DELIVER_ORDER_CONFIRMATION_SMS_STRING = "CP_DELIVER_ORDER_CONFIRMATION_SMS_STRING";
+        public static string CP_DELIVER_VEHICLE_GATE_IN_SMS_STRING = "CP_DELIVER_VEHICLE_GATE_IN_SMS_STRING";
+
+
 
         #region Common functions
 
