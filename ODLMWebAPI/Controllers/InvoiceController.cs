@@ -378,9 +378,12 @@ namespace ODLMWebAPI.Controllers
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue; 
             if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
-                frmDt = _iCommon.ServerDateTime.Date.AddDays (-1);
+                frmDt = _iCommon.ServerDateTime.Date .AddDays (-1);
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date;
+            frmDt = frmDt.AddMinutes(530);
+            toDt = toDt .AddMinutes(530);
+
             return _iTblInvoiceBL.SelectAllRptInvoiceList(frmDt, toDt, isConfirm, fromOrgId);
         }
 
