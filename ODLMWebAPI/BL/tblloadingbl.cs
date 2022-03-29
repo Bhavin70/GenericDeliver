@@ -7224,7 +7224,56 @@ namespace ODLMWebAPI.BL {
                         }
                         else
                             tblAlertInstanceTO.AlertComment = "Your Loading Slip (Ref " + tblLoadingTO.LoadingSlipNo + ")  of Vehicle No " + tblLoadingTO.VehicleNo + " is out for delivery";
+                        //Reshma Added For SMS Template Changes.
+                        String AlertComment = "";
+                        List<TblBookingsTO> TblBookingsTOList = new List<TblBookingsTO>();
+                        TblConfigParamsTO tblConfigParamsTOTemp = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_NOTIFICATIONS);
+                        if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
+                        {
+                            Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
+                            if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                                if (tblLoadingTO != null && tblAlertDefinitionTO != null)
+                                {
+                                    TblLoadingTO tblLoadingToTemp = SelectLoadingTOWithDetails(tblLoadingTO.IdLoading);
+                                    TblConfigParamsTO MessageTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_VEHICLE_OUT);
+                                    if (MessageTO != null && !String.IsNullOrEmpty(MessageTO.ConfigParamVal))
+                                    {
+                                        AlertComment = MessageTO.ConfigParamVal; 
+                                        AlertComment = AlertComment.Replace("@Dealer_Name", tblLoadingToTemp.LoadingSlipList[0].DealerOrgName);
+                                        AlertComment = AlertComment.Replace("@Date", _iCommon.ServerDateTime.ToString("dd MMMM yyyy"));
+                                        List<TblLoadingSlipTO> tblLoadingSlipTempTOList = _iTblLoadingSlipBL.SelectAllTblLoadingSlip(tblLoadingTO.IdLoading, conn, tran);
+                                        if (tblLoadingSlipTempTOList != null && tblLoadingSlipTempTOList.Count > 0)
+                                        {
+                                            List<TblLoadingSlipTO> distinctLoadingSlipList = tblLoadingSlipTOList.GroupBy(w => w.IdLoadingSlip).Select(s => s.FirstOrDefault()).ToList();
+                                            if (distinctLoadingSlipList != null && distinctLoadingSlipList.Count > 0)
+                                            {
+                                                for (int x = 0; x < distinctLoadingSlipList.Count; x++)
+                                                {
+                                                    TblBookingsTO tblBookingsTO = _iTblBookingsDAO.SelectTblBookings(distinctLoadingSlipList[x].BookingId, conn, tran);
+                                                    if (tblBookingsTO != null)
+                                                        TblBookingsTOList.Add(tblBookingsTO);
+                                                }
+                                            }
 
+                                        }
+                                        if (TblBookingsTOList != null && TblBookingsTOList.Count > 0)
+                                        {
+                                            TblBookingsTO TblBookingsTOTemp = TblBookingsTOList.OrderByDescending(o => o.BookingQty).First();
+                                            if (TblBookingsTOTemp != null)
+                                            {
+                                                AlertComment = AlertComment.Replace("@Order_No", TblBookingsTOTemp.BookingDisplayNo);
+                                            }
+                                        }
+                                        TblOrganizationTO organizationTO = _iTblOrganizationDAO.SelectTblOrganizationTO(tblLoadingTO.FromOrgId);
+                                        AlertComment = AlertComment.Replace("@Vehicle_No", tblLoadingTO.VehicleNo);
+                                        AlertComment = AlertComment.Replace("@Org_Name", organizationTO.FirmName);
+                                    }
+                                }
+                            if (!string.IsNullOrEmpty(AlertComment))
+                            {
+                                tblAlertInstanceTO.AlertComment = AlertComment;
+                            }
+                        }
                         if (dealerNameActive == 1) //Vijaymala added[03-05-2018]
                         {
                             //tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
@@ -7438,35 +7487,39 @@ namespace ODLMWebAPI.BL {
                         List<TblBookingsTO> TblBookingsTOList = new List<TblBookingsTO>();
                         if (tblLoadingTO != null && tblAlertDefinitionTO !=null)
                         {
-                            AlertComment = tblAlertDefinitionTO.DefaultAlertTxt ;
-                            AlertComment = AlertComment.Replace("@Dealer_Name", tblLoadingToTemp.LoadingSlipList[0].DealerOrgName);
-                            AlertComment = AlertComment.Replace("@date", _iCommon.ServerDateTime.ToString("dd MMMM yyyy"));
-                            List<TblLoadingSlipTO> tblLoadingSlipTempTOList = _iTblLoadingSlipBL.SelectAllTblLoadingSlip(tblLoadingTO.IdLoading, conn, tran);
-                            if (tblLoadingSlipTempTOList != null && tblLoadingSlipTempTOList.Count > 1)
+                            TblConfigParamsTO MessageTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_VEHICLE_OUT );
+                            if (MessageTO != null && !String.IsNullOrEmpty(MessageTO.ConfigParamVal))
                             {
-                                List<TblLoadingSlipTO> distinctLoadingSlipList = tblLoadingSlipTOList.GroupBy(w => w.IdLoadingSlip).Select(s => s.FirstOrDefault()).ToList();
-                                if (distinctLoadingSlipList != null && distinctLoadingSlipList.Count > 0)
+                                AlertComment = MessageTO.ConfigParamVal ;
+                                AlertComment = AlertComment.Replace("@Dealer_Name", tblLoadingToTemp.LoadingSlipList[0].DealerOrgName);
+                                AlertComment = AlertComment.Replace("@date", _iCommon.ServerDateTime.ToString("dd MMMM yyyy"));
+                                List<TblLoadingSlipTO> tblLoadingSlipTempTOList = _iTblLoadingSlipBL.SelectAllTblLoadingSlip(tblLoadingTO.IdLoading, conn, tran);
+                                if (tblLoadingSlipTempTOList != null && tblLoadingSlipTempTOList.Count > 1)
                                 {
-                                    for (int x = 0; x < distinctLoadingSlipList.Count; x++)
+                                    List<TblLoadingSlipTO> distinctLoadingSlipList = tblLoadingSlipTOList.GroupBy(w => w.IdLoadingSlip).Select(s => s.FirstOrDefault()).ToList();
+                                    if (distinctLoadingSlipList != null && distinctLoadingSlipList.Count > 0)
                                     {
-                                        TblBookingsTO tblBookingsTO = _iTblBookingsDAO.SelectTblBookings(distinctLoadingSlipList[x].BookingId, conn, tran);
-                                        if (tblBookingsTO != null)
-                                            TblBookingsTOList.Add(tblBookingsTO);
+                                        for (int x = 0; x < distinctLoadingSlipList.Count; x++)
+                                        {
+                                            TblBookingsTO tblBookingsTO = _iTblBookingsDAO.SelectTblBookings(distinctLoadingSlipList[x].BookingId, conn, tran);
+                                            if (tblBookingsTO != null)
+                                                TblBookingsTOList.Add(tblBookingsTO);
+                                        }
+                                    }
+
+                                }
+                                if (TblBookingsTOList != null && TblBookingsTOList.Count > 0)
+                                {
+                                    TblBookingsTO TblBookingsTOTemp = TblBookingsTOList.OrderByDescending(o => o.BookingQty).First();
+                                    if (TblBookingsTOTemp != null)
+                                    {
+                                        AlertComment = AlertComment.Replace("@Order_No", TblBookingsTOTemp.BookingDisplayNo);
                                     }
                                 }
-
+                                TblOrganizationTO organizationTO = _iTblOrganizationDAO.SelectTblOrganizationTO(tblLoadingTO.FromOrgId);
+                                AlertComment = AlertComment.Replace("@Vehicle_No", tblLoadingTO.VehicleNo);
+                                AlertComment = AlertComment.Replace("@Org_Name", organizationTO.FirmName);
                             }
-                            if (TblBookingsTOList != null && TblBookingsTOList.Count > 0)
-                            {
-                                TblBookingsTO TblBookingsTOTemp = TblBookingsTOList.OrderByDescending(o => o.BookingQty).First();
-                                if (TblBookingsTOTemp != null)
-                                {
-                                    AlertComment = AlertComment.Replace("@Order_No", TblBookingsTOTemp.BookingDisplayNo);
-                                }
-                            }
-                            TblOrganizationTO organizationTO = _iTblOrganizationDAO.SelectTblOrganizationTO(tblLoadingTO.FromOrgId);
-                            AlertComment = AlertComment.Replace("@Vehicle_No", tblLoadingTO.VehicleNo);
-                            AlertComment = AlertComment.Replace("@Org_Name", organizationTO.FirmName);
                         } 
                         if (!string.IsNullOrEmpty(AlertComment))
                         {
