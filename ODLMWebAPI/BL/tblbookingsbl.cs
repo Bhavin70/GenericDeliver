@@ -2618,20 +2618,21 @@ namespace ODLMWebAPI.BL
                                 TblConfigParamsTO MessageTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_ORDER_CONFIRMATION_SMS_STRING);
                                 if (MessageTO != null && !String.IsNullOrEmpty(MessageTO.ConfigParamVal))
                                 {
-                                    if (tblBookingsTO != null && tblBookingsTO.OrderDetailsLst != null && tblBookingsTO.OrderDetailsLst.Count > 0)
+                                    if (tblBookingsTO != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count > 0)
                                     {
                                         AlertComment = MessageTO.ConfigParamVal;
                                         AlertComment = AlertComment.Replace("@DEALER_NAME", tblBookingsTO.DealerName);
                                         String SMS_CONTENT = tblBookingsTO.CreatedOn.ToString("dd MMMM yyyy") + " Rate " + tblBookingsTO.BookingRate + " Size ";
-                                        for (int i = 0; i < tblBookingsTO.OrderDetailsLst.Count; i++)
+                                        for (int i = 0; i< tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count ; i++)
                                         {
                                             if (i == 0)
                                             {
-                                                SMS_CONTENT = SMS_CONTENT + tblBookingsTO.OrderDetailsLst[i].DisplayName + " Qty " + tblBookingsTO.OrderDetailsLst[i].BookedQty + " MT";
+                                                SMS_CONTENT = SMS_CONTENT + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].MaterialSubType + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].BookedQty + " MT";
+                                                 
                                             }
                                             else
                                             {
-                                                SMS_CONTENT = SMS_CONTENT + " , " + tblBookingsTO.OrderDetailsLst[i].DisplayName + " Qty " + tblBookingsTO.OrderDetailsLst[i].BookedQty + " MT";
+                                                SMS_CONTENT = SMS_CONTENT + " , " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].MaterialSubType + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].BookedQty + " MT";
                                             }
                                         }
                                         AlertComment = AlertComment.Replace("@SMS_CONTENT", SMS_CONTENT);
@@ -2641,6 +2642,8 @@ namespace ODLMWebAPI.BL
                         }
                         if (!string.IsNullOrEmpty(AlertComment))
                         {
+                            TblOrganizationTO OrganizationTO = _iTblOrganizationDAO.SelectTblOrganizationTO((int)Constants.DefaultCompanyId);
+                            AlertComment = AlertComment.Replace("@Org_Name", OrganizationTO .FirmName);
                             tblAlertInstanceTO.AlertComment = AlertComment;
 
                         }
@@ -4075,20 +4078,20 @@ namespace ODLMWebAPI.BL
                                 TblConfigParamsTO MessageTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_ORDER_CONFIRMATION_SMS_STRING);
                                 if (MessageTO != null && !String.IsNullOrEmpty(MessageTO.ConfigParamVal))
                                 {
-                                    if (tblBookingsTO != null && tblBookingsTO.OrderDetailsLst != null && tblBookingsTO.OrderDetailsLst.Count > 0)
+                                    if (tblBookingsTO != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count > 0)
                                     {
                                         AlertComment = MessageTO.ConfigParamVal;
-                                        AlertComment = AlertComment.Replace("@DEALER_NAME", tblBookingsTO.DealerName);
+                                        AlertComment = AlertComment.Replace("@Dealer_Name ", tblBookingsTO.DealerName);
                                         String SMS_CONTENT = tblBookingsTO.CreatedOn.ToString("dd MMMM yyyy") + " Rate " + tblBookingsTO.BookingRate + " Size ";
-                                        for (int i = 0; i < tblBookingsTO.OrderDetailsLst.Count; i++)
+                                        for (int i = 0; i < tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count; i++)
                                         {
                                             if (i == 0)
                                             {
-                                                SMS_CONTENT = SMS_CONTENT + tblBookingsTO.OrderDetailsLst[i].DisplayName + " Qty " + tblBookingsTO.OrderDetailsLst[i].BookedQty + " MT";
+                                                SMS_CONTENT = SMS_CONTENT + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].MaterialSubType  + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].BookedQty + " MT";
                                             }
                                             else
                                             {
-                                                SMS_CONTENT = SMS_CONTENT + " , " + tblBookingsTO.OrderDetailsLst[i].DisplayName + " Qty " + tblBookingsTO.OrderDetailsLst[i].BookedQty + " MT";
+                                                SMS_CONTENT = SMS_CONTENT + " , " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].MaterialSubType + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].BookedQty + " MT";
                                             }
                                         }
                                         AlertComment = AlertComment.Replace("@SMS_CONTENT", SMS_CONTENT);
@@ -4098,6 +4101,8 @@ namespace ODLMWebAPI.BL
                         }
                         if (!string.IsNullOrEmpty(AlertComment))
                         {
+                            TblOrganizationTO OrganizationTO = _iTblOrganizationDAO.SelectTblOrganizationTO((int)Constants.DefaultCompanyId);
+                            AlertComment = AlertComment.Replace("@Org_Name", OrganizationTO.FirmName);
                             tblAlertInstanceTO.AlertComment = AlertComment; 
                         }
 

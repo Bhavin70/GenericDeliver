@@ -7307,6 +7307,7 @@ namespace ODLMWebAPI.BL {
                             Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
                             if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
                             {
+                                TblLoadingTO tblLoadingToTemp =SelectLoadingTOWithDetails(tblLoadingTO.IdLoading) ;
                                 TblConfigParamsTO MessageTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_VEHICLE_GATE_IN_SMS_STRING);
                                 if (MessageTO != null && !String.IsNullOrEmpty(MessageTO.ConfigParamVal))
                                 {
@@ -7314,10 +7315,10 @@ namespace ODLMWebAPI.BL {
                                     if (tblLoadingTO != null)
                                     {
                                         AlertComment = MessageTO.ConfigParamVal;
-                                        AlertComment = AlertComment.Replace("@Dealer_Name", tblLoadingTO.DealerOrgName);
+                                        AlertComment = AlertComment.Replace("@Dealer_Name", tblLoadingToTemp.LoadingSlipList [0].DealerOrgName);
                                         AlertComment = AlertComment.Replace("@date", _iCommon.ServerDateTime.ToString("dd MMMM yyyy"));
                                         List<TblLoadingSlipTO> tblLoadingSlipTempTOList = _iTblLoadingSlipBL.SelectAllTblLoadingSlip(tblLoadingTO.IdLoading, conn, tran);
-                                        if (tblLoadingSlipTempTOList != null && tblLoadingSlipTempTOList.Count > 1)
+                                        if (tblLoadingSlipTempTOList != null && tblLoadingSlipTempTOList.Count > 0)
                                         {
                                             List<TblLoadingSlipTO> distinctLoadingSlipList = tblLoadingSlipTOList.GroupBy(w => w.IdLoadingSlip).Select(s => s.FirstOrDefault()).ToList();
                                             if (distinctLoadingSlipList != null && distinctLoadingSlipList.Count > 0)
@@ -7430,14 +7431,15 @@ namespace ODLMWebAPI.BL {
                         var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.LOADING_VEHICLE_OUT);
                         string tempTxt = "";
                         tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.LOADING_VEHICLE_OUT;
-                        tblAlertInstanceTO.AlertAction = "LOADING_VEHICLE_OUT"; 
+                        tblAlertInstanceTO.AlertAction = "LOADING_VEHICLE_OUT";
+                        TblLoadingTO tblLoadingToTemp = SelectLoadingTOWithDetails(tblLoadingTO.IdLoading);
                         //Reshma Added For SMS Template Changes.
                         String AlertComment = "";
                         List<TblBookingsTO> TblBookingsTOList = new List<TblBookingsTO>();
                         if (tblLoadingTO != null && tblAlertDefinitionTO !=null)
                         {
                             AlertComment = tblAlertDefinitionTO.DefaultAlertTxt ;
-                            AlertComment = AlertComment.Replace("@Dealer_Name", tblLoadingTO.DealerOrgName);
+                            AlertComment = AlertComment.Replace("@Dealer_Name", tblLoadingToTemp.LoadingSlipList[0].DealerOrgName);
                             AlertComment = AlertComment.Replace("@date", _iCommon.ServerDateTime.ToString("dd MMMM yyyy"));
                             List<TblLoadingSlipTO> tblLoadingSlipTempTOList = _iTblLoadingSlipBL.SelectAllTblLoadingSlip(tblLoadingTO.IdLoading, conn, tran);
                             if (tblLoadingSlipTempTOList != null && tblLoadingSlipTempTOList.Count > 1)
