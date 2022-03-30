@@ -317,7 +317,7 @@ namespace ODLMWebAPI.BL
                 Dictionary<int, double> bookingDictionary = null;
                 Dictionary<int, double> globalLoadingDictionary = new Dictionary<int, double>();
                 Dictionary<int, double> globalBookingDictionary = new Dictionary<int, double>();
-                double totalPendingBookedQty = 0.0;
+                double totalPendingBookedQty = 0.0; double totalBookedOrderQty = 0.0;
                 for (int i = 0; i < tblBookingTOList.Count; i++)
                 {
                     if (tblBookingTOList[i].IdBooking == 111891)
@@ -406,51 +406,62 @@ namespace ODLMWebAPI.BL
                             if (bookingDictionary.ContainsKey(eachMaterial.Value))
                             {
                                 bookedQty = Convert.ToDouble(bookingDictionary[eachMaterial.Value]);
-                                totalBookedQty += bookedQty;
+                                //totalBookedQty += bookedQty;
                             }
-                            //Reshma Added
-                            if (!globalBookingDictionary.ContainsKey(eachMaterial.Value))
-                            {
-                                globalBookingDictionary.Add(eachMaterial.Value, bookedQty);
-                            }
-                            else
-                            {
-                                if (bookedQty > 0)
-                                {
-                                    double val = Convert.ToDouble(globalBookingDictionary[eachMaterial.Value]);
-                                    double bookingQtytemp = bookedQty;
-                                    bookingQtytemp += val;
-                                    globalBookingDictionary[eachMaterial.Value] = bookingQtytemp;
-                                }
-                            }
+                           
                         }
                         if (loadingDictionary != null)
                         {
                             if (loadingDictionary.ContainsKey(eachMaterial.Value))
                             {
                                 loadQty = Convert.ToDouble(loadingDictionary[eachMaterial.Value]);
-                                totalLoadQty += loadQty;
+                                //totalLoadQty += loadQty;
                             }
-                            //Reshma Added
-                            if (!globalLoadingDictionary.ContainsKey(eachMaterial.Value))
-                            {
-                                globalLoadingDictionary.Add(eachMaterial.Value, loadQty);
-                            }
-                            else
-                            {
-                                if (loadQty > 0)
-                                {
-                                    double val = Convert.ToDouble(globalLoadingDictionary[eachMaterial.Value]);
-                                    double loadQtytemp = loadQty;
-                                    loadQtytemp += val;
-                                    globalLoadingDictionary[eachMaterial.Value] = loadQtytemp;
-                                }
-                            }
+                           
                         }
 
                         double pendingQty = bookedQty- loadQty;
                         if (pendingQty < 0)
                             pendingQty = 0;
+                        if (pendingQty > 0)
+                        {
+                            totalBookedQty += bookedQty;
+                            totalLoadQty += loadQty;
+                            if (bookingDictionary != null && loadingDictionary != null)
+                            {
+                                //Reshma Added
+                                if (!globalBookingDictionary.ContainsKey(eachMaterial.Value))
+                                {
+                                    globalBookingDictionary.Add(eachMaterial.Value, bookedQty);
+                                }
+                                else
+                                {
+                                    if (bookedQty > 0)
+                                    {
+                                        double val = Convert.ToDouble(globalBookingDictionary[eachMaterial.Value]);
+                                        double bookingQtytemp = bookedQty;
+                                        bookingQtytemp += val;
+                                        globalBookingDictionary[eachMaterial.Value] = bookingQtytemp;
+                                    }
+                                }
+                                //Reshma Added
+                                if (!globalLoadingDictionary.ContainsKey(eachMaterial.Value))
+                                {
+                                    globalLoadingDictionary.Add(eachMaterial.Value, loadQty);
+                                }
+                                else
+                                {
+                                    if (loadQty > 0)
+                                    {
+                                        double val = Convert.ToDouble(globalLoadingDictionary[eachMaterial.Value]);
+                                        double loadQtytemp = loadQty;
+                                        loadQtytemp += val;
+                                        globalLoadingDictionary[eachMaterial.Value] = loadQtytemp;
+                                    }
+                                }
+
+                            }
+                        }
                         finalData = pendingQty.ToString("N1") ;
                         finalBookingpendingQty.Add(eachMaterial.Text, finalData);
                     }
@@ -459,6 +470,8 @@ namespace ODLMWebAPI.BL
                         totalPendingQty = 0;
                     totalQty = totalPendingQty.ToString("N1");
                     tblBookingPendingRptTO.TotalQty = totalQty;
+
+                    totalBookedOrderQty = totalBookedOrderQty + Convert.ToDouble(tblBookingPendingRptTO.TotalQty);
                     tblBookingPendingRptTO.FinalDictionaryList.Add(finalBookingpendingQty);
                     tblBookingPendingRptTOList.Add(tblBookingPendingRptTO);
                 }
@@ -476,6 +489,7 @@ namespace ODLMWebAPI.BL
                         {
                             foreach (var eachMaterial in MaterialList)
                             {
+                                bookedQty = 0;loadQty = 0;
                                 if (globalBookingDictionary != null)
                                 {
                                     if (globalBookingDictionary.ContainsKey(eachMaterial.Value))
@@ -497,7 +511,7 @@ namespace ODLMWebAPI.BL
                                 double totalPendimngQty = bookedQty - loadQty;
                                 if (totalPendimngQty < 0)
                                     totalPendimngQty = 0;
-                                finalData = bookedQty.ToString("N1") ;
+                                finalData = totalPendimngQty.ToString("N1") ;
                                 finalBookingpendingQty.Add(eachMaterial.Text, finalData);
                             }
                         }
@@ -507,6 +521,8 @@ namespace ODLMWebAPI.BL
                         totalPenQty = 0;
                     totalQty = totalPenQty.ToString("N1");
                     tblBookingPendingRptTO.DealerName = "Total";
+                    tblBookingPendingRptTO.TotalQty  =Convert .ToString (Math.Round(totalBookedOrderQty ,2));
+
                     tblBookingPendingRptTO.PendingQty =Math.Round ( totalPendingBookedQty,2);
                     tblBookingPendingRptTO.FinalDictionaryList.Add(finalBookingpendingQty);
                     tblBookingPendingRptTOList.Add(tblBookingPendingRptTO);
@@ -2618,20 +2634,21 @@ namespace ODLMWebAPI.BL
                                 TblConfigParamsTO MessageTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_ORDER_CONFIRMATION_SMS_STRING);
                                 if (MessageTO != null && !String.IsNullOrEmpty(MessageTO.ConfigParamVal))
                                 {
-                                    if (tblBookingsTO != null && tblBookingsTO.OrderDetailsLst != null && tblBookingsTO.OrderDetailsLst.Count > 0)
+                                    if (tblBookingsTO != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count > 0)
                                     {
                                         AlertComment = MessageTO.ConfigParamVal;
                                         AlertComment = AlertComment.Replace("@DEALER_NAME", tblBookingsTO.DealerName);
                                         String SMS_CONTENT = tblBookingsTO.CreatedOn.ToString("dd MMMM yyyy") + " Rate " + tblBookingsTO.BookingRate + " Size ";
-                                        for (int i = 0; i < tblBookingsTO.OrderDetailsLst.Count; i++)
+                                        for (int i = 0; i< tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count ; i++)
                                         {
                                             if (i == 0)
                                             {
-                                                SMS_CONTENT = SMS_CONTENT + tblBookingsTO.OrderDetailsLst[i].DisplayName + " Qty " + tblBookingsTO.OrderDetailsLst[i].BookedQty + " MT";
+                                                SMS_CONTENT = SMS_CONTENT + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].MaterialSubType + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].BookedQty + " MT";
+                                                 
                                             }
                                             else
                                             {
-                                                SMS_CONTENT = SMS_CONTENT + " , " + tblBookingsTO.OrderDetailsLst[i].DisplayName + " Qty " + tblBookingsTO.OrderDetailsLst[i].BookedQty + " MT";
+                                                SMS_CONTENT = SMS_CONTENT + " , " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].MaterialSubType + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].BookedQty + " MT";
                                             }
                                         }
                                         AlertComment = AlertComment.Replace("@SMS_CONTENT", SMS_CONTENT);
@@ -2641,6 +2658,8 @@ namespace ODLMWebAPI.BL
                         }
                         if (!string.IsNullOrEmpty(AlertComment))
                         {
+                            TblOrganizationTO OrganizationTO = _iTblOrganizationDAO.SelectTblOrganizationTO((int)Constants.DefaultCompanyId);
+                            AlertComment = AlertComment.Replace("@Org_Name", OrganizationTO .FirmName);
                             tblAlertInstanceTO.AlertComment = AlertComment;
 
                         }
@@ -4075,20 +4094,20 @@ namespace ODLMWebAPI.BL
                                 TblConfigParamsTO MessageTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_ORDER_CONFIRMATION_SMS_STRING);
                                 if (MessageTO != null && !String.IsNullOrEmpty(MessageTO.ConfigParamVal))
                                 {
-                                    if (tblBookingsTO != null && tblBookingsTO.OrderDetailsLst != null && tblBookingsTO.OrderDetailsLst.Count > 0)
+                                    if (tblBookingsTO != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count > 0)
                                     {
                                         AlertComment = MessageTO.ConfigParamVal;
-                                        AlertComment = AlertComment.Replace("@DEALER_NAME", tblBookingsTO.DealerName);
+                                        AlertComment = AlertComment.Replace("@Dealer_Name ", tblBookingsTO.DealerName);
                                         String SMS_CONTENT = tblBookingsTO.CreatedOn.ToString("dd MMMM yyyy") + " Rate " + tblBookingsTO.BookingRate + " Size ";
-                                        for (int i = 0; i < tblBookingsTO.OrderDetailsLst.Count; i++)
+                                        for (int i = 0; i < tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count; i++)
                                         {
                                             if (i == 0)
                                             {
-                                                SMS_CONTENT = SMS_CONTENT + tblBookingsTO.OrderDetailsLst[i].DisplayName + " Qty " + tblBookingsTO.OrderDetailsLst[i].BookedQty + " MT";
+                                                SMS_CONTENT = SMS_CONTENT + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].MaterialSubType  + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].BookedQty + " MT";
                                             }
                                             else
                                             {
-                                                SMS_CONTENT = SMS_CONTENT + " , " + tblBookingsTO.OrderDetailsLst[i].DisplayName + " Qty " + tblBookingsTO.OrderDetailsLst[i].BookedQty + " MT";
+                                                SMS_CONTENT = SMS_CONTENT + " , " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].MaterialSubType + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].BookedQty + " MT";
                                             }
                                         }
                                         AlertComment = AlertComment.Replace("@SMS_CONTENT", SMS_CONTENT);
@@ -4098,6 +4117,8 @@ namespace ODLMWebAPI.BL
                         }
                         if (!string.IsNullOrEmpty(AlertComment))
                         {
+                            TblOrganizationTO OrganizationTO = _iTblOrganizationDAO.SelectTblOrganizationTO((int)Constants.DefaultCompanyId);
+                            AlertComment = AlertComment.Replace("@Org_Name", OrganizationTO.FirmName);
                             tblAlertInstanceTO.AlertComment = AlertComment; 
                         }
 
