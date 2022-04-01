@@ -2638,7 +2638,7 @@ namespace ODLMWebAPI.BL
                                     {
                                         AlertComment = MessageTO.ConfigParamVal;
                                         AlertComment = AlertComment.Replace("@DEALER_NAME", tblBookingsTO.DealerName);
-                                        String SMS_CONTENT = tblBookingsTO.CreatedOn.ToString("dd MMMM yyyy") + " Rate " + tblBookingsTO.BookingRate + " Size ";
+                                        String SMS_CONTENT = tblBookingsTO.CreatedOn.ToString("dd-MMMM-yy") + " Rate " + tblBookingsTO.BookingRate + " Size";
                                         for (int i = 0; i< tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count ; i++)
                                         {
                                             if (i == 0)
@@ -4098,7 +4098,7 @@ namespace ODLMWebAPI.BL
                                     {
                                         AlertComment = MessageTO.ConfigParamVal;
                                         AlertComment = AlertComment.Replace("@Dealer_Name ", tblBookingsTO.DealerName);
-                                        String SMS_CONTENT = tblBookingsTO.CreatedOn.ToString("dd MMMM yyyy") + " Rate " + tblBookingsTO.BookingRate + " Size ";
+                                        String SMS_CONTENT = tblBookingsTO.CreatedOn.ToString("dd-MMMM-yy") + " Rate " + tblBookingsTO.BookingRate + " Size";
                                         for (int i = 0; i < tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count; i++)
                                         {
                                             if (i == 0)
