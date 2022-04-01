@@ -26,7 +26,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN " +
                                    " ( " +
                                    " SELECT tblAddress.*, organizationId FROM tblOrgAddress " +
-                                   " INNER JOIN tblAddress ON idAddr = addressId WHERE addrTypeId = 1 " +
+                                   " INNER JOIN tblAddress ON idAddr = addressId WHERE addrTypeId = 1 AND isAddrVisible = 1  " +
                                    " ) addrDtl " +
                                    " ON idOrganization = organizationId " +
                                    " LEFT JOIN dimCdStructure cdStructure ON cdStructure.idCdStructure=tblOrganization.cdStructureId" +
@@ -834,7 +834,7 @@ namespace ODLMWebAPI.DAL
 
                 rdr = cmdSelect.ExecuteReader(CommandBehavior.Default);
                 List<TblOrganizationTO> list = ConvertDTToList(rdr);
-                if (list != null && list.Count == 1)
+                if (list != null && list.Count > 0)
                     return list[0];
                 else return null;
             }

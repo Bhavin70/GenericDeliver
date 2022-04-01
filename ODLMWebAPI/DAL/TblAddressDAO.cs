@@ -111,7 +111,7 @@ namespace ODLMWebAPI.DAL
                 }
                 cmdSelect.CommandText =SqlSelectQuery() +  " LEFT JOIN tblOrgAddress orgAddr " +
                                         " ON addr.idAddr = orgAddr.addressId " +
-                                        " WHERE organizationId=" + orgId + " AND addrTypeId=" + addressTypeId;
+                                        " WHERE organizationId=" + orgId + " AND isAddrVisible = 1 AND addrTypeId=" + addressTypeId;
 
                 //cmdSelect.Connection = conn;
                 //cmdSelect.Transaction = tran;
@@ -119,7 +119,7 @@ namespace ODLMWebAPI.DAL
 
                 reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
                 List<TblAddressTO> list = ConvertDTToList(reader);
-                if (list != null && list.Count == 1)
+                if (list != null && list.Count > 0)
                     return list[0];
                 else return null;
             }
