@@ -3417,7 +3417,12 @@ namespace ODLMWebAPI.BL {
 
                                         //Get Latest To Based On -materialId, Date And Time Check Condition Actual TIme < = First Object.
                                         TblAddressTO addrTO = _iTblAddressDAO.SelectOrgAddressWrtAddrType(tblBookingsTO.DealerOrgId, Constants.AddressTypeE.OFFICE_ADDRESS, conn, tran);
-
+                                        if (addrTO == null)
+                                        {
+                                            tran.Rollback();
+                                            resultMessage.DefaultBehaviour("Organization Office Address Details Not Found");
+                                            return resultMessage;
+                                        }
                                         //02-12-2020 Dhananjay added start
                                         Int32 districtId = 0;
                                         Int32 talukaId = 0;
