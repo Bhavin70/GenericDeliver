@@ -1399,6 +1399,7 @@ namespace ODLMWebAPI.BL
                             invoiceReportTO.InvoiceNo = invoiceReportTOListLocal[0].InvoiceNo;
                             invoiceReportTO.InvoiceDate= invoiceReportTOListLocal[0].InvoiceDate;
                             invoiceReportTO.InvoiceId = invoiceReportTOListLocal[0].InvoiceId;
+                            invoiceReportTO.SuperwiserName  = invoiceReportTOListLocal[0].SuperwiserName ;
 
                             Double total = 0;
                             for (int iC = 0; iC < invoiceReportTOListLocal.Count; iC++)

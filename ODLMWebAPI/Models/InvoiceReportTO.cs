@@ -21,6 +21,7 @@ namespace ODLMWebAPI.Models
         Double invoiceQty;
         Double totalQty;
         Double grandTotalQty;
+        String superwiserName;
         #endregion
 
         #region Constructor
@@ -28,7 +29,7 @@ namespace ODLMWebAPI.Models
         {
 
         }
-
+        public String SuperwiserName { get => superwiserName; set => superwiserName = value; }
         public string InvoiceNo { get => invoiceNo; set => invoiceNo = value; }
         public string PartyName { get => partyName; set => partyName = value; }
         public string ConsigneeName { get => consigneeName; set => consigneeName = value; }

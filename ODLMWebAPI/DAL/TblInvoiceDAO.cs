@@ -2659,13 +2659,16 @@ namespace ODLMWebAPI.DAL
             {
 
                 String query = "select tempInvoice.idInvoice, dimProdCat.prodCateDesc,dimProdSpec.prodSpecDesc,tblMaterial.materialSubType " +
-                    " ,tempInvoice.invoiceNo, tempInvoice.invoiceDate,tempInvoiceItemDetails.invoiceQty,  tempLoadingSlipExt.* " +
+                    " ,tempInvoice.invoiceNo, tempInvoice.invoiceDate,tempInvoiceItemDetails.invoiceQty,  tempLoadingSlipExt.* ,tblUser.userDisplayName as 'SuperWise Name' " +
                     " from[dbo].[tempInvoiceItemDetails] " +
                     " Join tempInvoice On tempInvoice.idInvoice = tempInvoiceItemDetails.invoiceId " +
                     " Join tempLoadingSlipExt On tempLoadingSlipExt.idLoadingSlipExt = tempInvoiceItemDetails.loadingSlipExtId " +
                     " Left Join dimProdCat On dimProdCat.idProdCat = tempLoadingSlipExt.prodCatId " +
                     " Left Join dimProdSpec On dimProdSpec.idProdSpec = tempLoadingSlipExt.prodSpecId " +
                     " Left Join tblMaterial On tblMaterial.idMaterial = tempLoadingSlipExt.materialId "+
+                    " Left join tempLoadingSlip  on tempInvoice.loadingSlipId  =tempLoadingSlip.idLoadingSlip  "+
+                    " Left join tempLoading on tempLoadingSlip.loadingId = tempLoading.idLoading "+
+                    " Left join tblUser on tblUser.idUser = tempLoading.superwisorId "+
                     " Where  CAST(tempInvoice.invoiceDate AS Date) BETWEEN @fromDate AND @toDate Order by tempInvoice.invoiceDate";
                 conn.Open();
                 cmdSelect.CommandText = query;
@@ -2688,7 +2691,7 @@ namespace ODLMWebAPI.DAL
                         invoiceReportTO.InvoiceDate = Convert.ToDateTime(dt.Rows[i]["invoiceDate"]);
                         invoiceReportTO.InvoiceQty = Convert.ToDouble(dt.Rows[i]["invoiceQty"]);
                         invoiceReportTO.InvoiceNo = Convert.ToString(dt.Rows[i]["invoiceNo"]);
-
+                        invoiceReportTO.SuperwiserName = Convert.ToString(dt.Rows[i]["SuperWise Name"]);
                         invoiceReportTOList.Add(invoiceReportTO);
 
                     }
