@@ -1587,8 +1587,12 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["orgGstNo"] != DBNull.Value)
                                     tblInvoiceRptTONew.OrgGstNo = Convert.ToString(tblInvoiceRptTODT["orgGstNo"].ToString());
                             }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("InsuranceAmt"))
+                            {
+                                if (tblInvoiceRptTODT["InsuranceAmt"] != DBNull.Value)
+                                    tblInvoiceRptTONew.InsuranceAmt = Convert.ToDouble(tblInvoiceRptTODT["InsuranceAmt"].ToString());
+                            }
 
-                            
 
                             tblInvoiceRptTONew.ContactName = ""+tblInvoiceRptTONew.OwnerPersonFirstName +"  "+  tblInvoiceRptTONew.OwnerPersonLastName+"";
                         }
@@ -1924,7 +1928,7 @@ namespace ODLMWebAPI.DAL
                     " from tempInvoiceItemDetails where otherTaxId is null GROUP BY invoiceId )totalItemQtyTbl On totalItemQtyTbl.invoiceId = invoice.idInvoice" +
                     " LEFT JOIN(select invoiceId, taxableAmt as freightAmt " +
                     " from tempInvoiceItemDetails where otherTaxId = 2  )freightItem On freightItem.invoiceId = invoice.idInvoice " +
-                    "LEFT JOIN(select invoiceId, taxableAmt as InsuranceAmt  from finalInvoiceItemDetails where otherTaxId = 5  )Insurance " +
+                    "LEFT JOIN(select invoiceId, taxableAmt as InsuranceAmt  from tempInvoiceItemDetails where otherTaxId = 5  )Insurance " +
                      "   On Insurance.invoiceId = invoice.idInvoice " +
                     " LEFT JOIN(select invoiceId, taxableAmt as tcsAmt " +
                     " from tempInvoiceItemDetails where otherTaxId = 4  )tcsItem On tcsItem.invoiceId = invoice.idInvoice " +

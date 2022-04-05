@@ -109,6 +109,7 @@ namespace ODLMWebAPI.Models
         Double tdsAmt;
         string salesLedger;
         String orgGstNo;
+        Double insuranceAmt;
         #endregion
 
         #region Constructor
@@ -529,6 +530,7 @@ namespace ODLMWebAPI.Models
 
         public string InvoiceMode { get => invoiceMode; set => invoiceMode = value; }
 
+        public Double InsuranceAmt { get => insuranceAmt; set => insuranceAmt = value; }
         public string ElectronicRefNo { get; set; }
         public string IrnNo { get; set; }
         public string CodeNumber { get; set; }
