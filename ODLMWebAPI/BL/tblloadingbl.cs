@@ -11477,6 +11477,8 @@ namespace ODLMWebAPI.BL {
             try
             {
                 TblLoadingTO LoadingTO = SelectLoadingTOWithDetails(idLoading);
+                double totalBundleQty = 0;
+                double totalLoadingQty = 0;
                 if (LoadingTO != null)
                 {
                     Int32 IS_REQUIRE_DIFFERENT_DT_FOR_6MM_MATERIAL = 0;
@@ -11492,6 +11494,8 @@ namespace ODLMWebAPI.BL {
                     DataTable addressDT = new DataTable();
                     DataTable loadingDT = new DataTable();
                     DataTable loadingItemDT = new DataTable();
+                    DataTable loadingItemTotalDT = new DataTable();
+
                     DataTable specificItemLoadingDT = new DataTable();
                     DataTable itemFooterDetailsDT = new DataTable();
 
@@ -11500,6 +11504,8 @@ namespace ODLMWebAPI.BL {
                     loadingDT.TableName = "loadingDT";
                     addressDT.TableName = "addressDT";
                     loadingItemDT.TableName = "loadingItemDT";
+                    loadingItemTotalDT.TableName = "loadingItemTotalDT";
+
                     specificItemLoadingDT.TableName = "specificItemLoadingDT";
                     itemFooterDetailsDT.TableName = "itemFooterDetailsDT";
 
@@ -11712,6 +11718,7 @@ namespace ODLMWebAPI.BL {
                                     specificItemLoadingDT.Rows[loadItemDTCount]["LoadedBundles"] = tblLoadingSlipExtTO.LoadedBundles;
                                     specificItemLoadingDT.Rows[loadItemDTCount]["RatePerMT"] = tblLoadingSlipExtTO.RatePerMT;
                                     specificItemLoadingDT.Rows[loadItemDTCount]["LoadingSlipId"] = tblLoadingSlipExtTO.LoadingSlipId;
+                                    
                                 }
                                 else
                                 {
@@ -11783,7 +11790,9 @@ namespace ODLMWebAPI.BL {
                                     loadingItemDT.Rows[loadItemDTCount]["LoadedBundles"] = tblLoadingSlipExtTO.LoadedBundles;
                                     loadingItemDT.Rows[loadItemDTCount]["RatePerMT"] = tblLoadingSlipExtTO.RatePerMT;
                                     loadingItemDT.Rows[loadItemDTCount]["LoadingSlipId"] = tblLoadingSlipExtTO.LoadingSlipId;
-                                }
+                                    totalBundleQty += tblLoadingSlipExtTO.Bundles;
+                                    totalLoadingQty += tblLoadingSlipExtTO.LoadingQty;
+                                } 
                                 headerDT.Rows[loadHeaderDTCount]["LoadingLayerDesc"] = tblLoadingSlipExtTO.LoadingLayerDesc;
                                 if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.BrandDesc))
                                 {
@@ -11795,10 +11804,23 @@ namespace ODLMWebAPI.BL {
 
                                 }
                             }
+                            
 
                         }
                     }
 
+                    loadingItemTotalDT.Columns.Add("LoadingQty");
+                    loadingItemTotalDT.Columns.Add("Bundles");
+                    loadingItemTotalDT.Columns.Add("ProdSpecDesc");
+
+                    if (loadingItemDT != null && loadingItemDT.Rows.Count > 0)
+                    {
+                        loadingItemTotalDT.Rows.Add();
+                        loadingItemTotalDT.Rows[loadingItemTotalDT.Rows.Count - 1]["LoadingQty"] = totalLoadingQty;
+                        loadingItemTotalDT.Rows[loadingItemTotalDT.Rows.Count - 1]["Bundles"] = totalBundleQty;
+                        loadingItemTotalDT.Rows[loadingItemTotalDT.Rows.Count - 1]["ProdSpecDesc"] = "Total";
+
+                    }
                     //headerDT = loadingDT.Copy();
                     headerDT.TableName = "headerDT";
 
@@ -11807,6 +11829,7 @@ namespace ODLMWebAPI.BL {
                     specificItemLoadingDT.TableName = "specificItemLoadingDT";
                     printDataSet.Tables.Add(loadingItemDT);
                     printDataSet.Tables.Add(specificItemLoadingDT);
+                    printDataSet.Tables.Add(loadingItemTotalDT);
 
                     //creating template'''''''''''''''''
                     string templateName = "LoadingSlip";
