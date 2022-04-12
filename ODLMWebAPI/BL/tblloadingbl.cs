@@ -11812,7 +11812,7 @@ namespace ODLMWebAPI.BL {
                     loadingItemTotalDT.Columns.Add("LoadingQty");
                     loadingItemTotalDT.Columns.Add("Bundles");
                     loadingItemTotalDT.Columns.Add("ProdSpecDesc");
-
+                    //Reshma Added.
                     if (loadingItemDT != null && loadingItemDT.Rows.Count > 0)
                     {
                         loadingItemTotalDT.Rows.Add();
