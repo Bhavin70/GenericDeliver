@@ -4090,27 +4090,30 @@ namespace ODLMWebAPI.BL
                         {
                             Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
                             if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
-                            {
+                            { 
                                 TblConfigParamsTO MessageTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_ORDER_CONFIRMATION_SMS_STRING);
                                 if (MessageTO != null && !String.IsNullOrEmpty(MessageTO.ConfigParamVal))
                                 {
-                                    if (tblBookingsTO != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count > 0)
+                                    if (tblBookingsTO != null && tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
                                     {
-                                        AlertComment = MessageTO.ConfigParamVal;
-                                        AlertComment = AlertComment.Replace("@Dealer_Name ", tblBookingsTO.DealerName);
-                                        String SMS_CONTENT = tblBookingsTO.CreatedOn.ToString("dd-MMMM-yy") + " Rate " + tblBookingsTO.BookingRate + " Size";
-                                        for (int i = 0; i < tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count; i++)
+                                        if (tblBookingsTO != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count > 0)
                                         {
-                                            if (i == 0)
+                                            AlertComment = MessageTO.ConfigParamVal;
+                                            AlertComment = AlertComment.Replace("@Dealer_Name ", tblBookingsTO.DealerName);
+                                            String SMS_CONTENT = tblBookingsTO.CreatedOn.ToString("dd-MMMM-yy") + " Rate " + tblBookingsTO.BookingRate + " Size";
+                                            for (int i = 0; i < tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count; i++)
                                             {
-                                                SMS_CONTENT = SMS_CONTENT + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].MaterialSubType  + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].BookedQty + " MT";
+                                                if (i == 0)
+                                                {
+                                                    SMS_CONTENT = SMS_CONTENT + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].MaterialSubType + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].BookedQty + " MT";
+                                                }
+                                                else
+                                                {
+                                                    SMS_CONTENT = SMS_CONTENT + " , " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].MaterialSubType + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].BookedQty + " MT";
+                                                }
                                             }
-                                            else
-                                            {
-                                                SMS_CONTENT = SMS_CONTENT + " , " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].MaterialSubType + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].BookedQty + " MT";
-                                            }
+                                            AlertComment = AlertComment.Replace("@SMS_CONTENT", SMS_CONTENT);
                                         }
-                                        AlertComment = AlertComment.Replace("@SMS_CONTENT", SMS_CONTENT);
                                     }
                                 }
                             }
