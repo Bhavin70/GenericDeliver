@@ -316,7 +316,32 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+        public TblInvoiceTO SelectTblInvoice(String loadingSlipId, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                cmdSelect.CommandText = " SELECT * FROM (" + SqlSelectQuery() + ")sq1 WHERE loadingSlipId IN(" + loadingSlipId + ") ";
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
 
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblInvoiceTO> list = ConvertDTToList(reader);
+                if (list != null && list.Count == 1) return list[0];
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
         public String SelectresponseForPhotoInReport(Int32 idInvoice,Int32 ApiId)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
