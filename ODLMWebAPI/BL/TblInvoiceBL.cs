@@ -10445,8 +10445,12 @@ namespace ODLMWebAPI.BL
 
                 tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@gstin", sellerGstin);
                 tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@token", access_Token_Authentication);
-
                 tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@invoiceType", "INV");
+                if (tblInvoiceTO.InvoiceTypeE == Constants.InvoiceTypeE.EXPORT_INVOICE)//Reshma Addded
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@supTyp", "EXPWP");
+                else
+                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@supTyp", "B2B");
+                 
                 tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@invoiceNo", tblInvoiceTO.InvoiceNo); //"AUG070720-19"
                 tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@invoiceDate", tblInvoiceTO.InvoiceDate.Day.ToString("00") + "/" + tblInvoiceTO.InvoiceDate.Month.ToString("00") + "/" + tblInvoiceTO.InvoiceDate.Year.ToString("0000")); //"12/08/2020"
 
@@ -10594,8 +10598,10 @@ namespace ODLMWebAPI.BL
                     buyerName = billingAddrTO.BillingName;
 
                     string billingAddr2 = GetAreaFromAddress(billingAddrTO);
-
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerGstIn", RemoveSpecialChars(billingAddrTO.GstinNo.ToUpper()));
+                    if(tblInvoiceTO.InvoiceTypeE == Constants.InvoiceTypeE.EXPORT_INVOICE )
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerGstIn", "URP");
+                    else
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerGstIn", RemoveSpecialChars(billingAddrTO.GstinNo.ToUpper()));
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerName", RemoveSpecialChars(buyerName));
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerAddr1", padRight(billingAddrTO.Address));
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerAddr2", padRight(billingAddr2));
@@ -10606,10 +10612,19 @@ namespace ODLMWebAPI.BL
                     }
                     else
                     {*/
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerPincode", RemoveSpecialChars(billingAddrTO.PinCode));
+                    if (tblInvoiceTO.InvoiceTypeE == Constants.InvoiceTypeE.EXPORT_INVOICE)
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerPincode", "999999");
+                    else
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerPincode", RemoveSpecialChars(billingAddrTO.PinCode));
                     //}
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerStateCode", RemoveSpecialChars(billingAddrTO.StateOrUTCode));
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerSupplyStateCode", RemoveSpecialChars(billingAddrTO.StateOrUTCode));
+                    if (tblInvoiceTO.InvoiceTypeE == Constants.InvoiceTypeE.EXPORT_INVOICE)
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerStateCode", "96");
+                    else
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerStateCode", RemoveSpecialChars(billingAddrTO.StateOrUTCode));
+                    if (tblInvoiceTO.InvoiceTypeE == Constants.InvoiceTypeE.EXPORT_INVOICE)
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerSupplyStateCode", "96");
+                    else
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@buyerSupplyStateCode", RemoveSpecialChars(billingAddrTO.StateOrUTCode));
                     string contactNo = "9100000000";
                     if (billingAddrTO.ContactNo != null)
                     {
@@ -10676,7 +10691,10 @@ namespace ODLMWebAPI.BL
                         //shippingAddrTO.GstinNo = billingAddrTO.GstinNo;
                     }
                     tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingName", RemoveSpecialChars(shippingAddrTO.BillingName));
-                    if (string.IsNullOrEmpty(shippingAddrTO.GstinNo))
+
+                    if (tblInvoiceTO.InvoiceTypeE == Constants.InvoiceTypeE.EXPORT_INVOICE)//Reshma Added For Export
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shippingGstIn", "URP");
+                    else if (string.IsNullOrEmpty(shippingAddrTO.GstinNo))
                     {
                         tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("\"gstin\": \"@shippingGstIn\",", "");
                     }
@@ -10693,9 +10711,17 @@ namespace ODLMWebAPI.BL
                     }
                     else
                     {*/
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToPincode", RemoveSpecialChars(shippingAddrTO.PinCode));
+                    if (tblInvoiceTO.InvoiceTypeE == Constants.InvoiceTypeE.EXPORT_INVOICE)
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToPincode", "999999");
+                    else
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToPincode", RemoveSpecialChars(shippingAddrTO.PinCode));
+
                     //}
-                    tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToStateCode", RemoveSpecialChars(shippingAddrTO.StateOrUTCode));
+                    if (tblInvoiceTO.InvoiceTypeE == Constants.InvoiceTypeE.EXPORT_INVOICE)//Reshma Added
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToStateCode", "96");
+                    else
+                        tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@shipToStateCode", RemoveSpecialChars(shippingAddrTO.StateOrUTCode));
+
                 }
 
                 //tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@othChrg", tblInvoiceTO.FreightAmt.ToString());
