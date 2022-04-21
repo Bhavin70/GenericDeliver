@@ -1343,6 +1343,21 @@ namespace ODLMWebAPI.Controllers
             }
         }
 
+        [Route("PostUpdateInvoiceStatus")]
+        [HttpPost]
+        public ResultMessage PostUpdateInvoiceStatus([FromBody] TblInvoiceTO tblInvoiceTO)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                return _iTblInvoiceBL.PostUpdateInvoiceStatus(tblInvoiceTO);
+            }
+            catch (Exception e)
+            {
+                resultMessage.DefaultExceptionBehaviour(e, "PostUpdateInvoiceStatus");
+                return resultMessage;
+            }
+        }
 
         [Route("PrintWeighingDetails")]
         [HttpPost]

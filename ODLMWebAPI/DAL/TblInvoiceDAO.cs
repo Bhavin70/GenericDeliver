@@ -3459,6 +3459,56 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public int PostUpdateInvoiceStatus(TblInvoiceTO tblInvoiceTO)
+        {
+            String sqlConnStr = Startup.ConnectionString;
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                conn.Open();
+                cmdUpdate.Connection = conn;
+                String sqlQuery = @" UPDATE [tempInvoice] SET " +
+                 "  [invoiceModeId] = @InvoiceModeId " +
+                 " ,[statusId]= @StatusId" +
+                 " ,[updatedBy]= @UpdatedBy" +
+                 " ,[updatedOn]= @UpdatedOn" +
+                 " ,[IrnNo]= @IrnNo" +
+                 " ,[electronicRefNo]= @ElectronicRefNo" +
+                 " ,[isEInvGenerated]= @IsEInvGenerated" +
+                 " ,[isEwayBillGenerated]= @IsEwayBillGenerated" +
+                 " ,[invoiceNo]= @InvoiceNo" +
+                 " ,[distanceInKM]= @DistanceInKM" +
+                 " WHERE [idInvoice] = @IdInvoice ";
+
+                cmdUpdate.CommandText = sqlQuery;
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+
+                cmdUpdate.Parameters.Add("@IdInvoice", System.Data.SqlDbType.Int).Value = tblInvoiceTO.IdInvoice;
+                cmdUpdate.Parameters.Add("@StatusId", System.Data.SqlDbType.NVarChar).Value = tblInvoiceTO.StatusId;
+                cmdUpdate.Parameters.Add("@InvoiceModeId", System.Data.SqlDbType.Int).Value = tblInvoiceTO.InvoiceModeId;
+                cmdUpdate.Parameters.Add("@UpdatedBy", System.Data.SqlDbType.Int).Value = tblInvoiceTO.UpdatedBy;
+                cmdUpdate.Parameters.Add("@UpdatedOn", System.Data.SqlDbType.DateTime).Value = tblInvoiceTO.UpdatedOn;
+                cmdUpdate.Parameters.Add("@IrnNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.IrnNo);
+                cmdUpdate.Parameters.Add("@ElectronicRefNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.ElectronicRefNo);
+                cmdUpdate.Parameters.Add("@IsEInvGenerated", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.IsEInvGenerated);
+                cmdUpdate.Parameters.Add("@IsEwayBillGenerated", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.IsEWayBillGenerated);
+                cmdUpdate.Parameters.Add("@InvoiceNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.InvoiceNo);
+                cmdUpdate.Parameters.Add("@DistanceInKM", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.DistanceInKM);
+
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                conn.Close();
+                cmdUpdate.Dispose();
+            }
+        }
+
         public int UpdateEWayBill(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdUpdate = new SqlCommand();

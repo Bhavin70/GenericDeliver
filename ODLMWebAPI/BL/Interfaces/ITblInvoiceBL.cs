@@ -119,5 +119,6 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage PrintSaleReport(DateTime frmDt, DateTime toDt, int isConfirm, string selectedOrg, int isFromPurchase = 0);
 
         List<InvoiceReportTO> GetAllInvoices(DateTime fromDate, DateTime toDate, ref String errorMsg);
+        ResultMessage PostUpdateInvoiceStatus(TblInvoiceTO tblInvoiceTO);
     }
 }
