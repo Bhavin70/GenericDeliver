@@ -2694,7 +2694,15 @@ namespace ODLMWebAPI.BL
                                     confirmMsg = "Not Confirmed";
 
                                 smsTO.SmsTxt = "Your Order Of Qty " + tblBookingsTO.BookingQty.ToString().Trim() + " MT with Rate " + tblBookingsTO.BookingRate + " (Rs/MT) is " + confirmMsg.Trim() + " Your Ref No : " + tblBookingsTO.BookingDisplayNo + "";
-
+                                //Reshma Added
+                                if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
+                                {
+                                    Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
+                                    if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                                    {
+                                        smsTO.SmsTxt = tblAlertInstanceTO.AlertComment;
+                                    }
+                                }
                             }
 
                         }
@@ -4137,7 +4145,8 @@ namespace ODLMWebAPI.BL
                         // SMS to Dealer
                         Dictionary<Int32, String> orgMobileNoDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblBookingsTO.DealerOrgId.ToString(), conn, tran);
                         if (orgMobileNoDCT != null && orgMobileNoDCT.Count == 1)
-                        {
+                        { 
+                            
                             tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
                             TblSmsTO smsTO = new TblSmsTO();
                             smsTO.MobileNo = orgMobileNoDCT[tblBookingsTO.DealerOrgId];
@@ -4265,6 +4274,15 @@ namespace ODLMWebAPI.BL
                                     smsTO.SmsTxt = SMSContent + " Your Ref No : " + tblBookingsTO.BookingDisplayNo;
                                 else
                                     smsTO.SmsTxt = SMSContent + " Your Ref No : " + tblBookingsTO.BookingDisplayNo + " (Other)";
+                            }
+                            //Reshma Added
+                            if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
+                            {
+                                Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
+                                if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                                {
+                                    smsTO.SmsTxt = tblAlertInstanceTO.AlertComment;
+                                }
                             }
                             tblAlertInstanceTO.SmsTOList.Add(smsTO);
                         }

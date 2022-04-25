@@ -569,6 +569,16 @@ namespace ODLMWebAPI.DAL
                 while (tblLoadingSlipExtTODT.Read())
                 {
                     TblLoadingSlipExtTO tblLoadingSlipExtTONew = new TblLoadingSlipExtTO();
+                    if (tblLoadingSlipExtTODT["rateCalcDesc"] != DBNull.Value)
+                        tblLoadingSlipExtTONew.RateCalcDesc  = Convert.ToString(tblLoadingSlipExtTODT["rateCalcDesc"].ToString());
+                    object obj = tblLoadingSlipExtTONew.RateCalcDesc.Split('|').GetValue(6);//.GetType(5) ;//"Parity :"
+                    if (obj != null)
+                    {
+                        string ParityDeatils = obj.ToString ();
+                        ParityDeatils= ParityDeatils.Substring(9);
+                        tblLoadingSlipExtTONew.ParityDetails = Convert.ToDouble(ParityDeatils);
+                    }
+
                     if (tblLoadingSlipExtTODT["idLoadingSlipExt"] != DBNull.Value)
                         tblLoadingSlipExtTONew.IdLoadingSlipExt = Convert.ToInt32(tblLoadingSlipExtTODT["idLoadingSlipExt"].ToString());
                     if (tblLoadingSlipExtTODT["bookingId"] != DBNull.Value)

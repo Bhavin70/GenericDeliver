@@ -32,6 +32,7 @@ namespace ODLMWebAPI.Models
         Object tag;
         String rateCalcDesc;
         Double loadedWeight;
+        Double parityDetails;
         Double loadedBundles;
         Double calcTareWeight;
         Int32 weightMeasureId;
@@ -331,7 +332,11 @@ namespace ODLMWebAPI.Models
             get { return loadedWeight; }
             set { loadedWeight = value; }
         }
-
+        public Double ParityDetails
+        {
+            get { return parityDetails; }
+            set { parityDetails = value; }
+        }
         public Double LoadedBundles
         {
             get { return loadedBundles; }

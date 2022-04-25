@@ -7324,7 +7324,15 @@ namespace ODLMWebAPI.BL {
                                 }
                                 else
                                     smsTO.SmsTxt = "Your Loading Slip Ref. " + tblLoadingTO.LoadingSlipNo + " is out for delivery";
-
+                                //Reshma Added
+                                if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
+                                {
+                                    Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
+                                    if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                                    {
+                                        smsTO.SmsTxt = tblAlertInstanceTO.AlertComment;
+                                    }
+                                }
                                 tblAlertInstanceTO.SmsTOList.Add(smsTO);
                             }
                         }
@@ -11647,6 +11655,8 @@ namespace ODLMWebAPI.BL {
 
                             for (int j = 0; j < loadingSlipTo.LoadingSlipExtTOList.Count; j++)
                             {
+                                totalLoadingQty = 0;
+                                totalBundleQty = 0;
                                 TblLoadingSlipExtTO tblLoadingSlipExtTO = loadingSlipTo.LoadingSlipExtTOList[j];
                                 if(IS_REQUIRE_DIFFERENT_DT_FOR_6MM_MATERIAL == 1 && tblLoadingSlipExtTO.MaterialId == (Int32)Constants.TblMaterialEnum.SIX_MM)
                                 {
@@ -11803,9 +11813,12 @@ namespace ODLMWebAPI.BL {
                                     headerDT.Rows[loadHeaderDTCount]["BrandDesc"] = "";
 
                                 }
-                            }
+                                loadingItemDT.Rows.Add();
+                                loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["LoadingQty"] = totalLoadingQty;
+                                loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["Bundles"] = totalBundleQty;
+                                loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["ProdSpecDesc"] = "Total";
+                            } 
                             
-
                         }
                     }
 
@@ -11815,10 +11828,10 @@ namespace ODLMWebAPI.BL {
                     //Reshma Added.
                     if (loadingItemDT != null && loadingItemDT.Rows.Count > 0)
                     {
-                        loadingItemTotalDT.Rows.Add();
-                        loadingItemTotalDT.Rows[loadingItemTotalDT.Rows.Count - 1]["LoadingQty"] = totalLoadingQty;
-                        loadingItemTotalDT.Rows[loadingItemTotalDT.Rows.Count - 1]["Bundles"] = totalBundleQty;
-                        loadingItemTotalDT.Rows[loadingItemTotalDT.Rows.Count - 1]["ProdSpecDesc"] = "Total";
+                        //loadingItemTotalDT.Rows.Add();
+                        //loadingItemTotalDT.Rows[loadingItemTotalDT.Rows.Count - 1]["LoadingQty"] = totalLoadingQty;
+                        //loadingItemTotalDT.Rows[loadingItemTotalDT.Rows.Count - 1]["Bundles"] = totalBundleQty;
+                        //loadingItemTotalDT.Rows[loadingItemTotalDT.Rows.Count - 1]["ProdSpecDesc"] = "Total";
 
                     }
                     //headerDT = loadingDT.Copy();
