@@ -2234,7 +2234,11 @@ namespace ODLMWebAPI.BL
                       tempLoadingSlipInvoiceTO = tempLoadingSlipInvoiceTOList[0];
 
                     Int32 invoiceId = 0;
-
+                    TblInvoiceTO TblInvoiceTO = _iTblInvoiceDAO.SelectTblInvoice(Convert.ToString(loadingSlipTO.IdLoadingSlip), conn, tran);
+                    if(TblInvoiceTO == null)
+                    {
+                        invoiceId = TblInvoiceTO.IdInvoice;
+                    }
                     if (tempLoadingSlipInvoiceTO != null)
                     {
                         invoiceId = tempLoadingSlipInvoiceTO.InvoiceId;
@@ -2402,7 +2406,11 @@ namespace ODLMWebAPI.BL
                          tempLoadingSlipInvoiceTO = tempLoadingSlipInvoiceTOList[0];
 
                     Int32 invoiceId = 0;
-
+                    TblInvoiceTO TblInvoiceTO = _iTblInvoiceDAO.SelectTblInvoice(Convert.ToString(loadingSlipTO.IdLoadingSlip), conn, tran);
+                    if (TblInvoiceTO != null)
+                    {
+                        invoiceId = TblInvoiceTO.IdInvoice;
+                    }
                     if (tempLoadingSlipInvoiceTO != null)
                     {
                         invoiceId = tempLoadingSlipInvoiceTO.InvoiceId;
@@ -2454,6 +2462,13 @@ namespace ODLMWebAPI.BL
                     if (result < 0)
                     {
                         resultMessage.DefaultBehaviour("Error while Deleting TempInvoiceDocumentDetails");
+                        return -1;
+                    }
+
+                    result = DeleteDispatchTempData(DelTranTablesE.tempEInvoiceApiResponse.ToString(), invoiceId, conn, tran);
+                    if (result < 0)
+                    {
+                        resultMessage.DefaultBehaviour("Error while Deleting TempEInvoiceApiResponse");
                         return -1;
                     }
 
@@ -2971,7 +2986,9 @@ namespace ODLMWebAPI.BL
                     case DelTranTablesE.tempWeighingMeasures:
                         sqlQuery = " DELETE FROM tempWeighingMeasures WHERE loadingId = " + delId;
                         break;
-
+                    case DelTranTablesE.tempEInvoiceApiResponse:
+                        sqlQuery = " DELETE FROM tempEInvoiceApiResponse WHERE invoiceId IN (" + strWhereCondtion + ") ";
+                        break;
                     case DelTranTablesE.tempLoadingSlipInvoice:
                         sqlQuery = " DELETE FROM tempLoadingSlipInvoice WHERE invoiceId = " + delId;
                         break;

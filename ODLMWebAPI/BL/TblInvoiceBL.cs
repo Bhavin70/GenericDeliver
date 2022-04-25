@@ -6291,7 +6291,31 @@ namespace ODLMWebAPI.BL
                 return resultMessage;
             }
         }
+        public ResultMessage PostUpdateInvoiceStatus(TblInvoiceTO tblInvoiceTO)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            int result = 0;
+            try
+            {
+                tblInvoiceTO.UpdatedOn = _iCommon.ServerDateTime;
+                result = _iTblInvoiceDAO.PostUpdateInvoiceStatus(tblInvoiceTO);
+                if (result != 1)
+                {
+                    resultMessage.DefaultBehaviour("Error While Update tempInvoice");
+                }
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "PostUpdateInvoiceStatus");
+                return resultMessage;
+            }
+            finally
+            {
 
+            }
+        }
         public Byte[] DeleteFile(string saveLocation, string filePath)
         {
             String fileName1 = Path.GetFileName(saveLocation);
