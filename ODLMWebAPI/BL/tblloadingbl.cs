@@ -11487,6 +11487,7 @@ namespace ODLMWebAPI.BL {
                 TblLoadingTO LoadingTO = SelectLoadingTOWithDetails(idLoading);
                 double totalBundleQty = 0;
                 double totalLoadingQty = 0;
+                double loadindSlipId = 0;
                 if (LoadingTO != null)
                 {
                     Int32 IS_REQUIRE_DIFFERENT_DT_FOR_6MM_MATERIAL = 0;
@@ -11587,7 +11588,8 @@ namespace ODLMWebAPI.BL {
                             TblLoadingSlipTO loadingSlipTo = LoadingTO.LoadingSlipList[i];
                             headerDT.Rows.Add();
                             Int32 loadHeaderDTCount = headerDT.Rows.Count - 1;
-
+                            totalLoadingQty = 0;
+                            totalBundleQty = 0;
                             headerDT.Rows[loadHeaderDTCount]["LayerNo"] = i+1;
                             headerDT.Rows[loadHeaderDTCount]["CreatedOnStr"] = LoadingTO.CreatedOnStr;
                             headerDT.Rows[loadHeaderDTCount]["CnfOrgName"] = LoadingTO.CnfOrgName;
@@ -11655,8 +11657,7 @@ namespace ODLMWebAPI.BL {
 
                             for (int j = 0; j < loadingSlipTo.LoadingSlipExtTOList.Count; j++)
                             {
-                                totalLoadingQty = 0;
-                                totalBundleQty = 0;
+                              
                                 TblLoadingSlipExtTO tblLoadingSlipExtTO = loadingSlipTo.LoadingSlipExtTOList[j];
                                 if(IS_REQUIRE_DIFFERENT_DT_FOR_6MM_MATERIAL == 1 && tblLoadingSlipExtTO.MaterialId == (Int32)Constants.TblMaterialEnum.SIX_MM)
                                 {
@@ -11802,6 +11803,7 @@ namespace ODLMWebAPI.BL {
                                     loadingItemDT.Rows[loadItemDTCount]["LoadingSlipId"] = tblLoadingSlipExtTO.LoadingSlipId;
                                     totalBundleQty += tblLoadingSlipExtTO.Bundles;
                                     totalLoadingQty += tblLoadingSlipExtTO.LoadingQty;
+                                    loadindSlipId = tblLoadingSlipExtTO.LoadingSlipId;
                                 } 
                                 headerDT.Rows[loadHeaderDTCount]["LoadingLayerDesc"] = tblLoadingSlipExtTO.LoadingLayerDesc;
                                 if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.BrandDesc))
@@ -11813,12 +11815,14 @@ namespace ODLMWebAPI.BL {
                                     headerDT.Rows[loadHeaderDTCount]["BrandDesc"] = "";
 
                                 }
-                                loadingItemDT.Rows.Add();
-                                loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["LoadingQty"] = totalLoadingQty;
-                                loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["Bundles"] = totalBundleQty;
-                                loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["ProdSpecDesc"] = "Total";
-                            } 
-                            
+                                
+                            }
+                            loadingItemDT.Rows.Add();
+                            loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["LoadingQty"] = totalLoadingQty;
+                            loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["Bundles"] = totalBundleQty;
+                            loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["ProdSpecDesc"] = "Total";
+                            loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["LoadingSlipId"] = loadindSlipId;
+
                         }
                     }
 
