@@ -300,7 +300,10 @@ namespace ODLMWebAPI.StaticStuff
             EXPORT_INVOICE = 2,
             DEEMED_EXPORT_INVOICE = 3,
             SEZ_WITH_DUTY = 4,
-            SEZ_WITHOUT_DUTY = 5
+            SEZ_WITHOUT_DUTY = 5,
+            SERVICE_TAX_INVOICE = 6,
+            MCCIA_INVOICE = 8,
+            SERVICE_INVOICE = 9
         }
 
 
