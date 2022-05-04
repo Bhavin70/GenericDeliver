@@ -1204,6 +1204,36 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public int UpdateTblLoadingSlipExtForWeghing(int idLoadingSlip, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+                String sqlQuery = @" UPDATE [tempLoadingSlipExt] SET " +
+                            "  [isAllowWeighingMachine]= NULL" +
+                            " ,[loadedWeight]= NULL" +
+                            " ,[loadedBundles]= NULL" +
+                            " ,[calcTareWeight]= NULL" +
+                            " ,[weightMeasureId]= NULL" +
+                            " ,[updatedBy]= NULL" +
+                            " ,[updatedOn]= NULL" +
+                             " WHERE [loadingSlipId ] in ("+ idLoadingSlip + ")";
+                cmdUpdate.CommandText = sqlQuery;
+
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
         public int ExecuteUpdationCommand(TblLoadingSlipExtTO tblLoadingSlipExtTO, SqlCommand cmdUpdate)
         {
             String sqlQuery = @" UPDATE [tempLoadingSlipExt] SET " +

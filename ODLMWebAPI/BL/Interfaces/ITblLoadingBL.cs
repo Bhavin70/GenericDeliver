@@ -80,6 +80,7 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage UpdateInvoiceConfrimNonConfirmDetails(TblInvoiceTO tblInvoiceTO, Int32 loginUserId);
         ResultMessage ExtractEnquiryData();
         ResultMessage DeleteDispatchData();
+
         ResultMessage DeleteAllBookings(List<Int32> bookingsIdList);
         ResultMessage DeleteAllBookings(List<int> bookingsIdsList, SqlConnection conn, SqlTransaction tran);
         int DeleteDispatchBookingData(Int32 bookingId, SqlConnection conn, SqlTransaction tran);

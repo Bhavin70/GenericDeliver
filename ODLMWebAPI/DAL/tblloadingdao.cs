@@ -2301,6 +2301,32 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@IgnoreGrossWt", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.IgnoreGrossWt);
             return cmdUpdate.ExecuteNonQuery();
         }
+        public int UpdateTblLoadingWeighingDetails(int loadingId, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+                //return ExecuteUpdationCommand(tblLoadingTO, cmdUpdate);
+                cmdUpdate.CommandText = "UPDATE tempLoading SET " +
+                                        "[statusid]="+ (int)Constants.TranStatusE.LOADING_GATE_IN +
+                                        " WHERE [idLoading] = @IdLoading ";
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+                cmdUpdate.Parameters.Add("@IdLoading", System.Data.SqlDbType.Int).Value = loadingId; 
+
+                return cmdUpdate.ExecuteNonQuery();
+
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
         #endregion
 
         #region Deletion

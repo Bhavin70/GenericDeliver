@@ -1613,8 +1613,22 @@ namespace ODLMWebAPI.Controllers
 
             }
         }
+        [Route("ReverseWeighingDtl")]
+        [HttpPost]
+        public ResultMessage ReverseWeighingDtlData(int InvoiceId)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            try
+            {
+                return _iTblInvoiceBL.ReverseWeighingDtlData(InvoiceId); 
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "ReverseWeighingDtlData");
+                return resultMessage;
+            }
+        }
 
-      
 
 
     }

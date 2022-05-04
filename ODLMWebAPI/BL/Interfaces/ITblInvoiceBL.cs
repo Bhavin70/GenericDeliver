@@ -120,5 +120,7 @@ namespace ODLMWebAPI.BL.Interfaces
 
         List<InvoiceReportTO> GetAllInvoices(DateTime fromDate, DateTime toDate, ref String errorMsg);
         ResultMessage PostUpdateInvoiceStatus(TblInvoiceTO tblInvoiceTO);
+
+        ResultMessage ReverseWeighingDtlData(int InvoiceId);
     }
 }

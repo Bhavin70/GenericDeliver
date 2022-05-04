@@ -42,6 +42,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int InsertTblLoading(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran);
         int ExecuteInsertionCommand(TblLoadingTO tblLoadingTO, SqlCommand cmdInsert);
         int UpdateTblLoading(TblLoadingTO tblLoadingTO);
+        int UpdateTblLoadingWeighingDetails(int loadingId, SqlConnection conn, SqlTransaction tran);
         int UpdateTblLoading(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran);
         int updateLaodingToCallFlag(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran);
         int ExecuteUpdationCommand(TblLoadingTO tblLoadingTO, SqlCommand cmdUpdate);

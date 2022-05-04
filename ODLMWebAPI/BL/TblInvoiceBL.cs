@@ -84,7 +84,10 @@ namespace ODLMWebAPI.BL
         private readonly ITblOrgLicenseDtlBL _iTblOrgLicenseDtlBL;
         private readonly ITblProductItemBL _iTblProductItemBL;
         private readonly ITblProdGstCodeDtlsBL _iTblProdGstCodeDtlsBL;
-        public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, IIotCommunication iIotCommunication, ITblInvoiceChangeOrgHistoryDAO iTblInvoiceChangeOrgHistoryDAO, IGateCommunication iGateCommunication, ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL, IDimensionDAO iDimensionDAO, ITblEInvoiceApiDAO iTblEInvoiceApiDAO, ITblEInvoiceApiResponseDAO iTblEInvoiceApiResponseDAO, ITblEInvoiceSessionApiResponseDAO iTblEInvoiceSessionApiResponseDAO, ITblOrgLicenseDtlBL iTblOrgLicenseDtlBL, ITblProductItemBL iTblProductItemBL, ITblProdGstCodeDtlsBL iTblProdGstCodeDtlsBL, ITblMaterialDAO iTblMaterialDAO)
+        private readonly ITempLoadingSlipInvoiceDAO _iTempLoadingSlipInvoiceDAO;
+
+        public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, IIotCommunication iIotCommunication, ITblInvoiceChangeOrgHistoryDAO iTblInvoiceChangeOrgHistoryDAO, IGateCommunication iGateCommunication, ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL, IDimensionDAO iDimensionDAO, ITblEInvoiceApiDAO iTblEInvoiceApiDAO, ITblEInvoiceApiResponseDAO iTblEInvoiceApiResponseDAO, ITblEInvoiceSessionApiResponseDAO iTblEInvoiceSessionApiResponseDAO, ITblOrgLicenseDtlBL iTblOrgLicenseDtlBL, ITblProductItemBL iTblProductItemBL, ITblProdGstCodeDtlsBL iTblProdGstCodeDtlsBL, ITblMaterialDAO iTblMaterialDAO
+            , ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO)
         // public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblInvoiceChangeOrgHistoryDAO iTblInvoiceChangeOrgHistoryDAO, ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL)
         {
             _iTblInvoiceChangeOrgHistoryDAO = iTblInvoiceChangeOrgHistoryDAO;
@@ -147,6 +150,7 @@ namespace ODLMWebAPI.BL
             _iTblProductItemBL = iTblProductItemBL;
             _iTblProdGstCodeDtlsBL = iTblProdGstCodeDtlsBL;
             _iTblMaterialDAO = iTblMaterialDAO;
+            _iTempLoadingSlipInvoiceDAO = iTempLoadingSlipInvoiceDAO;
         }
         #region Selection
 
@@ -9749,7 +9753,316 @@ namespace ODLMWebAPI.BL
         //}
 
         #endregion
+        #region DeleteInvoice and Reverse Weighing Dtl
+        public ResultMessage  ReverseWeighingDtlData(int invoiceId)
+        { 
+            ResultMessage resultMessage = new ResultMessage();
+            int result = 0;
+            List<TblLoadingSlipTO> loadingSlipTOList = null;
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            try
+            {
+                #region Delete Loading Slip Data
+                List<TblLoadingTO> TblLoadingTOList = new List<TblLoadingTO>();
+                List<TblLoadingSlipTO> tblLoadingSlipTOList = new List<TblLoadingSlipTO>();
+                List<TempLoadingSlipInvoiceTO> TempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOByInvoiceId(invoiceId);
+                if (TempLoadingSlipInvoiceTOList != null && TempLoadingSlipInvoiceTOList.Count > 0)
+                {
+                    List<TempLoadingSlipInvoiceTO> distinctLoadingSlipIdList = TempLoadingSlipInvoiceTOList.GroupBy(g => g.LoadingSlipId).FirstOrDefault().ToList ();
+                    if (distinctLoadingSlipIdList != null && distinctLoadingSlipIdList.Count >0)
+                    {
+                        for (int i = 0; i < distinctLoadingSlipIdList.Count; i++)
+                        {
+                            TblLoadingSlipTO tblLoadingSlipTO = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetails(distinctLoadingSlipIdList[i].LoadingSlipId );
+                            if (tblLoadingSlipTO != null)
+                            {
+                                TblLoadingTO tblLoadingTO = _iTblLoadingDAO.SelectTblLoading(tblLoadingSlipTO.LoadingId);
+                                if (tblLoadingTO != null)
+                                {
+                                    tblLoadingSlipTOList.Add(tblLoadingSlipTO);
+                                    TblLoadingTOList.Add(tblLoadingTO);
+                                }
+                            }
+                        }
+                    }
+                }
+                if (tblLoadingSlipTOList != null && tblLoadingSlipTOList.Count > 0 && TblLoadingTOList != null && TblLoadingTOList.Count > 0)
+                {
+                    List<TblInvoiceTO> tblInvoiceTOList = _iTblInvoiceDAO.SelectInvoiceListFromInvoiceIds(invoiceId.ToString());
+                    if (tblInvoiceTOList != null && tblInvoiceTOList.Count > 0)
+                    {
+                        conn.Open();
+                        tran = conn.BeginTransaction();
+                        result = DeleteDispatchTempData(DelTranTablesE.tempLoadingSlipInvoice.ToString(), invoiceId, conn, tran);
+                        if (result < 0)
+                        {
+                            resultMessage.DefaultBehaviour("Error while Deleting TempLoadingSlipInvoice");
+                            return resultMessage;
+                        }
+                        result = DeleteDispatchTempData(DelTranTablesE.tempInvoiceHistory.ToString(), invoiceId, conn, tran);
+                        if (result < 0)
+                        {
+                            resultMessage.DefaultBehaviour("Error while Deleting TempInvoiceHistory");
+                            return resultMessage;
+                        }
 
+
+                        //result = DeleteTempData(DelTranTablesE.tempInvoiceItemTaxDtls.ToString(), loadingSlipTO.IdLoadingSlip, conn, tran);
+                        result = DeleteDispatchTempData(DelTranTablesE.tempInvoiceItemTaxDtls.ToString(), invoiceId, conn, tran);
+                        if (result < 0)
+                        {
+                            resultMessage.DefaultBehaviour("Error while Deleting TempInvoiceItemTaxDtls");
+                            return resultMessage;
+                        }
+
+
+                        //result = DeleteTempData(DelTranTablesE.tempInvoiceItemDetails.ToString(), loadingSlipTO.IdLoadingSlip, conn, tran);
+                        result = DeleteDispatchTempData(DelTranTablesE.tempInvoiceItemDetails.ToString(), invoiceId, conn, tran);
+                        if (result < 0)
+                        {
+                            resultMessage.DefaultBehaviour("Error while Deleting TempInvoiceItemDetails");
+                            return resultMessage;
+                        }
+
+                        //result = DeleteTempData(DelTranTablesE.tempInvoiceAddress.ToString(), loadingSlipTO.IdLoadingSlip, conn, tran);
+                        result = DeleteDispatchTempData(DelTranTablesE.tempInvoiceAddress.ToString(), invoiceId, conn, tran);
+                        if (result < 0)
+                        {
+                            resultMessage.DefaultBehaviour("Error while Deleting TempInvoiceAddress");
+                            return resultMessage;
+                        }
+
+                        //[28-05-2018]:Vijaymala added to delete tempinvoicedocumentdetails.
+                        result = DeleteDispatchTempData(DelTranTablesE.tempInvoiceDocumentDetails.ToString(), invoiceId, conn, tran);
+                        if (result < 0)
+                        {
+                            resultMessage.DefaultBehaviour("Error while Deleting TempInvoiceDocumentDetails");
+                            return resultMessage;
+                        }
+
+                        result = DeleteDispatchTempData(DelTranTablesE.tempEInvoiceApiResponse.ToString(), invoiceId, conn, tran);
+                        if (result < 0)
+                        {
+                            resultMessage.DefaultBehaviour("Error while Deleting TempEInvoiceApiResponse");
+                            return resultMessage;
+                        }
+
+                        result = DeleteDispatchTempData(DelTranTablesE.tempInvoice.ToString(), invoiceId, conn, tran);
+                        if (result < 0)
+                        {
+                            resultMessage.DefaultBehaviour("Error while Deleting TempInvoice");
+                            return resultMessage;
+                        }
+
+                        //result = DeleteDispatchTempData(DelTranTablesE.tempLoadingSlipExtHistory.ToString(), loadingSlipTO.IdLoadingSlip, conn, tran);
+                        if (result < 0)
+                        {
+                            resultMessage.DefaultBehaviour("Error while Deleting TempLoadingSlipExtHistory");
+                            return resultMessage;
+                        }
+                        List<TblLoadingSlipTO> loadingSlipTOListTempData = tblLoadingSlipTOList.GroupBy(g => g.LoadingId).FirstOrDefault().ToList();
+                        for (int k = 0; k < loadingSlipTOListTempData.Count; k++)
+                        {
+                            result = DeleteDispatchTempData(DelTranTablesE.tempWeighingMeasures.ToString(), loadingSlipTOListTempData[k].LoadingId , conn, tran);
+                            if (result < 0)
+                            {
+                                resultMessage.DefaultBehaviour("Error while Deleting TempWeighingMeasures");
+                                return resultMessage ;
+                            }
+                            result = _iTblLoadingSlipDAO.UpdateTblLoadingSlipStatus(loadingSlipTOListTempData[k],conn,tran);
+                            if (result < 0)
+                            {
+                                resultMessage.DefaultBehaviour("Error while UpdateTblLoadingSlipStatus");
+                                return resultMessage;
+                            }
+                            result = _iTblLoadingDAO.UpdateTblLoadingWeighingDetails(loadingSlipTOListTempData[k].LoadingId, conn, tran);
+                            if (result < 0)
+                            {
+                                resultMessage.DefaultBehaviour("Error while UpdateTblLoadingWeighingDetails");
+                                return resultMessage;
+                            }
+                        } 
+                        for (int k = 0; k < tblLoadingSlipTOList.Count; k++)
+                        {
+                            result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExtForWeghing(tblLoadingSlipTOList[k].IdLoadingSlip ,conn,tran);
+                            if (result < 0)
+                            {
+                                resultMessage.DefaultBehaviour("Error while UpdateTblLoadingSlipExtForWeghing ");
+                                return resultMessage;
+                            }
+                        }
+
+                        if (result > 0)
+                        {
+                            tran.Commit(); 
+                        }
+                    }
+                } 
+
+                #endregion  
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;  
+            }
+
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                resultMessage.DefaultExceptionBehaviour(ex, "ReverseWeighingDtlData");
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+        public enum DelTranTablesE
+        {
+            tempLoadingSlipInvoice,
+            tempInvoiceHistory,
+            tempInvoiceItemTaxDtls,
+            tempInvoiceItemDetails,
+            tempInvoiceAddress,
+            tempInvoice,
+            tempLoadingSlipExtHistory,
+            tempLoadingSlipExt,
+            tempLoadingSlipDtl,
+            tempLoadingSlipAddress,
+            tempLoadingSlip,
+            tempWeighingMeasures,
+            tempLoadingStatusHistory,
+            tempLoading,
+            tempInvoiceDocumentDetails,
+            tblBookingBeyondQuota,
+            tblBookingExt,
+            tblBookingQtyConsumption,
+            tblBookingDelAddr,
+            tblBookingSchedule,
+            tblQuotaConsumHistory,
+            tblBookingOpngBal,
+            tblLoadingSlipRemovedItems,
+            tblBookings,
+            tblBookingParities,
+            tempEInvoiceApiResponse //Dhananjay added [23-12-2020]
+        }
+        private int DeleteDispatchTempData(String delTableName, int delId, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdDelete = new SqlCommand();
+            ResultMessage resultMessage = new ResultMessage();
+
+            try
+            {
+                cmdDelete.Connection = conn;
+                cmdDelete.Transaction = tran;
+
+                String sqlQuery = null;
+
+                //Saket [2018-05-11] Added.
+                //String strWhereCondtion = "select invoiceId FROM tempLoadingSlipInvoice WHERE loadingSlipId = " + delId + "";
+                String strWhereCondtion = delId.ToString();
+
+                switch ((DelTranTablesE)Enum.Parse(typeof(DelTranTablesE), delTableName))
+                {
+                    case DelTranTablesE.tempInvoice:
+                        //sqlQuery = " DELETE FROM tempInvoice WHERE loadingSlipId = " + delId;
+                        sqlQuery = " DELETE FROM tempInvoice WHERE idInvoice IN (" + strWhereCondtion + ")";
+                        break;
+
+                    case DelTranTablesE.tempInvoiceAddress:
+                        //sqlQuery = " DELETE FROM tempInvoiceAddress WHERE invoiceId IN (SELECT idInvoice FROM tempInvoice WHERE loadingSlipId = " + delId + " ) ";
+                        sqlQuery = " DELETE FROM tempInvoiceAddress WHERE invoiceId IN ( " + strWhereCondtion + " ) ";
+                        break;
+
+                    //[28-05-2018]:Vijaymala added to delete tempinvoicedocumentdetails.
+                    case DelTranTablesE.tempInvoiceDocumentDetails:
+                        sqlQuery = " DELETE FROM tempInvoiceDocumentDetails WHERE invoiceId IN ( " + strWhereCondtion + " ) ";
+                        break;
+
+                    case DelTranTablesE.tempInvoiceHistory:
+                        //sqlQuery = " DELETE FROM tempInvoiceHistory WHERE invoiceId IN (SELECT idInvoice FROM tempInvoice WHERE loadingSlipId = " + delId + " ) ";
+                        sqlQuery = " DELETE FROM tempInvoiceHistory WHERE invoiceId IN ( " + strWhereCondtion + " ) ";
+                        break;
+
+                    case DelTranTablesE.tempInvoiceItemDetails:
+                        //sqlQuery = " DELETE FROM tempInvoiceItemDetails WHERE invoiceId IN (SELECT idInvoice FROM tempInvoice WHERE loadingSlipId = " + delId + " ) ";
+                        sqlQuery = " DELETE FROM tempInvoiceItemDetails WHERE invoiceId IN ( " + strWhereCondtion + " ) ";
+                        break;
+
+                    case DelTranTablesE.tempInvoiceItemTaxDtls:
+                        //sqlQuery = " DELETE FROM tempInvoiceItemTaxDtls WHERE invoiceItemId IN " +
+                        //          " (SELECT idInvoiceItem FROM tempInvoiceItemDetails invoiceItemDetails " +
+                        //          " INNER JOIN tempInvoice invoice ON invoiceItemDetails.invoiceId = invoice.idInvoice " +
+                        //          " WHERE invoice.loadingSlipId = " + delId + " )";
+
+                        sqlQuery = " DELETE FROM tempInvoiceItemTaxDtls WHERE invoiceItemId IN " +
+                                 " (SELECT idInvoiceItem FROM tempInvoiceItemDetails invoiceItemDetails " +
+                                 " INNER JOIN tempInvoice invoice ON invoiceItemDetails.invoiceId = invoice.idInvoice " +
+                                 " WHERE invoice.IdInvoice IN ( " + strWhereCondtion + " ) )";
+
+                        break;
+
+                    case DelTranTablesE.tempLoading:
+                        sqlQuery = " DELETE FROM tempLoading WHERE idLoading = " + delId;
+                        break;
+
+                    case DelTranTablesE.tempLoadingSlip:
+                        sqlQuery = " DELETE FROM tempLoadingSlip WHERE idLoadingSlip = " + delId;
+                        break;
+
+                    case DelTranTablesE.tempLoadingSlipAddress:
+                        sqlQuery = " DELETE FROM tempLoadingSlipAddress WHERE loadingSlipId = " + delId;
+                        break;
+
+                    case DelTranTablesE.tempLoadingSlipDtl:
+                        sqlQuery = " DELETE FROM tempLoadingSlipDtl WHERE loadingSlipId = " + delId;
+                        break;
+
+                    case DelTranTablesE.tempLoadingSlipExt:
+                        sqlQuery = " DELETE FROM tempLoadingSlipExt WHERE loadingSlipId = " + delId;
+                        break;
+
+                    case DelTranTablesE.tempLoadingSlipExtHistory:
+                        sqlQuery = " DELETE FROM tempLoadingSlipExtHistory WHERE loadingSlipExtId IN " +
+                                  " (SELECT idLoadingSlipExt FROM tempLoadingSlipExt loadingSlipExt " +
+                                  " INNER JOIN tempLoadingSlipExtHistory loadingSlipExtHistory ON " +
+                                  " loadingSlipExt.idLoadingSlipExt = loadingSlipExtHistory.loadingSlipExtId" +
+                                  " WHERE loadingSlipExt.loadingSlipId = " + delId + ")";
+                        break;
+
+                    case DelTranTablesE.tempLoadingStatusHistory:
+                        sqlQuery = " DELETE FROM tempLoadingStatusHistory WHERE loadingId = " + delId;
+                        break;
+
+                    case DelTranTablesE.tempWeighingMeasures:
+                        sqlQuery = " DELETE FROM tempWeighingMeasures WHERE loadingId = " + delId;
+                        break;
+                    case DelTranTablesE.tempEInvoiceApiResponse:
+                        sqlQuery = " DELETE FROM tempEInvoiceApiResponse WHERE invoiceId IN (" + strWhereCondtion + ") ";
+                        break;
+                    case DelTranTablesE.tempLoadingSlipInvoice:
+                        sqlQuery = " DELETE FROM tempLoadingSlipInvoice WHERE invoiceId = " + delId;
+                        break;
+                }
+
+                if (sqlQuery != null)
+                {
+                    cmdDelete.CommandText = sqlQuery;
+                    return cmdDelete.ExecuteNonQuery();
+                }
+                else
+                    return -1;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "DeleteTempData");
+                return -1;
+            }
+            finally
+            {
+                cmdDelete.Dispose();
+            }
+        }
+        #endregion
         #region Send Invoce
         public int sendInvoiceFromMail(SendMail sendMail)
         {

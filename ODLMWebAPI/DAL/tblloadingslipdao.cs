@@ -1592,7 +1592,43 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public int UpdateTblLoadingSlipStatus(TblLoadingSlipTO tblLoadingSlipTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
 
+                String sqlQuery = @" UPDATE [tempLoadingSlip] SET " +
+                            "  [statusId] =" + (int)Constants.TranStatusE.LOADING_GATE_IN +
+                            " ,[statusDate]= @StatusDate" +
+                            " ,[vehicleNo]= @VehicleNo" +
+                            " ,[loadingDatetime]= @LoadingDatetime" +
+                            " ,[statusReason]= @StatusReason" +
+                            " ,[statusReasonId]= @statusReasonId" +
+                            " WHERE [loadingId]= @LoadingId ";
+
+                cmdUpdate.CommandText = sqlQuery;
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+                 
+                cmdUpdate.Parameters.Add("@StatusDate", System.Data.SqlDbType.DateTime).Value = tblLoadingSlipTO.StatusDate;
+                cmdUpdate.Parameters.Add("@LoadingDatetime", System.Data.SqlDbType.DateTime).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.LoadingDatetime);
+                cmdUpdate.Parameters.Add("@StatusReason", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.StatusReason);
+                cmdUpdate.Parameters.Add("@LoadingId", System.Data.SqlDbType.Int).Value = tblLoadingSlipTO.LoadingId;
+                cmdUpdate.Parameters.Add("@statusReasonId", System.Data.SqlDbType.Int).Value = tblLoadingSlipTO.StatusReasonId;
+                cmdUpdate.Parameters.Add("@VehicleNo", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.VehicleNo);
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
         #endregion
 
         #region Deletion
