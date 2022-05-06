@@ -11,6 +11,8 @@ namespace ODLMWebAPI.BL.Interfaces
     public interface IFinalBookingData
     { 
         ResultMessage InsertFinalBookingData(int loadingId, SqlConnection conn, SqlTransaction tran, ref Dictionary<int, int> invoiceIdsList);
+        ResultMessage InsertFinalBookingData(int loadingId, SqlConnection conn, SqlTransaction tran);
+        ResultMessage InsertFinalEnquiryData(int loadingId, SqlConnection bookingConn, SqlTransaction bookingTran, SqlConnection enquiryConn, SqlTransaction enquiryTran);
         int InsertFinalInvoiceDocumentDetails(TempInvoiceDocumentDetailsTO tempInvoiceDocumentDetailsTO, SqlConnection conn, SqlTransaction tran);
         int ExecuteInsertionFinalInvoiceDocumentDetailsCommand(TempInvoiceDocumentDetailsTO tempInvoiceDocumentDetailsTO, SqlCommand cmdInsert);
         List<TblInvoiceRptTO> SelectTempInvoiceData(SqlConnection conn, SqlTransaction tran);

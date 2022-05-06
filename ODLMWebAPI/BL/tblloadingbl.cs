@@ -10874,197 +10874,329 @@ namespace ODLMWebAPI.BL {
                             bookingConn.Open ();
                             bookingTran = bookingConn.BeginTransaction ();
                         }
-
-                        // Vaibhav [23-April-2018] For new changes - Single invoice against multiple loadingslip. To check all loading slip are delivered.
-                        // Select temp loading slip details.
-                        List<TblLoadingSlipTO> loadingSlipTOList = _iCircularDependencyBL.SelectAllLoadingSlipListWithDetails (tempLoadingTO.IdLoading, bookingConn, bookingTran);
-                        int undeliveredLoadingSlipCount = 0;
-                        List<TblLoadingSlipTO> loadingSlipDataByInvoiceId = null;
-
-                        if (loadingSlipTOList != null && loadingSlipTOList.Count > 0) {
-                            foreach (var loadingSlip in loadingSlipTOList) {
-                                List<TempLoadingSlipInvoiceTO> tempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOListByLoadingSlip(loadingSlip.IdLoadingSlip, bookingConn, bookingTran);
-                                TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO = null;
-                                if (tempLoadingSlipInvoiceTOList != null && tempLoadingSlipInvoiceTOList.Count > 0)
-                                     tempLoadingSlipInvoiceTO = tempLoadingSlipInvoiceTOList[0];
-
-                                if (tempLoadingSlipInvoiceTO != null) {
-                                    loadingSlipDataByInvoiceId = _iTblInvoiceBL.SelectLoadingSlipDetailsByInvoiceId (tempLoadingSlipInvoiceTO.InvoiceId, bookingConn, bookingTran);
-                                    if (loadingSlipDataByInvoiceId != null) {
-                                        undeliveredLoadingSlipCount += loadingSlipDataByInvoiceId.FindAll (ele => ele.StatusId != (int) Constants.TranStatusE.LOADING_DELIVERED && ele.StatusId != (int) Constants.TranStatusE.LOADING_CANCEL).Count ();
-                                    } else {
-
-                                    }
-                                }
-                            }
+                        loadingIdList.Add(tempLoadingTO.IdLoading);//Reshma Added
+                        loadingCount++;
+                        totalLoading++;
+                        #region Insert Booking Data
+                        resultMessage = _iFinalBookingData .InsertFinalBookingData(tempLoadingTO.IdLoading, bookingConn, bookingTran);
+                        if (resultMessage.MessageType != ResultMessageE.Information)
+                        {
+                            bookingTran.Rollback();
+                            enquiryTran.Rollback();
+                            _iFinalBookingData.UpdateIdentityFinalTables(bookingConn, bookingTran);
+                            _iFinalBookingData.UpdateIdentityFinalTables(enquiryConn, enquiryTran);
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            resultMessage.Text = "Error while InsertFinalBookingData";
+                            return resultMessage;
                         }
-                        if (undeliveredLoadingSlipCount > 0) {
-                            tempLoadingTOList.RemoveAll (ele => ele.IdLoading == tempLoadingTO.IdLoading);
-                            goto creatFile;
+                        #endregion
+                        resultMessage = _iFinalBookingData.InsertFinalEnquiryData(tempLoadingTO.IdLoading, bookingConn, bookingTran, enquiryConn, enquiryTran);
+                        if (resultMessage.MessageType != ResultMessageE.Information)
+                        {
+                            bookingTran.Rollback();
+                            enquiryTran.Rollback();
+                            _iFinalBookingData.UpdateIdentityFinalTables(bookingConn, bookingTran);
+                            _iFinalBookingData.UpdateIdentityFinalTables(enquiryConn, enquiryTran);
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            resultMessage.Text = "Error while InsertFinalEnquiryData";
+                            return resultMessage;
                         }
 
-                        processedLoadings.Clear ();
-                        if (loadingSlipDataByInvoiceId != null && loadingSlipDataByInvoiceId.Count > 0)
-                            processedLoadings.AddRange (loadingSlipDataByInvoiceId.Select (ele => ele.LoadingId).Distinct ().ToList ());
-
-                        List<TblLoadingTO> newLoadingTOList = new List<TblLoadingTO> ();
-
-                        if (processedLoadings != null && processedLoadings.Count > 0) {
-                            foreach (var processedLoading in processedLoadings) {
-                                newLoadingTOList.AddRange (tempLoadingTOList.FindAll (e => e.IdLoading == processedLoading));
-                            }
-
-                            foreach (var newLoadingTO in newLoadingTOList) {
-                                loadingIdList.Add (newLoadingTO.IdLoading);
-
-                                #region Handle Connection
-                                loadingCount = loadingCount + 1;
-                                totalLoading = totalLoading + 1;
-
-                                if (bookingConn.State == ConnectionState.Closed) {
-                                    bookingConn.Open ();
-                                    bookingTran = bookingConn.BeginTransaction ();
-                                }
-
-                                if (configParamsTO.ConfigParamVal == "1") {
-                                    if (enquiryConn.State == ConnectionState.Closed) {
-                                        enquiryConn.Open ();
-                                        enquiryTran = enquiryConn.BeginTransaction ();
-                                    }
-                                }
-                                #endregion
-
-                                #region Insert Booking Data
-                                resultMessage = _iFinalBookingData.InsertFinalBookingData (newLoadingTO.IdLoading, bookingConn, bookingTran, ref invoiceIdsList);
-                                if (resultMessage.MessageType != ResultMessageE.Information) {
-                                    bookingTran.Rollback ();
-                                    enquiryTran.Rollback ();
-                                    _iFinalBookingData.UpdateIdentityFinalTables (bookingConn, bookingTran);
-                                    _iTblInvoiceBL.UpdateIdentityFinalTables (enquiryConn, enquiryTran);
-                                    resultMessage.MessageType = ResultMessageE.Error;
-                                    resultMessage.Text = "Error while InsertFinalBookingData";
-                                    return resultMessage;
-                                }
-                                #endregion
-
-                                #region Insert Enquiry Data
-
-                                //TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_MIGRATE_ENQUIRY_DATA);
-
-                                if (configParamsTO.ConfigParamVal == "1") {
-                                    resultMessage = _iFinalEnquiryData.InsertFinalEnquiryData (newLoadingTO.IdLoading, bookingConn, bookingTran, enquiryConn, enquiryTran, ref invoiceIdsList);
-                                    if (resultMessage.MessageType != ResultMessageE.Information) {
-                                        bookingTran.Rollback ();
-                                        enquiryTran.Rollback ();
-                                        _iFinalBookingData.UpdateIdentityFinalTables (bookingConn, bookingTran);
-                                        _iTblInvoiceBL.UpdateIdentityFinalTables (enquiryConn, enquiryTran);
-                                        resultMessage.MessageType = ResultMessageE.Error;
-                                        resultMessage.Text = "Error while InsertFinalEnquiryData";
-                                        return resultMessage;
-                                    }
-                                }
-
-                                #endregion
-
-                            }
-                            #region Delete transactional data
-
-                            foreach (var newLoadingTO in newLoadingTOList) {
-                                result = _iFinalBookingData.DeleteTempLoadingData (newLoadingTO.IdLoading, bookingConn, bookingTran);
-                                if (result < 0) {
-                                    bookingTran.Rollback ();
-                                    enquiryTran.Rollback ();
-                                    _iFinalBookingData.UpdateIdentityFinalTables (bookingConn, bookingTran);
-                                    _iTblInvoiceBL.UpdateIdentityFinalTables (enquiryConn, enquiryTran);
-                                    resultMessage.MessageType = ResultMessageE.Error;
-                                    resultMessage.Text = "Error while DeleteTempLoadingData";
-                                    return resultMessage;
-                                }
-
-                                tempLoadingTOList.RemoveAll (ele => ele.IdLoading == newLoadingTO.IdLoading);
-                                totalLoading = totalLoading - 1;
-                            }
+                        #region Delete transactional data
+                        result =_iFinalBookingData .DeleteTempLoadingData (tempLoadingTO.IdLoading, bookingConn, bookingTran);
+                        if (result < 0)
+                        {
+                            bookingTran.Rollback();
+                            enquiryTran.Rollback();
+                            _iFinalBookingData.UpdateIdentityFinalTables(bookingConn, bookingTran);
+                            _iFinalBookingData.UpdateIdentityFinalTables(enquiryConn, enquiryTran);
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            resultMessage.Text = "Error while DeleteTempLoadingData";
+                            return resultMessage;
                         }
                         #endregion
 
                         #region Create Excel File. Delete Stock & Quota. Reset SQL Connection.
-                        creatFile:
-                            if (loadingCount == Constants.LoadingCountForDataExtraction || totalLoading == tempLoadingTOList.Count) {
-                                #region Create Excel File  
+                        if (loadingCount == Constants.LoadingCountForDataExtraction || totalLoading == tempLoadingTOList.Count)
+                        {
+                            #region Create Excel File  
 
-                                TblConfigParamsTO createFileConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName (Constants.CP_CREATE_NC_DATA_FILE);
+                            if (tblInvoiceRptTOList != null && tblInvoiceRptTOList.Count > 0)
+                            {
+                                List<TblInvoiceRptTO> enquiryInvoiceList = new List<TblInvoiceRptTO>();
 
-                                if (createFileConfigParamsTO.ConfigParamVal == "1") {
-                                    if (tblInvoiceRptTOList != null && tblInvoiceRptTOList.Count > 0) {
-                                        List<TblInvoiceRptTO> enquiryInvoiceList = new List<TblInvoiceRptTO> ();
-
-                                        if (loadingIdList != null && loadingIdList.Count > 0) {
-                                            foreach (var loadingId in loadingIdList) {
-                                                enquiryInvoiceList.AddRange (tblInvoiceRptTOList.FindAll (ele => ele.LoadingId == loadingId));
-                                            }
-                                        }
-
-                                        if (enquiryInvoiceList != null && enquiryInvoiceList.Count > 0) {
-                                            result = _iFinalBookingData.CreateTempInvoiceExcel (enquiryInvoiceList, bookingConn, bookingTran);
-
-                                            if (result != 1) {
-                                                bookingTran.Rollback ();
-                                                enquiryTran.Rollback ();
-                                                _iFinalBookingData.UpdateIdentityFinalTables (bookingConn, bookingTran);
-                                                _iTblInvoiceBL.UpdateIdentityFinalTables (enquiryConn, enquiryTran);
-                                                resultMessage.MessageType = ResultMessageE.Error;
-                                                resultMessage.Text = "Error while creating excel file.";
-                                                return resultMessage;
-                                            }
-                                        }
-                                    } else {
-                                        resultMessage.MessageType = ResultMessageE.Information;
-                                        resultMessage.Text = "Information : tblInvoiceRptTOList is null. Excel file is not created.";
-                                        //return resultMessage;
+                                if (loadingIdList != null && loadingIdList.Count > 0)
+                                {
+                                    foreach (var loadingId in loadingIdList)
+                                    {
+                                        enquiryInvoiceList.AddRange(tblInvoiceRptTOList.FindAll(ele => ele.LoadingId == loadingId));
                                     }
                                 }
-                                #endregion
 
-                                #region Delete Stock And Quota
-                                result = _iFinalBookingData.DeleteYesterdaysStock (bookingConn, bookingTran);
-                                if (result < 0) {
-                                    bookingTran.Rollback ();
-                                    enquiryTran.Rollback ();
-                                    _iFinalBookingData.UpdateIdentityFinalTables (bookingConn, bookingTran);
-                                    _iTblInvoiceBL.UpdateIdentityFinalTables (enquiryConn, enquiryTran);
-                                    resultMessage.MessageType = ResultMessageE.Error;
-                                    resultMessage.Text = "Error while DeleteYesterdaysStock";
-                                    return resultMessage;
+                                if (enquiryInvoiceList != null && enquiryInvoiceList.Count > 0)
+                                {
+                                    result = _iFinalBookingData.CreateTempInvoiceExcel(enquiryInvoiceList, bookingConn, bookingTran);
+
+                                    if (result != 1)
+                                    {
+                                        bookingTran.Rollback();
+                                        enquiryTran.Rollback();
+                                        _iFinalBookingData.UpdateIdentityFinalTables(bookingConn, bookingTran);
+                                        _iFinalBookingData.UpdateIdentityFinalTables(enquiryConn, enquiryTran);
+                                        resultMessage.MessageType = ResultMessageE.Error;
+                                        resultMessage.Text = "Error while creating excel file.";
+                                        return resultMessage;
+                                    }
                                 }
-
-                                result = _iFinalBookingData.DeleteYesterdaysLoadingQuotaDeclaration (bookingConn, bookingTran);
-                                if (result < 0) {
-                                    bookingTran.Rollback ();
-                                    enquiryTran.Rollback ();
-                                    _iFinalBookingData.UpdateIdentityFinalTables (bookingConn, bookingTran);
-                                    _iTblInvoiceBL.UpdateIdentityFinalTables (enquiryConn, enquiryTran);
-                                    resultMessage.MessageType = ResultMessageE.Error;
-                                    resultMessage.Text = "Error while DeleteYesterdaysQuotaDeclaration";
-                                    return resultMessage;
-                                }
-
-                                #endregion
-
-                                bookingTran.Commit ();
-                                bookingConn.Close ();
-                                bookingTran.Dispose ();
-
-                                if (configParamsTO.ConfigParamVal == "1") {
-                                    enquiryTran.Commit ();
-                                    enquiryConn.Close ();
-                                    enquiryTran.Dispose ();
-                                }
-
-                                loadingCount = 0;
-                                loadingIdList.Clear ();
                             }
+                            else
+                            {
+                                resultMessage.MessageType = ResultMessageE.Information;
+                                resultMessage.Text = "Information : tblInvoiceRptTOList is null. Excel file is not created.";
+                                //return resultMessage;
+                            }
+                            #endregion
+
+                            #region Delete Stock And Quota
+                            result = _iFinalBookingData.DeleteYesterdaysStock(bookingConn, bookingTran);
+                            if (result < 0)
+                            {
+                                bookingTran.Rollback();
+                                enquiryTran.Rollback();
+                                _iFinalBookingData.UpdateIdentityFinalTables(bookingConn, bookingTran);
+                                _iFinalBookingData.UpdateIdentityFinalTables(enquiryConn, enquiryTran);
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                resultMessage.Text = "Error while DeleteYesterdaysStock";
+                                return resultMessage;
+                            }
+
+                            result = _iFinalBookingData.DeleteYesterdaysLoadingQuotaDeclaration(bookingConn, bookingTran);
+                            if (result < 0)
+                            {
+                                bookingTran.Rollback();
+                                enquiryTran.Rollback();
+                                _iFinalBookingData.UpdateIdentityFinalTables(bookingConn, bookingTran);
+                                _iFinalBookingData.UpdateIdentityFinalTables(enquiryConn, enquiryTran);
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                resultMessage.Text = "Error while DeleteYesterdaysQuotaDeclaration";
+                                return resultMessage;
+                            }
+
+                            #endregion
+
+
+                            bookingTran.Commit();
+                            bookingConn.Close();
+                            bookingTran.Dispose();
+
+                            if (configParamsTO.ConfigParamVal == "1")
+                            {
+                                enquiryTran.Commit();
+                                enquiryConn.Close();
+                                enquiryTran.Dispose();
+                            }
+
+                            loadingCount = 0;
+                            loadingIdList.Clear();
+                        }
+                        #endregion
+
+                        #region  Old Code
+
+
+                        //// Vaibhav [23-April-2018] For new changes - Single invoice against multiple loadingslip. To check all loading slip are delivered.
+                        //// Select temp loading slip details.
+                        //List<TblLoadingSlipTO> loadingSlipTOList = _iCircularDependencyBL.SelectAllLoadingSlipListWithDetails (tempLoadingTO.IdLoading, bookingConn, bookingTran);
+                        //int undeliveredLoadingSlipCount = 0;
+                        //List<TblLoadingSlipTO> loadingSlipDataByInvoiceId = null;
+
+                        //if (loadingSlipTOList != null && loadingSlipTOList.Count > 0) {
+                        //    foreach (var loadingSlip in loadingSlipTOList) {
+                        //        List<TempLoadingSlipInvoiceTO> tempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOListByLoadingSlip(loadingSlip.IdLoadingSlip, bookingConn, bookingTran);
+                        //        TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO = null;
+                        //        if (tempLoadingSlipInvoiceTOList != null && tempLoadingSlipInvoiceTOList.Count > 0)
+                        //             tempLoadingSlipInvoiceTO = tempLoadingSlipInvoiceTOList[0];
+
+                        //        if (tempLoadingSlipInvoiceTO != null) {
+                        //            loadingSlipDataByInvoiceId = _iTblInvoiceBL.SelectLoadingSlipDetailsByInvoiceId (tempLoadingSlipInvoiceTO.InvoiceId, bookingConn, bookingTran);
+                        //            if (loadingSlipDataByInvoiceId != null) {
+                        //                undeliveredLoadingSlipCount += loadingSlipDataByInvoiceId.FindAll (ele => ele.StatusId != (int) Constants.TranStatusE.LOADING_DELIVERED && ele.StatusId != (int) Constants.TranStatusE.LOADING_CANCEL).Count ();
+                        //            } else {
+
+                        //            }
+                        //        }
+                        //    }
+                        //}
+                        //if (undeliveredLoadingSlipCount > 0) {
+                        //    tempLoadingTOList.RemoveAll (ele => ele.IdLoading == tempLoadingTO.IdLoading);
+                        //    goto creatFile;
+                        //}
+
+                        //processedLoadings.Clear ();
+                        //if (loadingSlipDataByInvoiceId != null && loadingSlipDataByInvoiceId.Count > 0)
+                        //    processedLoadings.AddRange (loadingSlipDataByInvoiceId.Select (ele => ele.LoadingId).Distinct ().ToList ());
+
+                        //List<TblLoadingTO> newLoadingTOList = new List<TblLoadingTO> ();
+
+                        //if (processedLoadings != null && processedLoadings.Count > 0) {
+                        //    foreach (var processedLoading in processedLoadings) {
+                        //        newLoadingTOList.AddRange (tempLoadingTOList.FindAll (e => e.IdLoading == processedLoading));
+                        //    }
+
+                        //    foreach (var newLoadingTO in newLoadingTOList) {
+                        //        loadingIdList.Add (newLoadingTO.IdLoading);
+
+                        //        #region Handle Connection
+                        //        loadingCount = loadingCount + 1;
+                        //        totalLoading = totalLoading + 1;
+
+                        //        if (bookingConn.State == ConnectionState.Closed) {
+                        //            bookingConn.Open ();
+                        //            bookingTran = bookingConn.BeginTransaction ();
+                        //        }
+
+                        //        if (configParamsTO.ConfigParamVal == "1") {
+                        //            if (enquiryConn.State == ConnectionState.Closed) {
+                        //                enquiryConn.Open ();
+                        //                enquiryTran = enquiryConn.BeginTransaction ();
+                        //            }
+                        //        }
+                        //        #endregion
+
+                        //        #region Insert Booking Data
+                        //        resultMessage = _iFinalBookingData.InsertFinalBookingData (newLoadingTO.IdLoading, bookingConn, bookingTran, ref invoiceIdsList);
+                        //        if (resultMessage.MessageType != ResultMessageE.Information) {
+                        //            bookingTran.Rollback ();
+                        //            enquiryTran.Rollback ();
+                        //            _iFinalBookingData.UpdateIdentityFinalTables (bookingConn, bookingTran);
+                        //            _iTblInvoiceBL.UpdateIdentityFinalTables (enquiryConn, enquiryTran);
+                        //            resultMessage.MessageType = ResultMessageE.Error;
+                        //            resultMessage.Text = "Error while InsertFinalBookingData";
+                        //            return resultMessage;
+                        //        }
+                        //        #endregion
+
+                        //        #region Insert Enquiry Data
+
+                        //        //TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_MIGRATE_ENQUIRY_DATA);
+
+                        //        if (configParamsTO.ConfigParamVal == "1") {
+                        //            resultMessage = _iFinalEnquiryData.InsertFinalEnquiryData (newLoadingTO.IdLoading, bookingConn, bookingTran, enquiryConn, enquiryTran, ref invoiceIdsList);
+                        //            if (resultMessage.MessageType != ResultMessageE.Information) {
+                        //                bookingTran.Rollback ();
+                        //                enquiryTran.Rollback ();
+                        //                _iFinalBookingData.UpdateIdentityFinalTables (bookingConn, bookingTran);
+                        //                _iTblInvoiceBL.UpdateIdentityFinalTables (enquiryConn, enquiryTran);
+                        //                resultMessage.MessageType = ResultMessageE.Error;
+                        //                resultMessage.Text = "Error while InsertFinalEnquiryData";
+                        //                return resultMessage;
+                        //            }
+                        //        }
+
+                        //        #endregion
+
+                        //    }
+                        //    #region Delete transactional data
+
+                        //    foreach (var newLoadingTO in newLoadingTOList) {
+                        //        result = _iFinalBookingData.DeleteTempLoadingData (newLoadingTO.IdLoading, bookingConn, bookingTran);
+                        //        if (result < 0) {
+                        //            bookingTran.Rollback ();
+                        //            enquiryTran.Rollback ();
+                        //            _iFinalBookingData.UpdateIdentityFinalTables (bookingConn, bookingTran);
+                        //            _iTblInvoiceBL.UpdateIdentityFinalTables (enquiryConn, enquiryTran);
+                        //            resultMessage.MessageType = ResultMessageE.Error;
+                        //            resultMessage.Text = "Error while DeleteTempLoadingData";
+                        //            return resultMessage;
+                        //        }
+
+                        //        tempLoadingTOList.RemoveAll (ele => ele.IdLoading == newLoadingTO.IdLoading);
+                        //        totalLoading = totalLoading - 1;
+                        //    }
+                        //}
+                        //#endregion
+
+                        //#region Create Excel File. Delete Stock & Quota. Reset SQL Connection.
+                        //creatFile:
+                        //    if (loadingCount == Constants.LoadingCountForDataExtraction || totalLoading == tempLoadingTOList.Count) {
+                        //        #region Create Excel File  
+
+                        //        TblConfigParamsTO createFileConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName (Constants.CP_CREATE_NC_DATA_FILE);
+
+                        //        if (createFileConfigParamsTO.ConfigParamVal == "1") {
+                        //            if (tblInvoiceRptTOList != null && tblInvoiceRptTOList.Count > 0) {
+                        //                List<TblInvoiceRptTO> enquiryInvoiceList = new List<TblInvoiceRptTO> ();
+
+                        //                if (loadingIdList != null && loadingIdList.Count > 0) {
+                        //                    foreach (var loadingId in loadingIdList) {
+                        //                        enquiryInvoiceList.AddRange (tblInvoiceRptTOList.FindAll (ele => ele.LoadingId == loadingId));
+                        //                    }
+                        //                }
+
+                        //                if (enquiryInvoiceList != null && enquiryInvoiceList.Count > 0) {
+                        //                    result = _iFinalBookingData.CreateTempInvoiceExcel (enquiryInvoiceList, bookingConn, bookingTran);
+
+                        //                    if (result != 1) {
+                        //                        bookingTran.Rollback ();
+                        //                        enquiryTran.Rollback ();
+                        //                        _iFinalBookingData.UpdateIdentityFinalTables (bookingConn, bookingTran);
+                        //                        _iTblInvoiceBL.UpdateIdentityFinalTables (enquiryConn, enquiryTran);
+                        //                        resultMessage.MessageType = ResultMessageE.Error;
+                        //                        resultMessage.Text = "Error while creating excel file.";
+                        //                        return resultMessage;
+                        //                    }
+                        //                }
+                        //            } else {
+                        //                resultMessage.MessageType = ResultMessageE.Information;
+                        //                resultMessage.Text = "Information : tblInvoiceRptTOList is null. Excel file is not created.";
+                        //                //return resultMessage;
+                        //            }
+                        //        }
+                        //        #endregion
+
+                        //        #region Delete Stock And Quota
+                        //        result = _iFinalBookingData.DeleteYesterdaysStock (bookingConn, bookingTran);
+                        //        if (result < 0) {
+                        //            bookingTran.Rollback ();
+                        //            enquiryTran.Rollback ();
+                        //            _iFinalBookingData.UpdateIdentityFinalTables (bookingConn, bookingTran);
+                        //            _iTblInvoiceBL.UpdateIdentityFinalTables (enquiryConn, enquiryTran);
+                        //            resultMessage.MessageType = ResultMessageE.Error;
+                        //            resultMessage.Text = "Error while DeleteYesterdaysStock";
+                        //            return resultMessage;
+                        //        }
+
+                        //        result = _iFinalBookingData.DeleteYesterdaysLoadingQuotaDeclaration (bookingConn, bookingTran);
+                        //        if (result < 0) {
+                        //            bookingTran.Rollback ();
+                        //            enquiryTran.Rollback ();
+                        //            _iFinalBookingData.UpdateIdentityFinalTables (bookingConn, bookingTran);
+                        //            _iTblInvoiceBL.UpdateIdentityFinalTables (enquiryConn, enquiryTran);
+                        //            resultMessage.MessageType = ResultMessageE.Error;
+                        //            resultMessage.Text = "Error while DeleteYesterdaysQuotaDeclaration";
+                        //            return resultMessage;
+                        //        }
+
+                        //        #endregion
+
+                        //        bookingTran.Commit ();
+                        //        bookingConn.Close ();
+                        //        bookingTran.Dispose ();
+
+                        //        if (configParamsTO.ConfigParamVal == "1") {
+                        //            enquiryTran.Commit ();
+                        //            enquiryConn.Close ();
+                        //            enquiryTran.Dispose ();
+                        //        }
+
+                        //        loadingCount = 0;
+                        //        loadingIdList.Clear ();
+                        //    }
+                        //#endregion
+
                         #endregion
                     }
+                    
                 }
 
                 resultMessage.DefaultSuccessBehaviour ();

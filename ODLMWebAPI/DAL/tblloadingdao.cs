@@ -1860,15 +1860,20 @@ namespace ODLMWebAPI.DAL
             SqlCommand cmdSelect = new SqlCommand();
             try
             {
-                String sqlQuery = " SELECT loading.* ,org.digitalSign, org.firmName as cnfOrgName,transOrg.firmName as transporterOrgName ," +
+                String sqlQuery = " SELECT loading.* , fromOrgNameTbl.firmName as fromOrgName  ,org.digitalSign, org.firmName as cnfOrgName, org.isInternalCnf,transOrg.firmName as transporterOrgName ," +
                                   " dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
-                                  " ,createdUser.userDisplayName " +
+                                  " ,createdUser.userDisplayName, tblUserCallFlag.userDisplayName AS notifyByName " +
+                                  " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
                                   " FROM tempLoading loading " +
                                   " LEFT JOIN tblOrganization org ON org.idOrganization = loading.cnfOrgId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = loading.statusId " +
                                   " LEFT JOIN tblSupervisor superwisor ON superwisor.idSupervisor=loading.superwisorId " +
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
-                                  " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +                                  
+                                  " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " + 
+                                  " LEFT JOIN tblUser tblUserCallFlag ON tblUserCallFlag.idUser = loading.callFlagBy " + 
+                                  " LEFT JOIN tblGate tblGate ON tblGate.idGate=loading.gateId " +
+                                  //Prajakta [2021-06-29] Added to show orgName on loading slip
+                                  " LEFT JOIN tblOrganization fromOrgNameTbl on fromOrgNameTbl.idOrganization = loading.fromOrgId " +
                                   " LEFT JOIN tblUser createdUser ON createdUser.idUser=loading.createdBy WHERE loading.statusId IN " +
                                   " ( " + (int)Constants.TranStatusE.LOADING_DELIVERED + "," + (int)Constants.TranStatusE.LOADING_CANCEL + ")" +
                                   " AND  CONVERT (DATE,statusDate,103) <= @StatusDate " +

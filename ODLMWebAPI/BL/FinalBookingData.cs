@@ -38,7 +38,11 @@ namespace ODLMWebAPI.BL
         private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
         private readonly IConnectionString _iConnectionString;
         private readonly ICommon _iCommon;
-        public FinalBookingData(ITblConfigParamsDAO iTblConfigParamsDAO, ITblInvoiceItemTaxDtlsDAO iTblInvoiceItemTaxDtlsDAO, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblInvoiceHistoryDAO iTblInvoiceHistoryDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblInvoiceDAO iTblInvoiceDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ICircularDependencyBL iCircularDependencyBL, ITblLoadingDAO iTblLoadingDAO, ICommon iCommon, IConnectionString iConnectionString, ITblEInvoiceApiResponseBL iTblEInvoiceApiResponseBL)
+        private readonly ITblLoadingSlipDAO _iTblLoadingSlipDAO;
+        private readonly ITblWeighingMeasuresDAO tblWeighingMeasuresDAO;
+
+        public FinalBookingData(ITblConfigParamsDAO iTblConfigParamsDAO, ITblInvoiceItemTaxDtlsDAO iTblInvoiceItemTaxDtlsDAO, ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblInvoiceHistoryDAO iTblInvoiceHistoryDAO, ITblInvoiceItemDetailsDAO iTblInvoiceItemDetailsDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblInvoiceDAO iTblInvoiceDAO, ITblLoadingSlipExtHistoryDAO iTblLoadingSlipExtHistoryDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ICircularDependencyBL iCircularDependencyBL, ITblLoadingDAO iTblLoadingDAO, ICommon iCommon, IConnectionString iConnectionString, ITblEInvoiceApiResponseBL iTblEInvoiceApiResponseBL
+            , ITblLoadingSlipDAO iTblLoadingSlipDAO, ITblWeighingMeasuresDAO _tblWeighingMeasuresDAO)
         {
             _iTblLoadingDAO = iTblLoadingDAO;
             _iCircularDependencyBL = iCircularDependencyBL;
@@ -56,6 +60,8 @@ namespace ODLMWebAPI.BL
             _iTblConfigParamsDAO = iTblConfigParamsDAO;
             _iConnectionString = iConnectionString;
             _iCommon = iCommon;
+            _iTblLoadingSlipDAO = iTblLoadingSlipDAO;
+            tblWeighingMeasuresDAO = _tblWeighingMeasuresDAO;
         }
 
         #region Enum
@@ -600,6 +606,1026 @@ namespace ODLMWebAPI.BL
                 loadinSlipExthistoryList = null;
                 invoiceItemDetailshistoryList = null;
             }
+        }
+
+        public  ResultMessage InsertFinalBookingData(int loadingId, SqlConnection conn, SqlTransaction tran)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            TblLoadingTO loadingTO = new TblLoadingTO();
+            List<TblLoadingSlipTO> loadingSlipTOList = new List<TblLoadingSlipTO>();
+            List<TblLoadingSlipTO> bookingTOList = new List<TblLoadingSlipTO>();
+            List<TblLoadingStatusHistoryTO> loadingStatusHistoryTOList = new List<TblLoadingStatusHistoryTO>();
+            List<TblWeighingMeasuresTO> weighingMeasuresTOList = new List<TblWeighingMeasuresTO>();
+            List<TblLoadingSlipExtTO> oldLoadingSlipExtTOList = new List<TblLoadingSlipExtTO>();
+
+            // For keeping history of loadinSlipExt.
+            var loadinSlipExthistoryList = new List<KeyValuePair<int, int>>();
+            // For keeping history of invoiceItemDetails.
+            var invoiceItemDetailshistoryList = new List<KeyValuePair<int, int>>();
+
+            int oldLoadingSlipId = 0;
+            double totalLoadingQty = 0;
+            int result = 0;
+
+            try
+            {
+
+                #region Selection
+
+                // Select temp loading details.
+                loadingTO = _iTblLoadingDAO.SelectTblLoading(loadingId, conn, tran);
+                if (loadingTO == null)
+                {
+                    resultMessage.DefaultBehaviour("Error Booking loadingTO is null");
+                    return resultMessage;
+                }
+
+                // Select temp loading slip details.
+                loadingSlipTOList =_iTblLoadingSlipDAO.SelectAllLoadingSlipListWithDetails ( loadingId, conn, tran);
+                // Select loading slip status history data.
+                loadingStatusHistoryTOList =_iTblLoadingStatusHistoryDAO.SelectAllTblLoadingStatusHistory(loadingId, conn, tran);
+                // Select weighingMeasures details.
+                weighingMeasuresTOList =_iCircularDependencyBL .SelectAllTblWeighingMeasuresListByLoadingId(loadingId, conn, tran);
+
+                #endregion
+
+                // Filter loading slip list with confirm flag.
+                if (loadingSlipTOList != null && loadingSlipTOList.Count > 0)
+                    bookingTOList = loadingSlipTOList.FindAll(ele => ele.IsConfirmed == 1).ToList();
+
+
+                // Insert final loading slip details.
+                if (bookingTOList != null && bookingTOList.Count > 0)
+                {
+                    // Insert final loading details.
+                    // Set total loading qty to 0.
+                    loadingTO.TotalLoadingQty = 0;
+                    loadingTO.NoOfDeliveries = bookingTOList.Count;
+
+                    result = InsertFinalLoading(loadingTO, conn, tran);
+                    if (result <= 0)
+                    {
+                        resultMessage.DefaultBehaviour("Error while Booking InsertFinalLoading");
+                        return resultMessage;
+                    }
+
+                    // Maintain history loadinSlipExtTO.
+                    TblLoadingSlipExtTO oldLoadingSlipExtTO = new TblLoadingSlipExtTO();
+                    int loadingSlipExtTOCnt = 1;
+
+                    foreach (var loadingSlipTO in bookingTOList)
+                    {
+                        List<TblLoadingSlipExtTO> newLoadingSlipExtTOList = new List<TblLoadingSlipExtTO>();
+                        // Set old loading slip id.
+                        oldLoadingSlipId = loadingSlipTO.IdLoadingSlip;
+
+                        // Select invoice details.
+                        List<TblInvoiceTO> invoiceTOList =_iTblInvoiceDAO .SelectAllTempInvoice(loadingSlipTO.IdLoadingSlip, conn, tran);
+
+
+                        // Insert loading slip.
+                        loadingSlipTO.LoadingId = loadingTO.IdLoading;
+                        loadingSlipTO.NoOfDeliveries = bookingTOList.Count;
+                        result = InsertFinalLoadingSlip(loadingSlipTO, conn, tran);
+
+                        if (result <= 0)
+                        {
+                            resultMessage.DefaultBehaviour("Error while Booking InsertFinalLoadingSlip");
+                            return resultMessage;
+                        }
+
+                        // Insert loading slip address details.
+                        if (loadingSlipTO.DeliveryAddressTOList != null && loadingSlipTO.DeliveryAddressTOList.Count > 0)
+                        {
+                            foreach (var loadingSlipAddressTO in loadingSlipTO.DeliveryAddressTOList)
+                            {
+                                loadingSlipAddressTO.LoadingSlipId = loadingSlipTO.IdLoadingSlip;
+                                result = InsertFinalLoadingSlipAddress(loadingSlipAddressTO, conn, tran);
+                                if (result <= 0)
+                                {
+                                    resultMessage.DefaultBehaviour("Error while Booking InsertFinalLoadingSlipAddress");
+                                    return resultMessage;
+                                }
+                            }
+                        }
+
+                        // Insert loading slip details data.
+                        if (loadingSlipTO.TblLoadingSlipDtlTO != null)
+                        {
+                            loadingSlipTO.TblLoadingSlipDtlTO.LoadingSlipId = loadingSlipTO.IdLoadingSlip;
+                            totalLoadingQty = totalLoadingQty + loadingSlipTO.TblLoadingSlipDtlTO.LoadingQty;
+
+                            result = InsertFinalLoadingSlipDtl(loadingSlipTO.TblLoadingSlipDtlTO, conn, tran);
+                            if (result <= 0)
+                            {
+                                resultMessage.DefaultBehaviour("Error while Booking InsertFinalLoadingSlipDtl");
+                                return resultMessage;
+                            }
+                        }
+
+                        // Insert loading slip ext details.
+                        if (loadingSlipTO.LoadingSlipExtTOList != null && loadingSlipTO.LoadingSlipExtTOList.Count > 0)
+                        {
+                            //Sanjay Gunjal [03-July-2021] Added ordering of list by weighing sequence number as it was doing wrong tare weight calculation.
+                            var extList = loadingSlipTO.LoadingSlipExtTOList.OrderBy(ws => ws.WeighingSequenceNumber).ToList();
+
+                            foreach (var loadinSlipExtTO in extList)
+                            {
+                                // Insert to old loadingSlipExtTOList.
+                                oldLoadingSlipExtTOList.Add(loadinSlipExtTO);
+
+                                // Select loading slip ext history data.
+                                List<TblLoadingSlipExtHistoryTO> loadingSlipExtHistoryTOList =_iTblLoadingSlipExtHistoryDAO.SelectTempLoadingSlipExtHistoryList(loadinSlipExtTO.IdLoadingSlipExt, conn, tran);
+
+                                loadinSlipExtTO.LoadingSlipId = loadingSlipTO.IdLoadingSlip;
+                                int oldloadinSlipExtId = loadinSlipExtTO.IdLoadingSlipExt;
+
+                                // Calculate calcTareWeight.                              
+                                if (loadingSlipExtTOCnt > 1)
+                                {
+                                    loadinSlipExtTO.CalcTareWeight = oldLoadingSlipExtTO.CalcTareWeight + oldLoadingSlipExtTO.LoadedWeight;
+                                }
+
+                                // Make adjustment of CalcTareWeight.
+                                if (loadingSlipExtTOCnt == 1 && loadinSlipExtTO.CalcTareWeight > loadinSlipExtTO.LoadedWeight)
+                                {
+                                    List<TblLoadingSlipExtTO> oldAllLoadingSlipExtTOList =_iTblLoadingSlipExtDAO.SelectAllLoadingSlipExtListFromLoadingId(loadingId.ToString (), conn, tran);
+
+                                    if (oldAllLoadingSlipExtTOList != null && oldAllLoadingSlipExtTOList.Count > 0)
+                                        //Sanjay Gunjal [03-July-2021] Added ordering of list by CalcTareWeight as it was doing wrong tare weight calculation.
+                                        loadinSlipExtTO.CalcTareWeight = oldAllLoadingSlipExtTOList.OrderBy(tw => tw.CalcTareWeight).FirstOrDefault().CalcTareWeight;
+                                }
+
+                                result = InsertFinalLoadingSlipExt(loadinSlipExtTO, conn, tran);
+                                if (result <= 0)
+                                {
+                                    resultMessage.DefaultBehaviour("Error while Booking InsertFinalLoadingSlipExt");
+                                    return resultMessage;
+                                }
+                                else
+                                {
+                                    loadinSlipExthistoryList.Add(new KeyValuePair<int, int>(oldloadinSlipExtId, loadinSlipExtTO.IdLoadingSlipExt));
+
+                                    // Assign old loadinSlipExtTO.
+                                    oldLoadingSlipExtTO = loadinSlipExtTO;
+                                    newLoadingSlipExtTOList.Add(loadinSlipExtTO);
+                                }
+
+                                // Update loadinSlipExtId in tblLoadingQuotaConsumption.
+                                result = UpdateTblLoadingQuotaConsumption(oldloadinSlipExtId, loadinSlipExtTO.IdLoadingSlipExt, conn, tran);
+                                if (result < 0)
+                                {
+                                    resultMessage.DefaultBehaviour("Error while Booking UpdateTblLoadingQuotaConsumption");
+                                    return resultMessage;
+                                }
+
+                                result = UpdateTblStockConsumption(oldloadinSlipExtId, loadinSlipExtTO.IdLoadingSlipExt, conn, tran);
+                                if (result < 0)
+                                {
+                                    resultMessage.DefaultBehaviour("Error while Booking UpdateTblStockConsumption");
+                                    return resultMessage;
+                                }
+
+                                // Insert loading slip ext history details.
+                                if (loadingSlipExtHistoryTOList != null && loadingSlipExtHistoryTOList.Count > 0)
+                                {
+                                    foreach (var loadinSlipExtHistoryTO in loadingSlipExtHistoryTOList)
+                                    {
+                                        loadinSlipExtHistoryTO.LoadingSlipExtId = loadinSlipExtTO.IdLoadingSlipExt;
+                                        result = InsertFinalLoadingSlipExtHistory(loadinSlipExtHistoryTO, conn, tran);
+                                        if (result <= 0)
+                                        {
+                                            resultMessage.DefaultBehaviour("Error while Booking InsertFinalLoadingSlipExtHistory");
+                                            return resultMessage;
+                                        }
+                                    }
+                                }
+                                loadingSlipExtTOCnt++;
+                            }
+                        }
+
+                        // Insert invoice details.
+                        if (invoiceTOList != null && invoiceTOList.Count > 0)
+                        {
+                            foreach (var invoiceTO in invoiceTOList)
+                            {
+                                //Added Dhananjay [23-12-2020] Select invoice eInvoice API response.
+                                List<TblEInvoiceApiResponseTO> eInvoiceApiResponseTOList =_iTblEInvoiceApiResponseBL.SelectTblEInvoiceApiResponseListForInvoiceId(invoiceTO.IdInvoice, conn, tran);
+                                // Select invoice address details.
+                                List<TblInvoiceAddressTO> invoiceAddressTOList =_iTblInvoiceAddressDAO.SelectAllTblInvoiceAddress(invoiceTO.IdInvoice, conn, tran);
+                                // Select invoice item details.
+                                List<TblInvoiceItemDetailsTO> invoiceItemDetailsTOList =_iTblInvoiceItemDetailsDAO.SelectAllTblInvoiceItemDetails(invoiceTO.IdInvoice, conn, tran);
+                                // Select invoice history details.
+                                List<TblInvoiceHistoryTO> invoiceHistoryTOList =_iTblInvoiceHistoryDAO .SelectTempInvoiceHistory(invoiceTO.IdInvoice, conn, tran);
+                                invoiceTO.LoadingSlipId = loadingSlipTO.IdLoadingSlip;
+
+                                //[28-05-2018]:Vijaymla added to get invoice document details
+                                List<TempInvoiceDocumentDetailsTO> tempInvoiceDocumentDetailsTOList =_iTempInvoiceDocumentDetailsDAO.SelectTempInvoiceDocumentDetailsByInvoiceId (invoiceTO.IdInvoice, conn, tran);
+
+                                // Weighing calculation.
+                                if (newLoadingSlipExtTOList != null && newLoadingSlipExtTOList.Count >0)
+                                {
+                                    //invoiceTO.TareWeight = newLoadingSlipExtTOList.Select(ele => ele.CalcTareWeight).First();
+                                    //invoiceTO.NetWeight = newLoadingSlipExtTOList.Sum(ele => ele.LoadedWeight);
+                                    //invoiceTO.GrossWeight = newLoadingSlipExtTOList.Select(ele => ele.LoadedWeight).Last() + newLoadingSlipExtTOList.Select(ele => ele.CalcTareWeight).Last();
+
+
+                                    invoiceTO.TareWeight = newLoadingSlipExtTOList.OrderBy(o => o.CalcTareWeight).FirstOrDefault().CalcTareWeight;
+                                    invoiceTO.NetWeight = newLoadingSlipExtTOList.Sum(ele => ele.LoadedWeight);
+                                    invoiceTO.GrossWeight = invoiceTO.TareWeight + invoiceTO.NetWeight;
+
+                                }
+
+                                result = InsertFinalInvoice(invoiceTO, conn, tran);
+                                if (result <= 0)
+                                {
+                                    resultMessage.DefaultBehaviour("Error while Booking InsertFinalInvoice");
+                                    return resultMessage;
+                                }
+
+                                //Added Dhananjay [23-12-2020] insert invoice eInvoice API response.
+                                if (eInvoiceApiResponseTOList != null && eInvoiceApiResponseTOList.Count > 0)
+                                {
+                                    foreach (var eInvoiceApiResponseTO in eInvoiceApiResponseTOList)
+                                    {
+                                        eInvoiceApiResponseTO.InvoiceId = invoiceTO.IdInvoice;
+                                        result = InsertFinalEInvoiceApiResponse(eInvoiceApiResponseTO, conn, tran);
+                                        if (result <= 0)
+                                        {
+                                            resultMessage.DefaultBehaviour("Error while Booking InsertFinalEInvoiceApiResponse");
+                                            return resultMessage;
+                                        }
+                                    }
+                                }
+
+                                // Insert invoice address details.
+                                if (invoiceAddressTOList != null && invoiceAddressTOList.Count > 0)
+                                {
+                                    foreach (var invoiceAddressTO in invoiceAddressTOList)
+                                    {
+                                        invoiceAddressTO.InvoiceId = invoiceTO.IdInvoice;
+                                        result = InsertFinalInvoiceAddress(invoiceAddressTO, conn, tran);
+                                        if (result <= 0)
+                                        {
+                                            resultMessage.DefaultBehaviour("Error while Booking InsertFinalInvoiceAddress");
+                                            return resultMessage;
+                                        }
+                                    }
+                                }
+
+                                //[28-05-2018]Vijaymala added to insert into final invoice document details
+
+                                if (tempInvoiceDocumentDetailsTOList != null && tempInvoiceDocumentDetailsTOList.Count > 0)
+                                {
+                                    foreach (var tempInvoiceDocumentDetailsTO in tempInvoiceDocumentDetailsTOList)
+                                    {
+                                        tempInvoiceDocumentDetailsTO.InvoiceId = invoiceTO.IdInvoice;
+                                        result = InsertFinalInvoiceDocumentDetails(tempInvoiceDocumentDetailsTO, conn, tran);
+                                        if (result <= 0)
+                                        {
+                                            resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalInvoiceDocumentDetails");
+                                            return resultMessage;
+                                        }
+                                    }
+                                }
+
+                                if (invoiceItemDetailsTOList != null && invoiceItemDetailsTOList.Count > 0)
+                                {
+                                    foreach (var invoiceItemDetailsTO in invoiceItemDetailsTOList)
+                                    {
+
+                                        // Select invoice item tax details.
+                                        List<TblInvoiceItemTaxDtlsTO> invoiceItemTaxDtlsTOList =_iTblInvoiceItemTaxDtlsDAO .SelectAllTblInvoiceItemTaxDtls(invoiceItemDetailsTO.IdInvoiceItem, conn, tran);
+
+                                        invoiceItemDetailsTO.InvoiceId = invoiceTO.IdInvoice;
+                                        int oldInvoiceItemId = invoiceItemDetailsTO.IdInvoiceItem;
+
+                                        if (loadinSlipExthistoryList != null && loadinSlipExthistoryList.Count > 0)
+                                            invoiceItemDetailsTO.LoadingSlipExtId = loadinSlipExthistoryList.Find(ele => ele.Key == invoiceItemDetailsTO.LoadingSlipExtId).Value;
+
+                                        result = InsertFinalInvoiceItemDetails(invoiceItemDetailsTO, conn, tran);
+                                        if (result <= 0)
+                                        {
+                                            resultMessage.DefaultBehaviour("Error while Booking InsertFinalInvoiceItemDetails");
+                                            return resultMessage;
+                                        }
+                                        else
+                                        {
+                                            invoiceItemDetailshistoryList.Add(new KeyValuePair<int, int>(oldInvoiceItemId, invoiceItemDetailsTO.IdInvoiceItem));
+                                        }
+
+                                        if (invoiceItemTaxDtlsTOList != null && invoiceItemTaxDtlsTOList.Count > 0)
+                                        {
+                                            foreach (var invoiceItemTaxDtlsTO in invoiceItemTaxDtlsTOList)
+                                            {
+                                                invoiceItemTaxDtlsTO.InvoiceItemId = invoiceItemDetailsTO.IdInvoiceItem;
+                                                result = InsertFinalInvoiceItemTaxDtls(invoiceItemTaxDtlsTO, conn, tran);
+                                                if (result <= 0)
+                                                {
+                                                    resultMessage.DefaultBehaviour("Error while Booking InsertFinalInvoiceItemTaxDtls");
+                                                    return resultMessage;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (invoiceHistoryTOList != null && invoiceHistoryTOList.Count > 0)
+                                {
+                                    foreach (var invoiceHistoryTO in invoiceHistoryTOList)
+                                    {
+                                        invoiceHistoryTO.InvoiceId = invoiceTO.IdInvoice;
+
+                                        if (invoiceItemDetailshistoryList != null && invoiceItemDetailshistoryList.Count > 0)
+                                            invoiceHistoryTO.InvoiceItemId = invoiceItemDetailshistoryList.Find(ele => ele.Key == invoiceHistoryTO.InvoiceItemId).Value;
+
+                                        result = InsertFinalInvoiceHistory(invoiceHistoryTO, conn, tran);
+                                        if (result <= 0)
+                                        {
+                                            resultMessage.DefaultBehaviour("Error while Booking InsertFinalInvoiceHistory");
+                                            return resultMessage;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+                    // Insert loading weighingMeasures details.
+                    if (weighingMeasuresTOList != null && weighingMeasuresTOList.Count > 0)
+                    {
+                        // Filter weighingMeasures list by weightMeasureId from loadingSlipExtTOList.
+                        List<TblWeighingMeasuresTO> newWeighingMeasuresTOList = weighingMeasuresTOList.Where(item =>
+                          oldLoadingSlipExtTOList.Any(ele => ele.WeightMeasureId == item.IdWeightMeasure)).ToList();
+
+                        Double totalWeightMT = 0;
+
+
+                        // First insert tare weight.
+                        List<TblWeighingMeasuresTO> tareWeighingMeasuresTOList = weighingMeasuresTOList.FindAll(ele => ele.WeightMeasurTypeId == (int)Constants.TransMeasureTypeE.TARE_WEIGHT);
+
+                        if (tareWeighingMeasuresTOList != null && tareWeighingMeasuresTOList.Count > 0)
+                        {
+                            foreach (var tareWeighingMeasuresTO in tareWeighingMeasuresTOList)
+                            {
+                                totalWeightMT = tareWeighingMeasuresTO.WeightMT;
+                                tareWeighingMeasuresTO.LoadingId = loadingTO.IdLoading;
+
+                                result = InsertFinalWeighingMeasures(tareWeighingMeasuresTO, conn, tran);
+
+                                if (result <= 0)
+                                {
+                                    resultMessage.DefaultBehaviour("Error while Booking InsertFinalWeighingMeasures");
+                                    return resultMessage;
+                                }
+                            }
+                        }
+
+                        foreach (var weighingMeasuresTO in newWeighingMeasuresTOList)
+                        {
+                            // Calculate only booking weighing.
+                            int count = oldLoadingSlipExtTOList.Count(ele => ele.WeightMeasureId == weighingMeasuresTO.IdWeightMeasure);
+                            if (count > 1)
+                            {
+                                Double loadedWeight = oldLoadingSlipExtTOList.Where(ele => ele.WeightMeasureId == weighingMeasuresTO.IdWeightMeasure).Sum(ele => ele.LoadedWeight);
+                                totalWeightMT = totalWeightMT + loadedWeight;
+                            }
+                            else
+                            {
+                                Double loadedWeight = oldLoadingSlipExtTOList.Find(ele => ele.WeightMeasureId == weighingMeasuresTO.IdWeightMeasure).LoadedWeight;
+                                totalWeightMT = totalWeightMT + loadedWeight;
+                            }
+
+                            weighingMeasuresTO.LoadingId = loadingTO.IdLoading;
+                            weighingMeasuresTO.WeightMT = totalWeightMT;
+                            int oldWeighingMeasuresId = weighingMeasuresTO.IdWeightMeasure;
+
+                            result = InsertFinalWeighingMeasures(weighingMeasuresTO, conn, tran);
+                            if (result <= 0)
+                            {
+                                resultMessage.DefaultBehaviour("Error while Booking InsertFinalWeighingMeasures");
+                                return resultMessage;
+                            }
+
+                            // Update weighingMeasureid in finalLoadingSlipExt table.
+                            result = UpdateFinalLoadingSlipExt(oldWeighingMeasuresId, weighingMeasuresTO.IdWeightMeasure, conn, tran);
+                            if (result < 0)
+                            {
+                                resultMessage.DefaultBehaviour("Error while Booking UpdateFinalLoadingSlipExt");
+                                return resultMessage;
+                            }
+                        }
+
+                        // Insert gross weight.
+                        List<TblWeighingMeasuresTO> grossWeighingMeasuresTOList = weighingMeasuresTOList.FindAll(ele => ele.WeightMeasurTypeId == (int)Constants.TransMeasureTypeE.GROSS_WEIGHT);
+
+                        if (grossWeighingMeasuresTOList != null && grossWeighingMeasuresTOList.Count > 0)
+                        {
+                            int weightCnt = 0;
+                            double grossWeighingMeasuresDiff = 0;
+
+                            foreach (var grossWeighingMeasuresTO in grossWeighingMeasuresTOList)
+                            {
+
+                                // Gross weight calculation for 2 weighing machine only.
+                                weightCnt++;
+                                if (grossWeighingMeasuresTOList.Count > 1 && weightCnt == 1)
+                                {
+                                    grossWeighingMeasuresDiff = grossWeighingMeasuresTOList[weightCnt].WeightMT - grossWeighingMeasuresTOList[weightCnt - 1].WeightMT;
+                                }
+
+                                if (weightCnt > 1)
+                                {
+                                    totalWeightMT = totalWeightMT + grossWeighingMeasuresDiff;
+                                }
+
+                                grossWeighingMeasuresTO.WeightMT = totalWeightMT;
+                                grossWeighingMeasuresTO.LoadingId = loadingTO.IdLoading;
+
+                                result = InsertFinalWeighingMeasures(grossWeighingMeasuresTO, conn, tran);
+
+                                if (result <= 0)
+                                {
+                                    resultMessage.DefaultBehaviour("Error while Booking InsertFinalWeighingMeasures");
+                                    return resultMessage;
+                                }
+                            }
+                        }
+                    }
+
+                    // Insert loading status history.
+                    if (loadingStatusHistoryTOList != null && loadingStatusHistoryTOList.Count > 0)
+                    {
+                        foreach (var loadingStatusHistoryTO in loadingStatusHistoryTOList)
+                        {
+                            loadingStatusHistoryTO.LoadingId = loadingTO.IdLoading;
+                            result = InsertFinalLoadingStatusHistory(loadingStatusHistoryTO, conn, tran);
+                            if (result <= 0)
+                            {
+                                resultMessage.DefaultBehaviour("Error while Booking InsertFinalLoadingStatusHistory");
+                                return resultMessage;
+                            }
+                        }
+                    }
+
+
+                    // Update total loading qty.
+                    result = UpdateTotalLoadingQty(totalLoadingQty, loadingTO.IdLoading, conn, tran);
+                    if (result < 0)
+                    {
+                        resultMessage.DefaultBehaviour("Error while Booking UpdateTotalLoadingQty");
+                        return resultMessage;
+                    }
+
+                }
+
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "InsertFinalBookingData");
+                return resultMessage;
+            }
+            finally
+            {
+                oldLoadingSlipExtTOList = null;
+                loadinSlipExthistoryList = null;
+                invoiceItemDetailshistoryList = null;
+            }
+        }
+        public  ResultMessage InsertFinalEnquiryData(int loadingId, SqlConnection bookingConn, SqlTransaction bookingTran, SqlConnection enquiryConn, SqlTransaction enquiryTran)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            TblLoadingTO loadingTO = new TblLoadingTO();
+            List<TblLoadingSlipTO> loadingSlipTOList = new List<TblLoadingSlipTO>();
+            List<TblLoadingSlipTO> enquiryTOList = new List<TblLoadingSlipTO>();
+            List<TblLoadingStatusHistoryTO> loadingStatusHistoryTOList = new List<TblLoadingStatusHistoryTO>();
+            List<TblWeighingMeasuresTO> weighingMeasuresTOList = new List<TblWeighingMeasuresTO>();
+            List<TblLoadingSlipExtTO> oldLoadingSlipExtTOList = new List<TblLoadingSlipExtTO>();
+
+            // For keeping history of loadinSlipExt. 
+            var loadinSlipExthistoryList = new List<KeyValuePair<int, int>>();
+            // For keeping history of invoiceItemDetails.
+            var invoiceItemDetailshistoryList = new List<KeyValuePair<int, int>>();
+
+            int oldLoadingSlipId = 0;
+            double totalLoadingQty = 0;
+            int result = 0;
+
+            try
+            {
+                #region Selection
+
+                // Select temp loading details.
+                loadingTO = _iTblLoadingDAO.SelectTblLoading(loadingId, bookingConn, bookingTran);
+
+                if (loadingTO == null)
+                {
+                    resultMessage.DefaultBehaviour("Error Enquiry loadingTO is null");
+                    return resultMessage;
+                }
+
+                // Select temp loading slip details.
+                loadingSlipTOList = _iTblLoadingSlipDAO.SelectAllLoadingSlipListWithDetails(loadingId, bookingConn, bookingTran);
+                // Select loading slip status history data.
+                loadingStatusHistoryTOList =_iTblLoadingStatusHistoryDAO.SelectAllTblLoadingStatusHistory(loadingId, bookingConn, bookingTran);
+                // Select weighingMeasures details.
+                weighingMeasuresTOList = _iCircularDependencyBL.SelectAllTblWeighingMeasuresListByLoadingId(loadingId, bookingConn, bookingTran);
+
+                #endregion
+
+                // To check not confirm loading slips are present or not.
+                if (loadingTO != null && loadingSlipTOList != null && loadingSlipTOList.FindAll(ele => ele.IsConfirmed == 0).Count > 0)
+                {
+
+                    // Filter loading slip list with confirm flag.
+                    if (loadingSlipTOList != null && loadingSlipTOList.Count > 0)
+                        enquiryTOList = loadingSlipTOList.FindAll(ele => ele.IsConfirmed == 0).ToList();
+
+
+                    // Insert final loading slip details.    
+                    if (enquiryTOList != null && enquiryTOList.Count > 0)
+                    {
+
+                        // Insert final loading details.
+                        // Set total loading qty to 0. 
+                        loadingTO.TotalLoadingQty = 0;
+                        loadingTO.NoOfDeliveries = enquiryTOList.Count;
+
+                        result = InsertFinalLoading(loadingTO, enquiryConn, enquiryTran);
+
+                        if (result <= 0)
+                        {
+                            resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalLoading");
+                            return resultMessage;
+                        }
+
+                        // Maintain history loadinSlipExtTO.
+                        TblLoadingSlipExtTO oldLoadingSlipExtTO = null;
+                        int loadingSlipExtTOCnt = 1;
+
+                        foreach (var loadingSlipTO in enquiryTOList)
+                        {
+                            List<TblLoadingSlipExtTO> newLoadingSlipExtTOList = new List<TblLoadingSlipExtTO>();
+                            // Set old loading slip id.
+                            oldLoadingSlipId = loadingSlipTO.IdLoadingSlip;
+
+                            // Select invoice details.
+                            List<TblInvoiceTO> invoiceTOList =_iTblInvoiceDAO.SelectAllTempInvoice(loadingSlipTO.IdLoadingSlip, bookingConn, bookingTran);
+
+                            if (invoiceTOList == null && invoiceTOList.Count <= 0)
+                            {
+                                resultMessage.DefaultBehaviour("Error invoiceTOList is null");
+                                return resultMessage;
+                            }
+
+                            // Insert loading slip. 
+                            loadingSlipTO.LoadingId = loadingTO.IdLoading;
+                            loadingSlipTO.NoOfDeliveries = enquiryTOList.Count;
+                            result = InsertFinalLoadingSlip(loadingSlipTO, enquiryConn, enquiryTran);
+                            if (result <= 0)
+                            {
+                                resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalLoadingSlip");
+                                return resultMessage;
+                            }
+
+                            // Insert loading slip address details.
+                            if (loadingSlipTO.DeliveryAddressTOList != null && loadingSlipTO.DeliveryAddressTOList.Count > 0)
+                            {
+                                foreach (var loadingSlipAddressTO in loadingSlipTO.DeliveryAddressTOList)
+                                {
+                                    loadingSlipAddressTO.LoadingSlipId = loadingSlipTO.IdLoadingSlip;
+                                    result = InsertFinalLoadingSlipAddress(loadingSlipAddressTO, enquiryConn, enquiryTran);
+                                    if (result <= 0)
+                                    {
+                                        resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalLoadingSlipAddress");
+                                        return resultMessage;
+                                    }
+                                }
+                            }
+
+                            // Insert loading slip details data.
+                            if (loadingSlipTO.TblLoadingSlipDtlTO != null)
+                            {
+                                loadingSlipTO.TblLoadingSlipDtlTO.LoadingSlipId = loadingSlipTO.IdLoadingSlip;
+                                totalLoadingQty = totalLoadingQty + loadingSlipTO.TblLoadingSlipDtlTO.LoadingQty;
+
+                                result = InsertFinalLoadingSlipDtl(loadingSlipTO.TblLoadingSlipDtlTO, enquiryConn, enquiryTran);
+                                if (result <= 0)
+                                {
+                                    resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalLoadingSlipDtl");
+                                    return resultMessage;
+                                }
+
+                            }
+
+                            // Insert loading slip ext details.
+                            if (loadingSlipTO.LoadingSlipExtTOList != null && loadingSlipTO.LoadingSlipExtTOList.Count > 0)
+                            {
+                                //Sanjay Gunjal [04-July-2021] Added ordering of list by weighing sequence number as it was doing wrong tare weight calculation.
+                                var extList = loadingSlipTO.LoadingSlipExtTOList.OrderBy(ws => ws.WeighingSequenceNumber).ToList();
+
+                                foreach (var loadinSlipExtTO in extList)
+                                {
+                                    // Insert to old loadingSlipExtTOList.
+                                    oldLoadingSlipExtTOList.Add(loadinSlipExtTO);
+
+                                    // Select loading slip ext history data.
+                                    List<TblLoadingSlipExtHistoryTO> loadingSlipExtHistoryTOList =_iTblLoadingSlipExtHistoryDAO.SelectTempLoadingSlipExtHistoryList(loadinSlipExtTO.IdLoadingSlipExt, bookingConn, bookingTran);
+
+                                    loadinSlipExtTO.LoadingSlipId = loadingSlipTO.IdLoadingSlip;
+                                    int oldloadinSlipExtId = loadinSlipExtTO.IdLoadingSlipExt;
+
+                                    // Calculate calcTareWeight.
+
+                                    if (loadingSlipExtTOCnt > 1)
+                                    {
+                                        loadinSlipExtTO.CalcTareWeight = oldLoadingSlipExtTO.CalcTareWeight + oldLoadingSlipExtTO.LoadedWeight;
+                                    }
+
+                                    // Make adjustment of CalcTareWeight.
+                                    if (loadingSlipExtTOCnt == 1 && loadinSlipExtTO.CalcTareWeight > loadinSlipExtTO.LoadedWeight)
+                                    {
+                                        List<TblLoadingSlipExtTO> oldAllLoadingSlipExtTOList =_iTblLoadingSlipExtDAO .SelectAllLoadingSlipExtListFromLoadingId(loadingId.ToString (), bookingConn, bookingTran);
+
+                                        //Sanjay Gunjal [04-July-2021] Added ordering of list by CalcTareWeight as it was doing wrong tare weight calculation.
+                                        //loadinSlipExtTO.CalcTareWeight = oldAllLoadingSlipExtTOList[0].CalcTareWeight;
+                                        if (oldAllLoadingSlipExtTOList != null && oldAllLoadingSlipExtTOList.Count > 0)
+                                        {
+                                            loadinSlipExtTO.CalcTareWeight = oldAllLoadingSlipExtTOList.OrderBy(tw => tw.CalcTareWeight).FirstOrDefault().CalcTareWeight;
+                                        }
+                                    }
+
+                                    result = InsertFinalLoadingSlipExt(loadinSlipExtTO, enquiryConn, enquiryTran);
+                                    if (result <= 0)
+                                    {
+                                        resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalLoadingSlipExt");
+                                        return resultMessage;
+                                    }
+                                    else
+                                    {
+                                        loadinSlipExthistoryList.Add(new KeyValuePair<int, int>(oldloadinSlipExtId, loadinSlipExtTO.IdLoadingSlipExt));
+
+                                        // Assign old loadinSlipExtTO.
+                                        oldLoadingSlipExtTO = loadinSlipExtTO;
+                                        newLoadingSlipExtTOList.Add(loadinSlipExtTO);
+                                    }
+
+
+                                    // Insert loading slip ext history details.
+                                    if (loadingSlipExtHistoryTOList != null && loadingSlipExtHistoryTOList.Count > 0)
+                                    {
+                                        foreach (var loadinSlipExtHistoryTO in loadingSlipExtHistoryTOList)
+                                        {
+                                            loadinSlipExtHistoryTO.LoadingSlipExtId = loadinSlipExtTO.IdLoadingSlipExt;
+                                            result = InsertFinalLoadingSlipExtHistory(loadinSlipExtHistoryTO, enquiryConn, enquiryTran);
+                                            if (result <= 0)
+                                            {
+                                                resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalLoadingSlipExtHistory");
+                                                return resultMessage;
+                                            }
+                                        }
+                                    }
+                                    loadingSlipExtTOCnt++;
+                                }
+                            }
+
+                            // Insert invoice details.
+                            if (invoiceTOList != null && invoiceTOList.Count > 0)
+                            {
+                                foreach (var invoiceTO in invoiceTOList)
+                                {
+                                    // Select invoice address details.
+                                    List<TblInvoiceAddressTO> invoiceAddressTOList =_iTblInvoiceAddressDAO .SelectAllTblInvoiceAddress (invoiceTO.IdInvoice, bookingConn, bookingTran);
+                                    // Select invoice item details.
+                                    List<TblInvoiceItemDetailsTO> invoiceItemDetailsTOList =_iTblInvoiceItemDetailsDAO .SelectAllTblInvoiceItemDetails(invoiceTO.IdInvoice, bookingConn, bookingTran);
+                                    // Select invoice history details.
+                                    List<TblInvoiceHistoryTO> invoiceHistoryTOList =_iTblInvoiceHistoryDAO .SelectTempInvoiceHistory(invoiceTO.IdInvoice, bookingConn, bookingTran);
+                                    invoiceTO.LoadingSlipId = loadingSlipTO.IdLoadingSlip;
+
+                                    //[28-05-2018]:Vijaymla added to get invoice document details
+                                    List<TempInvoiceDocumentDetailsTO> tempInvoiceDocumentDetailsTOList =_iTempInvoiceDocumentDetailsDAO .SelectTempInvoiceDocumentDetailsByInvoiceId(invoiceTO.IdInvoice, bookingConn, bookingTran);
+
+                                    // Weighing calculation.
+                                    if (newLoadingSlipExtTOList != null)
+                                    {
+                                        invoiceTO.TareWeight = newLoadingSlipExtTOList.Select(ele => ele.CalcTareWeight).First();
+                                        invoiceTO.NetWeight = newLoadingSlipExtTOList.Sum(ele => ele.LoadedWeight);
+                                        invoiceTO.GrossWeight = newLoadingSlipExtTOList.Select(ele => ele.LoadedWeight).Last() + newLoadingSlipExtTOList.Select(ele => ele.CalcTareWeight).Last();
+                                    }
+
+                                    result = InsertFinalInvoice(invoiceTO, enquiryConn, enquiryTran);
+                                    if (result <= 0)
+                                    {
+                                        resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalInvoice");
+                                        return resultMessage;
+                                    }
+
+                                    // Insert invoice address details.
+                                    if (invoiceAddressTOList != null && invoiceAddressTOList.Count > 0)
+                                    {
+                                        foreach (var invoiceAddressTO in invoiceAddressTOList)
+                                        {
+                                            invoiceAddressTO.InvoiceId = invoiceTO.IdInvoice;
+                                            result = InsertFinalInvoiceAddress(invoiceAddressTO, enquiryConn, enquiryTran);
+                                            if (result <= 0)
+                                            {
+                                                resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalInvoiceAddress");
+                                                return resultMessage;
+                                            }
+                                        }
+                                    }
+
+                                    //[28-05-2018]Vijaymala added to insert into final invoice document details
+
+                                    if (tempInvoiceDocumentDetailsTOList != null && tempInvoiceDocumentDetailsTOList.Count > 0)
+                                    {
+                                        foreach (var tempInvoiceDocumentDetailsTO in tempInvoiceDocumentDetailsTOList)
+                                        {
+                                            tempInvoiceDocumentDetailsTO.InvoiceId = invoiceTO.IdInvoice;
+                                            //InsertEnquiryInvoiceDocumentDetails
+
+                                            result = InsertEnquiryInvoiceDocumentDetails(tempInvoiceDocumentDetailsTO, enquiryConn, enquiryTran);
+                                            if (result <= 0)
+                                            {
+                                                resultMessage.DefaultBehaviour("Error while Enquiry InsertEnquiryInvoiceDocumentDetails");
+                                                return resultMessage;
+                                            }
+                                        }
+                                    }
+
+
+
+                                    if (invoiceItemDetailsTOList != null && invoiceItemDetailsTOList.Count > 0)
+                                    {
+                                        foreach (var invoiceItemDetailsTO in invoiceItemDetailsTOList)
+                                        {
+                                            // Select invoice item tax details.
+                                            List<TblInvoiceItemTaxDtlsTO> invoiceItemTaxDtlsTOList =_iTblInvoiceItemTaxDtlsDAO.SelectAllTblInvoiceItemTaxDtls(invoiceItemDetailsTO.IdInvoiceItem, bookingConn, bookingTran);
+
+                                            invoiceItemDetailsTO.InvoiceId = invoiceTO.IdInvoice;
+                                            int oldInvoiceItemId = invoiceItemDetailsTO.IdInvoiceItem;
+
+                                            if (loadinSlipExthistoryList != null && loadinSlipExthistoryList.Count > 0)
+                                                invoiceItemDetailsTO.LoadingSlipExtId = loadinSlipExthistoryList.Find(ele => ele.Key == invoiceItemDetailsTO.LoadingSlipExtId).Value;
+
+                                            result = InsertFinalInvoiceItemDetails(invoiceItemDetailsTO, enquiryConn, enquiryTran);
+                                            if (result <= 0)
+                                            {
+                                                resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalInvoiceItemDetails");
+                                                return resultMessage;
+                                            }
+                                            else
+                                            {
+                                                invoiceItemDetailshistoryList.Add(new KeyValuePair<int, int>(oldInvoiceItemId, invoiceItemDetailsTO.IdInvoiceItem));
+                                            }
+
+                                            // Vaibhav [01-Dec-2017] No need to insert tax data [Ref By - Sanjay Sir]
+
+                                            //if (invoiceItemTaxDtlsTOList != null && invoiceItemTaxDtlsTOList.Count > 0)
+                                            //{
+                                            //    foreach (var invoiceItemTaxDtlsTO in invoiceItemTaxDtlsTOList)
+                                            //    {
+                                            //        invoiceItemTaxDtlsTO.InvoiceItemId = invoiceItemDetailsTO.IdInvoiceItem;
+                                            //        result = InsertFinalInvoiceItemTaxDtls(invoiceItemTaxDtlsTO, enquiryConn, enquiryTran);
+                                            //        if (result <= 0)
+                                            //        {
+                                            //            resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalInvoiceItemTaxDtls");
+                                            //            enquiryTran.Rollback();
+                                            //            return resultMessage;
+                                            //        }
+                                            //    }
+                                            //}
+                                        }
+                                    }
+
+                                    if (invoiceHistoryTOList != null && invoiceHistoryTOList.Count > 0)
+                                    {
+                                        foreach (var invoiceHistoryTO in invoiceHistoryTOList)
+                                        {
+                                            invoiceHistoryTO.InvoiceId = invoiceTO.IdInvoice;
+
+                                            if (invoiceItemDetailshistoryList != null && invoiceItemDetailshistoryList.Count > 0)
+                                                invoiceHistoryTO.InvoiceItemId = invoiceItemDetailshistoryList.Find(ele => ele.Key == invoiceHistoryTO.InvoiceItemId).Value;
+
+                                            result = InsertFinalInvoiceHistory(invoiceHistoryTO, enquiryConn, enquiryTran);
+                                            if (result <= 0)
+                                            {
+                                                resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalInvoiceHistory");
+                                                return resultMessage;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+
+
+                        // Insert loading weighingMeasures details.
+                        if (weighingMeasuresTOList != null && weighingMeasuresTOList.Count > 0)
+                        {
+                            // Filter weighingMeasures list by weightMeasureId from old loadingSlipExtTOList.
+                            List<TblWeighingMeasuresTO> newWeighingMeasuresTOList = weighingMeasuresTOList.Where(item =>
+                              oldLoadingSlipExtTOList.Any(ele => ele.WeightMeasureId.Equals(item.IdWeightMeasure))).ToList();
+
+                            Double totalWeightMT = 0;
+
+
+                            // First insert tare weight.
+                            List<TblWeighingMeasuresTO> tareWeighingMeasuresTOList = weighingMeasuresTOList.FindAll(ele => ele.WeightMeasurTypeId == (int)Constants.TransMeasureTypeE.TARE_WEIGHT);
+
+                            if (tareWeighingMeasuresTOList != null && tareWeighingMeasuresTOList.Count > 0)
+                            {
+                                foreach (var tareWeighingMeasuresTO in tareWeighingMeasuresTOList)
+                                {
+                                    totalWeightMT = tareWeighingMeasuresTO.WeightMT;
+                                    tareWeighingMeasuresTO.LoadingId = loadingTO.IdLoading;
+
+                                    result = InsertFinalWeighingMeasures(tareWeighingMeasuresTO, enquiryConn, enquiryTran);
+
+                                    if (result <= 0)
+                                    {
+                                        resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalWeighingMeasures");
+                                        return resultMessage;
+                                    }
+                                }
+                            }
+
+                            foreach (var weighingMeasuresTO in newWeighingMeasuresTOList)
+                            {
+                                // Calculate only enquiry weighing.
+                                int count = oldLoadingSlipExtTOList.Count(ele => ele.WeightMeasureId == weighingMeasuresTO.IdWeightMeasure);
+                                if (count > 1)
+                                {
+                                    Double loadedWeight = oldLoadingSlipExtTOList.Where(ele => ele.WeightMeasureId == weighingMeasuresTO.IdWeightMeasure).Sum(ele => ele.LoadedWeight);
+                                    totalWeightMT = totalWeightMT + loadedWeight;
+                                }
+                                else
+                                {
+                                    Double loadedWeight = oldLoadingSlipExtTOList.Find(ele => ele.WeightMeasureId == weighingMeasuresTO.IdWeightMeasure).LoadedWeight;
+                                    totalWeightMT = totalWeightMT + loadedWeight;
+                                }
+
+                                weighingMeasuresTO.LoadingId = loadingTO.IdLoading;
+                                weighingMeasuresTO.WeightMT = totalWeightMT;
+                                int oldWeighingMeasuresId = weighingMeasuresTO.IdWeightMeasure;
+
+                                result = InsertFinalWeighingMeasures(weighingMeasuresTO, enquiryConn, enquiryTran);
+                                if (result <= 0)
+                                {
+                                    resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalWeighingMeasures");
+                                    return resultMessage;
+                                }
+
+                                // Update weighingMeasureid in finalLoadingSlipExt table.
+                                result = UpdateFinalLoadingSlipExt(oldWeighingMeasuresId, weighingMeasuresTO.IdWeightMeasure, enquiryConn, enquiryTran);
+                                if (result < 0)
+                                {
+                                    resultMessage.DefaultBehaviour("Error while Enquiry UpdateFinalLoadingSlipExt");
+                                    return resultMessage;
+                                }
+                            }
+
+                            // Insert gross weight.
+                            List<TblWeighingMeasuresTO> grossWeighingMeasuresTOList = weighingMeasuresTOList.FindAll(ele => ele.WeightMeasurTypeId == (int)Constants.TransMeasureTypeE.GROSS_WEIGHT);
+
+                            if (grossWeighingMeasuresTOList != null && grossWeighingMeasuresTOList.Count > 0)
+                            {
+                                int weightCnt = 0;
+                                double grossWeighingMeasuresDiff = 0;
+
+                                foreach (var grossWeighingMeasuresTO in grossWeighingMeasuresTOList)
+                                {
+                                    // Gross weight calculation for 2 weighing machine only.
+                                    weightCnt++;
+                                    if (grossWeighingMeasuresTOList.Count > 1 && weightCnt == 1)
+                                    {
+                                        grossWeighingMeasuresDiff = grossWeighingMeasuresTOList[weightCnt].WeightMT - grossWeighingMeasuresTOList[weightCnt - 1].WeightMT;
+                                    }
+
+                                    if (weightCnt > 1)
+                                    {
+                                        totalWeightMT = totalWeightMT + grossWeighingMeasuresDiff;
+                                    }
+
+                                    grossWeighingMeasuresTO.WeightMT = totalWeightMT;
+                                    grossWeighingMeasuresTO.LoadingId = loadingTO.IdLoading;
+                                    result = InsertFinalWeighingMeasures(grossWeighingMeasuresTO, enquiryConn, enquiryTran);
+
+                                    if (result <= 0)
+                                    {
+                                        resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalWeighingMeasures");
+                                        return resultMessage;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Insert loading status history.
+                        if (loadingStatusHistoryTOList != null && loadingStatusHistoryTOList.Count > 0)
+                        {
+                            foreach (var loadingStatusHistoryTO in loadingStatusHistoryTOList)
+                            {
+                                loadingStatusHistoryTO.LoadingId = loadingTO.IdLoading;
+                                result = InsertFinalLoadingStatusHistory(loadingStatusHistoryTO, enquiryConn, enquiryTran);
+                                if (result <= 0)
+                                {
+                                    resultMessage.DefaultBehaviour("Error while Enquiry InsertFinalLoadingStatusHistory");
+                                    return resultMessage;
+                                }
+                            }
+                        }
+
+                        // Update total loading qty.
+                        result = UpdateTotalLoadingQty(totalLoadingQty, loadingTO.IdLoading, enquiryConn, enquiryTran);
+                        if (result < 0)
+                        {
+                            resultMessage.DefaultBehaviour("Error while Enquiry UpdateTotalLoadingQty");
+                            return resultMessage;
+                        }
+
+                    }
+                }
+
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "InsertFinalEnquiryData");
+                return resultMessage;
+            }
+            finally
+            {
+                oldLoadingSlipExtTOList = null;
+                loadinSlipExthistoryList = null;
+                invoiceItemDetailshistoryList = null;
+            }
+        }
+        //Reshma Added
+        int InsertEnquiryInvoiceDocumentDetails(TempInvoiceDocumentDetailsTO tempInvoiceDocumentDetailsTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdInsert = new SqlCommand();
+            try
+            {
+                cmdInsert.Connection = conn;
+                cmdInsert.Transaction = tran;
+                return ExecuteInsertionEnquiryInvoiceDocumentDetailsCommand(tempInvoiceDocumentDetailsTO, cmdInsert);
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdInsert.Dispose();
+            }
+        }
+
+        public static int ExecuteInsertionEnquiryInvoiceDocumentDetailsCommand(TempInvoiceDocumentDetailsTO tempInvoiceDocumentDetailsTO, SqlCommand cmdInsert)
+        {
+            String sqlQuery = @" INSERT INTO [enquiryInvoiceDocumentDetails]( " +
+            //"  [idInvoiceDocument]" +
+            " [invoiceId]" +
+            " ,[documentId]" +
+            " ,[createdBy]" +
+            " ,[updatedBy]" +
+            " ,[createdOn]" +
+            " ,[updatedOn]" +
+            " ,[isActive]" +
+            " )" +
+" VALUES (" +
+            //"  @IdInvoiceDocument " +
+            "  @InvoiceId " +
+            " ,@DocumentId " +
+            " ,@CreatedBy " +
+            " ,@UpdatedBy " +
+            " ,@CreatedOn " +
+            ", @UpdatedOn " +
+            " ,@IsActive " +
+            " )";
+            cmdInsert.CommandText = sqlQuery;
+            cmdInsert.CommandType = System.Data.CommandType.Text;
+
+            //cmdInsert.Parameters.Add("@IdInvoiceDocument", System.Data.SqlDbType.Int).Value = tempInvoiceDocumentDetailsTO.IdInvoiceDocument;
+            cmdInsert.Parameters.Add("@InvoiceId", System.Data.SqlDbType.Int).Value = tempInvoiceDocumentDetailsTO.InvoiceId;
+            cmdInsert.Parameters.Add("@DocumentId", System.Data.SqlDbType.Int).Value = tempInvoiceDocumentDetailsTO.DocumentId;
+            cmdInsert.Parameters.Add("@CreatedBy", System.Data.SqlDbType.Int).Value = tempInvoiceDocumentDetailsTO.CreatedBy;
+            cmdInsert.Parameters.Add("@UpdatedBy", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tempInvoiceDocumentDetailsTO.UpdatedBy);
+            cmdInsert.Parameters.Add("@CreatedOn", System.Data.SqlDbType.DateTime).Value = tempInvoiceDocumentDetailsTO.CreatedOn;
+            cmdInsert.Parameters.Add("@UpdatedOn", System.Data.SqlDbType.DateTime).Value = Constants.GetSqlDataValueNullForBaseValue(tempInvoiceDocumentDetailsTO.UpdatedOn);
+            cmdInsert.Parameters.Add("@IsActive", System.Data.SqlDbType.Int).Value = tempInvoiceDocumentDetailsTO.IsActive;
+
+            if (cmdInsert.ExecuteNonQuery() == 1)
+            {
+                cmdInsert.CommandText = Constants.IdentityColumnQuery;
+                tempInvoiceDocumentDetailsTO.IdInvoiceDocument = Convert.ToInt32(cmdInsert.ExecuteScalar());
+                return 1;
+            }
+            return 0;
         }
 
         #endregion
@@ -2235,7 +3261,7 @@ namespace ODLMWebAPI.BL
 
                     Int32 invoiceId = 0;
                     TblInvoiceTO TblInvoiceTO = _iTblInvoiceDAO.SelectTblInvoice(Convert.ToString(loadingSlipTO.IdLoadingSlip), conn, tran);
-                    if(TblInvoiceTO == null)
+                    if(TblInvoiceTO != null)
                     {
                         invoiceId = TblInvoiceTO.IdInvoice;
                     }

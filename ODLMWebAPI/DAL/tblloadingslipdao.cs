@@ -14,9 +14,17 @@ namespace ODLMWebAPI.DAL
     public class TblLoadingSlipDAO : ITblLoadingSlipDAO
     {
         private readonly IConnectionString _iConnectionString;
-        public TblLoadingSlipDAO(IConnectionString iConnectionString)
+        private readonly ITblLoadingSlipDtlDAO tblLoadingSlipDtlDAO;
+        private readonly ITblLoadingSlipExtDAO tblLoadingSlipExtDAO ;
+        private readonly ITblLoadingSlipAddressDAO tblLoadingSlipAddressDAO;
+
+        public TblLoadingSlipDAO(IConnectionString iConnectionString, ITblLoadingSlipDtlDAO itblLoadingSlipDtlDAO, ITblLoadingSlipExtDAO itblLoadingSlipExtDAO
+            , ITblLoadingSlipAddressDAO itblLoadingSlipAddressDAO)
         {
             _iConnectionString = iConnectionString;
+            tblLoadingSlipDtlDAO = itblLoadingSlipDtlDAO;
+            tblLoadingSlipAddressDAO = itblLoadingSlipAddressDAO;
+            tblLoadingSlipExtDAO = itblLoadingSlipExtDAO;
         }
         #region Methods
         public String SqlSelectQuery()
@@ -157,7 +165,28 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+        public    List<TblLoadingSlipTO> SelectAllLoadingSlipListWithDetails(Int32 loadingId, SqlConnection conn, SqlTransaction tran)
+        {
+            try
+            {
+                List<TblLoadingSlipTO> list = SelectAllTblLoadingSlip(loadingId, conn, tran);
+                for (int i = 0; i < list.Count; i++)
+                {
+                    list[i].TblLoadingSlipDtlTO = tblLoadingSlipDtlDAO.SelectLoadingSlipDtlTO(list[i].IdLoadingSlip, conn, tran);
+                    list[i].LoadingSlipExtTOList = tblLoadingSlipExtDAO.SelectAllTblLoadingSlipExt(list[i].IdLoadingSlip, conn, tran);
+                    list[i].DeliveryAddressTOList =tblLoadingSlipAddressDAO.SelectAllTblLoadingSlipAddress(list[i].IdLoadingSlip, conn, tran);
+                }
 
+                //if (list != null && list.Count > 0)
+                //    list = list.Sort (o => o.LoadingSlipExtTOList[0].LoadingLayerid).ToList();
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
         public List<TblLoadingSlipTO> SelectAllTblLoadingSlip(int loadingId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);

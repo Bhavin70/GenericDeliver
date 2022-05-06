@@ -11164,7 +11164,11 @@ namespace ODLMWebAPI.BL
                     nSrNo++;
                     itemListTobeReplaced = itemListTobeReplaced.Replace("@srNo", nSrNo.ToString());
                     itemListTobeReplaced = itemListTobeReplaced.Replace("@prodItemDesc", padRight(InvoiceItemDetailsTO.ProdItemDesc, char.Parse(" ")));
-                    itemListTobeReplaced = itemListTobeReplaced.Replace("@isServc", "N");
+                    if(tblInvoiceTO .InvoiceTypeId == (int)Constants .InvoiceTypeE .SERVICE_INVOICE)
+                        itemListTobeReplaced = itemListTobeReplaced.Replace("@isServc", "Y");
+                    else
+                        itemListTobeReplaced = itemListTobeReplaced.Replace("@isServc", "N");
+
                     itemListTobeReplaced = itemListTobeReplaced.Replace("@gstinCodeNo", padRight(InvoiceItemDetailsTO.GstinCodeNo, char.Parse("-"), 4));
                     itemListTobeReplaced = itemListTobeReplaced.Replace("@invoiceQty", string.Format("{0:0.000}", InvoiceItemDetailsTO.InvoiceQty));
                     itemListTobeReplaced = itemListTobeReplaced.Replace("@unit", unit);

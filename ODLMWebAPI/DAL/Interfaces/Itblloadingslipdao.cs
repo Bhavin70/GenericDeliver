@@ -10,6 +10,7 @@ namespace ODLMWebAPI.DAL.Interfaces
     public interface ITblLoadingSlipDAO
     {
         String SqlSelectQuery();
+        List<TblLoadingSlipTO> SelectAllLoadingSlipListWithDetails(Int32 loadingId, SqlConnection conn, SqlTransaction tran);
         List<TblLoadingSlipTO> SelectAllTblLoadingSlip();
         List<TblLoadingSlipTO> SelectAllTblLoadingSlip(int loadingId);
         List<TblLoadingSlipTO> SelectAllTblLoadingSlip(int loadingId, SqlConnection conn, SqlTransaction tran);

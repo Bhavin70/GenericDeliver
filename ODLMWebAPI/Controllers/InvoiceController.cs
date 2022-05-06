@@ -1170,7 +1170,7 @@ namespace ODLMWebAPI.Controllers
             }
             try
             {
-                if (tblConfigParamsTO.ConfigParamVal == Constants.DataExtractionTypeE.IsRegular.ToString())
+                if (tblConfigParamsTO.ConfigParamVal == Constants.DataExtractionTypeE.IsRegular.ToString ())
                 {
                     return _iTblLoadingBL.ExtractEnquiryData();
                 }
