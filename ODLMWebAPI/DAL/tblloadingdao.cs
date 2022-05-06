@@ -2316,6 +2316,7 @@ namespace ODLMWebAPI.DAL
                 //return ExecuteUpdationCommand(tblLoadingTO, cmdUpdate);
                 cmdUpdate.CommandText = "UPDATE tempLoading SET " +
                                         "[statusid]="+ (int)Constants.TranStatusE.LOADING_GATE_IN +
+                                        ",[statusReason]='"+ "Vehicle Entered In The Premises" + "'"+
                                         " WHERE [idLoading] = @IdLoading ";
                 cmdUpdate.CommandType = System.Data.CommandType.Text;
                 cmdUpdate.Parameters.Add("@IdLoading", System.Data.SqlDbType.Int).Value = loadingId; 

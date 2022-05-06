@@ -1631,11 +1631,10 @@ namespace ODLMWebAPI.DAL
 
                 String sqlQuery = @" UPDATE [tempLoadingSlip] SET " +
                             "  [statusId] =" + (int)Constants.TranStatusE.LOADING_GATE_IN +
+                            " ,[statusReason]='" + "Vehicle Entered In The Premises" + "'" +
                             " ,[statusDate]= @StatusDate" +
                             " ,[vehicleNo]= @VehicleNo" +
                             " ,[loadingDatetime]= @LoadingDatetime" +
-                            " ,[statusReason]= @StatusReason" +
-                            " ,[statusReasonId]= @statusReasonId" +
                             " WHERE [loadingId]= @LoadingId ";
 
                 cmdUpdate.CommandText = sqlQuery;
@@ -1643,9 +1642,7 @@ namespace ODLMWebAPI.DAL
                  
                 cmdUpdate.Parameters.Add("@StatusDate", System.Data.SqlDbType.DateTime).Value = tblLoadingSlipTO.StatusDate;
                 cmdUpdate.Parameters.Add("@LoadingDatetime", System.Data.SqlDbType.DateTime).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.LoadingDatetime);
-                cmdUpdate.Parameters.Add("@StatusReason", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.StatusReason);
                 cmdUpdate.Parameters.Add("@LoadingId", System.Data.SqlDbType.Int).Value = tblLoadingSlipTO.LoadingId;
-                cmdUpdate.Parameters.Add("@statusReasonId", System.Data.SqlDbType.Int).Value = tblLoadingSlipTO.StatusReasonId;
                 cmdUpdate.Parameters.Add("@VehicleNo", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.VehicleNo);
                 return cmdUpdate.ExecuteNonQuery();
             }

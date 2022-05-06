@@ -1613,14 +1613,15 @@ namespace ODLMWebAPI.Controllers
 
             }
         }
-        [Route("ReverseWeighingDtl")]
+        [Route("ReverseWeighingDtlData")]
         [HttpPost]
-        public ResultMessage ReverseWeighingDtlData(int InvoiceId)
+        public ResultMessage ReverseWeighingDtlData([FromBody] JObject data)
         {
             ResultMessage resultMessage = new ResultMessage();
+            var invoiceId = data["invoiceId"].ToString();
             try
             {
-                return _iTblInvoiceBL.ReverseWeighingDtlData(InvoiceId); 
+                return _iTblInvoiceBL.ReverseWeighingDtlData(Convert.ToInt32(invoiceId)); 
             }
             catch (Exception ex)
             {
