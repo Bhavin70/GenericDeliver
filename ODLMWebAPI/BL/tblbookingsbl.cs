@@ -4279,14 +4279,14 @@ namespace ODLMWebAPI.BL
                                     smsTO.SmsTxt = SMSContent + " Your Ref No : " + tblBookingsTO.BookingDisplayNo + " (Other)";
                             }
                             //Reshma Added
-                            //if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
-                            //{
-                            //    Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
-                            //    if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
-                            //    {
-                            //        smsTO.SmsTxt = tblAlertInstanceTO.AlertComment;
-                            //    }
-                            //}
+                            if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
+                            {
+                                Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
+                                if (IS_SEND_CUSTOM_NOTIFICATIONS == 1 && templist.Count > 0)
+                                {
+                                    smsTO.SmsTxt = tblAlertInstanceTO.AlertComment;
+                                }
+                            }
                             tblAlertInstanceTO.SmsTOList.Add(smsTO);
                         }
 

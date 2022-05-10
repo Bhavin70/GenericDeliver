@@ -2262,7 +2262,14 @@ namespace ODLMWebAPI.BL
             if (cnfNameInNarration == 1)
                 tblInvoiceTO.Narration = loadingTO.CnfOrgName;
             else
-                tblInvoiceTO.Narration = String.Empty;
+            {
+               // tblInvoiceTO.Narration = String.Empty;Reshma Comment
+                TblLoadingSlipTO tblLoadingSlipTO = _iTblLoadingSlipDAO.SelectTblLoadingSlip(loadingSlipTo.IdLoadingSlip, conn, tran);  
+                if (tblLoadingSlipTO != null)
+                {
+                    tblInvoiceTO.Narration = tblLoadingSlipTO.Comment;
+                }
+            }
 
 
             //tblInvoiceTO.InvFromOrgId = internalOrgId; //No need to aasign from loading Only use for BMM
