@@ -10874,6 +10874,23 @@ namespace ODLMWebAPI.BL {
                             bookingConn.Open ();
                             bookingTran = bookingConn.BeginTransaction ();
                         }
+                        if (configParamsTO.ConfigParamVal == "1")
+                        {
+                            if (enquiryConn.State == ConnectionState.Closed)
+                            {
+                                try
+                                {
+                                    enquiryConn.Open();
+                                    enquiryTran = enquiryConn.BeginTransaction();
+                                }
+                                catch (Exception ex)
+                                {
+                                    resultMessage.MessageType = ResultMessageE.Error;
+                                    resultMessage.DefaultBehaviour(ex.Message);
+                                    return resultMessage;
+                                }
+                            }
+                        }
                         loadingIdList.Add(tempLoadingTO.IdLoading);//Reshma Added
                         loadingCount++;
                         totalLoading++;
@@ -11628,6 +11645,14 @@ namespace ODLMWebAPI.BL {
                     {
                         IS_REQUIRE_DIFFERENT_DT_FOR_6MM_MATERIAL = Convert.ToInt32(ConfigParamsTO.ConfigParamVal);
                     }
+                    //Reshma Added For Tptal Column
+                    int SHOW_LOADING_SLIP_TOTAL_VALUE = 0;
+                    TblConfigParamsTO ConfigParamsTOTemp = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.SHOW_LOADING_SLIP_TOTAL_VALUE) ;
+                    if (ConfigParamsTOTemp != null)
+                    {
+                        SHOW_LOADING_SLIP_TOTAL_VALUE = Convert.ToInt32(ConfigParamsTOTemp.ConfigParamVal);
+                        ////return resultMsg;
+                    }
                     DataSet printDataSet = new DataSet();
 
                     //headerDT
@@ -11949,11 +11974,14 @@ namespace ODLMWebAPI.BL {
                                 }
                                 
                             }
-                            loadingItemDT.Rows.Add();
-                            loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["LoadingQty"] = totalLoadingQty;
-                            loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["Bundles"] = totalBundleQty;
-                            loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["ProdSpecDesc"] = "Total";
-                            loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["LoadingSlipId"] = loadindSlipId;
+                            if (SHOW_LOADING_SLIP_TOTAL_VALUE == 1)
+                            {
+                                loadingItemDT.Rows.Add();
+                                loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["LoadingQty"] = totalLoadingQty;
+                                loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["Bundles"] = totalBundleQty;
+                                loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["ProdSpecDesc"] = "Total";
+                                loadingItemDT.Rows[loadingItemDT.Rows.Count - 1]["LoadingSlipId"] = loadindSlipId;
+                            }
 
                         }
                     }
