@@ -508,6 +508,7 @@ namespace ODLMWebAPI.StaticStuff
         //public static string EncryptDescryptKey = "MAKV2SPBNI99212";
         public static string AzureSourceContainerName = "simplideliver";
         //public static string AzureSourceContainerName = "metarolldataextract";
+       // public static string AzureSourceContainerName = "kalikadataextract";
         
         //public static string AzureSourceContainerName = "srjdocuments";
         public static string AzureTargetContainerName = "srjnewdocuments";
