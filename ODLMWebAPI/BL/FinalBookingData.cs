@@ -3305,7 +3305,7 @@ namespace ODLMWebAPI.BL
                     }
 
                     //[23-12-2020]:Dhananjay added to delete tempEInvoiceApiResponse.
-                    result = DeleteTempData(DelTranTablesE.tempEInvoiceApiResponse.ToString(), loadingSlipTO.IdLoadingSlip, conn, tran);
+                    result = DeleteTempData(DelTranTablesE.tempEInvoiceApiResponse.ToString(), invoiceId, conn, tran);
                     if (result < 0)
                     {
                         resultMessage.DefaultBehaviour("Error while Deleting TempEInvoiceApiResponse");
@@ -3836,7 +3836,7 @@ namespace ODLMWebAPI.BL
 
                     //[23-12-2020]:Dhananjay added to delete tempEInvoiceApiResponse.
                     case DelTranTablesE.tempEInvoiceApiResponse:
-                        sqlQuery = " DELETE FROM tempEInvoiceApiResponse WHERE invoiceId IN (SELECT idInvoice FROM tempInvoice WHERE loadingSlipId = " + delId + " ) ";
+                        sqlQuery = " DELETE FROM tempEInvoiceApiResponse WHERE invoiceId IN ( " + strWhereCondtion + " ) ";
                         break;
                     case DelTranTablesE.tempInvoiceHistory:
                         //sqlQuery = " DELETE FROM tempInvoiceHistory WHERE invoiceId IN (SELECT idInvoice FROM tempInvoice WHERE loadingSlipId = " + delId + " ) ";

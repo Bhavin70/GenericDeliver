@@ -10874,6 +10874,23 @@ namespace ODLMWebAPI.BL {
                             bookingConn.Open ();
                             bookingTran = bookingConn.BeginTransaction ();
                         }
+                        if (configParamsTO.ConfigParamVal == "1")
+                        {
+                            if (enquiryConn.State == ConnectionState.Closed)
+                            {
+                                try
+                                {
+                                    enquiryConn.Open();
+                                    enquiryTran = enquiryConn.BeginTransaction();
+                                }
+                                catch (Exception ex)
+                                {
+                                    resultMessage.MessageType = ResultMessageE.Error;
+                                    resultMessage.DefaultBehaviour(ex.Message);
+                                    return resultMessage;
+                                }
+                            }
+                        }
                         loadingIdList.Add(tempLoadingTO.IdLoading);//Reshma Added
                         loadingCount++;
                         totalLoading++;
