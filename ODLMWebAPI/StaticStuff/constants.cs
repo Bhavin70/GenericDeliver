@@ -600,6 +600,8 @@ namespace ODLMWebAPI.StaticStuff
 
         public static string CP_INTERNALTXFER_INVOICE_ORG_ID = "INTERNALTXFER_INVOICE_ORG_ID";
         public static string CP_ADD_CNF_AGENT_IN_INVOICE = "ADD_CNF_AGENT_IN_INVOICE";
+        public static string SHOW_LOADING_SLIP_TOTAL_VALUE = "SHOW_LOADING_SLIP_TOTAL_VALUE";
+
 
         public static string CP_EVERY_AUTO_INVOICE_WITH_EDIT = "EVERY_AUTO_INVOICE_WITH_EDIT";
 
