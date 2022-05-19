@@ -851,6 +851,7 @@ namespace ODLMWebAPI.StaticStuff
         public static string CP_DELIVER_ORDER_CONFIRMATION_SMS_STRING = "CP_DELIVER_ORDER_CONFIRMATION_SMS_STRING";
         public static string CP_DELIVER_VEHICLE_GATE_IN_SMS_STRING = "CP_DELIVER_VEHICLE_GATE_IN_SMS_STRING";
         public static string CP_DELIVER_VEHICLE_OUT = "CP_DELIVER_VEHICLE_OUT";
+        public static string IS_ROUND_OFF_CD_ON_Rate_Calculation_Details = "IS_ROUND_OFF_CD_ON_Rate_Calculation_Details";
 
 
         #region Common functions
