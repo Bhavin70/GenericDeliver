@@ -9761,7 +9761,7 @@ namespace ODLMWebAPI.BL
 
         #endregion
         #region DeleteInvoice and Reverse Weighing Dtl
-        public ResultMessage  ReverseWeighingDtlData(int invoiceId)
+        public ResultMessage  ReverseWeighingDtlData(int invoiceId,int userId)
         { 
             ResultMessage resultMessage = new ResultMessage();
             int result = 0;
@@ -9776,6 +9776,15 @@ namespace ODLMWebAPI.BL
                 List<TempLoadingSlipInvoiceTO> TempLoadingSlipInvoiceTOList = _iTempLoadingSlipInvoiceDAO.SelectTempLoadingSlipInvoiceTOByInvoiceId(invoiceId);
                 if (TempLoadingSlipInvoiceTOList != null && TempLoadingSlipInvoiceTOList.Count > 0)
                 {
+                    //Reshma Added
+                    TempLoadingSlipInvoiceTOList[0].UpdatedBy = userId;
+                    TempLoadingSlipInvoiceTOList[0].UpdatedOn = _iCommon.ServerDateTime;
+                    int res = _iTempLoadingSlipInvoiceDAO.InsertTempLoadingSlipInvoiceHistory (TempLoadingSlipInvoiceTOList[0]);
+                    if (res != 1)
+                    {
+                        resultMessage.DefaultBehaviour("Error while InsertTempLoadingSlipInvoiceHistory");
+                        return resultMessage;
+                    }
                     List<TempLoadingSlipInvoiceTO> distinctLoadingSlipIdList = TempLoadingSlipInvoiceTOList.GroupBy(g => g.LoadingSlipId).FirstOrDefault().ToList ();
                     if (distinctLoadingSlipIdList != null && distinctLoadingSlipIdList.Count >0)
                     {

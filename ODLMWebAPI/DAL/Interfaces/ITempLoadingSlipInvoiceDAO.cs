@@ -20,6 +20,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TempLoadingSlipInvoiceTO> SelectTempLoadingSlipInvoiceTOListByLoadingSlip(int loadingSlipId, SqlConnection conn, SqlTransaction tran);
         TempLoadingSlipInvoiceTO SelectTempLoadingSlipInvoiceTOList(int loadingSlipId, int invoiceId, SqlConnection conn, SqlTransaction tran);
         int InsertTempLoadingSlipInvoice(TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO);
+        int InsertTempLoadingSlipInvoiceHistory(TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO);
         int InsertTempLoadingSlipInvoice(TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO, SqlConnection conn, SqlTransaction tran);
         int ExecuteInsertionCommand(TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO, SqlCommand cmdInsert);
         int UpdateTempLoadingSlipInvoice(TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO);

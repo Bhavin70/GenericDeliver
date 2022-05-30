@@ -371,8 +371,67 @@ namespace ODLMWebAPI.DAL
             }
             return 0;
         }
+
+        public int InsertTempLoadingSlipInvoiceHistory(TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdInsert = new SqlCommand();
+            try
+            {
+                conn.Open();
+                cmdInsert.Connection = conn;
+                return ExecuteInsertionCommandHistory(tempLoadingSlipInvoiceTO, cmdInsert);
+            }
+            catch (Exception ex)
+            {
+
+
+                return 0;
+            }
+            finally
+            {
+                conn.Close();
+                cmdInsert.Dispose();
+            }
+        }
+        int ExecuteInsertionCommandHistory(TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO, SqlCommand cmdInsert)
+        {
+            String sqlQuery = @" INSERT INTO [tempLoadingSlipInvoice_history]( " +
+            "  [loadingSlipId]" +
+            " ,[invoiceId]" +
+            " ,[createdBy]" +
+            " ,[updatedBy]" +
+            " ,[createdOn]" +
+            " ,[updatedOn]" +
+            " )" +
+" VALUES (" +
+            "  @LoadingSlipId " +
+            " ,@InvoiceId " +
+            " ,@CreatedBy " +
+            " ,@UpdatedBy " +
+            " ,@CreatedOn " +
+            " ,@UpdatedOn " +
+            " )";
+            cmdInsert.CommandText = sqlQuery;
+            cmdInsert.CommandType = System.Data.CommandType.Text;
+
+            cmdInsert.Parameters.Add("@LoadingSlipId", System.Data.SqlDbType.Int).Value = tempLoadingSlipInvoiceTO.LoadingSlipId;
+            cmdInsert.Parameters.Add("@InvoiceId", System.Data.SqlDbType.Int).Value = tempLoadingSlipInvoiceTO.InvoiceId;
+            cmdInsert.Parameters.Add("@CreatedBy", System.Data.SqlDbType.Int).Value = tempLoadingSlipInvoiceTO.CreatedBy;
+            cmdInsert.Parameters.Add("@UpdatedBy", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tempLoadingSlipInvoiceTO.UpdatedBy);
+            cmdInsert.Parameters.Add("@CreatedOn", System.Data.SqlDbType.DateTime).Value = tempLoadingSlipInvoiceTO.CreatedOn;
+            cmdInsert.Parameters.Add("@UpdatedOn", System.Data.SqlDbType.DateTime).Value = Constants.GetSqlDataValueNullForBaseValue(tempLoadingSlipInvoiceTO.UpdatedOn);
+            if (cmdInsert.ExecuteNonQuery() == 1)
+            {
+                cmdInsert.CommandText = Constants.IdentityColumnQuery;
+                tempLoadingSlipInvoiceTO.IdLoadingSlipInvoice = Convert.ToInt32(cmdInsert.ExecuteScalar());
+                return 1;
+            }
+            return 0;
+        }
         #endregion
-        
+
         #region Updation
         public int UpdateTempLoadingSlipInvoice(TempLoadingSlipInvoiceTO tempLoadingSlipInvoiceTO)
         {

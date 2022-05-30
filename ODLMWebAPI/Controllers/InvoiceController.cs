@@ -1619,9 +1619,11 @@ namespace ODLMWebAPI.Controllers
         {
             ResultMessage resultMessage = new ResultMessage();
             var invoiceId = data["invoiceId"].ToString();
+            var userId = data["userId"].ToString();
+
             try
             {
-                return _iTblInvoiceBL.ReverseWeighingDtlData(Convert.ToInt32(invoiceId)); 
+                return _iTblInvoiceBL.ReverseWeighingDtlData(Convert.ToInt32(invoiceId), Convert.ToInt32(userId)); 
             }
             catch (Exception ex)
             {
