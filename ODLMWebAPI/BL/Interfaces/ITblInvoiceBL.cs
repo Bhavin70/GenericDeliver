@@ -122,5 +122,6 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage PostUpdateInvoiceStatus(TblInvoiceTO tblInvoiceTO);
 
         ResultMessage ReverseWeighingDtlData(int InvoiceId,int userId);
+        ResultMessage DeleteWeighingDtlData(int loadingslipid);
     }
 }

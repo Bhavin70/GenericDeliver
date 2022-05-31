@@ -1632,6 +1632,25 @@ namespace ODLMWebAPI.Controllers
             }
         }
 
+        [Route("DeleteWeighingDtlData")]
+        [HttpPost]
+        public ResultMessage DeleteWeighingDtlData(int loadingslipid)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+
+            //var loadingslipid = data["loadingslipid"].ToString();
+
+            try
+            {
+                return _iTblInvoiceBL.DeleteWeighingDtlData(Convert.ToInt32(loadingslipid));
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "ReverseWeighingDtlData");
+                return resultMessage;
+            }
+        }
+
 
 
     }
