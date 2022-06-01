@@ -1634,11 +1634,11 @@ namespace ODLMWebAPI.Controllers
 
         [Route("DeleteWeighingDtlData")]
         [HttpPost]
-        public ResultMessage DeleteWeighingDtlData(int loadingslipid)
+        public ResultMessage DeleteWeighingDtlData([FromBody] JObject data)
         {
             ResultMessage resultMessage = new ResultMessage();
 
-            //var loadingslipid = data["loadingslipid"].ToString();
+            var loadingslipid = data["loadingslipid"].ToString();
 
             try
             {
