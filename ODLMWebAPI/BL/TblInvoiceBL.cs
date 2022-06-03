@@ -4994,6 +4994,8 @@ namespace ODLMWebAPI.BL
                 }
 
                 qrCodeDT.Columns.Add("QRCode", typeof(System.Byte[]));
+                qrCodeDT.Columns.Add("QRCodeForPrint", typeof(System.Byte[]));
+
                 qrCodeDT.Rows.Add();
 
                 response = _iTblInvoiceDAO.SelectresponseForPhotoInReport(invoiceId, apiId);
@@ -5018,8 +5020,32 @@ namespace ODLMWebAPI.BL
                 }
 
                 if (PhotoCodeInBytes != null)
-                    qrCodeDT.Rows[0]["QRCode"] = PhotoCodeInBytes;                              
-                
+                    qrCodeDT.Rows[0]["QRCode"] = PhotoCodeInBytes;
+
+                //Reshma Added For QR Code Image
+                String QrCodeImageFilePath = "";
+                TblConfigParamsTO tblconfigParamForQRCodeImage = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.Invoice_payment_QR_CODE_Image_file_Path);
+                if (tblconfigParamForQRCodeImage != null)
+                {
+                    if (!string .IsNullOrEmpty ( tblconfigParamForQRCodeImage.ConfigParamVal))
+                    {
+                        QrCodeImageFilePath = tblconfigParamForQRCodeImage.ConfigParamVal;
+                    }
+                }
+                byte[] imageByteArray = null;
+                if (!string.IsNullOrEmpty(QrCodeImageFilePath))
+                {
+                    //byte[] imageByteArray = null;
+                    FileStream fileStream = new FileStream(QrCodeImageFilePath, FileMode.Open, FileAccess.Read);
+                    using (BinaryReader reader = new BinaryReader(fileStream))
+                    {
+                        imageByteArray = new byte[reader.BaseStream.Length];
+                        for (int i = 0; i < reader.BaseStream.Length; i++)
+                            imageByteArray[i] = reader.ReadByte();
+                    }
+                    if(imageByteArray !=null)
+                        qrCodeDT.Rows[0]["QRCodeForPrint"] = imageByteArray;
+                }
                 //HeaderDT 
                 //headerDT.Columns.Add("orgFirmName");
                 invoiceDT.Columns.Add("orgVillageNm");
