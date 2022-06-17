@@ -28,6 +28,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int InsertTblLoadingSlipExt(TblLoadingSlipExtTO tblLoadingSlipExtTO, SqlConnection conn, SqlTransaction tran);
         int ExecuteInsertionCommand(TblLoadingSlipExtTO tblLoadingSlipExtTO, SqlCommand cmdInsert);
         int UpdateTblLoadingSlipExt(TblLoadingSlipExtTO tblLoadingSlipExtTO);
+        int UpdateTblLoadingSlipExtForWeghing(int idLoadingSlip, SqlConnection conn, SqlTransaction tran);
         int UpdateTblLoadingSlipExt(TblLoadingSlipExtTO tblLoadingSlipExtTO, SqlConnection conn, SqlTransaction tran);
         int ExecuteUpdationCommand(TblLoadingSlipExtTO tblLoadingSlipExtTO, SqlCommand cmdUpdate);
         int DeleteTblLoadingSlipExt(Int32 idLoadingSlipExt);

@@ -104,7 +104,22 @@ namespace ODLMWebAPI.Controllers
                 return null;
             }
         }
-
+        
+        [Route("CheckIotConnectivity")]
+        [HttpGet]
+        public ResultMessage CheckIotConnectivity()
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                return _iTblLoadingBL.CheckIotConnectivity();
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultBehaviour();
+                return resultMessage;
+            }
+        }
 
         // PUT api/values/5
         [HttpPut("{id}")]

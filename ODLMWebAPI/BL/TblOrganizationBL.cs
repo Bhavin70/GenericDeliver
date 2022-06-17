@@ -236,7 +236,7 @@ namespace ODLMWebAPI.BL
             return _iTblOrganizationDAO.SelectAllSpecialCnfListForDropDown(userRoleTO);
         }
 
-        public List<DropDownTO> SelectDealerListForDropDown(Int32 cnfId, List<TblUserRoleTO> tblUserRoleTOList)
+        public List<DropDownTO> SelectDealerListForDropDown(Int32 cnfId, List<TblUserRoleTO> tblUserRoleTOList, Int32 consumerType = 0)
         {
             TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
             if (tblConfigParamsTO != null)
@@ -251,11 +251,56 @@ namespace ODLMWebAPI.BL
             {
                 tblUserRoleTO = _iTblUserRoleBL.SelectUserRoleTOAccToPriority(tblUserRoleTOList);
             }
-            return _iTblOrganizationDAO.SelectDealerListForDropDown(cnfId, tblUserRoleTO);
+
+
+            //Gokul [20-03-21] Allow to show all dealer for a perticular CNF
+            //TblConfigParamsTO tblConfigParamsTOForAllowAllDealers = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.ALLOW_SHOW_ALL_DEALER);
+            //if (tblConfigParamsTOForAllowAllDealers != null)
+            //{
+            //    string cnfIdList = tblConfigParamsTOForAllowAllDealers.ConfigParamVal;
+            //    if (cnfIdList.Length>0)
+            //    {
+            //        string[] cnfArray = cnfIdList.Split(",");
+            //        foreach (string tempCnfId in cnfArray)
+            //        {
+            //            if (Convert.ToInt16(tempCnfId) == cnfId)
+            //            {
+            //                cnfId = 0;
+            //                break;
+            //            }
+            //        }
+            //    }
+            //}
+
+            //Gokul [20-03-21] Allow to show all dealer for a perticular CNF
+            TblConfigParamsTO tblConfigParamsTOForAllowAllDealers = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER);
+            if (tblConfigParamsTOForAllowAllDealers != null)
+            {
+                Boolean isAllowToShowAllDealers;
+                isAllowToShowAllDealers = Constants.IsStringContainInfoSeperatedByComma(tblConfigParamsTOForAllowAllDealers.ConfigParamVal, cnfId.ToString());
+                if (isAllowToShowAllDealers)
+                {
+                    cnfId = 0;
+                }
+            }
+            return _iTblOrganizationDAO.SelectDealerListForDropDown(cnfId, tblUserRoleTO, consumerType);
         }
 
         public List<DropDownTO> GetDealerForLoadingDropDownList(Int32 cnfId)
         {
+            //Gokul [20-03-21] Allow to show all dealer for a perticular CNF
+            TblConfigParamsTO tblConfigParamsTOForAllowAllDealers = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER);
+            if (tblConfigParamsTOForAllowAllDealers != null)
+            {
+                Boolean isAllowToShowAllDealers;
+                isAllowToShowAllDealers = Constants.IsStringContainInfoSeperatedByComma(tblConfigParamsTOForAllowAllDealers.ConfigParamVal, cnfId.ToString());
+                if (isAllowToShowAllDealers)
+                {
+                    cnfId = 0;
+                }
+            }
+            
+
             return _iTblOrganizationDAO.GetDealerForLoadingDropDownList(cnfId);
         }
 

@@ -14,15 +14,23 @@ namespace ODLMWebAPI.DAL
     public class TblLoadingSlipDAO : ITblLoadingSlipDAO
     {
         private readonly IConnectionString _iConnectionString;
-        public TblLoadingSlipDAO(IConnectionString iConnectionString)
+        private readonly ITblLoadingSlipDtlDAO tblLoadingSlipDtlDAO;
+        private readonly ITblLoadingSlipExtDAO tblLoadingSlipExtDAO ;
+        private readonly ITblLoadingSlipAddressDAO tblLoadingSlipAddressDAO;
+
+        public TblLoadingSlipDAO(IConnectionString iConnectionString, ITblLoadingSlipDtlDAO itblLoadingSlipDtlDAO, ITblLoadingSlipExtDAO itblLoadingSlipExtDAO
+            , ITblLoadingSlipAddressDAO itblLoadingSlipAddressDAO)
         {
             _iConnectionString = iConnectionString;
+            tblLoadingSlipDtlDAO = itblLoadingSlipDtlDAO;
+            tblLoadingSlipAddressDAO = itblLoadingSlipAddressDAO;
+            tblLoadingSlipExtDAO = itblLoadingSlipExtDAO;
         }
         #region Methods
         public String SqlSelectQuery()
         {
             String sqlSelectQry = " SELECT tempLoadingSlip.* ,tempLoadSlipdtl.loadingQty, " +
-                                  " cnfOrg.firmName as cnfOrgName ,dimStat.statusName ,tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
+                                  " cnfOrg.firmName as cnfOrgName ,dimStat.statusName ,tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tempLoadingSlip.comment as comments  ,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
                                   " ,loading.modbusRefId,loading.gateId,loading.isDBup,gate.portNumber,gate.IoTUrl,gate.machineIP "+
                                   " FROM tempLoadingSlip" +
                                   " LEFT JOIN tblOrganization " +
@@ -42,7 +50,7 @@ namespace ODLMWebAPI.DAL
             " UNION ALL " +
 
                                   " SELECT finalLoadingSlip.* , tempLoadSlipdtl.loadingQty, " +
-                                  " cnfOrg.firmName as cnfOrgName, dimStat.statusName, tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
+                                  " cnfOrg.firmName as cnfOrgName, dimStat.statusName, tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,finalLoadingSlip.comment as comments  ,tblOrganization.firmName+', '+ CASE WHEN cnfOrg.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL  THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerOrgName" +
                                   " , loading.modbusRefId,loading.gateId,loading.isDBup,gate.portNumber,gate.IoTUrl,gate.machineIP "+
                                   " FROM finalLoadingSlip " +
                                   " LEFT JOIN tblOrganization " +
@@ -157,7 +165,28 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+        public    List<TblLoadingSlipTO> SelectAllLoadingSlipListWithDetails(Int32 loadingId, SqlConnection conn, SqlTransaction tran)
+        {
+            try
+            {
+                List<TblLoadingSlipTO> list = SelectAllTblLoadingSlip(loadingId, conn, tran);
+                for (int i = 0; i < list.Count; i++)
+                {
+                    list[i].TblLoadingSlipDtlTO = tblLoadingSlipDtlDAO.SelectLoadingSlipDtlTO(list[i].IdLoadingSlip, conn, tran);
+                    list[i].LoadingSlipExtTOList = tblLoadingSlipExtDAO.SelectAllTblLoadingSlipExt(list[i].IdLoadingSlip, conn, tran);
+                    list[i].DeliveryAddressTOList =tblLoadingSlipAddressDAO.SelectAllTblLoadingSlipAddress(list[i].IdLoadingSlip, conn, tran);
+                }
 
+                //if (list != null && list.Count > 0)
+                //    list = list.Sort (o => o.LoadingSlipExtTOList[0].LoadingLayerid).ToList();
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
         public List<TblLoadingSlipTO> SelectAllTblLoadingSlip(int loadingId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -662,6 +691,8 @@ namespace ODLMWebAPI.DAL
                         tblLoadingSlipTONew.IsDBup = Convert.ToInt32(tblLoadingSlipTODT["isDBup"]);
                     if (tblLoadingSlipTODT["bookingDisplayNo"] != DBNull.Value)
                         tblLoadingSlipTONew.BookingDisplayNo = Convert.ToString(tblLoadingSlipTODT["bookingDisplayNo"]);
+                    if (tblLoadingSlipTODT["comments"] != DBNull.Value)
+                        tblLoadingSlipTONew.BookingComments = Convert.ToString(tblLoadingSlipTODT["comments"]);
                     tblLoadingSlipTOList.Add(tblLoadingSlipTONew);
                 }
             }
@@ -949,10 +980,19 @@ namespace ODLMWebAPI.DAL
             string whereSupCond = string.Empty;
             int isConfEn = 0;
             int userId = 0;
+
+            String bookingCreatedBy = "";
+
             if (tblUserRoleTO != null)
             {
                 isConfEn = tblUserRoleTO.EnableAreaAlloc;
                 userId = tblUserRoleTO.UserId;
+
+                if (tblUserRoleTO.RoleTypeId == Convert.ToInt32(Constants.SystemRoleTypeE.C_AND_F_AGENT))
+                {
+                    bookingCreatedBy = " OR sq1.bookingCreatedBy = " + userId;
+                }
+
             }
             try
             {
@@ -975,7 +1015,7 @@ namespace ODLMWebAPI.DAL
 
                 if (cnfId > 0)
                 {
-                    wherecnfIdTemp += " AND sq1.cnfOrgId = " + cnfId;
+                    wherecnfIdTemp += " AND (sq1.cnfOrgId = " + cnfId + bookingCreatedBy + ")";
                 //    wherecnfIdFinal += " AND finloadingSlip.cnfOrgId = " + cnfId;
                 }
 
@@ -1022,7 +1062,8 @@ namespace ODLMWebAPI.DAL
                                   " END END END END AS  dealerOrgName,transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName, tblLoadSlipdtl.bookingId " +
                                    " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
-                                   " , loading.modbusRefId, loading.gateId,loading.isDBup "+
+                                   " , loading.modbusRefId, loading.gateId,loading.isDBup,tblBookings.createdBy as bookingCreatedBy " +
+                                   " ,tblLoadingSlip.comment 'comments'" +//Reshma Added
                                   " FROM  tempLoadingSlip tblLoadingSlip " +
                                   " Left Join tempLoadingSlipDtl tblLoadSlipdtl ON tblLoadSlipdtl.loadingSlipId = tblLoadingSlip.idLoadingSlip " +
                                   " Left Join tblBookings tblBookings ON tblLoadSlipdtl.bookingId = tblBookings.idbooking " +
@@ -1047,7 +1088,8 @@ namespace ODLMWebAPI.DAL
                                   " transOrg.firmName as transporterOrgName ,dimStat.statusName ,ISNULL(person.firstName,'') + ' ' + ISNULL(person.lastName,'') AS superwisorName    " +
                                   " ,tblUser.userDisplayName, tblLoadSlipdtl.bookingId " +
                                   " , tblGate.portNumber, tblGate.IoTUrl, tblGate.machineIP " +
-                                   " , loading.modbusRefId, loading.gateId,loading.isDBup " +
+                                   " , loading.modbusRefId, loading.gateId,loading.isDBup,tblBookings.createdBy as bookingCreatedBy  " +
+                                   " ,tblLoadingSlip.comment 'comments'" +//Reshma Added
                                   " FROM finalLoadingSlip tblLoadingSlip  " +
                                   " Left Join finalLoadingSlipDtl tblLoadSlipdtl ON tblLoadSlipdtl.loadingSlipId = tblLoadingSlip.idLoadingSlip " +
                                   " Left Join tblBookings tblBookings ON tblLoadSlipdtl.bookingId = tblBookings.idbooking " +
@@ -1579,7 +1621,40 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public int UpdateTblLoadingSlipStatus(TblLoadingSlipTO tblLoadingSlipTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
 
+                String sqlQuery = @" UPDATE [tempLoadingSlip] SET " +
+                            "  [statusId] =" + (int)Constants.TranStatusE.LOADING_GATE_IN +
+                            " ,[statusReason]='" + "Vehicle Entered In The Premises" + "'" +
+                            " ,[statusDate]= @StatusDate" +
+                            " ,[vehicleNo]= @VehicleNo" +
+                            " ,[loadingDatetime]= @LoadingDatetime" +
+                            " WHERE [loadingId]= @LoadingId ";
+
+                cmdUpdate.CommandText = sqlQuery;
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+                 
+                cmdUpdate.Parameters.Add("@StatusDate", System.Data.SqlDbType.DateTime).Value = tblLoadingSlipTO.StatusDate;
+                cmdUpdate.Parameters.Add("@LoadingDatetime", System.Data.SqlDbType.DateTime).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.LoadingDatetime);
+                cmdUpdate.Parameters.Add("@LoadingId", System.Data.SqlDbType.Int).Value = tblLoadingSlipTO.LoadingId;
+                cmdUpdate.Parameters.Add("@VehicleNo", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.VehicleNo);
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
         #endregion
 
         #region Deletion

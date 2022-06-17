@@ -100,7 +100,7 @@ namespace ODLMWebAPI.BL
 
             //fetch all bookings against selected dates
             List<TblBookingsTO> tblBookingTOList = _iTblBookingsDAO.SelectAllBookingDateWise(fromDate, toDate);
-            if (reportType == 1)
+            if (reportType == 1 && tblBookingTOList!=null && tblBookingTOList.Count >0)
             {
                 tblBookingTOList = tblBookingTOList.Where(x => x.PendingQty > 0 && x.StatusId != (Int32)Constants.TranStatusE.BOOKING_DELETE).ToList();
             }
@@ -131,9 +131,14 @@ namespace ODLMWebAPI.BL
             {
                 Dictionary<int, double> loadingDictionary = null;
                 Dictionary<int, double> bookingDictionary = null;
+                Dictionary<int, double> globalLoadingDictionary = new Dictionary<int, double> ();
+                Dictionary<int, double> globalBookingDictionary = new Dictionary<int, double>();
                 for (int i = 0; i < tblBookingTOList.Count; i++)
                 {
+                    if(tblBookingTOList[i].IdBooking == 111891)
+                    {
 
+                    }
                     // fetch loading qty against each booking consumsion of qty 
                     //  tblLoadingTOList = TblLoadingBL.SelectAllTblLoadingByBookingId(tblBookingTOList[i].IdBooking);
                     List<TblLoadingSlipExtTO> loadingSlipExtList = _iTblLoadingSlipExtDAO.GetAllLoadingExtByBookingId(tblBookingTOList[i].IdBooking, configval);
@@ -146,16 +151,20 @@ namespace ODLMWebAPI.BL
                     }
                     tblBookingPendingRptTO.IdBooking = tblBookingTOList[i].IdBooking;
                     tblBookingPendingRptTO.BookingDisplayNo = tblBookingTOList[i].BookingDisplayNo;
+                    tblBookingPendingRptTO.BookingDateStr = tblBookingTOList[i].BookingDatetime.ToShortDateString();
                     tblBookingPendingRptTO.DealerId = tblBookingTOList[i].DealerOrgId;
                     tblBookingPendingRptTO.DealerName = tblBookingTOList[i].DealerName;
                     tblBookingPendingRptTO.TotalBookedQty = tblBookingTOList[i].BookingQty;
                     tblBookingPendingRptTO.PendingQty = tblBookingTOList[i].PendingQty;
                     tblBookingPendingRptTO.CnfName = tblBookingTOList[i].CnfName;
 
+                    //Deepali Added to get all layers qty.[16-06-2021]
+                    bookingDictionary = new Dictionary<int, double>();
+
                     foreach (var bookingSchedule in tblBookingTOList[i].BookingScheduleTOLst)
                     {
-
-                        bookingDictionary = new Dictionary<int, double>();
+                        //Deepali Commented to get all layers qty.[16-06-2021]
+                        //bookingDictionary = new Dictionary<int, double>();
                         foreach (var item in bookingSchedule.OrderDetailsLst)
                         {
                             if (!bookingDictionary.ContainsKey(item.MaterialId))
@@ -215,6 +224,21 @@ namespace ODLMWebAPI.BL
                                 bookedQty = Convert.ToDouble(bookingDictionary[eachMaterial.Value]);
                                 totalBookedQty += bookedQty;
                             }
+                            //Reshma Added
+                            if (!globalBookingDictionary.ContainsKey(eachMaterial.Value))
+                            {
+                                globalBookingDictionary.Add(eachMaterial.Value, bookedQty);
+                            }
+                            else
+                            {
+                                if (bookedQty > 0)
+                                {
+                                    double val = Convert.ToDouble(globalBookingDictionary[eachMaterial.Value]);
+                                    double bookingQtytemp = bookedQty;
+                                    bookingQtytemp += val;
+                                    globalBookingDictionary[eachMaterial.Value] = bookingQtytemp;
+                                }
+                            }
                         }
                         if (loadingDictionary != null)
                         {
@@ -222,6 +246,21 @@ namespace ODLMWebAPI.BL
                             {
                                 loadQty = Convert.ToDouble(loadingDictionary[eachMaterial.Value]);
                                 totalLoadQty += loadQty;
+                            }
+                            //Reshma Added
+                            if (!globalLoadingDictionary.ContainsKey(eachMaterial.Value))
+                            {
+                                globalLoadingDictionary.Add(eachMaterial.Value, loadQty);
+                            }
+                            else
+                            {
+                                if (loadQty > 0)
+                                {
+                                    double val = Convert.ToDouble(globalLoadingDictionary[eachMaterial.Value]);
+                                    double loadQtytemp = loadQty;
+                                    loadQtytemp += val;
+                                    globalLoadingDictionary[eachMaterial.Value] = loadQtytemp;
+                                }
                             }
                         }
 
@@ -235,7 +274,259 @@ namespace ODLMWebAPI.BL
                     tblBookingPendingRptTO.FinalDictionaryList.Add(finalBookingpendingQty);
                     tblBookingPendingRptTOList.Add(tblBookingPendingRptTO);
                 }
+            }
+            return tblBookingPendingRptTOList;
+            // return tblBookingTOList;
+        }
 
+        public List<TblBookingPendingRptTO> SelectBookingPendingOrderQtyRpt(DateTime fromDate, DateTime toDate, int reportType)
+        {
+
+            //fetch all bookings against selected dates
+            List<TblBookingsTO> tblBookingTOList = _iTblBookingsDAO.SelectAllBookingDateWise(fromDate, toDate);
+            if (reportType == 1 && tblBookingTOList != null && tblBookingTOList.Count > 0)
+            {
+                tblBookingTOList = tblBookingTOList.Where(x => x.PendingQty > 0 && x.StatusId != (Int32)Constants.TranStatusE.BOOKING_DELETE).ToList();
+            }
+
+            //// created object to get loading details against each booking
+            List<TblLoadingTO> tblLoadingTOList = new List<TblLoadingTO>();
+            List<DropDownTO> MaterialList = _iTblMaterialDAO.SelectAllMaterialForDropDown();
+            string configval = "";
+            string[] statusId = null;
+            int[] myInts = null;
+            TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CNF_BOOKING_REPORT_EXCLUDE_STATUSID);
+            if (tblConfigParamsTO != null)
+            {
+                configval = tblConfigParamsTO.ConfigParamVal;
+
+            }
+            if (!String.IsNullOrEmpty(configval))
+            {
+                statusId = configval.Split(',');
+                myInts = Array.ConvertAll(statusId, int.Parse);
+            }
+
+
+            // TblBookingsTO tblBookingsTO = new TblBookingsTO();
+
+            List<TblBookingPendingRptTO> tblBookingPendingRptTOList = new List<TblBookingPendingRptTO>();
+            if (tblBookingTOList != null && tblBookingTOList.Count > 0)
+            {
+                Dictionary<int, double> loadingDictionary = null;
+                Dictionary<int, double> bookingDictionary = null;
+                Dictionary<int, double> globalLoadingDictionary = new Dictionary<int, double>();
+                Dictionary<int, double> globalBookingDictionary = new Dictionary<int, double>();
+                double totalPendingBookedQty = 0.0; double totalBookedOrderQty = 0.0;
+                for (int i = 0; i < tblBookingTOList.Count; i++)
+                {
+                    if (tblBookingTOList[i].IdBooking == 111891)
+                    {
+
+                    }
+                    // fetch loading qty against each booking consumsion of qty 
+                    //  tblLoadingTOList = TblLoadingBL.SelectAllTblLoadingByBookingId(tblBookingTOList[i].IdBooking);
+                    List<TblLoadingSlipExtTO> loadingSlipExtList = _iTblLoadingSlipExtDAO.GetAllLoadingExtByBookingId(tblBookingTOList[i].IdBooking, configval);
+                    //BookingList with schedule and sizewise qty
+                    TblBookingPendingRptTO tblBookingPendingRptTO = new TblBookingPendingRptTO();
+                    tblBookingTOList[i].BookingScheduleTOLst = _iCircularDependencyBL.SelectBookingScheduleByBookingId(tblBookingTOList[i].IdBooking);
+                    foreach (int a in myInts)
+                    {
+                        tblBookingTOList.ForEach(x => x.StatusId = a);
+                    }
+                    tblBookingPendingRptTO.IdBooking = tblBookingTOList[i].IdBooking;
+                    tblBookingPendingRptTO.BookingDisplayNo = tblBookingTOList[i].BookingDisplayNo;
+                    tblBookingPendingRptTO.BookingDateStr = tblBookingTOList[i].BookingDatetime.ToShortDateString();
+                    tblBookingPendingRptTO.DealerId = tblBookingTOList[i].DealerOrgId;
+                    tblBookingPendingRptTO.DealerName = tblBookingTOList[i].DealerName;
+                    tblBookingPendingRptTO.TotalBookedQty = tblBookingTOList[i].BookingQty;
+                    tblBookingPendingRptTO.PendingQty = tblBookingTOList[i].PendingQty;
+                    tblBookingPendingRptTO.CnfName = tblBookingTOList[i].CnfName;
+                    totalPendingBookedQty = totalPendingBookedQty + tblBookingPendingRptTO.PendingQty;
+                    //Deepali Added to get all layers qty.[16-06-2021]
+                    bookingDictionary = new Dictionary<int, double>();
+
+                    foreach (var bookingSchedule in tblBookingTOList[i].BookingScheduleTOLst)
+                    {
+                        //Deepali Commented to get all layers qty.[16-06-2021]
+                        //bookingDictionary = new Dictionary<int, double>();
+                        foreach (var item in bookingSchedule.OrderDetailsLst)
+                        {
+                            if (!bookingDictionary.ContainsKey(item.MaterialId))
+                            {
+                                bookingDictionary.Add(item.MaterialId, item.BookedQty);
+                            }
+                            else
+                            {
+                                double val = Convert.ToDouble(bookingDictionary[item.MaterialId]);
+                                item.BookedQty += val;
+                                bookingDictionary[item.MaterialId] = item.BookedQty;
+                            }
+                        }
+
+                        tblBookingPendingRptTO.BookingDictionaryList.Add(bookingDictionary);
+                    }
+
+                    //if (loadingSlipExtList != null && loadingSlipExtList.Count > 0)
+                    //{
+
+                    loadingDictionary = new Dictionary<int, double>();
+                    foreach (var loadingSlipExt in loadingSlipExtList)
+                    {
+                        if (!loadingDictionary.ContainsKey(loadingSlipExt.MaterialId))
+                        {
+                            loadingDictionary.Add(loadingSlipExt.MaterialId, loadingSlipExt.LoadingQty);
+                        }
+                        else
+                        {
+                            double val = Convert.ToDouble(loadingDictionary[loadingSlipExt.MaterialId]);
+                            loadingSlipExt.LoadingQty += val;
+                            loadingDictionary[loadingSlipExt.MaterialId] = loadingSlipExt.LoadingQty;
+                        }
+                    }
+                    tblBookingPendingRptTO.LoadingDictionaryList.Add(loadingDictionary);
+                    //}
+                    Dictionary<string, string> finalBookingpendingQty = new Dictionary<string, string>();
+                    // use for loop against material and check using containskey
+                    double bookedQty = 0.0, totalBookedQty = 0.0;
+                    double loadQty = 0.0, totalLoadQty = 0.0;
+                    string finalData = "";
+                    string totalQty = "";
+                    foreach (var eachMaterial in MaterialList)
+                    {
+                        bookedQty = 0.0;
+                        loadQty = 0.0;
+                        finalData = "";
+                        //    finalTotal = "";
+                        // totalQty = "";
+                        // totalBookedQty = 0;
+                        //totalLoadQty = 0;
+                        if (bookingDictionary != null)
+                        {
+                            if (bookingDictionary.ContainsKey(eachMaterial.Value))
+                            {
+                                bookedQty = Convert.ToDouble(bookingDictionary[eachMaterial.Value]);
+                                //totalBookedQty += bookedQty;
+                            }
+                           
+                        }
+                        if (loadingDictionary != null)
+                        {
+                            if (loadingDictionary.ContainsKey(eachMaterial.Value))
+                            {
+                                loadQty = Convert.ToDouble(loadingDictionary[eachMaterial.Value]);
+                                //totalLoadQty += loadQty;
+                            }
+                           
+                        }
+
+                        double pendingQty = bookedQty- loadQty;
+                        if (pendingQty < 0)
+                            pendingQty = 0;
+                        if (pendingQty > 0)
+                        {
+                            totalBookedQty += bookedQty;
+                            totalLoadQty += loadQty;
+                            if (bookingDictionary != null && loadingDictionary != null)
+                            {
+                                //Reshma Added
+                                if (!globalBookingDictionary.ContainsKey(eachMaterial.Value))
+                                {
+                                    globalBookingDictionary.Add(eachMaterial.Value, bookedQty);
+                                }
+                                else
+                                {
+                                    if (bookedQty > 0)
+                                    {
+                                        double val = Convert.ToDouble(globalBookingDictionary[eachMaterial.Value]);
+                                        double bookingQtytemp = bookedQty;
+                                        bookingQtytemp += val;
+                                        globalBookingDictionary[eachMaterial.Value] = bookingQtytemp;
+                                    }
+                                }
+                                //Reshma Added
+                                if (!globalLoadingDictionary.ContainsKey(eachMaterial.Value))
+                                {
+                                    globalLoadingDictionary.Add(eachMaterial.Value, loadQty);
+                                }
+                                else
+                                {
+                                    if (loadQty > 0)
+                                    {
+                                        double val = Convert.ToDouble(globalLoadingDictionary[eachMaterial.Value]);
+                                        double loadQtytemp = loadQty;
+                                        loadQtytemp += val;
+                                        globalLoadingDictionary[eachMaterial.Value] = loadQtytemp;
+                                    }
+                                }
+
+                            }
+                        }
+                        finalData = pendingQty.ToString("N1") ;
+                        finalBookingpendingQty.Add(eachMaterial.Text, finalData);
+                    }
+                    double totalPendingQty = totalBookedQty - totalLoadQty;
+                    if (totalPendingQty < 0)
+                        totalPendingQty = 0;
+                    totalQty = totalPendingQty.ToString("N1");
+                    tblBookingPendingRptTO.TotalQty = totalQty;
+
+                    totalBookedOrderQty = totalBookedOrderQty + Convert.ToDouble(tblBookingPendingRptTO.TotalQty);
+                    tblBookingPendingRptTO.FinalDictionaryList.Add(finalBookingpendingQty);
+                    tblBookingPendingRptTOList.Add(tblBookingPendingRptTO);
+                }
+                //Reshma Added For Sum
+                if (tblBookingPendingRptTOList != null && tblBookingPendingRptTOList.Count > 0)
+                {
+                    TblBookingPendingRptTO tblBookingPendingRptTO = new TblBookingPendingRptTO();
+                    double bookedQty = 0; double totalBookedQty = 0; double loadQty = 0; double totalLoadQty = 0;
+                    string finalData = "";
+                    string totalQty = "";
+                    Dictionary<string, string> finalBookingpendingQty = new Dictionary<string, string>();
+                    if (MaterialList != null && MaterialList.Count > 0)
+                    {
+                        //for (int i = 0; i < MaterialList.Count; i++)
+                        {
+                            foreach (var eachMaterial in MaterialList)
+                            {
+                                bookedQty = 0;loadQty = 0;
+                                if (globalBookingDictionary != null)
+                                {
+                                    if (globalBookingDictionary.ContainsKey(eachMaterial.Value))
+                                    {
+                                        bookedQty = Convert.ToDouble(globalBookingDictionary[eachMaterial.Value]);
+                                        if(bookedQty >0)
+                                            totalBookedQty += bookedQty;
+                                    }
+                                }
+                                if (globalLoadingDictionary != null)
+                                {
+                                    if (globalLoadingDictionary.ContainsKey(eachMaterial.Value))
+                                    {
+                                        loadQty = Convert.ToDouble(globalLoadingDictionary[eachMaterial.Value]);
+                                        if(loadQty >0)
+                                            totalLoadQty += loadQty;
+                                    }
+                                }
+                                double totalPendimngQty = bookedQty - loadQty;
+                                if (totalPendimngQty < 0)
+                                    totalPendimngQty = 0;
+                                finalData = totalPendimngQty.ToString("N1") ;
+                                finalBookingpendingQty.Add(eachMaterial.Text, finalData);
+                            }
+                        }
+                    }
+                    double totalPenQty = totalBookedQty - totalLoadQty;
+                    if (totalPenQty < 0)
+                        totalPenQty = 0;
+                    totalQty = totalPenQty.ToString("N1");
+                    tblBookingPendingRptTO.DealerName = "Total";
+                    tblBookingPendingRptTO.TotalQty  =Convert .ToString (Math.Round(totalBookedOrderQty ,2));
+
+                    tblBookingPendingRptTO.PendingQty =Math.Round ( totalPendingBookedQty,2);
+                    tblBookingPendingRptTO.FinalDictionaryList.Add(finalBookingpendingQty);
+                    tblBookingPendingRptTOList.Add(tblBookingPendingRptTO);
+                }
 
             }
             return tblBookingPendingRptTOList;
@@ -296,7 +587,7 @@ namespace ODLMWebAPI.BL
         }
 
 
-        public Double SelectTotalPendingBookingQty(DateTime sysDate)
+        public List<PendingQtyOrderTypeTo> SelectTotalPendingBookingQty(DateTime sysDate)
         {
             return _iTblBookingsDAO.SelectTotalPendingBookingQty(sysDate);
 
@@ -357,6 +648,248 @@ namespace ODLMWebAPI.BL
 
         }
 
+
+        public ResultMessage GetBookingAvgQtyDetailsStatus(int dealerOrgId, Int32 bookingId)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+
+            try
+            {
+
+                Int32 avgBookingQtyDevDays = 0, avgBookingQtyDevPer = 0;
+
+                TblConfigParamsTO tblConfigParamTOForQuota = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.AVERAGE_BOOKING_QTY_DAYS_AND_DEV_PERCENT);
+                if (tblConfigParamTOForQuota != null && !String.IsNullOrEmpty(tblConfigParamTOForQuota.ConfigParamVal))
+                {
+                    List<String> tempList = tblConfigParamTOForQuota.ConfigParamVal.Split(',').ToList();
+                    if (tempList != null && tempList.Count >= 2)
+                    {
+                        avgBookingQtyDevDays = Convert.ToInt32(tempList[0]);
+                        avgBookingQtyDevPer = Convert.ToInt32(tempList[1]);
+                    }
+                }
+
+                //if (avgBookingQtyDevDays == 0)
+                //{
+                //    resultMessage.Tag = 0;
+                //    return resultMessage;
+                //}
+
+
+                DateTime currentDate = _iCommon.ServerDateTime;
+
+                DateTime toDate = currentDate;
+                DateTime fromDate = currentDate.AddDays(-avgBookingQtyDevDays);
+
+                fromDate = Constants.GetStartDateTime(fromDate);
+                toDate = Constants.GetEndDateTime(toDate);
+
+                List<TblBookingsTO> list = SelectBookingList(0, dealerOrgId, 0, fromDate, toDate, null, -1, 0, 0, 0, 0);
+
+                list = list.Where(w => w.IdBooking != bookingId).ToList();
+
+                list = list.Where(w => w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED_BY_MARKETING
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED_FINANCE
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR).ToList();
+
+                if (list == null || list.Count == 0)
+                {
+                    resultMessage.DefaultSuccessBehaviour();
+                    resultMessage.Tag = 0;
+                    return resultMessage;
+                }
+
+                var a = list.Count();
+
+                Double totalQtyBetweenDays = list.Sum(g => g.BookingQty);
+
+                Double avgQty = totalQtyBetweenDays / a;
+
+                Double percentageValue = (avgQty * avgBookingQtyDevPer) / 100;
+
+                avgQty += percentageValue;
+
+                resultMessage.DefaultSuccessBehaviour();
+                resultMessage.Tag = avgQty;
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "GetBookingAvgQtyDetailsStatus");
+                return resultMessage;
+            }
+        }
+
+
+        public ResultMessage SendBookingDueNotification()
+        {
+            ResultMessage resultMessage = new ResultMessage();
+
+
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+
+            try
+            {
+
+                conn.Open();
+                tran = conn.BeginTransaction();
+
+                List<TblAlertDefinitionTO> tblAlertDefinitionTOList = _iTblAlertDefinitionDAO.SelectAllTblAlertDefinition();
+
+                DateTime currentDate = _iCommon.ServerDateTime;
+
+                DateTime fromDate = Constants.GetEndDateTime(currentDate.AddDays(-90));
+                DateTime toDate = Constants.GetEndDateTime(currentDate);
+
+                List<TblBookingsTO> tblBookingsTOList = SelectBookingList(0, 0, 0, fromDate, toDate, null, -1, 1, 0, 1, 0);
+
+                tblBookingsTOList = tblBookingsTOList.Where(w => w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED_BY_MARKETING
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_APPROVED_FINANCE
+                || w.StatusId == (int)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR).ToList();
+
+
+                //List<TblBookingsTO> tblBookingsTOList = SelectAllPendingBookingsForReport();
+                //List<TblBookingsTO> tblBookingsTOList = _iTblBookingsDAO.SelectAllTblBookings();
+
+                Int32 dueDays = 0, notificationStartDays = 0;
+
+                TblConfigParamsTO tblConfigParamTODueDays = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.BOOKING_DUE_DAYS_WITH_START_NOTIFICATON_DAYS);
+                if (tblConfigParamTODueDays == null)
+                {
+                    throw new Exception("tblConfigParamTODueDays no found");
+                }
+
+                List<String> tempList = tblConfigParamTODueDays.ConfigParamVal.Split(',').ToList();
+                if (tempList != null && tempList.Count >= 2)
+                {
+                    dueDays = Convert.ToInt32(tempList[0]);
+                    notificationStartDays = Convert.ToInt32(tempList[1]);
+                }
+
+                if (dueDays == 0)
+                {
+                    resultMessage.DefaultSuccessBehaviour();
+                    return resultMessage;
+                }
+
+                if (notificationStartDays == 0)
+                {
+                    resultMessage.DefaultSuccessBehaviour();
+                    return resultMessage;
+                }
+
+                tblBookingsTOList = tblBookingsTOList.Where(w => w.PendingQty > 0).ToList();
+                tblBookingsTOList = tblBookingsTOList.Where(w => w.BookingDatetime.Date.AddDays(dueDays) >= currentDate.Date).ToList();
+                tblBookingsTOList = tblBookingsTOList.Where(w => w.BookingDatetime.Date.AddDays(notificationStartDays) <= currentDate.Date).ToList();
+
+                for (int i = 0; i < tblBookingsTOList.Count; i++)
+                {
+                    TblBookingsTO tblBookingsTO = tblBookingsTOList[i];
+
+                    TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
+                    List<TblAlertUsersTO> tblAlertUsersTOList = new List<TblAlertUsersTO>();
+                    List<TblUserTO> dealerUserList = _iTblUserDAO.SelectAllTblUser(tblBookingsTO.DealerOrgId, conn, tran);
+                    if (dealerUserList != null && dealerUserList.Count > 0)
+                    {
+                        for (int a = 0; a < dealerUserList.Count; a++)
+                        {
+                            TblAlertUsersTO tblAlertUsersTO = new TblAlertUsersTO();
+                            tblAlertUsersTO.UserId = dealerUserList[a].IdUser;
+                            tblAlertUsersTO.DeviceId = dealerUserList[a].RegisteredDeviceId;
+                            tblAlertUsersTOList.Add(tblAlertUsersTO);
+                        }
+                    }
+
+
+                    String dueDateStr = tblBookingsTO.BookingDatetime.Date.AddDays(dueDays).ToString("yyyy-MM-dd");
+
+
+                    TblAlertDefinitionTO tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_DUE);
+                    tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_DUE;
+                    tblAlertInstanceTO.AlertAction = "BOOKING_DUE";
+
+
+                    tblAlertInstanceTO.EffectiveFromDate = currentDate;
+                    tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(24);
+                    tblAlertInstanceTO.IsActive = 1;
+                    tblAlertInstanceTO.SourceDisplayId = "Booking";
+                    tblAlertInstanceTO.SourceEntityId = tblBookingsTO.IdBooking;
+                    tblAlertInstanceTO.RaisedBy = 1;
+                    tblAlertInstanceTO.RaisedOn = currentDate;
+                    tblAlertInstanceTO.IsAutoReset = 1;
+
+
+                    //tblAlertInstanceTO.AlertComment = "";
+                    tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
+
+                    if (!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                    {
+                        string tempSmsString = tblAlertDefinitionTO.DefaultAlertTxt;
+
+                        tempSmsString = tempSmsString.Replace("@QtyStr", tblBookingsTO.BookingQty.ToString());
+                        tempSmsString = tempSmsString.Replace("@RateStr", tblBookingsTO.BookingRate.ToString());
+                        tempSmsString = tempSmsString.Replace("@BookingNoStr", tblBookingsTO.BookingDisplayNo);
+                        tempSmsString = tempSmsString.Replace("@PendingQtyStr", tblBookingsTO.PendingQty.ToString());
+                        tempSmsString = tempSmsString.Replace("@DueDateStr", dueDateStr);
+
+                        tblAlertInstanceTO.AlertComment = tempSmsString;
+                    }
+
+
+                    tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
+                    // SMS to Dealer
+                    TblSmsTO smsTO = new TblSmsTO();
+                    Dictionary<Int32, String> orgMobileNoDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblBookingsTO.DealerOrgId.ToString(), conn, tran);
+                    if (orgMobileNoDCT != null && orgMobileNoDCT.Count == 1)
+                    {
+                        smsTO.MobileNo = orgMobileNoDCT[tblBookingsTO.DealerOrgId];
+                        if (!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
+                        {
+                            string tempSmsString = tblAlertDefinitionTO.DefaultSmsTxt;
+
+                            tempSmsString = tempSmsString.Replace("@QtyStr", tblBookingsTO.BookingQty.ToString());
+                            tempSmsString = tempSmsString.Replace("@RateStr", tblBookingsTO.BookingRate.ToString());
+                            tempSmsString = tempSmsString.Replace("@BookingNoStr", tblBookingsTO.BookingDisplayNo);
+                            tempSmsString = tempSmsString.Replace("@PendingQtyStr", tblBookingsTO.PendingQty.ToString());
+                            tempSmsString = tempSmsString.Replace("@DueDateStr", dueDateStr);
+
+                            smsTO.SmsTxt = tempSmsString;
+                        }
+                        else
+                        {
+                            smsTO.SmsTxt = "Your Order Of Pend Qty " + tblBookingsTO.PendingQty.ToString().Trim() + " MT with Rate " + tblBookingsTO.BookingRate + " (Rs/MT) is due on date - " + dueDateStr + " Your Ref No : " + tblBookingsTO.BookingDisplayNo + "";
+                        }
+                        tblAlertInstanceTO.SmsTOList.Add(smsTO);
+                    }
+
+
+                    ResultMessage rMessage = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
+
+                    if (rMessage.MessageType != ResultMessageE.Information)
+                    {
+                        return rMessage;
+                    }
+
+                }
+
+                tran.Commit();
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "SendBookingDueNotification");
+                return resultMessage;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
         public List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords , Int32 bookingId)
         {
             List<TblBookingsTO> pendingList = _iTblBookingsDAO.SelectAllLatestBookingOfDealer(dealerId, lastNRecords, true, bookingId);
@@ -404,7 +937,7 @@ namespace ODLMWebAPI.BL
             return _iTblBookingsDAO.GetOrderwiseDealerList();
 
         }
-        public List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, List<TblUserRoleTO> tblUserRoleTOList, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId)
+        public List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, List<TblUserRoleTO> tblUserRoleTOList, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId,Int32 orderTypeId=0)
         {
             TblUserRoleTO tblUserRoleTO = new TblUserRoleTO();
 
@@ -412,7 +945,25 @@ namespace ODLMWebAPI.BL
             {
                 tblUserRoleTO = _iTblUserRoleBL.SelectUserRoleTOAccToPriority(tblUserRoleTOList);
             }
-            return _iTblBookingsDAO.SelectBookingList(cnfId, dealerId, statusId, fromDate, toDate, tblUserRoleTO, confirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId);
+            List<TblBookingsTO> bookingList =  _iTblBookingsDAO.SelectBookingList(cnfId, dealerId, statusId, fromDate, toDate, tblUserRoleTO, confirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId,orderTypeId);
+            if(bookingList != null && bookingList.Count > 0)
+            {
+                //Prajakta[2021-07-06] Added 
+                var isCnfChkSelectedList = bookingList.Where(a => a.CnfChkSelected == 1).ToList();
+                if(isCnfChkSelectedList != null && isCnfChkSelectedList.Count > 0)
+                {
+                    TblConfigParamsTO configParamsTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.IS_INTERNAL_CNF_SELECTION_ON_CHECKBOX_NEW);
+                    if(configParamsTO != null && !String.IsNullOrEmpty(configParamsTO.ConfigParamVal) && configParamsTO.ConfigParamVal != "0")
+                    {
+                        String cnfName = configParamsTO.ConfigParamVal.ToString();
+
+                        isCnfChkSelectedList.ForEach(cc => cc.CnfName = cnfName);
+                    }
+                }
+
+            }
+
+            return bookingList;
 
         }
         //Aniket [16-Jan-2019] added to view cnFList against confirm and not confirmbooking
@@ -536,8 +1087,7 @@ namespace ODLMWebAPI.BL
                     //isPriorityOther = BL.TblUserRoleBL.selectRolePriorityForOther(tblUserRoleTOList);
                 }
 
-                List<ODLMWebAPI.DashboardModels.BookingInfo> tblBookingsTOList = _iTblBookingsDAO.SelectBookingDashboardInfo(tblUserRoleTO, orgId, dealerId, date, ids, isHideCorNC);
-
+                List<ODLMWebAPI.DashboardModels.BookingInfo> tblBookingsTOList = _iTblBookingsDAO.SelectBookingDashboardInfo(tblUserRoleTO, orgId, dealerId, date, ids, isHideCorNC, false);
 
                 Double grandTotal = 0;
                 Double grandTotalQty = 0;
@@ -546,7 +1096,6 @@ namespace ODLMWebAPI.BL
                 Int32 count = 0, otherCount = 0;
                 for (int i = 0; i < tblBookingsTOList.Count; i++)
                 {
-
                     ODLMWebAPI.DashboardModels.BookingInfo bookingInfo = tblBookingsTOList[i];
 
                     if (bookingInfo.BookingType == (int)Constants.BookingType.IsRegular)
@@ -564,6 +1113,30 @@ namespace ODLMWebAPI.BL
                     }
 
                 }
+
+                if (tblUserRoleTO != null)
+                {
+                    Dictionary<int, string> sysEleAccessDCT = _iTblSysElementsBL.SelectSysElementUserEntitlementDCT(tblUserRoleTO.UserId, tblUserRoleTO.RoleId);
+
+                    if (sysEleAccessDCT != null || sysEleAccessDCT.Count > 0)
+                    {
+                        if (sysEleAccessDCT.ContainsKey(Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)] != null
+                            && !string.IsNullOrEmpty(sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)].ToString()) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)] == "RW")
+                        {
+                            List<ODLMWebAPI.DashboardModels.BookingInfo> tblBookingsTOList1 = _iTblBookingsDAO.SelectBookingDashboardInfo(tblUserRoleTO, orgId, dealerId, date, ids, isHideCorNC, true);
+
+                            if (tblBookingsTOList != null && tblBookingsTOList1 != null)
+                            {
+                                for (int j = 0; j < tblBookingsTOList1.Count; j++)
+                                {
+                                    tblBookingsTOList1[j].ShortNm = tblBookingsTOList1[j].ConsumerType;
+                                    tblBookingsTOList.Add(tblBookingsTOList1[j]);
+                                }
+                            }
+                        }
+                    }
+                }
+
                 if (grandTotal != 0)
                 {
                     ODLMWebAPI.DashboardModels.BookingInfo tempBookingInfo = new DashboardModels.BookingInfo();
@@ -635,6 +1208,9 @@ namespace ODLMWebAPI.BL
 
                 //List<TblBookingsTO> openingBalBookingList = DAL.TblBookingsDAO.SelectAllTodaysBookingsWithOpeningBalance(cnfId, serverDate, isTransporterScopeYn, isConfirmed);
                 //List<TblBookingsTO> todaysList = DAL.TblBookingsDAO.SelectAllPendingBookingsList(cnfId, "=", false,isTransporterScopeYn,isConfirmed, serverDate, tblUserRoleTO);
+                //List<TblBookingsTO> openingBalBookingList = _iTblBookingsDAO.SelectAllTodaysBookingsWithOpeningBalance(cnfId, serverDate, isTransporterScopeYn, isConfirmed, brandId);
+                //List<TblBookingsTO> todaysList = _iTblBookingsDAO.SelectAllPendingBookingsList(cnfId, "=", false, isTransporterScopeYn, isConfirmed, serverDate, brandId, tblUserRoleTO);
+
                 List<TblBookingsTO> openingBalBookingList = _iTblBookingsDAO.SelectAllTodaysBookingsWithOpeningBalance(cnfId, serverDate, isTransporterScopeYn, isConfirmed, brandId);
                 List<TblBookingsTO> todaysList = _iTblBookingsDAO.SelectAllPendingBookingsList(cnfId, "=", false, isTransporterScopeYn, isConfirmed, serverDate, brandId, tblUserRoleTO);
                 List<TblBookingOpngBalTO> openingBalQtyList = _iTblBookingOpngBalDAO.SelectAllTblBookingOpngBal(serverDate);
@@ -754,7 +1330,8 @@ namespace ODLMWebAPI.BL
                         pendingBookingRptTO.ClosingBalance = closingBal;
                         pendingBookingRptTO.TransporterScopeYn = bookingTO.TransporterScopeYn;
                         pendingBookingRptTO.IsConfirmed = bookingTO.IsConfirmed;
-
+                        pendingBookingRptTO.TotalAmountOfBookings = ((bookingTO.BookingQty) * (bookingTO.BookingRate));
+                        pendingBookingRptTO.BookingQty = bookingTO.BookingQty;
                         list.Add(pendingBookingRptTO);
                     }
                 }
@@ -809,6 +1386,122 @@ namespace ODLMWebAPI.BL
         {
             return _iTblBookingsDAO.SelectBookingsTOWithDetails(idBooking);
 
+        }
+
+        public List<TblBookingAnalysisReportTO> GetGroupByDealerBookingList(List<TblBookingAnalysisReportTO> tblBookingTOList)
+        {
+            var dist = tblBookingTOList.GroupBy(g => new { g.DealerId, g.DistributorId }).Select(s => s.FirstOrDefault()).ToList();
+
+            for (int i = 0; i < dist.Count; i++)
+            {
+                TblBookingAnalysisReportTO tblBookingsTO = dist[i];
+                List<TblBookingAnalysisReportTO> temp = tblBookingTOList.Where(w => w.DealerId == tblBookingsTO.DealerId && w.DistributorId == tblBookingsTO.DistributorId).ToList();
+                //tblBookingsTO.BookingQty = temp.Sum(s => s.BookingQty);
+
+                temp = temp.OrderBy(a => a.CreatedOn).ToList();
+                double totalDays = (temp[temp.Count - 1].CreatedOn - temp[0].CreatedOn).TotalDays;
+                double sumOfBookingQty = (from x in temp select x.BookingQty).Sum();
+                tblBookingsTO.BookingRate = ((from x in temp select x.BookingRate * x.BookingQty).Sum()) / sumOfBookingQty;
+                tblBookingsTO.BookingQty = sumOfBookingQty;
+                tblBookingsTO.DispatchedQty = (from x in temp select x.DispatchedQty).Sum();
+                tblBookingsTO.BookingRate = Math.Round(tblBookingsTO.BookingRate, 2);
+                tblBookingsTO.BookingQty = Math.Round(tblBookingsTO.BookingQty, 3);
+                tblBookingsTO.AvgBookingFrequency = Math.Round(Math.Round(totalDays) / temp.Count, 3);
+
+            }
+
+            return dist;
+        }
+
+        //Deepali added for task 1272 [03-08-2021]
+        public List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate, int isFromProject)
+        {
+            List<TblBookingAnalysisReportTO> listReturn = new List<TblBookingAnalysisReportTO>();
+            List<TblBookingAnalysisReportTO> list = new List<TblBookingAnalysisReportTO>();
+            List<TblBookingAnalysisReportTO> listGroupbyCnf = new List<TblBookingAnalysisReportTO>();
+            list = _iTblBookingsDAO.GetBookingAnalysisReport(startDate, endDate, distributorId, cOrNcId, brandId, skipDate,isFromProject);
+            if (list != null && list.Count > 0)
+            {
+
+
+                list = GetGroupByDealerBookingList(list);
+
+                listGroupbyCnf = list.GroupBy(g => new { g.DistributorId }).Select(s => s.FirstOrDefault()).ToList();
+                double totalQty = 0;
+                double totalAvgRate = 0;
+                totalQty = (from x in list select x.BookingQty).Sum();
+                totalAvgRate = ((from x in list select x.BookingRate * x.BookingQty).Sum()) / totalQty;
+                totalQty = Math.Round(totalQty, 3);
+                totalAvgRate = Math.Round(totalAvgRate, 2);
+                for (int i = 0; i < listGroupbyCnf.Count; i++)
+                {
+                    List<TblBookingAnalysisReportTO> listTemp = new List<TblBookingAnalysisReportTO>();
+                    listTemp = list.Where(s => s.DistributorId == listGroupbyCnf[i].DistributorId).ToList();
+
+                    for (int j = 0; j < listTemp.Count; j++)
+                    {
+                        if (j > 0)
+                        {
+                            listTemp[j].DistributorName = "";
+
+                        }
+                        else
+                        {
+                            listTemp[j].SrNo = i + 1;
+                        }
+                    }
+
+                    List<TblBookingAnalysisReportTO> listGroupbyDealer = new List<TblBookingAnalysisReportTO>();
+                    listGroupbyDealer = listTemp.GroupBy(g => new { g.DealerId }).Select(s => s.FirstOrDefault()).ToList();
+                    for (int dealer = 0; dealer < listGroupbyDealer.Count; dealer++)
+                    {
+                        
+                        double totalDays = 0;
+
+                        List<TblBookingAnalysisReportTO> listTempDealer = new List<TblBookingAnalysisReportTO>();
+                        listTempDealer = listTemp.Where(s => s.DealerId == listGroupbyDealer[dealer].DealerId).ToList();
+                        
+                        //for (int d = 0; d < listTempDealer.Count; d++)
+                        //{
+                        //    if (d < listTempDealer.Count - 1)
+                        //    {
+                        //        totalDays += (listTempDealer[d+1].CreatedOn - listTempDealer[d].CreatedOn).TotalDays;
+                        //    }
+                        //    listReturn.Add(listTempDealer[d]);
+                        //}
+                        //listTempDealer = listTempDealer.OrderBy(a => a.CreatedOn).ToList();
+                        //totalDays = (listTempDealer[listTempDealer.Count - 1].CreatedOn - listTempDealer[0].CreatedOn).TotalDays;
+
+                        
+
+                        listReturn.AddRange(listTempDealer);
+
+                        //listReturn[listReturn.Count - 1].AvgBookingFrequency = Math.Round(totalDays) / listTempDealer.Count;
+                        //listReturn[listReturn.Count - 1].AvgBookingFrequency = Math.Round(listReturn[listReturn.Count - 1].AvgBookingFrequency, 3);
+
+                    }
+
+
+                    TblBookingAnalysisReportTO tblBookingAnalysisReportTO = new TblBookingAnalysisReportTO();
+                    tblBookingAnalysisReportTO.DistributorName = "Total";
+                    double sumOfBookingQty = (from x in listTemp select x.BookingQty).Sum();
+                    tblBookingAnalysisReportTO.BookingQty = sumOfBookingQty;
+                    tblBookingAnalysisReportTO.BookingRate = ((from x in listTemp select x.BookingRate * x.BookingQty).Sum()) / sumOfBookingQty;
+                    tblBookingAnalysisReportTO.BookingRate = Math.Round(tblBookingAnalysisReportTO.BookingRate, 2);
+                    tblBookingAnalysisReportTO.BookingQty = Math.Round(tblBookingAnalysisReportTO.BookingQty, 3);
+
+                    tblBookingAnalysisReportTO.SrNo = -1;
+                    listReturn.Add(tblBookingAnalysisReportTO);
+
+                   
+                }
+                if(listReturn != null && listReturn.Count > 0)
+                {
+                    listReturn[0].TotalAvgQty = totalQty;
+                    listReturn[0].TotalAvgRate = totalAvgRate;
+                }
+            }
+            return listReturn;
         }
 
         #endregion
@@ -914,6 +1607,7 @@ namespace ODLMWebAPI.BL
             resultMessage.MessageType = ResultMessageE.None;
 
             int restrictBeyondQuota = 0;
+            Boolean isAddItemWiseRate = false;
             try
             {
 
@@ -935,204 +1629,173 @@ namespace ODLMWebAPI.BL
                         resultMessage.MessageType = ResultMessageE.Error;
                         return resultMessage;
                     }
-                    TblEntityRangeTO entityRangeTO = _iTblEntityRangeBL.SelectTblEntityRangeTOByEntityName(Constants.REGULAR_BOOKING, curFinYearTO.IdFinYear);
+                    TblEntityRangeTO entityRangeTO = _iTblEntityRangeBL.SelectTblEntityRangeTOByEntityName(Constants.REGULAR_BOOKING, curFinYearTO.IdFinYear, conn, tran);
                     if (entityRangeTO == null)
                     {
+                        tran.Rollback();
                         resultMessage.Text = "entity range not found in Function SaveNewBooking";
                         resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
                         resultMessage.MessageType = ResultMessageE.Error;
                         return resultMessage;
                     }
                     entityRangeTO.EntityPrevValue = entityRangeTO.EntityPrevValue + 1;
-                    var result1 = _iTblEntityRangeBL.UpdateTblEntityRange(entityRangeTO);
+                    var result1 = _iTblEntityRangeBL.UpdateTblEntityRange(entityRangeTO, conn, tran);
                     if (result1 != 1)
                     {
+                        tran.Rollback();
                         resultMessage.MessageType = ResultMessageE.Error;
                         resultMessage.Text = "Error : While UpdateTblEntityRange";
                         resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
                         return resultMessage;
                     }
                     tblBookingsTO.BookingDisplayNo = entityRangeTO.EntityPrevValue.ToString();
-                }
-                #endregion
 
+                    #endregion
 
-
-                // Aniket [27-02-2019] added to check whether CNF has sufficient balance quota against current booking
-                #region
-                TblConfigParamsTO tblConfigParamTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.ANNOUNCE_RATE_WITH_RATEBAND_CURRENT_QUOTA);
-                if (tblConfigParamTO != null)
-                {
-                    TblConfigParamsTO tblConfigParamTOForQuota = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.RESTRICT_CNF_BEYOND_BOOKING_QUOTA);
-                    if (tblConfigParamTOForQuota != null)
+                    //Prajakta[2021-04-26] Added to add itemwise rate while booking
+                    TblConfigParamsTO addItemWiseRateConfigTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.ADD_ITEMWISE_RATE_WHILE_BOOKING);
+                    if(addItemWiseRateConfigTO != null)
                     {
-                        if (tblConfigParamTOForQuota.ConfigParamVal == "1")
+                        if(addItemWiseRateConfigTO.ConfigParamVal == "1")
                         {
-                            restrictBeyondQuota = 1;
-                        }
-                    }
-                }
-                if (restrictBeyondQuota == 1)
-                {
-                    List<TblOrganizationTO> tblOrganizationToList = SelectSalesAgentListWithBrandAndRate();
-                    int brandId = 0;
-                    double balanceQty = 0;
-                    int cnfId = 0;
-                    int flag = 0;
-                    double allocatedQty = 0.0;
-                    foreach (var i in tblOrganizationToList)
-                    {
-                        if (i.IdOrganization == tblBookingsTO.CnFOrgId)
-                        {
-                            foreach (var j in i.BrandRateDtlTOList)
-                            {
-                                if (j.BrandId == tblBookingsTO.BrandId)
-                                {
-                                    brandId = j.BrandId;
-                                    balanceQty = j.BalanceQty;
-                                    cnfId = i.IdOrganization;
-                                    allocatedQty = j.LastAllocQty;
-                                    flag = 1;
-                                    break;
-                                }
-                            }
-
-                        }
-                        if (flag == 1)
-                        {
-                            break;
-                        }
-                    }
-
-                    if (cnfId == tblBookingsTO.CnFOrgId)
-                    {
-                        if (allocatedQty > 0)
-                        {
-                            if (tblBookingsTO.BookingQty > balanceQty && tblBookingsTO.BrandId == brandId)
-                            {
-                                resultMessage.MessageType = ResultMessageE.Error;
-                                resultMessage.Result = 0;
-                                resultMessage.Text = "Booking Quantity is greater than Balance Quota. Remaining Quota is " + balanceQty.ToString();
-                                resultMessage.DisplayMessage = "Your booking Quota limit ends, Kindly contact Administrator";
-                                return resultMessage;
-                            }
-                        }
-
-                    }
-                }
-                #endregion
-                //[05-09-2018] : Vijaymala added to  differentiate other and regular booking
-                Boolean isRegular = true;
-                #region 0. Check Bookings are Open Or Closed. If Closed Then Do Not Save the request
-                if (tblBookingsTO.BookingType == 0)
-                {
-                    tblBookingsTO.BookingType = (int)Constants.BookingType.IsRegular;
-                }
-                if (tblBookingsTO.BookingType == (int)Constants.BookingType.IsOther)
-                {
-                    isRegular = false;
-                }
-
-                //Priyanka [22-11-18] : Commented and write common code for booking validation.
-                //if (isRegular)
-                //{
-                //    TblBookingActionsTO bookingStatusTO = BL.TblBookingActionsBL.SelectLatestBookingActionTO(conn, tran);
-                //    if (bookingStatusTO == null || bookingStatusTO.BookingStatus == "CLOSE")
-                //    {
-                //        resultMessage.MessageType = ResultMessageE.Error;
-                //        resultMessage.Result = 0;
-                //        resultMessage.Text = "Sorry..Record Could not be saved. Bookings are closed";
-                //        resultMessage.DisplayMessage = "Sorry..Record Could not be saved. Bookings are closed";
-                //        return resultMessage;
-                //    }
-                //}
-                //Priyanka [22-11-2018]
-                #region Validation for New Booking
-
-                //1.Checking the status of Booking OPEN/CLOSE.
-                TblBookingActionsTO bookingStatusTO = _iTblBookingActionsDAO.SelectLatestBookingActionTO(conn, tran);
-                if (bookingStatusTO == null || bookingStatusTO.BookingStatus == "CLOSE")
-                {
-                    resultMessage.MessageType = ResultMessageE.Error;
-                    resultMessage.Result = 0;
-                    resultMessage.Text = "Sorry..Record Could not be saved. Bookings are closed";
-                    resultMessage.DisplayMessage = "Sorry..Record Could not be saved. Bookings are closed";
-                    return resultMessage;
-                }
-
-                //2. Checking the Booking End Time.
-                List<TblConfigParamsTO> tblConfigParamsTOList = _iTblConfigParamsDAO.SelectAllTblConfigParams();
-                TblQuotaDeclarationTO existingQuotaTO = new TblQuotaDeclarationTO();
-                TblConfigParamsTO bookingEndTimeConfigParamsTO = tblConfigParamsTOList.Where(c => c.ConfigParamName == Constants.CP_BOOKING_END_TIME).FirstOrDefault();
-                if (bookingEndTimeConfigParamsTO != null)
-                {
-
-
-                    TimeSpan abc = tblBookingsTO.CreatedOn.TimeOfDay;
-                    int hrs = abc.Hours;
-                    int min = abc.Minutes;
-
-                    string[] endTime = bookingEndTimeConfigParamsTO.ConfigParamVal.Split(':');
-
-                    int endTimeHrs = Convert.ToInt32(endTime[0]);
-                    int endTimeMin = 0;
-                    if (endTime.Length > 1)
-                    {
-                        endTimeMin = Convert.ToInt32(endTime[1]);
-                    }
-
-                    if (hrs >= endTimeHrs)
-                    {
-                        if (hrs > endTimeHrs)
-                        {
-                            tran.Rollback();
-                            resultMessage.Text = "Sorry..Record Could not be saved. Booking time is end";
-                            resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Result = 0;
-                            return resultMessage;
+                            isAddItemWiseRate = true;
                         }
                         else
                         {
-                            if (hrs == endTimeHrs)
-                            {
-                                if (min > endTimeMin)
-                                {
-                                    tran.Rollback();
-                                    resultMessage.Text = "Sorry..Record Could not be saved. Booking time is end";
-                                    resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
-                                    resultMessage.MessageType = ResultMessageE.Error;
-                                    resultMessage.Result = 0;
-                                    return resultMessage;
-                                }
-                            }
-                            else
-                            {
+                            isAddItemWiseRate = false;
+                        }
+                    }
 
+
+                    // Aniket [27-02-2019] added to check whether CNF has sufficient balance quota against current booking
+                    #region
+                    TblConfigParamsTO tblConfigParamTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.ANNOUNCE_RATE_WITH_RATEBAND_CURRENT_QUOTA);
+                    if (tblConfigParamTO != null)
+                    {
+                        TblConfigParamsTO tblConfigParamTOForQuota = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.RESTRICT_CNF_BEYOND_BOOKING_QUOTA);
+                        if (tblConfigParamTOForQuota != null)
+                        {
+                            if (tblConfigParamTOForQuota.ConfigParamVal == "1")
+                            {
+                                restrictBeyondQuota = 1;
                             }
                         }
                     }
-                    else
+                    if (restrictBeyondQuota == 1)
                     {
-
-                    }
-                }
-
-
-                //3.Check the quota declaration date and current date.
-                //Prajakta[2019-06-18] Added isRateDeclareForEnqConfigParam condition as per disscussion with aniket
-                TblConfigParamsTO isRateDeclareForEnqConfigParam = tblConfigParamsTOList.Where(c => c.ConfigParamName == Constants.CP_RATE_DECLARATION_FOR_ENQUIRY).FirstOrDefault();
-                if (isRateDeclareForEnqConfigParam != null)
-                {
-                    if (isRateDeclareForEnqConfigParam.ConfigParamVal.ToString() == "1" && isRegular)
-                    {
-                        existingQuotaTO = _iTblQuotaDeclarationBL.SelectTblQuotaDeclarationTO(tblBookingsTO.QuotaDeclarationId, conn, tran);
-                        if (existingQuotaTO != null)
+                        List<TblOrganizationTO> tblOrganizationToList = SelectSalesAgentListWithBrandAndRate();
+                        int brandId = 0;
+                        double balanceQty = 0;
+                        int cnfId = 0;
+                        int flag = 0;
+                        double allocatedQty = 0.0;
+                        foreach (var i in tblOrganizationToList)
                         {
-                            if (existingQuotaTO.CreatedOn.Date != _iCommon.ServerDateTime.Date)
+                            if (i.IdOrganization == tblBookingsTO.CnFOrgId)
+                            {
+                                foreach (var j in i.BrandRateDtlTOList)
+                                {
+                                    if (j.BrandId == tblBookingsTO.BrandId)
+                                    {
+                                        brandId = j.BrandId;
+                                        balanceQty = j.BalanceQty;
+                                        cnfId = i.IdOrganization;
+                                        allocatedQty = j.LastAllocQty;
+                                        flag = 1;
+                                        break;
+                                    }
+                                }
+
+                            }
+                            if (flag == 1)
+                            {
+                                break;
+                            }
+                        }
+
+                        if (cnfId == tblBookingsTO.CnFOrgId)
+                        {
+                            if (allocatedQty > 0)
+                            {
+                                if (tblBookingsTO.BookingQty > balanceQty && tblBookingsTO.BrandId == brandId)
+                                {
+                                    resultMessage.MessageType = ResultMessageE.Error;
+                                    resultMessage.Result = 0;
+                                    resultMessage.Text = "Booking Quantity is greater than Balance Quota. Remaining Quota is " + balanceQty.ToString();
+                                    resultMessage.DisplayMessage = "Your booking Quota limit ends, Kindly contact Administrator";
+                                    return resultMessage;
+                                }
+                            }
+
+                        }
+                    }
+                    #endregion
+                    //[05-09-2018] : Vijaymala added to  differentiate other and regular booking
+                    Boolean isRegular = true;
+                    #region 0. Check Bookings are Open Or Closed. If Closed Then Do Not Save the request
+                    if (tblBookingsTO.BookingType == 0)
+                    {
+                        tblBookingsTO.BookingType = (int)Constants.BookingType.IsRegular;
+                    }
+                    if (tblBookingsTO.BookingType == (int)Constants.BookingType.IsOther)
+                    {
+                        isRegular = false;
+                    }
+
+                    //Priyanka [22-11-18] : Commented and write common code for booking validation.
+                    //if (isRegular)
+                    //{
+                    //    TblBookingActionsTO bookingStatusTO = BL.TblBookingActionsBL.SelectLatestBookingActionTO(conn, tran);
+                    //    if (bookingStatusTO == null || bookingStatusTO.BookingStatus == "CLOSE")
+                    //    {
+                    //        resultMessage.MessageType = ResultMessageE.Error;
+                    //        resultMessage.Result = 0;
+                    //        resultMessage.Text = "Sorry..Record Could not be saved. Bookings are closed";
+                    //        resultMessage.DisplayMessage = "Sorry..Record Could not be saved. Bookings are closed";
+                    //        return resultMessage;
+                    //    }
+                    //}
+                    //Priyanka [22-11-2018]
+                    #region Validation for New Booking
+
+                    //1.Checking the status of Booking OPEN/CLOSE.
+                    TblBookingActionsTO bookingStatusTO = _iTblBookingActionsDAO.SelectLatestBookingActionTO(conn, tran);
+                    if (bookingStatusTO == null || bookingStatusTO.BookingStatus == "CLOSE")
+                    {
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Result = 0;
+                        resultMessage.Text = "Sorry..Record Could not be saved. Bookings are closed";
+                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved. Bookings are closed";
+                        return resultMessage;
+                    }
+
+                    //2. Checking the Booking End Time.
+                    List<TblConfigParamsTO> tblConfigParamsTOList = _iTblConfigParamsDAO.SelectAllTblConfigParams();
+                    TblQuotaDeclarationTO existingQuotaTO = new TblQuotaDeclarationTO();
+                    TblConfigParamsTO bookingEndTimeConfigParamsTO = tblConfigParamsTOList.Where(c => c.ConfigParamName == Constants.CP_BOOKING_END_TIME).FirstOrDefault();
+                    if (bookingEndTimeConfigParamsTO != null)
+                    {
+
+
+                        TimeSpan abc = tblBookingsTO.CreatedOn.TimeOfDay;
+                        int hrs = abc.Hours;
+                        int min = abc.Minutes;
+
+                        string[] endTime = bookingEndTimeConfigParamsTO.ConfigParamVal.Split(':');
+
+                        int endTimeHrs = Convert.ToInt32(endTime[0]);
+                        int endTimeMin = 0;
+                        if (endTime.Length > 1)
+                        {
+                            endTimeMin = Convert.ToInt32(endTime[1]);
+                        }
+
+                        if (hrs >= endTimeHrs)
+                        {
+                            if (hrs > endTimeHrs)
                             {
                                 tran.Rollback();
-                                resultMessage.Text = "Sorry..Record Could not be saved. Quota Not Found";
+                                resultMessage.Text = "Sorry..Record Could not be saved. Booking time is end";
                                 resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
                                 resultMessage.MessageType = ResultMessageE.Error;
                                 resultMessage.Result = 0;
@@ -1140,458 +1803,521 @@ namespace ODLMWebAPI.BL
                             }
                             else
                             {
+                                if (hrs == endTimeHrs)
+                                {
+                                    if (min > endTimeMin)
+                                    {
+                                        tran.Rollback();
+                                        resultMessage.Text = "Sorry..Record Could not be saved. Booking time is end";
+                                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                                        resultMessage.MessageType = ResultMessageE.Error;
+                                        resultMessage.Result = 0;
+                                        return resultMessage;
+                                    }
+                                }
+                                else
+                                {
 
+                                }
                             }
-
                         }
                         else
                         {
 
                         }
-
                     }
-                }
 
 
-                //Aniket [8-3-2019] added to verify booking should placed against current date and current booking rate
-                if (isRegular)
-                {
-                    int isAllowBooking = 0;
-                    DateTime sysDate1 = _iCommon.ServerDateTime;
-                    List<TblQuotaDeclarationTO> tblQuotaDeclarationTOList = _iTblQuotaDeclarationBL.SelectLatestQuotaDeclarationTOList(tblBookingsTO.CnFOrgId, sysDate1);
-                    for (int i = 0; i < tblQuotaDeclarationTOList.Count; i++)
+                    //3.Check the quota declaration date and current date.
+                    //Prajakta[2019-06-18] Added isRateDeclareForEnqConfigParam condition as per disscussion with aniket
+                    TblConfigParamsTO isRateDeclareForEnqConfigParam = tblConfigParamsTOList.Where(c => c.ConfigParamName == Constants.CP_RATE_DECLARATION_FOR_ENQUIRY).FirstOrDefault();
+                    if (isRateDeclareForEnqConfigParam != null)
                     {
-                        if (tblQuotaDeclarationTOList[i].IdQuotaDeclaration == tblBookingsTO.QuotaDeclarationId)
+                        if (isRateDeclareForEnqConfigParam.ConfigParamVal.ToString() == "1" && isRegular)
                         {
-                            isAllowBooking = 1;
-                            break;
-                        }
-                    }
-                    if (isAllowBooking == 0)
-                    {
-                        tran.Rollback();
-                        resultMessage.Text = "Sorry..Record could not be saved";
-                        resultMessage.DisplayMessage = "Sorry..Booking can not continue, Please refresh your page and try again";
-                        resultMessage.MessageType = ResultMessageE.Error;
-                        resultMessage.Result = 0;
-                        return resultMessage;
-                    }
-                }
+                            existingQuotaTO = _iTblQuotaDeclarationBL.SelectTblQuotaDeclarationTO(tblBookingsTO.QuotaDeclarationId, conn, tran);
+                            if (existingQuotaTO != null)
+                            {
+                                if (existingQuotaTO.CreatedOn.Date != _iCommon.ServerDateTime.Date)
+                                {
+                                    tran.Rollback();
+                                    resultMessage.Text = "Sorry..Record Could not be saved. Quota Not Found";
+                                    resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                                    resultMessage.MessageType = ResultMessageE.Error;
+                                    resultMessage.Result = 0;
+                                    return resultMessage;
+                                }
+                                else
+                                {
 
+                                }
 
-                #endregion
+                            }
+                            else
+                            {
 
-                #endregion
+                            }
 
-                #region 0.1 Check for Parity Chart. Assign Active ParityId For Future Reference
-                //Sudhir[23-MARCH-2018] Commented for as per new parity logic no parity need to check or save at the time of Booking.
-                /*
-                List<DropDownTO> brandList = BL.DimensionBL.SelectBrandList();
-                if (brandList == null || brandList.Count == 0)
-                {
-                    resultMessage.MessageType = ResultMessageE.Error;
-                    resultMessage.Result = 0;
-                    resultMessage.Text = "Sorry..Brand List not found";
-                    resultMessage.DisplayMessage = "Sorry..Brand List not found";
-                    return resultMessage;
-                }
-
-                
-                List<TblParitySummaryTO> activeParityTOList = BL.TblParitySummaryBL.SelectActiveParitySummaryTOList(tblBookingsTO.DealerOrgId, conn, tran);
-                if (activeParityTOList != null)
-                {
-                    //resultMessage.Text = "Sorry..Record Could not be saved. Rate Chart Not Defined For The State";
-                    //resultMessage.DisplayMessage = "Sorry..Record Could not be saved. Rate Chart Not Defined For The State";
-                    //List<TblBookingParitiesTO> parityList = new List<TblBookingParitiesTO>();
-                    //tblBookingsTO.ParityId = activeParityTO.IdParity;
-
-                    String notDefinedParites = String.Empty;
-
-                    for (int u = 0; u < brandList.Count; u++)
-                    {
-                        TblParitySummaryTO tblParitySummaryTO = activeParityTOList.Where(w => w.BrandId == brandList[u].Value).FirstOrDefault();
-                        if (tblParitySummaryTO == null)
-                        {
-                            notDefinedParites += brandList[u].Text + ", ";
                         }
                     }
 
-                    if (!String.IsNullOrEmpty(notDefinedParites))
+
+                    //Aniket [8-3-2019] added to verify booking should placed against current date and current booking rate
+                    if (isRegular)
                     {
-                        notDefinedParites = notDefinedParites.Trim().TrimEnd(',');
+                        int isAllowBooking = 0;
+                        DateTime sysDate1 = _iCommon.ServerDateTime;
+                        List<TblQuotaDeclarationTO> tblQuotaDeclarationTOList = _iTblQuotaDeclarationBL.SelectLatestQuotaDeclarationTOList(tblBookingsTO.CnFOrgId, sysDate1);
+                        for (int i = 0; i < tblQuotaDeclarationTOList.Count; i++)
+                        {
+                            if (tblQuotaDeclarationTOList[i].IdQuotaDeclaration == tblBookingsTO.QuotaDeclarationId)
+                            {
+                                isAllowBooking = 1;
+                                break;
+                            }
+                        }
+                        if (isAllowBooking == 0)
+                        {
+                            tran.Rollback();
+                            resultMessage.Text = "Sorry..Record could not be saved";
+                            resultMessage.DisplayMessage = "Sorry..Booking can not continue, Please refresh your page and try again";
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            resultMessage.Result = 0;
+                            return resultMessage;
+                        }
+                    }
+
+
+                    #endregion
+
+                    #endregion
+
+                    #region 0.1 Check for Parity Chart. Assign Active ParityId For Future Reference
+                    //Sudhir[23-MARCH-2018] Commented for as per new parity logic no parity need to check or save at the time of Booking.
+                    /*
+                    List<DropDownTO> brandList = BL.DimensionBL.SelectBrandList();
+                    if (brandList == null || brandList.Count == 0)
+                    {
                         resultMessage.MessageType = ResultMessageE.Error;
                         resultMessage.Result = 0;
-                        resultMessage.Text = "Sorry..parity is not define against brand - " + notDefinedParites + ". Kindly update the parity master ";
-                        resultMessage.DisplayMessage = "Sorry..parity is not define against brand - " + notDefinedParites + ". Kindly update the parity master ";
+                        resultMessage.Text = "Sorry..Brand List not found";
+                        resultMessage.DisplayMessage = "Sorry..Brand List not found";
                         return resultMessage;
                     }
-                }
-                else
-                {
-                    resultMessage.MessageType = ResultMessageE.Error;
-                    resultMessage.Result = 0;
-                    TblAddressTO addrTO = BL.TblAddressBL.SelectOrgAddressWrtAddrType(tblBookingsTO.DealerOrgId, Constants.AddressTypeE.OFFICE_ADDRESS, conn, tran);
-                    if (addrTO == null)
+
+
+                    List<TblParitySummaryTO> activeParityTOList = BL.TblParitySummaryBL.SelectActiveParitySummaryTOList(tblBookingsTO.DealerOrgId, conn, tran);
+                    if (activeParityTOList != null)
                     {
-                        resultMessage.Text = "Sorry..Record Could not be saved. Address Is Not Defined For The Dealer And Hence Parity Settings For Not found";
-                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved. Address Is Not Defined For The Dealer And Hence Parity Settings Not found";
+                        //resultMessage.Text = "Sorry..Record Could not be saved. Rate Chart Not Defined For The State";
+                        //resultMessage.DisplayMessage = "Sorry..Record Could not be saved. Rate Chart Not Defined For The State";
+                        //List<TblBookingParitiesTO> parityList = new List<TblBookingParitiesTO>();
+                        //tblBookingsTO.ParityId = activeParityTO.IdParity;
+
+                        String notDefinedParites = String.Empty;
+
+                        for (int u = 0; u < brandList.Count; u++)
+                        {
+                            TblParitySummaryTO tblParitySummaryTO = activeParityTOList.Where(w => w.BrandId == brandList[u].Value).FirstOrDefault();
+                            if (tblParitySummaryTO == null)
+                            {
+                                notDefinedParites += brandList[u].Text + ", ";
+                            }
+                        }
+
+                        if (!String.IsNullOrEmpty(notDefinedParites))
+                        {
+                            notDefinedParites = notDefinedParites.Trim().TrimEnd(',');
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            resultMessage.Result = 0;
+                            resultMessage.Text = "Sorry..parity is not define against brand - " + notDefinedParites + ". Kindly update the parity master ";
+                            resultMessage.DisplayMessage = "Sorry..parity is not define against brand - " + notDefinedParites + ". Kindly update the parity master ";
+                            return resultMessage;
+                        }
                     }
                     else
                     {
-                        resultMessage.Text = "Sorry..Record Could not be saved. Parity Settings Not defined for the state " + addrTO.StateName;
-                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved. Parity Settings Not defined for the state " + addrTO.StateName;
-                    }
-                    return resultMessage;
-                }*/
-                #endregion
-
-                #region 1. Save Booking Request First
-                //Sanjay [2017-02-17] Default pending qty will be booking qty. Used in Loading of the order
-                //[05-09-2018] : Vijaymala added to  set global rate only for regular booking
-
-                TblGlobalRateTO globalRateTO = new TblGlobalRateTO();
-
-                Int32 statusId = (Int32)Constants.TranStatusE.BOOKING_NEW;
-
-                TblConfigParamsTO validateConfigTO = new TblConfigParamsTO();
-                TblConfigParamsTO statusAfterBookingConfigTO = new TblConfigParamsTO();
-                if (tblConfigParamsTOList != null && tblConfigParamsTOList.Count > 0)
-                {
-                    TblConfigParamsTO bookingStatusConfigParamsTO = tblConfigParamsTOList.Where(c => c.ConfigParamName == Constants.CP_STATUS_AFTER_SAVE_BOOKING).FirstOrDefault();
-                    if (bookingStatusConfigParamsTO != null)
-                    {
-                        statusId = Convert.ToInt32(bookingStatusConfigParamsTO.ConfigParamVal);
-                    }
-                    validateConfigTO = tblConfigParamsTOList.Where(e => e.ConfigParamName == Constants.CP_VALIDATE_RATEBAND_FOR_BOOKING).FirstOrDefault();
-                    statusAfterBookingConfigTO = tblConfigParamsTOList.Where(e => e.ConfigParamName == Constants.CP_STATUS_FOR_SAVE_BOOKING_VALIDATION).FirstOrDefault();
-                }
-                if (isRegular)
-                {
-                    if (tblBookingsTO.QuotaDeclarationId == 0)
-                    {
-                        List<TblQuotaDeclarationTO> rateBandList = _iTblQuotaDeclarationBL.SelectAllTblQuotaDeclarationList(tblBookingsTO.GlobalRateId);
-                        if (rateBandList != null && rateBandList.Count > 0)
-                        {
-                            tblBookingsTO.QuotaDeclarationId = rateBandList.Where(w => w.OrgId == tblBookingsTO.CnFOrgId).FirstOrDefault().IdQuotaDeclaration;
-                        }
-                    }
-                    existingQuotaTO = _iTblQuotaDeclarationBL.SelectTblQuotaDeclarationTO(tblBookingsTO.QuotaDeclarationId, conn, tran);
-                    if (existingQuotaTO == null)
-                    {
-                        tran.Rollback();
-                        resultMessage.Text = "Sorry..Record Could not be saved. Quota Not Found";
-                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
                         resultMessage.MessageType = ResultMessageE.Error;
                         resultMessage.Result = 0;
+                        TblAddressTO addrTO = BL.TblAddressBL.SelectOrgAddressWrtAddrType(tblBookingsTO.DealerOrgId, Constants.AddressTypeE.OFFICE_ADDRESS, conn, tran);
+                        if (addrTO == null)
+                        {
+                            resultMessage.Text = "Sorry..Record Could not be saved. Address Is Not Defined For The Dealer And Hence Parity Settings For Not found";
+                            resultMessage.DisplayMessage = "Sorry..Record Could not be saved. Address Is Not Defined For The Dealer And Hence Parity Settings Not found";
+                        }
+                        else
+                        {
+                            resultMessage.Text = "Sorry..Record Could not be saved. Parity Settings Not defined for the state " + addrTO.StateName;
+                            resultMessage.DisplayMessage = "Sorry..Record Could not be saved. Parity Settings Not defined for the state " + addrTO.StateName;
+                        }
                         return resultMessage;
-                    }
+                    }*/
+                    #endregion
 
-                    tblBookingsTO.QuotaQtyBforBooking = Convert.ToInt32(existingQuotaTO.BalanceQty);
-                    tblBookingsTO.QuotaQtyAftBooking = Convert.ToInt32(tblBookingsTO.QuotaQtyBforBooking - tblBookingsTO.BookingQty);
+                    #region 1. Save Booking Request First
+                    //Sanjay [2017-02-17] Default pending qty will be booking qty. Used in Loading of the order
+                    //[05-09-2018] : Vijaymala added to  set global rate only for regular booking
 
-                    globalRateTO = _iTblGlobalRateDAO.SelectTblGlobalRate(existingQuotaTO.GlobalRateId, conn, tran);
-                    if (globalRateTO == null)
+                    TblGlobalRateTO globalRateTO = new TblGlobalRateTO();
+
+                    Int32 statusId = (Int32)Constants.TranStatusE.BOOKING_NEW;
+
+                    TblConfigParamsTO validateConfigTO = new TblConfigParamsTO();
+                    TblConfigParamsTO statusAfterBookingConfigTO = new TblConfigParamsTO();
+                    if (tblConfigParamsTOList != null && tblConfigParamsTOList.Count > 0)
                     {
-                        tran.Rollback();
-                        resultMessage.Text = "Sorry..Record Could not be saved. Rate Declaration Not Found";
-                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
-                        resultMessage.Result = 0;
-                        resultMessage.MessageType = ResultMessageE.Error;
-                        return resultMessage;
-                    }
-                }
-
-                TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_MAX_ALLOWED_DEL_PERIOD, conn, tran);
-                Int32 maxAllowedDelPeriod = 7;
-
-                if (tblConfigParamsTO != null)
-                    maxAllowedDelPeriod = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
-                Double orcAmtPerTon = 0;
-                if (tblBookingsTO.OrcMeasure == "Rs/MT")
-                {
-                    orcAmtPerTon = tblBookingsTO.OrcAmt;
-                }
-                else orcAmtPerTon = tblBookingsTO.OrcAmt / tblBookingsTO.BookingQty;
-
-                Double allowedRate = globalRateTO.Rate - existingQuotaTO.RateBand;
-                Double bookingRateWithOrcAmt = tblBookingsTO.BookingRate;
-
-                if (orcAmtPerTon > 0)
-                    bookingRateWithOrcAmt = tblBookingsTO.BookingRate - existingQuotaTO.RateBand - orcAmtPerTon;
-
-                TblOrganizationTO dealerOrgTO = _iTblOrganizationDAO.SelectTblOrganization(tblBookingsTO.DealerOrgId, conn, tran);
-                if (dealerOrgTO == null)
-                {
-                    tran.Rollback();
-                    resultMessage.Text = "Sorry..Record Could not be saved. Dealer Details not found";
-                    resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
-                    resultMessage.Result = 0;
-                    resultMessage.MessageType = ResultMessageE.Error;
-                    return resultMessage;
-                }
-
-                tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_MAX_ALLOWED_CD_STRUCTURE, conn, tran);
-                Double maxCdStructure = 1.5;
-
-                if (tblConfigParamsTO != null)
-                    maxCdStructure = Convert.ToDouble(tblConfigParamsTO.ConfigParamVal);
-
-
-                if (tblBookingsTO.QuotaQtyAftBooking < 0 || (tblBookingsTO.BookingRate < allowedRate)
-                    || (tblBookingsTO.DeliveryDays > maxAllowedDelPeriod)
-                    // || (bookingRateWithOrcAmt < globalRateTO.Rate) // Sanjay [2017-06-30] Not required as per discussion in meeting 29/6/17. Nitin K Sir and BRM Team. It will directly added into booking Rate for final Rate Calculation
-                    )
-                {
-                    tblBookingsTO.IsWithinQuotaLimit = 0;
-                    // tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_NEW;
-
-                    if (tblBookingsTO.EnquiryId == 0)
-                        tblBookingsTO.StatusId = statusId;
-
-                    if (tblBookingsTO.QuotaQtyAftBooking < 0)
-                        tblBookingsTO.AuthReasons = "QTY|";
-                    if (tblBookingsTO.BookingRate < allowedRate)
-                        tblBookingsTO.AuthReasons += "RATE|";
-                    if (tblBookingsTO.DeliveryDays > maxAllowedDelPeriod)
-                        tblBookingsTO.AuthReasons += "DELIVERY|";
-                    //if (bookingRateWithOrcAmt < globalRateTO.Rate)  // Sanjay [2017-06-30] Not required as per discussion in meeting 29/6/17. Nitin K Sir and BRM Team.It will directly added into booking Rate for final Rate Calculation
-                    //    tblBookingsTO.AuthReasons += "ORC|";
-
-                    
-                }
-                else
-                {
-                    //Sanjay [2017-11-10]
-                    //tblBookingsTO.IsWithinQuotaLimit = 1;
-                    //tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_APPROVED;
-                    if (tblBookingsTO.EnquiryId == 0)
-                        tblBookingsTO.StatusId = statusId;
-                    //tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_NEW;
-
-                }
-
-                if (tblBookingsTO.CdStructure > maxCdStructure)
-                {
-                    if (tblBookingsTO.CdStructure > dealerOrgTO.CdStructure)
-                    {
-                        tblBookingsTO.IsWithinQuotaLimit = 0;
-                        //tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_NEW;
-                        if (tblBookingsTO.EnquiryId == 0)
-                            tblBookingsTO.StatusId = statusId;
-                        tblBookingsTO.AuthReasons += "CD|";
-                    }
-                }
-                //Aniket [3-7-2019] placed from line no 1265 to 1289 as while applying CD create problem
-                if(tblBookingsTO.IsItemized==0 && !string.IsNullOrEmpty(tblBookingsTO.AuthReasons))
-                tblBookingsTO.AuthReasons = tblBookingsTO.AuthReasons.TrimEnd('|');
-                Int32 skipFinanceApproval = 0;
-                //Saket [2018-02-13] Added 
-                TblConfigParamsTO tblConfigParamsTOApproval = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_AUTO_FINANCE_APPROVAL_FOR_ENQUIRY, conn, tran);
-                if (tblConfigParamsTOApproval != null)
-                {
-                    skipFinanceApproval = Convert.ToInt32(tblConfigParamsTOApproval.ConfigParamVal);
-                    if (skipFinanceApproval == 1)
-                    {
-                        statusId = Convert.ToInt32(Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR);
-                        if (tblBookingsTO.EnquiryId == 0)
-                            tblBookingsTO.StatusId = statusId;
-                        //tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR;
-                        tblBookingsTO.IsWithinQuotaLimit = 1;
-                    }
-                }
-                //[05-09-2018] : Vijaymala added to  set default brand  for other booking
-
-                List<DimBrandTO> brandList = _iDimBrandDAO.SelectAllDimBrand();
-
-                if (brandList != null && brandList.Count > 0)
-                {
-                    brandList = brandList.Where(ele => ele.IsActive == 1).ToList();
-                }
-                DimBrandTO dimBrandTO = new DimBrandTO();
-                if (!isRegular)
-                {
-                    if (brandList != null && brandList.Count > 0)
-                    {
-                        dimBrandTO = brandList.Where(ele => ele.IsDefault == 1).FirstOrDefault();
-                        if (dimBrandTO != null)
+                        TblConfigParamsTO bookingStatusConfigParamsTO = tblConfigParamsTOList.Where(c => c.ConfigParamName == Constants.CP_STATUS_AFTER_SAVE_BOOKING).FirstOrDefault();
+                        if (bookingStatusConfigParamsTO != null)
                         {
-                            tblBookingsTO.BrandId = dimBrandTO.IdBrand;
+                            statusId = Convert.ToInt32(bookingStatusConfigParamsTO.ConfigParamVal);
                         }
+                        validateConfigTO = tblConfigParamsTOList.Where(e => e.ConfigParamName == Constants.CP_VALIDATE_RATEBAND_FOR_BOOKING).FirstOrDefault();
+                        statusAfterBookingConfigTO = tblConfigParamsTOList.Where(e => e.ConfigParamName == Constants.CP_STATUS_FOR_SAVE_BOOKING_VALIDATION).FirstOrDefault();
                     }
-                }
-
-                tblBookingsTO.StatusBy = tblBookingsTO.CreatedBy;                    //Priyanka [27-07-2018]
-
-
-
-                //Aniket [2018-02-13] Added 
-                //int isBalajiClient = 0;
-                //TblConfigParamsTO tblConfigParamsTOBalaji = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.IS_BALAJI_CLIENT, conn, tran);
-                //if (tblConfigParamsTOBalaji != null)
-                //{
-                //    isBalajiClient = Convert.ToInt32(tblConfigParamsTOBalaji.ConfigParamVal);
-                //}
-                //if(isBalajiClient==0)
-                tblBookingsTO.PendingQty = tblBookingsTO.BookingQty;         
-                Int32 isValidateRateBand = 0;
-
-                if (validateConfigTO != null)
-                {
-                    isValidateRateBand = Convert.ToInt32(validateConfigTO.ConfigParamVal);
-                }
-                if (isValidateRateBand == 1 && tblBookingsTO.BookingType == Convert.ToInt32(Constants.BookingType.IsRegular))
-                {
-                    if (tblBookingsTO.BookingRate < allowedRate)
+                    if (isRegular)
                     {
-                        if (statusAfterBookingConfigTO != null)
+                        if (tblBookingsTO.QuotaDeclarationId == 0)
                         {
-                            statusId = Convert.ToInt32(statusAfterBookingConfigTO.ConfigParamVal);
+                            List<TblQuotaDeclarationTO> rateBandList = _iTblQuotaDeclarationBL.SelectAllTblQuotaDeclarationList(tblBookingsTO.GlobalRateId);
+                            if (rateBandList != null && rateBandList.Count > 0)
+                            {
+                                tblBookingsTO.QuotaDeclarationId = rateBandList.Where(w => w.OrgId == tblBookingsTO.CnFOrgId).FirstOrDefault().IdQuotaDeclaration;
+                            }
                         }
-                    }
-                }
-
-                List<TblUserRoleTO> tblUserRoleTOList = _iTblUserRoleBL.SelectAllActiveUserRoleList(tblBookingsTO.CreatedBy);
-                if (tblUserRoleTOList != null && tblUserRoleTOList.Count > 0)
-                {
-                    TblUserRoleTO tblUserRoleTO = tblUserRoleTOList.Where(ele => ele.UserId == tblBookingsTO.CreatedBy).FirstOrDefault();
-                    Dictionary<int, string> sysEleAccessDCT = _iTblSysElementsBL.SelectSysElementUserEntitlementDCT(tblUserRoleTO.UserId, tblUserRoleTO.RoleId);
-
-                    if (sysEleAccessDCT != null || sysEleAccessDCT.Count > 0)
-                    {
-                        if (sysEleAccessDCT.ContainsKey(Convert.ToInt32(Constants.pageElements.SKIP_BOOKING_APPROVAL)) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.SKIP_BOOKING_APPROVAL)] != null
-                            && !string.IsNullOrEmpty(sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.SKIP_BOOKING_APPROVAL)].ToString()) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.SKIP_BOOKING_APPROVAL)] == "RW")
-                        {
-                            statusId = Convert.ToInt32(Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR);
-                        }
-
-                    }
-                }
-
-                if (tblBookingsTO.EnquiryId == 0)
-                    tblBookingsTO.StatusId = statusId;
-                //Aniket [24-7-2019] added to check scheduled NoOfDeliveries against booking
-                if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count>0)
-                {
-                    //Prajakta[2020-02-19] Commented and added as per disscussion with saket
-                    //var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleDate);
-                    var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleGroupId);
-                    if(res != null)
-                        tblBookingsTO.NoOfDeliveries = res.Count();
-                }
-               
-                result = InsertTblBookings(tblBookingsTO, conn, tran);
-                if (result != 1)
-                {
-                    tran.Rollback();
-                    resultMessage.Text = "Sorry..Record Could not be saved.";
-                    resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
-                    resultMessage.Result = 0;
-                    resultMessage.MessageType = ResultMessageE.Error;
-                    return resultMessage;
-                }
-                #endregion
-
-                #region Priyanka [22-01-2019] : Added to save the commercial details against booking
-
-                if (tblBookingsTO.PaymentTermOptionRelationTOLst != null && tblBookingsTO.PaymentTermOptionRelationTOLst.Count > 0)
-                {
-                    TblPaymentTermOptionRelationTO tblPaymentTermOptionRelationTO = new TblPaymentTermOptionRelationTO();
-
-                    for (int i = 0; i < tblBookingsTO.PaymentTermOptionRelationTOLst.Count; i++)
-                    {
-                        tblPaymentTermOptionRelationTO = tblBookingsTO.PaymentTermOptionRelationTOLst[i];
-                        tblPaymentTermOptionRelationTO.CreatedBy = tblBookingsTO.CreatedBy;
-                        tblPaymentTermOptionRelationTO.CreatedOn = _iCommon.ServerDateTime;
-                        tblPaymentTermOptionRelationTO.BookingId = tblBookingsTO.IdBooking;
-
-                        result = _iTblPaymentTermOptionRelationBL.InsertTblPaymentTermOptionRelation(tblPaymentTermOptionRelationTO, conn, tran);
-                        if (result != 1)
+                        existingQuotaTO = _iTblQuotaDeclarationBL.SelectTblQuotaDeclarationTO(tblBookingsTO.QuotaDeclarationId, conn, tran);
+                        if (existingQuotaTO == null)
                         {
                             tran.Rollback();
-                            resultMessage.Text = "Sorry..Record Could not be saved.";
-                            resultMessage.DisplayMessage = "Error while insert into TblPaymentTermOptionRelation";
+                            resultMessage.Text = "Sorry..Record Could not be saved. Quota Not Found";
+                            resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            resultMessage.Result = 0;
+                            return resultMessage;
+                        }
+
+                        tblBookingsTO.QuotaQtyBforBooking = Convert.ToInt32(existingQuotaTO.BalanceQty);
+                        tblBookingsTO.QuotaQtyAftBooking = Convert.ToInt32(tblBookingsTO.QuotaQtyBforBooking - tblBookingsTO.BookingQty);
+
+                        globalRateTO = _iTblGlobalRateDAO.SelectTblGlobalRate(existingQuotaTO.GlobalRateId, conn, tran);
+                        if (globalRateTO == null)
+                        {
+                            tran.Rollback();
+                            resultMessage.Text = "Sorry..Record Could not be saved. Rate Declaration Not Found";
+                            resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
                             resultMessage.Result = 0;
                             resultMessage.MessageType = ResultMessageE.Error;
                             return resultMessage;
                         }
                     }
-                }
-                #endregion
 
-                #region 1.2 Save Booking Parities 
+                    TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_MAX_ALLOWED_DEL_PERIOD, conn, tran);
+                    Int32 maxAllowedDelPeriod = 7;
 
-                DateTime sysDate = _iCommon.ServerDateTime;
-
-                List<TblQuotaDeclarationTO> TblQuotaDeclarationTOList = _iTblQuotaDeclarationBL.SelectLatestQuotaDeclarationTOList(tblBookingsTO.CnFOrgId, sysDate);
-                if (TblQuotaDeclarationTOList != null)
-                {
-                    for (int i = 0; i < TblQuotaDeclarationTOList.Count; i++)
+                    if (tblConfigParamsTO != null)
+                        maxAllowedDelPeriod = Convert.ToInt32(tblConfigParamsTO.ConfigParamVal);
+                    Double orcAmtPerTon = 0;
+                    if (tblBookingsTO.OrcMeasure == "Rs/MT")
                     {
-                        if (TblQuotaDeclarationTOList[i].ValidUpto > 0)
-                        {
-                            if (!_iTblQuotaDeclarationBL.CheckForValidityAndReset(TblQuotaDeclarationTOList[i]))
-                            {
-                                TblQuotaDeclarationTOList.RemoveAt(i);
-                                i--;
-                            }
-                        }
-
-
+                        orcAmtPerTon = tblBookingsTO.OrcAmt;
                     }
-                }
+                    else orcAmtPerTon = tblBookingsTO.OrcAmt / tblBookingsTO.BookingQty;
 
-                //Sudhir[20-MARCH-2018] Commented for as per new parity logic no parity need to check or save at the time of Booking.
-                /*
-                for (int pi = 0; pi < activeParityTOList.Count; pi++)
-                {
-                    TblBookingParitiesTO bookingParityTO = new TblBookingParitiesTO();
+                    Double allowedRate = globalRateTO.Rate - existingQuotaTO.RateBand;
+                    Double bookingRateWithOrcAmt = tblBookingsTO.BookingRate;
 
-                    if (activeParityTOList[pi].BrandId == tblBookingsTO.BrandId)
+                    if (orcAmtPerTon > 0)
+                        bookingRateWithOrcAmt = tblBookingsTO.BookingRate - existingQuotaTO.RateBand - orcAmtPerTon;
+
+                    TblOrganizationTO dealerOrgTO = _iTblOrganizationDAO.SelectTblOrganization(tblBookingsTO.DealerOrgId, conn, tran);
+                    if (dealerOrgTO == null)
                     {
-                        bookingParityTO.BookingRate = tblBookingsTO.BookingRate;
+                        tran.Rollback();
+                        resultMessage.Text = "Sorry..Record Could not be saved. Dealer Details not found";
+                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                        resultMessage.Result = 0;
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        return resultMessage;
+                    }
+
+                    tblConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_MAX_ALLOWED_CD_STRUCTURE, conn, tran);
+                    Double maxCdStructure = 1.5;
+
+                    if (tblConfigParamsTO != null)
+                        maxCdStructure = Convert.ToDouble(tblConfigParamsTO.ConfigParamVal);
+
+
+                    if (tblBookingsTO.QuotaQtyAftBooking < 0 || (tblBookingsTO.BookingRate < allowedRate)
+                        || (tblBookingsTO.DeliveryDays > maxAllowedDelPeriod)
+                        // || (bookingRateWithOrcAmt < globalRateTO.Rate) // Sanjay [2017-06-30] Not required as per discussion in meeting 29/6/17. Nitin K Sir and BRM Team. It will directly added into booking Rate for final Rate Calculation
+                        )
+                    {
+                        tblBookingsTO.IsWithinQuotaLimit = 0;
+                        // tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_NEW;
+
+                        if (tblBookingsTO.EnquiryId == 0)
+                            tblBookingsTO.StatusId = statusId;
+
+                        if (tblBookingsTO.QuotaQtyAftBooking < 0)
+                            tblBookingsTO.AuthReasons = "QTY|";
+                        if (tblBookingsTO.BookingRate < allowedRate)
+                            tblBookingsTO.AuthReasons += "RATE|";
+                        if (tblBookingsTO.DeliveryDays > maxAllowedDelPeriod)
+                            tblBookingsTO.AuthReasons += "DELIVERY|";
+                        //if (bookingRateWithOrcAmt < globalRateTO.Rate)  // Sanjay [2017-06-30] Not required as per discussion in meeting 29/6/17. Nitin K Sir and BRM Team.It will directly added into booking Rate for final Rate Calculation
+                        //    tblBookingsTO.AuthReasons += "ORC|";
+
 
                     }
                     else
                     {
-                        TblQuotaDeclarationTO TblQuotaDeclarationTO = TblQuotaDeclarationTOList.Where(ele => ele.BrandId == activeParityTOList[pi].BrandId).FirstOrDefault();
-                        if (TblQuotaDeclarationTO != null)
+                        //Sanjay [2017-11-10]
+                        //tblBookingsTO.IsWithinQuotaLimit = 1;
+                        //tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_APPROVED;
+                        if (tblBookingsTO.EnquiryId == 0)
+                            tblBookingsTO.StatusId = statusId;
+                        //tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_NEW;
+
+                    }
+
+                    if (tblBookingsTO.CdStructure > maxCdStructure)
+                    {
+                        if (tblBookingsTO.CdStructure > dealerOrgTO.CdStructure)
                         {
-                            bookingParityTO.BookingRate = TblQuotaDeclarationTO.DeclaredRate;
+                            tblBookingsTO.IsWithinQuotaLimit = 0;
+                            //tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_NEW;
+                            if (tblBookingsTO.EnquiryId == 0)
+                                tblBookingsTO.StatusId = statusId;
+                            tblBookingsTO.AuthReasons += "CD|";
                         }
                     }
-                    bookingParityTO.BookingId = tblBookingsTO.IdBooking;
-                    bookingParityTO.ParityId = activeParityTOList[pi].IdParity;
-                    result = _iTblBookingParitiesBL.InsertTblBookingParities(bookingParityTO, conn, tran);
+                    //Aniket [3-7-2019] placed from line no 1265 to 1289 as while applying CD create problem
+                    if (tblBookingsTO.IsItemized == 0 && !string.IsNullOrEmpty(tblBookingsTO.AuthReasons))
+                        tblBookingsTO.AuthReasons = tblBookingsTO.AuthReasons.TrimEnd('|');
+                    Int32 skipFinanceApproval = 0;
+                    //Saket [2018-02-13] Added 
+                    TblConfigParamsTO tblConfigParamsTOApproval = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_AUTO_FINANCE_APPROVAL_FOR_ENQUIRY, conn, tran);
+                    if (tblConfigParamsTOApproval != null)
+                    {
+                        skipFinanceApproval = Convert.ToInt32(tblConfigParamsTOApproval.ConfigParamVal);
+                        if (skipFinanceApproval == 1)
+                        {
+                            statusId = Convert.ToInt32(Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR);
+                            if (tblBookingsTO.EnquiryId == 0)
+                                tblBookingsTO.StatusId = statusId;
+                            //tblBookingsTO.TranStatusE = Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR;
+                            tblBookingsTO.IsWithinQuotaLimit = 1;
+                        }
+                    }
+                    //[05-09-2018] : Vijaymala added to  set default brand  for other booking
+
+                    List<DimBrandTO> brandList = _iDimBrandDAO.SelectAllDimBrand();
+
+                    if (brandList != null && brandList.Count > 0)
+                    {
+                        brandList = brandList.Where(ele => ele.IsActive == 1).ToList();
+                    }
+                    DimBrandTO dimBrandTO = new DimBrandTO();
+                    if (!isRegular)
+                    {
+                        if (brandList != null && brandList.Count > 0)
+                        {
+                            dimBrandTO = brandList.Where(ele => ele.IsDefault == 1).FirstOrDefault();
+                            if (dimBrandTO != null)
+                            {
+                                tblBookingsTO.BrandId = dimBrandTO.IdBrand;
+                            }
+                        }
+                    }
+
+                    tblBookingsTO.StatusBy = tblBookingsTO.CreatedBy;                    //Priyanka [27-07-2018]
+
+
+
+                    //Aniket [2018-02-13] Added 
+                    //int isBalajiClient = 0;
+                    //TblConfigParamsTO tblConfigParamsTOBalaji = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.IS_BALAJI_CLIENT, conn, tran);
+                    //if (tblConfigParamsTOBalaji != null)
+                    //{
+                    //    isBalajiClient = Convert.ToInt32(tblConfigParamsTOBalaji.ConfigParamVal);
+                    //}
+                    //if(isBalajiClient==0)
+                    tblBookingsTO.PendingQty = tblBookingsTO.BookingQty;
+                    Int32 isValidateRateBand = 0;
+
+                    if (validateConfigTO != null)
+                    {
+                        isValidateRateBand = Convert.ToInt32(validateConfigTO.ConfigParamVal);
+                    }
+                    if (isValidateRateBand == 1 && tblBookingsTO.BookingType == Convert.ToInt32(Constants.BookingType.IsRegular))
+                    {
+                        if (tblBookingsTO.BookingRate < allowedRate)
+                        {
+                            if (statusAfterBookingConfigTO != null)
+                            {
+                                statusId = Convert.ToInt32(statusAfterBookingConfigTO.ConfigParamVal);
+                            }
+                        }
+                    }
+
+                    List<TblUserRoleTO> tblUserRoleTOList = _iTblUserRoleBL.SelectAllActiveUserRoleList(tblBookingsTO.CreatedBy);
+                    if (tblUserRoleTOList != null && tblUserRoleTOList.Count > 0)
+                    {
+                        TblUserRoleTO tblUserRoleTO = tblUserRoleTOList.Where(ele => ele.UserId == tblBookingsTO.CreatedBy).FirstOrDefault();
+                        Dictionary<int, string> sysEleAccessDCT = _iTblSysElementsBL.SelectSysElementUserEntitlementDCT(tblUserRoleTO.UserId, tblUserRoleTO.RoleId);
+
+                        if (sysEleAccessDCT != null || sysEleAccessDCT.Count > 0)
+                        {
+                            if (sysEleAccessDCT.ContainsKey(Convert.ToInt32(Constants.pageElements.SKIP_BOOKING_APPROVAL)) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.SKIP_BOOKING_APPROVAL)] != null
+                                && !string.IsNullOrEmpty(sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.SKIP_BOOKING_APPROVAL)].ToString()) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.SKIP_BOOKING_APPROVAL)] == "RW")
+                            {
+                                statusId = Convert.ToInt32(Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR);
+                            }
+
+                        }
+                    }
+
+                    if (tblBookingsTO.EnquiryId == 0)
+                        tblBookingsTO.StatusId = statusId;
+                    //Aniket [24-7-2019] added to check scheduled NoOfDeliveries against booking
+                    if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
+                    {
+                        //Prajakta[2020-02-19] Commented and added as per disscussion with saket
+                        //var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleDate);
+                        var res = tblBookingsTO.BookingScheduleTOLst.GroupBy(x => x.ScheduleGroupId);
+                        if (res != null)
+                            tblBookingsTO.NoOfDeliveries = res.Count();
+                    }
+
+                    result = InsertTblBookings(tblBookingsTO, conn, tran);
                     if (result != 1)
                     {
                         tran.Rollback();
-                        resultMessage.DefaultBehaviour("Error While InsertTblBookingParities");
+                        resultMessage.Text = "Sorry..Record Could not be saved.";
+                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                        resultMessage.Result = 0;
+                        resultMessage.MessageType = ResultMessageE.Error;
                         return resultMessage;
                     }
-                } */
-                TblBookingParitiesTO bookingParityTO = new TblBookingParitiesTO();
+                    #endregion
 
-                //[05-09-2018] : Vijaymala modified code to  save booking rate  for regular or other booking
-                if (isRegular)
-                {
-                    for (int i = 0; i < brandList.Count; i++)
+                    #region Priyanka [22-01-2019] : Added to save the commercial details against booking
+
+                    if (tblBookingsTO.PaymentTermOptionRelationTOLst != null && tblBookingsTO.PaymentTermOptionRelationTOLst.Count > 0)
                     {
-                        if (brandList[i].IdBrand == tblBookingsTO.BrandId)
+                        TblPaymentTermOptionRelationTO tblPaymentTermOptionRelationTO = new TblPaymentTermOptionRelationTO();
+
+                        for (int i = 0; i < tblBookingsTO.PaymentTermOptionRelationTOLst.Count; i++)
+                        {
+                            tblPaymentTermOptionRelationTO = tblBookingsTO.PaymentTermOptionRelationTOLst[i];
+                            tblPaymentTermOptionRelationTO.CreatedBy = tblBookingsTO.CreatedBy;
+                            tblPaymentTermOptionRelationTO.CreatedOn = _iCommon.ServerDateTime;
+                            tblPaymentTermOptionRelationTO.BookingId = tblBookingsTO.IdBooking;
+
+                            result = _iTblPaymentTermOptionRelationBL.InsertTblPaymentTermOptionRelation(tblPaymentTermOptionRelationTO, conn, tran);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
+                                resultMessage.Text = "Sorry..Record Could not be saved.";
+                                resultMessage.DisplayMessage = "Error while insert into TblPaymentTermOptionRelation";
+                                resultMessage.Result = 0;
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                return resultMessage;
+                            }
+                        }
+                    }
+                    #endregion
+
+                    #region 1.2 Save Booking Parities 
+
+                    DateTime sysDate = _iCommon.ServerDateTime;
+
+                    List<TblQuotaDeclarationTO> TblQuotaDeclarationTOList = _iTblQuotaDeclarationBL.SelectLatestQuotaDeclarationTOList(tblBookingsTO.CnFOrgId, sysDate);
+                    if (TblQuotaDeclarationTOList != null)
+                    {
+                        for (int i = 0; i < TblQuotaDeclarationTOList.Count; i++)
+                        {
+                            if (TblQuotaDeclarationTOList[i].ValidUpto > 0)
+                            {
+                                if (!_iTblQuotaDeclarationBL.CheckForValidityAndReset(TblQuotaDeclarationTOList[i]))
+                                {
+                                    TblQuotaDeclarationTOList.RemoveAt(i);
+                                    i--;
+                                }
+                            }
+
+
+                        }
+                    }
+
+                    //Sudhir[20-MARCH-2018] Commented for as per new parity logic no parity need to check or save at the time of Booking.
+                    /*
+                    for (int pi = 0; pi < activeParityTOList.Count; pi++)
+                    {
+                        TblBookingParitiesTO bookingParityTO = new TblBookingParitiesTO();
+
+                        if (activeParityTOList[pi].BrandId == tblBookingsTO.BrandId)
                         {
                             bookingParityTO.BookingRate = tblBookingsTO.BookingRate;
 
                         }
                         else
                         {
-                            TblQuotaDeclarationTO TblQuotaDeclarationTO = TblQuotaDeclarationTOList.Where(ele => ele.BrandId == brandList[i].IdBrand).FirstOrDefault();
+                            TblQuotaDeclarationTO TblQuotaDeclarationTO = TblQuotaDeclarationTOList.Where(ele => ele.BrandId == activeParityTOList[pi].BrandId).FirstOrDefault();
                             if (TblQuotaDeclarationTO != null)
                             {
                                 bookingParityTO.BookingRate = TblQuotaDeclarationTO.DeclaredRate;
                             }
                         }
                         bookingParityTO.BookingId = tblBookingsTO.IdBooking;
+                        bookingParityTO.ParityId = activeParityTOList[pi].IdParity;
+                        result = _iTblBookingParitiesBL.InsertTblBookingParities(bookingParityTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("Error While InsertTblBookingParities");
+                            return resultMessage;
+                        }
+                    } */
+                    TblBookingParitiesTO bookingParityTO = new TblBookingParitiesTO();
+
+                    //[05-09-2018] : Vijaymala modified code to  save booking rate  for regular or other booking
+                    if (isRegular)
+                    {
+                        for (int i = 0; i < brandList.Count; i++)
+                        {
+                            if (brandList[i].IdBrand == tblBookingsTO.BrandId)
+                            {
+                                bookingParityTO.BookingRate = tblBookingsTO.BookingRate;
+
+                            }
+                            else
+                            {
+                                TblQuotaDeclarationTO TblQuotaDeclarationTO = TblQuotaDeclarationTOList.Where(ele => ele.BrandId == brandList[i].IdBrand).FirstOrDefault();
+                                if (TblQuotaDeclarationTO != null)
+                                {
+                                    bookingParityTO.BookingRate = TblQuotaDeclarationTO.DeclaredRate;
+                                }
+                            }
+                            bookingParityTO.BookingId = tblBookingsTO.IdBooking;
+                            bookingParityTO.ParityId = 0;
+                            bookingParityTO.BrandId = brandList[i].IdBrand;
+                            result = _iTblBookingParitiesDAO.InsertTblBookingParities(bookingParityTO, conn, tran);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
+                                resultMessage.DefaultBehaviour("Error While InsertTblBookingParities");
+                                return resultMessage;
+                            }
+                        }
+
+                    }
+                    //[05-09-2018] : Vijaymala modified code to  save booking rate  for regular or other booking
+                    else
+                    {
+                        bookingParityTO.BookingId = tblBookingsTO.IdBooking;
                         bookingParityTO.ParityId = 0;
-                        bookingParityTO.BrandId = brandList[i].IdBrand;
+                        bookingParityTO.BrandId = dimBrandTO.IdBrand;
+                        bookingParityTO.BookingRate = tblBookingsTO.BookingRate;
                         result = _iTblBookingParitiesDAO.InsertTblBookingParities(bookingParityTO, conn, tran);
                         if (result != 1)
                         {
@@ -1601,496 +2327,544 @@ namespace ODLMWebAPI.BL
                         }
                     }
 
-                }
-                //[05-09-2018] : Vijaymala modified code to  save booking rate  for regular or other booking
-                else
-                {
-                    bookingParityTO.BookingId = tblBookingsTO.IdBooking;
-                    bookingParityTO.ParityId = 0;
-                    bookingParityTO.BrandId = dimBrandTO.IdBrand;
-                    bookingParityTO.BookingRate = tblBookingsTO.BookingRate;
-                    result = _iTblBookingParitiesDAO.InsertTblBookingParities(bookingParityTO, conn, tran);
-                    if (result != 1)
+
+
+
+                    #endregion
+                    #region 2. If Booking Beyond Quota Then Maintain History Of Approvals
+
+                    if (tblBookingsTO.IsWithinQuotaLimit == 0)
                     {
-                        tran.Rollback();
-                        resultMessage.DefaultBehaviour("Error While InsertTblBookingParities");
-                        return resultMessage;
-                    }
-                }
+                        TblBookingBeyondQuotaTO bookingBeyondQuotaTO = new TblBookingBeyondQuotaTO();
+                        bookingBeyondQuotaTO.BookingId = tblBookingsTO.IdBooking;
+                        bookingBeyondQuotaTO.CreatedBy = tblBookingsTO.CreatedBy;
+                        bookingBeyondQuotaTO.CreatedOn = tblBookingsTO.CreatedOn;
+                        bookingBeyondQuotaTO.DeliveryPeriod = tblBookingsTO.DeliveryDays;
+                        //   if (isBalajiClient == 0)
+                        bookingBeyondQuotaTO.Quantity = tblBookingsTO.BookingQty;
+                        //else
+                        //bookingBeyondQuotaTO.Quantity = tblBookingsTO.PendingQty;
+                        bookingBeyondQuotaTO.Rate = tblBookingsTO.BookingRate;
+                        bookingBeyondQuotaTO.CdStructureId = tblBookingsTO.CdStructureId;
+                        bookingBeyondQuotaTO.OrcAmt = tblBookingsTO.OrcAmt;
+                        bookingBeyondQuotaTO.Remark = tblBookingsTO.AuthReasons;
+                        bookingBeyondQuotaTO.Rate = tblBookingsTO.BookingRate;
+                        bookingBeyondQuotaTO.StatusDate = tblBookingsTO.CreatedOn;
 
+                        // bookingBeyondQuotaTO.TranStatusE = Constants.TranStatusE.BOOKING_NEW;
+                        bookingBeyondQuotaTO.StatusId = statusId;
 
-
-
-                #endregion
-                #region 2. If Booking Beyond Quota Then Maintain History Of Approvals
-
-                if (tblBookingsTO.IsWithinQuotaLimit == 0)
-                {
-                    TblBookingBeyondQuotaTO bookingBeyondQuotaTO = new TblBookingBeyondQuotaTO();
-                    bookingBeyondQuotaTO.BookingId = tblBookingsTO.IdBooking;
-                    bookingBeyondQuotaTO.CreatedBy = tblBookingsTO.CreatedBy;
-                    bookingBeyondQuotaTO.CreatedOn = tblBookingsTO.CreatedOn;
-                    bookingBeyondQuotaTO.DeliveryPeriod = tblBookingsTO.DeliveryDays;
-                    //   if (isBalajiClient == 0)
-                    bookingBeyondQuotaTO.Quantity = tblBookingsTO.BookingQty;
-                    //else
-                    //bookingBeyondQuotaTO.Quantity = tblBookingsTO.PendingQty;
-                    bookingBeyondQuotaTO.Rate = tblBookingsTO.BookingRate;
-                    bookingBeyondQuotaTO.CdStructureId = tblBookingsTO.CdStructureId;
-                    bookingBeyondQuotaTO.OrcAmt = tblBookingsTO.OrcAmt;
-                    bookingBeyondQuotaTO.Remark = tblBookingsTO.AuthReasons;
-                    bookingBeyondQuotaTO.Rate = tblBookingsTO.BookingRate;
-                    bookingBeyondQuotaTO.StatusDate = tblBookingsTO.CreatedOn;
-
-                    // bookingBeyondQuotaTO.TranStatusE = Constants.TranStatusE.BOOKING_NEW;
-                    bookingBeyondQuotaTO.StatusId = statusId;
-
-                    result = _iTblBookingBeyondQuotaDAO.InsertTblBookingBeyondQuota(bookingBeyondQuotaTO, conn, tran);
-                    if (result != 1)
-                    {
-                        tran.Rollback();
-                        resultMessage.Text = "Sorry..Record Could not be saved. Error While InsertTblBookingBeyondQuota in Function SaveNewBooking";
-                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
-                        resultMessage.MessageType = ResultMessageE.Error;
-                        return resultMessage;
-                    }
-                }
-
-                #endregion
-
-                #region 3.Save project schedule 
-                if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
-                {
-                    for (int i = 0; i < tblBookingsTO.BookingScheduleTOLst.Count; i++)
-                    {
-                        TblBookingScheduleTO tblBookingScheduleTO = tblBookingsTO.BookingScheduleTOLst[i];
-                        tblBookingScheduleTO.BookingId = tblBookingsTO.IdBooking;
-                        tblBookingScheduleTO.CreatedBy = tblBookingsTO.CreatedBy;
-                        tblBookingScheduleTO.CreatedOn = tblBookingsTO.CreatedOn;
-
-                        result = _iTblBookingScheduleDAO.InsertTblBookingSchedule(tblBookingScheduleTO, conn, tran);
+                        result = _iTblBookingBeyondQuotaDAO.InsertTblBookingBeyondQuota(bookingBeyondQuotaTO, conn, tran);
                         if (result != 1)
                         {
                             tran.Rollback();
-                            resultMessage.Text = "Record Could not be saved.";
-                            resultMessage.DisplayMessage = "Record Could not be saved.";
-                            resultMessage.Result = 0;
+                            resultMessage.Text = "Sorry..Record Could not be saved. Error While InsertTblBookingBeyondQuota in Function SaveNewBooking";
+                            resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
                             resultMessage.MessageType = ResultMessageE.Error;
                             return resultMessage;
                         }
-
-
-                        #region 3.1. Save Materialwise Qty and Rate
-                        if (tblBookingScheduleTO.OrderDetailsLst != null && tblBookingScheduleTO.OrderDetailsLst.Count > 0)
-                        {
-                            for (int j = 0; j < tblBookingScheduleTO.OrderDetailsLst.Count; j++)
-                            {
-                                TblBookingExtTO tblBookingExtTO = tblBookingScheduleTO.OrderDetailsLst[j];
-                                tblBookingExtTO.BookingId = tblBookingsTO.IdBooking;
-                                //if(isBalajiClient==0)
-                                tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
-                                tblBookingExtTO.ScheduleId = tblBookingScheduleTO.IdSchedule;
-                                if (!isRegular)
-                                {
-                                    tblBookingExtTO.BrandId = dimBrandTO.IdBrand;
-                                }
-                                result = _iTblBookingExtDAO.InsertTblBookingExt(tblBookingExtTO, conn, tran);
-                                if (result != 1)
-                                {
-                                    tran.Rollback();
-                                    resultMessage.Text = "Record Could not be saved.";
-                                    resultMessage.DisplayMessage = "Record Could not be saved.";
-                                    resultMessage.Result = 0;
-                                    resultMessage.MessageType = ResultMessageE.Error;
-                                    return resultMessage;
-                                }
-                            }
-                        }
-                        
-                        #endregion
-                        #region 3.2. Save Order Delivery Addresses
-
-                        if (tblBookingScheduleTO.DeliveryAddressLst != null && tblBookingScheduleTO.DeliveryAddressLst.Count > 0)
-                        {
-                            for (int k = 0; k < tblBookingScheduleTO.DeliveryAddressLst.Count; k++)
-                            {
-                                TblBookingDelAddrTO tblBookingDelAddrTO = tblBookingScheduleTO.DeliveryAddressLst[k];
-                                if (string.IsNullOrEmpty(tblBookingDelAddrTO.Country))
-                                    tblBookingDelAddrTO.Country = Constants.DefaultCountry;
-
-                                tblBookingDelAddrTO.BookingId = tblBookingsTO.IdBooking;
-                                tblBookingDelAddrTO.ScheduleId = tblBookingScheduleTO.IdSchedule;
-                                result = _iTblBookingDelAddrDAO.InsertTblBookingDelAddr(tblBookingDelAddrTO, conn, tran);
-                                if (result != 1)
-                                {
-                                    tran.Rollback();
-                                    resultMessage.Text = "Record Could not be saved.";
-                                    resultMessage.DisplayMessage = "Record Could not be saved.";
-                                    resultMessage.MessageType = ResultMessageE.Error;
-                                    return resultMessage;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            //Sanjay [2017-03-02] These details are not compulsory while entry
-                            //tran.Rollback();
-                            //resultMessage.Text = "Delivery Address Not Found - Function SaveNewBooking";
-                            //resultMessage.MessageType = ResultMessageE.Error;
-                            //return resultMessage;
-                        }
-                        #endregion
-                    }
-
-                }
-                #endregion
-                #region Added By Kiran For Bundle Wise Item Details using booking Id
-                if (tblBookingsTO.OrderDetailsLstForItemWise != null && tblBookingsTO.OrderDetailsLstForItemWise.Count > 0)
-                {
-                    List<TblBookingExtTO> tblBookingExtTOItemWiseList = tblBookingsTO.OrderDetailsLstForItemWise.Where(w => w.BookedQty > 0).ToList();
-                    for (int j = 0; j < tblBookingExtTOItemWiseList.Count; j++)
-                    {
-                        TblBookingExtTO tblBookingExtTO = tblBookingExtTOItemWiseList[j];
-                        tblBookingExtTO.BookingId = tblBookingsTO.IdBooking;
-                        tblBookingExtTO.BalanceQty = tblBookingExtTO.BookedQty;
-                        //if(isBalajiClient==0)
-                        tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
-                        result = _iTblBookingExtDAO.InsertTblBookingExt(tblBookingExtTO, conn, tran);
-                        if (result != 1)
-                        {
-                            tran.Rollback();
-                            resultMessage.Text = "Record Could not be saved.";
-                            resultMessage.DisplayMessage = "Record Could not be saved.";
-                            resultMessage.Result = 0;
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            return resultMessage;
-                        }
-                    }
-                }
-                #endregion
-
-                //#region 3. Save Materialwise Qty and Rate
-                //if (tblBookingsTO.OrderDetailsLst != null && tblBookingsTO.OrderDetailsLst.Count > 0)
-                //{
-                //    for (int i = 0; i < tblBookingsTO.OrderDetailsLst.Count; i++)
-                //    {
-                //        tblBookingsTO.OrderDetailsLst[i].BookingId = tblBookingsTO.IdBooking;
-                //        tblBookingsTO.OrderDetailsLst[i].Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
-                //        result = _iTblBookingExtBL.InsertTblBookingExt(tblBookingsTO.OrderDetailsLst[i], conn, tran);
-                //        if (result != 1)
-                //        {
-                //            tran.Rollback();
-                //            resultMessage.Text = "Sorry..Record Could not be saved. Error While InsertTblBookingExt in Function SaveNewBooking";
-                //            resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
-                //            resultMessage.Result = 0;
-                //            resultMessage.MessageType = ResultMessageE.Error;
-                //            return resultMessage;
-                //        }
-                //    }
-                //}
-                //else
-                //{
-                //    //Sanjay [2017-02-23] These details are not compulsory while entry
-                //    //tran.Rollback();
-                //    //resultMessage.Text = "OrderDetailsLst Not Found  While SaveNewBooking";
-                //    //resultMessage.MessageType = ResultMessageE.Error;
-                //    //return resultMessage;
-                //}
-                //#endregion
-
-                //#region 4. Save Order Delivery Addresses
-
-                //if (tblBookingsTO.DeliveryAddressLst != null && tblBookingsTO.DeliveryAddressLst.Count > 0)
-                //{
-                //    for (int i = 0; i < tblBookingsTO.DeliveryAddressLst.Count; i++)
-                //    {
-                //        if (string.IsNullOrEmpty(tblBookingsTO.DeliveryAddressLst[i].Country))
-                //            tblBookingsTO.DeliveryAddressLst[i].Country = Constants.DefaultCountry;
-
-                //        tblBookingsTO.DeliveryAddressLst[i].BookingId = tblBookingsTO.IdBooking;
-                //        result =_iTblBookingDelAddrBL.InsertTblBookingDelAddr(tblBookingsTO.DeliveryAddressLst[i], conn, tran);
-                //        if (result != 1)
-                //        {
-                //            tran.Rollback();
-                //            resultMessage.Text = "Error While Inserting Booking Del Address in Function SaveNewBooking";
-                //            resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
-                //            resultMessage.MessageType = ResultMessageE.Error;
-                //            return resultMessage;
-                //        }
-                //    }
-                //}
-                //else
-                //{
-                //    //Sanjay [2017-03-02] These details are not compulsory while entry
-                //    //tran.Rollback();
-                //    //resultMessage.Text = "Delivery Address Not Found - Function SaveNewBooking";
-                //    //resultMessage.MessageType = ResultMessageE.Error;
-                //    //return resultMessage;
-                //}
-                //#endregion
-
-                #region 5. Update Quota for Balance Qty
-                //[05-09-2018] : Vijaymala added to save quota details for regular booking
-                if (isRegular)
-                {
-                    existingQuotaTO.BalanceQty = existingQuotaTO.BalanceQty - tblBookingsTO.BookingQty;
-                    existingQuotaTO.UpdatedBy = tblBookingsTO.CreatedBy;
-                    existingQuotaTO.UpdatedOn = _iCommon.ServerDateTime;
-
-                    result = _iTblQuotaDeclarationBL.UpdateTblQuotaDeclaration(existingQuotaTO, conn, tran);
-                    if (result != 1)
-                    {
-                        tran.Rollback();
-                        resultMessage.Text = "Error While Updating Quota UpdateTblQuotaDeclaration in Function SaveNewBooking";
-                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
-                        resultMessage.MessageType = ResultMessageE.Error;
-                        return resultMessage;
                     }
 
                     #endregion
 
-                    #region 6. Manage Quota Consumption History
-
-                    TblQuotaConsumHistoryTO tblQuotaConsumHistoryTO = new TblQuotaConsumHistoryTO();
-                    tblQuotaConsumHistoryTO.AvailableQuota = tblBookingsTO.QuotaQtyBforBooking;
-                    tblQuotaConsumHistoryTO.BalanceQuota = tblBookingsTO.QuotaQtyAftBooking;
-                    tblQuotaConsumHistoryTO.BookingId = tblBookingsTO.IdBooking;
-                    tblQuotaConsumHistoryTO.CreatedBy = tblBookingsTO.CreatedBy;
-                    tblQuotaConsumHistoryTO.CreatedOn = tblBookingsTO.CreatedOn;
-                    tblQuotaConsumHistoryTO.QuotaDeclarationId = tblBookingsTO.QuotaDeclarationId;
-                    tblQuotaConsumHistoryTO.QuotaQty = -tblBookingsTO.BookingQty;
-                    tblQuotaConsumHistoryTO.Remark = "New Booking for Dealer :" + tblBookingsTO.DealerName;
-                    tblQuotaConsumHistoryTO.TxnOpTypeId = (int)Constants.TxnOperationTypeE.OUT;
-
-                    result = _iTblQuotaConsumHistoryDAO.InsertTblQuotaConsumHistory(tblQuotaConsumHistoryTO, conn, tran);
-                    if (result != 1)
+                    #region 3.Save project schedule 
+                    if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
                     {
-                        tran.Rollback();
-                        resultMessage.Text = "Error While Updating Quota InsertTblQuotaConsumHistory in Function SaveNewBooking";
-                        resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
-                        resultMessage.MessageType = ResultMessageE.Error;
-                        return resultMessage;
+                        for (int i = 0; i < tblBookingsTO.BookingScheduleTOLst.Count; i++)
+                        {
+                            TblBookingScheduleTO tblBookingScheduleTO = tblBookingsTO.BookingScheduleTOLst[i];
+                            tblBookingScheduleTO.BookingId = tblBookingsTO.IdBooking;
+                            tblBookingScheduleTO.CreatedBy = tblBookingsTO.CreatedBy;
+                            tblBookingScheduleTO.CreatedOn = tblBookingsTO.CreatedOn;
+
+                            result = _iTblBookingScheduleDAO.InsertTblBookingSchedule(tblBookingScheduleTO, conn, tran);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
+                                resultMessage.Text = "Record Could not be saved.";
+                                resultMessage.DisplayMessage = "Record Could not be saved.";
+                                resultMessage.Result = 0;
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                return resultMessage;
+                            }
+
+
+                            #region 3.1. Save Materialwise Qty and Rate
+                            if (tblBookingScheduleTO.OrderDetailsLst != null && tblBookingScheduleTO.OrderDetailsLst.Count > 0)
+                            {
+                                for (int j = 0; j < tblBookingScheduleTO.OrderDetailsLst.Count; j++)
+                                {
+                                    TblBookingExtTO tblBookingExtTO = tblBookingScheduleTO.OrderDetailsLst[j];
+                                    tblBookingExtTO.BookingId = tblBookingsTO.IdBooking;
+                                    //if(isBalajiClient==0)
+                                    //Prajakta[2021-04-23] Commented as rate will get as per parity from GUI
+                                    if(!isAddItemWiseRate)
+                                        tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
+
+                                    tblBookingExtTO.ScheduleId = tblBookingScheduleTO.IdSchedule;
+                                    if (!isRegular)
+                                    {
+                                        tblBookingExtTO.BrandId = dimBrandTO.IdBrand;
+                                    }
+                                    result = _iTblBookingExtDAO.InsertTblBookingExt(tblBookingExtTO, conn, tran);
+                                    if (result != 1)
+                                    {
+                                        tran.Rollback();
+                                        resultMessage.Text = "Record Could not be saved.";
+                                        resultMessage.DisplayMessage = "Record Could not be saved.";
+                                        resultMessage.Result = 0;
+                                        resultMessage.MessageType = ResultMessageE.Error;
+                                        return resultMessage;
+                                    }
+                                }
+                            }
+
+                            #endregion
+                            #region 3.2. Save Order Delivery Addresses
+
+                            if (tblBookingScheduleTO.DeliveryAddressLst != null && tblBookingScheduleTO.DeliveryAddressLst.Count > 0)
+                            {
+                                for (int k = 0; k < tblBookingScheduleTO.DeliveryAddressLst.Count; k++)
+                                {
+                                    TblBookingDelAddrTO tblBookingDelAddrTO = tblBookingScheduleTO.DeliveryAddressLst[k];
+                                    if (string.IsNullOrEmpty(tblBookingDelAddrTO.Country))
+                                        tblBookingDelAddrTO.Country = Constants.DefaultCountry;
+
+                                    tblBookingDelAddrTO.BookingId = tblBookingsTO.IdBooking;
+                                    tblBookingDelAddrTO.ScheduleId = tblBookingScheduleTO.IdSchedule;
+                                    result = _iTblBookingDelAddrDAO.InsertTblBookingDelAddr(tblBookingDelAddrTO, conn, tran);
+                                    if (result != 1)
+                                    {
+                                        tran.Rollback();
+                                        resultMessage.Text = "Record Could not be saved.";
+                                        resultMessage.DisplayMessage = "Record Could not be saved.";
+                                        resultMessage.MessageType = ResultMessageE.Error;
+                                        return resultMessage;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                //Sanjay [2017-03-02] These details are not compulsory while entry
+                                //tran.Rollback();
+                                //resultMessage.Text = "Delivery Address Not Found - Function SaveNewBooking";
+                                //resultMessage.MessageType = ResultMessageE.Error;
+                                //return resultMessage;
+                            }
+                            #endregion
+                        }
+
                     }
-                }
-
-                #endregion
-
-                #region Notifications & SMS
-                //Aniket [31-7-2019] added to set sms text dynamically
-                List<TblAlertDefinitionTO> tblAlertDefinitionTOList = _iTblAlertDefinitionDAO.SelectAllTblAlertDefinition();
-
-                //AmolG[2020-Feb-11]
-                //Check and generate alert if the size is changes when update booking. This is SRJ requirement
-
-                String errorMsg = String.Empty;
-                AnalyzeDifferentSizes(null, tblBookingsTO, true, tblAlertDefinitionTOList, ref errorMsg, 0, conn, tran);
-              
-                // if booking withing quota then send notification to dealer confirming order detail
-                // else send notification for approval of booking
-
-                TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
-                List<TblAlertUsersTO> tblAlertUsersTOList = new List<TblAlertUsersTO>();
-                List<TblUserTO> cnfUserList = _iTblUserDAO.SelectAllTblUser(tblBookingsTO.CnFOrgId, conn, tran);
-                if (cnfUserList != null && cnfUserList.Count > 0)
-                {
-                    for (int a = 0; a < cnfUserList.Count; a++)
+                    #endregion
+                    #region Added By Kiran For Bundle Wise Item Details using booking Id
+                    if (tblBookingsTO.OrderDetailsLstForItemWise != null && tblBookingsTO.OrderDetailsLstForItemWise.Count > 0)
                     {
-                        TblAlertUsersTO tblAlertUsersTO = new TblAlertUsersTO();
-                        tblAlertUsersTO.UserId = cnfUserList[a].IdUser;
-                        tblAlertUsersTO.DeviceId = cnfUserList[a].RegisteredDeviceId;
-                        tblAlertUsersTOList.Add(tblAlertUsersTO);
+                        List<TblBookingExtTO> tblBookingExtTOItemWiseList = tblBookingsTO.OrderDetailsLstForItemWise.Where(w => w.BookedQty > 0).ToList();
+                        for (int j = 0; j < tblBookingExtTOItemWiseList.Count; j++)
+                        {
+                            TblBookingExtTO tblBookingExtTO = tblBookingExtTOItemWiseList[j];
+                            tblBookingExtTO.BookingId = tblBookingsTO.IdBooking;
+                            tblBookingExtTO.BalanceQty = tblBookingExtTO.BookedQty;
+                            //if(isBalajiClient==0)
+                            //Prajakta[2021-04-23] Commented as rate will get as per parity from GUI
+                            if (!isAddItemWiseRate)
+                                tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
+
+                            result = _iTblBookingExtDAO.InsertTblBookingExt(tblBookingExtTO, conn, tran);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
+                                resultMessage.Text = "Record Could not be saved.";
+                                resultMessage.DisplayMessage = "Record Could not be saved.";
+                                resultMessage.Result = 0;
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                return resultMessage;
+                            }
+                        }
                     }
-                }
-                if (tblBookingsTO.IsWithinQuotaLimit == 1)
-                {
+                    #endregion
 
-                    var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_CONFIRMED);
-                    tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_CONFIRMED;
-                    tblAlertInstanceTO.AlertAction = "BOOKING_CONFIRMED";
-                    tblAlertInstanceTO.AlertComment = "Your Booking #" + tblBookingsTO.BookingDisplayNo + " is confirmed. Rate : " + tblBookingsTO.BookingRate + " AND Qty : " + tblBookingsTO.BookingQty;
-                    tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
-                    // SMS to Dealer
-                    TblSmsTO smsTO = new TblSmsTO();
-                    Dictionary<Int32, String> orgMobileNoDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblBookingsTO.DealerOrgId.ToString(), conn, tran);
-                  
-                    if(!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
+                    //#region 3. Save Materialwise Qty and Rate
+                    //if (tblBookingsTO.OrderDetailsLst != null && tblBookingsTO.OrderDetailsLst.Count > 0)
+                    //{
+                    //    for (int i = 0; i < tblBookingsTO.OrderDetailsLst.Count; i++)
+                    //    {
+                    //        tblBookingsTO.OrderDetailsLst[i].BookingId = tblBookingsTO.IdBooking;
+                    //        tblBookingsTO.OrderDetailsLst[i].Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
+                    //        result = _iTblBookingExtBL.InsertTblBookingExt(tblBookingsTO.OrderDetailsLst[i], conn, tran);
+                    //        if (result != 1)
+                    //        {
+                    //            tran.Rollback();
+                    //            resultMessage.Text = "Sorry..Record Could not be saved. Error While InsertTblBookingExt in Function SaveNewBooking";
+                    //            resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                    //            resultMessage.Result = 0;
+                    //            resultMessage.MessageType = ResultMessageE.Error;
+                    //            return resultMessage;
+                    //        }
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    //Sanjay [2017-02-23] These details are not compulsory while entry
+                    //    //tran.Rollback();
+                    //    //resultMessage.Text = "OrderDetailsLst Not Found  While SaveNewBooking";
+                    //    //resultMessage.MessageType = ResultMessageE.Error;
+                    //    //return resultMessage;
+                    //}
+                    //#endregion
+
+                    //#region 4. Save Order Delivery Addresses
+
+                    //if (tblBookingsTO.DeliveryAddressLst != null && tblBookingsTO.DeliveryAddressLst.Count > 0)
+                    //{
+                    //    for (int i = 0; i < tblBookingsTO.DeliveryAddressLst.Count; i++)
+                    //    {
+                    //        if (string.IsNullOrEmpty(tblBookingsTO.DeliveryAddressLst[i].Country))
+                    //            tblBookingsTO.DeliveryAddressLst[i].Country = Constants.DefaultCountry;
+
+                    //        tblBookingsTO.DeliveryAddressLst[i].BookingId = tblBookingsTO.IdBooking;
+                    //        result =_iTblBookingDelAddrBL.InsertTblBookingDelAddr(tblBookingsTO.DeliveryAddressLst[i], conn, tran);
+                    //        if (result != 1)
+                    //        {
+                    //            tran.Rollback();
+                    //            resultMessage.Text = "Error While Inserting Booking Del Address in Function SaveNewBooking";
+                    //            resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                    //            resultMessage.MessageType = ResultMessageE.Error;
+                    //            return resultMessage;
+                    //        }
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    //Sanjay [2017-03-02] These details are not compulsory while entry
+                    //    //tran.Rollback();
+                    //    //resultMessage.Text = "Delivery Address Not Found - Function SaveNewBooking";
+                    //    //resultMessage.MessageType = ResultMessageE.Error;
+                    //    //return resultMessage;
+                    //}
+                    //#endregion
+
+                    #region 5. Update Quota for Balance Qty
+                    //[05-09-2018] : Vijaymala added to save quota details for regular booking
+                    if (isRegular)
                     {
-                        string tempSmsString = tblAlertDefinitionTO.DefaultSmsTxt;
-                        tempSmsString= tempSmsString.Replace("@QtyStr", tblBookingsTO.BookingQty.ToString());
-                        tempSmsString= tempSmsString.Replace("@RateStr", tblBookingsTO.BookingRate.ToString());
-                        smsTO.SmsTxt = tempSmsString;
+                        existingQuotaTO.BalanceQty = existingQuotaTO.BalanceQty - tblBookingsTO.BookingQty;
+                        existingQuotaTO.UpdatedBy = tblBookingsTO.CreatedBy;
+                        existingQuotaTO.UpdatedOn = _iCommon.ServerDateTime;
+
+                        result = _iTblQuotaDeclarationBL.UpdateTblQuotaDeclaration(existingQuotaTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.Text = "Error While Updating Quota UpdateTblQuotaDeclaration in Function SaveNewBooking";
+                            resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            return resultMessage;
+                        }
+
+                        #endregion
+
+                        #region 6. Manage Quota Consumption History
+
+                        TblQuotaConsumHistoryTO tblQuotaConsumHistoryTO = new TblQuotaConsumHistoryTO();
+                        tblQuotaConsumHistoryTO.AvailableQuota = tblBookingsTO.QuotaQtyBforBooking;
+                        tblQuotaConsumHistoryTO.BalanceQuota = tblBookingsTO.QuotaQtyAftBooking;
+                        tblQuotaConsumHistoryTO.BookingId = tblBookingsTO.IdBooking;
+                        tblQuotaConsumHistoryTO.CreatedBy = tblBookingsTO.CreatedBy;
+                        tblQuotaConsumHistoryTO.CreatedOn = tblBookingsTO.CreatedOn;
+                        tblQuotaConsumHistoryTO.QuotaDeclarationId = tblBookingsTO.QuotaDeclarationId;
+                        tblQuotaConsumHistoryTO.QuotaQty = -tblBookingsTO.BookingQty;
+                        tblQuotaConsumHistoryTO.Remark = "New Booking for Dealer :" + tblBookingsTO.DealerName;
+                        tblQuotaConsumHistoryTO.TxnOpTypeId = (int)Constants.TxnOperationTypeE.OUT;
+
+                        result = _iTblQuotaConsumHistoryDAO.InsertTblQuotaConsumHistory(tblQuotaConsumHistoryTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.Text = "Error While Updating Quota InsertTblQuotaConsumHistory in Function SaveNewBooking";
+                            resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            return resultMessage;
+                        }
+                    }
+
+                    #endregion
+
+                    #region Notifications & SMS
+                    //Aniket [31-7-2019] added to set sms text dynamically
+                    List<TblAlertDefinitionTO> tblAlertDefinitionTOList = _iTblAlertDefinitionDAO.SelectAllTblAlertDefinition();
+
+                    //AmolG[2020-Feb-11]
+                    //Check and generate alert if the size is changes when update booking. This is SRJ requirement
+
+                    String errorMsg = String.Empty;
+                    AnalyzeDifferentSizes(null, tblBookingsTO, true, tblAlertDefinitionTOList, ref errorMsg, 0, conn, tran);
+
+                    // if booking withing quota then send notification to dealer confirming order detail
+                    // else send notification for approval of booking
+
+                    TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
+                    List<TblAlertUsersTO> tblAlertUsersTOList = new List<TblAlertUsersTO>();
+                    List<TblUserTO> cnfUserList = _iTblUserDAO.SelectAllTblUser(tblBookingsTO.CnFOrgId, conn, tran);
+                    if (cnfUserList != null && cnfUserList.Count > 0)
+                    {
+                        for (int a = 0; a < cnfUserList.Count; a++)
+                        {
+                            TblAlertUsersTO tblAlertUsersTO = new TblAlertUsersTO();
+                            tblAlertUsersTO.UserId = cnfUserList[a].IdUser;
+                            tblAlertUsersTO.DeviceId = cnfUserList[a].RegisteredDeviceId;
+                            tblAlertUsersTOList.Add(tblAlertUsersTO);
+                        }
+                    }
+                    if (tblBookingsTO.IsWithinQuotaLimit == 1)
+                    {
+
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_CONFIRMED);
+                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_CONFIRMED;
+                        tblAlertInstanceTO.AlertAction = "BOOKING_CONFIRMED";
+                        tblAlertInstanceTO.AlertComment = "";
+                        //Reshma Added For Parmeshwar SMS Changes.
+                        String AlertComment = "";
+                        TblConfigParamsTO tblConfigParamsTOTemp = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_NOTIFICATIONS);
+                        if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
+                        { 
+                            Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
+                            if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                            {
+                                TblConfigParamsTO MessageTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_ORDER_CONFIRMATION_SMS_STRING);
+                                if (MessageTO != null && !String.IsNullOrEmpty(MessageTO.ConfigParamVal))
+                                {
+                                    if (tblBookingsTO != null && tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
+                                    {
+                                        if (tblBookingsTO != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count > 0)
+                                        {
+                                            AlertComment = MessageTO.ConfigParamVal;
+                                            AlertComment = AlertComment.Replace("@DEALER_NAME", tblBookingsTO.DealerName);
+                                            String SMS_CONTENT = tblBookingsTO.CreatedOn.ToString("dd-MMMM-yy") + " Rate " + tblBookingsTO.BookingRate + " Size";
+                                            for (int i = 0; i < tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count; i++)
+                                            {
+                                                if (i == 0)
+                                                {
+                                                    SMS_CONTENT = SMS_CONTENT + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].MaterialSubType + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].BookedQty + " MT";
+
+                                                }
+                                                else
+                                                {
+                                                    SMS_CONTENT = SMS_CONTENT + " , " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].MaterialSubType + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].BookedQty + " MT";
+                                                }
+                                            }
+                                            AlertComment = AlertComment.Replace("@SMS_CONTENT", SMS_CONTENT);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(AlertComment))
+                        {
+                            TblOrganizationTO OrganizationTO = _iTblOrganizationDAO.SelectTblOrganizationTO((int)Constants.DefaultCompanyId);
+                            AlertComment = AlertComment.Replace("@Org_Name", OrganizationTO .FirmName);
+                            tblAlertInstanceTO.AlertComment = AlertComment;
+
+                        }
+                        if (String.IsNullOrEmpty(tblAlertInstanceTO.AlertComment))
+                        {
+                            tblAlertInstanceTO.AlertComment = "Your Booking #" + tblBookingsTO.BookingDisplayNo + " is confirmed. Rate : " + tblBookingsTO.BookingRate + " AND Qty : " + tblBookingsTO.BookingQty;
+                        }
+                        tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
+                        // SMS to Dealer
+                        TblSmsTO smsTO = new TblSmsTO();
+                        Dictionary<Int32, String> orgMobileNoDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblBookingsTO.DealerOrgId.ToString(), conn, tran);
+
+                        if (!String.IsNullOrEmpty(tblAlertDefinitionTO.DefaultSmsTxt))
+                        {
+                            string tempSmsString = tblAlertDefinitionTO.DefaultSmsTxt;
+                            tempSmsString = tempSmsString.Replace("@QtyStr", tblBookingsTO.BookingQty.ToString());
+                            tempSmsString = tempSmsString.Replace("@RateStr", tblBookingsTO.BookingRate.ToString());
+                            smsTO.SmsTxt = tempSmsString;
+                        }
+                        else
+                        {
+                            if (orgMobileNoDCT != null && orgMobileNoDCT.Count == 1)
+                            {
+                                tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
+
+                                smsTO.MobileNo = orgMobileNoDCT[tblBookingsTO.DealerOrgId];
+                                smsTO.SourceTxnDesc = "New Booking";
+                                string confirmMsg = string.Empty;
+                                if (tblBookingsTO.IsConfirmed == 1)
+                                    confirmMsg = "Confirmed";
+                                else
+                                    confirmMsg = "Not Confirmed";
+
+                                smsTO.SmsTxt = "Your Order Of Qty " + tblBookingsTO.BookingQty.ToString().Trim() + " MT with Rate " + tblBookingsTO.BookingRate + " (Rs/MT) is " + confirmMsg.Trim() + " Your Ref No : " + tblBookingsTO.BookingDisplayNo + "";
+                                //Reshma Added
+                                if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
+                                {
+                                    Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
+                                    if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                                    {
+                                        smsTO.SmsTxt = tblAlertInstanceTO.AlertComment;
+                                    }
+                                }
+                            }
+
+                        }
+                        tblAlertInstanceTO.SmsTOList.Add(smsTO);
+
                     }
                     else
                     {
-                        if (orgMobileNoDCT != null && orgMobileNoDCT.Count == 1)
+                        Boolean isCnfAcceptDirectly = false;
+                        Boolean isFromNewBooking = true;
+                        if (tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_APPROVED_FINANCE)
                         {
-                            tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
-
-                            smsTO.MobileNo = orgMobileNoDCT[tblBookingsTO.DealerOrgId];
-                            smsTO.SourceTxnDesc = "New Booking";
-                            string confirmMsg = string.Empty;
-                            if (tblBookingsTO.IsConfirmed == 1)
-                                confirmMsg = "Confirmed";
-                            else
-                                confirmMsg = "Not Confirmed";
-
-                            smsTO.SmsTxt = "Your Order Of Qty " + tblBookingsTO.BookingQty.ToString().Trim() + " MT with Rate " + tblBookingsTO.BookingRate + " (Rs/MT) is " + confirmMsg.Trim() + " Your Ref No : " + tblBookingsTO.BookingDisplayNo + "";
-                            
+                            isCnfAcceptDirectly = true;
                         }
-                        
-                    }
-                    tblAlertInstanceTO.SmsTOList.Add(smsTO);
-
-                }
-                else
-                {
-                    Boolean isCnfAcceptDirectly = false;
-                    Boolean isFromNewBooking = true;
-                    if (tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_APPROVED_FINANCE)
-                    {
-                        isCnfAcceptDirectly = true;
-                    }
-                    resultMessage = SendNotification(tblBookingsTO, isCnfAcceptDirectly, isFromNewBooking, conn, tran);
-                    if (resultMessage.MessageType != ResultMessageE.Information)
-                    {
-                        tran.Rollback();
-                        return resultMessage;
-                    }
-
-                    //if (tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_PENDING_FOR_DIRECTOR_APPROVAL)
-                    //{
-                    //    tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_APPROVAL_REQUIRED;
-                    //    tblAlertInstanceTO.AlertAction = "BOOKING_APPROVAL_REQUIRED";
-                    //    tblAlertInstanceTO.AlertComment = "Booking #" + tblBookingsTO.IdBooking + " is awaiting for your confirmation";
-                    //}
-                    //else
-                    {
-                        if (tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_NEW)
+                        resultMessage = SendNotification(tblBookingsTO, isCnfAcceptDirectly, isFromNewBooking, conn, tran);
+                        if (resultMessage.MessageType != ResultMessageE.Information)
                         {
-                            var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_APPROVAL_REQUIRED);
-                            tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_APPROVAL_REQUIRED;
-                            tblAlertInstanceTO.AlertAction = "booking_approval_required";
-                            string tempTxt = "";
-                            if(!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                            tran.Rollback();
+                            return resultMessage;
+                        }
+
+                        //if (tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_PENDING_FOR_DIRECTOR_APPROVAL)
+                        //{
+                        //    tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_APPROVAL_REQUIRED;
+                        //    tblAlertInstanceTO.AlertAction = "BOOKING_APPROVAL_REQUIRED";
+                        //    tblAlertInstanceTO.AlertComment = "Booking #" + tblBookingsTO.IdBooking + " is awaiting for your confirmation";
+                        //}
+                        //else
+                        {
+                            if (tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_NEW)
                             {
-                                tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
-                                tempTxt = tempTxt.Replace("@BookingIdStr", tblBookingsTO.BookingDisplayNo.ToString());
-                                tempTxt = tempTxt.Replace("@DealerName", tblBookingsTO.DealerName);
-                                tblAlertInstanceTO.AlertComment = tempTxt;
+                                var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_APPROVAL_REQUIRED);
+                                tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKING_APPROVAL_REQUIRED;
+                                tblAlertInstanceTO.AlertAction = "booking_approval_required";
+                                string tempTxt = "";
+                                if (!string.IsNullOrEmpty(tblAlertDefinitionTO.DefaultAlertTxt))
+                                {
+                                    tempTxt = tblAlertDefinitionTO.DefaultAlertTxt;
+                                    tempTxt = tempTxt.Replace("@BookingIdStr", tblBookingsTO.BookingDisplayNo.ToString());
+                                    tempTxt = tempTxt.Replace("@DealerName", tblBookingsTO.DealerName);
+                                    tblAlertInstanceTO.AlertComment = tempTxt;
+                                }
+                                else
+                                    tblAlertInstanceTO.AlertComment = "approval required for booking #" + tblBookingsTO.BookingDisplayNo;
                             }
-                            else
-                            tblAlertInstanceTO.AlertComment = "approval required for booking #" + tblBookingsTO.BookingDisplayNo;
+
                         }
 
                     }
 
-                }
+                    tblAlertInstanceTO.EffectiveFromDate = tblBookingsTO.CreatedOn;
+                    tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(10);
+                    tblAlertInstanceTO.IsActive = 1;
+                    tblAlertInstanceTO.SourceDisplayId = "New Booking";
+                    tblAlertInstanceTO.SourceEntityId = tblBookingsTO.IdBooking;
+                    tblAlertInstanceTO.RaisedBy = tblBookingsTO.CreatedBy;
+                    tblAlertInstanceTO.RaisedOn = tblBookingsTO.CreatedOn;
+                    tblAlertInstanceTO.IsAutoReset = 1;
 
-                tblAlertInstanceTO.EffectiveFromDate = tblBookingsTO.CreatedOn;
-                tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(10);
-                tblAlertInstanceTO.IsActive = 1;
-                tblAlertInstanceTO.SourceDisplayId = "New Booking";
-                tblAlertInstanceTO.SourceEntityId = tblBookingsTO.IdBooking;
-                tblAlertInstanceTO.RaisedBy = tblBookingsTO.CreatedBy;
-                tblAlertInstanceTO.RaisedOn = tblBookingsTO.CreatedOn;
-                tblAlertInstanceTO.IsAutoReset = 1;
-
-                ResultMessage rMessage = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
-                if (rMessage.MessageType != ResultMessageE.Information)
-                {
-                    tran.Rollback();
-                    resultMessage.DefaultBehaviour();
-                    resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
-                    resultMessage.Text = "Error While Generating Notification";
-
-                    return resultMessage;
-                }
-
-
-
-                //Vijaymala [06-09-2018] added to send new enquiry notification to role like Loading Person
-
-                //tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.New_Booking;
-                //tblAlertInstanceTO.AlertAction = "New_Booking";
-                //tblAlertInstanceTO.AlertComment = "New Booking #" + tblBookingsTO.IdBooking + " Is Generated(" + tblBookingsTO.DealerName + ").";
-
-                ResultMessage rMsg = new ResultMessage();
-
-
-                //Vijaymala[06-09-2018] added to send new enquiry notification to role like RM
-                List<TblUserAreaAllocationTO> tblUserAreaAllocationTOlist = _iTblUserAreaAllocationBL.SelectAllBookingUserAreaAllocationList(tblBookingsTO.CnFOrgId, tblBookingsTO.DealerOrgId, tblBookingsTO.BrandId, conn, tran);
-                List<TblAlertUsersTO> tblAlertUsersList = new List<TblAlertUsersTO>();
-                for (int i = 0; i < tblUserAreaAllocationTOlist.Count; i++)
-                {
-                    TblUserAreaAllocationTO tblUserAreaAllocationTO = tblUserAreaAllocationTOlist[i];
-                    TblUserTO userTO = _iTblUserDAO.SelectTblUser(tblUserAreaAllocationTO.UserId, conn, tran);
-                    if (userTO != null)
-                    {
-                        TblAlertUsersTO tblAlertUsersTO = new TblAlertUsersTO();
-                        tblAlertUsersTO.UserId = userTO.IdUser;
-                        tblAlertUsersTO.DeviceId = userTO.RegisteredDeviceId;
-                        tblAlertUsersList.Add(tblAlertUsersTO);
-
-
-                    }
-                }
-                List<TblAlertUsersTO> distinctUSerList = tblAlertUsersList.GroupBy(w => w.UserId).Select(s => s.FirstOrDefault()).ToList();
-
-                // tblAlertInstanceTO.AlertUsersTOList = distinctUSerList;
-                // rMsg = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
-                // if (rMessage.MessageType != ResultMessageE.Information)
-                // {
-                //     tran.Rollback();
-                //     resultMessage.DefaultBehaviour();
-                //    resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
-                //    resultMessage.Text = "Error While Generating Notification";
-
-                //    return resultMessage;
-                // }
-
-                //Priyanka [03-10-2018] Added to send notification to RM.
-                //tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.DIRECTOR_REMARK_IN_BOOKING;
-                //tblAlertInstanceTO.AlertAction = "DIRECTOR_REMARK_IN_BOOKING";
-                //tblAlertInstanceTO.AlertComment = "Enquiry No. #" + tblBookingsTO.IdBooking + " Director has remark -" + tblBookingsTO.DirectorRemark;
-                //tblAlertInstanceTO.AlertUsersTOList = distinctUSerList;
-                //rMsg = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
-                //if (rMsg.MessageType != ResultMessageE.Information)
-                //{
-                //    tran.Rollback();
-                //    resultMessage.DefaultBehaviour();
-                //    resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
-                //    resultMessage.Text = "Error While Generating Notification";
-
-                //    return resultMessage;
-                //}
-
-
-                //Priyanka [04-10-18] Added to send notification to Sales Engineer
-                if (!string.IsNullOrEmpty(tblBookingsTO.DirectorRemark))
-                {
-                    tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.DIRECTOR_REMARK_IN_BOOKING;
-                    tblAlertInstanceTO.AlertAction = "DIRECTOR_REMARK_IN_BOOKING";
-                    tblAlertInstanceTO.AlertComment = "Enquiry No. #" + tblBookingsTO.BookingDisplayNo + " Director has remark -" + tblBookingsTO.DirectorRemark;
-                    tblAlertInstanceTO.SourceDisplayId = "Director Remark for booking";
-
-                    tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
-                    tblAlertInstanceTO.AlertUsersTOList.AddRange(distinctUSerList);
-
-                    rMsg = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
-                    if (rMsg.MessageType != ResultMessageE.Information)
+                    ResultMessage rMessage = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
+                    if (rMessage.MessageType != ResultMessageE.Information)
                     {
                         tran.Rollback();
                         resultMessage.DefaultBehaviour();
                         resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
                         resultMessage.Text = "Error While Generating Notification";
+
                         return resultMessage;
                     }
+
+
+
+                    //Vijaymala [06-09-2018] added to send new enquiry notification to role like Loading Person
+
+                    //tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.New_Booking;
+                    //tblAlertInstanceTO.AlertAction = "New_Booking";
+                    //tblAlertInstanceTO.AlertComment = "New Booking #" + tblBookingsTO.IdBooking + " Is Generated(" + tblBookingsTO.DealerName + ").";
+
+                    ResultMessage rMsg = new ResultMessage();
+
+
+                    //Vijaymala[06-09-2018] added to send new enquiry notification to role like RM
+                    List<TblUserAreaAllocationTO> tblUserAreaAllocationTOlist = _iTblUserAreaAllocationBL.SelectAllBookingUserAreaAllocationList(tblBookingsTO.CnFOrgId, tblBookingsTO.DealerOrgId, tblBookingsTO.BrandId, conn, tran);
+                    List<TblAlertUsersTO> tblAlertUsersList = new List<TblAlertUsersTO>();
+                    for (int i = 0; i < tblUserAreaAllocationTOlist.Count; i++)
+                    {
+                        TblUserAreaAllocationTO tblUserAreaAllocationTO = tblUserAreaAllocationTOlist[i];
+                        TblUserTO userTO = _iTblUserDAO.SelectTblUser(tblUserAreaAllocationTO.UserId, conn, tran);
+                        if (userTO != null)
+                        {
+                            TblAlertUsersTO tblAlertUsersTO = new TblAlertUsersTO();
+                            tblAlertUsersTO.UserId = userTO.IdUser;
+                            tblAlertUsersTO.DeviceId = userTO.RegisteredDeviceId;
+                            tblAlertUsersList.Add(tblAlertUsersTO);
+
+
+                        }
+                    }
+                    List<TblAlertUsersTO> distinctUSerList = tblAlertUsersList.GroupBy(w => w.UserId).Select(s => s.FirstOrDefault()).ToList();
+
+                    // tblAlertInstanceTO.AlertUsersTOList = distinctUSerList;
+                    // rMsg = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
+                    // if (rMessage.MessageType != ResultMessageE.Information)
+                    // {
+                    //     tran.Rollback();
+                    //     resultMessage.DefaultBehaviour();
+                    //    resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                    //    resultMessage.Text = "Error While Generating Notification";
+
+                    //    return resultMessage;
+                    // }
+
+                    //Priyanka [03-10-2018] Added to send notification to RM.
+                    //tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.DIRECTOR_REMARK_IN_BOOKING;
+                    //tblAlertInstanceTO.AlertAction = "DIRECTOR_REMARK_IN_BOOKING";
+                    //tblAlertInstanceTO.AlertComment = "Enquiry No. #" + tblBookingsTO.IdBooking + " Director has remark -" + tblBookingsTO.DirectorRemark;
+                    //tblAlertInstanceTO.AlertUsersTOList = distinctUSerList;
+                    //rMsg = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
+                    //if (rMsg.MessageType != ResultMessageE.Information)
+                    //{
+                    //    tran.Rollback();
+                    //    resultMessage.DefaultBehaviour();
+                    //    resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                    //    resultMessage.Text = "Error While Generating Notification";
+
+                    //    return resultMessage;
+                    //}
+
+
+                    //Priyanka [04-10-18] Added to send notification to Sales Engineer
+                    if (!string.IsNullOrEmpty(tblBookingsTO.DirectorRemark))
+                    {
+                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.DIRECTOR_REMARK_IN_BOOKING;
+                        tblAlertInstanceTO.AlertAction = "DIRECTOR_REMARK_IN_BOOKING";
+                        tblAlertInstanceTO.AlertComment = "Enquiry No. #" + tblBookingsTO.BookingDisplayNo + " Director has remark -" + tblBookingsTO.DirectorRemark;
+                        tblAlertInstanceTO.SourceDisplayId = "Director Remark for booking";
+
+                        tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
+                        tblAlertInstanceTO.AlertUsersTOList.AddRange(distinctUSerList);
+
+                        rMsg = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
+                        if (rMsg.MessageType != ResultMessageE.Information)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour();
+                            resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                            resultMessage.Text = "Error While Generating Notification";
+                            return resultMessage;
+                        }
+                    }
+
+
+                    #endregion
+
+                    tran.Commit();
+
+
                 }
 
-
-                #endregion
-
-                tran.Commit();
                 resultMessage.MessageType = ResultMessageE.Information;
                 if (tblBookingsTO.IsWithinQuotaLimit == 1)
                 {
@@ -3320,6 +4094,48 @@ namespace ODLMWebAPI.BL
                         else
                         tblAlertInstanceTO.AlertComment = "Booking #" + tblBookingsTO.BookingDisplayNo + " is accepted by Director";
 
+                        //Reshma Added For SMS Template Changes.
+                        String AlertComment = "";
+                        TblConfigParamsTO tblConfigParamsTOTemp = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_NOTIFICATIONS);
+                        if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
+                        {
+                            Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
+                            if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                            { 
+                                TblConfigParamsTO MessageTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_ORDER_CONFIRMATION_SMS_STRING);
+                                if (MessageTO != null && !String.IsNullOrEmpty(MessageTO.ConfigParamVal))
+                                {
+                                    if (tblBookingsTO != null && tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
+                                    {
+                                        if (tblBookingsTO != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst != null && tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count > 0)
+                                        {
+                                            AlertComment = MessageTO.ConfigParamVal;
+                                            AlertComment = AlertComment.Replace("@Dealer_Name ", tblBookingsTO.DealerName);
+                                            String SMS_CONTENT = tblBookingsTO.CreatedOn.ToString("dd-MMMM-yy") + " Rate " + tblBookingsTO.BookingRate + " Size";
+                                            for (int i = 0; i < tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst.Count; i++)
+                                            {
+                                                if (i == 0)
+                                                {
+                                                    SMS_CONTENT = SMS_CONTENT + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].MaterialSubType + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[0].BookedQty + " MT";
+                                                }
+                                                else
+                                                {
+                                                    SMS_CONTENT = SMS_CONTENT + " , " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].MaterialSubType + " Qty " + tblBookingsTO.BookingScheduleTOLst[0].OrderDetailsLst[i].BookedQty + " MT";
+                                                }
+                                            }
+                                            AlertComment = AlertComment.Replace("@SMS_CONTENT", SMS_CONTENT);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(AlertComment))
+                        {
+                            TblOrganizationTO OrganizationTO = _iTblOrganizationDAO.SelectTblOrganizationTO((int)Constants.DefaultCompanyId);
+                            AlertComment = AlertComment.Replace("@Org_Name", OrganizationTO.FirmName);
+                            tblAlertInstanceTO.AlertComment = AlertComment; 
+                        }
+
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
                             tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
@@ -3332,7 +4148,8 @@ namespace ODLMWebAPI.BL
                         // SMS to Dealer
                         Dictionary<Int32, String> orgMobileNoDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblBookingsTO.DealerOrgId.ToString(), conn, tran);
                         if (orgMobileNoDCT != null && orgMobileNoDCT.Count == 1)
-                        {
+                        { 
+                            
                             tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
                             TblSmsTO smsTO = new TblSmsTO();
                             smsTO.MobileNo = orgMobileNoDCT[tblBookingsTO.DealerOrgId];
@@ -3460,6 +4277,15 @@ namespace ODLMWebAPI.BL
                                     smsTO.SmsTxt = SMSContent + " Your Ref No : " + tblBookingsTO.BookingDisplayNo;
                                 else
                                     smsTO.SmsTxt = SMSContent + " Your Ref No : " + tblBookingsTO.BookingDisplayNo + " (Other)";
+                            }
+                            //Reshma Added
+                            if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
+                            {
+                                Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
+                                if (IS_SEND_CUSTOM_NOTIFICATIONS == 1 && templist.Count > 0)
+                                {
+                                    smsTO.SmsTxt = tblAlertInstanceTO.AlertComment;
+                                }
                             }
                             tblAlertInstanceTO.SmsTOList.Add(smsTO);
                         }
@@ -3654,6 +4480,9 @@ namespace ODLMWebAPI.BL
                 existingTblBookingsTO.IsSez = tblBookingsTO.IsSez;
                 existingTblBookingsTO.UomQty = tblBookingsTO.UomQty;
                 existingTblBookingsTO.PendingUomQty = tblBookingsTO.PendingUomQty;
+                existingTblBookingsTO.OrderTypeId = tblBookingsTO.OrderTypeId;
+                existingTblBookingsTO.OrderTypeName = tblBookingsTO.OrderTypeName;
+                existingTblBookingsTO.CnfChkSelected = tblBookingsTO.CnfChkSelected;
 
                 //Aniket [24-7-2019] added to check scheduled NoOfDeliveries against booking
                 if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)

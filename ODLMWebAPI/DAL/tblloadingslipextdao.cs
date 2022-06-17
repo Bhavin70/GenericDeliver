@@ -156,7 +156,7 @@ namespace ODLMWebAPI.DAL
                 conn.Close();
                 cmdSelect.Dispose();
             }
-        }
+        } 
 
         public List<TblLoadingSlipExtTO> SelectAllLoadingSlipExtListFromLoadingId(String loadingIds, SqlConnection conn, SqlTransaction tran)
         {
@@ -569,6 +569,16 @@ namespace ODLMWebAPI.DAL
                 while (tblLoadingSlipExtTODT.Read())
                 {
                     TblLoadingSlipExtTO tblLoadingSlipExtTONew = new TblLoadingSlipExtTO();
+                    if (tblLoadingSlipExtTODT["rateCalcDesc"] != DBNull.Value)
+                        tblLoadingSlipExtTONew.RateCalcDesc  = Convert.ToString(tblLoadingSlipExtTODT["rateCalcDesc"].ToString());
+                    object obj = tblLoadingSlipExtTONew.RateCalcDesc.Split('|').GetValue(6);//.GetType(5) ;//"Parity :"
+                    if (obj != null)
+                    {
+                        string ParityDeatils = obj.ToString ();
+                        ParityDeatils= ParityDeatils.Substring(9);
+                        tblLoadingSlipExtTONew.ParityDetails = Convert.ToDouble(ParityDeatils);
+                    }
+
                     if (tblLoadingSlipExtTODT["idLoadingSlipExt"] != DBNull.Value)
                         tblLoadingSlipExtTONew.IdLoadingSlipExt = Convert.ToInt32(tblLoadingSlipExtTODT["idLoadingSlipExt"].ToString());
                     if (tblLoadingSlipExtTODT["bookingId"] != DBNull.Value)
@@ -795,13 +805,17 @@ namespace ODLMWebAPI.DAL
                     whereCondition += " AND loadingSlip.fromOrgId IN (" + selectedOrgStr + ")";
                 }
                 //[05-09-2018]Vijaymala modified to change statistic report for regular or other loading
-                sqlQuery = "select SUM(AA.loadingQty) AS loadingQty ,AA.materialSubType , AA.brandDesc ,AA.prodCatDesc,AA.prodSpecDesc," +
+                sqlQuery = " select SUM(AA.loadingQty) AS loadingQty ,SUM(AA.loadedWeight) AS loadedWeight," +
+                           " CAST(((SUM((ISNULL(AA.totalAmount,0)))/SUM((ISNULL(AA.loadedWeight,0))))) AS DECIMAL(18,2)) AS averageRate," +
+                           "  AA.materialSubType , AA.brandDesc ,AA.prodCatDesc,AA.prodSpecDesc," +
                            " AA.itemName,AA.prodItemId,AA.displayName ,AA.sequenceNo   from " +
                         " ( " +
-                         " SELECT SUM(loadDtl.loadingQty) AS loadingQty, material.materialSubType, prodCat.prodCateDesc AS prodCatDesc, " +
+                         " SELECT loadDtl.loadingQty AS loadingQty,((ISNULL(loadDtl.loadedWeight,0))/1000) AS loadedWeight, " +
+                         "  (((ISNULL(loadDtl.loadedWeight,0))/1000)*(ISNULL(loadDtl.ratePerMT,0))) AS totalAmount, " +
+                         " material.materialSubType, prodCat.prodCateDesc AS prodCatDesc, " +
                          " prodSpec.prodSpecDesc, brand.brandName as brandDesc,item.itemName,loadDtl.prodItemId,prodClass.displayName," +
                          " material.sequenceNo" +
-                         " FROM tempLoadingSlipExt loadDtl " +
+                         " FROM tempLoadingSlipExt loadDtl " +                         
                          " LEFT JOIN dimLoadingLayers loadLayers ON loadDtl.loadingLayerid = loadLayers.idLoadingLayer " +
                          " LEFT JOIN tblMaterial material   ON material.idMaterial = loadDtl.materialId " +
                          " LEFT JOIN  dimProdCat prodCat ON prodCat.idProdCat = loadDtl.prodCatId " +
@@ -812,13 +826,16 @@ namespace ODLMWebAPI.DAL
                          " LEFT JOIN tblProductItem item ON item.idProdItem = loadDtl.prodItemId " +
                          " LEFT JOIN tblProdClassification prodClass ON item.prodClassId = prodClass.idProdClass " +
                          " " + whereCondition +
-                         " Group BY  material.materialSubType, prodCat.prodCateDesc, prodSpec.prodSpecDesc, brand.brandName" +
-                         " ,item.itemName,loadDtl.prodItemId,prodClass.displayName ,material.sequenceNo " +
+                         //" Group BY  material.materialSubType, prodCat.prodCateDesc, prodSpec.prodSpecDesc, brand.brandName" +
+                         //" ,item.itemName,loadDtl.prodItemId,prodClass.displayName ,material.sequenceNo " +
                          " UNION ALL " +
-                         " SELECT  SUM(loadDtl.loadingQty) AS LoadingQty, material.materialSubType, " +
+                         " SELECT  loadDtl.loadingQty AS loadingQty,((ISNULL(loadDtl.loadedWeight,0))/1000) AS loadedWeight, " +
+                         "  (((ISNULL(loadDtl.loadedWeight,0))/1000)*(ISNULL(loadDtl.ratePerMT,0))) AS totalAmount, " +
+                         " material.materialSubType, " +
                          " prodCat.prodCateDesc AS prodCatDesc, prodSpec.prodSpecDesc, brand.brandName as brandDesc " +
                          " ,item.itemName,loadDtl.prodItemId,prodClass.displayName,material.sequenceNo " +
-                         " FROM finalLoadingSlipExt loadDtl LEFT JOIN dimLoadingLayers loadLayers " +
+                         " FROM finalLoadingSlipExt loadDtl " +                        
+                         " LEFT JOIN dimLoadingLayers loadLayers " +
                          " ON loadDtl.loadingLayerid = loadLayers.idLoadingLayer " +
                          " LEFT JOIN tblMaterial material   ON material.idMaterial = loadDtl.materialId " +
                          " LEFT JOIN  dimProdCat prodCat ON prodCat.idProdCat = loadDtl.prodCatId " +
@@ -829,8 +846,8 @@ namespace ODLMWebAPI.DAL
                          " LEFT JOIN tblProductItem item ON item.idProdItem = loadDtl.prodItemId " +
                          " LEFT JOIN tblProdClassification prodClass ON item.prodClassId = prodClass.idProdClass " +
                         " " + whereCondition +
-                         "  Group BY material.materialSubType, prodCat.prodCateDesc, prodSpec.prodSpecDesc, brand.brandName " +
-                         "  ,item.itemName,loadDtl.prodItemId,prodClass.displayName,material.sequenceNo" +
+                         //"  Group BY material.materialSubType, prodCat.prodCateDesc, prodSpec.prodSpecDesc, brand.brandName " +
+                         //"  ,item.itemName,loadDtl.prodItemId,prodClass.displayName,material.sequenceNo" +
                          "  ) as AA " +
                          "  Group BY  AA.materialSubType , AA.brandDesc ,AA.prodCatDesc,AA.prodSpecDesc " +
                          "  ,AA.itemName,AA.prodItemId,AA.displayName,AA.sequenceNo order by prodItemId,sequenceNo asc";
@@ -859,7 +876,7 @@ namespace ODLMWebAPI.DAL
                         TblLoadingSlipExtTO tblLoadingSlipExtTONew = new TblLoadingSlipExtTO();
                         if (tblLoadingSlipExtTODT["loadingQty"] != DBNull.Value)
                             tblLoadingSlipExtTONew.LoadingQty = Convert.ToDouble(tblLoadingSlipExtTODT["loadingQty"].ToString());
-                        
+                            tblLoadingSlipExtTONew.DisplayLoadingQty = String.Format("{0:0.000}", tblLoadingSlipExtTONew.LoadingQty);
                         //if (tblLoadingSlipExtTODT["layerDesc"] != DBNull.Value)
                         //    tblLoadingSlipExtTONew.LoadingLayerDesc = Convert.ToString(tblLoadingSlipExtTODT["layerDesc"].ToString());
                         if (tblLoadingSlipExtTODT["materialSubType"] != DBNull.Value)
@@ -893,6 +910,14 @@ namespace ODLMWebAPI.DAL
 
                         if (tblLoadingSlipExtTODT["sequenceNo"] != DBNull.Value)
                             tblLoadingSlipExtTONew.SequenceNo = Convert.ToInt32(tblLoadingSlipExtTODT["sequenceNo"].ToString());
+
+                        if (tblLoadingSlipExtTODT["loadedWeight"] != DBNull.Value)
+                            tblLoadingSlipExtTONew.LoadedWeight = Convert.ToDouble(tblLoadingSlipExtTODT["loadedWeight"].ToString());
+                        tblLoadingSlipExtTONew.DisplayLoadedQty = String.Format("{0:0.000}", tblLoadingSlipExtTONew.LoadedWeight);
+
+                        if (tblLoadingSlipExtTODT["averageRate"] != DBNull.Value)
+                            tblLoadingSlipExtTONew.AverageRate = Convert.ToDouble(tblLoadingSlipExtTODT["averageRate"].ToString());
+                        tblLoadingSlipExtTONew.DisplayAverageRate = String.Format("{0:0.00}", tblLoadingSlipExtTONew.AverageRate);
                         list.Add(tblLoadingSlipExtTONew);
                     }
                 }
@@ -1179,6 +1204,36 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public int UpdateTblLoadingSlipExtForWeghing(int idLoadingSlip, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+                String sqlQuery = @" UPDATE [tempLoadingSlipExt] SET " +
+                            "  [isAllowWeighingMachine]= NULL" +
+                            " ,[loadedWeight]= NULL" +
+                            " ,[loadedBundles]= NULL" +
+                            " ,[calcTareWeight]= NULL" +
+                            " ,[weightMeasureId]= NULL" +
+                            " ,[updatedBy]= NULL" +
+                            " ,[updatedOn]= NULL" +
+                             " WHERE [loadingSlipId ] in ("+ idLoadingSlip + ")";
+                cmdUpdate.CommandText = sqlQuery;
+
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
         public int ExecuteUpdationCommand(TblLoadingSlipExtTO tblLoadingSlipExtTO, SqlCommand cmdUpdate)
         {
             String sqlQuery = @" UPDATE [tempLoadingSlipExt] SET " +

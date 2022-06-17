@@ -21,7 +21,7 @@ namespace ODLMWebAPI.DAL
         #region Methods
         public String SqlSelectQuery()
         {
-            String sqlSelectQry = " SELECT addr.* , orgAddr.addrTypeId,tal.talukaName,dist.districtName,stat.stateName " +
+            String sqlSelectQry = " SELECT addr.* , orgAddr.addrTypeId,tal.talukaName,dist.districtName,stat.stateName, stat.stateOrUTCode " +
                                   " FROM tblAddress addr " +
                                   " LEFT JOIN dimTaluka tal ON tal.idTaluka = addr.talukaId " +
                                   " LEFT JOIN dimDistrict dist ON dist.idDistrict = addr.districtId " +
@@ -111,7 +111,7 @@ namespace ODLMWebAPI.DAL
                 }
                 cmdSelect.CommandText =SqlSelectQuery() +  " LEFT JOIN tblOrgAddress orgAddr " +
                                         " ON addr.idAddr = orgAddr.addressId " +
-                                        " WHERE organizationId=" + orgId + " AND addrTypeId=" + addressTypeId;
+                                        " WHERE organizationId=" + orgId + " AND isAddrVisible = 1 AND addrTypeId=" + addressTypeId;
 
                 //cmdSelect.Connection = conn;
                 //cmdSelect.Transaction = tran;
@@ -119,7 +119,7 @@ namespace ODLMWebAPI.DAL
 
                 reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
                 List<TblAddressTO> list = ConvertDTToList(reader);
-                if (list != null && list.Count == 1)
+                if (list != null && list.Count > 0)
                     return list[0];
                 else return null;
             }
@@ -206,6 +206,8 @@ namespace ODLMWebAPI.DAL
                         tblAddressTONew.DistrictName = Convert.ToString(tblAddressTODT["districtName"].ToString());
                     if (tblAddressTODT["stateName"] != DBNull.Value)
                         tblAddressTONew.StateName = Convert.ToString(tblAddressTODT["stateName"].ToString());
+                    if (tblAddressTODT["stateOrUTCode"] != DBNull.Value)
+                        tblAddressTONew.StateOrUTCode = Convert.ToString(tblAddressTODT["stateOrUTCode"].ToString());
 
                     if (tblAddressTODT["addrTypeId"] != DBNull.Value)
                         tblAddressTONew.AddrTypeId = Convert.ToInt32(tblAddressTODT["addrTypeId"].ToString());

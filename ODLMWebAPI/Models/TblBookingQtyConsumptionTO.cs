@@ -85,4 +85,25 @@ namespace ODLMWebAPI.Models
         }
         #endregion
     }
+
+
+    public class TblBookingAnalysisReportTO
+    {
+        public Int32   SrNo {get;set;}
+        public Int32   BookingId {get;set; }
+        public Int32   StatusId { get; set; }
+        public Int32 CreatedBy { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public Double BookingQty { get; set; }
+        public Double BookingRate { get; set; }
+        public Double TotalAvgRate { get; set; }
+        public Double TotalAvgQty { get; set; }
+        public Double AvgBookingFrequency { get; set; }
+        public Double DispatchedQty { get; set; }
+        public string DealerName { get; set; }
+        public string DistributorName { get; set; }
+        public string ConsumerType { get; set; }
+        public Int32 DistributorId { get; set; }
+        public Int32 DealerId { get; set; }
+    }
 }

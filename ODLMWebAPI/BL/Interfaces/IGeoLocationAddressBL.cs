@@ -12,7 +12,7 @@ namespace ODLMWebAPI.BL.Interfaces
     {
         GeoLocationAddressTo convertToProperAddress(GoogleGeoCodeResponse addressDetails);
         string createAddressDetils(List<results> googleGeoCodeResponse, string item);
-        ResultMessage myLocationAddress(string lat, string logn);
+        string myLocationAddress(string lat, string logn);
         string myLatLngByAddress(string address);
         List<newdata> SelectAlllatlngData();
         List<newdata> ConvertDTToList(SqlDataReader tblAddressTODT);

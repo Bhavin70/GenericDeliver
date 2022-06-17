@@ -174,6 +174,37 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public DimStatusTO SelectDimStatus(Int32 idStatus)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE idStatus = " + idStatus + " ";
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                SqlDataReader rdr = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DimStatusTO> list = ConvertDTToList(rdr);
+                rdr.Dispose();
+                if (list != null && list.Count == 1)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+
         public List<DimStatusTO> ConvertDTToList(SqlDataReader dimStatusTODT)
         {
             List<DimStatusTO> dimStatusTOList = new List<DimStatusTO>();

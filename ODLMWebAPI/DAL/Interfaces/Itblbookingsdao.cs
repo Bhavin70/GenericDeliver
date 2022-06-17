@@ -13,7 +13,7 @@ namespace ODLMWebAPI.DAL.Interfaces
     {
         String SqlSelectQuery(Int32 loginUserId = 0);
         List<TblBookingsTO> SelectAllTblBookings();
-        Double SelectTotalPendingBookingQty(DateTime sysDate);
+        List<PendingQtyOrderTypeTo> SelectTotalPendingBookingQty(DateTime sysDate);
         List<TblBookingsTO> SelectAllBookingsListFromLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran);
         List<TblBookingsTO> SelectAllBookingsListForApproval(Int32 isConfirmed, Int32 idBrand);
         List<TblBookingsTO> SelectAllBookingsListForAcceptance(Int32 cnfId, TblUserRoleTO tblUserRoleTO, Int32 isConfirmed);
@@ -23,13 +23,13 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords, Boolean pendingYn, Int32 bookingId);
         List<TblBookingsTO> SelectAllBookingList(Int32 cnfId, Int32 dealerId, TblUserRoleTO tblUserRoleTO);
         List<TblBookingsTO> GetOrderwiseDealerList();
-        List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId);
+        List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId, Int32 orderTypeId=0);
         List<TblBookingSummaryTO> SelectBookingSummaryList(Int32 typeId, Int32 masterId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 cnfId);
         List<TblBookingsTO> SelectUserwiseBookingList(DateTime fromDate, DateTime toDate, Int32 statusId, Int32 activeUserId);
         TblBookingsTO SelectTblBookings(Int32 idBooking);
         TblBookingsTO SelectBookingsTOWithDetails(Int32 idBooking);
         TblBookingsTO SelectTblBookings(Int32 idBooking, SqlConnection conn, SqlTransaction tran);
-        List<ODLMWebAPI.DashboardModels.BookingInfo> SelectBookingDashboardInfo(TblUserRoleTO tblUserRoleTO, int orgId, Int32 dealerId, DateTime date, string ids, Int32 isHideCorNC);
+        List<ODLMWebAPI.DashboardModels.BookingInfo> SelectBookingDashboardInfo(TblUserRoleTO tblUserRoleTO, int orgId, Int32 dealerId, DateTime date, string ids, Int32 isHideCorNC, Boolean bWithConsumerType);
         List<TblBookingsTO> ConvertDTToList(SqlDataReader tblBookingsTODT);
         List<TblBookingSummaryTO> ConvertDTToListForBookingSummaryRpt(SqlDataReader tblBookingsSummaryTODT);
         Dictionary<Int32, Double> SelectBookingsPendingQtyDCT(SqlConnection conn, SqlTransaction tran);
@@ -54,5 +54,6 @@ namespace ODLMWebAPI.DAL.Interfaces
         int UpdatePendingQuantity(TblBookingsTO tblBookingsTO, SqlConnection conn, SqlTransaction tran);
 
         int UpdateSizeQuantity(TblBookingsTO tblBookingsTO, SqlConnection conn, SqlTransaction tran);
+        List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate, int isFromProject);
     }
 }

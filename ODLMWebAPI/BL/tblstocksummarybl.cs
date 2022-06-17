@@ -8,6 +8,7 @@ using ODLMWebAPI.DAL;
 using ODLMWebAPI.Models;
 using ODLMWebAPI.StaticStuff;
 using System.Linq;
+using Newtonsoft.Json;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.DashboardModels;
@@ -121,11 +122,45 @@ namespace ODLMWebAPI.BL
             {
                 stockUpdateInfo = new DashboardModels.StockUpdateInfo();
             }
-
-            TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_TODAYS_BOOKING_OPENING_BALANCE);
-            if(tblConfigParamsTO != null)
+            List<DropDownTO> ConsumerTypeList = new List<DropDownTO>();
+            TblConfigParamsTO ConsumerTypeConfTo = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DELIVER_SKIP_CONSUMER_TYPE_ID_IN_SOLD_STOCK_DISPLAY_ON_DASHBOARD);
+            if(ConsumerTypeConfTo != null)
             {
-                stockUpdateInfo.SoldStock = Convert.ToDouble(tblConfigParamsTO.ConfigParamVal);
+                if (!String.IsNullOrEmpty(ConsumerTypeConfTo.ConfigParamVal))
+                {
+                    ConsumerTypeList = _iCommon.GetConsumerCategoryList(ConsumerTypeConfTo.ConfigParamVal);
+                }
+            }
+            
+            TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_TODAYS_BOOKING_OPENING_BALANCE);
+
+            //SoldStock will be set from ConfigParamVal as per booking type.
+            if (tblConfigParamsTO != null && tblConfigParamsTO.ConfigParamVal != null)
+            {
+                List<PendingQtyOrderTypeTo> PendingQtyWithOrderTypeList = JsonConvert.DeserializeObject<List<PendingQtyOrderTypeTo>>(tblConfigParamsTO.ConfigParamVal);
+                stockUpdateInfo.SoldStock = 0;
+                if(PendingQtyWithOrderTypeList != null)
+                {
+                    foreach (PendingQtyOrderTypeTo PendingQtyWithOrderType in PendingQtyWithOrderTypeList)
+                    {
+                        if(ConsumerTypeList != null && ConsumerTypeList.Count > 0)
+                        {
+                            var matchTO = ConsumerTypeList.Where(w => w.Text == PendingQtyWithOrderType.ConsumerTypeName).ToList();
+                            if(matchTO == null || matchTO.Count == 0)
+                            {
+                                stockUpdateInfo.SoldStock += PendingQtyWithOrderType.BookingQty;
+                            }
+                        }
+                        else
+                        {
+                            stockUpdateInfo.SoldStock += PendingQtyWithOrderType.BookingQty;
+                        }
+                    }
+                }
+               
+                //stockUpdateInfo.SoldStock = Convert.ToDouble(tblConfigParamsTO.ConfigParamVal);
+
+                stockUpdateInfo.PendingQtyWithOrderType = tblConfigParamsTO.ConfigParamVal;
 
             }
 
@@ -137,7 +172,7 @@ namespace ODLMWebAPI.BL
             ////Double bookedQty = _iTblBookingsBL.SelectTotalPendingBookingQty(yestDate);
 
             //stockUpdateInfo.SoldStock = bookedQty;
-
+            
             stockUpdateInfo.UnsoldStock = stockUpdateInfo.TotalSysStock - stockUpdateInfo.SoldStock; 
             //stockUpdateInfo.UnsoldStock = stockUpdateInfo.TodaysStock - stockUpdateInfo.SoldStock;
 
@@ -615,11 +650,15 @@ namespace ODLMWebAPI.BL
                     {
                         //DashboardModels.StockUpdateInfo stockUpdateInfo = _iTblStockSummaryDAO.SelectDashboardStockUpdateInfo(stockDate);
 
-                       Double bookedQty = _iTblBookingsBL.SelectTotalPendingBookingQty(stockDate);
+                       List<PendingQtyOrderTypeTo> TotalPendingQtyOrderTypeList = _iTblBookingsBL.SelectTotalPendingBookingQty(stockDate);
 
+                        string TotalPendingQtyOrderType = JsonConvert.SerializeObject(TotalPendingQtyOrderTypeList);
+                        tblConfigParamsTO.ConfigParamVal = TotalPendingQtyOrderType;
 
-                        tblConfigParamsTO.ConfigParamVal = bookedQty.ToString();
-
+                        List<PendingQtyOrderTypeTo> a = JsonConvert.DeserializeObject<List<PendingQtyOrderTypeTo>>(TotalPendingQtyOrderType);
+                        
+                        //tblConfigParamsTO.ConfigParamVal = bookedQty.ToString();
+                        
                         //  stockUpdateInfo.SoldStock = Convert.ToDouble(tblConfigParamsTO.ConfigParamVal);
 
                         result = _iTblConfigParamsBL.UpdateTblConfigParams(tblConfigParamsTO);

@@ -12,6 +12,11 @@ using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.IoT.Interfaces;
 using static ODLMWebAPI.StaticStuff.Constants;
+using QRCoder;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using OfficeOpenXml;
+using System.IO;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -79,7 +84,7 @@ namespace ODLMWebAPI.Controllers
         [Route("GetInvoiceList")]
         [HttpGet]
         public List<TblInvoiceTO> GetInvoiceList(string fromDate, string toDate, int isConfirm, Int32 cnfId,  Int32 dealerID, String userRoleTOList, Int32 brandId = 0, Int32 invoiceId = 0, Int32 statusId = 0,String internalOrgId="")
-        {
+       {
             try
             {
 
@@ -324,6 +329,7 @@ namespace ODLMWebAPI.Controllers
             try
             {
                 return _iTblInvoiceBL.SelectTblInvoiceByStatus(statusId, distributorOrgId, invoiceId, isConfirm);
+               
             }
             catch (Exception ex)
             {
@@ -344,7 +350,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetRptInvoiceList")]
         [HttpGet]
-        public List<TblInvoiceRptTO> GetRptInvoiceList(string fromDate, string toDate, int isConfirm,int fromOrgId)
+        public ResultMessage  GetRptInvoiceList(string fromDate, string toDate, int isConfirm,int fromOrgId)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -362,6 +368,22 @@ namespace ODLMWebAPI.Controllers
                 frmDt = _iCommon.ServerDateTime.Date;
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date;
+            return  _iTblInvoiceBL.SelectAllRptInvoiceList(frmDt, toDt, isConfirm, fromOrgId);
+        }
+
+        [Route("GetRptNCInvoiceList")]
+        [HttpGet]
+        public ResultMessage GetRptNCInvoiceList(int isConfirm, int fromOrgId)
+        {
+            DateTime frmDt = DateTime.MinValue;
+            DateTime toDt = DateTime.MinValue; 
+            if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
+                frmDt = _iCommon.ServerDateTime.Date .AddDays (-1);
+            if (Convert.ToDateTime(toDt) == DateTime.MinValue)
+                toDt = _iCommon.ServerDateTime;
+            //frmDt = frmDt.AddMinutes(530);
+            toDt = toDt .AddMinutes(530);
+
             return _iTblInvoiceBL.SelectAllRptInvoiceList(frmDt, toDt, isConfirm, fromOrgId);
         }
 
@@ -451,6 +473,62 @@ namespace ODLMWebAPI.Controllers
                 toDt = _iCommon.ServerDateTime.Date;
             return _iTblInvoiceBL.SelectSalesInvoiceListForReport(frmDt, toDt, isConfirm, fromOrgId);
         }
+
+        //For Metaroll changes in Item Wise sales export C report
+        [Route("GetItemWiseSalesExportCListForReport")]
+        [HttpGet]
+        public ResultMessage GetItemWiseSalesExportCListForReport(string fromDate, string toDate, int isConfirm, int fromOrgId)
+        {
+            DateTime frmDt = DateTime.MinValue;
+            DateTime toDt = DateTime.MinValue;
+            if (Constants.IsDateTime(fromDate))
+            {
+                frmDt = Convert.ToDateTime(fromDate);
+
+            }
+            if (Constants.IsDateTime(toDate))
+            {
+                toDt = Convert.ToDateTime(toDate);
+            }
+
+            if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
+                frmDt = _iCommon.ServerDateTime.Date;
+            if (Convert.ToDateTime(toDt) == DateTime.MinValue)
+                toDt = _iCommon.ServerDateTime.Date;
+            return _iTblInvoiceBL.SelectItemWiseSalesExportCListForReport(frmDt, toDt, isConfirm, fromOrgId);
+        }
+
+        [Route("PrintSaleReport")]
+        [HttpGet]
+        public ResultMessage PrintSaleReport(string fromDate, string toDate, int isConfirm, string selectedOrg, int isFromPurchase)
+        {
+            DateTime frmDt = DateTime.MinValue;
+            DateTime toDt = DateTime.MinValue;
+            if (Constants.IsDateTime(fromDate))
+            {
+                frmDt = Convert.ToDateTime(fromDate);
+
+            }
+            if (Constants.IsDateTime(toDate))
+            {
+                toDt = Convert.ToDateTime(toDate);
+            }
+
+            if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
+                frmDt = _iCommon.ServerDateTime.Date;
+            if (Convert.ToDateTime(toDt) == DateTime.MinValue)
+                toDt = _iCommon.ServerDateTime.Date;
+            if (string.IsNullOrEmpty(selectedOrg))
+            {
+                TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                if (tblConfigParamsTO != null)
+                {
+                    selectedOrg = Convert.ToString(tblConfigParamsTO.ConfigParamVal) + ",0";
+                }
+            }
+            return _iTblInvoiceBL.PrintSaleReport(frmDt, toDt, isConfirm, selectedOrg, isFromPurchase);
+        }
+
 
 
         [Route("GetOtherItemListForReport")]
@@ -579,6 +657,47 @@ namespace ODLMWebAPI.Controllers
                     toDt = _iCommon.ServerDateTime.Date;
 
                 return _iTblInvoiceBL.SelectAllTNotifiedblInvoiceList(frmDt, toDt,isConfirm, fromOrgId);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// AmolG[2022-Feb-14] For Invoice Size wise Report
+        /// </summary>
+        /// <param name="fromDate"></param>
+        /// <param name="toDate"></param>
+        /// <returns></returns>
+        [Route("GetAllInvoices")]
+        [HttpGet]
+        public List<InvoiceReportTO> GetAllInvoices(string fromDate, string toDate)
+        {
+            try
+            {
+                DateTime frmDt = DateTime.MinValue;
+                DateTime toDt = DateTime.MinValue;
+                if (Constants.IsDateTime(fromDate))
+                {
+                    frmDt = Convert.ToDateTime(fromDate);
+                }
+                if (Constants.IsDateTime(toDate))
+                {
+                    toDt = Convert.ToDateTime(toDate);
+                }
+
+                if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
+                    frmDt = _iCommon.ServerDateTime.Date;
+                if (Convert.ToDateTime(toDt) == DateTime.MinValue)
+                    toDt = _iCommon.ServerDateTime.Date;
+
+                String errorMsg = "";
+                return _iTblInvoiceBL.GetAllInvoices(frmDt, toDt, ref errorMsg);
             }
             catch (Exception ex)
             {
@@ -1051,7 +1170,7 @@ namespace ODLMWebAPI.Controllers
             }
             try
             {
-                if (tblConfigParamsTO.ConfigParamVal == Constants.DataExtractionTypeE.IsRegular.ToString())
+                if (tblConfigParamsTO.ConfigParamVal == Constants.DataExtractionTypeE.IsRegular.ToString ())
                 {
                     return _iTblLoadingBL.ExtractEnquiryData();
                 }
@@ -1224,6 +1343,21 @@ namespace ODLMWebAPI.Controllers
             }
         }
 
+        [Route("PostUpdateInvoiceStatus")]
+        [HttpPost]
+        public ResultMessage PostUpdateInvoiceStatus([FromBody] TblInvoiceTO tblInvoiceTO)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                return _iTblInvoiceBL.PostUpdateInvoiceStatus(tblInvoiceTO);
+            }
+            catch (Exception e)
+            {
+                resultMessage.DefaultExceptionBehaviour(e, "PostUpdateInvoiceStatus");
+                return resultMessage;
+            }
+        }
 
         [Route("PrintWeighingDetails")]
         [HttpPost]
@@ -1322,6 +1456,204 @@ namespace ODLMWebAPI.Controllers
         public void Delete(int id)
         {
         }
+
+        /// <summary>
+        /// Dhananjay[18-11-2020] : Added To Generate eInvvoice.
+        /// </summary>
+        [Route("GenerateEInvoice")]
+        [HttpPost]
+        public ResultMessage GenerateEInvoice([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                var loginUserId = data["loginUserId"].ToString();
+                var idInvoice = data["idInvoice"].ToString();
+                Int32 eInvoiceCreationType = Convert.ToInt32(data["generateEInvoiceTypeE"].ToString());
+                //Int32 idInvoice = 29194;
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    resultMessage.DefaultBehaviour("loginUserId Not Found");
+                    return resultMessage;
+                }
+                if (eInvoiceCreationType == 0)
+                {
+                    resultMessage.DefaultBehaviour("E-Invoice Creation type not found");
+                    return resultMessage;
+                }
+                
+                List<TblInvoiceAddressTO> tblInvoiceAddressTOList = JsonConvert.DeserializeObject<List<TblInvoiceAddressTO>>(data["invoiceAddressTOList"].ToString());
+                resultMessage = _iTblInvoiceBL.UpdateInvoiceAddress(tblInvoiceAddressTOList);
+                if (resultMessage == null || resultMessage.MessageType != ResultMessageE.Information)
+                {
+                    return resultMessage;
+                }
+
+                if (eInvoiceCreationType == (Int32)Constants.EGenerateEInvoiceCreationType.UPDATE_ONLY_ADDRESS)
+                {
+                    return resultMessage;
+                }
+                
+                return _iTblInvoiceBL.GenerateEInvoice(Convert.ToInt32(loginUserId), Convert.ToInt32(idInvoice), Convert.ToInt32(eInvoiceCreationType));
+            }
+            catch (Exception ex)
+            {
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Text = ex.Message;
+                return resultMessage;
+            }
+            finally
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// Dhananjay[19-11-2020] : Added To Cancel eInvvoice.
+        /// </summary>
+        [Route("CancelEInvoice")]
+        [HttpPost]
+        public ResultMessage CancelEInvoice([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                var loginUserId = data["loginUserId"].ToString();
+                var idInvoice = data["idInvoice"].ToString();
+                //Int32 idInvoice = 29194;
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    resultMessage.DefaultBehaviour("loginUserId Not Found");
+                    return resultMessage;
+                }
+                return _iTblInvoiceBL.CancelEInvoice(Convert.ToInt32(loginUserId), Convert.ToInt32(idInvoice));
+            }
+            catch (Exception ex)
+            {
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Text = ex.Message;
+                return resultMessage;
+            }
+            finally
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// Dhananjay[01-03-2021] : Added To Get And Update eInvvoice.
+        /// </summary>
+        [Route("GetAndUpdateEInvoice")]
+        [HttpPost]
+        public ResultMessage GetAndUpdateEInvoice([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                var loginUserId = data["loginUserId"].ToString();
+                var idInvoice = data["idInvoice"].ToString();
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    resultMessage.DefaultBehaviour("loginUserId Not Found");
+                    return resultMessage;
+                }
+                
+                return _iTblInvoiceBL.GetAndUpdateEInvoice(Convert.ToInt32(loginUserId), Convert.ToInt32(idInvoice));
+            }
+            catch (Exception ex)
+            {
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Text = ex.Message;
+                return resultMessage;
+            }
+            finally
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// Dhananjay[18-11-2020] : Added To Generate EWayBill.
+        /// </summary>
+        [Route("GenerateEWayBill")]
+        [HttpPost]
+        public ResultMessage GenerateEWayBill([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                var loginUserId = data["loginUserId"].ToString();
+                var idInvoice = data["idInvoice"].ToString();
+                var distanceInKM = data["distanceInKM"].ToString();
+                //Int32 idInvoice = 29194;
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    resultMessage.DefaultBehaviour("loginUserId Not Found");
+                    return resultMessage;
+                }
+                return _iTblInvoiceBL.GenerateEWayBill(Convert.ToInt32(loginUserId), Convert.ToInt32(idInvoice), Convert.ToDecimal(distanceInKM));
+            }
+            catch (Exception ex)
+            {
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Text = ex.Message;
+                return resultMessage;
+            }
+            finally
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// Dhananjay[19-11-2020] : Added To Cancel EWayBill.
+        /// </summary>
+        [Route("CancelEWayBill")]
+        [HttpPost]
+        public ResultMessage CancelEWayBill([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                var loginUserId = data["loginUserId"].ToString();
+                var idInvoice = data["idInvoice"].ToString();
+                //Int32 idInvoice = 29194;
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    resultMessage.DefaultBehaviour("loginUserId Not Found");
+                    return resultMessage;
+                }
+                return _iTblInvoiceBL.CancelEWayBill(Convert.ToInt32(loginUserId), Convert.ToInt32(idInvoice));
+            }
+            catch (Exception ex)
+            {
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Text = ex.Message;
+                return resultMessage;
+            }
+            finally
+            {
+
+            }
+        }
+        [Route("ReverseWeighingDtlData")]
+        [HttpPost]
+        public ResultMessage ReverseWeighingDtlData([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            var invoiceId = data["invoiceId"].ToString();
+            try
+            {
+                return _iTblInvoiceBL.ReverseWeighingDtlData(Convert.ToInt32(invoiceId)); 
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "ReverseWeighingDtlData");
+                return resultMessage;
+            }
+        }
+
+
 
     }
 }

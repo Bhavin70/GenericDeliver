@@ -147,6 +147,13 @@ namespace ODLMWebAPI.Controllers
             return _iCircularDependencyBL.SelectBookingsTOWithDetails(bookingId);
         }
 
+        [Route("GetBookingAvgQtyDetailsStatus")]
+        [HttpGet]
+        public ResultMessage GetBookingAvgQtyDetailsStatus(int dealerOrgId, Int32 bookingId)
+        {
+            return _iTblBookingsBL.GetBookingAvgQtyDetailsStatus(dealerOrgId, bookingId);
+        }
+
         [Route("GetBookingStatusHistory")]
         [HttpGet]
         public List<TblBookingBeyondQuotaTO> GetBookingStatusHistory(int bookingId)
@@ -158,7 +165,8 @@ namespace ODLMWebAPI.Controllers
                 var statusIds = list.GroupBy(g => g.StatusId).ToList();
                 for (int i = 0; i < statusIds.Count; i++)
                 {
-                    //var latestObj = list.Where(l => l.StatusId == statusIds[i].Key).OrderBy(s => s.StatusDate).FirstOrDefault();
+                    //This call has beeb used for Approval Qty and Rate is taken from History table
+                   // var latestObj = list.Where(l => l.StatusId == statusIds[i].Key).OrderBy(s => s.StatusDate).FirstOrDefault();  //Saket [2020-11-05] Reverse code of pandurang for SRJ as we need to show first record of the status.
                     var latestObj = list.Where(l => l.StatusId == statusIds[i].Key).OrderBy(s => s.StatusDate).LastOrDefault(); //Pandurang[2018-07-17] For Finance Approval get latest entry.
                     finalList.Add(latestObj);
                 }
@@ -203,7 +211,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetAllBookingList")]
         [HttpGet]
-        public List<TblBookingsTO> GetAllBookingList(Int32 cnfId, Int32 dealerId,Int32 statusId,string fromDate,string toDate, String userRoleTOList, Int32 isConfirm =0, Int32 isPendingQty = 0,Int32 bookingId = 0, Int32 isViewAllPendingEnq=0, Int32 RMId = 0)
+        public List<TblBookingsTO> GetAllBookingList(Int32 cnfId, Int32 dealerId,Int32 statusId,string fromDate,string toDate, String userRoleTOList, Int32 isConfirm = -1, Int32 isPendingQty = 0,Int32 bookingId = 0, Int32 isViewAllPendingEnq=0, Int32 RMId = 0,int orderTypeId=0)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -225,7 +233,7 @@ namespace ODLMWebAPI.Controllers
             List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleTOList);
 
       
-            List<TblBookingsTO> tblBookingsTOList = _iTblBookingsBL.SelectBookingList(cnfId, dealerId, statusId, frmDt, toDt, tblUserRoleTOList, isConfirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId);
+            List<TblBookingsTO> tblBookingsTOList = _iTblBookingsBL.SelectBookingList(cnfId, dealerId, statusId, frmDt, toDt, tblUserRoleTOList, isConfirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId, orderTypeId);
 
             _iTblBookingsBL.AssignOverDueAmount(tblBookingsTOList);
 
@@ -278,6 +286,28 @@ namespace ODLMWebAPI.Controllers
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date;
             return _iTblBookingsBL.SelectBookingPendingQryRpt(frmDt, toDt,reportType);
+        }
+
+        [HttpGet]
+        [Route("BookingPendingOrderQtyRpt")]
+        public List<TblBookingPendingRptTO> BookingPendingOrderQtyRpt(string fromDate, string toDate, int reportType)
+        {
+            DateTime frmDt = DateTime.MinValue;
+            DateTime toDt = DateTime.MinValue;
+            if (Constants.IsDateTime(fromDate))
+            {
+                frmDt = Convert.ToDateTime(fromDate);
+            }
+            if (Constants.IsDateTime(toDate))
+            {
+                toDt = Convert.ToDateTime(toDate);
+            }
+
+            if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
+                frmDt = _iCommon.ServerDateTime.Date;
+            if (Convert.ToDateTime(toDt) == DateTime.MinValue)
+                toDt = _iCommon.ServerDateTime.Date;
+            return _iTblBookingsBL.SelectBookingPendingOrderQtyRpt(frmDt, toDt, reportType);
         }
 
         //Aniket [11-6-2019]
@@ -519,16 +549,32 @@ namespace ODLMWebAPI.Controllers
         public List<PendingBookingRptTO> GetAllPendingBookingsForReport(Int32 cnfOrgId,Int32 dealerOrgId, string userRoleTOList,int isTransporterScopeYn, int isConfirmed, string fromDate, string toDate,Boolean isDateFilter, Int32 brandId)
       //  public List<PendingBookingRptTO> GetAllPendingBookingsForReport(Int32 cnfOrgId,Int32 dealerOrgId, string userRoleTO,int isTransporterScopeYn, int isConfirmed, string fromDate, string toDate,Boolean isDateFilter,Int32 brandId)
         {
-            DateTime from_Date = DateTime.MinValue;
-            DateTime to_Date = DateTime.MinValue;
+            //DateTime from_Date = DateTime.MinValue;
+            //DateTime to_Date = DateTime.MinValue;
 
+            //if (Constants.IsDateTime(fromDate))
+            //    from_Date = Convert.ToDateTime(Convert.ToDateTime(fromDate).ToString(Constants.AzureDateFormat));
+            //if (Constants.IsDateTime(toDate))
+            //    to_Date = Convert.ToDateTime(Convert.ToDateTime(toDate).ToString(Constants.AzureDateFormat));
+            DateTime frmDt = DateTime.MinValue;
+            DateTime toDt = DateTime.MinValue;
             if (Constants.IsDateTime(fromDate))
-                from_Date = Convert.ToDateTime(Convert.ToDateTime(fromDate).ToString(Constants.AzureDateFormat));
+            {
+                frmDt = Convert.ToDateTime(fromDate);
+
+            }
             if (Constants.IsDateTime(toDate))
-                to_Date = Convert.ToDateTime(Convert.ToDateTime(toDate).ToString(Constants.AzureDateFormat));
+            {
+                toDt = Convert.ToDateTime(toDate);
+            }
+
+            if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
+                frmDt = _iCommon.ServerDateTime.Date;
+            if (Convert.ToDateTime(toDt) == DateTime.MinValue)
+                toDt = _iCommon.ServerDateTime.Date;
 
             List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleTOList);
-            return _iTblBookingsBL.SelectAllPendingBookingsForReport(cnfOrgId,dealerOrgId, tblUserRoleTOList,  isTransporterScopeYn, isConfirmed, from_Date, to_Date,isDateFilter, brandId);
+            return _iTblBookingsBL.SelectAllPendingBookingsForReport(cnfOrgId,dealerOrgId, tblUserRoleTOList,  isTransporterScopeYn, isConfirmed, frmDt, toDt, isDateFilter, brandId);
             //TblUserRoleTO tblUserRoleTO = JsonConvert.DeserializeObject<TblUserRoleTO>(userRoleTO);
             //return BL._iTblBookingsBL.SelectAllPendingBookingsForReport(cnfOrgId,dealerOrgId, tblUserRoleTO,  isTransporterScopeYn, isConfirmed, from_Date, to_Date,isDateFilter,brandId);
         }
@@ -551,6 +597,28 @@ namespace ODLMWebAPI.Controllers
                 return resultMessage;
             }
         }
+
+
+        [Route("SendBookingDueNotification")]
+        [HttpGet]
+        public ResultMessage SendBookingDueNotification()
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                return _iTblBookingsBL.SendBookingDueNotification();
+            }
+            catch (Exception ex)
+            {
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Text = "Exception In Method SendBookingDueNotification";
+                resultMessage.Result = -1;
+                resultMessage.Exception = ex;
+                return resultMessage;
+            }
+        }
+
+
 
         /// <summary>
         /// Vijaymala[2017-09-11]Added to get booking list to plot graph
@@ -660,6 +728,15 @@ namespace ODLMWebAPI.Controllers
             {
 
             }
+        }
+
+
+        //Deepali added for task 1272 [03-08-2021]
+        [Route("GetBookingAnalysisReport")]
+        [HttpGet]
+        public List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate,Int32 distributorId,Int32 cOrNcId,Int32 brandId, int skipDate,int isFromProject =0)
+        {
+            return _iTblBookingsBL.GetBookingAnalysisReport(startDate, endDate, distributorId, cOrNcId, brandId, skipDate,isFromProject);
         }
         #endregion
 

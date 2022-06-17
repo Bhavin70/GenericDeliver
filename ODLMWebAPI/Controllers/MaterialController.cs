@@ -332,14 +332,16 @@ namespace ODLMWebAPI.Controllers
         /// <param name="stateId"></param>
         /// <param name="currencyId"></param>
         /// <param name="productSpecInfoListTo"></param>
+        /// <param name="districtId"></param>
+        /// <param name="talukaId"></param>
         /// <returns></returns>
         [Route("GetParityDetailsList")]
         [HttpGet]
-        public List<TblParityDetailsTO> GetParityDetailsList(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo = 0, Int32 productSpecForRegular = 0)
+        public List<TblParityDetailsTO> GetParityDetailsList(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo = 0, Int32 productSpecForRegular = 0, Int32 districtId = 0, Int32 talukaId = 0)
         {
             try
             {
-                List<TblParityDetailsTO> list = _iTblParityDetailsBL.SelectAllParityDetailsOnProductItemId(brandId, productItemId, prodCatId, stateId, currencyId, productSpecInfoListTo, productSpecForRegular);
+                List<TblParityDetailsTO> list = _iTblParityDetailsBL.SelectAllParityDetailsOnProductItemId(brandId, productItemId, prodCatId, stateId, currencyId, productSpecInfoListTo, productSpecForRegular, districtId, talukaId);
                 if (list != null)
                     return list;
                 else
@@ -350,9 +352,18 @@ namespace ODLMWebAPI.Controllers
                 return null;
             }
         }
+        [Route("GetParityDetailToOnBooking")]
+        [HttpGet]
+        public List<TblParityDetailsTO> GetParityDetailToOnBooking(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate, Int32 districtId, Int32 talukaId, Int32 parityLevel)
+        {
+            boookingDate = _iCommon.ServerDateTime;
+            
+            List<TblParityDetailsTO> TblParityDetailsTOList = _iTblParityDetailsBL.GetCurrentParityDetailToListOnBooking(materialId, prodCatId, prodSpecId, productItemId, brandId, stateId, boookingDate, districtId, talukaId, parityLevel);
+            return TblParityDetailsTOList;
+        }
         // Aniket [21-Jan-2019] added to fetch ParityDetailsList against brand
         //[Route("GetParityDetailsListFromBrand")]
-        //[HttpGet]
+        //[HttpGet] 
         //public List<TblParityDetailsTO> GetParityDetailsListFromBrand(Int32 fromBrand,Int32 toBrand,Int32 currencyId,Int32 categoryId, Int32 stateId)
         //{
         //    try
@@ -979,10 +990,10 @@ namespace ODLMWebAPI.Controllers
         public ResultMessage PostCopyParityValuesForMultiBrands([FromBody] JObject data)
         {
             int brandId = JsonConvert.DeserializeObject<Int32>(data["brandId"].ToString());
-           List<DropDownToForParity> selectedBrands = JsonConvert.DeserializeObject<List<DropDownToForParity>>(data["selectedBrands"].ToString());
-        List<DropDownToForParity> selectedStates= JsonConvert.DeserializeObject<List<DropDownToForParity>>(data["selectedStates"].ToString());
+            List<DropDownToForParity> selectedBrands = JsonConvert.DeserializeObject<List<DropDownToForParity>>(data["selectedBrands"].ToString());
+            List<DropDownToForParity> selectedStates = JsonConvert.DeserializeObject<List<DropDownToForParity>>(data["selectedStates"].ToString());
             ResultMessage resultMessage = new StaticStuff.ResultMessage();
-           resultMessage = _iTblParityDetailsBL.GetParityDetialsForCopyBrand(brandId, selectedBrands, selectedStates);
+            resultMessage = _iTblParityDetailsBL.GetParityDetialsForCopyBrand(brandId, selectedBrands, selectedStates);
             return resultMessage;
 
         }

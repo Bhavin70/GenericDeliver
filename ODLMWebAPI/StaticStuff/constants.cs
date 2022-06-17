@@ -110,7 +110,8 @@ namespace ODLMWebAPI.StaticStuff
             LOADING = 2,
             DELIVERY = 3,
             SPECIAL_REQUIREMENT = 4,
-            UNLOADING = 5
+            UNLOADING = 5,
+                SAUDA = 501
         }
 
         //public static DateTime ServerDateTime
@@ -299,7 +300,10 @@ namespace ODLMWebAPI.StaticStuff
             EXPORT_INVOICE = 2,
             DEEMED_EXPORT_INVOICE = 3,
             SEZ_WITH_DUTY = 4,
-            SEZ_WITHOUT_DUTY = 5
+            SEZ_WITHOUT_DUTY = 5,
+            SERVICE_TAX_INVOICE=6,
+            MCCIA_INVOICE=8,
+            SERVICE_INVOICE=9
         }
 
 
@@ -403,6 +407,14 @@ namespace ODLMWebAPI.StaticStuff
             SITE_SUBCATEGORY = 3
         }
 
+        public enum ConsumerTypeE
+        {
+            Dealer =1,
+            Private_Project=2,
+            Government_Project=3,
+            Individual =4
+        }
+
         // Vaibhav [24-Oct-2017] added to visit project type
         public enum VisitProjectTypeE
         {
@@ -470,7 +482,7 @@ namespace ODLMWebAPI.StaticStuff
         public static String Local_URL = "http://localhost:4200";
         //Added by Kiran for set current module id as per tblmodule sequence
         public static Int32 DefaultModuleID = 1;
-        public static Boolean Local_API = true;
+        public static Boolean Local_API = Startup.IsLocalAPI;
         public static String CONNECTION_STRING = "ConnectionString";
         public static String AZURE_CONNECTION_STRING = "AzureConnectionStr";
         public static String REQUEST_ORIGIN_STRING = "RequestOriginString";
@@ -494,7 +506,11 @@ namespace ODLMWebAPI.StaticStuff
         // Vaibhav [17-Dec-2017] Added to file encrypt descrypt and upload to azure
         //public static string AzureConnectionStr = "DefaultEndpointsProtocol=https;AccountName=apkupdates;AccountKey=IvC+sc8RLDl3DeH8uZ97A4jX978v78bVFHRQk/qxg2C/J8w/DRslJlLsK7JTF+KhOM0MNUZg443GCVXe3jIanA==";
         //public static string EncryptDescryptKey = "MAKV2SPBNI99212";
-        public static string AzureSourceContainerName = "srjdocuments";
+        public static string AzureSourceContainerName = "simplideliver";
+        //public static string AzureSourceContainerName = "metarolldataextract";
+       // public static string AzureSourceContainerName = "kalikadataextract";
+        
+        //public static string AzureSourceContainerName = "srjdocuments";
         public static string AzureTargetContainerName = "srjnewdocuments";
         public static string ExcelSheetName = "TranData";
         public static string ExcelFileName = "Tran";
@@ -526,6 +542,18 @@ namespace ODLMWebAPI.StaticStuff
         public static string DEFAULT_NOTFOUND_MSG = " Record Could not be found";
         public static string CP_POST_SALES_INVOICE_TO_SAP_DIRECTLY_AFTER_INVOICE_GENERATION = "CP_POST_SALES_INVOICE_TO_SAP_DIRECTLY_AFTER_INVOICE_GENERATION";
         public static String SAPB1_SERVICES_ENABLE = "SAPB1_SERVICES_ENABLE";
+        
+        //Dhananjay [2020-12-02] Parity level
+        public static string CP_PARITY_LEVEL = "PARITY_LEVEL";
+
+        public static string SERVER_DATETIME_QUERY_STRING = "SERVER_DATETIME_QUERY_STRING";
+        public static string IS_LOCAL_API = "IS_LOCAL_API";
+        public static string SAP_LOGIN_DETAILS = "SAP_LOGIN_DETAILS";
+
+        //public static string IS_MAP_MY_INDIA = "IS_MAP_MY_INDIA";
+        public static string MAP_MY_INDIA_URL_FOR_myLocationAddress = "MAP_MY_INDIA_URL_FOR_myLocationAddress";
+        public static string GOOGLE_MAP_API_URL_FOR_LAT_LONG = "GOOGLE_MAP_API_URL_FOR_LAT_LONG";
+
         #endregion
 
         #region Configuration Sections
@@ -563,6 +591,7 @@ namespace ODLMWebAPI.StaticStuff
         public static String ENTITY_RANGE_REGULAR_TAX_INVOICE_BMM = "REGULAR_TAX_INVOICE_BMM";
         public static String ENTITY_RANGE_REGULAR_TAX_INTERNALORG = "REGULAR_TAX_INVOICE_ORG_";
         public static String INTERNAL_DEFAULT_ITEM = "INTERNAL_DEFAULT_ITEM";
+        public static String INTERNAL_DEFAULT_ITEM_BASE_RATE_DIFF_AMT = "INTERNAL_DEFAULT_ITEM_BASE_RATE_DIFF_AMT";
 
         public static string CP_BRAND_WISE_INVOICE = "BRAND_WISE_INVOICE";
         public static string CP_SKIP_LOADING_APPROVAL = "SKIP_LOADING_APPROVAL";
@@ -572,6 +601,8 @@ namespace ODLMWebAPI.StaticStuff
 
         public static string CP_INTERNALTXFER_INVOICE_ORG_ID = "INTERNALTXFER_INVOICE_ORG_ID";
         public static string CP_ADD_CNF_AGENT_IN_INVOICE = "ADD_CNF_AGENT_IN_INVOICE";
+        public static string SHOW_LOADING_SLIP_TOTAL_VALUE = "SHOW_LOADING_SLIP_TOTAL_VALUE";
+
 
         public static string CP_EVERY_AUTO_INVOICE_WITH_EDIT = "EVERY_AUTO_INVOICE_WITH_EDIT";
 
@@ -582,6 +613,7 @@ namespace ODLMWebAPI.StaticStuff
         public static string CP_DELETE_PREVIOUS_STOCK_AND_PREVIOUS_QUOTADECLARATION_DAYS = "DELETE_PREVIOUS_STOCK_AND_PREVIOUS_QUOTADECLARATION_DAYS";
         public static string CP_MIGRATE_ENQUIRY_DATA = "MIGRATE_ENQUIRY_DATA";
         public static string CP_MIGRATE_BEFORE_DAYS = "MIGRATE_BEFORE_DAYS";
+        public static string CP_DELIVER_IS_REQUIRE_DIFFERENT_DT_FOR_6MM_MATERIAL = "CP_DELIVER_IS_REQUIRE_DIFFERENT_DT_FOR_6MM_MATERIAL";
         //Pandurang[2018-10-03]Added for Delete Dispatch data
         public static string CP_DELETE_BEFORE_DAYS = "MIGRATE_BEFORE_DAYS";
         public static string CP_DATA_EXTRACTION_TYPE = "DATA_EXTRACTION_TYPE";
@@ -660,6 +692,8 @@ namespace ODLMWebAPI.StaticStuff
         //Priyanka [02-08-2018] Added for show the todays stock on dashboard.
         public static string CP_TODAYS_BOOKING_OPENING_BALANCE = "TODAYS_BOOKING_OPENING_BALANCE";
 
+        public static string CP_DELIVER_SKIP_CONSUMER_TYPE_ID_IN_SOLD_STOCK_DISPLAY_ON_DASHBOARD = "CP_DELIVER_SKIP_CONSUMER_TYPE_ID_IN_SOLD_STOCK_DISPLAY_ON_DASHBOARD";
+
         //Priyanka [02-08-2018] Added for set the status for view enquiry statistics graphs
         public static string CP_ENQUIRY_STATISTICS_REPORT_STATUS = "ENQUIRY_STATISTICS_REPORT_STATUS";
 
@@ -675,6 +709,7 @@ namespace ODLMWebAPI.StaticStuff
         //Pandurang[2018-09-10] added for Stop web services
         public static string STOP_WEB_API_SERVICE_KEYS = "STOP_WEB_API_SERVICE_KEYS";
         public static string STOP_WEB_GUI_SERVICE_KEYS = "STOP_WEB_GUI_SERVICE_KEYS";
+        public static string STOP_WEB_VM_SERVICE_KEYS = "STOP_WEB_VM_SERVICE_KEYS";
 
         public static string CP_STATUS_TO_CALCULATE_ENQUIRY_OPENING_BALANCE = "STATUS_TO_CALCULATE_ENQUIRY_OPENING_BALANCE";
 
@@ -748,6 +783,11 @@ namespace ODLMWebAPI.StaticStuff
         //Aniket [27-02-2019] added to check whether allow or restrict CNF beyond booking quota 
         public static string ANNOUNCE_RATE_WITH_RATEBAND_CURRENT_QUOTA = "ANNOUNCE_RATE_WITH_RATEBAND_CURRENT_QUOTA";
         public static string RESTRICT_CNF_BEYOND_BOOKING_QUOTA = "RESTRICT_CNF_BEYOND_BOOKING_QUOTA";
+
+        public static string BOOKING_DUE_DAYS_WITH_START_NOTIFICATON_DAYS = "BOOKING_DUE_DAYS_WITH_START_NOTIFICATON_DAYS";
+
+        public static string AVERAGE_BOOKING_QTY_DAYS_AND_DEV_PERCENT = "AVERAGE_BOOKING_QTY_DAYS_AND_DEV_PERCENT";
+
         //Aniket [06-03-2019] added to check Math.Round() function to be used in tax calculations or not
         public static string IS_ROUND_OFF_TAX_ON_PRINT_INVOICE = "IS_ROUND_OFF_TAX_ON_PRINT_INVOICE";
 
@@ -756,6 +796,8 @@ namespace ODLMWebAPI.StaticStuff
 
         //Aniket [22-4-2019] added to check whether vehicle suggestion is should show or hide
         public static string IS_HIDE_VEHICLE_LIST_SUGGESTION = "IS_HIDE_VEHICLE_LIST_SUGGESTION";
+
+        public static string SHOW_GST_CODE_UPTO_DIGITS = "SHOW_GST_CODE_UPTO_DIGITS";
 
         //Aniket [10-6-2019]
         public static string IS_BALAJI_CLIENT = "IS_BALAJI_CLIENT";
@@ -783,11 +825,33 @@ namespace ODLMWebAPI.StaticStuff
 
         public static string CP_IS_INCLUDE_TCS_TO_AUTO_INVOICE = "CP_IS_INCLUDE_TCS_TO_AUTO_INVOICE";
 
+        public static string CP_SPLIT_BOOKING_AGAINST_INVOICE = "CP_SPLIT_BOOKING_AGAINST_INVOICE";
+
+        //[2021-02-26] Dhananjay added
+        public static string CP_EINVOICE_SHIPPING_ADDRESS = "CP_EINVOICE_SHIPPING_ADDRESS";
+
+        //[2021-05-12] Dhananjay added
+        public static string CP_EINVOICE_EWAY_BILL = "CP_EINVOICE_EWAY_BILL";
+
+        public static string COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER = "COMMA_SEPARATED_CNF_SHOULD_HAVE_ALL_DEALER";
+
+        public static string ADD_ITEMWISE_RATE_WHILE_BOOKING = "ADD_ITEMWISE_RATE_WHILE_BOOKING";
+        public static string CP_DELIVER_INVOICE_TDS_TAX_PCT = "CP_DELIVER_INVOICE_TDS_TAX_PCT";
+        public static string CHECK_IS_DECLARATION_RECEIVED = "CHECK_IS_DECLARATION_RECEIVED";
+        public static string IS_INTERNAL_CNF_SELECTION_ON_CHECKBOX_NEW = "IS_INTERNAL_CNF_SELECTION_ON_CHECKBOX_NEW";
+
         #endregion
 
         //Harshala Added
         public static string WeighmentSlip = "WeighmentSlip";
         public static string GatePassSlip = "GatePassSlip";
+        public static string DEFAULT_TCS_PERCENT_IF_DECLARATION_NOT_RECEIVED = "DEFAULT_TCS_PERCENT_IF_DECLARATION_NOT_RECEIVED";
+
+        public static string CP_DELIVER_IS_SEND_CUSTOM_NOTIFICATIONS = "CP_DELIVER_IS_SEND_CUSTOM_NOTIFICATIONS";
+        public static string CP_DELIVER_ORDER_CONFIRMATION_SMS_STRING = "CP_DELIVER_ORDER_CONFIRMATION_SMS_STRING";
+        public static string CP_DELIVER_VEHICLE_GATE_IN_SMS_STRING = "CP_DELIVER_VEHICLE_GATE_IN_SMS_STRING";
+        public static string CP_DELIVER_VEHICLE_OUT = "CP_DELIVER_VEHICLE_OUT";
+
 
         #region Common functions
 
@@ -924,6 +988,22 @@ namespace ODLMWebAPI.StaticStuff
         }
 
 
+        //Added By Gokul - To Seperate string by comma to find Target string or number
+        public static Boolean IsStringContainInfoSeperatedByComma(string availableStr,string target)
+        {
+            if (!String.IsNullOrEmpty(availableStr))
+            {
+                string[] strToArray = availableStr.Split(",");
+                foreach (string arr in strToArray)
+                {
+                    if (arr == target)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         #endregion
 
@@ -1003,7 +1083,8 @@ namespace ODLMWebAPI.StaticStuff
             PF = 1,
             FREIGHT = 2,
             CESS = 3,
-            AFTERCESS = 4
+            AFTERCESS = 4,
+            INSURANCE_ON_SALE=5
         }
 
         // Vaibhva [25-April-2018] Added to seperate transaction table
@@ -1052,7 +1133,46 @@ namespace ODLMWebAPI.StaticStuff
 
         public enum pageElements
         {
-            SKIP_BOOKING_APPROVAL = 265
+            SKIP_BOOKING_APPROVAL = 265,
+            CONSUMER_TYPEWISE_ENQUIRY = 303,
+            CONSUMERTYPE = 21021
+        }
+
+        /// <summary>
+        /// Dhananjay [2020-11-19] For EInvoice API
+        /// </summary>
+        public enum EInvoiceAPIE
+        {
+            OAUTH_TOKEN = 1,
+            EINVOICE_AUTHENTICATE = 2,
+            GENERATE_EINVOICE = 3,
+            CANCEL_EINVOICE = 4,
+            GET_EINVOICE = 5,
+            GENERATE_EWAYBILL = 6,
+            CANCEL_EWAYBILL = 7
+        }
+
+        /// <summary>
+        /// Dhananjay [2021-01-02] For EInvoice API
+        /// </summary>
+        public static string EINVOICE_AUTHENTICATE = "einvoice/Authenticate";
+        
+        /// <summary>
+        /// Dhananjay [2020-11-19] For EInvoice API
+        /// </summary>
+        public static Int32 secsToBeDeductededFromTokenExpTime = 120;
+        ///<summary>
+        ///Aditee [04-01-2021] for generate invoice flag for Address Update
+        ///</summary>
+        public enum EGenerateEInvoiceCreationType
+        {
+            UPDATE_ONLY_ADDRESS = 1,
+            GENERATE_INVOICE_ONLY = 2,
+            INVOICE_WITH_EWAY_BILL = 3,
+        }
+        public enum TblMaterialEnum
+        {
+            SIX_MM = 1034
         }
 
     }

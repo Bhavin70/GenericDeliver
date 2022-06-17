@@ -74,6 +74,10 @@ namespace ODLMWebAPI.BL
             return _iTblGateDAO.UpdateTblGate(tblGateTO, conn, tran);
         }
 
+        public int UpdateTblGatePortAndIp(TblGateTO tblGateTO)
+        {
+            return _iTblGateDAO.UpdateTblGatePortAndIp(tblGateTO);
+        }
         #endregion
 
         #region Deletion

@@ -461,6 +461,11 @@ namespace ODLMWebAPI.BL
 
                                 if (userDCT != null)
                                 {
+                                    //Reshma Added
+                                    if (alertInstanceTO.SmsTOList != null && alertInstanceTO.SmsTOList.Count > 0)
+                                    {
+                                        alertInstanceTO.SmsComment = alertInstanceTO.SmsTOList[0].SmsTxt ;
+                                    }
                                     foreach (var item in userDCT.Keys)
                                     {
                                         TblSmsTO smsTO = new TblSmsTO();

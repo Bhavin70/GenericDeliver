@@ -105,6 +105,19 @@ namespace ODLMWebAPI.Models
         Int32 enquiryId;
         string enqDisplayNo;
 
+        //Dhananjay [02-12-2020]
+        int districtId;
+        int talukaId;
+
+        //Gokul [06-02-2021]
+        Int32 changeCnfId;
+
+        //Gokul [11-02-2021]
+        Int32 orderTypeId;
+        string orderTypeName;
+
+        Int32 cnfChkSelected;
+
         #endregion
 
         #region Constructor
@@ -259,6 +272,7 @@ namespace ODLMWebAPI.Models
             set { status = value; }
         }
 
+        
 
         /// <summary>
         /// Sanjay [2017-02-17] This is pending qty for loading
@@ -524,12 +538,38 @@ namespace ODLMWebAPI.Models
         public int IsInUom { get => isInUom; set => isInUom = value; }
         public int IsItemized { get => isItemized; set => isItemized = value; }
         public int StateId { get => stateId; set => stateId = value; }
+
         public List<TblBookingExtTO> OrderDetailsLstForItemWise { get => orderDetailsLstForItemWise; set => orderDetailsLstForItemWise = value; }
         public double CreditLimit { get => creditLimit; set => creditLimit = value; }
 
         public int BookingRefId { get => bookingRefId; set => bookingRefId = value; }
         public string BookingDisplayNo { get => bookingDisplayNo; set => bookingDisplayNo = value; }
 
+        //Dhananjay [02-12-2020]
+        public int DistrictId { get => districtId; set => districtId = value; }
+        public int TalukaId { get => talukaId; set => talukaId = value; }
+
+        //Gokul [06-02-2021]
+        public int ChangeCnfId { get => changeCnfId; set => changeCnfId = value; }
+
+        //Gokul [11-02-2021]
+        public int OrderTypeId {
+            get { return orderTypeId; }
+            set { orderTypeId = value; }
+        }
+        public string OrderTypeName
+        {
+            get { return orderTypeName; }
+            set { orderTypeName = value; }
+        }
+
+        public Int32 CnfChkSelected
+        {
+            get { return cnfChkSelected; }
+            set { cnfChkSelected = value; }
+        }
+
+        
         #endregion
 
         #region Methods
@@ -582,7 +622,30 @@ namespace ODLMWebAPI.Models
         public string CnfName { get => cnfName; set => cnfName = value; }
         public double PendingQty { get => pendingQty; set => pendingQty = value; }
         public string BookingDisplayNo { get => bookingDisplayNo; set => bookingDisplayNo = value; }
+        public string BookingDateStr { get ; set; }
 
         #endregion
     }
+
+    //Added By Gokul To Send Pending Booking Qty Orderwise On StockUpDate SCreen
+    public class PendingQtyOrderTypeTo
+    {
+        #region Declaration
+        string consumerTypeName;
+        double bookingQty;
+        #endregion
+        #region GetSet
+        public  string ConsumerTypeName
+        {   get { return consumerTypeName; }
+            set { consumerTypeName = value; }
+        }
+
+        public double BookingQty
+        {
+            get { return bookingQty; }
+            set { bookingQty = value; }
+        }
+        #endregion
+    }
+
 }

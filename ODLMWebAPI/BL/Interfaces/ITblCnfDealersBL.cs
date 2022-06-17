@@ -12,6 +12,7 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblCnfDealersTO> SelectAllTblCnfDealersList();
         TblCnfDealersTO SelectTblCnfDealersTO(Int32 idCnfDealerId);
         List<TblCnfDealersTO> SelectAllActiveCnfDealersList(Int32 dealerId, Boolean isSpecialOnly);
+        List<DropDownTO> SelectActiveCnfDealersList(Int32 dealerId, Boolean isSpecialOnly);
         List<TblCnfDealersTO> SelectAllActiveCnfDealersList(Int32 dealerId, Boolean isSpecialOnly, SqlConnection conn, SqlTransaction tran);
         int InsertTblCnfDealers(TblCnfDealersTO tblCnfDealersTO);
         int InsertTblCnfDealers(TblCnfDealersTO tblCnfDealersTO, SqlConnection conn, SqlTransaction tran);

@@ -13,7 +13,7 @@ using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DashboardModels;
 
 namespace ODLMWebAPI.DAL
-{ 
+{
     public class TblBookingsDAO : ITblBookingsDAO
     {
         private readonly IConnectionString _iConnectionString;
@@ -27,29 +27,32 @@ namespace ODLMWebAPI.DAL
         }
         #region Methods
         public String SqlSelectQuery(Int32 loginUserId = 0)
+
         {
-            
+
             String sqlSelectQry = "SELECT bookings.*,tblCRMEnquiry.enqDisplayNo,dimStat.statusName as dealerCat,dimStat.colorCode,orgDealer.creditLimit ,userCreatedBy.userDisplayName As createdByName,userUpdatedBy.userDisplayName As updatedByName, " +
                                   "orgCnf.firmName as cnfName,orgDealer.isOverdueExist  as isOrgOverDue, tblTranAction.tranActionTypeId As tranActionTypeId," +
                                   " orgDealer.firmName + ',' + " +
                                   " CASE WHEN orgDealer.addrId IS NULL THEN '' Else case WHEN address.villageName IS NOT NULL THEN address.villageName " +
                                   " ELSE CASE WHEN address.talukaName IS NOT NULL THEN address.talukaName ELSE CASE WHEN address.districtName IS NOT NULL THEN address.districtName ELSE address.stateName END END END END AS dealerName," +
-                                  " CONCAT (dimStatus.statusName,'-', ISNULL(userStatusBy.userDisplayName,'') ) AS statusName , brandDtl.brandName, address.stateId FROM tblbookings bookings LEFT JOIN tblOrganization orgCnf  ON bookings.cnfOrgId = orgCnf.idOrganization" +
+                                  " CONCAT (dimStatus.statusName,'-', ISNULL(userStatusBy.userDisplayName,'') ) AS statusName , brandDtl.brandName, address.stateId, address.districtId, address.talukaId,orderType.consumerType as consumerTypeName" + //02-12-2020 Dhananjay added address.districtId, address.talukaId
+                                  " FROM tblbookings bookings LEFT JOIN tblOrganization orgCnf  ON bookings.cnfOrgId = orgCnf.idOrganization" +
 
-                                  " LEFT JOIN tblTranActions tblTranAction ON tblTranAction.transId = bookings.idBooking AND tblTranAction.userId = "+ loginUserId +
-                                  " AND tblTranAction.tranActionTypeId = "+ (Int32)Constants.TranActionTypeE.READ +
-                                  " AND tblTranAction.transTypeId = "+ (Int32)Constants.TransactionTypeE.BOOKING +
+                                  " LEFT JOIN tblTranActions tblTranAction ON tblTranAction.transId = bookings.idBooking AND tblTranAction.userId = " + loginUserId +
+                                  " AND tblTranAction.tranActionTypeId = " + (Int32)Constants.TranActionTypeE.READ +
+                                  " AND tblTranAction.transTypeId = " + (Int32)Constants.TransactionTypeE.BOOKING +
                                   " LEFT JOIN tblUser userCreatedBy ON userCreatedBy.idUser = bookings.createdBy " +
-                                  " LEFT JOIN tblUser userUpdatedBy ON userUpdatedBy.idUser = bookings.updatedBy "+
+                                  " LEFT JOIN tblUser userUpdatedBy ON userUpdatedBy.idUser = bookings.updatedBy " +
                                   " LEFT JOIN tblUser userStatusBy ON userStatusBy.idUser = bookings.statusBy " +
                                   " LEFT JOIN tblOrganization orgDealer  ON bookings.dealerOrgId = orgDealer.idOrganization " +
-                                  " LEFT JOIN dimStatus ON dimStatus.idStatus = bookings.statusId "+
+                                  " LEFT JOIN dimStatus ON dimStatus.idStatus = bookings.statusId " +
                                   " LEFT JOIN dimStatus dimStat ON dimStat.idStatus = orgDealer.orgStatusId" +
                                   " LEFT JOIN dimBrand brandDtl ON brandDtl.idBrand = bookings.brandId " +
                                   //" LEFT JOIN tblUserAreaAllocation userAreaAlloc on userAreaAlloc.cnfOrgId = bookings.cnFOrgId "+
                                   //" AND userAreaAlloc.userId = "+ RMId +
                                   " LEFT JOIN vAddressDetails address ON address.idAddr = orgDealer.addrId " +
-                                  " LEFT JOIN tblCRMEnquiry tblCRMEnquiry ON tblCRMEnquiry.idEnquiry = bookings.enquiryId ";
+                                  " LEFT JOIN tblCRMEnquiry tblCRMEnquiry ON tblCRMEnquiry.idEnquiry = bookings.enquiryId " +
+                                  "LEFT JOIN dimConsumerType orderType ON orderType.idConsumer = bookings.consumerTypeId ";
 
 
             //String sqlSelectQry = " SELECT bookings.*, orgCnf.firmName as cnfName,orgDealer.firmName as dealerName, dimStatus.statusName" +
@@ -66,7 +69,7 @@ namespace ODLMWebAPI.DAL
         #endregion
 
         #region Selection
-        public  List<TblBookingsTO> SelectAllBookingDateWise(DateTime fromDate, DateTime toDate)
+        public List<TblBookingsTO> SelectAllBookingDateWise(DateTime fromDate, DateTime toDate)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -154,7 +157,9 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public Double SelectTotalPendingBookingQty(DateTime sysDate)
+        //public Double SelectTotalPendingBookingQty(DateTime sysDate)
+        public List<PendingQtyOrderTypeTo> SelectTotalPendingBookingQty(DateTime sysDate)
+
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -168,40 +173,82 @@ namespace ODLMWebAPI.DAL
                 conn.Open();
 
                 String ignorStatusIds = (Int32)Constants.TranStatusE.BOOKING_DELETE + "";
-                if(tblConfigParams!=null)
+                if (tblConfigParams != null)
                 {
-                    if(tblConfigParams.ConfigParamVal=="1")
+                    if (tblConfigParams.ConfigParamVal == "1")
                     {
                         skipOtherQty = 1;
                     }
                 }
-                if(skipOtherQty==1)
+                if (skipOtherQty == 1)
                 {
-                    cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty from tblBookings where bookingType not IN(2) and statusId NOT IN( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate";
+                    //cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty from tblBookings where bookingType not IN(2) and statusId NOT IN( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate";
+                    cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty,dimConsumerType.consumerType, dimConsumerType.displaySeqNo from tblBookings " +
+                                            "left join dimConsumerType dimConsumerType on dimConsumerType.idConsumer = tblBookings.consumerTypeId " +
+                                            "where bookingType not IN(2) and statusId NOT IN ( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate group by dimConsumerType.consumerType, dimConsumerType.displaySeqNo " +
+                                            "ORDER BY dimConsumerType.displaySeqNo";
+
                 }
                 else
                 {
-                    cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty from tblBookings where statusId NOT IN( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate";
+                    //cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty from tblBookings where statusId NOT IN( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate";
+                    cmdSelect.CommandText = "SELECT SUM(pendingQty) As bookingQty,dimConsumerType.consumerType, dimConsumerType.displaySeqNo from tblBookings " +
+                                            "left join dimConsumerType dimConsumerType on dimConsumerType.idConsumer = tblBookings.consumerTypeId " +
+                                            "where statusId NOT IN ( " + ignorStatusIds + ") and bookingDatetime <= @bookingDate group by dimConsumerType.consumerType, dimConsumerType.displaySeqNo " +
+                                            "ORDER BY dimConsumerType.displaySeqNo";
                 }
 
 
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
-                cmdSelect.Parameters.Add("@bookingDate", System.Data.SqlDbType.DateTime).Value = sysDate;
+                cmdSelect.Parameters.Add("@bookingDate", System.Data.SqlDbType.DateTime).Value = Constants.GetEndDateTime(sysDate);
 
                 tblLoadingTODT = cmdSelect.ExecuteReader(CommandBehavior.Default);
-                while (tblLoadingTODT.Read())
+
+                //Added by Gokul
+                List<PendingQtyOrderTypeTo> pendingQtyOrderTypeTOList = new List<PendingQtyOrderTypeTo>();
+                if (tblLoadingTODT != null)
                 {
+                    while (tblLoadingTODT.Read())
+                    {
+                        PendingQtyOrderTypeTo pendingQtyOrderTypeTo = new PendingQtyOrderTypeTo();
 
-                    return Convert.ToDouble(tblLoadingTODT["bookingQty"].ToString()); ;
+                        if (tblLoadingTODT["consumerType"] != DBNull.Value)
+                            pendingQtyOrderTypeTo.ConsumerTypeName = Convert.ToString(tblLoadingTODT["consumerType"]);
+                        if (pendingQtyOrderTypeTo.ConsumerTypeName == null)
+                        {
+                            pendingQtyOrderTypeTo.ConsumerTypeName = "-";
+                        }
+                        if (tblLoadingTODT["bookingQty"] != DBNull.Value)
+                            pendingQtyOrderTypeTo.BookingQty = Convert.ToDouble(tblLoadingTODT["bookingQty"].ToString());
+
+                        pendingQtyOrderTypeTo.BookingQty = Math.Round(pendingQtyOrderTypeTo.BookingQty, 2);
+
+                        pendingQtyOrderTypeTOList.Add(pendingQtyOrderTypeTo);
+
+                    }
+
+
                 }
+                return pendingQtyOrderTypeTOList;
 
-                return 0;
+
+                //while (tblLoadingTODT.Read())
+                //{
+
+                //    //return Convert.ToDouble(tblLoadingTODT["bookingQty"].ToString()); ;
+
+                ////List Created for booking qty and consumer Type
+
+
+                //}
+
+                //return ;
             }
             catch (Exception ex)
             {
-                return 0;
+                return null;
             }
             finally
             {
@@ -272,9 +319,9 @@ namespace ODLMWebAPI.DAL
                             tblBookingsTONew.IdBooking = Convert.ToInt32(tblBookingsTODT["idBooking"].ToString());
                         if (tblBookingsTODT["cdStructure"] != DBNull.Value)
                             tblBookingsTONew.CdStructure = Convert.ToDouble(tblBookingsTODT["cdStructure"].ToString());
-                        
+
                     }
-                 
+
                 }
                 return tblBookingsTONew;
 
@@ -289,7 +336,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-       
+
         public List<TblBookingsTO> SelectAllBookingsListForApproval(Int32 isConfirmed, Int32 idBrand)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -300,7 +347,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                sqlQuery = SqlSelectQuery() + " WHERE IsWithinQuotaLimit=0 AND statusId IN(" + statusIds + ")"; 
+                sqlQuery = SqlSelectQuery() + " WHERE IsWithinQuotaLimit=0 AND statusId IN(" + statusIds + ")";
 
                 if (isConfirmed == (int)Constants.bookingFilterTypeE.CONFIRMED)
                 {
@@ -310,10 +357,10 @@ namespace ODLMWebAPI.DAL
                 {
                     sqlQuery += " AND ISNULL(bookings.isConfirmed,0) = 0";
                 }
-                
+
                 if (idBrand > 0)
                 {
-                    sqlQuery += "AND brandDtl.idBrand =" + idBrand; 
+                    sqlQuery += "AND brandDtl.idBrand =" + idBrand;
                 }
 
                 cmdSelect.CommandText = sqlQuery;
@@ -419,8 +466,8 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-      //  public List<TblBookingsTO> SelectAllPendingBookingsList(Int32 cnfId, string dateCondOper, Boolean onlyPendingYn, int isTransporterScopeYn,int isConfirmed, DateTime asOnDate,TblUserRoleTO tblUserRoleTO)
-        public List<TblBookingsTO> SelectAllPendingBookingsList(Int32 cnfId, string dateCondOper, Boolean onlyPendingYn, int isTransporterScopeYn,int isConfirmed, DateTime asOnDate,int brandId, TblUserRoleTO tblUserRoleTO)
+        //  public List<TblBookingsTO> SelectAllPendingBookingsList(Int32 cnfId, string dateCondOper, Boolean onlyPendingYn, int isTransporterScopeYn,int isConfirmed, DateTime asOnDate,TblUserRoleTO tblUserRoleTO)
+        public List<TblBookingsTO> SelectAllPendingBookingsList(Int32 cnfId, string dateCondOper, Boolean onlyPendingYn, int isTransporterScopeYn, int isConfirmed, DateTime asOnDate, int brandId, TblUserRoleTO tblUserRoleTO)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -475,9 +522,9 @@ namespace ODLMWebAPI.DAL
                 else
                 {
                     if (cnfId > 0)
-                        cmdSelect.CommandText = SqlSelectQuery() + areConfJoin  + " WHERE CAST(bookings.createdOn AS DATE) " + dateCondOper + "@asOnDate AND bookings.statusId IN(" + statusIds + ")" + " AND bookings.cnFOrgId=" + cnfId;
+                        cmdSelect.CommandText = SqlSelectQuery() + areConfJoin + " WHERE CAST(bookings.createdOn AS DATE) " + dateCondOper + "@asOnDate AND bookings.statusId IN(" + statusIds + ")" + " AND bookings.cnFOrgId=" + cnfId;
                     else
-                        cmdSelect.CommandText = SqlSelectQuery() + areConfJoin +" WHERE CAST(bookings.createdOn AS DATE) " + dateCondOper + "@asOnDate AND bookings.statusId IN(" + statusIds + ")";
+                        cmdSelect.CommandText = SqlSelectQuery() + areConfJoin + " WHERE CAST(bookings.createdOn AS DATE) " + dateCondOper + "@asOnDate AND bookings.statusId IN(" + statusIds + ")";
                 }
 
                 // Vaibhav [21-Mar-2018] Added to filter isTransporterScopeYn and isConfirmed
@@ -490,7 +537,7 @@ namespace ODLMWebAPI.DAL
                 // added by aniket'
                 if (brandId != 0)
                     cmdSelect.CommandText += " AND bookings.brandId=" + brandId;
-                
+
 
                 // Vaibhav [16-APril-2018] Added date wise filter.
                 cmdSelect.CommandText += whereCond;
@@ -579,7 +626,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblBookingsTO> SelectAllTodaysBookingsWithOpeningBalance(Int32 cnfId, DateTime asOnDate,int isTransporterScopeYn,int isConfirmed,int brandId)
+        public List<TblBookingsTO> SelectAllTodaysBookingsWithOpeningBalance(Int32 cnfId, DateTime asOnDate, int isTransporterScopeYn, int isConfirmed, int brandId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -592,11 +639,11 @@ namespace ODLMWebAPI.DAL
 
                 if (cnfId == 0)
                     cmdSelect.CommandText = SqlSelectQuery() + " INNER JOIN tblBookingOpngBal ON bookings.idBooking = tblBookingOpngBal.bookingId " +
-                                            "WHERE DAY(tblBookingOpngBal.balAsOnDate)= " + asOnDate.Day + " AND MONTH(tblBookingOpngBal.balAsOnDate)=" + asOnDate.Month + " AND YEAR(tblBookingOpngBal.balAsOnDate)= " + asOnDate.Year ;
+                                            "WHERE DAY(tblBookingOpngBal.balAsOnDate)= " + asOnDate.Day + " AND MONTH(tblBookingOpngBal.balAsOnDate)=" + asOnDate.Month + " AND YEAR(tblBookingOpngBal.balAsOnDate)= " + asOnDate.Year;
 
                 else
                     cmdSelect.CommandText = SqlSelectQuery() + " INNER JOIN tblBookingOpngBal ON bookings.idBooking = tblBookingOpngBal.bookingId " +
-                                             "WHERE bookings.cnfOrgId=" + cnfId + " AND DAY(tblBookingOpngBal.balAsOnDate)= " + asOnDate.Day + " AND MONTH(tblBookingOpngBal.balAsOnDate)=" + asOnDate.Month + " AND YEAR(tblBookingOpngBal.balAsOnDate)= " + asOnDate.Year ;
+                                             "WHERE bookings.cnfOrgId=" + cnfId + " AND DAY(tblBookingOpngBal.balAsOnDate)= " + asOnDate.Day + " AND MONTH(tblBookingOpngBal.balAsOnDate)=" + asOnDate.Month + " AND YEAR(tblBookingOpngBal.balAsOnDate)= " + asOnDate.Year;
 
 
                 // Vaibhav [21-Mar-2018] Added to filter isTransporterScopeYn and isConfirmed
@@ -610,7 +657,7 @@ namespace ODLMWebAPI.DAL
                     cmdSelect.CommandText += "AND bookings.brandId=" + brandId;
 
                 cmdSelect.Connection = conn;
-                cmdSelect.CommandType = System.Data.CommandType.Text;            
+                cmdSelect.CommandType = System.Data.CommandType.Text;
 
                 SqlDataReader sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
                 List<TblBookingsTO> list = ConvertDTToList(sqlReader);
@@ -628,7 +675,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords, Boolean pendingYn , Int32 bookingId)
+        public List<TblBookingsTO> SelectAllLatestBookingOfDealer(Int32 dealerId, Int32 lastNRecords, Boolean pendingYn, Int32 bookingId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -648,7 +695,7 @@ namespace ODLMWebAPI.DAL
 
                 cmdSelect.CommandText = " SELECT TOP " + lastNRecords + " bookings.*, userCreatedBy.userDisplayName As createdByName, " +
                                          "userUpdatedBy.userDisplayName As updatedByName, orgDealer.isOverdueExist  as isOrgOverDue, " +
-                                         //" tblTranAction.tranActionTypeId As tranActionTypeId ," +
+                                        //" tblTranAction.tranActionTypeId As tranActionTypeId ," +
                                         " orgCnf.firmName as cnfName,orgDealer.firmName as dealerName ,dimStatus.statusName" +
                                         " ,brandDtl.brandName " +
                                         " FROM tblbookings bookings " +
@@ -656,7 +703,7 @@ namespace ODLMWebAPI.DAL
                                         " ON bookings.cnfOrgId = orgCnf.idOrganization " +
                                         " LEFT JOIN tblOrganization orgDealer " +
                                         " ON bookings.dealerOrgId = orgDealer.idOrganization " +
-                                         //" LEFT JOIN tblTranActions tblTranAction ON tblTranAction.transId = bookings.idBooking "+
+                                        //" LEFT JOIN tblTranActions tblTranAction ON tblTranAction.transId = bookings.idBooking "+
                                         " LEFT JOIN tblUser userCreatedBy ON userCreatedBy.idUser = bookings.createdBy " +
                                         " LEFT JOIN tblUser userUpdatedBy ON userUpdatedBy.idUser = bookings.updatedBy " +
                                         " LEFT JOIN dimStatus ON dimStatus.idStatus=bookings.statusId" +
@@ -718,7 +765,7 @@ namespace ODLMWebAPI.DAL
                                  "  ) addrDtl  ON idOrganization = organizationId " +
                                  "   INNER JOIN tblUserAreaAllocation areaConf ON addrDtl.districtId = areaConf.districtId AND areaConf.cnfOrgId = tblCnfDealers.cnfOrgId " +
                                  "   WHERE  tblOrganization.isActive = 1 AND tblCnfDealers.isActive = 1  AND orgTypeId = " + (int)Constants.OrgTypeE.DEALER + " AND areaConf.userId = " + userId + "  AND areaConf.isActive = 1 " +
-                                
+
                                  "   UNION ALL " +
                                  "   SELECT areaConf.cnfOrgId, idOrganization = 0, areaConf.brandId FROM tblUserAreaAllocation areaConf where  areaConf.userId = " + userId + " " +
                                  "   AND areaConf.isActive = 1 " +
@@ -749,7 +796,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-        
+
         public List<TblBookingsTO> GetOrderwiseDealerList()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -758,9 +805,9 @@ namespace ODLMWebAPI.DAL
             String sqlQuery = String.Empty;
             string statusIds = (Int32)Constants.TranStatusE.BOOKING_APPROVED + "," + (Int32)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR + "," +
                 (Int32)Constants.TranStatusE.BOOKING_NEW;
-           // String areConfJoin = String.Empty;
-          //  int isConfEn = 0;
-          //  int userId = 0;
+            // String areConfJoin = String.Empty;
+            //  int isConfEn = 0;
+            //  int userId = 0;
             //if (tblUserRoleTO != null)
             //{
             //    isConfEn = tblUserRoleTO.EnableAreaAlloc;
@@ -792,7 +839,7 @@ namespace ODLMWebAPI.DAL
                 //    sqlQuery = SqlSelectQuery() + areConfJoin + " WHERE bookings.dealerOrgId=" + dealerId + " AND pendingQty > 0 AND bookings.statusId IN(" + statusIds + ")";
                 //else
                 //    sqlQuery = SqlSelectQuery() + areConfJoin + " WHERE bookings.cnFOrgId=" + cnfId + " AND bookings.dealerOrgId=" + dealerId + " AND pendingQty > 0 AND bookings.statusId IN(" + statusIds + ")";
-                
+
                 cmdSelect.CommandText = SqlSelectQuery() + " Where pendingQty > 0 AND bookings.statusId IN(" + statusIds + ")";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
@@ -812,26 +859,26 @@ namespace ODLMWebAPI.DAL
             }
         }
         //Aniket [16-Jan-2019] added to view cnFList against confirm and not confirmbooking
-        public List<CnFWiseReportTO> SelectCnfCNCBookingReport(DateTime fromDate,DateTime toDate)
+        public List<CnFWiseReportTO> SelectCnfCNCBookingReport(DateTime fromDate, DateTime toDate)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
             SqlCommand cmdSelect = new SqlCommand();
             String sqlQuery = String.Empty;
-          
+
             string configval = "";
-          TblConfigParamsTO tblConfigParamsTO= _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CNF_BOOKING_REPORT_EXCLUDE_STATUSID);
-            if(tblConfigParamsTO!=null)
+            TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CNF_BOOKING_REPORT_EXCLUDE_STATUSID);
+            if (tblConfigParamsTO != null)
             {
-                 configval = tblConfigParamsTO.ConfigParamVal;
-              
+                configval = tblConfigParamsTO.ConfigParamVal;
+
             }
             try
             {
                 sqlQuery = "select SUM(case b.isConfirmed when 1 then b.bookingQty else null end) as confirmed, SUM(case b.isConfirmed when 0 then b.bookingQty else null end) as notConfirmed,o.firmName " +
-                    " from tblBookings b JOIN tblOrganization o on o.idOrganization = b.cnFOrgId "+ 
-                    " where o.orgTypeId = 1 AND CAST(b.createdOn as date) BETWEEN CAST ( @fromDate as date)"+
-                    " AND CAST( @toDate as date) AND b.statusId NOT IN(" + configval + ")"+
+                    " from tblBookings b JOIN tblOrganization o on o.idOrganization = b.cnFOrgId " +
+                    " where o.orgTypeId = 1 AND CAST(b.createdOn as date) BETWEEN CAST ( @fromDate as date)" +
+                    " AND CAST( @toDate as date) AND b.statusId NOT IN(" + configval + ")" +
                     " GROUP BY cnFOrgId,firmName order by o.firmName";
                 cmdSelect.CommandText = sqlQuery;
                 conn.Open();
@@ -853,7 +900,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-        public List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq ,Int32 RMId)
+        public List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId, Int32 orderTypeId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -863,10 +910,19 @@ namespace ODLMWebAPI.DAL
             String notDelStatus = (int)Constants.TranStatusE.BOOKING_DELETE + "";
             int isConfEn = 0;
             int userId = 0;
+
+            String bookingCreatedBy = "";
+
             if (tblUserRoleTO != null)
             {
                 isConfEn = tblUserRoleTO.EnableAreaAlloc;
                 userId = tblUserRoleTO.UserId;
+
+                if (tblUserRoleTO.RoleTypeId == Convert.ToInt32(Constants.SystemRoleTypeE.C_AND_F_AGENT))
+                {
+                    bookingCreatedBy = " OR bookings.createdBy = " + userId;
+                }
+
             }
             if (RMId > 0)
             {
@@ -910,7 +966,7 @@ namespace ODLMWebAPI.DAL
                                  " ( userAreaDealer.brandId = bookings.brandId or bookings.dealerOrgId = userAreaDealer.idOrganization )";
 
                 }
-                
+
                 Boolean isWhereAddded = true;
                 String whereCondtionStr = string.Empty;
                 whereCondtionStr = "WHERE CAST(bookings.createdOn AS DATE) BETWEEN @fromDate AND @toDate";
@@ -924,33 +980,58 @@ namespace ODLMWebAPI.DAL
                 if (isViewAllPendingEnq > 0)
                 {
                     fromDate = new DateTime(2001, 01, 01);
-                    whereCondtionStr = "WHERE CAST(bookings.createdOn AS DATE) > @fromDate  ";
+                    whereCondtionStr = "WHERE CAST(bookings.createdOn AS DATE) > @fromDate";
                 }
-              
-                if (cnfId == 0 && dealerId == 0 && statusId == 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.statusId NOT IN(" + notDelStatus + ")";
-                else if (cnfId == 0 && dealerId == 0 && statusId > 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.statusId IN(" + statusId + ")";
-                else if (cnfId == 0 && dealerId > 0 && statusId > 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.dealerOrgId=" + dealerId + "AND bookings.statusId IN(" + statusId + ")";
-                else if (cnfId == 0 && dealerId > 0 && statusId == 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.dealerOrgId=" + dealerId + "AND bookings.statusId NOT IN(" + notDelStatus + ")";
-                else if (cnfId > 0 && dealerId == 0 && statusId == 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + "AND bookings.statusId NOT IN(" + notDelStatus + ")";
-                else if (cnfId > 0 && dealerId > 0 && statusId == 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + " AND bookings.dealerOrgId=" + dealerId + " AND bookings.statusId NOT IN(" + notDelStatus + ")";
-                else if (cnfId > 0 && dealerId == 0 && statusId > 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + " AND bookings.statusId IN(" + statusId + ")";
-                else if (cnfId > 0 && dealerId > 0 && statusId > 0)
-                    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + " AND bookings.dealerOrgId=" + dealerId + " AND bookings.statusId IN(" + statusId + ")";
-                else
+
+                //Added By Gokul
+                sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr;
+
+                if (!String.IsNullOrEmpty(notDelStatus) && statusId == 0)
+                {
+                    sqlQuery += " AND bookings.statusId NOT IN(" + notDelStatus + ")";
+                }
+
+                if (cnfId > 0)
+                {
+                    sqlQuery += " AND ( bookings.cnFOrgId=" + cnfId + bookingCreatedBy + ")";
+                }
+
+                if (dealerId > 0)
+                    sqlQuery += " AND bookings.dealerOrgId=" + dealerId;
+
+                if (statusId > 0)
+                    sqlQuery += " AND bookings.statusId IN(" + statusId + ")";
+
+
+                if (String.IsNullOrEmpty(whereCondtionStr))
                 {
                     isWhereAddded = false;
                 }
 
+                //if (cnfId == 0 && dealerId == 0 && statusId == 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.statusId NOT IN(" + notDelStatus + ")";
+                //else if (cnfId == 0 && dealerId == 0 && statusId > 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.statusId IN(" + statusId + ")";
+                //else if (cnfId == 0 && dealerId > 0 && statusId > 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.dealerOrgId=" + dealerId + "AND bookings.statusId IN(" + statusId + ")";
+                //else if (cnfId == 0 && dealerId > 0 && statusId == 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.dealerOrgId=" + dealerId + "AND bookings.statusId NOT IN(" + notDelStatus + ")";
+                //else if (cnfId > 0 && dealerId == 0 && statusId == 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + "AND bookings.statusId NOT IN(" + notDelStatus + ")";
+                //else if (cnfId > 0 && dealerId > 0 && statusId == 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + " AND bookings.dealerOrgId=" + dealerId + " AND bookings.statusId NOT IN(" + notDelStatus + ")";
+                //else if (cnfId > 0 && dealerId == 0 && statusId > 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + " AND bookings.statusId IN(" + statusId + ")";
+                //else if (cnfId > 0 && dealerId > 0 && statusId > 0)
+                //    sqlQuery = SqlSelectQuery(userId) + areConfJoin + whereCondtionStr + " AND bookings.cnFOrgId=" + cnfId + " AND bookings.dealerOrgId=" + dealerId + " AND bookings.statusId IN(" + statusId + ")";
+                //else
+                //    {
+                //        isWhereAddded = false;
+                //    }
+
                 //Pandurang [2018-02-22] Added for Confirm and non Confirm View booking filter. 
 
-                if (confirm > 0)
+                if (confirm > 0)  //Saket [09-06-2021] Zero for all
                 {
                     if (confirm == 1)
                     {
@@ -968,20 +1049,25 @@ namespace ODLMWebAPI.DAL
                     }
                 }
 
-               
+
                 //Priyanka [14-08-2018] : Added flag for view pending enquiry.
                 if (isPendingQty == 1)
                 {
-                   sqlQuery += " AND bookings.pendingQty > 0";
+                    sqlQuery += " AND bookings.pendingQty > 0";
                 }
 
                 //Priyanka [14-08-2018] : Added flag for finance approval.
-                if(isPendingQty == 2)
+                if (isPendingQty == 2)
                 {
-                    sqlQuery += " AND bookings.statusId IN ( " + (int)Constants.TranStatusE.BOOKING_NEW +"," + (int)Constants.TranStatusE.BOOKING_HOLD_BY_ADMIN_OR_DIRECTOR + ") ";
+                    sqlQuery += " AND bookings.statusId IN ( " + (int)Constants.TranStatusE.BOOKING_NEW + "," + (int)Constants.TranStatusE.BOOKING_HOLD_BY_ADMIN_OR_DIRECTOR + ") ";
                     sqlQuery += " AND bookings.isWithinQuotaLimit=0";
                 }
-          
+
+                if (orderTypeId > 0)
+                {
+                    sqlQuery += " AND bookings.consumerTypeId= " + orderTypeId;
+                }
+
                 cmdSelect.CommandText = sqlQuery;
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
@@ -989,7 +1075,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.Date).Value = fromDate;//.ToString(Constants.AzureDateFormat);
                 cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.Date).Value = toDate;//.ToString(Constants.AzureDateFormat);
                 SqlDataReader sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
-                List<TblBookingsTO> list = ConvertDTToList(sqlReader);               
+                List<TblBookingsTO> list = ConvertDTToList(sqlReader);
                 return list;
             }
             catch (Exception ex)
@@ -1020,7 +1106,7 @@ namespace ODLMWebAPI.DAL
             String sqlQuery = String.Empty;
             string statusIds = String.Empty;
 
-           // string statusIds = (Int32)Constants.TranStatusE.BOOKING_APPROVED + "," + (Int32)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR;
+            // string statusIds = (Int32)Constants.TranStatusE.BOOKING_APPROVED + "," + (Int32)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR;
 
             string ids = string.Empty;
             ResultMessage resultMessage = new ResultMessage(); ;
@@ -1033,7 +1119,7 @@ namespace ODLMWebAPI.DAL
             String distStateJoin = String.Empty;
             String selectSqlQuery = String.Empty;
             String dateJoin = String.Empty;
-           // String notDelStatus = (int)Constants.TranStatusE.BOOKING_DELETE + "";
+            // String notDelStatus = (int)Constants.TranStatusE.BOOKING_DELETE + "";
             String areConfJoin = String.Empty;
             int isConfEn = 0;
             int userId = 0;
@@ -1052,7 +1138,7 @@ namespace ODLMWebAPI.DAL
                         sqlQuery = " SELECT DISTINCT idOrganization " +
                                    " FROM tblOrganization " +
                                    " INNER JOIN tblCnfDealers ON dealerOrgId=idOrganization" +
-                                   
+
                                    " INNER JOIN " +
                                    " ( " +
                                    " SELECT tblAddress.*, organizationId FROM tblOrgAddress " +
@@ -1187,7 +1273,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-        
+
         /// <summary>
         ///  Priyanka [02-03-2018]
         /// </summary>
@@ -1197,7 +1283,7 @@ namespace ODLMWebAPI.DAL
         /// <param name="activeUserId"></param>
         /// <returns></returns>
 
-        public List<TblBookingsTO> SelectUserwiseBookingList(DateTime fromDate, DateTime toDate, Int32 statusId,Int32 activeUserId)
+        public List<TblBookingsTO> SelectUserwiseBookingList(DateTime fromDate, DateTime toDate, Int32 statusId, Int32 activeUserId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -1207,7 +1293,7 @@ namespace ODLMWebAPI.DAL
             String userStatusJoin = String.Empty;
             String notDelStatus = (int)Constants.TranStatusE.BOOKING_DELETE + "";
             int isConfEn = 0;
-            
+
             try
             {
                 conn.Open();
@@ -1234,7 +1320,7 @@ namespace ODLMWebAPI.DAL
 
                                  " ) AS (userAreaDealer On userAreaDealer.cnfOrgId = bookings.cnFOrgid )" +
                                  "  AND ( bookings.dealerOrgId = userAreaDealer.idOrganization Or userAreaDealer.brandId = bookings.brandId )";
-                                
+
                 }
 
 
@@ -1363,7 +1449,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<BookingInfo> SelectBookingDashboardInfo(TblUserRoleTO tblUserRoleTO, int orgId,Int32 dealerId, DateTime date,string ids,Int32 isHideCorNC)
+        public List<BookingInfo> SelectBookingDashboardInfo(TblUserRoleTO tblUserRoleTO, int orgId, Int32 dealerId, DateTime date, string ids, Int32 isHideCorNC, Boolean bWithConsumerType)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -1378,10 +1464,10 @@ namespace ODLMWebAPI.DAL
 
             ResultMessage resultMessage = new ResultMessage(); ;
 
-          
-            if(!String.IsNullOrEmpty(ids))
+
+            if (!String.IsNullOrEmpty(ids))
             {
-                statusIds = " AND statusId IN ("+ ids +") ";
+                statusIds = " AND statusId IN (" + ids + ") ";
             }
 
             if (isHideCorNC == 1)
@@ -1406,16 +1492,16 @@ namespace ODLMWebAPI.DAL
 
                 //if (list.Contains(tblUserRoleTO.RoleId.ToString()))
                 //if (tblUserRoleTO.RoleId == (int)Constants.SystemRolesE.C_AND_F_AGENT)
-              
-                if (orgId>0)
+
+                if (orgId > 0)
                 {
                     whereCond = " AND cnfOrgId=" + orgId;
                 }
-                if( dealerId >0)
+                if (dealerId > 0)
                 {
                     whereCond += " AND dealerOrgId=" + dealerId;
                 }
-               // }
+                // }
 
                 //if (tblUserRoleTO.RoleId == (int)Constants.SystemRolesE.C_AND_F_AGENT)
                 //{
@@ -1436,7 +1522,7 @@ namespace ODLMWebAPI.DAL
                                  "  ) addrDtl  ON idOrganization = organizationId " +
                                  "   INNER JOIN tblUserAreaAllocation areaConf ON addrDtl.districtId = areaConf.districtId AND areaConf.cnfOrgId = tblCnfDealers.cnfOrgId " +
                                  "   WHERE  tblOrganization.isActive = 1 AND tblCnfDealers.isActive = 1  AND orgTypeId = " + (int)Constants.OrgTypeE.DEALER + " AND areaConf.userId = " + userId + "  AND areaConf.isActive = 1 " +
-                                
+
                                  "    UNION ALL " +
                                  "    SELECT areaConf.cnfOrgId, idOrganization = 0, areaConf.brandId FROM tblUserAreaAllocation  areaConf where  areaConf.userId = " + userId + " " + " " +
                                  "    AND areaConf.isActive = 1 " +
@@ -1455,17 +1541,24 @@ namespace ODLMWebAPI.DAL
                 //                        " AND globalRateId IN ( SELECT idGlobalRate FROM tblGlobalRate WHERE createdOn = (SELECT top 1 createdOn FROM tblGlobalRate ORDER BY createdOn DESC) )" +
                 //                        " ) AS qryRes";
 
-
-
-                cmdSelect.CommandText = " SELECT bookingType,bookingQty, COST as totalCost ,COST / bookingQty avgPrice, isConfirmed,brandName,shortNm " +
+                string sConsumerType = "";
+                string sConsumerTypeJoin = "";
+                if (bWithConsumerType == true)
+                {
+                    sConsumerType = ", consumerType ";
+                    sConsumerTypeJoin = " LEFT JOIN dimConsumerType On tblBookings.consumerTypeId = dimConsumerType.idConsumer  ";
+                }
+                cmdSelect.CommandText = " SELECT bookingType,bookingQty, COST as totalCost ,COST / bookingQty avgPrice, isConfirmed,brandName,shortNm " + sConsumerType +
                                         " FROM " +
                                         " ( " +
                                         " SELECT sum(bookingQty) AS bookingQty, dimBrand.brandName, isConfirmed, sum((bookingQty * bookingRate))" +
-                                        " AS cost,bookingType,dimBrand.shortNm FROM tblBookings " + areConfJoin +
-                                        " LEFT JOIN dimBrand On tblBookings.brandId = dimBrand.idBrand " + 
+                                        " AS cost,bookingType,dimBrand.shortNm " + sConsumerType + " FROM tblBookings " + areConfJoin +
+                                        " LEFT JOIN dimBrand On tblBookings.brandId = dimBrand.idBrand " +
+                                        sConsumerTypeJoin +
                                         " WHERE DAY(bookingDatetime) = " + date.Day + " AND MONTH(bookingDatetime) = " + date.Month +
                                         " AND YEAR(bookingDatetime) = " + date.Year + statusIds + whereCond + isConfirm +
-                                        " GROUP BY isConfirmed, brandName,bookingType,dimBrand.shortNm)AS qryRes  order by bookingType,brandName asc  ";
+                                        " GROUP BY isConfirmed, brandName,bookingType,dimBrand.shortNm" + sConsumerType +
+                                        ")AS qryRes  order by bookingType,brandName asc  ";
 
 
                 cmdSelect.Connection = conn;
@@ -1473,7 +1566,7 @@ namespace ODLMWebAPI.DAL
 
                 tblBookingsTODT = cmdSelect.ExecuteReader(CommandBehavior.Default);
                 List<ODLMWebAPI.DashboardModels.BookingInfo> tblBookingsTOList = new List<ODLMWebAPI.DashboardModels.BookingInfo>();
-                 if (tblBookingsTODT != null)
+                if (tblBookingsTODT != null)
                 {
                     while (tblBookingsTODT.Read())
                     {
@@ -1492,7 +1585,13 @@ namespace ODLMWebAPI.DAL
                             tblBookingsTONew.BookingType = Convert.ToInt32(tblBookingsTODT["bookingType"].ToString());
                         if (tblBookingsTODT["shortNm"] != DBNull.Value)
                             tblBookingsTONew.ShortNm = Convert.ToString(tblBookingsTODT["shortNm"].ToString());
-                        if (tblBookingsTONew.BookingType==(int)Constants.BookingType.IsOther)
+
+                        if (hasColumn(tblBookingsTODT, "consumerType") == true)
+                        {
+                            if (tblBookingsTODT["consumerType"] != DBNull.Value)
+                                tblBookingsTONew.ConsumerType = Convert.ToString(tblBookingsTODT["consumerType"].ToString());
+                        }
+                        if (tblBookingsTONew.BookingType == (int)Constants.BookingType.IsOther)
                         {
                             tblBookingsTONew.BrandName = "Others";
                         }
@@ -1501,11 +1600,11 @@ namespace ODLMWebAPI.DAL
                             tblBookingsTONew.ShortNm = "Others";
                         }
                         tblBookingsTOList.Add(tblBookingsTONew);
-                        
+
                     }
                 }
                 return tblBookingsTOList;
-              
+
             }
             catch (Exception ex)
             {
@@ -1519,19 +1618,26 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+
+        private Boolean hasColumn(SqlDataReader reader, string columnName)
+        {
+            var columns = Enumerable.Range(0, reader.FieldCount).Select(reader.GetName).ToList();
+
+            return columns.Any(s => s == columnName) ? true : false;
+        }
         //Aniket [16-Jan-2019] added to view cnFList against confirm and not confirmbooking
         public List<CnFWiseReportTO> ConvertDTCNCcnFBookingReport(SqlDataReader CnFWiseReportTOList)
         {
             List<CnFWiseReportTO> cnFWiseReportTOList = new List<CnFWiseReportTO>();
-            if(CnFWiseReportTOList!=null)
+            if (CnFWiseReportTOList != null)
             {
-                while(CnFWiseReportTOList.Read())
+                while (CnFWiseReportTOList.Read())
                 {
                     CnFWiseReportTO cnfWiseReportTONew = new CnFWiseReportTO();
                     if (CnFWiseReportTOList["firmName"] != DBNull.Value)
                         cnfWiseReportTONew.CnfName = CnFWiseReportTOList["firmName"].ToString();
                     if (CnFWiseReportTOList["confirmed"] != DBNull.Value)
-                        cnfWiseReportTONew.ConfirmBooking =Convert.ToInt32( CnFWiseReportTOList["confirmed"]);
+                        cnfWiseReportTONew.ConfirmBooking = Convert.ToInt32(CnFWiseReportTOList["confirmed"]);
                     if (CnFWiseReportTOList["notConfirmed"] != DBNull.Value)
                         cnfWiseReportTONew.NotConfirmBooking = Convert.ToInt32(CnFWiseReportTOList["notConfirmed"]);
                     cnFWiseReportTOList.Add(cnfWiseReportTONew);
@@ -1851,12 +1957,12 @@ namespace ODLMWebAPI.DAL
 
                     if (tblBookingsTODT["tranActionTypeId"] != DBNull.Value)
                         tblBookingsTONew.TranActionTypeId = Convert.ToInt32(tblBookingsTODT["tranActionTypeId"].ToString());
-                    
+
                     //[05-09-2018]Vijaymala added for booking type like other or regular
                     if (tblBookingsTODT["bookingType"] != DBNull.Value)
                         tblBookingsTONew.BookingType = Convert.ToInt32(tblBookingsTODT["bookingType"].ToString());
 
-                    if(tblBookingsTONew.BookingType==(int)Constants.BookingType.IsOther)
+                    if (tblBookingsTONew.BookingType == (int)Constants.BookingType.IsOther)
                     {
                         tblBookingsTONew.BrandName = "Others";
                     }
@@ -1878,9 +1984,9 @@ namespace ODLMWebAPI.DAL
                         tblBookingsTONew.BookingRefId = Convert.ToInt32(tblBookingsTODT["bookingRefId"]);
                     if (tblBookingsTODT["bookingDisplayNo"] != DBNull.Value)
                         tblBookingsTONew.BookingDisplayNo = Convert.ToString(tblBookingsTODT["bookingDisplayNo"]);
-                             if (tblBookingsTODT["dealerCat"] != DBNull.Value)
+                    if (tblBookingsTODT["dealerCat"] != DBNull.Value)
                         tblBookingsTONew.DealerCat = Convert.ToString(tblBookingsTODT["dealerCat"]);
-                             if (tblBookingsTODT["colorCode"] != DBNull.Value)
+                    if (tblBookingsTODT["colorCode"] != DBNull.Value)
                         tblBookingsTONew.ColorCode = Convert.ToString(tblBookingsTODT["colorCode"]);
 
                     if (tblBookingsTODT["creditLimit"] != DBNull.Value)
@@ -1888,6 +1994,20 @@ namespace ODLMWebAPI.DAL
 
                     if (tblBookingsTODT["enqDisplayNo"] != DBNull.Value)
                         tblBookingsTONew.EnqDisplayNo = Convert.ToString(tblBookingsTODT["enqDisplayNo"]);
+
+                    //Dhananjay [02-12-2020]
+                    if (tblBookingsTODT["districtId"] != DBNull.Value)
+                        tblBookingsTONew.DistrictId = Convert.ToInt32(tblBookingsTODT["districtId"]);
+                    if (tblBookingsTODT["talukaId"] != DBNull.Value)
+                        tblBookingsTONew.TalukaId = Convert.ToInt32(tblBookingsTODT["talukaId"]);
+                    if (tblBookingsTODT["consumerTypeid"] != DBNull.Value)
+                        tblBookingsTONew.OrderTypeId = Convert.ToInt32(tblBookingsTODT["consumerTypeid"]);
+                    if (tblBookingsTODT["consumerTypeName"] != DBNull.Value)
+                        tblBookingsTONew.OrderTypeName = Convert.ToString(tblBookingsTODT["consumerTypeName"]);
+
+                    if (tblBookingsTODT["cnfChkSelected"] != DBNull.Value)
+                        tblBookingsTONew.CnfChkSelected = Convert.ToInt32(tblBookingsTODT["cnfChkSelected"]);
+
 
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }
@@ -1908,7 +2028,7 @@ namespace ODLMWebAPI.DAL
                 while (tblBookingsSummaryTODT.Read())
                 {
                     TblBookingSummaryTO tblBookingsSummaryTONew = new TblBookingSummaryTO();
-                   
+
                     if (tblBookingsSummaryTODT["displayName"] != DBNull.Value)
                         tblBookingsSummaryTONew.DisplayName = Convert.ToString(tblBookingsSummaryTODT["displayName"].ToString());
 
@@ -1918,12 +2038,12 @@ namespace ODLMWebAPI.DAL
                     if (tblBookingsSummaryTODT["timeView"] != DBNull.Value)
                         tblBookingsSummaryTONew.TimeView = Convert.ToDateTime(tblBookingsSummaryTODT["timeView"].ToString());
 
-                        tblBookingsSummaryTOList.Add(tblBookingsSummaryTONew);
+                    tblBookingsSummaryTOList.Add(tblBookingsSummaryTONew);
                 }
             }
             return tblBookingsSummaryTOList;
         }
-    
+
         public Dictionary<Int32, Double> SelectBookingsPendingQtyDCT(SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();
@@ -1982,7 +2102,7 @@ namespace ODLMWebAPI.DAL
         /// <summary>
         /// Vijaymala [2017-09-11] added to get booking list to generate booking graph
         /// </summary>
-        public List<BookingGraphRptTO> SelectBookingListForGraph(Int32 OrganizationId, TblUserRoleTO tblUserRoleTO,Int32 dealerId)
+        public List<BookingGraphRptTO> SelectBookingListForGraph(Int32 OrganizationId, TblUserRoleTO tblUserRoleTO, Int32 dealerId)
         {
 
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -2002,7 +2122,7 @@ namespace ODLMWebAPI.DAL
                 userId = tblUserRoleTO.UserId;
             }
 
-           // List<string> roleTypelist = new List<string>();
+            // List<string> roleTypelist = new List<string>();
             //DimRoleTypeTO roleTypeTO = BL.DimRoleTypeBL.SelectDimRoleTypeTO((int)Constants.SystemRoleTypeE.C_AND_F_AGENT);
             //if (roleTypeTO != null)
             //{
@@ -2121,8 +2241,115 @@ namespace ODLMWebAPI.DAL
             return bookingGraphRptTOList;
         }
 
-       
-        
+        public List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate, int isFromProject)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();            
+            ResultMessage resultMessage = new ResultMessage();
+            SqlDataReader tblBookingsTODT = null;
+            try
+            {
+                conn.Open();
+                
+                cmdSelect.CommandText = " select bookingDisplayNo, cnFOrgId,orgCNf.firmName as distributorName,tblBookings.consumerTypeId,orderType.consumerType," +
+                    " tblBookings.createdOn, dealerOrgId,dealerOrg.firmName as dealerName,bookingQty,bookingRate ,tblBookings.bookingQty - ISNULL(tblBookingQtyConsumption.consumptionQty,tblBookings.pendingQty) as dispatchedQty " +
+                    " from tblBookings tblBookings " +
+                    " LEFT JOIN tblOrganization orgCNf ON orgCNf.idOrganization = tblBookings.cnFOrgId " +
+                    " LEFT JOIN tblOrganization dealerOrg ON dealerOrg.idOrganization = tblBookings.dealerOrgId LEFT JOIN dimConsumerType orderType ON orderType.idConsumer = tblBookings.consumerTypeId  " +
+                    " LEFT JOIN tblBookingQtyConsumption tblBookingQtyConsumption on tblBookingQtyConsumption.bookingId = tblBookings.idBooking " +
+                    " where tblBookings.statusId  IN (11) ";
+
+
+                if (skipDate == 0)
+                    cmdSelect.CommandText += " AND CAST(tblBookings.createdOn AS DATE) BETWEEN @fromDate AND @toDate";
+
+                if (cOrNcId < 2)
+                    cmdSelect.CommandText += " AND ISNULL(tblBookings.isConfirmed,0) = "+cOrNcId;
+
+                if (distributorId >0)
+                    cmdSelect.CommandText += " AND ISNULL(tblBookings.cnFOrgId,0) = " + distributorId;
+
+                if (brandId >0)
+                    cmdSelect.CommandText += " AND ISNULL(tblBookings.brandId,0) = " + brandId;
+
+                if (isFromProject > 0)
+                    cmdSelect.CommandText += " AND ISNULL(tblBookings.consumerTypeId,0) IN (" + Convert.ToInt32(Constants.ConsumerTypeE.Government_Project) + "," + Convert.ToInt32(Constants.ConsumerTypeE.Private_Project) +")";
+                else
+                    cmdSelect.CommandText += " AND ISNULL(tblBookings.consumerTypeId,0) = " + Convert.ToInt32( Constants.ConsumerTypeE.Dealer);
+
+                cmdSelect.CommandText += " order by distributorName asc  ";
+
+                
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.Date).Value = startDate;//.ToString(Constants.AzureDateFormat);
+                cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.Date).Value = endDate;//.ToString(Constants.AzureDateFormat);
+
+                tblBookingsTODT = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblBookingAnalysisReportTO> tblBookingsTOList = new List<TblBookingAnalysisReportTO>();
+                if (tblBookingsTODT != null)
+                {
+                    while (tblBookingsTODT.Read())
+                    {
+                        TblBookingAnalysisReportTO tblBookingsTONew = new TblBookingAnalysisReportTO();
+                        if (tblBookingsTODT["bookingRate"] != DBNull.Value)
+                            tblBookingsTONew.BookingRate = Convert.ToDouble(tblBookingsTODT["bookingRate"].ToString());
+                        if (tblBookingsTODT["createdOn"] != DBNull.Value)
+                            tblBookingsTONew.CreatedOn = Convert.ToDateTime(tblBookingsTODT["createdOn"].ToString());
+
+                        if (tblBookingsTODT["dealerOrgId"] != DBNull.Value)
+                            tblBookingsTONew.DealerId = Convert.ToInt32(tblBookingsTODT["dealerOrgId"].ToString());
+
+                        if (tblBookingsTODT["cnFOrgId"] != DBNull.Value)
+                            tblBookingsTONew.DistributorId = Convert.ToInt32(tblBookingsTODT["cnFOrgId"].ToString());
+                        if (hasColumn(tblBookingsTODT, "consumerType") == true)
+                        {
+                            if (tblBookingsTODT["consumerType"] != DBNull.Value)
+                                tblBookingsTONew.ConsumerType = Convert.ToString(tblBookingsTODT["consumerType"].ToString());
+                        }
+
+                        if (hasColumn(tblBookingsTODT, "distributorName") == true)
+                        {
+                            if (tblBookingsTODT["distributorName"] != DBNull.Value)
+                                tblBookingsTONew.DistributorName = Convert.ToString(tblBookingsTODT["distributorName"].ToString());
+                        }
+                        if (hasColumn(tblBookingsTODT, "dealerName") == true)
+                        {
+                            if (tblBookingsTODT["dealerName"] != DBNull.Value)
+                                tblBookingsTONew.DealerName = Convert.ToString(tblBookingsTODT["dealerName"].ToString());
+                        }
+                        if (hasColumn(tblBookingsTODT, "bookingQty") == true)
+                        {
+                            if (tblBookingsTODT["bookingQty"] != DBNull.Value)
+                                tblBookingsTONew.BookingQty = Convert.ToDouble(tblBookingsTODT["bookingQty"].ToString());
+                        }
+                        if (hasColumn(tblBookingsTODT, "dispatchedQty") == true)
+                        {
+                            if (tblBookingsTODT["dispatchedQty"] != DBNull.Value)
+                                tblBookingsTONew.DispatchedQty = Convert.ToDouble(tblBookingsTODT["dispatchedQty"].ToString());
+                        }
+                        
+                        tblBookingsTOList.Add(tblBookingsTONew);
+
+                    }
+                }
+                return tblBookingsTOList;
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (tblBookingsTODT != null)
+                    tblBookingsTODT.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
         #endregion
 
         #region Insertion
@@ -2220,7 +2447,10 @@ namespace ODLMWebAPI.DAL
                             " ,[isItemized]" + //Aniket[13-6-2019]
                             " ,[bookingRefId]" + //kiran[06-09-2019]
                             " ,[bookingDisplayNo]" + //kiran[06-09-2019]
-                            " ,[enquiryId]" + //kiran[06-09-2019]
+                            " ,[enquiryId]" +
+                            //kiran[06-09-2019]
+                            ", [consumerTypeId]" + //Gokul [11-02-2021]
+                            ", [cnfChkSelected]" +
                             " )" +
                 " VALUES (" +
                             "  @CnFOrgId " +
@@ -2274,6 +2504,8 @@ namespace ODLMWebAPI.DAL
                             " ,@bookingRefId" +
                             " ,@bookingDisplayNo" +
                             " ,@enquiryId" +
+                            " ,@consumertypeid" +
+                            " ,@CnfChkSelected" +
                              " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -2333,6 +2565,8 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@bookingRefId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingRefId);
             cmdInsert.Parameters.Add("@bookingDisplayNo", System.Data.SqlDbType.VarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingDisplayNo);
             cmdInsert.Parameters.Add("@enquiryId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.EnquiryId);
+            cmdInsert.Parameters.Add("@consumertypeid", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.OrderTypeId);
+            cmdInsert.Parameters.Add("@CnfChkSelected", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.CnfChkSelected);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
@@ -2473,6 +2707,8 @@ namespace ODLMWebAPI.DAL
                             " ,[bookingRefId] = @bookingRefId" +
                             " ,[bookingDisplayNo] = @bookingDisplayNo" +
                             " ,[enquiryId] = @enquiryId" +
+                            " , [consumerTypeId]=@consumerTypeId" +
+                            " , [cnfChkSelected]=@CnfChkSelected" +
                             " WHERE  [idBooking] = @IdBooking";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -2529,6 +2765,8 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@bookingRefId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingRefId);
             cmdUpdate.Parameters.Add("@bookingDisplayNo", System.Data.SqlDbType.VarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingDisplayNo);
             cmdUpdate.Parameters.Add("@enquiryId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.EnquiryId);
+            cmdUpdate.Parameters.Add("@consumerTypeId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.OrderTypeId);
+            cmdUpdate.Parameters.Add("@CnfChkSelected", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.CnfChkSelected);
 
 
             return cmdUpdate.ExecuteNonQuery();

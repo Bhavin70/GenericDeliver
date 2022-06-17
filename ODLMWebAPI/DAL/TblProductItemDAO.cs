@@ -21,7 +21,7 @@ namespace ODLMWebAPI.DAL
         #region Methods
         public String SqlSelectQuery()
         {
-            String sqlSelectQry = "  SELECT p.*,uom.weightMeasurUnitDesc FROM tblProductItem p "+
+            String sqlSelectQry = "  SELECT p.*,uom.weightMeasurUnitDesc, uom.mappedEInvoiceUOM FROM tblProductItem p " +
                                   " LEFT JOIN dimunitmeasures uom on uom.idWeightMeasurUnit = p.weightMeasureUnitId"; 
             return sqlSelectQry;
         }
@@ -160,6 +160,8 @@ namespace ODLMWebAPI.DAL
                     //Aniket [6-6-2019]
                     if (tblProductItemTODT["weightMeasurUnitDesc"] != DBNull.Value)
                         tblProductItemTONew.WeightMeasureUnitDesc = Convert.ToString(tblProductItemTODT["weightMeasurUnitDesc"].ToString());
+                    if (tblProductItemTODT["mappedEInvoiceUOM"] != DBNull.Value)
+                        tblProductItemTONew.MappedEInvoiceUOM = tblProductItemTODT["mappedEInvoiceUOM"].ToString();
                     tblProductItemTOList.Add(tblProductItemTONew);
                 }
             }

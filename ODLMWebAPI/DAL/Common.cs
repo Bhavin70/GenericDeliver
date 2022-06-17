@@ -17,20 +17,23 @@ using ODLMWebAPI.Models;
 using ODLMWebAPI.IoT;
 using System.Threading;
 using System.Text;
+using QRCoder;
+using System.Drawing;
+using System.IO.Compression;
+using System.Reflection;
 
 namespace ODLMWebAPI.DAL
 { 
     public class Common : ICommon
     {
         private readonly IConnectionString _iConnectionString;
-        private readonly IModbusRefConfig _iModbusRefConfig;
-
+        private readonly IModbusRefConfig _iModbusRefConfig; 
         static readonly object uniqueModBusRefIdLock = new object();
 
-        public Common(IConnectionString iConnectionString, IModbusRefConfig iModbusRefConfig)
+        public Common(IConnectionString iConnectionString, IModbusRefConfig iModbusRefConfi)
         {
             _iConnectionString = iConnectionString;
-         _iModbusRefConfig =iModbusRefConfig;
+            _iModbusRefConfig = iModbusRefConfi; 
         }
 
         public List<int> GeModRefMaxData()
@@ -131,14 +134,14 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 /*To get Server Date Time for Local DB*/
-                //String sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
+                String sqlQuery = Startup.SERVER_DATETIME_QUERY_STRING;
 
                 ////To get Server Date Time for Azure Server DB
-                string sqlQuery = " declare @dfecha as datetime " +
-                                  " declare @d as datetimeoffset " +
-                                  " set @dfecha= sysdatetime()   " +
-                                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
-                                  " select convert(datetime, @d)";
+                //string sqlQuery = " declare @dfecha as datetime " +
+                //                  " declare @d as datetimeoffset " +
+                //                  " set @dfecha= sysdatetime()   " +
+                //                  " set @d = convert(datetimeoffset, @dfecha) at time zone 'india standard time'" +
+                //                  " select convert(datetime, @d)";
 
                 cmdSelect = new SqlCommand(sqlQuery, conn);
 
@@ -501,5 +504,134 @@ public  string SelectApKLoginArray(int userId)
                 throw ex;
             }
         }
+        public static Image resizeImage(Image imgToResize, Size size)
+        {
+            return (Image)(new Bitmap(imgToResize, size));
+        }
+
+       
+
+        public byte[] convertQRStringToByteArray(String signedQRCode)
+        {
+            try
+            {
+                QRCoder.QRCodeGenerator qrGen = new QRCodeGenerator();
+                var qrData = qrGen.CreateQrCode(signedQRCode, QRCoder.QRCodeGenerator.ECCLevel.L);
+                var qrCode = new QRCoder.QRCode(qrData);
+                System.Drawing.Image image = qrCode.GetGraphic(50);
+
+                byte[] PhotoCodeInBytes = null;
+
+                using (var ms = new MemoryStream())
+                {
+                    image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    PhotoCodeInBytes = ms.ToArray();
+                }
+                //byte[] compressedByte = Compress(PhotoCodeInBytes);
+
+                return PhotoCodeInBytes;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+        }
+        public static Byte[] Compress(Byte[] buffer)
+        {
+            byte[] imageBytes;
+
+            //Of course image bytes is set to the bytearray of your image      
+
+            using (MemoryStream ms = new MemoryStream(buffer, 0, buffer.Length))
+            {
+                using (Image img = Image.FromStream(ms))
+                {
+                    int h = 100;
+                    int w = 100;
+
+                    using (Bitmap b = new Bitmap(img, new Size(w, h)))
+                    {
+                        using (MemoryStream ms2 = new MemoryStream())
+                        {
+                            b.Save(ms2, System.Drawing.Imaging.ImageFormat.Png);
+                            imageBytes = ms2.ToArray();
+                        }
+                    }
+                }
+            }
+            return imageBytes;
+        }
+
+        public static DataTable ToDataTable<T>(List<T> items)
+        {
+            DataTable dataTable = new DataTable(typeof(T).Name);
+
+            //Get all the properties
+            PropertyInfo[] Props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            foreach (PropertyInfo prop in Props)
+            {
+                //Defining type of data column gives proper data table 
+                var type = (prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>) ? Nullable.GetUnderlyingType(prop.PropertyType) : prop.PropertyType);
+                //Setting column names as Property names
+                dataTable.Columns.Add(prop.Name, type);
+            }
+            foreach (T item in items)
+            {
+                var values = new object[Props.Length];
+                for (int i = 0; i < Props.Length; i++)
+                {
+                    //inserting property values to datatable rows
+                    values[i] = Props[i].GetValue(item, null);
+                }
+                dataTable.Rows.Add(values);
+            }
+            //put a breakpoint here and check datatable
+            return dataTable;
+        }
+        public List<DropDownTO> GetConsumerCategoryList(String idConsumerStr = "")
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlDataReader sqlReader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = " SELECT * FROM dimConsumerType WHERE isActive = 1";
+                if (!String.IsNullOrEmpty(idConsumerStr))
+                {
+                    cmdSelect.CommandText += " AND idConsumer IN(" + idConsumerStr + ")";
+                }
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Connection = conn;
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DropDownTO> list = new List<DropDownTO>();
+                if (sqlReader != null)
+                {
+                    while (sqlReader.Read())
+                    {
+                        DropDownTO dropDownTO = new DropDownTO();
+                        if (sqlReader["consumerType"] != DBNull.Value)
+                            dropDownTO.Text = Convert.ToString(sqlReader["consumerType"].ToString());
+                        if (sqlReader["idConsumer"] != DBNull.Value)
+                            dropDownTO.Value = Convert.ToInt32(sqlReader["idConsumer"].ToString());
+                        list.Add(dropDownTO);
+                    }
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                sqlReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+         
     }
 }

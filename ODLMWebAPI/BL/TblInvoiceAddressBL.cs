@@ -56,6 +56,17 @@ namespace ODLMWebAPI.BL
         {
             return _iTblInvoiceAddressDAO.SelectAllTblInvoiceAddress(invoiceId, conn, tran);
         }
+
+        /// <summary>
+        /// AmolG[2022-Feb-14] For Getting Party Name
+        /// </summary>
+        /// <param name="invoiceId"></param>
+        /// <returns></returns>
+        public List<TblInvoiceAddressTO> SelectTblInvoice(Int32 invoiceId)
+        {
+            return  _iTblInvoiceAddressDAO.SelectTblInvoice(invoiceId);
+        }
+
         #endregion
 
         #region Insertion

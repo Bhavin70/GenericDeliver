@@ -27,5 +27,6 @@ namespace ODLMWebAPI.DAL.Interfaces
         //Aniket [22-4-2019]
         List<TblInvoiceAddressTO> SelectTblInvoiceAddressByDealerId(Int32 dealerOrgId, String txnAddrTypeIdtemp,Int32 topRecordcnt);
 
+        List<TblInvoiceAddressTO> SelectTblInvoice(Int32 invoiceId);
     }
 }

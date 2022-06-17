@@ -87,6 +87,11 @@ namespace ODLMWebAPI.Models
         //Priyanka [22-10-18]
         TblKYCDetailsTO tblKYCDetailsTO;
 
+        //Added by Gokul [13-02-21]
+        Int32 consumerTypeId;
+        string consumerType;
+        Int32 isTcsApplicable;
+        Int32 isDeclarationRec;
         #endregion
 
         #region Constructor
@@ -354,6 +359,18 @@ namespace ODLMWebAPI.Models
             }
         }
 
+        public int ConsumerTypeId
+        {
+            get { return consumerTypeId; }
+            set { consumerTypeId = value; }
+        }
+
+        public string ConsumerType
+        {
+            get { return consumerType; }
+            set { consumerType = value; }
+        }
+
         public string RegisteredMobileNos { get => registeredMobileNos; set => registeredMobileNos = value; }
         public int CdStructureId { get => cdStructureId; set => cdStructureId = value; }
         public double CdStructure { get => cdStructure; set => cdStructure = value; }
@@ -428,6 +445,8 @@ namespace ODLMWebAPI.Models
         /// </summary>
         public List<TblPurchaseCompetitorExtTO> PurchaseCompetitorExtTOList { get => purchaseCompetitorExtTOList; set => purchaseCompetitorExtTOList = value; }
         public double CreditLimit { get => creditLimit; set => creditLimit = value; }
+        public int IsTcsApplicable { get => isTcsApplicable; set => isTcsApplicable = value; }
+        public int IsDeclarationRec { get => isDeclarationRec; set => isDeclarationRec = value; }
 
 
 

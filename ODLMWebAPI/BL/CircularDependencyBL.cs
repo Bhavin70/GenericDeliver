@@ -25,9 +25,9 @@ namespace ODLMWebAPI.BL
         private readonly ITblBookingsDAO _iTblBookingsDAO;
         private readonly ITblStockSummaryDAO _iTblStockSummaryDAO;
         private readonly IConnectionString _iConnectionString;
-        private readonly ITblParityDetailsDAO _iTblParityDetailsDAO;
+        private readonly ITblParityDetailsBL _iTblParityDetailsBL;
         private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
-        public CircularDependencyBL(ITblConfigParamsDAO iTblConfigParamsDAO,ITblParityDetailsDAO iTblParityDetailsDAO,ITblLoadingSlipDAO iTblLoadingSlipDAO, IConnectionString iConnectionString, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceDAO iTblInvoiceDAO, ITblLoadingDAO iTblLoadingDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblBookingScheduleDAO iTblBookingScheduleDAO, ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblBookingExtDAO iTblBookingExtDAO)
+        public CircularDependencyBL(ITblConfigParamsDAO iTblConfigParamsDAO,ITblParityDetailsBL iTblParityDetailsBL,ITblLoadingSlipDAO iTblLoadingSlipDAO, IConnectionString iConnectionString, ITblStockSummaryDAO iTblStockSummaryDAO, ITblBookingsDAO iTblBookingsDAO, ITblInvoiceDAO iTblInvoiceDAO, ITblLoadingDAO iTblLoadingDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipAddressDAO iTblLoadingSlipAddressDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblBookingScheduleDAO iTblBookingScheduleDAO, ITblBookingDelAddrDAO iTblBookingDelAddrDAO, ITblBookingExtDAO iTblBookingExtDAO)
         {
             _iTblBookingScheduleDAO = iTblBookingScheduleDAO;
             _iTblBookingDelAddrDAO = iTblBookingDelAddrDAO;
@@ -42,7 +42,7 @@ namespace ODLMWebAPI.BL
             _iTblBookingsDAO = iTblBookingsDAO;
             _iTblStockSummaryDAO = iTblStockSummaryDAO;
             _iConnectionString = iConnectionString;
-            _iTblParityDetailsDAO = iTblParityDetailsDAO;
+            _iTblParityDetailsBL = iTblParityDetailsBL;
             _iTblConfigParamsDAO = iTblConfigParamsDAO;
         }
         public List<TblBookingScheduleTO> SelectBookingScheduleByBookingId(Int32 bookingId)
@@ -234,7 +234,28 @@ namespace ODLMWebAPI.BL
                         {
                             foreach (var item in tblBookingScheduleTO.OrderDetailsLst)
                             {
-                                var parityList = _iTblParityDetailsDAO.SelectParityDetailToListOnBooking(item.MaterialId, item.ProdCatId, item.ProdSpecId, item.ProdItemId, item.BrandId, tblBookingsTO.StateId, tblBookingsTO.CreatedOn);
+
+                                //02-12-2020 Dhananjay added start
+                                Int32 districtId = 0;
+                                Int32 talukaId = 0;
+                                Int32 parityLevel = 1;
+                                TblConfigParamsTO parityLevelConfigParamsTO = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_PARITY_LEVEL);
+
+                                if (parityLevelConfigParamsTO != null)
+                                {
+                                    parityLevel = Convert.ToInt32(parityLevelConfigParamsTO.ConfigParamVal);
+                                    if (parityLevel == 2)
+                                    {
+                                        districtId = tblBookingsTO.DistrictId;
+                                    }
+                                    else if (parityLevel == 3)
+                                    {
+                                        districtId = tblBookingsTO.DistrictId;
+                                        talukaId = tblBookingsTO.TalukaId;
+                                    }
+                                }
+                                //02-12-2020 Dhananjay added end
+                                var parityList = _iTblParityDetailsBL.GetParityDetailToListOnBooking(item.MaterialId, item.ProdCatId, item.ProdSpecId, item.ProdItemId, item.BrandId, tblBookingsTO.StateId, tblBookingsTO.CreatedOn, districtId, talukaId, parityLevel); //29-12-2020 Dhananjay added preb var parityList = _iTblParityDetailsBL.SelectParityDetailToListOnBooking(item.MaterialId, item.ProdCatId, item.ProdSpecId, item.ProdItemId, item.BrandId, tblBookingsTO.StateId, tblBookingsTO.CreatedOn, districtId, talukaId);
                                 if (parityList != null)
                                 {
                                     if (tblBookingsTO.IsConfirmed == 1)

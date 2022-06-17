@@ -76,8 +76,8 @@ namespace ODLMWebAPI.Models
         String bookingDisplayNo;
         Int32 isMerge;
         Int32 fromOrgId;
+        string bookingComments;
 
-       
         #endregion
 
         #region Constructor
@@ -93,6 +93,11 @@ namespace ODLMWebAPI.Models
         {
             get { return fromOrgId; }
             set { fromOrgId = value; }
+        }
+        public string BookingComments
+        {
+            get { return bookingComments; }
+            set { bookingComments = value; }
         }
         public Int32 IdLoadingSlip
         {

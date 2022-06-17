@@ -80,6 +80,7 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage UpdateInvoiceConfrimNonConfirmDetails(TblInvoiceTO tblInvoiceTO, Int32 loginUserId);
         ResultMessage ExtractEnquiryData();
         ResultMessage DeleteDispatchData();
+
         ResultMessage DeleteAllBookings(List<Int32> bookingsIdList);
         ResultMessage DeleteAllBookings(List<int> bookingsIdsList, SqlConnection conn, SqlTransaction tran);
         int DeleteDispatchBookingData(Int32 bookingId, SqlConnection conn, SqlTransaction tran);
@@ -112,5 +113,6 @@ namespace ODLMWebAPI.BL.Interfaces
 
         List<TblInvoiceTO> SelectAllInvoiceListByVehicleNo(string vehicleNo, DateTime frmDt, DateTime toDt);
         ResultMessage ChangeLoadingSlipConfirmationStatus(TblLoadingSlipTO tblLoadingSlipTO, Int32 loginUserId);
+        ResultMessage CheckIotConnectivity();
     }
 }

@@ -13,6 +13,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<DimStatusTO> SelectAllDimStatus();
         List<DimStatusTO> SelectAllDimStatus(int txnTypeId);
         DimStatusTO SelectDimStatus(Int32 idStatus, SqlConnection conn, SqlTransaction tran);
+        DimStatusTO SelectDimStatus(Int32 idStatus);
+
         List<DimStatusTO> ConvertDTToList(SqlDataReader dimStatusTODT);
         int InsertDimStatus(DimStatusTO dimStatusTO);
         int InsertDimStatus(DimStatusTO dimStatusTO, SqlConnection conn, SqlTransaction tran);

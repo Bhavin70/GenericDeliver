@@ -22,11 +22,11 @@ namespace ODLMWebAPI.DAL
         #region Methods
         public String SqlSelectQuery()
         {
-            String sqlSelectQry = " SELECT tblOrganization.*,cdStructure.cdValue,dimDelPeriod.deliveryPeriod, villageName,districtId FROM [tblOrganization] tblOrganization" +
+            String sqlSelectQry = " SELECT tblOrganization.*, cdStructure.cdValue,dimDelPeriod.deliveryPeriod, villageName,districtId FROM [tblOrganization] tblOrganization" +
                                   " LEFT JOIN " +
                                    " ( " +
                                    " SELECT tblAddress.*, organizationId FROM tblOrgAddress " +
-                                   " INNER JOIN tblAddress ON idAddr = addressId WHERE addrTypeId = 1 " +
+                                   " INNER JOIN tblAddress ON idAddr = addressId WHERE addrTypeId = 1 AND isAddrVisible = 1  " +
                                    " ) addrDtl " +
                                    " ON idOrganization = organizationId " +
                                    " LEFT JOIN dimCdStructure cdStructure ON cdStructure.idCdStructure=tblOrganization.cdStructureId" +
@@ -589,7 +589,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<DropDownTO> SelectDealerListForDropDown(Int32 cnfId, TblUserRoleTO tblUserRoleTO)
+        public List<DropDownTO> SelectDealerListForDropDown(Int32 cnfId, TblUserRoleTO tblUserRoleTO, Int32 consumerType = 0)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -680,6 +680,10 @@ namespace ODLMWebAPI.DAL
                                    "WHERE  tblOrganization.isActive=1 AND tblCnfDealers.isActive=1 AND orgTypeId=" + (int)Constants.OrgTypeE.DEALER + " AND areaConf.userId=" + userId + " AND areaConf.isActive=1 ";
 
                     }
+                }
+                if (consumerType != 0)
+                {
+                    sqlQuery += " AND consumerTypeId = " + consumerType;
                 }
 
                 cmdSelect.CommandText = sqlQuery;
@@ -830,7 +834,7 @@ namespace ODLMWebAPI.DAL
 
                 rdr = cmdSelect.ExecuteReader(CommandBehavior.Default);
                 List<TblOrganizationTO> list = ConvertDTToList(rdr);
-                if (list != null && list.Count == 1)
+                if (list != null && list.Count > 0)
                     return list[0];
                 else return null;
             }
@@ -1096,6 +1100,11 @@ namespace ODLMWebAPI.DAL
                     if (tblOrganizationTODT["creditLimit"] != DBNull.Value)
                         tblOrganizationTONew.CreditLimit = Convert.ToDouble(tblOrganizationTODT["creditLimit"].ToString());
 
+                    
+                    //Added By Gokul[14 - 02 - 21]
+                    if (tblOrganizationTODT["consumerTypeId"] != DBNull.Value)
+                        tblOrganizationTONew.ConsumerTypeId = Convert.ToInt32(tblOrganizationTODT["consumerTypeId"].ToString());
+
 
                     if (tblOrganizationTONew.OrgTypeE == Constants.OrgTypeE.C_AND_F_AGENT)
                     {
@@ -1162,6 +1171,11 @@ namespace ODLMWebAPI.DAL
                     if (tblOrganizationTODT["dateOfEstablishment"] != DBNull.Value)
                         tblOrganizationTONew.DateOfEstablishment = Convert.ToDateTime(tblOrganizationTODT["dateOfEstablishment"].ToString());
 
+                    if (tblOrganizationTODT["isTcsApplicable"] != DBNull.Value)
+                        tblOrganizationTONew.IsTcsApplicable = Convert.ToInt32(tblOrganizationTODT["isTcsApplicable"].ToString());
+
+                    if (tblOrganizationTODT["isDeclarationRec"] != DBNull.Value)
+                        tblOrganizationTONew.IsDeclarationRec = Convert.ToInt32(tblOrganizationTODT["isDeclarationRec"].ToString());
 
                     tblOrganizationTOList.Add(tblOrganizationTONew);
                 }

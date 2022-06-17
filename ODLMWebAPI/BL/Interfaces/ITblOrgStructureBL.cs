@@ -74,5 +74,6 @@ namespace ODLMWebAPI.BL.Interfaces
         TblUserReportingDetailsTO SelectUserReportingDetailsTOBom(int IdUserReportingDetails, SqlConnection conn, SqlTransaction tran);
         int UpdateTblOrgStructureHierarchy(TblOrgStructureHierarchyTO tblOrgStructureHierarchyTO);
         int UpdateTblOrgStructureHierarchy(TblOrgStructureHierarchyTO tblOrgStructureHierarchyTO, SqlConnection conn, SqlTransaction tran);
+        TblOrganizationTO SelectTblOrganizationTO(Int32 idOrganization);
     }
 }

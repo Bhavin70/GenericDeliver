@@ -18,8 +18,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         TblParityDetailsTO SelectTblParityDetails(Int32 idParityDtl);
         TblParityDetailsTO SelectTblParityDetails(Int32 idParityDtl, SqlConnection conn, SqlTransaction tran);
         List<TblParityDetailsTO> SelectAllParityDetails();
-        List<TblParityDetailsTO> SelectAllParityDetailsOnProductItemId(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo, Int32 productSpecForRegular);
-        List<TblParityDetailsTO> SelectParityDetailToListOnBooking(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate);
+        List<TblParityDetailsTO> SelectAllParityDetailsOnProductItemId(Int32 brandId, Int32 productItemId, Int32 prodCatId, Int32 stateId, Int32 currencyId, Int32 productSpecInfoListTo, Int32 productSpecForRegular, Int32 districtId, Int32 talukaId);
+        List<TblParityDetailsTO> SelectParityDetailToListOnBooking(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate, Int32 districtId, Int32 talukaId); //02-12-2020 Dhananjay added districtId and talukaId
         List<TblParityDetailsTO> ConvertDTToList(SqlDataReader tblParityDetailsTODT);
         int InsertTblParityDetails(TblParityDetailsTO tblParityDetailsTO);
         int InsertTblParityDetails(TblParityDetailsTO tblParityDetailsTO, SqlConnection conn, SqlTransaction tran);
@@ -34,5 +34,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeactivateAllParityDetailsForUpdate(TblParityDetailsTO tblParityDetailsTO, SqlConnection conn, SqlTransaction tran);
         List<TblParityDetailsTO> SelectParityDetailsForBrand(Int32 fromBrand, Int32 toBrand, Int32 currencyId, Int32 categoryId, Int32 stateId);
         List<TblParityDetailsTO> GetParityDetailsForBrand(Int32 brandId);
+
+        List<TblParityDetailsTO> SelectCurrentParityDtlsList(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 productItemId, Int32 brandId, Int32 stateId, DateTime boookingDate, Int32 districtId, Int32 talukaId); 
     }
 }
