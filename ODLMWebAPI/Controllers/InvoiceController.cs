@@ -1619,9 +1619,30 @@ namespace ODLMWebAPI.Controllers
         {
             ResultMessage resultMessage = new ResultMessage();
             var invoiceId = data["invoiceId"].ToString();
+            var userId = data["userId"].ToString();
+
             try
             {
-                return _iTblInvoiceBL.ReverseWeighingDtlData(Convert.ToInt32(invoiceId)); 
+                return _iTblInvoiceBL.ReverseWeighingDtlData(Convert.ToInt32(invoiceId), Convert.ToInt32(userId)); 
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "ReverseWeighingDtlData");
+                return resultMessage;
+            }
+        }
+
+        [Route("DeleteWeighingDtlData")]
+        [HttpPost]
+        public ResultMessage DeleteWeighingDtlData([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+
+            var loadingslipid = data["loadingslipid"].ToString();
+
+            try
+            {
+                return _iTblInvoiceBL.DeleteWeighingDtlData(Convert.ToInt32(loadingslipid));
             }
             catch (Exception ex)
             {

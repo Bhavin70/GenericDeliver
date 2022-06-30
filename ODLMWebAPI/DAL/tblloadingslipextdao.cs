@@ -1212,7 +1212,7 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Connection = conn;
                 cmdUpdate.Transaction = tran;
                 String sqlQuery = @" UPDATE [tempLoadingSlipExt] SET " +
-                            "  [isAllowWeighingMachine]= NULL" +
+                            "  [isAllowWeighingMachine]= 1 " +
                             " ,[loadedWeight]= NULL" +
                             " ,[loadedBundles]= NULL" +
                             " ,[calcTareWeight]= NULL" +

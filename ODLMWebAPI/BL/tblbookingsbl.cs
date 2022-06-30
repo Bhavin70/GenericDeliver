@@ -1960,7 +1960,9 @@ namespace ODLMWebAPI.BL
 
                     TblGlobalRateTO globalRateTO = new TblGlobalRateTO();
 
-                    Int32 statusId = (Int32)Constants.TranStatusE.BOOKING_NEW;
+                    //Int32 statusId = (Int32)Constants.TranStatusE.BOOKING_NEW;  //Reshma Commented For As per Requirement of Metaroll
+                    Int32 statusId = (Int32)Constants.TranStatusE.BOOKING_APPROVED;
+
 
                     TblConfigParamsTO validateConfigTO = new TblConfigParamsTO();
                     TblConfigParamsTO statusAfterBookingConfigTO = new TblConfigParamsTO();
@@ -2157,6 +2159,8 @@ namespace ODLMWebAPI.BL
                                 statusId = Convert.ToInt32(statusAfterBookingConfigTO.ConfigParamVal);
                             }
                         }
+                        else
+                            statusId = (Int32)Constants.TranStatusE.BOOKING_APPROVED;//Reshma Added
                     }
 
                     List<TblUserRoleTO> tblUserRoleTOList = _iTblUserRoleBL.SelectAllActiveUserRoleList(tblBookingsTO.CreatedBy);

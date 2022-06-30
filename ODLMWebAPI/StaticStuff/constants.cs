@@ -790,7 +790,7 @@ namespace ODLMWebAPI.StaticStuff
 
         //Aniket [06-03-2019] added to check Math.Round() function to be used in tax calculations or not
         public static string IS_ROUND_OFF_TAX_ON_PRINT_INVOICE = "IS_ROUND_OFF_TAX_ON_PRINT_INVOICE";
-
+        public static string Invoice_payment_QR_CODE_Image_file_Path = "Invoice_payment_QR_CODE_Image_file_Path"; 
         //Aniket [25-3-2019] added to check which statusId booking details exclude from CNC report
         public static string CNF_BOOKING_REPORT_EXCLUDE_STATUSID = "CNF_BOOKING_REPORT_EXCLUDE_STATUSID";
 
