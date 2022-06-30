@@ -4997,7 +4997,7 @@ namespace ODLMWebAPI.BL
                 qrCodeDT.Columns.Add("QRCodeForPrint", typeof(System.Byte[]));
 
                 qrCodeDT.Rows.Add();
-
+                string AckNo = "";
                 response = _iTblInvoiceDAO.SelectresponseForPhotoInReport(invoiceId, apiId);
                 if (!String.IsNullOrEmpty(response))
                 {
@@ -5010,6 +5010,10 @@ namespace ODLMWebAPI.BL
                         if (jsonData.ContainsKey("SignedQRCode"))
                         {
                             signedQRCode = (string)jsonData["SignedQRCode"];
+                        }
+                        if (jsonData.ContainsKey("AckNo"))
+                        {
+                            AckNo = (string)jsonData["AckNo"];
                         }
                     }
                 }
@@ -5046,6 +5050,7 @@ namespace ODLMWebAPI.BL
                     if(imageByteArray !=null)
                         qrCodeDT.Rows[0]["QRCodeForPrint"] = imageByteArray;
                 }
+             
                 //HeaderDT 
                 //headerDT.Columns.Add("orgFirmName");
                 invoiceDT.Columns.Add("orgVillageNm");
@@ -5085,7 +5090,7 @@ namespace ODLMWebAPI.BL
                 //chetan[14-feb-2020] added
                 invoiceDT.Columns.Add("BookingCDPct", typeof(double));
                 invoiceDT.Columns.Add("BookingBasicRate", typeof(double));
-
+                invoiceDT.Columns.Add("AckNo");
                 TblAddressTO tblAddressTO = _iTblAddressBL.SelectOrgAddressWrtAddrType(organizationTO.IdOrganization, Constants.AddressTypeE.OFFICE_ADDRESS);
                 List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
                 if (organizationTO != null)
@@ -5100,6 +5105,8 @@ namespace ODLMWebAPI.BL
                     invoiceDT.Rows[0]["orgWebsite"] = organizationTO.Website;
                     invoiceDT.Rows[0]["orgEmailAddr"] = organizationTO.EmailAddr;
                 }
+                if (!string.IsNullOrEmpty(AckNo))//Reshma[24-06-2022] Added Acknowledgement Number DT creation to print on simpli invoice
+                    invoiceDT.Rows[0]["AckNo"] = AckNo;
                 //chetan[14-feb-2020]
                 TblBookingsTO tblBookingsTO = _iTblBookingsBL.SelectBookingsDetailsFromInVoiceId(tblInvoiceTO.IdInvoice);
                 if (tblBookingsTO != null)
@@ -12079,6 +12086,7 @@ namespace ODLMWebAPI.BL
             tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@IrnNo", tblInvoiceTO.IrnNo);
             tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@VehNo", GetValidVehichleNumber(tblInvoiceTO.VehicleNo));
             tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@DistanceinKm", tblInvoiceTO.DistanceInKM.ToString());
+            tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@TransName", tblInvoiceTO.TransporterName.ToString());
 
             IRestResponse response = CallRestAPIs(tblEInvoiceApiTO.ApiBaseUri + tblEInvoiceApiTO.ApiFunctionName, tblEInvoiceApiTO.ApiMethod, tblEInvoiceApiTO.HeaderParam, tblEInvoiceApiTO.BodyParam);
 
