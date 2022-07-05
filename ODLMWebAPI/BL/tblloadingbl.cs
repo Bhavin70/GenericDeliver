@@ -3136,7 +3136,17 @@ namespace ODLMWebAPI.BL {
             //resultMessage.Tag = tblLoadingTO;
             resultMessage.MessageType = ResultMessageE.None;
             resultMessage.Text = "Not Entered In The Loop";
-            try
+
+            // Add By Samadhan 18 May 2022
+            string isRoundOffCD = "";
+            TblConfigParamsTO MessageTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_CD_ON_Rate_Calculation_Details);
+            if (MessageTO != null && !String.IsNullOrEmpty(MessageTO.ConfigParamVal))
+            {
+                isRoundOffCD = MessageTO.ConfigParamVal;
+
+            }
+            //
+                try
             {
                 conn.Open();
                 tran = conn.BeginTransaction();
@@ -3536,9 +3546,16 @@ namespace ODLMWebAPI.BL {
                                             cdAmt = cdAmt + tblLoadingSlipTO.AddDiscAmt;        //Priyanka [09-07-18]
                                         }
                                     }
-
-
-                                    rateCalcDesc += "CD :" + Math.Round(cdAmt, 2) + "|";
+                                    // Add By Samadhan 18 May 2022
+                                    if (isRoundOffCD != "")
+                                    {
+                                        rateCalcDesc += "CD :" + Math.Round(cdAmt,Convert.ToInt32(isRoundOffCD)) + "|";
+                                    }
+                                    else
+                                    {
+                                        rateCalcDesc += "CD :" + Math.Round(cdAmt, 2) + "|";
+                                    }
+                                    
                                     Double basicRateTaxIncl = cdApplicableAmt - cdAmt + freightPerMT;
                                     //Double basicRateTaxIncl = cdApplicableAmt   + freightPerMT;
                                     Double rateAfterCD = cdApplicableAmt - cdAmt;

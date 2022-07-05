@@ -57,6 +57,7 @@ namespace ODLMWebAPI.BL.Interfaces
         DataTable getCommercialDT(TblInvoiceTO tblInvoiceTO);
         DataTable getHsnItemTaxDT(TblInvoiceTO tblInvoiceTO);
         int UpdateTblInvoice(TblInvoiceTO tblInvoiceTO);
+
         int UpdateTblInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
         ResultMessage SaveUpdatedInvoice(TblInvoiceTO invoiceTO);
         ResultMessage UpdateInvoice(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
