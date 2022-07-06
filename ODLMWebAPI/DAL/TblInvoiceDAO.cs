@@ -913,7 +913,7 @@ namespace ODLMWebAPI.DAL
                           "   itemDetails.cdStructure,itemDetails.cdAmt,itemDetails.otherTaxId,itemTaxDetails.taxRatePct ,taxRate.taxTypeId , " +
                             " invoice.freightAmt,itemDetails.invoiceQty,itemDetails.basicTotal as taxableAmt  , itemTaxDetails.taxAmt,itemDetails.grandTotal, " +
                             " invoice.isConfirmed,invoiceAddress.txnAddrTypeId,invoice.statusId,orgInv.enq_ref_id,tblItemTallyRefDtls.enquiryTallyRefId" +
-                            " ,invoice.deliveredOn,convert(varchar(10),abs(booking.bookingRate))  + ' - ' + convert(varchar(10),abs(PD.nonConfParityAmt))  + ' - '+ convert(varchar(10),abs(itemDetails.cdStructure))  + ' % '  + ' + ' + convert(varchar(10),abs(PD.baseValCorAmt)) as Condition  FROM tempInvoice invoice " +
+                            " ,invoice.deliveredOn FROM tempInvoice invoice " +
                             " INNER JOIN tempInvoiceAddress invoiceAddress " +
                             " ON invoiceAddress.invoiceId = invoice.idInvoice " +
                             " LEFT JOIN tblOrganization orgInv on orgInv.idOrganization = invoiceAddress.billingOrgId" +
@@ -931,7 +931,7 @@ namespace ODLMWebAPI.DAL
                             " LEFT JOIN tempInvoiceItemTaxDtls itemTaxDetails " +
                             " ON itemTaxDetails.invoiceItemId = itemDetails.idInvoiceItem " +
                             " LEFT JOIN tblTaxRates taxRate  ON taxRate.idTaxRate = itemTaxDetails.taxRateId " +
-                           " left join tblParityDetails PD on lExt.prodSpecId = PD.prodSpecId " +
+                          
 
 
                 // Vaibhav [10-Jan-2018] Added to select from finalInvoice.
@@ -944,7 +944,7 @@ namespace ODLMWebAPI.DAL
                           "   itemDetails.cdStructure,itemDetails.cdAmt,itemDetails.otherTaxId,itemTaxDetails.taxRatePct ,taxRate.taxTypeId , " +
                             " invoice.freightAmt,itemDetails.invoiceQty,itemDetails.basicTotal as taxableAmt  , itemTaxDetails.taxAmt,itemDetails.grandTotal, " +
                             " invoice.isConfirmed,invoiceAddress.txnAddrTypeId,invoice.statusId,orgInv.enq_ref_id,tblItemTallyRefDtls.enquiryTallyRefId " +
-                            " ,invoice.deliveredOn,convert(varchar(10),abs(booking.bookingRate))  + ' - ' + convert(varchar(10),abs(PD.nonConfParityAmt))  + ' - '+ convert(varchar(10),abs(itemDetails.cdStructure))  + ' % '  + ' + ' + convert(varchar(10),abs(PD.baseValCorAmt)) as Condition   FROM finalInvoice invoice " +
+                            " ,invoice.deliveredOn  FROM finalInvoice invoice " +
                             " INNER JOIN finalInvoiceAddress invoiceAddress " +
                             " ON invoiceAddress.invoiceId = invoice.idInvoice " +
                             " LEFT JOIN tblOrganization orgInv on orgInv.idOrganization = invoiceAddress.billingOrgId" +
@@ -961,8 +961,8 @@ namespace ODLMWebAPI.DAL
                             " LEFT JOIN tblBookings booking  ON lExt.bookingId = booking.idBooking " +
                             " LEFT JOIN finalInvoiceItemTaxDtls itemTaxDetails " +
                             " ON itemTaxDetails.invoiceItemId = itemDetails.idInvoiceItem " +
-                            " LEFT JOIN tblTaxRates taxRate  ON taxRate.idTaxRate = itemTaxDetails.taxRateId " +
-                            " left join tblParityDetails PD on lExt.prodSpecId=PD.prodSpecId ";
+                            " LEFT JOIN tblTaxRates taxRate  ON taxRate.idTaxRate = itemTaxDetails.taxRateId ";
+                           
 
                 //chetan[13-feb-2020] added for get data from org Id
                 String formOrgIdCondtion = String.Empty;
