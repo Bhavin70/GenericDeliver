@@ -2120,10 +2120,10 @@ namespace ODLMWebAPI.DAL
                     " LEFT JOIN finalLoadingSlip loadingSlip on loadingSlip.idLoadingSlip = invoice.loadingSlipId " +
                     " LEFT JOIN finalLoading loading on loading.idLoading = loadingSlip.loadingId" +
                     " join dimProdSpec PS on lExt.prodSpecId = PS.idProdSpec " +
-                 " left join tempEInvoiceApiResponse Ack on invoice.idInvoice = Ack.invoiceId  and Ack.apiId = 3 " +
-                    " left join tempEInvoiceApiResponse EwbNo on invoice.idInvoice = EwbNo.invoiceId  and EwbNo.apiId = 6 " +
-                    " left outer join (select A.idInvoiceItem, sum (isnull(B.taxRatePct,0)) as TaxPCT from tempInvoiceItemDetails A " +
-                " left join tempInvoiceItemTaxDtls B on A.idInvoiceItem = B.invoiceItemId group by A.idInvoiceItem " +
+                 " left join finalEInvoiceApiResponse Ack on invoice.idInvoice = Ack.invoiceId  and Ack.apiId = 3 " +
+                    " left join finalEInvoiceApiResponse EwbNo on invoice.idInvoice = EwbNo.invoiceId  and EwbNo.apiId = 6 " +
+                    " left outer join (select A.idInvoiceItem, sum (isnull(B.taxRatePct,0)) as TaxPCT from finalInvoiceItemDetails A " +
+                " left join finalInvoiceItemTaxDtls B on A.idInvoiceItem = B.invoiceItemId group by A.idInvoiceItem " +
                 " )Tax on Tax.idInvoiceItem = itemDetails.idInvoiceItem ";
 
            //chetan[13-feb-2020] added get data from org id
