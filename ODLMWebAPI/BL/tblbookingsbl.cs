@@ -2884,6 +2884,11 @@ namespace ODLMWebAPI.BL
                         resultMessage.Text = "Success, Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is accepted";
                         resultMessage.DisplayMessage = "Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is accepted";
                     }
+                    else if (tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_APPROVED)
+                    {
+                        resultMessage.Text = "Success, Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is Approved";
+                        resultMessage.DisplayMessage = "Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is Approved";
+                    }
                     else
                     {
                         resultMessage.Text = "Success, Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is generated Successfully But Sent For Approval";

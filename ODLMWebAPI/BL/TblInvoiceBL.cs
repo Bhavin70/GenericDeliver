@@ -5090,7 +5090,7 @@ namespace ODLMWebAPI.BL
                 //chetan[14-feb-2020] added
                 invoiceDT.Columns.Add("BookingCDPct", typeof(double));
                 invoiceDT.Columns.Add("BookingBasicRate", typeof(double));
-                invoiceDT.Columns.Add("AckNo");
+                headerDT.Columns.Add("AckNo");
                 TblAddressTO tblAddressTO = _iTblAddressBL.SelectOrgAddressWrtAddrType(organizationTO.IdOrganization, Constants.AddressTypeE.OFFICE_ADDRESS);
                 List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
                 if (organizationTO != null)
@@ -5106,7 +5106,7 @@ namespace ODLMWebAPI.BL
                     invoiceDT.Rows[0]["orgEmailAddr"] = organizationTO.EmailAddr;
                 }
                 if (!string.IsNullOrEmpty(AckNo))//Reshma[24-06-2022] Added Acknowledgement Number DT creation to print on simpli invoice
-                    invoiceDT.Rows[0]["AckNo"] = AckNo;
+                    headerDT.Rows[0]["AckNo"] = AckNo;
                 //chetan[14-feb-2020]
                 TblBookingsTO tblBookingsTO = _iTblBookingsBL.SelectBookingsDetailsFromInVoiceId(tblInvoiceTO.IdInvoice);
                 if (tblBookingsTO != null)
