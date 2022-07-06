@@ -2649,7 +2649,24 @@ namespace ODLMWebAPI.BL
                 //{
                 //    tblInvoiceItemDetailsTO.CdAmt = 0;
                 //}
-                discountTotal += tblInvoiceItemDetailsTO.CdAmt;
+                //Add By Samadhan 18 May 2022
+                string isRoundOffCD = "";
+                TblConfigParamsTO ConfigParamsData = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_CD_ON_Rate_Calculation_Details);
+                if (ConfigParamsData != null && !String.IsNullOrEmpty(ConfigParamsData.ConfigParamVal))
+                {
+                    isRoundOffCD = ConfigParamsData.ConfigParamVal;
+                }
+                if (isRoundOffCD != "")
+                {
+                    discountTotal += Math.Round(tblInvoiceItemDetailsTO.CdAmt,Convert.ToInt32(isRoundOffCD));
+                }
+                else
+                {
+                    discountTotal += tblInvoiceItemDetailsTO.CdAmt;
+                }
+                    
+
+                                    
                 Double taxbleAmt = 0;
                 //Double totalFreExpOtherAmt = loadingSlipExtTo.LoadedWeight * conversionFactor * loadingSlipExtTo.FreExpOtherAmt;
 
@@ -3998,16 +4015,35 @@ namespace ODLMWebAPI.BL
         {
 
             int roundOffValue = 0;
+            string roundOffValueCD = "";
             TblConfigParamsTO tblConfigParamsTOR = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.ROUND_OFF_TAX_INVOICE_VALUES);
             if (tblConfigParamsTOR != null)
             {
                 roundOffValue = Convert.ToInt32(tblConfigParamsTOR.ConfigParamVal);
             }
+
+            TblConfigParamsTO tblConfigParamsCD = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_CD_ON_Rate_Calculation_Details);
+            if (tblConfigParamsCD != null)
+            {
+                roundOffValueCD = tblConfigParamsCD.ConfigParamVal;
+            }
+
+           
+
+
             //if (roundOffValue > 0) Saket [2019-12-05] not needed these condition 
             if (true)
             {
+                if (roundOffValueCD != "")
+                {
+                    tblInvoiceTO.DiscountAmt = Math.Round(tblInvoiceTO.DiscountAmt, Convert.ToInt32(roundOffValueCD));
+                }
+                else
+                {
+                    tblInvoiceTO.DiscountAmt = Math.Round(tblInvoiceTO.DiscountAmt, roundOffValue);
+                }
                 tblInvoiceTO.TaxableAmt = Math.Round(tblInvoiceTO.TaxableAmt, roundOffValue);
-                tblInvoiceTO.DiscountAmt = Math.Round(tblInvoiceTO.DiscountAmt, roundOffValue);
+                
                 tblInvoiceTO.IgstAmt = Math.Round(tblInvoiceTO.IgstAmt, roundOffValue);
                 tblInvoiceTO.CgstAmt = Math.Round(tblInvoiceTO.CgstAmt, roundOffValue);
                 tblInvoiceTO.SgstAmt = Math.Round(tblInvoiceTO.SgstAmt, roundOffValue);
@@ -8076,6 +8112,7 @@ namespace ODLMWebAPI.BL
             tblInvoiceTo.CgstAmt = 0;
             tblInvoiceTo.GrandTotal = 0;
             int isMathRoundOff = 0;
+            string isMathRoundOff«D = "";
             for (int i = 0; i < tblInvoiceTo.InvoiceItemDetailsTOList.Count; i++)
             {
                 TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = tblInvoiceTo.InvoiceItemDetailsTOList[i];
@@ -8138,6 +8175,16 @@ namespace ODLMWebAPI.BL
                         isMathRoundOff = 1;
                     }
                 }
+                // Add By Samadhan 18 May 2022
+                TblConfigParamsTO tblConfigParamsValue = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_CD_ON_Rate_Calculation_Details);
+                if (tblConfigParamsValue != null  )
+                {
+                    isMathRoundOff«D = tblConfigParamsValue.ConfigParamVal;
+                    
+                }
+                
+                //
+
                 if (tblInvoiceItemDetailsTO.CdStructure > 0)
                 {
                     Int32 isRsValue = Convert.ToInt32(cdDropDownTO.Text);
@@ -8176,7 +8223,16 @@ namespace ODLMWebAPI.BL
                 //{
                 //    tblInvoiceItemDetailsTO.CdAmt = 0;
                 //}
-                tblInvoiceTo.DiscountAmt += tblInvoiceItemDetailsTO.CdAmt;
+
+                if (isMathRoundOff«D != "")
+                {                   
+                    tblInvoiceTo.DiscountAmt += Math.Round(tblInvoiceItemDetailsTO.CdAmt, Convert.ToInt32(isMathRoundOff«D));
+                }
+                else
+                {
+                    tblInvoiceTo.DiscountAmt += tblInvoiceItemDetailsTO.CdAmt;
+                }
+               
                 tblInvoiceItemDetailsTO.TaxableAmt = tblInvoiceItemDetailsTO.BasicTotal - tblInvoiceItemDetailsTO.CdAmt;
                 tblInvoiceTo.TaxableAmt += tblInvoiceItemDetailsTO.TaxableAmt;
 

@@ -1122,7 +1122,25 @@ namespace ODLMWebAPI.BL
                         //if (tblLoadingSlipTO.CdStructure > 0)
                         //    cdAmt = (cdApplicableAmt * tblLoadingSlipTO.CdStructure) / 100;
 
-                        rateCalcDesc += "CD :" + Math.Round(cdAmt, 2) + "|";
+                        // Add By Samadhan 18 May 2022
+                        // Add By Samadhan 18 May 2022
+                        string isRoundOffCD = "";
+                        TblConfigParamsTO MessageTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_CD_ON_Rate_Calculation_Details);
+                        if (MessageTO != null && !String.IsNullOrEmpty(MessageTO.ConfigParamVal))
+                        {
+                            isRoundOffCD = MessageTO.ConfigParamVal;
+
+                        }
+                        //
+                        if (isRoundOffCD != "")
+                        {
+                            rateCalcDesc += "CD :" + Math.Round(cdAmt, Convert.ToInt32(isRoundOffCD)) + "|";
+                        }
+                        else
+                        {
+                            rateCalcDesc += "CD :" + Math.Round(cdAmt, 2) + "|";
+                        }
+                        
                         Double rateAfterCD = cdApplicableAmt - cdAmt;
 
                         Double gstApplicableAmt = 0;

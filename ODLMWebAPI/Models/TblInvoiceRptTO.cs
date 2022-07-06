@@ -435,7 +435,11 @@ namespace ODLMWebAPI.Models
         {
             get { return statusDate.ToString("dd-MMM-yy"); }
         }
-
+        public String StatusDateStrNew1
+        {
+            get { return statusDate.ToString("dd/MMM/yy"); }
+        }
+       
         public String CnfMobNo
         {
             get { return cnfMobNo; }
@@ -555,6 +559,22 @@ namespace ODLMWebAPI.Models
         public string OrgstateName { get; set; }
         public string OrgcountryName { get; set; }
         public double TdsAmt { get => tdsAmt; set => tdsAmt = value; }
+        public string BuyercountryName { get; set; }
+        public string consigneecountryName { get; set; }
+        public string BuyerPincode { get; set; }
+        public string BuyerDistict { get; set; }
+        public string TaxPCT { get; set; }
+        public string roundOffAmt { get; set; }
+        public string CDType { get; set; }
+        public string AckNo { get; set; }
+        public string AckDate { get; set; }
+        public string EwbNo { get; set; }
+        public string EwbDate { get; set; }
+        public string ProDesc { get; set; }
+        public string TransactioDateNew { get; set; }
+        public string Condition { get; set; }
+
+
         #endregion
     }
 }
