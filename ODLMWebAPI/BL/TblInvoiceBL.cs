@@ -7229,7 +7229,9 @@ namespace ODLMWebAPI.BL
             hsnItemTaxDT.Columns.Add("sgstAmt", typeof(double));
             hsnItemTaxDT.Columns.Add("igstAmt", typeof(double));
             hsnItemTaxDT.Columns.Add("taxTotal", typeof(double));
-
+            hsnItemTaxDT.Columns.Add("cgstPct", typeof(double));
+            hsnItemTaxDT.Columns.Add("sgstPct", typeof(double));
+            hsnItemTaxDT.Columns.Add("igstPct", typeof(double));
             int isMathRounfOff = 0;
             TblConfigParamsTO tblConfigParams = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_TAX_ON_PRINT_INVOICE);
             if (tblConfigParams != null)
@@ -7245,68 +7247,78 @@ namespace ODLMWebAPI.BL
 
                 //Aniket [12-03-2019]
                 tblInvoiceItemTaxDtlsTOList = tblInvoiceItemTaxDtlsTOList.Where(x => x.IsAfter == 0).ToList();
-
-                List<TblInvoiceItemTaxDtlsTO> distinctHsnItemTaxList = tblInvoiceItemTaxDtlsTOList.GroupBy(w => w.GstinCodeNo).Select(s => s.FirstOrDefault()).ToList();
-                if (distinctHsnItemTaxList != null && distinctHsnItemTaxList.Count > 0)
+                 
+                List<TblInvoiceItemTaxDtlsTO> distinctHsnItemTaxListV1 = tblInvoiceItemTaxDtlsTOList.GroupBy(w => w.GstinCodeNo).Select(s => s.FirstOrDefault()).ToList();
+                if (distinctHsnItemTaxListV1 != null && distinctHsnItemTaxListV1.Count > 0)
                 {
-
-                    Double cgstAmt = 0, sgstAmt = 0, igstAmt = 0, taxTotal = 0, hsntaxableAmt = 0;
-                    for (int m = 0; m < distinctHsnItemTaxList.Count; m++)
+                    List<TblInvoiceItemTaxDtlsTO> distinctHsnItemTaxList = distinctHsnItemTaxListV1.GroupBy(w => w.TaxRatePct).Select(s => s.FirstOrDefault()).ToList();
                     {
-                        cgstAmt = 0; sgstAmt = 0; taxTotal = 0;
-
-                        List<TblInvoiceItemTaxDtlsTO> tempInvoiceTaxList = tblInvoiceItemTaxDtlsTOList.Where(oi => oi.GstinCodeNo == distinctHsnItemTaxList[m].GstinCodeNo).ToList();
-
-                        for (int n = 0; n < tempInvoiceTaxList.Count; n++)
+                        if (distinctHsnItemTaxList != null && distinctHsnItemTaxList.Count > 0)
                         {
-                            TblInvoiceItemTaxDtlsTO tblInvoiceItemTaxDtlsTO = tempInvoiceTaxList[n];
-                            if (tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.CGST)
+                            Double cgstAmt = 0, sgstAmt = 0, igstAmt = 0, taxTotal = 0, hsntaxableAmt = 0;
+                            Double cgstPct = 0, sgstPct = 0, igstPct = 0;
+                            for (int m = 0; m < distinctHsnItemTaxList.Count; m++)
                             {
-                                cgstAmt += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                taxTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                cgstAmt = 0; sgstAmt = 0; taxTotal = 0; hsntaxableAmt = 0; ;
+                                cgstPct = 0; sgstPct = 0; igstPct = 0;
+                                List<TblInvoiceItemTaxDtlsTO> tempInvoiceTaxList = tblInvoiceItemTaxDtlsTOList.Where(oi => oi.GstinCodeNo == distinctHsnItemTaxList[m].GstinCodeNo).ToList();
+
+                                for (int n = 0; n < tempInvoiceTaxList.Count; n++)
+                                {
+                                    TblInvoiceItemTaxDtlsTO tblInvoiceItemTaxDtlsTO = tempInvoiceTaxList[n];
+                                    if (tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.CGST)
+                                    {
+                                        cgstAmt += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                        taxTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                        cgstPct = tblInvoiceItemTaxDtlsTO.TaxRatePct;
+                                    }
+                                    if (tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.SGST)
+                                    {
+                                        sgstAmt += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                        taxTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                        sgstPct  = tblInvoiceItemTaxDtlsTO.TaxRatePct;
+                                    }
+                                    if (tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.IGST)
+                                    {
+                                        igstAmt += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                        igstPct  = tblInvoiceItemTaxDtlsTO.TaxRatePct;
+                                        //taxTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                    }
+
+
+                                }
+
+
+
+                                hsnItemTaxDT.Rows.Add();
+                                Int32 invoiceItemDTCount = hsnItemTaxDT.Rows.Count - 1;
+                                List<TblInvoiceItemTaxDtlsTO> distinctItemList = tempInvoiceTaxList.GroupBy(w => w.InvoiceItemId).Select(s => s.FirstOrDefault()).ToList();
+                                if (distinctItemList != null && distinctItemList.Count > 0)
+                                {
+                                    for (int p = 0; p < distinctItemList.Count; p++)
+                                    {
+                                        TblInvoiceItemTaxDtlsTO tblInvoiceItemTaxDtlsTO = distinctItemList[p];
+                                        hsntaxableAmt += tblInvoiceItemTaxDtlsTO.TaxableAmt;
+
+                                    }
+
+                                    hsnItemTaxDT.Rows[invoiceItemDTCount]["hsntaxableAmt"] = Math.Round(hsntaxableAmt, 2);
+
+
+                                }
+
+                                hsnItemTaxDT.Rows[invoiceItemDTCount]["hsnNo"] = distinctHsnItemTaxList[m].GstinCodeNo;
+                                hsnItemTaxDT.Rows[invoiceItemDTCount]["cgstAmt"] = Math.Round(cgstAmt, 2);
+                                hsnItemTaxDT.Rows[invoiceItemDTCount]["sgstAmt"] = Math.Round(sgstAmt, 2);
+                                hsnItemTaxDT.Rows[invoiceItemDTCount]["igstAmt"] = Math.Round(igstAmt, 2);
+                                hsnItemTaxDT.Rows[invoiceItemDTCount]["taxtotal"] = Math.Round(taxTotal, 2);
+                                hsnItemTaxDT.Rows[invoiceItemDTCount]["cgstPct"] = cgstPct ;
+                                hsnItemTaxDT.Rows[invoiceItemDTCount]["sgstPct"] = sgstPct;
+                                hsnItemTaxDT.Rows[invoiceItemDTCount]["igstPct"] =igstPct;
 
 
                             }
-                            if (tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.SGST)
-                            {
-                                sgstAmt += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                taxTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                            }
-                            if (tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.IGST)
-                            {
-                                igstAmt += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                                //taxTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                            }
-
-
                         }
-
-
-
-                        hsnItemTaxDT.Rows.Add();
-                        Int32 invoiceItemDTCount = hsnItemTaxDT.Rows.Count - 1;
-                        List<TblInvoiceItemTaxDtlsTO> distinctItemList = tempInvoiceTaxList.GroupBy(w => w.InvoiceItemId).Select(s => s.FirstOrDefault()).ToList();
-                        if (distinctItemList != null && distinctItemList.Count > 0)
-                        {
-                            for (int p = 0; p < distinctItemList.Count; p++)
-                            {
-                                TblInvoiceItemTaxDtlsTO tblInvoiceItemTaxDtlsTO = distinctItemList[p];
-                                hsntaxableAmt += tblInvoiceItemTaxDtlsTO.TaxableAmt;
-
-                            }
-
-                            hsnItemTaxDT.Rows[invoiceItemDTCount]["hsntaxableAmt"] = Math.Round(hsntaxableAmt, 2);
-
-
-                        }
-
-                        hsnItemTaxDT.Rows[invoiceItemDTCount]["hsnNo"] = distinctHsnItemTaxList[m].GstinCodeNo;
-                        hsnItemTaxDT.Rows[invoiceItemDTCount]["cgstAmt"] = Math.Round(cgstAmt, 2);
-                        hsnItemTaxDT.Rows[invoiceItemDTCount]["sgstAmt"] = Math.Round(sgstAmt, 2);
-                        hsnItemTaxDT.Rows[invoiceItemDTCount]["igstAmt"] = Math.Round(igstAmt, 2);
-                        hsnItemTaxDT.Rows[invoiceItemDTCount]["taxtotal"] = Math.Round(taxTotal, 2);
-
-
                     }
                 }
             }
