@@ -1961,7 +1961,7 @@ namespace ODLMWebAPI.BL
                     TblGlobalRateTO globalRateTO = new TblGlobalRateTO();
 
                     //Int32 statusId = (Int32)Constants.TranStatusE.BOOKING_NEW;  //Reshma Commented For As per Requirement of Metaroll
-                    Int32 statusId = (Int32)Constants.TranStatusE.BOOKING_APPROVED;
+                    Int32 statusId = (Int32)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR;
 
 
                     TblConfigParamsTO validateConfigTO = new TblConfigParamsTO();
