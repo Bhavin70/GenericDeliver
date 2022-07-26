@@ -1181,7 +1181,7 @@ namespace ODLMWebAPI.DAL
                             if (tblInvoiceRptTODT.GetName(i).Equals("invoiceQty"))
                             {
                                 if (tblInvoiceRptTODT["invoiceQty"] != DBNull.Value)
-                                    tblInvoiceRptTONew.InvoiceQty = Convert.ToDouble(tblInvoiceRptTODT["invoiceQty"].ToString());
+                                    tblInvoiceRptTONew.InvoiceQty = Convert.ToDecimal(tblInvoiceRptTODT["invoiceQty"].ToString());
                             }
                             if (tblInvoiceRptTODT.GetName(i).Equals("taxableAmt"))
                             {
@@ -1610,7 +1610,7 @@ namespace ODLMWebAPI.DAL
                                     tblInvoiceRptTONew.SalesLedger = Convert.ToString(tblInvoiceRptTODT["salesLedgerName"].ToString());
                             }
                             if (tblInvoiceRptTODT.GetName(i).Equals("orgGstNo"))
-                            {
+                            {                                
                                 if (tblInvoiceRptTODT["orgGstNo"] != DBNull.Value)
                                     tblInvoiceRptTONew.OrgGstNo = Convert.ToString(tblInvoiceRptTODT["orgGstNo"].ToString());
                             }
@@ -1706,7 +1706,21 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["Condition"] != DBNull.Value)
                                     tblInvoiceRptTONew.Condition = Convert.ToString(tblInvoiceRptTODT["Condition"].ToString());
                             }
-
+                            if (tblInvoiceRptTODT.GetName(i).Equals("Freight_GL"))
+                            {
+                                if (tblInvoiceRptTODT["Freight_GL"] != DBNull.Value)
+                                    tblInvoiceRptTONew.Freight_GL = Convert.ToString(tblInvoiceRptTODT["Freight_GL"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("Insurance_GL"))
+                            {
+                                if (tblInvoiceRptTODT["Insurance_GL"] != DBNull.Value)
+                                    tblInvoiceRptTONew.Insurance_GL = Convert.ToString(tblInvoiceRptTODT["Insurance_GL"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("TCS_GL"))
+                            {
+                                if (tblInvoiceRptTODT["TCS_GL"] != DBNull.Value)
+                                    tblInvoiceRptTONew.TCS_GL = Convert.ToString(tblInvoiceRptTODT["TCS_GL"].ToString());
+                            }
 
 
 
@@ -2002,7 +2016,7 @@ namespace ODLMWebAPI.DAL
                     " invAddrBill.stateName as buyerState ,invAddrBill.gstinNo as buyerGstNo,invAddrBill.txnAddrTypeId as billingTypeId, " +
                     " org.firmName cnfName, invAddrCons.billingName as consignee,invAddrCons.consigneeAddress,invAddrCons.consigneeDistict," +
                     " invAddrCons.consigneePinCode,invAddrCons.stateName as consigneeState,invAddrCons.gstinNo as consigneeGstNo, " +
-                    " invAddrCons.txnAddrTypeId as consigneeTypeId,booking.bookingRate,itemDetails.prodItemDesc,mat.materialSubType " +
+                    " invAddrCons.txnAddrTypeId as consigneeTypeId,booking.bookingRate,itemDetails.prodItemDesc,(case when isnull(lExt.prodCatId,0)=1 then  mat.materialSubType else itemDetails.prodItemDesc end ) " +
                     " as materialName, itemDetails.bundles, itemDetails.cdStructure,itemDetails.invoiceQty,itemDetails.basicTotal " +
                     " as taxableAmt  ,freightItem.freightAmt,Insurance.InsuranceAmt ,totalItemQtyTbl.TotalItemQty,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId, itemDetails.gstinCodeNo as 'GST_Code_No',   " +
                     " invoice.cgstAmt,invoice.igstAmt,invoice.sgstAmt,itemDetails.rate,   itemDetails.cdAmt,itemDetails.otherTaxId, " +
@@ -2012,10 +2026,20 @@ namespace ODLMWebAPI.DAL
                     " invoice.lrDate , invoice.lrNumber ,invAddrCons.overdue_ref_id,invAddrBill.overdue_ref_id as buyer_overdue_ref_id ," +
                     " invoice.taxableAmt as invoiceTaxableAmt ,invoice.discountAmt as invoiceDiscountAmt,tblItemTallyRefDtls.overdueTallyRefId" +
                     " ,invoice.deliveredOn ,invoice.IrnNo ,invoice.electronicRefNo,   " +
-                    " invAddrBill.BuyerAddress ,invAddrBill.BuyerTaluka,invAddrBill.BuyerDistict,invAddrBill.BuyerPincode,invAddrBill.BuyercountryName,invAddrCons.consigneecountryName,invAddrCons.consigneeTaluka,Tax.TaxPCT,invoice.roundOffAmt,(case when  isnull(ItemDetails.cdStructure,0)=0 then 'Regular' else 'CD'  end ) as CDType " +
-                    " ,JSON_VALUE(ack.response, '$.data.EwbNo') as AckNo ,CONVERT(VARCHAR(10),CONVERT(DATETIME,JSON_VALUE(ack.response,'$.data.EwbDt'), 102),103) as AckDate, " +
-                    "  JSON_VALUE(EwbNo.response, '$.data.EwbNo') as EwbNo ,CONVERT(VARCHAR(10),CONVERT(DATETIME,JSON_VALUE(EwbNo.response,'$.data.EwbDt'), 102),103) as EwbDate  " +
-                    " ,(case when isnull(PS.idProdSpec,0)!=13 then 'TMT BAR' else PS.prodSpecDesc end ) as ProDesc  FROM tempInvoice invoice " +
+                    " invAddrBill.BuyerAddress ,invAddrBill.BuyerTaluka,invAddrBill.BuyerDistict,invAddrBill.BuyerPincode,invAddrBill.BuyercountryName,invAddrCons.consigneecountryName,invAddrCons.consigneeTaluka,Tax.TaxPCT,invoice.roundOffAmt," +
+                    " (case when  isnull(ItemDetails.cdStructure,0)=0 then 'Regular' " +
+                    " when isnull(ItemDetails.cdStructure,0)= 1.5 then 'CD 1.5%' " +
+                    " when isnull(ItemDetails.cdStructure,0)= 1 then 'CD 1%' else null  end ) as CDType " +
+                    " ,convert(varchar(50),+ '  ' + JSON_VALUE(ack.response, '$.data.AckNo') + '  ') as AckNo ,CONVERT(VARCHAR(10),CONVERT(DATETIME,JSON_VALUE(ack.response,'$.data.AckDt'), 102),103) as AckDate, " +
+                    "  convert(varchar(50),+ '  ' + invoice.electronicRefNo + '  ') as EwbNo ,CONVERT(VARCHAR(10),invoice.invoiceDate,103) as EwbDate  " +
+                    " ,(case when isnull(lExt.prodCatId,0)=1 then 'TMT BAR'  when isnull(lExt.prodCatId,0)=2 then 'Threaded Bars' else itemDetails.prodItemDesc end ) as ProDesc " +
+                    " ,(case when itemDetails.prodItemDesc = 'Crushed Slags Sand' then 'Crushed Slag' " +
+                   " when itemDetails.prodItemDesc = 'Ash' then 'Ash 9%' else (case when isnull(invoice.igstAmt,0)= 0 then " +
+                   " (case when isnull(lExt.prodCatId, 0) = 1 then 'TMT BAR' when isnull(lExt.prodCatId, 0) = 2 then 'Threaded Bars' " +
+                   "else itemDetails.prodItemDesc end) + '(' + 'Intra-State' + ')' else  (case when isnull(lExt.prodCatId,0)= 1 then 'TMT BAR' " +
+                   "when isnull(lExt.prodCatId,0)= 2 then 'Threaded Bars' else itemDetails.prodItemDesc end ) +'(' + 'Inter-State' + ')'   end ) end ) as salesLedgerName " +
+                     " ,'TAXABLE FREIGHT OUTWARD' as Freight_GL,'Insurance on Sale (HSN 997136)' as Insurance_GL,'TCS 206C(1H)' as TCS_GL " +
+                     " FROM tempInvoice invoice " +
                     " LEFT JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.txnAddrTypeId, " +
                     " invAddrB.gstinNo, invAddrB.state as stateName ,orgB.overdue_ref_id,invAddrB.address as BuyerAddress  ,invAddrB.taluka as BuyerTaluka,invAddrB.district as BuyerDistict,Cntry.countryName as  BuyercountryName,invAddrB.pinCode as BuyerPincode  from tempInvoiceAddress invAddrB " +
                     " LEFT JOIN tblOrganization orgB on orgB.idOrganization = invAddrB.billingOrgId left join dimState St on invAddrB.stateId=St.idState left join dimCountry Cntry on St.countryId = Cntry.idCountry" +
@@ -2053,7 +2077,7 @@ namespace ODLMWebAPI.DAL
                     " from tempInvoiceItemDetails where otherTaxId = 4  )tcsItem On tcsItem.invoiceId = invoice.idInvoice " +
                     " LEFT JOIN tempLoadingSlip loadingSlip on loadingSlip.idLoadingSlip = invoice.loadingSlipId " +
                     " LEFT JOIN tempLoading loading on loading.idLoading = loadingSlip.loadingId" +
-                    " join dimProdSpec PS on lExt.prodSpecId = PS.idProdSpec " +
+                    " LEFT join dimProdSpec PS on lExt.prodSpecId = PS.idProdSpec " +
                     " left join tempEInvoiceApiResponse Ack on invoice.idInvoice = Ack.invoiceId  and Ack.apiId = 3 " +
                     " left join tempEInvoiceApiResponse EwbNo on invoice.idInvoice = EwbNo.invoiceId  and EwbNo.apiId = 6 " +
                     " left outer join (select A.idInvoiceItem, sum (isnull(B.taxRatePct,0)) as TaxPCT from tempInvoiceItemDetails A " +
@@ -2067,7 +2091,7 @@ namespace ODLMWebAPI.DAL
                     " invAddrBill.stateName as buyerState ,invAddrBill.gstinNo as buyerGstNo,invAddrBill.txnAddrTypeId as billingTypeId, " +
                     " org.firmName cnfName, invAddrCons.billingName as consignee,invAddrCons.consigneeAddress,invAddrCons.consigneeDistict," +
                     " invAddrCons.consigneePinCode,invAddrCons.stateName as consigneeState,invAddrCons.gstinNo as consigneeGstNo, " +
-                    " invAddrCons.txnAddrTypeId as consigneeTypeId,booking.bookingRate,itemDetails.prodItemDesc,mat.materialSubType " +
+                    " invAddrCons.txnAddrTypeId as consigneeTypeId,booking.bookingRate,itemDetails.prodItemDesc,(case when isnull(lExt.prodCatId,0)=1 then  mat.materialSubType else itemDetails.prodItemDesc end ) " +
                     " as materialName, itemDetails.bundles, itemDetails.cdStructure,itemDetails.invoiceQty,itemDetails.basicTotal " +
                     " as taxableAmt  ,freightItem.freightAmt,Insurance.InsuranceAmt ,totalItemQtyTbl.TotalItemQty,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId,itemDetails.gstinCodeNo as 'GST_Code_No',  " +
                     " invoice.cgstAmt,invoice.igstAmt,invoice.sgstAmt,itemDetails.rate,   itemDetails.cdAmt,itemDetails.otherTaxId,  " +
@@ -2077,10 +2101,20 @@ namespace ODLMWebAPI.DAL
                     " ,invAddrBill.overdue_ref_id as buyer_overdue_ref_id , invoice.taxableAmt as invoiceTaxableAmt ,invoice.discountAmt as invoiceDiscountAmt" +
                     " ,tblItemTallyRefDtls.overdueTallyRefId ,invoice.deliveredOn ,invoice.IrnNo ,invoice.electronicRefNo " +
                     " ,invAddrBill.BuyerAddress ,invAddrBill.BuyerTaluka,invAddrBill.BuyerDistict,invAddrBill.BuyerPincode,invAddrBill.BuyercountryName,invAddrCons.consigneecountryName" +
-                    ",invAddrCons.consigneeTaluka,Tax.TaxPCT,invoice.roundOffAmt,(case when  isnull(ItemDetails.cdStructure,0)=0 then 'Regular' else 'CD'  end ) as CDType  " +
-                    " ,JSON_VALUE(ack.response, '$.data.EwbNo') as AckNo ,CONVERT(VARCHAR(10),CONVERT(DATETIME,JSON_VALUE(ack.response,'$.data.EwbDt'), 102),103) as AckDate, " +
-                    "  JSON_VALUE(EwbNo.response, '$.data.EwbNo') as EwbNo ,CONVERT(VARCHAR(10),CONVERT(DATETIME,JSON_VALUE(EwbNo.response,'$.data.EwbDt'), 102),103) as EwbDate " +
-                    ",(case when isnull(PS.idProdSpec,0)!=13 then 'TMT BAR' else PS.prodSpecDesc end ) as ProDesc FROM finalInvoice invoice " +
+                    ",invAddrCons.consigneeTaluka,Tax.TaxPCT,invoice.roundOffAmt,(case when  isnull(ItemDetails.cdStructure,0)=0 then 'Regular' " +
+                     " when isnull(ItemDetails.cdStructure,0)= 1.5 then 'CD 1.5%' " +
+                    "  when isnull(ItemDetails.cdStructure,0)= 1 then 'CD 1%' else null  end ) as CDType  " +
+                    " ,convert(varchar(50),+ '  ' + JSON_VALUE(ack.response, '$.data.AckNo') + '  ') as AckNo ,CONVERT(VARCHAR(10),CONVERT(DATETIME,JSON_VALUE(ack.response,'$.data.AckDt'), 102),103) as AckDate, " +
+                    "convert(varchar(50),+ '  ' + invoice.electronicRefNo + '  ') as EwbNo ,CONVERT(VARCHAR(10),invoice.invoiceDate,103) as EwbDate " +
+                    ",(case when isnull(lExt.prodCatId,0)=1 then 'TMT BAR'  when isnull(lExt.prodCatId,0)=2 then 'Threaded Bars' else itemDetails.prodItemDesc end ) as ProDesc " +
+                   " ,(case when itemDetails.prodItemDesc = 'Crushed Slags Sand' then 'Crushed Slag' " +
+                  " when itemDetails.prodItemDesc = 'Ash' then 'Ash 9%' else (case when isnull(invoice.igstAmt,0)= 0 then " +
+                  " (case when isnull(lExt.prodCatId, 0) = 1 then 'TMT BAR' when isnull(lExt.prodCatId, 0) = 2 then 'Threaded Bars' " +
+                  "else itemDetails.prodItemDesc end) + '(' + 'Intra-State' + ')' else  (case when isnull(lExt.prodCatId,0)= 1 then 'TMT BAR' " +
+                  "when isnull(lExt.prodCatId,0)= 2 then 'Threaded Bars' else itemDetails.prodItemDesc end ) +'(' + 'Inter-State' + ')'   end ) end ) as salesLedgerName " +
+
+                    " ,'TAXABLE FREIGHT OUTWARD' as Freight_GL,'Insurance on Sale (HSN 997136)' as Insurance_GL,'TCS 206C(1H)' as TCS_GL " +
+                    " FROM finalInvoice invoice " +
 
                     " LEFT JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.txnAddrTypeId, " +
                     " invAddrB.gstinNo, invAddrB.state as stateName ,orgB.overdue_ref_id " +
@@ -2119,7 +2153,7 @@ namespace ODLMWebAPI.DAL
                     " from finalInvoiceItemDetails where otherTaxId = 4  )tcsItem On tcsItem.invoiceId = invoice.idInvoice " +
                     " LEFT JOIN finalLoadingSlip loadingSlip on loadingSlip.idLoadingSlip = invoice.loadingSlipId " +
                     " LEFT JOIN finalLoading loading on loading.idLoading = loadingSlip.loadingId" +
-                    " join dimProdSpec PS on lExt.prodSpecId = PS.idProdSpec " +
+                    " LEFT join dimProdSpec PS on lExt.prodSpecId = PS.idProdSpec " +
                  " left join finalEInvoiceApiResponse Ack on invoice.idInvoice = Ack.invoiceId  and Ack.apiId = 3 " +
                     " left join finalEInvoiceApiResponse EwbNo on invoice.idInvoice = EwbNo.invoiceId  and EwbNo.apiId = 6 " +
                     " left outer join (select A.idInvoiceItem, sum (isnull(B.taxRatePct,0)) as TaxPCT from finalInvoiceItemDetails A " +
