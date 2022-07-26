@@ -2160,7 +2160,7 @@ namespace ODLMWebAPI.BL
                             }
                         }
                         else
-                            statusId = (Int32)Constants.TranStatusE.BOOKING_APPROVED;//Reshma Added
+                            statusId = (Int32)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR;//Reshma Added
                     }
 
                     List<TblUserRoleTO> tblUserRoleTOList = _iTblUserRoleBL.SelectAllActiveUserRoleList(tblBookingsTO.CreatedBy);

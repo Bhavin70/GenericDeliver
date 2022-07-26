@@ -1204,7 +1204,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public int UpdateTblLoadingSlipExtForWeghing(int idLoadingSlip, SqlConnection conn, SqlTransaction tran)
+        public int UpdateTblLoadingSlipExtForWeghing(int idLoadingSlip, int UserId, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdUpdate = new SqlCommand();
             try
@@ -1219,9 +1219,14 @@ namespace ODLMWebAPI.DAL
                             " ,[weightMeasureId]= NULL" +
                             " ,[updatedBy]= NULL" +
                             " ,[updatedOn]= NULL" +
-                             " WHERE [loadingSlipId ] in ("+ idLoadingSlip + ")";
+                             " ,[deletedBy] = @deletedBy " +
+                              " ,[deletedOn] = @deletedOn " +
+                              " WHERE  [loadingSlipId] = @loadingSlipId ";
+                             //" WHERE [loadingSlipId ] in (" + idLoadingSlip + ")";
                 cmdUpdate.CommandText = sqlQuery;
-
+                cmdUpdate.Parameters.Add("@deletedBy", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(UserId);
+                cmdUpdate.Parameters.Add("@deletedOn", System.Data.SqlDbType.DateTime).Value = _iCommon .ServerDateTime;
+                cmdUpdate.Parameters.Add("@loadingSlipId", System.Data.SqlDbType.Int).Value =idLoadingSlip ;
                 cmdUpdate.CommandType = System.Data.CommandType.Text;
                 return cmdUpdate.ExecuteNonQuery();
             }

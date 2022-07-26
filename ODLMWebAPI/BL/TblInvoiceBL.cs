@@ -5127,6 +5127,7 @@ namespace ODLMWebAPI.BL
                 invoiceDT.Columns.Add("BookingCDPct", typeof(double));
                 invoiceDT.Columns.Add("BookingBasicRate", typeof(double));
                 headerDT.Columns.Add("AckNo");
+                invoiceDT.Columns.Add("AckNo");
                 TblAddressTO tblAddressTO = _iTblAddressBL.SelectOrgAddressWrtAddrType(organizationTO.IdOrganization, Constants.AddressTypeE.OFFICE_ADDRESS);
                 List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
                 if (organizationTO != null)
@@ -5141,8 +5142,10 @@ namespace ODLMWebAPI.BL
                     invoiceDT.Rows[0]["orgWebsite"] = organizationTO.Website;
                     invoiceDT.Rows[0]["orgEmailAddr"] = organizationTO.EmailAddr;
                 }
-                if (!string.IsNullOrEmpty(AckNo))//Reshma[24-06-2022] Added Acknowledgement Number DT creation to print on simpli invoice
+                //if (string.IsNullOrEmpty(AckNo))//Reshma[24-06-2022] Added Acknowledgement Number DT creation to print on simpli invoice
                     headerDT.Rows[0]["AckNo"] = AckNo;
+                    invoiceDT.Rows[0]["AckNo"] = AckNo;
+
                 //chetan[14-feb-2020]
                 TblBookingsTO tblBookingsTO = _iTblBookingsBL.SelectBookingsDetailsFromInVoiceId(tblInvoiceTO.IdInvoice);
                 if (tblBookingsTO != null)
@@ -9910,7 +9913,7 @@ namespace ODLMWebAPI.BL
 
                     for (int i = 0; i < tblLoadingSlipTOList.Count; i++)
                     {
-                        result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExtForWeghing(tblLoadingSlipTOList[i].IdLoadingSlip, conn, tran);
+                        result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExtForWeghing(tblLoadingSlipTOList[i].IdLoadingSlip,0, conn, tran);
                         if (result < 0)
                         {
                             resultMessage.DefaultBehaviour("Error while UpdateTblLoadingSlipExtForWeghing ");
@@ -10077,7 +10080,7 @@ namespace ODLMWebAPI.BL
                         }
                         for (int k = 0; k < tblLoadingSlipTOList.Count; k++)
                         {
-                            result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExtForWeghing(tblLoadingSlipTOList[k].IdLoadingSlip, conn, tran);
+                            result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExtForWeghing(tblLoadingSlipTOList[k].IdLoadingSlip,userId, conn, tran);
                             if (result < 0)
                             {
                                 resultMessage.DefaultBehaviour("Error while UpdateTblLoadingSlipExtForWeghing ");
