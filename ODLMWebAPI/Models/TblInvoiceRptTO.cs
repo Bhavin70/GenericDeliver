@@ -26,7 +26,7 @@ namespace ODLMWebAPI.Models
         Int32 taxTypeId;
         Double freightAmt;
         Double tcsAmt;
-        Double invoiceQty;
+        decimal invoiceQty;
         Double taxableAmt;
         Double taxAmt;
         DateTime createdOn;
@@ -108,6 +108,7 @@ namespace ODLMWebAPI.Models
         string invoiceMode;
         Double tdsAmt;
         string salesLedger;
+        string salesLedgerName;
         String orgGstNo;
         Double insuranceAmt;
         #endregion
@@ -217,7 +218,7 @@ namespace ODLMWebAPI.Models
             get { return freightAmt; }
             set { freightAmt = value; }
         }
-        public Double InvoiceQty
+        public Decimal InvoiceQty
         {
             get { return invoiceQty; }
             set { invoiceQty = value; }
@@ -517,7 +518,14 @@ namespace ODLMWebAPI.Models
             set { salesLedger = value; }
         }
 
-        
+        public String SalesLedgerName
+        {
+            get { return salesLedgerName; }
+            set { salesLedgerName = value; }
+        }
+       
+
+
 
 
         //public String DispatchDocNo { get => dispatchDocNo; set => dispatchDocNo = value; }
@@ -573,6 +581,10 @@ namespace ODLMWebAPI.Models
         public string ProDesc { get; set; }
         public string TransactioDateNew { get; set; }
         public string Condition { get; set; }
+        public string TCS_GL { get; set; }
+        public string Freight_GL { get; set; }
+        public string Insurance_GL { get; set; }
+
 
 
         #endregion
