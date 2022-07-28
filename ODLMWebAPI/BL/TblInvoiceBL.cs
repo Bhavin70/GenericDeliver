@@ -9913,7 +9913,7 @@ namespace ODLMWebAPI.BL
 
                     for (int i = 0; i < tblLoadingSlipTOList.Count; i++)
                     {
-                        result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExtForWeghing(tblLoadingSlipTOList[i].IdLoadingSlip, conn, tran);
+                        result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExtForWeghing(tblLoadingSlipTOList[i].IdLoadingSlip,0, conn, tran);
                         if (result < 0)
                         {
                             resultMessage.DefaultBehaviour("Error while UpdateTblLoadingSlipExtForWeghing ");
@@ -10080,7 +10080,7 @@ namespace ODLMWebAPI.BL
                         }
                         for (int k = 0; k < tblLoadingSlipTOList.Count; k++)
                         {
-                            result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExtForWeghing(tblLoadingSlipTOList[k].IdLoadingSlip, conn, tran);
+                            result = _iTblLoadingSlipExtDAO.UpdateTblLoadingSlipExtForWeghing(tblLoadingSlipTOList[k].IdLoadingSlip,userId, conn, tran);
                             if (result < 0)
                             {
                                 resultMessage.DefaultBehaviour("Error while UpdateTblLoadingSlipExtForWeghing ");

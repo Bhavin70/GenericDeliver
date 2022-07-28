@@ -569,7 +569,7 @@ namespace ODLMWebAPI.Models
             set { cnfChkSelected = value; }
         }
 
-        
+        public string DirectorComment { get; set; }
         #endregion
 
         #region Methods
