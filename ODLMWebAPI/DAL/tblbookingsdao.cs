@@ -36,7 +36,7 @@ namespace ODLMWebAPI.DAL
                                   " CASE WHEN orgDealer.addrId IS NULL THEN '' Else case WHEN address.villageName IS NOT NULL THEN address.villageName " +
                                   " ELSE CASE WHEN address.talukaName IS NOT NULL THEN address.talukaName ELSE CASE WHEN address.districtName IS NOT NULL THEN address.districtName ELSE address.stateName END END END END AS dealerName," +
                                   " CONCAT (dimStatus.statusName,'-', ISNULL(userStatusBy.userDisplayName,'') ) AS statusName , brandDtl.brandName, address.stateId, address.districtId, address.talukaId,orderType.consumerType as consumerTypeName" + //02-12-2020 Dhananjay added address.districtId, address.talukaId
-                                  " ,tblBookingBeyondQuota.statusRemark as 'DirectorRemark'"+//Reshma Added For Comment
+                                  " ,AA.statusRemark  as 'DirectorRemark'" +//Reshma Added For Comment
                                   " FROM tblbookings bookings LEFT JOIN tblOrganization orgCnf  ON bookings.cnfOrgId = orgCnf.idOrganization" +
 
                                   " LEFT JOIN tblTranActions tblTranAction ON tblTranAction.transId = bookings.idBooking AND tblTranAction.userId = " + loginUserId +
@@ -54,7 +54,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN vAddressDetails address ON address.idAddr = orgDealer.addrId " +
                                   " LEFT JOIN tblCRMEnquiry tblCRMEnquiry ON tblCRMEnquiry.idEnquiry = bookings.enquiryId " +
                                   "LEFT JOIN dimConsumerType orderType ON orderType.idConsumer = bookings.consumerTypeId "+
-                                  " LEFT join tblBookingBeyondQuota on bookings.idBooking =tblBookingBeyondQuota.bookingId and tblBookingBeyondQuota.statusId   =" + (Int32)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR +" ";
+                                  " left outer join  (select top 1 A.idBooking,  B.statusRemark  from tblBookings A inner join tblBookingBeyondQuota B on A.idBooking=B.bookingId and B.statusId   =" + (Int32)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR + " )AA on AA.idBooking=bookings.idBooking  ";
 
             //String sqlSelectQry = " SELECT bookings.*, orgCnf.firmName as cnfName,orgDealer.firmName as dealerName, dimStatus.statusName" +
             //                        " ,brandDtl.brandName" +
@@ -1370,7 +1370,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE idBooking = " + idBooking + " ";
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE bookings.idBooking = " + idBooking + " ";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -1401,7 +1401,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE idBooking = " + idBooking + " ";
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE bookings.idBooking = " + idBooking + " ";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -1428,7 +1428,7 @@ namespace ODLMWebAPI.DAL
             SqlDataReader reader = null;
             try
             {
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE idBooking = " + idBooking + " ";
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE bookings.idBooking = " + idBooking + " ";
                 cmdSelect.Connection = conn;
                 cmdSelect.Transaction = tran;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
