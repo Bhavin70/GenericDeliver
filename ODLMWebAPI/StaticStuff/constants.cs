@@ -514,6 +514,7 @@ namespace ODLMWebAPI.StaticStuff
         public static string AzureTargetContainerName = "srjnewdocuments";
         public static string ExcelSheetName = "TranData";
         public static string ExcelFileName = "Tran";
+        public static string ExcelFileNameForNCRpt = "NC Report";
         public static int LoadingCountForDataExtraction = 50;
         public static String ENTITY_RANGE_NC_LOADINGSLIP_COUNT = "NC_LOADINGSLIP_COUNT";
         public static int FinYear = 2017;

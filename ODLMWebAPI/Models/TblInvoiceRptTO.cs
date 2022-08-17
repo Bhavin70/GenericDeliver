@@ -92,14 +92,14 @@ namespace ODLMWebAPI.Models
         string contactName;
 
         //Added by minal
-        String panNo;       
+        String panNo;
         String dealers;
         String paymentTerms;
         String orderNoandDate;
         String termsofDelivery;
         String deliveryNoteAndNo;
         String dispatchDocNo;
-        String voucherClass;  
+        String voucherClass;
         String narrationConcat;
         String prodCateDesc;
         Double basicRate;
@@ -135,7 +135,9 @@ namespace ODLMWebAPI.Models
         public string ContactName
         {
             get { return contactName; }
-            set {contactName = value;
+            set
+            {
+                contactName = value;
             }
         }
         public Int32 IdInvoice
@@ -244,7 +246,7 @@ namespace ODLMWebAPI.Models
             set { orgGstNo = value; }
         }
 
-        
+
         public String InvoiceDateStr
         {
             get { return invoiceDate.ToString("dd-MM-yyyy"); }
@@ -294,8 +296,8 @@ namespace ODLMWebAPI.Models
             get { return consignee; }
             set { consignee = value; }
         }
-        public  String ConsigneeGstNo
-         {
+        public String ConsigneeGstNo
+        {
             get { return consigneeGstNo; }
             set { consigneeGstNo = value; }
         }
@@ -310,7 +312,7 @@ namespace ODLMWebAPI.Models
             set { basicAmt = value; }
         }
         public Double CgstTaxAmt
-         {
+        {
             get { return cgstAmt; }
             set { cgstAmt = value; }
         }
@@ -440,7 +442,7 @@ namespace ODLMWebAPI.Models
         {
             get { return statusDate.ToString("dd/MMM/yy"); }
         }
-       
+
         public String CnfMobNo
         {
             get { return cnfMobNo; }
@@ -497,12 +499,12 @@ namespace ODLMWebAPI.Models
         public string OrcMeasure { get => orcMeasure; set => orcMeasure = value; }
         public double LoadingQty { get => loadingQty; set => loadingQty = value; }
         public double TotalItemQty { get => totalItemQty; set => totalItemQty = value; }
-        public String PanNo { get => panNo; set => panNo = value; }       
+        public String PanNo { get => panNo; set => panNo = value; }
         public String Dealers { get => dealers; set => dealers = value; }
         public String PaymentTerms { get => paymentTerms; set => paymentTerms = value; }
         public String OrderNoandDate
         {
-             get => orderNoandDate; set => orderNoandDate = value; 
+            get => orderNoandDate; set => orderNoandDate = value;
         }
         public String TermsofDelivery { get => termsofDelivery; set => termsofDelivery = value; }
         public String DeliveryNoteAndNo { get => deliveryNoteAndNo; set => deliveryNoteAndNo = value; }
@@ -523,14 +525,14 @@ namespace ODLMWebAPI.Models
             get { return salesLedgerName; }
             set { salesLedgerName = value; }
         }
-       
+
 
 
 
 
         //public String DispatchDocNo { get => dispatchDocNo; set => dispatchDocNo = value; }
         public String VoucherClass { get => voucherClass; set => voucherClass = value; }
-        
+
 
         public String NarrationConcat { get => narrationConcat; set => narrationConcat = value; }
 
@@ -552,7 +554,7 @@ namespace ODLMWebAPI.Models
         public double NetWeight { get; set; }
         public double RoundOffAmt { get; set; }
         public string InvoiceTypeDesc { get; set; }
-        
+
         public string BuyerAddress { get; set; }
         public string BuyerDistrict { get; set; }
         public string BuyerPinCode { get; set; }
@@ -585,8 +587,25 @@ namespace ODLMWebAPI.Models
         public string Freight_GL { get; set; }
         public string Insurance_GL { get; set; }
 
+        // Add By Samadhan 17 Aug
+        public string SrNo { get; set; }
+        public DateTime InvDate { get; set; }
+        public String Date { get; set; }
+        public string DealerName { get; set; }
+        public string Size { get; set; }
+        public int Bundle { get; set; }
+        public decimal NetWt { get; set; }
+        public decimal TareWt { get; set; }
+        public decimal GrossWt { get; set; }
+        public decimal FinalRate { get; set; }
+        public decimal FinalAmt { get; set; }       
+        public string Remark { get; set; }
 
 
         #endregion
     }
+
+    
+    // Add By Samadhan NC Report
+
 }

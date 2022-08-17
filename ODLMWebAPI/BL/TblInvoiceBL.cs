@@ -889,6 +889,106 @@ namespace ODLMWebAPI.BL
             }
             return resultMessage;
         }
+        public ResultMessage SelectAllRptNCList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId)
+        {
+
+            ResultMessage resultMessage = new ResultMessage();
+            try
+            {
+                List<TblInvoiceRptTO> TblInvoiceRptTOList = new List<TblInvoiceRptTO>();
+                TblInvoiceRptTOList = _iTblInvoiceDAO.SelectAllRptNCList(frmDt, toDt, isConfirm, fromOrgId);
+                if (TblInvoiceRptTOList != null && TblInvoiceRptTOList.Count > 0)
+                {
+                    ExcelPackage excelPackage = new ExcelPackage();
+                    int cellRow = 2;                   
+                    excelPackage = new ExcelPackage();
+                     string minDate = TblInvoiceRptTOList.Min(ele => ele.InvDate).ToString("ddMMyy");
+                    string maxDate = TblInvoiceRptTOList.Max(ele => ele.InvDate).ToString("ddMMyy");
+
+
+
+                    #region Excel Column Prepareration
+                    ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add(Constants.ExcelSheetName);
+
+                    excelWorksheet.Cells[1, 1].Value = "SrNo";
+                    excelWorksheet.Cells[1, 2].Value = "Date";
+                    excelWorksheet.Cells[1, 3].Value = "Dealer name";
+                    excelWorksheet.Cells[1, 4].Value = "vehicleNo";
+                    excelWorksheet.Cells[1, 5].Value = "Size";
+                    excelWorksheet.Cells[1, 6].Value = "Net Wt.";
+                    excelWorksheet.Cells[1, 7].Value = "Tare Wt.";
+                    excelWorksheet.Cells[1, 8].Value = "Gross Wt.";
+                    excelWorksheet.Cells[1, 9].Value = "Bundle";
+                    excelWorksheet.Cells[1, 10].Value = "FinalRate";
+                    excelWorksheet.Cells[1, 11].Value = "FinalAmt";
+                    excelWorksheet.Cells[1, 12].Value = "Remark";
+
+                    excelWorksheet.Cells[1, 1, 1, 24].Style.Font.Bold = true;
+                    #endregion
+                    for (int i = 0; i < TblInvoiceRptTOList.Count; i++)
+                    {
+                        excelWorksheet.Cells[cellRow, 1].Value = TblInvoiceRptTOList[i].SrNo;
+                        excelWorksheet.Cells[cellRow, 2].Value = TblInvoiceRptTOList[i].Date;
+                        excelWorksheet.Cells[cellRow, 3].Value = TblInvoiceRptTOList[i].DealerName;
+                        excelWorksheet.Cells[cellRow, 4].Value = TblInvoiceRptTOList[i].VehicleNo;
+                        excelWorksheet.Cells[cellRow, 5].Value = TblInvoiceRptTOList[i].Size;
+                        excelWorksheet.Cells[cellRow, 6].Value = Math.Round(TblInvoiceRptTOList[i].NetWt, 2);
+                        excelWorksheet.Cells[cellRow, 7].Value = Math.Round(TblInvoiceRptTOList[i].TareWt, 2);
+                        excelWorksheet.Cells[cellRow, 8].Value = Math.Round(TblInvoiceRptTOList[i].GrossWt, 2);
+                        excelWorksheet.Cells[cellRow, 9].Value = TblInvoiceRptTOList[i].Bundle;
+                        excelWorksheet.Cells[cellRow, 10].Value = Math.Round(TblInvoiceRptTOList[i].FinalRate, 0);
+                        excelWorksheet.Cells[cellRow, 11].Value = Math.Round(TblInvoiceRptTOList[i].FinalAmt, 0);
+                        excelWorksheet.Cells[cellRow, 12].Value = TblInvoiceRptTOList[i].Remark;
+
+
+
+                        using (ExcelRange range = excelWorksheet.Cells[1, 1, cellRow, 21])
+                        {
+                            range.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                            range.Style.Font.Name = "Times New Roman";
+                            range.Style.Font.Size = 10;
+                        }
+                    }
+
+                excelWorksheet.Protection.IsProtected = true;
+                excelPackage.Workbook.Protection.LockStructure = true;
+                #region Upload File to Azure
+
+                // Create azure storage  account connection.
+                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_iConnectionString.GetConnectionString(Constants.AZURE_CONNECTION_STRING));
+
+                // Create the blob client.
+                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+
+                // Retrieve reference to a target container.
+                CloudBlobContainer container = blobClient.GetContainerReference(Constants.AzureSourceContainerName);
+
+                String fileName = Constants.ExcelFileNameForNCRpt + _iCommon.ServerDateTime.ToString("ddMMyyyyHHmmss") + "-" + minDate + "-" + maxDate + "-R" + ".xlsx";
+                CloudBlockBlob blockBlob = container.GetBlockBlobReference(fileName);
+
+                var fileStream = excelPackage.GetAsByteArray();
+
+                Task t1 = blockBlob.UploadFromByteArrayAsync(fileStream, 0, fileStream.Length);
+
+                excelPackage.Dispose();
+                #endregion
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            
+            }
+                resultMessage.DefaultBehaviour();
+                //return _iTblInvoiceDAO.SelectAllRptInvoiceList(frmDt, toDt, isConfirm, fromOrgId);
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "CreateTempInvoiceExcel");
+            }
+            return resultMessage;
+        }
 
         /// <summary>
         /// Vijaymala[06-10-2017] Added To Get Invoice List To Generate Invoice Excel
