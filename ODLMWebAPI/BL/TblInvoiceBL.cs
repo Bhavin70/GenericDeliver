@@ -2292,6 +2292,7 @@ namespace ODLMWebAPI.BL
                 {
                     isSez = true;
                 }
+                tblInvoiceTO.BrokerName = tblBookingsTO.BrokerName;
             }
             else
             {
@@ -5128,6 +5129,8 @@ namespace ODLMWebAPI.BL
                 invoiceDT.Columns.Add("BookingBasicRate", typeof(double));
                 headerDT.Columns.Add("AckNo");
                 invoiceDT.Columns.Add("AckNo");
+                headerDT.Columns.Add("BrokerName");
+                invoiceDT.Columns.Add("BrokerName");
                 TblAddressTO tblAddressTO = _iTblAddressBL.SelectOrgAddressWrtAddrType(organizationTO.IdOrganization, Constants.AddressTypeE.OFFICE_ADDRESS);
                 List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
                 if (organizationTO != null)
@@ -5801,6 +5804,9 @@ namespace ODLMWebAPI.BL
                     addressDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
                     headerDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
                     invoiceDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
+
+                    headerDT.Rows[0]["BrokerName"] = tblInvoiceTO.BrokerName;
+                    invoiceDT.Rows[0]["BrokerName"] = tblInvoiceTO.BrokerName;
                     if (!String.IsNullOrEmpty(tblInvoiceTO.PoDateStr))
                     {
                         DateTime poDate = Convert.ToDateTime(tblInvoiceTO.PoDateStr);
