@@ -570,6 +570,7 @@ namespace ODLMWebAPI.Models
         }
 
         public string DirectorComment { get; set; }
+        public string BrokerName { get; set; }
         #endregion
 
         #region Methods

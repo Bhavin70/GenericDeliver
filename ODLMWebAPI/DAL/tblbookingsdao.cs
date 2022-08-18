@@ -2012,6 +2012,9 @@ namespace ODLMWebAPI.DAL
                     if (tblBookingsTODT["DirectorRemark"] != DBNull.Value)
                         tblBookingsTONew.DirectorComment  = Convert.ToString(tblBookingsTODT["DirectorRemark"]);
 
+                    if (tblBookingsTODT["brokerName"] != DBNull.Value)
+                        tblBookingsTONew.BrokerName = Convert.ToString(tblBookingsTODT["brokerName"]);
+
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }
             }
@@ -2454,6 +2457,7 @@ namespace ODLMWebAPI.DAL
                             //kiran[06-09-2019]
                             ", [consumerTypeId]" + //Gokul [11-02-2021]
                             ", [cnfChkSelected]" +
+                            ", [brokerName]" +
                             " )" +
                 " VALUES (" +
                             "  @CnFOrgId " +
@@ -2509,6 +2513,7 @@ namespace ODLMWebAPI.DAL
                             " ,@enquiryId" +
                             " ,@consumertypeid" +
                             " ,@CnfChkSelected" +
+                             ",@brokerName" +
                              " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -2570,6 +2575,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@enquiryId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.EnquiryId);
             cmdInsert.Parameters.Add("@consumertypeid", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.OrderTypeId);
             cmdInsert.Parameters.Add("@CnfChkSelected", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.CnfChkSelected);
+            cmdInsert.Parameters.Add("@brokerName", System.Data.SqlDbType.NVarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BrokerName);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {

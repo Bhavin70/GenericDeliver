@@ -883,7 +883,8 @@ namespace ODLMWebAPI.DAL
 
                     if (tblInvoiceTODT["salesLedgerId"] != DBNull.Value)
                         tblInvoiceTONew.SalesLedgerId = Convert.ToInt32(tblInvoiceTODT["salesLedgerId"].ToString());
-
+                    if (tblInvoiceTODT["brokerName"] != DBNull.Value)
+                        tblInvoiceTONew.BrokerName = Convert.ToString(tblInvoiceTODT["brokerName"]);
 
                     tblInvoiceTOList.Add(tblInvoiceTONew);
                 }
@@ -2990,7 +2991,7 @@ namespace ODLMWebAPI.DAL
                                 " ,[dispatchDocNo]" +
                                 " ,[voucherClassId]" +
                                 " ,[salesLedgerId]" +
-
+                                  ", [brokerName]" +
                                 " )" +
                     " VALUES (" +
                                 "  @InvoiceTypeId " +
@@ -3055,6 +3056,7 @@ namespace ODLMWebAPI.DAL
                                 " ,@DispatchDocNo" +
                                 " ,@VoucherClassId" +
                                 " ,@SalesLedgerId" +
+                                ",@brokerName" +
                                  " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
@@ -3122,7 +3124,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@DeliveryNoteNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.DeliveryNoteNo);
             cmdInsert.Parameters.Add("@VoucherClassId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.VoucherClassId);
             cmdInsert.Parameters.Add("@SalesLedgerId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.SalesLedgerId);
-
+            cmdInsert.Parameters.Add("@brokerName", System.Data.SqlDbType.NVarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.BrokerName);
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = Constants.IdentityColumnQuery;
@@ -3372,7 +3374,7 @@ namespace ODLMWebAPI.DAL
                              " ,[dispatchDocNo]=@DispatchDocNo " +
                              " ,[voucherClassId]=@VoucherClassId " +
                              " ,[salesLedgerId]=@SalesLedgerId " +
-
+                             " ,[brokerName]=@brokerName "+
                              " WHERE [idInvoice] = @IdInvoice";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -3438,6 +3440,7 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@DispatchDocNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.DispatchDocNo);
             cmdUpdate.Parameters.Add("@VoucherClassId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.VoucherClassId);
             cmdUpdate.Parameters.Add("@SalesLedgerId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.SalesLedgerId);
+            cmdUpdate.Parameters.Add("@brokerName", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.BrokerName);
 
 
             return cmdUpdate.ExecuteNonQuery();
