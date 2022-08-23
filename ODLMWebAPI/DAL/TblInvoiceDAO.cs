@@ -1014,7 +1014,7 @@ namespace ODLMWebAPI.DAL
                    " and sq1.isConfirmed = '" + Convert.ToString(isConfirm) + "'  " +
                       " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED;
 
-                selectQuery = " select top 2 SrNo, SrNo2, Date,DealerName, vehicleNo, Size, NetWt, TareWt, GrossWt, Bundle, FinalRate, FinalAmt, Remark " +
+                selectQuery = " select  SrNo, SrNo2, Date,DealerName, vehicleNo, Size, NetWt, TareWt, GrossWt, Bundle, FinalRate, FinalAmt, Remark " +
                      " INTO #TempLocation FROM (SELECT DENSE_RANK() OVER(ORDER BY  InvId) SrNo, " +
                     " Row_Number() OVER(PARTITION BY InvId ORDER BY  InvId) SrNo2, InvId, ItemInvId, Date,DealerName, vehicleNo, Size," +
                     " NetWt, TareWt, GrossWt, Bundle, ceiling(FinalRate) as FinalRate, ceiling(FinalAmt) as FinalAmt, narration as Remark " +
