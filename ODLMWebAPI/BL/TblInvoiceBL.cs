@@ -912,7 +912,7 @@ namespace ODLMWebAPI.BL
 
                     excelWorksheet.Cells[1, 1].Value = "SrNo";
                     excelWorksheet.Cells[1, 2].Value = "Date";
-                    excelWorksheet.Cells[1, 3].Value = "Dealer name";
+                    excelWorksheet.Cells[1, 3].Value = "Dealer Name";
                     excelWorksheet.Cells[1, 4].Value = "vehicleNo";
                     excelWorksheet.Cells[1, 5].Value = "Size";
                     excelWorksheet.Cells[1, 6].Value = "Net Wt.";
@@ -939,7 +939,7 @@ namespace ODLMWebAPI.BL
                         excelWorksheet.Cells[cellRow, 10].Value = Math.Round(TblInvoiceRptTOList[i].FinalRate, 0);
                         excelWorksheet.Cells[cellRow, 11].Value = Math.Round(TblInvoiceRptTOList[i].FinalAmt, 0);
                         excelWorksheet.Cells[cellRow, 12].Value = TblInvoiceRptTOList[i].Remark;
-
+                        cellRow++;
 
 
                         using (ExcelRange range = excelWorksheet.Cells[1, 1, cellRow, 21])
