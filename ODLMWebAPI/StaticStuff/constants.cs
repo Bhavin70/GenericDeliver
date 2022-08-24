@@ -852,8 +852,17 @@ namespace ODLMWebAPI.StaticStuff
         public static string CP_DELIVER_VEHICLE_GATE_IN_SMS_STRING = "CP_DELIVER_VEHICLE_GATE_IN_SMS_STRING";
         public static string CP_DELIVER_VEHICLE_OUT = "CP_DELIVER_VEHICLE_OUT";
         public static string IS_ROUND_OFF_CD_ON_Rate_Calculation_Details = "IS_ROUND_OFF_CD_ON_Rate_Calculation_Details";
+        
+        //Reshma Added   
+        public static string WHATS_APP_SEND_MESSAGE_INTEGRATION_API = "WHATS_APP_SEND_MESSAGE_INTEGRATION_API";
+        public static string CP_DELIVER_IS_SEND_CUSTOM_WhatsApp_Msg = "CP_DELIVER_IS_SEND_CUSTOM_WhatsApp_Msg";
+        public static string WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_NEW_RATE_DECLARE = "WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_NEW_RATE_DECLARE";
+        public static string WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_REVISED_RATE_DECLARE = "WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_REVISED_RATE_DECLARE";
+        public static string WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_CLOSE_RATE = "WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_CLOSE_RATE";
 
-
+        public static string WHATS_APP_SEND_MESSAGE_REQUEST_JSON = "WHATS_APP_SEND_MESSAGE_REQUEST_JSON";
+        public static string WHATS_APP_API_KEY = "WHATS_APP_API_KEY";
+        public static string WHATS_APP_SEND_MESSAGE_REQUEST_HEADER_JSON = "WHATS_APP_SEND_MESSAGE_REQUEST_HEADER_JSON";
         #region Common functions
 
         public static Boolean IsNeedToRemoveFromList(string[] sizeList, Int32 materialId)

@@ -142,6 +142,10 @@ namespace ODLMWebAPI.Models
         /// </summary>
         public AlertsToReset AlertsToReset { get => alertsToReset; set => alertsToReset = value; }
         public List<string> BroadCastinguserList { get => broadCastinguserList; set => broadCastinguserList = value; }
+        public string WhatsAppComment { get ; set  ; }
+        public string WhatsAppComment2 { get; set; }
+        public string WhatsAppFile { get ; set ; }
+        public string WHATS_APP_SEND_MESSAGE_REQUESJSON { get; set; }
         #endregion
     }
 

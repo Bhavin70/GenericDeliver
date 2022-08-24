@@ -228,6 +228,7 @@ namespace ODLMWebAPI.DAL
                             " ,[alertComment]" +
                             " ,[sourceDisplayId]" +
                             " ,[alertAction]" +
+                            " ,whatsAppComment "+
                             " )" +
                 " VALUES (" +
                             "  @RaisedBy " +
@@ -245,6 +246,7 @@ namespace ODLMWebAPI.DAL
                             " ,@AlertComment " +
                             " ,@SourceDisplayId " +
                             " ,@AlertAction " +
+                            " ,@whatsAppComment "+
                             " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
@@ -265,6 +267,8 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@AlertComment", System.Data.SqlDbType.NVarChar).Value = tblAlertInstanceTO.AlertComment;
             cmdInsert.Parameters.Add("@SourceDisplayId", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblAlertInstanceTO.SourceDisplayId);
             cmdInsert.Parameters.Add("@AlertAction", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblAlertInstanceTO.AlertAction);
+            cmdInsert.Parameters.Add("@whatsAppComment", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblAlertInstanceTO.WhatsAppComment);
+
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = Constants.IdentityColumnQuery;
