@@ -200,7 +200,7 @@ namespace ODLMWebAPI.BL
                             }
                         }
                     }
-
+                    
                 }
 
 
@@ -262,6 +262,23 @@ namespace ODLMWebAPI.BL
                     tblAlertInstanceTO.SmsTOList = smsTOList;
                 }
 
+                TblConfigParamsTO tblConfigParamsTOTemp = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_WhatsApp_Msg);
+                if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
+                {
+                    Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
+                    if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                    {
+                        tblAlertInstanceTO.AlertComment = "INDIA GOLD TMT Fe 550 on " + tblBookingActionsTO.StatusDate + " SALE CLOSED .Call.9900188888";
+                        tblAlertInstanceTO.WhatsAppComment = tblAlertInstanceTO.AlertComment;
+
+                        TblConfigParamsTO tblConfigParamsTOForRate = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_CLOSE_RATE);
+                        if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
+                        {
+                            tblAlertInstanceTO.WhatsAppComment = tblBookingActionsTO.StatusDate.ToString (); 
+                            tblAlertInstanceTO.WHATS_APP_SEND_MESSAGE_REQUESJSON = tblConfigParamsTOForRate.ConfigParamVal;
+                        }
+                    }
+                }
                 ResultMessage rMessage = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
                 if (rMessage.MessageType != ResultMessageE.Information)
                 {

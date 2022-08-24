@@ -419,6 +419,34 @@ namespace ODLMWebAPI.BL
                     tblAlertInstanceTO.AlertComment = "Today's Rate is Declared. Rate = " + tblGlobalRateTO.Rate + " (Rs/MT)";
                 else
                     tblAlertInstanceTO.AlertComment = "New Rate is Declared. Rate = " + tblGlobalRateTO.Rate + " (Rs/MT)";
+                TblConfigParamsTO tblConfigParamsTOTemp = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_WhatsApp_Msg);
+                if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
+                {
+                    Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
+                    if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                    {
+                        if (!isRateAlreadyDeclare)
+                        {
+                            TblConfigParamsTO tblConfigParamsTOForRate = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_NEW_RATE_DECLARE);
+                            if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
+                            {
+                                tblAlertInstanceTO.WhatsAppComment = tblGlobalRateTO.CreatedOnStr;
+                                tblAlertInstanceTO.WhatsAppComment2 = tblGlobalRateTO.Rate.ToString();
+                            }
+                            tblAlertInstanceTO.AlertComment = "INDIA GOLD TMT Fe 550 on " + tblGlobalRateTO.CreatedOnStr + "8MM @ Rs." + tblGlobalRateTO.Rate + " /PMT EX PLANT.Call.9900188888";
+                        }
+                        else
+                        {
+                            TblConfigParamsTO tblConfigParamsTOForRate = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_REVISED_RATE_DECLARE);
+                            if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
+                            {
+                                tblAlertInstanceTO.WhatsAppComment = tblGlobalRateTO.CreatedOnStr;
+                                tblAlertInstanceTO.WhatsAppComment2 = tblGlobalRateTO.Rate.ToString();
+                            }
+                            tblAlertInstanceTO.AlertComment = "REVISED INDIA GOLD TMT Fe 550 on " + tblGlobalRateTO.CreatedOnStr + "8MM @ Rs." + tblGlobalRateTO.Rate + " /PMT EX PLANT.Call.9900188888";
+                        }
+                    }
+                }
 
                 tblAlertInstanceTO.EffectiveFromDate = tblGlobalRateTO.CreatedOn;
                 tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(10);
@@ -656,11 +684,7 @@ namespace ODLMWebAPI.BL
                 #endregion
 
                 #region 3. Send Notifications Via SMS Or Email To All C&F
-
-
-
-
-
+                
                 TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
                 tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.NEW_RATE_AND_QUOTA_DECLARED;
 
@@ -674,6 +698,36 @@ namespace ODLMWebAPI.BL
                 }
                 else
                  tblAlertInstanceTO.AlertComment = "New Rate is Declared. Rate = " + rateString + " (Rs/MT)";
+
+                //Reshma Added FOr WhatsApp integration.
+                TblConfigParamsTO tblConfigParamsTOTemp = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_WhatsApp_Msg);
+                if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
+                {
+                    Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
+                    if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                    {
+                        if (!isRateAlreadyDeclare)
+                        {
+                            TblConfigParamsTO tblConfigParamsTOForRate = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_NEW_RATE_DECLARE);
+                            if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
+                            {
+                                tblAlertInstanceTO.WhatsAppComment = tblGlobalRateTOList[0].CreatedOn.ToString ();
+                                tblAlertInstanceTO.WhatsAppComment2 = rateString;
+                                tblAlertInstanceTO.WHATS_APP_SEND_MESSAGE_REQUESJSON = tblConfigParamsTOForRate.ConfigParamVal;
+                            } 
+                        }
+                        else
+                        {
+                            TblConfigParamsTO tblConfigParamsTOForRate = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_REVISED_RATE_DECLARE);
+                            if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
+                            {
+                                tblAlertInstanceTO.WhatsAppComment = tblGlobalRateTOList[0].CreatedOn.ToString();
+                                tblAlertInstanceTO.WhatsAppComment2 = rateString;
+                                tblAlertInstanceTO.WHATS_APP_SEND_MESSAGE_REQUESJSON = tblConfigParamsTOForRate.ConfigParamVal;
+                            } 
+                        }
+                    }
+                }
 
                 //if (!isRateAlreadyDeclare)
                 //    tblAlertInstanceTO.AlertComment = "Today's Rate is Declared. Rate = " + rateString + " (Rs/MT)";

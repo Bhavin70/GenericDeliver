@@ -58,7 +58,8 @@ namespace ODLMWebAPI.StaticStuff
         {
             ALERT = 1,
             EMAIL = 2,
-            SMS = 3
+            SMS = 3,
+            WhatsApp=4
         }
     }
 }
