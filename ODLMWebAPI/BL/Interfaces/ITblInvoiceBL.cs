@@ -49,7 +49,7 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage SaveInvoiceDocumentDetails(TblInvoiceTO invoiceTO, List<TblDocumentDetailsTO> tblDocumentDetailsTOList, Int32 loginUserId);
         ResultMessage InsertInvoiceDocumentDetails(TblInvoiceTO tblInvoiceTO, List<TblDocumentDetailsTO> tblDocumentDetailsTOList, Int32 loginUserId, SqlConnection conn, SqlTransaction tran);
         ResultMessage PrintReport(Int32 invoiceId,Boolean isPrinted=false,Boolean isSendEmailForInvoice = false,Boolean isFileDelete = true);
-        ResultMessage PrintWeighingReport(Int32 invoiceId,Boolean isSendEmailForWeighment = false,String reportType=null);
+        ResultMessage PrintWeighingReport(Int32 invoiceId,Boolean isSendEmailForWeighment = false,String reportType=null, Boolean isFileDelete = true);
         ResultMessage SendInvoiceEmail(SendMail mailInformationTo);
         String currencyTowords(Double amount, Int32 currencyId);
         string ConvertNumbertoWords(long number);
