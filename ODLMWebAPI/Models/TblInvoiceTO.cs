@@ -556,6 +556,7 @@ namespace ODLMWebAPI.Models
         public Int32 SalesLedgerId { get => salesLedgerId; set => salesLedgerId = value; }
 
         public string BrokerName { get; set; }
+        public Boolean  IsSendWhatsAppMsg { get; set; }
         public TblInvoiceTO DeepCopy()
         {
             TblInvoiceTO other = (TblInvoiceTO)this.MemberwiseClone();

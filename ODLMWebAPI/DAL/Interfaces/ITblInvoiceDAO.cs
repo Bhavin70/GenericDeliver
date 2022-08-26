@@ -62,5 +62,6 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<InvoiceReportTO> SelectAllInvoices(DateTime frmDt, DateTime toDt);
         TblInvoiceTO SelectTblInvoice(String loadingSlipId, SqlConnection conn, SqlTransaction tran);
         int PostUpdateInvoiceStatus(TblInvoiceTO tblInvoiceTO);
+        int UpdateWhatsAppMsgSendInvoiceNo(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
     }
 }

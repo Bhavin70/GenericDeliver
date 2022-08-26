@@ -3259,6 +3259,29 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+
+        public int UpdateWhatsAppMsgSendInvoiceNo(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+                cmdUpdate.CommandText = "UPDATE tempInvoice SET isSendWhatsAppMsg = @isSendWhatsAppMsg  WHERE idInvoice = @IdInvoice";
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+                cmdUpdate.Parameters.Add("@IdInvoice", System.Data.SqlDbType.Int  ).Value = tblInvoiceTO.IdInvoice ;
+                cmdUpdate.Parameters.Add("@isSendWhatsAppMsg", System.Data.SqlDbType.Bit ).Value = tblInvoiceTO.IsSendWhatsAppMsg; 
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
         public int UpdateInvoiceNonCommercDtlsForFinal(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdUpdate = new SqlCommand();
