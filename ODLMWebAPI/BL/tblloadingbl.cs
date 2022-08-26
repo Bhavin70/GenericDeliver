@@ -2403,6 +2403,7 @@ namespace ODLMWebAPI.BL {
                     else
                         resultMessage.DisplayMessage = "Success..DC authorized and #" + invoiceTO.InvoiceNo + " is generated";
                     resultMessage.Tag = invoiceTO;
+                    ResultMessage resultMsg = _iTblInvoiceBL.SendFileOnWhatsAppAfterEwayBillGeneration(invoiceId);
                     return resultMessage;
                 }
             }
