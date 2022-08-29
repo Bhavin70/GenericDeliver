@@ -21,6 +21,7 @@ using Microsoft.WindowsAzure.Storage;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
+
 namespace ODLMWebAPI.BL
 {
     public class TblInvoiceBL : ITblInvoiceBL
@@ -6376,11 +6377,11 @@ namespace ODLMWebAPI.BL
                     resultMessage.DisplayMessage = "Something wents wrong please try again";
                     resultMessage.Result = 0;
                 }
-                if (isFileDelete)
-                {
-                    //Reshma Added FOr WhatsApp integration.
-                         resultMessage  = SendFileOnWhatsAppAfterEwayBillGeneration(tblInvoiceTO.IdInvoice);
-                }
+                //if (isFileDelete)
+                //{
+                //    //Reshma Added FOr WhatsApp integration.
+                //      resultMessage  = SendFileOnWhatsAppAfterEwayBillGeneration(tblInvoiceTO.IdInvoice);
+                //}
                 return resultMessage;
             }
             catch (Exception ex)
@@ -6501,7 +6502,7 @@ namespace ODLMWebAPI.BL
         }
 
 
-        public ResultMessage PrintWeighingReport(Int32 invoiceId, Boolean isSendEmailForWeighment = false, String reportType = null)
+        public ResultMessage PrintWeighingReport(Int32 invoiceId, Boolean isSendEmailForWeighment = false, String reportType = null, Boolean isFileDelete = true)
         {
             ResultMessage resultMessage = new ResultMessage();
 
@@ -6880,11 +6881,25 @@ namespace ODLMWebAPI.BL
                                 filePath = resultMessage.Tag.ToString();
                             }
 
-                            Byte[] bytes = DeleteFile(saveLocation, filePath);
-                            if (bytes != null && bytes.Length > 0)
+                            if (isFileDelete)
                             {
-                                resultMessage.Tag = Convert.ToBase64String(bytes);
+                                //driveName + path;
+                                Byte[] bytes = DeleteFile(saveLocation, filePath);
+
+                                if (bytes != null && bytes.Length > 0)
+                                {
+                                    resultMessage.Tag = Convert.ToBase64String(bytes);
+                                }
                             }
+                            else
+                                resultMessage.Tag = filePath;
+
+                            //Reshma Cooment for send WatsMsg
+                            //Byte[] bytes = DeleteFile(saveLocation, filePath);
+                            //if (bytes != null && bytes.Length > 0)
+                            //{
+                            //    resultMessage.Tag = Convert.ToBase64String(bytes);
+                            //}
 
                             if (resultMessage.MessageType == ResultMessageE.Information)
                             {
@@ -12265,7 +12280,9 @@ namespace ODLMWebAPI.BL
                     Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
                     if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
                     {
-                        resultMessage = PrintReport(invoiceId, true, false, false);
+                        resultMessage = PrintReportV2(invoiceId, true, false, false);
+
+                        //ResultMessage resuMsg = PrintWeighingReport(invoiceId, false, Constants.WeighmentSlip, false);
                         TblInvoiceTO tblInvoiceTO = SelectTblInvoiceTOWithDetails (invoiceId);
                         if (tblInvoiceTO == null)
                         {
@@ -12273,6 +12290,7 @@ namespace ODLMWebAPI.BL
                             return resultMessage;
                         }
                         String fileName = resultMessage.Tag.ToString();
+                       
 
                         Byte[] bytes = File.ReadAllBytes(fileName);
                         TblDocumentDetailsTO tblDocumentDetailsT0 = new TblDocumentDetailsTO();
@@ -12470,6 +12488,1621 @@ namespace ODLMWebAPI.BL
                 conn.Close();
             }
             return resultMessage;
+        }
+
+        public ResultMessage PrintReportV2(Int32 invoiceId, Boolean isPrinted = false, Boolean isSendEmailForInvoice = false, Boolean isFileDelete = true)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            String response = String.Empty;
+            String signedQRCode = String.Empty;
+            Int32 apiId = (int)EInvoiceAPIE.GENERATE_EINVOICE;
+            byte[] PhotoCodeInBytes = null;
+            try
+            {
+
+                TblInvoiceTO tblInvoiceTO = SelectTblInvoiceTOWithDetails(invoiceId);
+                TblLoadingSlipTO TblLoadingSlipTO = _iTblLoadingSlipBL.SelectAllLoadingSlipWithDetailsByInvoice(invoiceId);
+                List<TblInvoiceAddressTO> invoiceAddressTOList = _iTblInvoiceAddressBL.SelectAllTblInvoiceAddressList(invoiceId);
+                DataSet printDataSet = new DataSet();
+
+                //headerDT
+                DataTable headerDT = new DataTable();
+                DataTable addressDT = new DataTable();
+                DataTable invoiceDT = new DataTable();
+                DataTable invoiceItemDT = new DataTable();
+                DataTable itemFooterDetailsDT = new DataTable();
+                DataTable commercialDT = new DataTable();
+                DataTable hsnItemTaxDT = new DataTable();
+                DataTable qrCodeDT = new DataTable();
+                // DataTable shippingAddressDT = new DataTable();
+                //Aniket [1-02-2019] added to create multiple copy of tax invoice
+                DataTable multipleInvoiceCopyDT = new DataTable();
+                headerDT.TableName = "headerDT";
+                invoiceDT.TableName = "invoiceDT";
+                addressDT.TableName = "addressDT";
+                invoiceItemDT.TableName = "invoiceItemDT";
+                itemFooterDetailsDT.TableName = "itemFooterDetailsDT";
+                hsnItemTaxDT.TableName = "hsnItemTaxDT";
+                // shippingAddressDT.TableName = "shippingAddressDT";
+                multipleInvoiceCopyDT.TableName = "multipleInvoiceCopyDT";
+                qrCodeDT.TableName = "QRCodeDT";
+                //HeaderDT 
+                multipleInvoiceCopyDT.Columns.Add("idInvoiceCopy");
+                multipleInvoiceCopyDT.Columns.Add("invoiceCopyName");
+
+                //Aniket [13-02-2019] to display payment term option on print invoice
+                string paymentTermAllCommaSeparated = "";
+                List<DropDownTO> multipleInvoiceCopyList = _iDimensionBL.SelectInvoiceCopyList();
+
+                if (multipleInvoiceCopyList != null)
+                {
+                    for (int i = 0; i < multipleInvoiceCopyList.Count; i++)
+                    {
+                        DropDownTO multipleInvoiceCopyTO = multipleInvoiceCopyList[i];
+                        multipleInvoiceCopyDT.Rows.Add();
+                        Int32 invoiceCopyDTCount = multipleInvoiceCopyDT.Rows.Count - 1;
+                        multipleInvoiceCopyDT.Rows[invoiceCopyDTCount]["idInvoiceCopy"] = multipleInvoiceCopyTO.Value;
+                        multipleInvoiceCopyDT.Rows[invoiceCopyDTCount]["invoiceCopyName"] = multipleInvoiceCopyTO.Text;
+
+                    }
+                }
+
+                int defaultCompOrgId = 0;
+
+                if (tblInvoiceTO.InvFromOrgId == 0)
+                {
+                    TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                    if (configParamsTO != null)
+                    {
+                        defaultCompOrgId = Convert.ToInt16(configParamsTO.ConfigParamVal);
+                    }
+                }
+                else
+                {
+                    defaultCompOrgId = tblInvoiceTO.InvFromOrgId;
+                }
+                TblOrganizationTO organizationTO = _iTblOrganizationBL.SelectTblOrganizationTO(defaultCompOrgId);
+
+                //Aniket [06-03-2019] added to check whether Math.Round() function should include in tax calculation or not
+                int isMathRoundoff = 0;
+                TblConfigParamsTO tblconfigParamForMathRound = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.IS_ROUND_OFF_TAX_ON_PRINT_INVOICE);
+                if (tblconfigParamForMathRound != null)
+                {
+                    if (tblconfigParamForMathRound.ConfigParamVal == "1")
+                    {
+                        isMathRoundoff = 1;
+                    }
+                }
+
+                qrCodeDT.Columns.Add("QRCode", typeof(System.Byte[]));
+                qrCodeDT.Columns.Add("QRCodeForPrint", typeof(System.Byte[]));
+
+                qrCodeDT.Rows.Add();
+                string AckNo = "";
+                response = _iTblInvoiceDAO.SelectresponseForPhotoInReport(invoiceId, apiId);
+                if (!String.IsNullOrEmpty(response))
+                {
+                    JObject json = JObject.Parse(response);
+
+                    if (json.ContainsKey("data"))
+                    {
+                        JObject jsonData = JObject.Parse(json["data"].ToString());
+
+                        if (jsonData.ContainsKey("SignedQRCode"))
+                        {
+                            signedQRCode = (string)jsonData["SignedQRCode"];
+                        }
+                        if (jsonData.ContainsKey("AckNo"))
+                        {
+                            AckNo = (string)jsonData["AckNo"];
+                        }
+                    }
+                }
+
+                if (!String.IsNullOrEmpty(signedQRCode))
+                {
+                    PhotoCodeInBytes = _iCommon.convertQRStringToByteArray(signedQRCode);
+                }
+
+                if (PhotoCodeInBytes != null)
+                    qrCodeDT.Rows[0]["QRCode"] = PhotoCodeInBytes;
+
+                //Reshma Added For QR Code Image
+                String QrCodeImageFilePath = "";
+                TblConfigParamsTO tblconfigParamForQRCodeImage = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.Invoice_payment_QR_CODE_Image_file_Path);
+                if (tblconfigParamForQRCodeImage != null)
+                {
+                    if (!string.IsNullOrEmpty(tblconfigParamForQRCodeImage.ConfigParamVal))
+                    {
+                        QrCodeImageFilePath = tblconfigParamForQRCodeImage.ConfigParamVal;
+                    }
+                }
+                byte[] imageByteArray = null;
+                if (!string.IsNullOrEmpty(QrCodeImageFilePath))
+                {
+                    //byte[] imageByteArray = null;
+                    FileStream fileStream = new FileStream(QrCodeImageFilePath, FileMode.Open, FileAccess.Read);
+                    using (BinaryReader reader = new BinaryReader(fileStream))
+                    {
+                        imageByteArray = new byte[reader.BaseStream.Length];
+                        for (int i = 0; i < reader.BaseStream.Length; i++)
+                            imageByteArray[i] = reader.ReadByte();
+                    }
+                    if (imageByteArray != null)
+                        qrCodeDT.Rows[0]["QRCodeForPrint"] = imageByteArray;
+                }
+
+                //HeaderDT 
+                //headerDT.Columns.Add("orgFirmName");
+                invoiceDT.Columns.Add("orgVillageNm");
+                invoiceDT.Columns.Add("orgPhoneNo");
+                invoiceDT.Columns.Add("orgFaxNo");
+                invoiceDT.Columns.Add("orgEmailAddr");
+                invoiceDT.Columns.Add("orgWebsite");
+                invoiceDT.Columns.Add("orgAddr");
+                invoiceDT.Columns.Add("orgCinNo");
+                invoiceDT.Columns.Add("orgGstinNo");
+                invoiceDT.Columns.Add("orgPanNo");   //Twicie
+                invoiceDT.Columns.Add("orgState");
+                invoiceDT.Columns.Add("orgStateCode");
+
+                invoiceDT.Columns.Add("plotNo");
+                invoiceDT.Columns.Add("streetName");
+
+                invoiceDT.Columns.Add("areaName");
+                invoiceDT.Columns.Add("district");
+                invoiceDT.Columns.Add("pinCode");
+
+
+                invoiceDT.Columns.Add("orgFirmName");
+                invoiceDT.Columns.Add("hsnNo");
+                invoiceDT.Columns.Add("panNo");
+                invoiceDT.Columns.Add("paymentTerm");
+                invoiceDT.Columns.Add("poNo");
+                invoiceDT.Columns.Add("poDateStr");
+
+                headerDT.Columns.Add("poNo");
+                headerDT.Columns.Add("poDateStr");
+                invoiceDT.Columns.Add("DeliveryNoteNo");
+                invoiceDT.Columns.Add("DispatchDocNo");
+
+                invoiceDT.Columns.Add("TotalTaxAmt", typeof(double));
+                invoiceDT.Columns.Add("TotalTaxAmtWordStr");
+                //chetan[14-feb-2020] added
+                invoiceDT.Columns.Add("BookingCDPct", typeof(double));
+                invoiceDT.Columns.Add("BookingBasicRate", typeof(double));
+                headerDT.Columns.Add("AckNo");
+                invoiceDT.Columns.Add("AckNo");
+                headerDT.Columns.Add("BrokerName");
+                invoiceDT.Columns.Add("BrokerName");
+                TblAddressTO tblAddressTO = _iTblAddressBL.SelectOrgAddressWrtAddrType(organizationTO.IdOrganization, Constants.AddressTypeE.OFFICE_ADDRESS);
+                List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
+                if (organizationTO != null)
+                {
+                    headerDT.Rows.Add();
+                    invoiceDT.Rows.Add();
+                    //headerDT.Rows[0]["orgFirmName"] = organizationTO.FirmName;
+                    invoiceDT.Rows[0]["orgFirmName"] = organizationTO.FirmName;
+
+                    invoiceDT.Rows[0]["orgPhoneNo"] = organizationTO.PhoneNo;
+                    invoiceDT.Rows[0]["orgFaxNo"] = organizationTO.FaxNo;
+                    invoiceDT.Rows[0]["orgWebsite"] = organizationTO.Website;
+                    invoiceDT.Rows[0]["orgEmailAddr"] = organizationTO.EmailAddr;
+                }
+                //if (string.IsNullOrEmpty(AckNo))//Reshma[24-06-2022] Added Acknowledgement Number DT creation to print on simpli invoice
+                headerDT.Rows[0]["AckNo"] = AckNo;
+                invoiceDT.Rows[0]["AckNo"] = AckNo;
+
+                //chetan[14-feb-2020]
+                TblBookingsTO tblBookingsTO = _iTblBookingsBL.SelectBookingsDetailsFromInVoiceId(tblInvoiceTO.IdInvoice);
+                if (tblBookingsTO != null)
+                {
+                    invoiceDT.Rows[0]["BookingCDPct"] = tblBookingsTO.CdStructure;
+                    invoiceDT.Rows[0]["BookingBasicRate"] = tblBookingsTO.BookingRate;
+                }
+                List<TblPaymentTermsForBookingTO> tblPaymentTermsForBookingTOList = _iTblPaymentTermsForBookingBL.SelectAllTblPaymentTermsForBookingFromBookingId(0, invoiceId);
+                if (tblPaymentTermsForBookingTOList != null)
+                {
+                    foreach (var item in tblPaymentTermsForBookingTOList)
+                    {
+
+                        invoiceDT.Columns.Add(item.PaymentTerm);
+                        //headerDT.Columns.Add(item.PaymentTerm);
+
+                        if (item.PaymentTermOptionList != null && item.PaymentTermOptionList.Count > 0)
+                        {
+                            foreach (var x in item.PaymentTermOptionList)
+                            {
+                                if (x.IsSelected == 1)
+                                {
+
+                                    String tempPayment = x.PaymentTermOption;
+                                    if (x.IsDescriptive == 1)
+                                    {
+                                        tempPayment = x.PaymentTermsDescription;
+                                    }
+
+
+                                    paymentTermAllCommaSeparated += tempPayment + ",";
+
+                                    invoiceDT.Rows[0][item.PaymentTerm] = tempPayment;
+                                    //headerDT.Rows[0][item.PaymentTerm] = x.PaymentTermOption;
+                                }
+                            }
+
+                        }
+
+
+                    }
+                }
+
+                if (!String.IsNullOrEmpty(paymentTermAllCommaSeparated))
+                {
+                    paymentTermAllCommaSeparated = paymentTermAllCommaSeparated.TrimEnd(',');
+                }
+
+                if (tblAddressTO != null)
+                {
+                    String orgAddrStr = String.Empty;
+                    if (!String.IsNullOrEmpty(tblAddressTO.PlotNo))
+                    {
+                        orgAddrStr += tblAddressTO.PlotNo;
+                        invoiceDT.Rows[0]["plotNo"] = tblAddressTO.PlotNo;
+                    }
+
+                    if (!String.IsNullOrEmpty(tblAddressTO.StreetName))
+                    {
+                        orgAddrStr += " " + tblAddressTO.StreetName;
+                        invoiceDT.Rows[0]["streetName"] = tblAddressTO.StreetName;
+                    }
+
+                    if (!String.IsNullOrEmpty(tblAddressTO.AreaName))
+                    {
+                        orgAddrStr += " " + tblAddressTO.AreaName;
+                        invoiceDT.Rows[0]["areaName"] = tblAddressTO.AreaName;
+                    }
+                    if (!String.IsNullOrEmpty(tblAddressTO.DistrictName))
+                    {
+                        orgAddrStr += " " + tblAddressTO.DistrictName;
+                        invoiceDT.Rows[0]["district"] = tblAddressTO.DistrictName;
+
+                    }
+                    if (tblAddressTO.Pincode > 0)
+                    {
+                        orgAddrStr += "-" + tblAddressTO.Pincode;
+                        invoiceDT.Rows[0]["pinCode"] = tblAddressTO.Pincode;
+
+                    }
+                    invoiceDT.Rows[0]["orgVillageNm"] = tblAddressTO.VillageName + "-" + tblAddressTO.Pincode;
+                    invoiceDT.Rows[0]["orgAddr"] = orgAddrStr;
+                    invoiceDT.Rows[0]["orgState"] = tblAddressTO.StateName;
+
+                    if (stateList != null && stateList.Count > 0)
+                    {
+                        DropDownTO stateTO = stateList.Where(ele => ele.Value == tblAddressTO.StateId).FirstOrDefault();
+                        if (stateTO != null)
+                        {
+
+                            invoiceDT.Rows[0]["orgStateCode"] = stateTO.Tag;
+                        }
+                    }
+
+
+
+                }
+                List<TblOrgLicenseDtlTO> orgLicenseList = _iTblOrgLicenseDtlDAO.SelectAllTblOrgLicenseDtl(defaultCompOrgId);
+
+                if (orgLicenseList != null && orgLicenseList.Count > 0)
+                {
+
+                    //CIN Number
+                    var cinNo = orgLicenseList.Where(a => a.LicenseId == (int)Constants.CommercialLicenseE.CIN_NO).FirstOrDefault();
+                    if (cinNo != null)
+                    {
+                        invoiceDT.Rows[invoiceDT.Rows.Count - 1]["orgCinNo"] = cinNo.LicenseValue;
+                    }
+                    //GSTIN Number
+                    var gstinNo = orgLicenseList.Where(a => a.LicenseId == (int)Constants.CommercialLicenseE.IGST_NO).FirstOrDefault();
+                    if (gstinNo != null)
+                    {
+                        invoiceDT.Rows[invoiceDT.Rows.Count - 1]["orgGstinNo"] = gstinNo.LicenseValue;
+                    }
+                    //PAN Number
+                    var panNo = orgLicenseList.Where(a => a.LicenseId == (int)Constants.CommercialLicenseE.PAN_NO).FirstOrDefault();
+                    if (panNo != null)
+                    {
+                        invoiceDT.Rows[invoiceDT.Rows.Count - 1]["orgPanNo"] = panNo.LicenseValue;
+                        invoiceDT.Rows[0]["panNo"] = panNo.LicenseValue;
+
+                    }
+                }
+
+                //InvoiceDT
+
+                if (tblInvoiceTO != null)
+                {
+
+                    if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                    {
+                        tblInvoiceTO.VehicleNo = tblInvoiceTO.VehicleNo.ToUpper();
+                    }
+
+                    invoiceDT.Columns.Add("invoiceNo");
+                    invoiceDT.Columns.Add("invoiceDateStr");
+                    //headerDT.Columns.Add("deliveryLocation");
+                    invoiceDT.Columns.Add("EWayBillNo"); //Aniket [26-6-2019]
+
+                    invoiceDT.Rows[0]["invoiceNo"] = tblInvoiceTO.InvoiceNo;
+                    invoiceDT.Rows[0]["invoiceDateStr"] = tblInvoiceTO.InvoiceDateStr;
+                    if (!string.IsNullOrEmpty(tblInvoiceTO.ElectronicRefNo))
+                        invoiceDT.Rows[0]["EWayBillNo"] = tblInvoiceTO.ElectronicRefNo;
+
+                    //Dhananjay [25-11-2020]
+                    invoiceDT.Columns.Add("IrnNo");
+                    if (!string.IsNullOrEmpty(tblInvoiceTO.IrnNo))
+                        invoiceDT.Rows[0]["IrnNo"] = tblInvoiceTO.IrnNo;
+
+                    addressDT.Columns.Add("poNo");
+                    addressDT.Columns.Add("poDateStr");
+                    addressDT.Columns.Add("electronicRefNo");
+
+
+                    commercialDT = getCommercialDT(tblInvoiceTO); //for SRJ
+                    hsnItemTaxDT = getHsnItemTaxDT(tblInvoiceTO); //for Parameshwar
+                    commercialDT.TableName = "commercialDT";
+
+
+
+                    invoiceDT.Columns.Add("discountAmt", typeof(double));
+                    invoiceDT.Columns.Add("discountAmtStr");
+
+                    invoiceDT.Columns.Add("freightAmt", typeof(double));
+                    invoiceDT.Columns.Add("pfAmt", typeof(double));
+                    invoiceDT.Columns.Add("cessAmt", typeof(double));
+                    invoiceDT.Columns.Add("afterCessAmt", typeof(double));
+                    invoiceDT.Columns.Add("insuranceAmt", typeof(double));
+
+
+                    invoiceDT.Columns.Add("taxableAmt", typeof(double));
+                    invoiceDT.Columns.Add("taxableAmtStr");
+                    invoiceDT.Columns.Add("cgstAmt", typeof(double));
+                    invoiceDT.Columns.Add("sgstAmt", typeof(double));
+                    invoiceDT.Columns.Add("igstAmt", typeof(double));
+                    invoiceDT.Columns.Add("grandTotal", typeof(double));
+
+                    invoiceDT.Columns.Add("cgstTotalStr");//r
+                    invoiceDT.Columns.Add("sgstTotalStr");//r
+                    invoiceDT.Columns.Add("igstTotalStr");//r
+                    invoiceDT.Columns.Add("grandTotalStr");//r
+
+                    invoiceDT.Columns.Add("grossWeight", typeof(double));
+                    invoiceDT.Columns.Add("tareWeight", typeof(double));
+                    invoiceDT.Columns.Add("netWeight", typeof(double));
+
+
+                    //headerDT.Columns.Add("vehicleNo");
+                    //headerDT.Columns.Add("lrNumber");
+                    invoiceDT.Columns.Add("vehicleNo");
+                    invoiceDT.Columns.Add("transporterName");
+                    invoiceDT.Columns.Add("Narration");
+                    invoiceDT.Columns.Add("deliveryLocation");
+                    invoiceDT.Columns.Add("lrNumber");
+                    invoiceDT.Columns.Add("disPer", typeof(double));
+                    invoiceDT.Columns.Add("roundOff", typeof(double));
+                    invoiceDT.Columns.Add("taxTotal", typeof(double));
+                    invoiceDT.Columns.Add("totalQty", typeof(double));
+                    invoiceDT.Columns.Add("totalBundles");
+                    invoiceDT.Columns.Add("totalBasicAmt", typeof(double));
+                    invoiceDT.Columns.Add("bankName");
+                    invoiceDT.Columns.Add("accountNo");
+                    invoiceDT.Columns.Add("branchName");
+                    invoiceDT.Columns.Add("ifscCode");
+                    invoiceDT.Columns.Add("taxTotalStr");//r
+                    invoiceDT.Columns.Add("declaration");//r
+                    invoiceDT.Columns.Add("grossWtTakenDate");
+                    invoiceDT.Columns.Add("preparationDate");
+
+                    Double totalTaxAmt, cgstAmt, sgstAmt, igstAmt = 0;
+
+                    cgstAmt = Math.Round(tblInvoiceTO.CgstAmt, 2);
+                    sgstAmt = Math.Round(tblInvoiceTO.SgstAmt, 2);
+                    igstAmt = Math.Round(tblInvoiceTO.IgstAmt, 2);
+
+                    totalTaxAmt = Math.Round(cgstAmt + sgstAmt + igstAmt, 2);
+
+                    invoiceDT.Rows[0]["TotalTaxAmt"] = totalTaxAmt;
+                    invoiceDT.Rows[0]["TotalTaxAmtWordStr"] = currencyTowords(totalTaxAmt, tblInvoiceTO.CurrencyId); ;
+
+                    invoiceDT.Rows[0]["DeliveryNoteNo"] = tblInvoiceTO.DeliveryNoteNo;
+                    invoiceDT.Rows[0]["DispatchDocNo"] = tblInvoiceTO.DispatchDocNo;
+
+                    //if (isMathRoundoff == 1)
+                    if (isMathRoundoff == 1)  //Not applicable as each value will round off upto 2
+                    {
+                        invoiceDT.Rows[0]["discountAmt"] = tblInvoiceTO.DiscountAmt;
+                        invoiceDT.Rows[0]["discountAmtStr"] = currencyTowords(tblInvoiceTO.DiscountAmt, tblInvoiceTO.CurrencyId);
+
+                        invoiceDT.Rows[0]["taxableAmt"] = tblInvoiceTO.TaxableAmt;
+                        invoiceDT.Rows[0]["taxableAmtStr"] = currencyTowords(tblInvoiceTO.TaxableAmt, tblInvoiceTO.CurrencyId);
+
+
+                        invoiceDT.Rows[0]["cgstAmt"] = tblInvoiceTO.CgstAmt;
+                        invoiceDT.Rows[0]["cgstTotalStr"] = currencyTowords(tblInvoiceTO.CgstAmt, tblInvoiceTO.CurrencyId);
+                        invoiceDT.Rows[0]["sgstAmt"] = tblInvoiceTO.SgstAmt;
+                        invoiceDT.Rows[0]["sgstTotalStr"] = currencyTowords(tblInvoiceTO.SgstAmt, tblInvoiceTO.CurrencyId);
+
+                        invoiceDT.Rows[0]["igstAmt"] = tblInvoiceTO.IgstAmt;
+
+                        invoiceDT.Rows[0]["igstTotalStr"] = currencyTowords(tblInvoiceTO.IgstAmt, tblInvoiceTO.CurrencyId);
+
+                        invoiceDT.Rows[0]["grandTotal"] = tblInvoiceTO.GrandTotal;
+                        invoiceDT.Rows[0]["grandTotalStr"] = currencyTowords(tblInvoiceTO.GrandTotal, tblInvoiceTO.CurrencyId);
+
+
+                        //invoiceDT.Rows[0]["grossWeight"] = tblInvoiceTO.GrossWeight / 1000;
+                        //invoiceDT.Rows[0]["tareWeight"] = tblInvoiceTO.TareWeight / 1000;
+                        //invoiceDT.Rows[0]["netWeight"] = tblInvoiceTO.NetWeight / 1000;
+                        //if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                        //{
+                        //    headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        //    invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        //}
+
+                        //invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
+                        //invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
+                        //headerDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
+                        //invoiceDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
+                        //headerDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
+                        invoiceDT.Rows[0]["disPer"] = getDiscountPerct(tblInvoiceTO);
+                        invoiceDT.Rows[0]["roundOff"] = tblInvoiceTO.RoundOffAmt;
+                    }
+                    else
+                    {
+                        invoiceDT.Rows[0]["discountAmt"] = Math.Round(tblInvoiceTO.DiscountAmt, 2);
+                        invoiceDT.Rows[0]["discountAmtStr"] = currencyTowords(tblInvoiceTO.DiscountAmt, tblInvoiceTO.CurrencyId);
+                        invoiceDT.Rows[0]["taxableAmt"] = Math.Round(tblInvoiceTO.TaxableAmt, 2);
+                        invoiceDT.Rows[0]["taxableAmtStr"] = currencyTowords(tblInvoiceTO.TaxableAmt, tblInvoiceTO.CurrencyId);
+
+                        invoiceDT.Rows[0]["cgstAmt"] = Math.Round(tblInvoiceTO.CgstAmt, 2);
+                        invoiceDT.Rows[0]["cgstTotalStr"] = currencyTowords(tblInvoiceTO.CgstAmt, tblInvoiceTO.CurrencyId);
+                        invoiceDT.Rows[0]["sgstAmt"] = Math.Round(tblInvoiceTO.SgstAmt, 2);
+                        invoiceDT.Rows[0]["sgstTotalStr"] = currencyTowords(tblInvoiceTO.SgstAmt, tblInvoiceTO.CurrencyId);
+
+                        invoiceDT.Rows[0]["igstAmt"] = Math.Round(tblInvoiceTO.IgstAmt, 2);
+
+                        invoiceDT.Rows[0]["igstTotalStr"] = currencyTowords(tblInvoiceTO.IgstAmt, tblInvoiceTO.CurrencyId);
+
+                        invoiceDT.Rows[0]["grandTotal"] = Math.Round(tblInvoiceTO.GrandTotal, 2);
+                        invoiceDT.Rows[0]["grandTotalStr"] = currencyTowords(tblInvoiceTO.GrandTotal, tblInvoiceTO.CurrencyId);
+
+
+                        //invoiceDT.Rows[0]["grossWeight"] = Math.Round(tblInvoiceTO.GrossWeight / 1000, 3);
+                        //invoiceDT.Rows[0]["tareWeight"] = Math.Round(tblInvoiceTO.TareWeight / 1000, 3);
+                        //invoiceDT.Rows[0]["netWeight"] = Math.Round(tblInvoiceTO.NetWeight / 1000, 3);
+                        //if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                        //{
+                        //    headerDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        //    invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                        //}
+                        //invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
+                        //invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
+                        //headerDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
+                        //invoiceDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
+                        //headerDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
+                        invoiceDT.Rows[0]["disPer"] = Math.Round(getDiscountPerct(tblInvoiceTO), 2);
+                        invoiceDT.Rows[0]["roundOff"] = Math.Round(tblInvoiceTO.RoundOffAmt, 2);
+
+                    }
+
+                    invoiceDT.Rows[0]["grossWeight"] = Math.Round(tblInvoiceTO.GrossWeight / 1000, 3);
+                    invoiceDT.Rows[0]["tareWeight"] = Math.Round(tblInvoiceTO.TareWeight / 1000, 3);
+                    invoiceDT.Rows[0]["netWeight"] = Math.Round(tblInvoiceTO.NetWeight / 1000, 3);
+
+                    invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
+                    invoiceDT.Rows[0]["Narration"] = tblInvoiceTO.Narration;
+
+                    if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                    {
+                        invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                    }
+                    invoiceDT.Rows[0]["deliveryLocation"] = tblInvoiceTO.DeliveryLocation;
+                    invoiceDT.Rows[0]["lrNumber"] = tblInvoiceTO.LrNumber;
+
+                    //Aniket [8-02-2019] added
+                    //headerDT.Columns.Add("preparationDate");
+                    if (tblInvoiceTO.GrossWtTakenDate != DateTime.MinValue)
+                        invoiceDT.Rows[0]["grossWtTakenDate"] = tblInvoiceTO.GrossWtDateStr;
+                    if (tblInvoiceTO.PreparationDate != DateTime.MinValue)
+                    {
+                        invoiceDT.Rows[0]["preparationDate"] = tblInvoiceTO.PreparationDateStr;
+                        //headerDT.Rows[0]["preparationDate"] = tblInvoiceTO.PreparationDateStr;
+                    }
+                    //Aniket [8-02-2019] added
+                    //headerDT.Columns.Add("paymentTerm");
+                    if (!string.IsNullOrEmpty(paymentTermAllCommaSeparated))
+                    {
+                        invoiceDT.Rows[0]["paymentTerm"] = paymentTermAllCommaSeparated;
+                        //headerDT.Rows[0]["paymentTerm"] = paymentTermAllCommaSeparated;
+                    }
+                    Double taxTotal = 0;
+                    if (tblInvoiceTO.CgstAmt > 0 && tblInvoiceTO.SgstAmt > 0)
+                    {
+                        taxTotal = tblInvoiceTO.CgstAmt + tblInvoiceTO.SgstAmt;
+                    }
+                    else if (tblInvoiceTO.IgstAmt > 0)
+                    {
+                        taxTotal = tblInvoiceTO.IgstAmt;
+                    }
+
+                    if (isMathRoundoff == 1)
+                    {
+                        invoiceDT.Rows[0]["taxTotal"] = taxTotal;
+                        invoiceDT.Rows[0]["taxTotalStr"] = currencyTowords(taxTotal, tblInvoiceTO.CurrencyId);
+                    }
+                    else
+                    {
+                        invoiceDT.Rows[0]["taxTotal"] = Math.Round(taxTotal, 2);
+                        invoiceDT.Rows[0]["taxTotalStr"] = currencyTowords(Math.Round(taxTotal, 2), tblInvoiceTO.CurrencyId);
+                    }
+
+
+                    //invoiceItemDT
+
+                    //Int32 finalItemCount = 15;
+                    if (tblInvoiceTO.InvoiceItemDetailsTOList != null && tblInvoiceTO.InvoiceItemDetailsTOList.Count > 0)
+                    {
+                        tblInvoiceTO.InvoiceItemDetailsTOList = tblInvoiceTO.InvoiceItemDetailsTOList;
+                        List<TblInvoiceItemDetailsTO> invoiceItemlist = tblInvoiceTO.InvoiceItemDetailsTOList.Where(ele => ele.OtherTaxId == 0).ToList();
+                        invoiceItemDT.Columns.Add("srNo");
+                        invoiceItemDT.Columns.Add("prodItemDesc");
+                        invoiceItemDT.Columns.Add("bundles");
+                        invoiceItemDT.Columns.Add("invoiceQty", typeof(double));
+                        invoiceItemDT.Columns.Add("rate", typeof(double));
+                        invoiceItemDT.Columns.Add("basicTotal", typeof(double));
+                        //chetan[18-feb-2020] added for display GrandTotal on template
+                        invoiceItemDT.Columns.Add("GrandTotal", typeof(double));
+                        invoiceItemDT.Columns.Add("RateWithTax", typeof(double));
+                        invoiceItemDT.Columns.Add("IGSTAmt", typeof(double));
+                        invoiceItemDT.Columns.Add("CGSTAmt", typeof(double));
+                        invoiceItemDT.Columns.Add("SGSTAmt", typeof(double));
+
+                        invoiceItemDT.Columns.Add("IGSTPct", typeof(double));
+                        invoiceItemDT.Columns.Add("CGSTPct", typeof(double));
+                        invoiceItemDT.Columns.Add("SGSTPct", typeof(double));
+                        invoiceItemDT.Columns.Add("hsn");
+
+                        //Prajakta[2021-03-31] Added to show GST code upto given digits
+                        Int32 gstCodeUptoDigits = 0;
+                        TblConfigParamsTO gstCodeUptoDigitTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.SHOW_GST_CODE_UPTO_DIGITS);
+                        if (gstCodeUptoDigitTO != null && gstCodeUptoDigitTO.ConfigParamVal != null
+                            && gstCodeUptoDigitTO.ConfigParamVal.ToString() != "")
+                        {
+                            gstCodeUptoDigits = Convert.ToInt32(gstCodeUptoDigitTO.ConfigParamVal);
+                        }
+
+                        for (int i = 0; i < invoiceItemlist.Count; i++)
+                        {
+                            TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = invoiceItemlist[i];
+                            invoiceItemDT.Rows.Add();
+                            Int32 invoiceItemDTCount = invoiceItemDT.Rows.Count - 1;
+                            invoiceItemDT.Rows[invoiceItemDTCount]["srNo"] = i + 1;
+                            invoiceItemDT.Rows[invoiceItemDTCount]["prodItemDesc"] = tblInvoiceItemDetailsTO.ProdItemDesc;
+                            invoiceItemDT.Rows[invoiceItemDTCount]["bundles"] = tblInvoiceItemDetailsTO.Bundles;
+                            invoiceItemDT.Rows[invoiceItemDTCount]["invoiceQty"] = Math.Round(tblInvoiceItemDetailsTO.InvoiceQty, 3);
+
+                            if (isMathRoundoff == 1)
+                            {
+                                //invoiceItemDT.Rows[invoiceItemDTCount]["invoiceQty"] = tblInvoiceItemDetailsTO.InvoiceQty;
+                                invoiceItemDT.Rows[invoiceItemDTCount]["rate"] = Math.Round(tblInvoiceItemDetailsTO.Rate);
+                                invoiceItemDT.Rows[invoiceItemDTCount]["basicTotal"] = Math.Round(tblInvoiceItemDetailsTO.BasicTotal);
+                                invoiceItemDT.Rows[invoiceItemDTCount]["GrandTotal"] = Math.Round(tblInvoiceItemDetailsTO.GrandTotal);
+                                invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = Math.Round((tblInvoiceItemDetailsTO.GrandTotal / tblInvoiceItemDetailsTO.InvoiceQty));
+                                //  invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = tblInvoiceItemDetailsTO.GrandTotal/ tblInvoiceItemDetailsTO.InvoiceQty;
+                            }
+                            else
+                            {
+                                invoiceItemDT.Rows[invoiceItemDTCount]["rate"] = Math.Round(tblInvoiceItemDetailsTO.Rate, 2);
+                                invoiceItemDT.Rows[invoiceItemDTCount]["basicTotal"] = Math.Round(tblInvoiceItemDetailsTO.BasicTotal, 2);
+                                invoiceItemDT.Rows[invoiceItemDTCount]["GrandTotal"] = Math.Round(tblInvoiceItemDetailsTO.GrandTotal, 2);
+                                invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = Math.Round((tblInvoiceItemDetailsTO.GrandTotal / tblInvoiceItemDetailsTO.InvoiceQty), 2);
+                            }
+
+                            if (gstCodeUptoDigits > 0)
+                            {
+                                if (!String.IsNullOrEmpty(tblInvoiceItemDetailsTO.GstinCodeNo))
+                                {
+                                    if (gstCodeUptoDigits > tblInvoiceItemDetailsTO.GstinCodeNo.Length)
+                                    {
+                                        gstCodeUptoDigits = tblInvoiceItemDetailsTO.GstinCodeNo.Length;
+                                    }
+                                    tblInvoiceItemDetailsTO.GstinCodeNo = tblInvoiceItemDetailsTO.GstinCodeNo.Substring(0, gstCodeUptoDigits);
+                                }
+                            }
+                            invoiceItemDT.Rows[invoiceItemDTCount]["hsn"] = tblInvoiceItemDetailsTO.GstinCodeNo;
+
+
+                            if (tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList != null && tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList.Count > 0)
+                            {
+                                for (int c = 0; c < tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList.Count; c++)
+                                {
+                                    TblInvoiceItemTaxDtlsTO tblInvoiceItemTaxDtlsTO = tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList[c];
+                                    if (tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.IGST)
+                                    {
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["IGSTPct"] = tblInvoiceItemTaxDtlsTO.TaxRatePct;
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["IGSTAmt"] = tblInvoiceItemTaxDtlsTO.TaxAmt;
+
+                                    }
+                                    else if (tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.CGST)
+                                    {
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["CGSTAmt"] = tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["CGSTPct"] = tblInvoiceItemTaxDtlsTO.TaxRatePct;
+
+                                    }
+                                    else if (tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.SGST)
+                                    {
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["SGSTAmt"] = tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["SGSTPct"] = tblInvoiceItemTaxDtlsTO.TaxRatePct;
+
+                                    }
+                                }
+                            }
+                        }
+                        //if(invoiceItemDT.Rows.Count <finalItemCount)
+                        //{
+                        //    int ii= invoiceItemDT.Rows.Count  ;
+                        //    for (int i=ii; i < finalItemCount;i++)
+                        //    {
+                        //        invoiceItemDT.Rows.Add();
+                        //    }
+
+                        //}
+                        var freightResTO = tblInvoiceTO.InvoiceItemDetailsTOList.Where(ele => ele.OtherTaxId == (Int32)Constants.OtherTaxTypeE.FREIGHT).FirstOrDefault();
+                        if (freightResTO != null)
+                        {
+                            if (isMathRoundoff == 1)
+                            {
+                                invoiceDT.Rows[0]["freightAmt"] = freightResTO.TaxableAmt;
+                            }
+                            else
+                            {
+                                invoiceDT.Rows[0]["freightAmt"] = Math.Round(freightResTO.TaxableAmt, 2);
+                            }
+
+                        }
+                        //if (Convert.ToDouble(invoiceDT.Rows[0]["freightAmt"]) == 0)
+                        else
+                        {
+                            invoiceDT.Rows[0]["freightAmt"] = tblInvoiceTO.FreightAmt;
+                        }
+                        var pfResTO = tblInvoiceTO.InvoiceItemDetailsTOList.Where(ele => ele.OtherTaxId == (Int32)Constants.OtherTaxTypeE.PF).FirstOrDefault();
+                        if (pfResTO != null)
+                        {
+                            if (isMathRoundoff == 1)
+                            {
+                                invoiceDT.Rows[0]["pfAmt"] = pfResTO.TaxableAmt;
+                            }
+                            else
+                            {
+                                invoiceDT.Rows[0]["pfAmt"] = Math.Round(pfResTO.TaxableAmt, 2);
+                            }
+
+                        }
+                        var cessResTO = tblInvoiceTO.InvoiceItemDetailsTOList.Where(ele => ele.OtherTaxId == (Int32)Constants.OtherTaxTypeE.CESS).FirstOrDefault();
+                        if (cessResTO != null)
+                        {
+                            if (isMathRoundoff == 1)
+                            {
+                                invoiceDT.Rows[0]["cessAmt"] = cessResTO.TaxableAmt;
+                            }
+                            else
+                            {
+                                invoiceDT.Rows[0]["cessAmt"] = Math.Round(cessResTO.TaxableAmt, 2);
+                            }
+
+                        }
+
+                        var afterCessResTO = tblInvoiceTO.InvoiceItemDetailsTOList.Where(ele => ele.OtherTaxId == (Int32)Constants.OtherTaxTypeE.AFTERCESS).FirstOrDefault();
+                        if (afterCessResTO != null)
+                        {
+                            if (isMathRoundoff == 1)
+                            {
+                                invoiceDT.Rows[0]["afterCessAmt"] = afterCessResTO.TaxableAmt;
+                            }
+                            else
+                            {
+                                invoiceDT.Rows[0]["afterCessAmt"] = Math.Round(afterCessResTO.TaxableAmt, 2);
+                            }
+
+                        }
+                        var insuranceTo = tblInvoiceTO.InvoiceItemDetailsTOList.Where(ele => ele.OtherTaxId == (Int32)Constants.OtherTaxTypeE.INSURANCE_ON_SALE).FirstOrDefault();
+                        if (insuranceTo != null)
+                        {
+                            if (isMathRoundoff == 1)
+                            {
+                                invoiceDT.Rows[0]["insuranceAmt"] = insuranceTo.TaxableAmt;
+                            }
+                            else
+                            {
+                                invoiceDT.Rows[0]["insuranceAmt"] = Math.Round(insuranceTo.TaxableAmt, 2);
+                            }
+
+                        }
+                        itemFooterDetailsDT.Rows.Add();
+                        itemFooterDetailsDT.Columns.Add("totalQty", typeof(double));
+                        itemFooterDetailsDT.Columns.Add("totalBundles");
+                        itemFooterDetailsDT.Columns.Add("totalBasicAmt", typeof(double));
+                        itemFooterDetailsDT.Columns.Add("EWayBillNo");
+                        itemFooterDetailsDT.Rows[0]["EWayBillNo"] = tblInvoiceTO.ElectronicRefNo;
+                        var totalQtyResTO = invoiceItemlist.Where(ele => ele.OtherTaxId == 0).ToList();
+                        if (totalQtyResTO != null && totalQtyResTO.Count > 0)
+                        {
+                            Double totalQty = 0;
+                            totalQty = totalQtyResTO.Sum(s => s.InvoiceQty);
+                            if (isMathRoundoff == 1)
+                            {
+                                itemFooterDetailsDT.Rows[0]["totalQty"] = totalQty;
+                                invoiceDT.Rows[0]["totalQty"] = totalQty;
+                            }
+                            else
+                            {
+                                itemFooterDetailsDT.Rows[0]["totalQty"] = Math.Round(totalQty, 3);
+                                invoiceDT.Rows[0]["totalQty"] = Math.Round(totalQty, 3);
+                            }
+
+                        }
+                        bool result;
+                        Double sum = 0;
+                        // commented by Aniket 
+                        //bundles = invoiceItemlist.Sum(s => Convert.ToDouble(s.Bundles));
+                        //Aniket [30-8-2019] added if bundles is null or empty string
+                        for (int i = 0; i < invoiceItemlist.Count; i++)
+                        {
+                            Double bundles = 0;
+                            result = double.TryParse(invoiceItemlist[i].Bundles, out bundles);
+                            if (result)
+                            {
+                                sum += bundles;
+                            }
+
+                        }
+                        itemFooterDetailsDT.Rows[0]["totalBundles"] = sum;
+                        tblInvoiceTO.BasicAmt = invoiceItemlist.Sum(s => Convert.ToInt32(s.BasicTotal));//added code to sum of items basic total
+                        itemFooterDetailsDT.Rows[0]["totalBasicAmt"] = Math.Round(tblInvoiceTO.BasicAmt, 2);
+                        invoiceDT.Rows[0]["totalBundles"] = sum;
+                        if (isMathRoundoff == 1)
+                        {
+                            invoiceDT.Rows[0]["totalBasicAmt"] = tblInvoiceTO.BasicAmt;
+                        }
+                        else
+                        {
+                            invoiceDT.Rows[0]["totalBasicAmt"] = Math.Round(tblInvoiceTO.BasicAmt, 2);
+                        }
+
+
+                    }
+
+                    string strMobNo = "Mob No:";
+                    string strStateCode = String.Empty;
+                    string strGstin = String.Empty;
+                    strGstin = "GSTIN:";
+                    strStateCode = "State & Code:";
+                    //if ((firmId == (Int32)Constants.FirmNameE.SRJ) )
+                    //{
+                    //    strGstin = "GSTIN:";
+                    //    strStateCode = "State & Code:";
+                    //}
+                    //else if(firmId == (Int32)Constants.FirmNameE.Parameshwar)
+                    //{
+                    //   strGstin = "GSTIN/UIN:";
+                    //   strStateCode = "State";
+                    //    strCode = ",Code";
+
+                    //}
+                    string strPanNo = "PAN No:";
+
+
+                    addressDT.Columns.Add("lblMobNo");
+                    addressDT.Columns.Add("lblStateCode");
+                    addressDT.Columns.Add("lblGstin");
+                    addressDT.Columns.Add("lblPanNo");
+
+
+                    addressDT.Columns.Add("strMobNo");
+                    addressDT.Columns.Add("billingNm");
+                    addressDT.Columns.Add("billingAddr");
+                    addressDT.Columns.Add("billingGstNo");
+                    addressDT.Columns.Add("billingPanNo");
+                    addressDT.Columns.Add("billingState");
+                    addressDT.Columns.Add("billingStateCode");
+                    addressDT.Columns.Add("billingMobNo");
+
+
+                    addressDT.Columns.Add("consigneeNm");
+                    addressDT.Columns.Add("consigneeAddr");
+                    addressDT.Columns.Add("consigneeGstNo");
+                    addressDT.Columns.Add("consigneePanNo");
+                    addressDT.Columns.Add("consigneeMobNo");
+                    addressDT.Columns.Add("consigneeState");
+                    addressDT.Columns.Add("consigneeStateCode");
+
+
+                    addressDT.Columns.Add("lblConMobNo");
+                    addressDT.Columns.Add("lblConStateCode");
+                    addressDT.Columns.Add("lblConGstin");
+                    addressDT.Columns.Add("lblConPanNo");
+
+
+                    invoiceDT.Columns.Add("shippingNm");
+                    invoiceDT.Columns.Add("shippingAddr");
+                    invoiceDT.Columns.Add("shippingGstNo");
+                    invoiceDT.Columns.Add("shippingPanNo");
+                    invoiceDT.Columns.Add("shippingMobNo");
+                    invoiceDT.Columns.Add("shippingState");
+                    invoiceDT.Columns.Add("shippingStateCode");
+
+                    invoiceDT.Columns.Add("lblShippingMobNo");
+                    invoiceDT.Columns.Add("lblShippingStateCode");
+                    invoiceDT.Columns.Add("lblShippingGstin");
+                    invoiceDT.Columns.Add("lblShippingPanNo");
+                    addressDT.Rows.Add();
+                    addressDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
+                    headerDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
+                    invoiceDT.Rows[0]["poNo"] = tblInvoiceTO.PoNo;
+
+                    headerDT.Rows[0]["BrokerName"] = tblInvoiceTO.BrokerName;
+                    invoiceDT.Rows[0]["BrokerName"] = tblInvoiceTO.BrokerName;
+                    if (!String.IsNullOrEmpty(tblInvoiceTO.PoDateStr))
+                    {
+                        DateTime poDate = Convert.ToDateTime(tblInvoiceTO.PoDateStr);
+                        addressDT.Rows[0]["poDateStr"] = poDate.ToString("dd/MM/yyyy");
+                        invoiceDT.Rows[0]["poDateStr"] = poDate.ToString("dd/MM/yyyy");
+                        headerDT.Rows[0]["poDateStr"] = poDate.ToString("dd/MM/yyyy");
+
+                    }
+                    addressDT.Rows[0]["electronicRefNo"] = tblInvoiceTO.ElectronicRefNo;
+                    string finalAddr = "", addr1 = "";
+                    if (tblInvoiceTO.InvoiceAddressTOList != null && tblInvoiceTO.InvoiceAddressTOList.Count > 0)
+                    {
+                        TblInvoiceAddressTO tblBillingInvoiceAddressTO = tblInvoiceTO.InvoiceAddressTOList.Where(eleA => eleA.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS).FirstOrDefault();
+                        if (tblBillingInvoiceAddressTO != null)
+                        {
+                            addressDT.Rows[0]["lblMobNo"] = strMobNo;
+                            addressDT.Rows[0]["lblStateCode"] = strStateCode;
+                            addressDT.Rows[0]["lblGstin"] = strGstin;
+                            addressDT.Rows[0]["lblPanNo"] = strPanNo;
+                            addressDT.Rows[0]["billingNm"] = tblBillingInvoiceAddressTO.BillingName;
+
+                            String addressStr = tblBillingInvoiceAddressTO.Address;
+
+                            // if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka)&& !String.IsNullOrEmpty(tblBillingInvoiceAddressTO.District))
+                            // {
+                            //    if (tblBillingInvoiceAddressTO.Taluka.ToLower()==tblBillingInvoiceAddressTO.District.ToLower())
+                            //     {
+                            //             addressDT.Rows[0]["billingAddr"] = tblBillingInvoiceAddressTO.Address + " " + tblBillingInvoiceAddressTO.District + ", " + tblBillingInvoiceAddressTO.State;
+                            //     }
+                            //     else
+                            //     {
+                            //         addressDT.Rows[0]["billingAddr"] = tblBillingInvoiceAddressTO.Address + ", " + tblBillingInvoiceAddressTO.Taluka
+                            //                                       + tblBillingInvoiceAddressTO.District + ", " + tblBillingInvoiceAddressTO.State;
+                            //     }
+                            // }
+                            //else if(!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
+                            // {
+                            //     addressDT.Rows[0]["billingAddr"] = tblBillingInvoiceAddressTO.Address +" " + tblBillingInvoiceAddressTO.Taluka
+                            //                                       + ", " + tblBillingInvoiceAddressTO.District + ", " + tblBillingInvoiceAddressTO.State;
+                            // }
+                            // else if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.District))
+                            // {
+                            //     addressDT.Rows[0]["billingAddr"] = tblBillingInvoiceAddressTO.Address +" "
+                            //                                      +  tblBillingInvoiceAddressTO.District + ", " + tblBillingInvoiceAddressTO.State;
+
+                            // }
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.VillageName))
+                            {
+                                addressStr += " " + tblBillingInvoiceAddressTO.VillageName;
+                            }
+                            //Aniket [6-9-2019] added PinCode in address
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.PinCode) && tblBillingInvoiceAddressTO.PinCode != "0")
+                            {
+                                addressStr += "-" + tblBillingInvoiceAddressTO.PinCode;
+                            }
+
+                            //if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
+                            //{
+                            //    addressStr += ", "+ tblBillingInvoiceAddressTO.Taluka;
+                            //}
+
+                            //if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.District))
+                            //{
+                            //    if (String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
+                            //        tblBillingInvoiceAddressTO.Taluka = String.Empty;
+
+                            //    if (tblBillingInvoiceAddressTO.Taluka.ToLower().Trim() != tblBillingInvoiceAddressTO.District.ToLower().Trim())
+                            //        addressStr += ",Dist-" + tblBillingInvoiceAddressTO.District;
+                            //}
+
+
+                            if (String.IsNullOrEmpty(tblBillingInvoiceAddressTO.District))
+                                tblBillingInvoiceAddressTO.District = String.Empty;
+
+                            if (String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
+                                tblBillingInvoiceAddressTO.Taluka = String.Empty;
+
+                            String districtNameWithLabel = String.Empty;
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.District))
+                                districtNameWithLabel = ",Dist-" + tblBillingInvoiceAddressTO.District;
+
+                            if (tblBillingInvoiceAddressTO.Taluka.ToLower().Trim() == tblBillingInvoiceAddressTO.District.ToLower().Trim())
+                            {
+
+                                addressStr += districtNameWithLabel;
+                            }
+                            else
+                            {
+                                if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.Taluka))
+                                {
+                                    addressStr += ", " + tblBillingInvoiceAddressTO.Taluka;
+                                }
+
+                                addressStr += districtNameWithLabel;
+                            }
+
+
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.State))
+                            {
+                                //addressStr += ", " + tblBillingInvoiceAddressTO.State;
+                            }
+
+
+                            addressDT.Rows[0]["billingAddr"] = addressStr;
+
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.GstinNo))
+                                addressDT.Rows[0]["billingGstNo"] = tblBillingInvoiceAddressTO.GstinNo.ToUpper();
+
+                            if (!String.IsNullOrEmpty(tblBillingInvoiceAddressTO.PanNo))
+                                addressDT.Rows[0]["billingPanNo"] = tblBillingInvoiceAddressTO.PanNo.ToUpper();
+                            //Aniket [9-9-2-2019]
+                            if (tblInvoiceTO.IsConfirmed == 1)
+                                addressDT.Rows[0]["billingMobNo"] = tblBillingInvoiceAddressTO.ContactNo;
+                            else
+                            {
+                                addressDT.Rows[0]["billingMobNo"] = String.Empty;
+                                addressDT.Rows[0]["lblMobNo"] = String.Empty;
+                            }
+
+
+
+
+                            if (stateList != null && stateList.Count > 0)
+                            {
+                                DropDownTO stateTO = stateList.Where(ele => ele.Value == tblBillingInvoiceAddressTO.StateId).FirstOrDefault();
+                                addressDT.Rows[0]["billingState"] = tblBillingInvoiceAddressTO.State;
+                                if (stateTO != null)
+                                {
+                                    //Saket [2019-04-12] Can be manage from template - Change for A1.s
+                                    //addressDT.Rows[0]["billingStateCode"] = stateTO.Text + " " + stateTO.Tag;
+                                    addressDT.Rows[0]["billingStateCode"] = stateTO.Tag;
+                                }
+                            }
+
+
+
+                        }
+                        Boolean IsDisplayConsignee = true;
+                        TblInvoiceAddressTO tblConsigneeInvoiceAddressTO = tblInvoiceTO.InvoiceAddressTOList.Where(eleA => eleA.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.CONSIGNEE_ADDRESS).FirstOrDefault();
+                        if (tblConsigneeInvoiceAddressTO != null)
+                        {
+                            if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.BillingName))
+                            {
+
+                                TblConfigParamsTO tempConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName("DISPLAY_CONSIGNEE_ADDRESS_ON_PRINTABLE_INVOICE");
+                                if (tempConfigParamsTO != null)
+                                {
+                                    if (Convert.ToInt32(tempConfigParamsTO.ConfigParamVal) == 1)
+                                    {
+                                        IsDisplayConsignee = true;
+                                    }
+                                    else
+                                    {
+                                        IsDisplayConsignee = false;
+                                    }
+                                }
+                                if (!IsDisplayConsignee)
+                                {
+                                    if (tblConsigneeInvoiceAddressTO.BillingName.Trim() == tblBillingInvoiceAddressTO.BillingName.Trim())
+                                    {
+                                        if (tblConsigneeInvoiceAddressTO.Address.Trim() == tblBillingInvoiceAddressTO.Address.Trim())
+                                            IsDisplayConsignee = false;
+                                        else
+                                            IsDisplayConsignee = true;
+                                    }
+                                    else
+                                    {
+                                        IsDisplayConsignee = true;
+                                    }
+                                }
+                                //if(tblConsigneeInvoiceAddressTO.BillingName.Trim() != tblBillingInvoiceAddressTO.BillingName.Trim())
+                                //{
+                                //    IsDisplayConsignee = true;
+                                //}
+
+                                if (IsDisplayConsignee)
+                                {
+                                    addressDT.Rows[0]["lblConMobNo"] = strMobNo;
+                                    addressDT.Rows[0]["lblConStateCode"] = strStateCode;
+                                    addressDT.Rows[0]["lblConGstin"] = strGstin;
+                                    addressDT.Rows[0]["lblConPanNo"] = strPanNo;
+                                    addressDT.Rows[0]["consigneeNm"] = tblConsigneeInvoiceAddressTO.BillingName;
+
+                                    String consigneeAddr = tblConsigneeInvoiceAddressTO.Address;
+                                    //if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka) && !String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.District))
+                                    //{
+                                    //    if (tblConsigneeInvoiceAddressTO.Taluka.ToLower() == tblConsigneeInvoiceAddressTO.District.ToLower())
+                                    //    {
+                                    //        addressDT.Rows[0]["consigneeAddr"] = tblConsigneeInvoiceAddressTO.Address + " " + tblConsigneeInvoiceAddressTO.District + ", " + tblConsigneeInvoiceAddressTO.State;
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        addressDT.Rows[0]["consigneeAddr"] = tblConsigneeInvoiceAddressTO.Address + ", " + tblConsigneeInvoiceAddressTO.Taluka
+                                    //                                      + tblConsigneeInvoiceAddressTO.District + ", " + tblConsigneeInvoiceAddressTO.State;
+                                    //    }
+                                    //}
+                                    //else if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
+                                    //{
+                                    //    addressDT.Rows[0]["consigneeAddr"] = tblConsigneeInvoiceAddressTO.Address + " " + tblConsigneeInvoiceAddressTO.Taluka
+                                    //                                      + ", " + tblConsigneeInvoiceAddressTO.District + ", " + tblConsigneeInvoiceAddressTO.State;
+                                    //}
+                                    //else if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.District))
+                                    //{
+                                    //    addressDT.Rows[0]["consigneeAddr"] = tblConsigneeInvoiceAddressTO.Address + " "
+                                    //                                     + tblConsigneeInvoiceAddressTO.District + ", " + tblConsigneeInvoiceAddressTO.State;
+
+                                    //}
+
+                                    //addressDT.Rows[0]["consigneeAddr"] = tblConsigneeInvoiceAddressTO.Address + "," + tblConsigneeInvoiceAddressTO.Taluka
+                                    //                                    + " ," + tblConsigneeInvoiceAddressTO.District + "," + tblConsigneeInvoiceAddressTO.State;
+                                    //Aniket [6-9-2019] added PinCode in address
+                                    if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.VillageName))
+                                    {
+                                        consigneeAddr += " " + tblConsigneeInvoiceAddressTO.VillageName;
+                                    }
+                                    if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.PinCode) && tblConsigneeInvoiceAddressTO.PinCode != "0")
+                                    {
+                                        consigneeAddr += "- " + tblConsigneeInvoiceAddressTO.PinCode;
+                                    }
+                                    //if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
+                                    //{
+                                    //    consigneeAddr += ", " + tblConsigneeInvoiceAddressTO.Taluka;
+                                    //}
+
+                                    //if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.District))
+                                    //{
+                                    //    if (String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
+                                    //        tblConsigneeInvoiceAddressTO.Taluka = String.Empty;
+
+                                    //    if (tblConsigneeInvoiceAddressTO.Taluka.ToLower() != tblConsigneeInvoiceAddressTO.District.ToLower())
+                                    //        consigneeAddr += ",Dist-" + tblConsigneeInvoiceAddressTO.District;
+                                    //}
+
+
+                                    if (String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.District))
+                                        tblConsigneeInvoiceAddressTO.District = String.Empty;
+
+                                    if (String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
+                                        tblConsigneeInvoiceAddressTO.Taluka = String.Empty;
+
+                                    String districtNameWithLabel = String.Empty;
+                                    if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.District))
+                                        districtNameWithLabel = ",Dist-" + tblConsigneeInvoiceAddressTO.District;
+
+                                    if (tblConsigneeInvoiceAddressTO.Taluka.ToLower().Trim() == tblConsigneeInvoiceAddressTO.District.ToLower().Trim())
+                                    {
+                                        consigneeAddr += districtNameWithLabel;
+                                    }
+                                    else
+                                    {
+                                        if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.Taluka))
+                                        {
+                                            consigneeAddr += ", " + tblConsigneeInvoiceAddressTO.Taluka;
+                                        }
+
+                                        consigneeAddr += districtNameWithLabel;
+                                    }
+
+
+
+
+                                    //if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.State))
+                                    //{
+                                    //    consigneeAddr += ", " + tblConsigneeInvoiceAddressTO.State;
+                                    //}
+                                    //if(!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.PinCode) && tblConsigneeInvoiceAddressTO.PinCode!="0")
+                                    //{
+                                    //    consigneeAddr += "- " + tblConsigneeInvoiceAddressTO.PinCode;
+                                    //}
+                                    addressDT.Rows[0]["consigneeAddr"] = consigneeAddr;
+                                    if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.GstinNo))
+                                        addressDT.Rows[0]["consigneeGstNo"] = tblConsigneeInvoiceAddressTO.GstinNo.ToUpper();
+
+                                    if (!String.IsNullOrEmpty(tblConsigneeInvoiceAddressTO.PanNo))
+                                        addressDT.Rows[0]["consigneePanNo"] = tblConsigneeInvoiceAddressTO.PanNo.ToUpper();
+                                    //Aniket [9-9-2-2019]
+                                    if (tblInvoiceTO.IsConfirmed == 1)
+                                        addressDT.Rows[0]["consigneeMobNo"] = tblConsigneeInvoiceAddressTO.ContactNo;
+                                    else
+                                    {
+                                        addressDT.Rows[0]["consigneeMobNo"] = String.Empty;
+                                        addressDT.Rows[0]["lblMobNo"] = String.Empty;
+                                    }
+
+
+                                    if (stateList != null && stateList.Count > 0)
+                                    {
+                                        DropDownTO stateTO = stateList.Where(ele => ele.Value == tblConsigneeInvoiceAddressTO.StateId).FirstOrDefault();
+                                        addressDT.Rows[0]["consigneeState"] = tblConsigneeInvoiceAddressTO.State;
+                                        if (stateTO != null)
+                                        {
+                                            addressDT.Rows[0]["consigneeStateCode"] = stateTO.Tag;
+                                        }
+                                    }
+                                }
+                            }
+
+
+
+                        }
+
+                        TblInvoiceAddressTO tblShippingAddressTO = tblInvoiceTO.InvoiceAddressTOList.Where(eleA => eleA.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.SHIPPING_ADDRESS).FirstOrDefault();
+                        if (tblShippingAddressTO != null)
+                        {
+                            if (!String.IsNullOrEmpty(tblShippingAddressTO.Address))
+                            {
+                                if (tblShippingAddressTO.Address.Trim() != tblBillingInvoiceAddressTO.Address.Trim())
+                                {
+                                    //headerDT.Rows.Add();
+                                    if (!String.IsNullOrEmpty(tblShippingAddressTO.ContactNo))
+                                    {
+                                        invoiceDT.Rows[0]["lblShippingMobNo"] = strMobNo;
+                                    }
+                                    if (!String.IsNullOrEmpty(tblShippingAddressTO.State))
+                                    {
+                                        invoiceDT.Rows[0]["lblShippingStateCode"] = strStateCode;
+                                    }
+                                    if (!String.IsNullOrEmpty(tblShippingAddressTO.GstinNo))
+                                    {
+                                        invoiceDT.Rows[0]["lblShippingGstin"] = strGstin;
+                                    }
+                                    if (!String.IsNullOrEmpty(tblShippingAddressTO.PanNo))
+                                    {
+                                        invoiceDT.Rows[0]["lblShippingPanNo"] = strPanNo;
+                                    }
+
+
+
+                                    invoiceDT.Rows[0]["shippingNm"] = tblShippingAddressTO.BillingName;
+                                    invoiceDT.Rows[0]["shippingAddr"] = tblShippingAddressTO.Address + "," + tblShippingAddressTO.Taluka
+                                                                        + " ," + tblShippingAddressTO.District + "," + tblShippingAddressTO.State;
+                                    invoiceDT.Rows[0]["shippingGstNo"] = tblShippingAddressTO.GstinNo;
+                                    invoiceDT.Rows[0]["shippingPanNo"] = tblShippingAddressTO.PanNo;
+                                    //Aniket [9-9-2-2019]
+                                    if (tblInvoiceTO.IsConfirmed == 1)
+                                        invoiceDT.Rows[0]["shippingMobNo"] = tblShippingAddressTO.ContactNo;
+                                    else
+                                        invoiceDT.Rows[0]["shippingMobNo"] = String.Empty;
+
+
+                                }
+                            }
+
+                        }
+
+                        //get org bank details
+                        List<TblInvoiceBankDetailsTO> tblInvoiceBankDetailsTOList = _iTblInvoiceBankDetailsDAO.SelectInvoiceBankDetails(organizationTO.IdOrganization);
+                        if (tblInvoiceBankDetailsTOList != null && tblInvoiceBankDetailsTOList.Count > 0)
+                        {
+                            TblInvoiceBankDetailsTO tblInvoiceBankDetailsTO = tblInvoiceBankDetailsTOList.Where(c => c.IsPriority == 1).FirstOrDefault();
+                            invoiceDT.Rows[0]["bankName"] = tblInvoiceBankDetailsTO.BankName;
+                            invoiceDT.Rows[0]["accountNo"] = tblInvoiceBankDetailsTO.AccountNo;
+                            invoiceDT.Rows[0]["branchName"] = tblInvoiceBankDetailsTO.Branch;
+                            invoiceDT.Rows[0]["ifscCode"] = tblInvoiceBankDetailsTO.IfscCode;
+                        }
+
+                        //get org declaration and terms condition details
+                        List<TblInvoiceOtherDetailsTO> tblInvoiceOtherDetailsTOList = _iTblInvoiceOtherDetailsDAO.SelectInvoiceOtherDetails(organizationTO.IdOrganization);
+                        if (tblInvoiceOtherDetailsTOList != null && tblInvoiceOtherDetailsTOList.Count > 0)
+                        {
+                            TblInvoiceOtherDetailsTO tblInvoiceOtherDetailsTO = tblInvoiceOtherDetailsTOList.Where(c => c.DetailTypeId == (int)Constants.invoiceOtherDetailsTypeE.DESCRIPTION).FirstOrDefault();
+                            invoiceDT.Rows[0]["declaration"] = tblInvoiceOtherDetailsTO.Description;
+                        }
+
+                    }
+
+                }
+
+                //Saket [2019-08-11] To keep the both DT columns same
+                //If two same columns with different values then 2 rows will be created while merging DT.
+                //invoiceDT.Merge(headerDT);
+
+
+                DataTable WheaderDT = new DataTable();
+                DataTable loadingItemDT = new DataTable();
+                DataTable loadingItemDTForGatePass = new DataTable();
+
+
+                WheaderDT.TableName = "WheaderDT";
+                loadingItemDT.TableName = "loadingItemDT";
+                loadingItemDTForGatePass.TableName = "loadingItemDTForGatePass";
+
+                #region Add Columns
+                WheaderDT.Columns.Add("InvoiceId");
+                WheaderDT.Columns.Add("FirmName");
+                WheaderDT.Columns.Add("dealername");
+                WheaderDT.Columns.Add("ContactNo"); //[2021-10-13] Dhananjay Added
+                WheaderDT.Columns.Add("VillageName"); //[2021-10-20] Dhananjay Added
+                WheaderDT.Columns.Add("VehicleNo");
+                WheaderDT.Columns.Add("DriverContactNo"); //[2021-10-29] Dhananjay Added
+                WheaderDT.Columns.Add("LoadingSlipId");
+                WheaderDT.Columns.Add("loadingLayerDesc");
+                WheaderDT.Columns.Add("DateTime");
+                WheaderDT.Columns.Add("Date");
+                WheaderDT.Columns.Add("TotalBundles");
+                WheaderDT.Columns.Add("TotalNetWt", typeof(double));
+                WheaderDT.Columns.Add("TotalTareWt", typeof(double));
+                WheaderDT.Columns.Add("TotalGrossWt", typeof(double));
+                WheaderDT.Columns.Add("invoiceNo");
+                //Prajakta[2020-07-14] Added
+                WheaderDT.Columns.Add("orgFirmName");
+                WheaderDT.Columns.Add("orgPhoneNo");
+                WheaderDT.Columns.Add("orgFaxNo");
+                WheaderDT.Columns.Add("orgWebsite");
+                WheaderDT.Columns.Add("orgEmailAddr");
+                WheaderDT.Columns.Add("plotNo");
+                WheaderDT.Columns.Add("areaName");
+                WheaderDT.Columns.Add("district");
+                WheaderDT.Columns.Add("pinCode");
+                WheaderDT.Columns.Add("orgVillageNm");
+                WheaderDT.Columns.Add("orgAddr");
+                WheaderDT.Columns.Add("orgState");
+                WheaderDT.Columns.Add("orgStateCode");
+
+
+                loadingItemDTForGatePass.Columns.Add("SrNo");
+                loadingItemDTForGatePass.Columns.Add("DisplayName");
+                loadingItemDTForGatePass.Columns.Add("MaterialDesc");
+                loadingItemDTForGatePass.Columns.Add("ProdItemDesc");
+                loadingItemDTForGatePass.Columns.Add("LoadingQty", typeof(double));
+                loadingItemDTForGatePass.Columns.Add("Bundles");
+                loadingItemDTForGatePass.Columns.Add("LoadedWeight", typeof(double));
+                loadingItemDTForGatePass.Columns.Add("MstLoadedBundles");
+                loadingItemDTForGatePass.Columns.Add("LoadedBundles");
+                loadingItemDTForGatePass.Columns.Add("GrossWt", typeof(double));
+                loadingItemDTForGatePass.Columns.Add("TareWt", typeof(double));
+                loadingItemDTForGatePass.Columns.Add("NetWt", typeof(double));
+                loadingItemDTForGatePass.Columns.Add("BrandDesc");
+                loadingItemDTForGatePass.Columns.Add("ProdSpecDesc");
+                loadingItemDTForGatePass.Columns.Add("ProdcatDesc");
+                loadingItemDTForGatePass.Columns.Add("ItemName");
+                loadingItemDTForGatePass.Columns.Add("UpdatedOn");
+                loadingItemDTForGatePass.Columns.Add("DisplayField");
+                loadingItemDTForGatePass.Columns.Add("LoadingSlipId");
+
+
+                loadingItemDT.Columns.Add("SrNo");
+                loadingItemDT.Columns.Add("DisplayName");
+                loadingItemDT.Columns.Add("MaterialDesc");
+                loadingItemDT.Columns.Add("ProdItemDesc");
+                loadingItemDT.Columns.Add("LoadingQty", typeof(double));
+                loadingItemDT.Columns.Add("Bundles");
+                loadingItemDT.Columns.Add("LoadedWeight", typeof(double));
+                loadingItemDT.Columns.Add("MstLoadedBundles");
+                loadingItemDT.Columns.Add("LoadedBundles");
+                loadingItemDT.Columns.Add("GrossWt", typeof(double));
+                loadingItemDT.Columns.Add("TareWt", typeof(double));
+                loadingItemDT.Columns.Add("NetWt", typeof(double));
+                loadingItemDT.Columns.Add("BrandDesc");
+                loadingItemDT.Columns.Add("ProdSpecDesc");
+                loadingItemDT.Columns.Add("ProdcatDesc");
+                loadingItemDT.Columns.Add("ItemName");
+                loadingItemDT.Columns.Add("UpdatedOn");
+                loadingItemDT.Columns.Add("DisplayField");
+                loadingItemDT.Columns.Add("LoadingSlipId");
+
+
+
+
+                #endregion
+
+                if (TblLoadingSlipTO != null)
+                {
+                    WheaderDT.Rows.Add();
+                    double totalBundle = 0;
+                    double totalNetWt = 0;
+                    //double 
+                    WheaderDT.Rows[0]["InvoiceId"] = invoiceId;
+                    //prajkta[25-06-2020]added
+                    WheaderDT.Rows[0]["invoiceNo"] = tblInvoiceTO.InvoiceNo;
+                    if (invoiceAddressTOList != null && invoiceAddressTOList.Count > 0)
+                    {
+                        TblInvoiceAddressTO tblInvoiceAddressTO = invoiceAddressTOList.Where(w => w.TxnAddrTypeId == (Int32)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS).FirstOrDefault();
+                        WheaderDT.Rows[0]["FirmName"] = tblInvoiceAddressTO.BillingName;
+                        WheaderDT.Rows[0]["dealername"] = tblInvoiceAddressTO.BillingName;
+                        WheaderDT.Rows[0]["ContactNo"] = tblInvoiceAddressTO.ContactNo; //[2021-10-13] Dhananjay Added
+                        WheaderDT.Rows[0]["VillageName"] = tblInvoiceAddressTO.VillageName; //[2021-10-20] Dhananjay Added
+                    }
+                    WheaderDT.Rows[0]["VehicleNo"] = TblLoadingSlipTO.VehicleNo;
+                    WheaderDT.Rows[0]["DriverContactNo"] = TblLoadingSlipTO.ContactNo; //[2021-10-29] Dhananjay Added
+                    WheaderDT.Rows[0]["loadingLayerDesc"] = TblLoadingSlipTO.LoadingSlipExtTOList[0].LoadingLayerDesc;
+                    WheaderDT.Rows[0]["LoadingSlipId"] = TblLoadingSlipTO.IdLoadingSlip;
+                    //headerDT.Rows[0]["Date"] = TblLoadingSlipTO.CreatedOnStr;
+                    //headerDT.Rows[0]["Date"] = TblLoadingSlipTO.CreatedOnStr;
+                    //headerDT.Rows[0]["Date"] = tblInvoiceTO.CreatedOnStr;
+                    if (tblInvoiceTO != null && tblInvoiceTO.CreatedOn != new DateTime())
+                    {
+                        string dtStr = tblInvoiceTO.CreatedOn.ToShortDateString();
+                        WheaderDT.Rows[0]["DateTime"] = tblInvoiceTO.CreatedOnStr;
+                        WheaderDT.Rows[0]["Date"] = dtStr;
+                    }
+                    else
+                    {
+                        string dtStr = TblLoadingSlipTO.CreatedOn.ToShortDateString();
+                        WheaderDT.Rows[0]["DateTime"] = TblLoadingSlipTO.CreatedOnStr;
+                        WheaderDT.Rows[0]["Date"] = dtStr;
+                    }
+
+                    if (TblLoadingSlipTO.LoadingSlipExtTOList != null && TblLoadingSlipTO.LoadingSlipExtTOList.Count > 0)
+                    {
+                        TblLoadingSlipTO.LoadingSlipExtTOList = TblLoadingSlipTO.LoadingSlipExtTOList.OrderBy(o => o.CalcTareWeight).ToList();
+
+                        for (int j = 0; j < TblLoadingSlipTO.LoadingSlipExtTOList.Count; j++)
+                        {
+                            TblLoadingSlipExtTO tblLoadingSlipExtTO = TblLoadingSlipTO.LoadingSlipExtTOList[j];
+                            loadingItemDT.Rows.Add();
+                            Int32 loadItemDTCount = loadingItemDT.Rows.Count - 1;
+
+                            loadingItemDT.Rows[loadItemDTCount]["SrNo"] = loadItemDTCount + 1;
+                            string displayName = tblLoadingSlipExtTO.ProdCatDesc + " " + tblLoadingSlipExtTO.ProdSpecDesc + " " + tblLoadingSlipExtTO.MaterialDesc;
+                            if (displayName == "  ")
+                                displayName = tblLoadingSlipExtTO.ItemName;
+                            loadingItemDT.Rows[loadItemDTCount]["DisplayName"] = displayName;// tblLoadingSlipExtTO.DisplayName;
+
+                            if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
+                            {
+                                loadingItemDT.Rows[loadItemDTCount]["DisplayField"] = tblLoadingSlipExtTO.MaterialDesc;
+                            }
+                            else
+                            {
+                                loadingItemDT.Rows[loadItemDTCount]["DisplayField"] = tblLoadingSlipExtTO.ItemName;
+                            }
+                            if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.MaterialDesc))
+                            {
+                                loadingItemDT.Rows[loadItemDTCount]["MaterialDesc"] = tblLoadingSlipExtTO.MaterialDesc;
+                            }
+                            else
+                            {
+                                loadingItemDT.Rows[loadItemDTCount]["MaterialDesc"] = "";
+                            }
+
+                            if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ItemName))
+                            {
+                                loadingItemDT.Rows[loadItemDTCount]["ItemName"] = tblLoadingSlipExtTO.ItemName;
+                            }
+                            else
+                            {
+                                loadingItemDT.Rows[loadItemDTCount]["ItemName"] = "";
+                            }
+
+                            if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ProdCatDesc))
+                            {
+                                loadingItemDT.Rows[loadItemDTCount]["ProdCatDesc"] = tblLoadingSlipExtTO.ProdCatDesc;
+                            }
+                            else
+                            {
+                                loadingItemDT.Rows[loadItemDTCount]["ProdCatDesc"] = "";
+
+                            }
+
+                            if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.ProdSpecDesc))
+                            {
+                                loadingItemDT.Rows[loadItemDTCount]["ProdSpecDesc"] = tblLoadingSlipExtTO.ProdSpecDesc;
+                            }
+                            else
+                            {
+                                loadingItemDT.Rows[loadItemDTCount]["ProdSpecDesc"] = "";
+
+                            }
+                            if (!string.IsNullOrEmpty(tblLoadingSlipExtTO.BrandDesc))
+                            {
+                                loadingItemDT.Rows[loadItemDTCount]["BrandDesc"] = tblLoadingSlipExtTO.BrandDesc;
+                            }
+                            else
+                            {
+                                loadingItemDT.Rows[loadItemDTCount]["BrandDesc"] = "";
+
+                            }
+
+                            loadingItemDT.Rows[loadItemDTCount]["ProdItemDesc"] = tblLoadingSlipExtTO.ProdItemDesc;
+                            loadingItemDT.Rows[loadItemDTCount]["LoadingQty"] = tblLoadingSlipExtTO.LoadingQty;
+                            loadingItemDT.Rows[loadItemDTCount]["Bundles"] = tblLoadingSlipExtTO.Bundles;
+                            totalBundle += tblLoadingSlipExtTO.LoadedBundles;
+                            loadingItemDT.Rows[loadItemDTCount]["TareWt"] = (tblLoadingSlipExtTO.CalcTareWeight / 1000);
+                            loadingItemDT.Rows[loadItemDTCount]["GrossWt"] = (tblLoadingSlipExtTO.CalcTareWeight + tblLoadingSlipExtTO.LoadedWeight) / 1000;
+                            loadingItemDT.Rows[loadItemDTCount]["NetWt"] = tblLoadingSlipExtTO.LoadedWeight / 1000;
+                            totalNetWt += (tblLoadingSlipExtTO.LoadedWeight / 1000);
+                            loadingItemDT.Rows[loadItemDTCount]["LoadedWeight"] = tblLoadingSlipExtTO.LoadedWeight;
+                            loadingItemDT.Rows[loadItemDTCount]["MstLoadedBundles"] = tblLoadingSlipExtTO.MstLoadedBundles;
+                            loadingItemDT.Rows[loadItemDTCount]["LoadedBundles"] = tblLoadingSlipExtTO.LoadedBundles;
+                            loadingItemDT.Rows[loadItemDTCount]["LoadingSlipId"] = tblLoadingSlipExtTO.LoadingSlipId;
+
+                        }
+                    }
+                    WheaderDT.Rows[0]["TotalBundles"] = totalBundle;
+                    WheaderDT.Rows[0]["TotalNetWt"] = totalNetWt;
+                    WheaderDT.Rows[0]["TotalTareWt"] = (tblInvoiceTO.TareWeight / 1000);
+                    WheaderDT.Rows[0]["TotalGrossWt"] = (tblInvoiceTO.GrossWeight / 1000);
+                    WheaderDT.Rows[0]["TotalNetWt"] = (tblInvoiceTO.NetWeight / 1000);
+                }
+
+
+                //Prajakta[2020-07-14] Added to show orgFirmName and address details 
+
+                if (tblInvoiceTO.InvFromOrgId == 0)
+                {
+                    TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                    if (configParamsTO != null)
+                    {
+                        defaultCompOrgId = Convert.ToInt16(configParamsTO.ConfigParamVal);
+                    }
+                }
+                else
+                {
+                    defaultCompOrgId = tblInvoiceTO.InvFromOrgId;
+                } 
+                if (organizationTO != null)
+                {
+                    //headerDT.Rows.Add();
+                    //headerDT.Rows.Add();
+                    WheaderDT.Rows[0]["orgFirmName"] = organizationTO.FirmName;
+
+                    WheaderDT.Rows[0]["orgPhoneNo"] = organizationTO.PhoneNo;
+                    WheaderDT.Rows[0]["orgFaxNo"] = organizationTO.FaxNo;
+                    WheaderDT.Rows[0]["orgWebsite"] = organizationTO.Website;
+                    WheaderDT.Rows[0]["orgEmailAddr"] = organizationTO.EmailAddr;
+                }
+
+
+                if (tblAddressTO != null)
+                {
+                    String orgAddrStr = String.Empty;
+                    if (!String.IsNullOrEmpty(tblAddressTO.PlotNo))
+                    {
+                        orgAddrStr += tblAddressTO.PlotNo;
+                        WheaderDT.Rows[0]["plotNo"] = tblAddressTO.PlotNo;
+                    }
+                    if (!String.IsNullOrEmpty(tblAddressTO.AreaName))
+                    {
+                        orgAddrStr += " " + tblAddressTO.AreaName;
+                        WheaderDT.Rows[0]["areaName"] = tblAddressTO.AreaName;
+                    }
+                    if (!String.IsNullOrEmpty(tblAddressTO.DistrictName))
+                    {
+                        orgAddrStr += " " + tblAddressTO.DistrictName;
+                        WheaderDT.Rows[0]["district"] = tblAddressTO.DistrictName;
+
+                    }
+                    if (tblAddressTO.Pincode > 0)
+                    {
+                        orgAddrStr += "-" + tblAddressTO.Pincode;
+                        WheaderDT.Rows[0]["pinCode"] = tblAddressTO.Pincode;
+
+                    }
+                    WheaderDT.Rows[0]["orgVillageNm"] = tblAddressTO.VillageName + "-" + tblAddressTO.Pincode;
+                    WheaderDT.Rows[0]["orgAddr"] = orgAddrStr;
+                    WheaderDT.Rows[0]["orgState"] = tblAddressTO.StateName;
+
+                    if (stateList != null && stateList.Count > 0)
+                    {
+                        DropDownTO stateTO = stateList.Where(ele => ele.Value == tblAddressTO.StateId).FirstOrDefault();
+                        if (stateTO != null)
+                        {
+                            WheaderDT.Rows[0]["orgStateCode"] = stateTO.Tag;
+                        }
+                    }
+                }
+
+
+                //headerDT = loadingDT.Copy();
+                WheaderDT.TableName = "WheaderDT";
+                printDataSet.Tables.Add(WheaderDT);
+
+                loadingItemDT.TableName = "loadingItemDT";
+                printDataSet.Tables.Add(loadingItemDT);
+
+                loadingItemDTForGatePass = loadingItemDT.Copy();
+
+                loadingItemDT.TableName = "loadingItemDTForGatePass";
+                printDataSet.Tables.Add(loadingItemDTForGatePass);
+
+                headerDT = invoiceDT.Copy();
+                headerDT.TableName = "headerDT";
+
+                printDataSet.Tables.Add(headerDT);
+                printDataSet.Tables.Add(qrCodeDT);
+                printDataSet.Tables.Add(invoiceDT);
+                printDataSet.Tables.Add(invoiceItemDT);
+                printDataSet.Tables.Add(addressDT);
+                printDataSet.Tables.Add(itemFooterDetailsDT);
+                printDataSet.Tables.Add(commercialDT);
+                printDataSet.Tables.Add(hsnItemTaxDT);
+                printDataSet.Tables.Add(multipleInvoiceCopyDT);
+                // printDataSet.Tables.Add(shippingAddressDT);
+                //creating template'''''''''''''''''
+
+                int isMultipleTemplateByCorNc = 0;
+
+                string templateName = "WhatsAppInvoiceReport";  
+                String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
+                // templateFilePath = @"C:\Deliver Templates\SER INVOICE Template.xls";
+                String fileName = "Bill-" + DateTime.Now.Ticks;
+
+                //download location for rewrite  template file
+                String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
+                // RunReport runReport = new RunReport();
+                Boolean IsProduction = true;
+
+                TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName("IS_PRODUCTION_ENVIRONMENT_ACTIVE");
+                if (tblConfigParamsTO != null)
+                {
+                    if (Convert.ToInt32(tblConfigParamsTO.ConfigParamVal) == 0)
+                    {
+                        IsProduction = false;
+                    }
+                }
+                resultMessage = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePath, saveLocation, Constants.ReportE.PDF_DONT_OPEN, IsProduction);
+                if (resultMessage.MessageType == ResultMessageE.Information)
+                {
+                     
+                    String filePath = String.Empty;
+
+                    if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
+                    {
+                        filePath = resultMessage.Tag.ToString();
+                    }
+                    if (isFileDelete)
+                    {
+                        //driveName + path;
+                        Byte[] bytes = DeleteFile(saveLocation, filePath);
+
+                        if (bytes != null && bytes.Length > 0)
+                        {
+                            resultMessage.Tag = Convert.ToBase64String(bytes);
+                        }
+                    }
+                    else
+                        resultMessage.Tag = filePath; 
+                    if (resultMessage.MessageType == ResultMessageE.Information)
+                    {
+                        resultMessage.DefaultSuccessBehaviour();
+                    }
+
+                }
+                else
+                {
+                    resultMessage.Text = "Something wents wrong please try again";
+                    resultMessage.DisplayMessage = "Something wents wrong please try again";
+                    resultMessage.Result = 0;
+                }
+                //if (isFileDelete)
+                //{
+                //    //Reshma Added FOr WhatsApp integration.
+                //      resultMessage  = SendFileOnWhatsAppAfterEwayBillGeneration(tblInvoiceTO.IdInvoice);
+                //}
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "");
+                return resultMessage;
+            }
         }
         /// <summary>
         /// Dhananjay[18-11-2020] : Added To Cancel ewaybill.
