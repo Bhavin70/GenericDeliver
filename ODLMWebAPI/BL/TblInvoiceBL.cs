@@ -12187,7 +12187,16 @@ namespace ODLMWebAPI.BL
             tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@IrnNo", tblInvoiceTO.IrnNo);
             tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@VehNo", GetValidVehichleNumber(tblInvoiceTO.VehicleNo));
             tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@DistanceinKm", tblInvoiceTO.DistanceInKM.ToString());
-            tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@TransName", tblInvoiceTO.TransporterName.ToString());
+
+            if ((tblInvoiceTO.TransporterName) == null)
+            {
+                tblInvoiceTO.TransporterName = "   ";
+            }
+            if ((tblInvoiceTO.TransporterName) != null && (tblEInvoiceApiTO.BodyParam.Contains("@TransName") == true))
+            {
+                tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@TransName", tblInvoiceTO.TransporterName.ToString());
+            }
+            //tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@TransName", tblInvoiceTO.TransporterName.ToString());
 
             IRestResponse response = CallRestAPIs(tblEInvoiceApiTO.ApiBaseUri + tblEInvoiceApiTO.ApiFunctionName, tblEInvoiceApiTO.ApiMethod, tblEInvoiceApiTO.HeaderParam, tblEInvoiceApiTO.BodyParam);
 
