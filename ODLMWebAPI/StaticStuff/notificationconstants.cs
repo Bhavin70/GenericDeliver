@@ -50,6 +50,7 @@ namespace ODLMWebAPI.StaticStuff
 
             BOOKING_DUE = 34, 
             LOADING_VEHICLE_OUT = 58,   ///Reshma Added For Vehicle Out as per Parmeshwar requirement.
+            Send_Invoice_Msg=59,//For WhastApp Msg
         }
 
         #endregion
@@ -58,7 +59,8 @@ namespace ODLMWebAPI.StaticStuff
         {
             ALERT = 1,
             EMAIL = 2,
-            SMS = 3
+            SMS = 3,
+            WhatsApp=4
         }
     }
 }

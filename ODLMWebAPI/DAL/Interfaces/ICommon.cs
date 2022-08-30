@@ -31,6 +31,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         int GetAvailNumber(List<int> list, int maxNumber);
         dynamic PostSalesInvoiceToSAP(TblInvoiceTO tblInvoiceTO);
         byte[] convertQRStringToByteArray(String signedQRCode);
-        List<DropDownTO> GetConsumerCategoryList(String idConsumerStr = ""); 
+        List<DropDownTO> GetConsumerCategoryList(String idConsumerStr = "");
+        dynamic SendWhatsAppMsg(String WhatsAppMsgRequestTOStr, String Url, String WhatsAppMsgRequestHeaderStr);
+        dynamic SendWhatsAppMsgWithFile(String WhatsAppMsgRequestTOStr, String Url, String WhatsAppMsgRequestHeaderStr);
     }
 }

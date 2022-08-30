@@ -31,8 +31,9 @@ namespace ODLMWebAPI.BL
         private readonly IVitplSMS _iVitplSMS;
         private readonly ITblSmsBL _iTblSmsBL;
         private readonly IConnectionString _iConnectionString;
+        private readonly ICommon _iCommon;
 
-        public TblAlertInstanceBL(IConnectionString iConnectionString, ITblSmsBL iTblSmsBL, IVitplSMS iVitplSMS, ITblConfigParamsBL iTblConfigParamsBL, ISendMailBL iSendMailBL, IVitplNotify iVitplNotify, ITblUserBL iTblUserBL, ITblAlertUsersBL iTblAlertUsersBL, ITblAlertSubscriptSettingsBL iTblAlertSubscriptSettingsBL, ITblAlertDefinitionBL iTblAlertDefinitionBL, ITblAlertInstanceDAO iTblAlertInstanceDAO, ITblAlertActionDtlDAO iTblAlertActionDtlDAO)
+        public TblAlertInstanceBL(ICommon iCommon,IConnectionString iConnectionString, ITblSmsBL iTblSmsBL, IVitplSMS iVitplSMS, ITblConfigParamsBL iTblConfigParamsBL, ISendMailBL iSendMailBL, IVitplNotify iVitplNotify, ITblUserBL iTblUserBL, ITblAlertUsersBL iTblAlertUsersBL, ITblAlertSubscriptSettingsBL iTblAlertSubscriptSettingsBL, ITblAlertDefinitionBL iTblAlertDefinitionBL, ITblAlertInstanceDAO iTblAlertInstanceDAO, ITblAlertActionDtlDAO iTblAlertActionDtlDAO)
         {
             _iTblAlertActionDtlDAO = iTblAlertActionDtlDAO;
             _iTblAlertInstanceDAO = iTblAlertInstanceDAO;
@@ -46,6 +47,7 @@ namespace ODLMWebAPI.BL
             _iVitplSMS = iVitplSMS;
             _iTblSmsBL = iTblSmsBL;
             _iConnectionString = iConnectionString;
+            _iCommon = iCommon;
         }
         #region Selection
 
@@ -524,7 +526,131 @@ namespace ODLMWebAPI.BL
                     }
 
                     #endregion
+                    #region WhatsApp
 
+                    else if (channelList[c].Key == (int)NotificationConstants.NotificationTypeE.WhatsApp)
+                    {
+                        string WhatsAppMsgRequestTOStr = "";
+                        string WhatsAppMsgRequestHeaderStr = "";
+                        string WhatsAppKey = "";
+                        TblConfigParamsTO WhatsAppRequestJSONConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON, conn, tran);
+                        if (WhatsAppRequestJSONConfTO == null || String.IsNullOrEmpty(WhatsAppRequestJSONConfTO.ConfigParamVal))
+                        {
+                            resultMessage.DefaultBehaviour("Failed to get whats app api request json");
+                            return resultMessage;
+                        }
+                        if( !string .IsNullOrEmpty ( alertInstanceTO.WHATS_APP_SEND_MESSAGE_REQUESJSON) )
+                            WhatsAppMsgRequestTOStr = alertInstanceTO.WHATS_APP_SEND_MESSAGE_REQUESJSON;
+                        else
+                             WhatsAppMsgRequestTOStr = WhatsAppRequestJSONConfTO.ConfigParamVal;
+                        TblConfigParamsTO WhatsAppHeaderConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_HEADER_JSON, conn, tran);
+                        if (WhatsAppHeaderConfTO != null && !String.IsNullOrEmpty(WhatsAppHeaderConfTO.ConfigParamVal))
+                        {
+                            WhatsAppMsgRequestHeaderStr = WhatsAppHeaderConfTO.ConfigParamVal;
+                        }
+                        TblConfigParamsTO WhatsAppKeyConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.WHATS_APP_API_KEY, conn, tran);
+                        if (WhatsAppKeyConfTO != null && !String.IsNullOrEmpty(WhatsAppKeyConfTO.ConfigParamVal))
+                        {
+                            WhatsAppKey = WhatsAppKeyConfTO.ConfigParamVal;
+                        }
+                        if (!String.IsNullOrEmpty(WhatsAppMsgRequestHeaderStr) && !String.IsNullOrEmpty(WhatsAppKey))
+                        {
+                            WhatsAppMsgRequestHeaderStr = WhatsAppMsgRequestHeaderStr.Replace("@API_KEY", WhatsAppKey);
+                        }
+
+                        var userList = (from x in alertUsersTOList
+                                        where x.AlertSubscriptSettingsTOList.Any(b => b.NotificationTypeId == (int)NotificationConstants.NotificationTypeE.WhatsApp)
+                                        select x).ToList();
+
+                        //Get Mobile No Dtls
+
+                        if (userList != null)
+                        {
+                            List<string> messageTOList = new List<string>();
+
+                            var userIds = string.Join(",", userList.Where(p => p.UserId > 0)
+                                  .Select(p => p.UserId.ToString()));
+
+                            if (!string.IsNullOrEmpty(userIds))
+                            {
+                                Dictionary<Int32, string> userDCT = new Dictionary<int, string>();
+                                userDCT = _iTblUserBL.SelectUserMobileNoDCTByUserIdOrRole(userIds, true, conn, tran);
+
+                                if (userDCT != null)
+                                {
+                                    foreach (var item in userDCT.Keys)
+                                    {
+                                        string whatsAppMsgTOStr = WhatsAppMsgRequestTOStr;
+                                        whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@mobileNo", userDCT[item]);
+                                        if (!String.IsNullOrEmpty(alertInstanceTO.WhatsAppComment))
+                                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment1", alertInstanceTO.WhatsAppComment);
+                                        if (!String.IsNullOrEmpty(alertInstanceTO.WhatsAppComment2))
+                                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment2", alertInstanceTO.WhatsAppComment2);
+                                        else
+                                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@COMMENT", alertInstanceTO.AlertComment);
+                                        messageTOList.Add(whatsAppMsgTOStr);
+                                    }
+                                }
+                            }
+
+                            var roleIds = string.Join(",", userList.Where(p => p.RoleId > 0)
+                                  .Select(p => p.RoleId.ToString()));
+
+
+                            if (!string.IsNullOrEmpty(roleIds))
+                            {
+                                Dictionary<Int32, string> roleDCT = new Dictionary<int, string>();
+                                roleDCT = _iTblUserBL.SelectUserMobileNoDCTByUserIdOrRole(roleIds, false, conn, tran);
+
+                                if (roleDCT != null)
+                                {
+                                    foreach (var item in roleDCT.Keys)
+                                    {
+                                        string whatsAppMsgTOStr = WhatsAppMsgRequestTOStr;
+                                        whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@mobileNo", roleDCT[item]);
+                                        if (!String.IsNullOrEmpty(alertInstanceTO.WhatsAppComment))
+                                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment1", alertInstanceTO.WhatsAppComment);
+                                        if (!String.IsNullOrEmpty(alertInstanceTO.WhatsAppComment2))
+                                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment2", alertInstanceTO.WhatsAppComment2);
+                                        else
+                                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@COMMENT", alertInstanceTO.AlertComment);
+                                        messageTOList.Add(whatsAppMsgTOStr);
+                                    }
+                                }
+                            }
+                            //Reshma Added For Send File using whatsapp
+                            if (messageTOList != null && messageTOList.Count > 0 && !string.IsNullOrEmpty(alertInstanceTO.WhatsAppFile))
+                            {
+                                TblConfigParamsTO WhatsAppConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.WHATS_APP_SEND_MESSAGE_INTEGRATION_API, conn, tran);
+                                String WhatsAppIntegrationAPI = "";
+                                if (WhatsAppConfTO != null && !String.IsNullOrEmpty(WhatsAppConfTO.ConfigParamVal))
+                                {
+                                    WhatsAppIntegrationAPI = WhatsAppConfTO.ConfigParamVal;
+
+                                    for (int n = 0; n < messageTOList.Count; n++)
+                                    {
+                                        _iCommon.SendWhatsAppMsgWithFile(messageTOList[n], WhatsAppIntegrationAPI, WhatsAppMsgRequestHeaderStr);
+                                    }
+                                }
+                            }
+                            if (messageTOList != null && messageTOList.Count > 0 && string.IsNullOrEmpty(alertInstanceTO.WhatsAppFile))
+                            {
+                                TblConfigParamsTO WhatsAppConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.WHATS_APP_SEND_MESSAGE_INTEGRATION_API, conn, tran);
+                                String WhatsAppIntegrationAPI = "";
+                                if (WhatsAppConfTO != null && !String.IsNullOrEmpty(WhatsAppConfTO.ConfigParamVal))
+                                {
+                                    WhatsAppIntegrationAPI = WhatsAppConfTO.ConfigParamVal;
+                                    for (int n = 0; n < messageTOList.Count; n++)
+                                    {
+                                        _iCommon.SendWhatsAppMsg(messageTOList[n], WhatsAppIntegrationAPI, WhatsAppMsgRequestHeaderStr);
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+
+                    #endregion
                 }
 
                 #region Dashboard Alert For Organizations

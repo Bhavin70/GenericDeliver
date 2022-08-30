@@ -632,6 +632,81 @@ public  string SelectApKLoginArray(int userId)
                 cmdSelect.Dispose();
             }
         }
-         
+
+        public dynamic SendWhatsAppMsg(String WhatsAppMsgRequestTOStr, String Url, String WhatsAppMsgRequestHeaderStr)
+        {
+            var tRequest = WebRequest.Create(Url) as HttpWebRequest;
+            try
+            {
+                tRequest.Method = "post";
+                tRequest.ContentType = "application/json";
+                var data = new
+                {
+                    data = Newtonsoft.Json.JsonConvert.DeserializeObject(WhatsAppMsgRequestTOStr),
+                };
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(Newtonsoft.Json.JsonConvert.DeserializeObject(WhatsAppMsgRequestTOStr));
+                Byte[] byteArray = Encoding.UTF8.GetBytes(json);
+                using (Stream dataStream = tRequest.GetRequestStreamAsync().Result)
+                {
+                    dataStream.Write(byteArray, 0, byteArray.Length);
+                }
+                if (!String.IsNullOrEmpty(WhatsAppMsgRequestHeaderStr))
+                {
+                    dynamic HeaderObj = Newtonsoft.Json.JsonConvert.DeserializeObject(WhatsAppMsgRequestHeaderStr);
+                    foreach (var item in HeaderObj)
+                    {
+                        tRequest.Headers[Convert.ToString(item.Name)] = Convert.ToString(item.Value);
+                        //tRequest.Headers.Add(item.Name, item.Value);
+                    }
+                }
+                tRequest.Timeout = 100000;
+                var response = (HttpWebResponse)tRequest.GetResponseAsync().Result;
+                var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                return responseString;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public dynamic SendWhatsAppMsgWithFile(String WhatsAppMsgRequestTOStr, String Url, String WhatsAppMsgRequestHeaderStr)
+        {
+            var tRequest = WebRequest.Create(Url) as HttpWebRequest;
+            try
+            {
+                tRequest.Method = "post";
+                tRequest.ContentType = "application/json";
+                var data = new
+                {
+                    data = Newtonsoft.Json.JsonConvert.DeserializeObject(WhatsAppMsgRequestTOStr),
+                };
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(Newtonsoft.Json.JsonConvert.DeserializeObject(WhatsAppMsgRequestTOStr));
+                //var json = Newtonsoft.Json.JsonConvert.SerializeObject(WhatsAppMsgRequestTOStr);
+
+                Byte[] byteArray = Encoding.UTF8.GetBytes(json);
+                using (Stream dataStream = tRequest.GetRequestStreamAsync().Result)
+                {
+                    dataStream.Write(byteArray, 0, byteArray.Length);
+                }
+                if (!String.IsNullOrEmpty(WhatsAppMsgRequestHeaderStr))
+                {
+                    dynamic HeaderObj = Newtonsoft.Json.JsonConvert.DeserializeObject(WhatsAppMsgRequestHeaderStr);
+                    foreach (var item in HeaderObj)
+                    {
+                        tRequest.Headers[Convert.ToString(item.Name)] = Convert.ToString(item.Value);
+                        //tRequest.Headers.Add(item.Name, item.Value);
+                    }
+                }
+                tRequest.Timeout = 100000;
+                var response = (HttpWebResponse)tRequest.GetResponseAsync().Result;
+                var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                return responseString;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
