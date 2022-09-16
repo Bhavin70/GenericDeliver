@@ -711,8 +711,8 @@ namespace ODLMWebAPI.BL
                             TblConfigParamsTO tblConfigParamsTOForRate = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_NEW_RATE_DECLARE);
                             if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
                             {
-                                tblAlertInstanceTO.WhatsAppComment = tblGlobalRateTOList[0].CreatedOn.ToString ();
-                                tblAlertInstanceTO.WhatsAppComment2 = rateString;
+                                tblAlertInstanceTO.WhatsAppComment = tblGlobalRateTOList[0].CreatedOn.ToShortDateString().ToString ();
+                                tblAlertInstanceTO.WhatsAppComment2 ="Rs. " + tblGlobalRateTOList[0].Rate.ToString () ;
                                 tblAlertInstanceTO.WHATS_APP_SEND_MESSAGE_REQUESJSON = tblConfigParamsTOForRate.ConfigParamVal;
                             } 
                         }
@@ -721,8 +721,8 @@ namespace ODLMWebAPI.BL
                             TblConfigParamsTO tblConfigParamsTOForRate = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_REVISED_RATE_DECLARE);
                             if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
                             {
-                                tblAlertInstanceTO.WhatsAppComment = tblGlobalRateTOList[0].CreatedOn.ToString();
-                                tblAlertInstanceTO.WhatsAppComment2 = rateString;
+                                tblAlertInstanceTO.WhatsAppComment = tblGlobalRateTOList[0].CreatedOn.ToShortDateString ().ToString();
+                                tblAlertInstanceTO.WhatsAppComment2 = "Rs. " + tblGlobalRateTOList[0].Rate.ToString();
                                 tblAlertInstanceTO.WHATS_APP_SEND_MESSAGE_REQUESJSON = tblConfigParamsTOForRate.ConfigParamVal;
                             } 
                         }
