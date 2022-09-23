@@ -12194,19 +12194,24 @@ namespace ODLMWebAPI.BL
                 throw new Exception("EInvoiceApiTO is null");
             }
 
-                      tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@gstin", sellerGstin);
+            tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@gstin", sellerGstin);
             tblEInvoiceApiTO.HeaderParam = tblEInvoiceApiTO.HeaderParam.Replace("@token", access_token_Authentication);
 
             tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@IrnNo", tblInvoiceTO.IrnNo);
             tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@VehNo", GetValidVehichleNumber(tblInvoiceTO.VehicleNo));
             tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@DistanceinKm", tblInvoiceTO.DistanceInKM.ToString());
 
-            if (!String.IsNullOrEmpty( tblInvoiceTO.TransporterName.ToString()) && (tblEInvoiceApiTO.BodyParam.Contains("@TransName") == true))
+            if ((tblInvoiceTO.TransporterName) == null)
+            {
+                tblInvoiceTO.TransporterName = "   ";
+            }
+            if ((tblInvoiceTO.TransporterName) != null && (tblEInvoiceApiTO.BodyParam.Contains("@TransName") == true))
             {
                 tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@TransName", tblInvoiceTO.TransporterName.ToString());
             }
             //tblEInvoiceApiTO.BodyParam = tblEInvoiceApiTO.BodyParam.Replace("@TransName", tblInvoiceTO.TransporterName.ToString());
-             IRestResponse response = CallRestAPIs(tblEInvoiceApiTO.ApiBaseUri + tblEInvoiceApiTO.ApiFunctionName, tblEInvoiceApiTO.ApiMethod, tblEInvoiceApiTO.HeaderParam, tblEInvoiceApiTO.BodyParam);
+
+            IRestResponse response = CallRestAPIs(tblEInvoiceApiTO.ApiBaseUri + tblEInvoiceApiTO.ApiFunctionName, tblEInvoiceApiTO.ApiMethod, tblEInvoiceApiTO.HeaderParam, tblEInvoiceApiTO.BodyParam);
 
             string EwayBillNo = null;
             JObject json = JObject.Parse(response.Content);
