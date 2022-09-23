@@ -10688,7 +10688,20 @@ namespace ODLMWebAPI.BL
                 access_token_Authentication = resultMsg.Tag.ToString();
                 if (access_token_Authentication != null)
                 {
-                    return EInvoice_Generate(tblInvoiceTO, loginUserId, access_token_Authentication, sellerGstin, eInvoiceCreationType);
+                    resultMsg = EInvoice_Generate(tblInvoiceTO, loginUserId, access_token_Authentication, sellerGstin, eInvoiceCreationType);
+                    Int32 IS_SEND_CUSTOM_NOTIFICATION = 0;
+                    TblConfigParamsTO tblConfigParamsTOTemp = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_WhatsApp_Msg);
+                    if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
+                    {
+                        IS_SEND_CUSTOM_NOTIFICATION = Convert.ToInt32(tblConfigParamsTOTemp.ConfigParamVal);
+                    }
+                    if (resultMsg.Result == 1 && IS_SEND_CUSTOM_NOTIFICATION == 1)//Reshma Added
+                    {
+                        // //Reshma Added FOr WhatsApp integration.
+                        resultMsg = SendFileOnWhatsAppAfterEwayBillGeneration(tblInvoiceTO.IdInvoice);
+                    }
+
+                    return resultMsg;
                 }
                 return resultMsg;
             }
@@ -12254,8 +12267,8 @@ namespace ODLMWebAPI.BL
 
                 resultMsg.DisplayMessage = "eWayBill generated successfully;";
                 tran.Commit();
-                //Reshma Added FOr WhatsApp integration.
-               resultMsg   = SendFileOnWhatsAppAfterEwayBillGeneration(tblInvoiceTO.IdInvoice);
+               // //Reshma Added FOr WhatsApp integration.
+               //resultMsg   = SendFileOnWhatsAppAfterEwayBillGeneration(tblInvoiceTO.IdInvoice);
             }
             catch (Exception ex)
             {
