@@ -2734,7 +2734,7 @@ namespace ODLMWebAPI.DAL
             {
                 cmdSelect.CommandText =
 
-                    " SELECT tempLoadingSlip.* ,tmploading.modbusRefId,tmploading.gateId,tblgate.portNumber,tblgate.ioTUrl,tblgate.machineIP,tmploading.isDBup,tblOrganization.firmName as dealerOrgName,tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tempLoadSlipdtl.loadingQty, cnfOrg.firmName as cnfOrgName ,dimStat.statusName " +
+                    " SELECT tempLoadingSlip.* ,tmploading.modbusRefId,tmploading.gateId,tblgate.portNumber,tblgate.ioTUrl,tblgate.machineIP,tmploading.isDBup,tblOrganization.firmName as dealerOrgName,tblBookings.bookingDisplayNo, tempLoadSlipdtl.bookingId,tempLoadSlipdtl.loadingQty, cnfOrg.firmName as cnfOrgName ,dimStat.statusName ,tempLoadingSlip.comment 'comments'" +
                                   " FROM tempLoadingSlip " +
                                   " LEFT JOIN tblOrganization " +
                                   " ON tblOrganization.idOrganization = tempLoadingSlip.dealerOrgId " +
