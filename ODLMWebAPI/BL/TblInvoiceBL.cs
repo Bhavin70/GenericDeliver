@@ -12422,13 +12422,14 @@ namespace ODLMWebAPI.BL
                                     whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment6", tblLoadingSlipTO.ContactNo);
                                 else
                                 {
-                                    TblOrganizationTO tblOrganizationTOself = _iTblOrganizationBL.SelectTblOrganizationTO(tblInvoiceTO.InvFromOrgId );
-                                    if (tblOrganizationTOself == null)
-                                    {
-                                        resultMessage.DefaultBehaviour("tblOrganizationTOself is null in send WhatsApp Msg");
-                                        return resultMessage;
-                                    }
-                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment6", tblOrganizationTOself.RegisteredMobileNos);
+                                    //commented as per discussion with akshay
+                                    //TblOrganizationTO tblOrganizationTOself = _iTblOrganizationBL.SelectTblOrganizationTO(tblInvoiceTO.InvFromOrgId );
+                                    //if (tblOrganizationTOself == null)
+                                    //{
+                                    //    resultMessage.DefaultBehaviour("tblOrganizationTOself is null in send WhatsApp Msg");
+                                    //    return resultMessage;
+                                    //}
+                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment6", "--");
                                 }
 
                             }
