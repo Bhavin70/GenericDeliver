@@ -600,10 +600,13 @@ namespace ODLMWebAPI.Models
         public decimal FinalRate { get; set; }
         public decimal FinalAmt { get; set; }       
         public string Remark { get; set; }
+        public decimal BASICRATE { get; set; }
+        public decimal CD { get; set; }
+        public decimal Difference { get; set; }
 
 
-        #endregion
-    }
+    #endregion
+}
 
     
     // Add By Samadhan NC Report

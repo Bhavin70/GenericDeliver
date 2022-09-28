@@ -919,9 +919,12 @@ namespace ODLMWebAPI.BL
                     excelWorksheet.Cells[1, 7].Value = "Tare Wt.";
                     excelWorksheet.Cells[1, 8].Value = "Gross Wt.";
                     excelWorksheet.Cells[1, 9].Value = "Bundle";
-                    excelWorksheet.Cells[1, 10].Value = "FinalRate";
-                    excelWorksheet.Cells[1, 11].Value = "FinalAmt";
-                    excelWorksheet.Cells[1, 12].Value = "Remark";
+                    excelWorksheet.Cells[1, 10].Value = "BASIC RATE";
+                    excelWorksheet.Cells[1, 11].Value = "C.D.";
+                    excelWorksheet.Cells[1, 12].Value = "Difference";
+                    excelWorksheet.Cells[1, 13].Value = "FinalRate";
+                    excelWorksheet.Cells[1, 14].Value = "FinalAmt";
+                    excelWorksheet.Cells[1, 15].Value = "Remark";
 
                     excelWorksheet.Cells[1, 1, 1, 24].Style.Font.Bold = true;
                     #endregion
@@ -936,9 +939,12 @@ namespace ODLMWebAPI.BL
                         excelWorksheet.Cells[cellRow, 7].Value = Math.Round(TblInvoiceRptTOList[i].TareWt, 2);
                         excelWorksheet.Cells[cellRow, 8].Value = Math.Round(TblInvoiceRptTOList[i].GrossWt, 2);
                         excelWorksheet.Cells[cellRow, 9].Value = TblInvoiceRptTOList[i].Bundle;
-                        excelWorksheet.Cells[cellRow, 10].Value = Math.Round(TblInvoiceRptTOList[i].FinalRate, 0);
-                        excelWorksheet.Cells[cellRow, 11].Value = Math.Round(TblInvoiceRptTOList[i].FinalAmt, 0);
-                        excelWorksheet.Cells[cellRow, 12].Value = TblInvoiceRptTOList[i].Remark;
+                        excelWorksheet.Cells[cellRow, 10].Value = Math.Round(TblInvoiceRptTOList[i].BASICRATE, 2);
+                        excelWorksheet.Cells[cellRow, 11].Value = Math.Round(TblInvoiceRptTOList[i].CD, 2);
+                        excelWorksheet.Cells[cellRow, 12].Value = Math.Round(TblInvoiceRptTOList[i].Difference, 2);
+                        excelWorksheet.Cells[cellRow, 13].Value = Math.Round(TblInvoiceRptTOList[i].FinalRate, 0);
+                        excelWorksheet.Cells[cellRow, 14].Value = Math.Round(TblInvoiceRptTOList[i].FinalAmt, 0);
+                        excelWorksheet.Cells[cellRow, 15].Value = TblInvoiceRptTOList[i].Remark;
                         cellRow++;
 
 

@@ -1010,78 +1010,50 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                SWhere = " CAST(sq1.statusDate  AS DATETIME) BETWEEN @fromDate AND @toDate " +
+                SWhere = " CAST(sq1.createdOn  AS DATETIME) BETWEEN @fromDate AND @toDate " +
                    " and sq1.isConfirmed = '" + Convert.ToString(isConfirm) + "'  " +
                       " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED;
 
-                selectQuery = " select  SrNo, SrNo2, Date,DealerName, vehicleNo, Size, NetWt, TareWt, GrossWt, Bundle, FinalRate, FinalAmt, Remark " +
+                selectQuery = " select  SrNo, SrNo2, Date,DealerName, vehicleNo, Size, NetWt, TareWt, GrossWt, Bundle,BASICRATE,CD,Difference, FinalRate, FinalAmt, Remark " +
                      " INTO #TempLocation FROM (SELECT DENSE_RANK() OVER(ORDER BY  InvId) SrNo, " +
                     " Row_Number() OVER(PARTITION BY InvId ORDER BY  InvId) SrNo2, InvId, ItemInvId, Date,DealerName, vehicleNo, Size," +
-                    " NetWt, TareWt, GrossWt, Bundle, ceiling(FinalRate) as FinalRate, ceiling(FinalAmt) as FinalAmt, narration as Remark " +
-                    " FROM ( Select distinct  itemDetails.invoiceId as ItemInvId, invoice.idInvoice as InvId, CONVERT(VARCHAR(10), invoice.statusDate, 103) as Date, invoice.statusDate, " +
-                    " orgdealer.firmName as DealerName, invoice.vehicleNo, " +
+                    " NetWt, TareWt, GrossWt, Bundle,BASICRATE,CD,Difference, ceiling(FinalRate) as FinalRate, ceiling(FinalAmt) as FinalAmt, narration as Remark " +
+                    " FROM ( Select distinct  itemDetails.invoiceId as ItemInvId, invoice.idInvoice as InvId, CONVERT(VARCHAR(10), invoice.createdOn, 103) as Date, invoice.createdOn, " +
+                    " (case when isnull(tblAddress.villageName,'')<>'' then  orgdealer.firmName   + ',' + tblAddress.villageName else orgdealer.firmName End ) as DealerName, invoice.vehicleNo, " +
                     " itemDetails.prodItemDesc as Size,isnull(lExt.loadedWeight, 0) as NetWt,isnull(lExt.calcTareWeight, 0)  as TareWt, " +
-                   " isnull(WM.weightMT, 0)  as GrossWt,itemDetails.bundles  as Bundle,itemDetails.rate  as FinalRate,itemDetails.grandTotal as FinalAmt  " +
-                   " ,booking.bookingRate,PD.nonConfParityAmt,itemDetails.cdStructure,PD.baseValCorAmt,PD.parityAmt,invoice.narration,invoice.isConfirmed, " +
+                   " isnull(WM.weightMT, 0)  as GrossWt,itemDetails.bundles  as Bundle, isnull(booking.bookingRate,0) as BASICRATE,PD.nonConfParityAmt as Difference ,isnull(itemDetails.cdStructure,0) as CD" +
+                   ",isnull(lExt.ratePerMT,0)  as FinalRate,(case when isnull(itemDetails.loadingSlipExtId,'')='' then itemDetails.grandTotal else isnull(lExt.ratePerMT,0) * (isnull(lExt.loadedWeight, 0)/1000) end ) as FinalAmt   " +
+                   " ,itemDetails.cdStructure,invoice.narration,invoice.isConfirmed, " +
                     " invoice.statusId,invoice.invoiceNo " +
-                    " FROM tempInvoice invoice  INNER JOIN tempInvoiceAddress invoiceAddress " +
-                    " ON invoiceAddress.invoiceId = invoice.idInvoice " +
-                    " LEFT JOIN tblOrganization orgInv on orgInv.idOrganization = invoiceAddress.billingOrgId " +
-                    " INNER JOIN tblOrganization org   ON org.idOrganization = invoice.distributorOrgId " +
-                    " INNER JOIN tblOrganization orgdealer ON orgdealer.idOrganization = invoice.dealerOrgId " +
-                    " INNER JOIN tempInvoiceItemDetails itemDetails  ON itemDetails.invoiceId = invoice.idInvoice " +
-                    " LEFT JOIN tblProdGstCodeDtls ON  tblProdGstCodeDtls.idProdGstCode = itemDetails.prodGstCodeId " +
-                    " LEFT JOIN tblItemTallyRefDtls ON ISNULL(tblProdGstCodeDtls.prodCatId, 0) = ISNULL(tblItemTallyRefDtls.prodCatId, 0) " +
-                    " AND ISNULL(tblProdGstCodeDtls.prodSpecId,0) = ISNULL(tblItemTallyRefDtls.prodSpecId, 0) " +
-                    " AND ISNULL(tblProdGstCodeDtls.materialId,0) = ISNULL(tblItemTallyRefDtls.materialId, 0) " +
-                    " AND ISNULL(tblProdGstCodeDtls.prodItemId,0) = ISNULL(tblitemtallyrefDtls.prodItemId, 0) " +
-                    " LEFT JOIN tblMaterial mat on mat.idMaterial = tblProdGstCodeDtls.materialId " +
-                    " AND tblitemtallyrefDtls.isActive = 1 LEFT JOIN tempLoadingSlipExt lExt " +
-                    " ON lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId  LEFT JOIN tblBookings booking " +
-                    " ON lExt.bookingId = booking.idBooking  LEFT JOIN tempInvoiceItemTaxDtls itemTaxDetails " +
-                    " ON itemTaxDetails.invoiceItemId = itemDetails.idInvoiceItem  LEFT JOIN tblTaxRates taxRate " +
-                    " ON taxRate.idTaxRate = itemTaxDetails.taxRateId " +
-                    " inner join  tblParityDetails PD on tblProdGstCodeDtls.materialId = PD.materialId " +
-                    " and isnull(PD.isActive,0)= 1 and invoiceAddress.stateId = PD.stateId and PD.prodSpecId = lExt.prodSpecId and PD.prodCatId = lExt.prodCatId " +
-                    " left join tempWeighingMeasures WM on lExt.weightMeasureId = WM.idWeightMeasure and WM.weightMeasurTypeId = 2 " +
-                     " inner join dimProdCat PC on lExt.prodCatId = PC.idProdCat and lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId and invoice.idInvoice = itemDetails.invoiceId " +
-                    " inner join dimProdSpec PS on lExt.prodSpecId = PS.idProdSpec and lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId and invoice.idInvoice = itemDetails.invoiceId " +
-
-                   " UNION ALL " +
-                   " Select distinct  itemDetails.invoiceId as ItemInvId, invoice.idInvoice as InvId ,CONVERT(VARCHAR(10), invoice.statusDate, 103) as Date,invoice.statusDate , " +
-                   " orgdealer.firmName as DealerName,invoice.vehicleNo,itemDetails.prodItemDesc  as Size  , " +
-                  "  isnull(lExt.loadedWeight, 0)  as NetWt,isnull(lExt.calcTareWeight, 0)  as TareWt,isnull(WM.weightMT, 0)  as GrossWt,  " +
-                 "  itemDetails.bundles  as Bundle,itemDetails.rate  as FinalRate,itemDetails.grandTotal  as FinalAmt " +
-                   " ,booking.bookingRate,PD.nonConfParityAmt,itemDetails.cdStructure,PD.baseValCorAmt,PD.parityAmt " +
-                    " ,invoice.narration,invoice.isConfirmed,invoice.statusId,invoice.invoiceNo " +
-                    " FROM finalInvoice invoice  INNER JOIN finalInvoiceAddress invoiceAddress  ON invoiceAddress.invoiceId = invoice.idInvoice " +
-                   " LEFT JOIN tblOrganization orgInv on orgInv.idOrganization = invoiceAddress.billingOrgId " +
-                   " INNER JOIN tblOrganization org  ON org.idOrganization = invoice.distributorOrgId " +
+                    " FROM tempInvoice invoice  " +
+                   " left join tempInvoiceItemDetails itemDetails on invoice.idInvoice = itemDetails.invoiceId " +
+                   " LEFT JOIN tempLoadingSlipExt lExt  ON lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId " +
                    " INNER JOIN tblOrganization orgdealer ON orgdealer.idOrganization = invoice.dealerOrgId " +
-                   " INNER JOIN finalInvoiceItemDetails itemDetails  ON itemDetails.invoiceId = invoice.idInvoice " +
-                   " LEFT JOIN tblProdGstCodeDtls ON  tblProdGstCodeDtls.idProdGstCode = itemDetails.prodGstCodeId " +
-                   " LEFT JOIN tblItemTallyRefDtls ON ISNULL(tblProdGstCodeDtls.prodCatId, 0) = ISNULL(tblItemTallyRefDtls.prodCatId, 0) " +
-                   " AND ISNULL(tblProdGstCodeDtls.prodSpecId,0) = ISNULL(tblItemTallyRefDtls.prodSpecId, 0) " +
-                   " AND ISNULL(tblProdGstCodeDtls.materialId,0) = ISNULL(tblItemTallyRefDtls.materialId, 0) " +
-                   " AND ISNULL(tblProdGstCodeDtls.prodItemId,0) = ISNULL(tblitemtallyrefDtls.prodItemId, 0) AND tblitemtallyrefDtls.isActive = 1 " +
-                   " LEFT JOIN tblMaterial mat on mat.idMaterial = tblProdGstCodeDtls.materialId " +
-                   " LEFT JOIN finalLoadingSlipExt lExt  ON lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId " +
-                   " LEFT JOIN tblBookings booking  ON lExt.bookingId = booking.idBooking " +
-                   " LEFT JOIN finalInvoiceItemTaxDtls itemTaxDetails  ON itemTaxDetails.invoiceItemId = itemDetails.idInvoiceItem " +
-                   " LEFT JOIN tblTaxRates taxRate  ON taxRate.idTaxRate = itemTaxDetails.taxRateId " +
-                   " inner join  tblParityDetails PD on tblProdGstCodeDtls.materialId = PD.materialId " +
-                   " and isnull(PD.isActive,0)= 1 and invoiceAddress.stateId = PD.stateId and PD.prodSpecId = lExt.prodSpecId and PD.prodCatId = lExt.prodCatId " +
-                   " left join finalWeighingMeasures WM on lExt.weightMeasureId = WM.idWeightMeasure and WM.weightMeasurTypeId = 2 " +
-                   " inner join dimProdCat PC on lExt.prodCatId = PC.idProdCat and lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId and invoice.idInvoice = itemDetails.invoiceId " +
-                   " inner join dimProdSpec PS on lExt.prodSpecId = PS.idProdSpec and lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId and invoice.idInvoice = itemDetails.invoiceId " +
-                  
+                   " left join tempWeighingMeasures WM on lExt.weightMeasureId = WM.idWeightMeasure and WM.weightMeasurTypeId = 2 " +
+                   " left join  tblParityDetails PD on lExt.parityDtlId = PD.idParityDtl LEFT JOIN tblBookings booking  ON lExt.bookingId = booking.idBooking " +
+                   " left join tblAddress tblAddress on tblAddress.idAddr=orgdealer.addrId " +
+                   " UNION ALL " +
+                   " Select distinct  itemDetails.invoiceId as ItemInvId, invoice.idInvoice as InvId ,CONVERT(VARCHAR(10), invoice.createdOn, 103) as Date,invoice.createdOn , " +
+                   " (case when isnull(tblAddress.villageName,'')<>'' then  orgdealer.firmName   + ',' + tblAddress.villageName else orgdealer.firmName End ) as DealerName,invoice.vehicleNo,itemDetails.prodItemDesc  as Size  , " +
+                  "  isnull(lExt.loadedWeight, 0)  as NetWt,isnull(lExt.calcTareWeight, 0)  as TareWt,isnull(WM.weightMT, 0)  as GrossWt,  " +
+                 "  itemDetails.bundles  as Bundle, isnull(booking.bookingRate,0) as BASICRATE,PD.nonConfParityAmt as Difference ,isnull(itemDetails.cdStructure,0) as CD" +
+                 ",isnull(lExt.ratePerMT,0)  as FinalRate,(case when isnull(itemDetails.loadingSlipExtId,'')='' then itemDetails.grandTotal else isnull(lExt.ratePerMT,0) * (isnull(lExt.loadedWeight, 0)/1000) end ) as FinalAmt  " +
+                   " ,itemDetails.cdStructure, " +
+                    " invoice.narration,invoice.isConfirmed,invoice.statusId,invoice.invoiceNo " +
+                    " FROM finalInvoice invoice " +
+                    " left join finalInvoiceItemDetails itemDetails on invoice.idInvoice = itemDetails.invoiceId " +
+                    " LEFT JOIN finalLoadingSlipExt lExt  ON lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId " +
+                    " INNER JOIN tblOrganization orgdealer ON orgdealer.idOrganization = invoice.dealerOrgId " +
+                    " left join finalWeighingMeasures WM on lExt.weightMeasureId = WM.idWeightMeasure and WM.weightMeasurTypeId = 2 " +
+                    " left join  tblParityDetails PD on lExt.parityDtlId = PD.idParityDtl LEFT JOIN tblBookings booking  ON lExt.bookingId = booking.idBooking " +
+                    " left join tblAddress tblAddress on tblAddress.idAddr=orgdealer.addrId " +
                    " )sq1 WHERE  " + SWhere + " )a order by a.SrNo  " +
                   
                    " select CONVERT(varchar(100), case when isnull(a.SrNo2, 0) = 1 then CONVERT(varchar(100), SrNo) else case when a.Cn = 2 then 'Total' else null end end) as SrNo, " +
-                   " Date ,DealerName,vehicleNo,Size, NetWt, TareWt, GrossWt, Bundle,FinalRate,FinalAmt,Remark " +
+                   " Date ,DealerName,vehicleNo,Size, NetWt, TareWt, GrossWt, Bundle,BASICRATE,CD,Difference,FinalRate,FinalAmt,Remark " +
                    " from(select 1 as Cn, * from #TempLocation " +
                    " union " +
-                   " select 2 as Cn, SrNo,null,null,null,null,null, sum(NetWt),null,null,null,null, sum(FinalAmt),null  " +
+                   " select 2 as Cn, SrNo,null,null,null,null,null, sum(NetWt),null,null,null,null,null,null,null, sum(FinalAmt),null  " +
                    " from #TempLocation group by SrNo )a order by a.SrNo,a.Cn ";
 
 
@@ -1908,6 +1880,22 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["Bundle"] != DBNull.Value)
                                     tblInvoiceRptTONew.Bundle = Convert.ToInt32(tblInvoiceRptTODT["Bundle"].ToString());
                             }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("BASICRATE"))
+                            {
+                                if (tblInvoiceRptTODT["BASICRATE"] != DBNull.Value)
+                                    tblInvoiceRptTONew.BASICRATE = Convert.ToDecimal(tblInvoiceRptTODT["BASICRATE"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("CD"))
+                            {
+                                if (tblInvoiceRptTODT["CD"] != DBNull.Value)
+                                    tblInvoiceRptTONew.CD = Convert.ToDecimal(tblInvoiceRptTODT["CD"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("Difference"))
+                            {
+                                if (tblInvoiceRptTODT["Difference"] != DBNull.Value)
+                                    tblInvoiceRptTONew.Difference = Convert.ToDecimal(tblInvoiceRptTODT["Difference"].ToString());
+                            }
+                            
                             if (tblInvoiceRptTODT.GetName(i).Equals("FinalRate"))
                             {
                                 if (tblInvoiceRptTODT["FinalRate"] != DBNull.Value)
