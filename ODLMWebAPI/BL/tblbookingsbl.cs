@@ -2159,8 +2159,8 @@ namespace ODLMWebAPI.BL
                                 statusId = Convert.ToInt32(statusAfterBookingConfigTO.ConfigParamVal);
                             }
                         }
-                        else
-                            statusId = (Int32)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR;//Reshma Added
+                        //else
+                        //    statusId = (Int32)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR;//Reshma Added
                     }
 
                     List<TblUserRoleTO> tblUserRoleTOList = _iTblUserRoleBL.SelectAllActiveUserRoleList(tblBookingsTO.CreatedBy);
@@ -2675,23 +2675,7 @@ namespace ODLMWebAPI.BL
                             tblAlertInstanceTO.AlertComment = "Your Booking #" + tblBookingsTO.BookingDisplayNo + " is confirmed. Rate : " + tblBookingsTO.BookingRate + " AND Qty : " + tblBookingsTO.BookingQty;
                         }
                         tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
-                        //Reshma Added for 
-                        TblConfigParamsTO tblConfigParamsTOTemp1 = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_WhatsApp_Msg);
-                        if (tblConfigParamsTOTemp1 != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp1.ConfigParamVal))
-                        {
-                            Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp1.ConfigParamVal);
-                            if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
-                            {
-                                
-                                    TblConfigParamsTO tblConfigParamsTOForRate = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_NEW_BOOKING);
-                                    if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
-                                    {
-                                        tblAlertInstanceTO.WhatsAppComment = tblBookingsTO.CreatedOn.ToShortDateString(); 
-                                        tblAlertInstanceTO.WhatsAppComment2 = tblBookingsTO.CreatedOn.ToString("hh:mm tt");
-                                    }
-                            }
-                        }
-
+                       
                         // SMS to Dealer
                         TblSmsTO smsTO = new TblSmsTO();
                         Dictionary<Int32, String> orgMobileNoDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblBookingsTO.DealerOrgId.ToString(), conn, tran);
@@ -2740,22 +2724,6 @@ namespace ODLMWebAPI.BL
                         if (tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_APPROVED_FINANCE)
                         {
                             isCnfAcceptDirectly = true;
-                        }
-                        //Reshma Added for 
-                        TblConfigParamsTO tblConfigParamsTOTemp1 = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_WhatsApp_Msg);
-                        if (tblConfigParamsTOTemp1 != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp1.ConfigParamVal))
-                        {
-                            Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp1.ConfigParamVal);
-                            if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
-                            {
-
-                                TblConfigParamsTO tblConfigParamsTOForRate = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_NEW_BOOKING);
-                                if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
-                                {
-                                    tblAlertInstanceTO.WhatsAppComment = tblBookingsTO.CreatedOn.ToShortDateString();
-                                    tblAlertInstanceTO.WhatsAppComment2 = tblBookingsTO.CreatedOn.ToString("hh:mm tt");
-                                }
-                            }
                         }
 
                         resultMessage = SendNotification(tblBookingsTO, isCnfAcceptDirectly, isFromNewBooking, conn, tran);
@@ -4333,7 +4301,7 @@ namespace ODLMWebAPI.BL
                             }
                             tblAlertInstanceTO.SmsTOList.Add(smsTO);
                         }
-                        //Reshma Added for 
+                        //Reshma Added for whats App msg
                         TblConfigParamsTO tblConfigParamsTOTemp1 = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_WhatsApp_Msg);
                         if (tblConfigParamsTOTemp1 != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp1.ConfigParamVal))
                         {
@@ -4345,7 +4313,7 @@ namespace ODLMWebAPI.BL
                                 if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
                                 {
                                     tblAlertInstanceTO.WhatsAppComment = tblBookingsTO.CreatedOn.ToShortDateString();
-                                    tblAlertInstanceTO.WhatsAppComment2 = tblBookingsTO.CreatedOn.ToString("hh:mm");
+                                    tblAlertInstanceTO.WhatsAppComment2 = tblBookingsTO.CreatedOn.ToString("hh:mm tt");
 
                                     tblAlertInstanceTO.WHATS_APP_SEND_MESSAGE_REQUESJSON = tblConfigParamsTOForRate.ConfigParamVal;
                                 }

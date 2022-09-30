@@ -12398,11 +12398,14 @@ namespace ODLMWebAPI.BL
                             return resultMessage;
                         }
                         double invoiceCnt = 0;
+
+                        
                         List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOList = tblInvoiceTO.InvoiceItemDetailsTOList;
                         if (tblInvoiceItemDetailsTOList != null && tblInvoiceItemDetailsTOList.Count > 0)
                         {
                             invoiceCnt = tblInvoiceItemDetailsTOList.Where(w => w.LoadingSlipExtId > 0).Sum(w => w.InvoiceQty);
                         }
+                        Decimal d =Convert .ToDecimal(invoiceCnt);
                         TblLoadingSlipTO tblLoadingSlipTO = _iTblLoadingSlipBL.SelectTblLoadingSlipTO(tblInvoiceTO.LoadingSlipId);
 
                         string whatsAppMsgTOStr = "";
@@ -12511,7 +12514,7 @@ namespace ODLMWebAPI.BL
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment2", tblInvoiceTO.InvoiceNo);
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment3", tblInvoiceTO.CreatedOnStr.ToString ());
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment4", tblInvoiceTO.GrandTotal .ToString ());
-                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment5", invoiceCnt.ToString ());
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment5", Convert.ToString( Math .Round( invoiceCnt,3)));
                             DateTime eWayBillExpiry=new DateTime();
                             string  response = _iTblInvoiceDAO.SelectresponseForPhotoInReport(invoiceId,(int)EInvoiceAPIE.GENERATE_EWAYBILL);
                             if (!String.IsNullOrEmpty(response))
