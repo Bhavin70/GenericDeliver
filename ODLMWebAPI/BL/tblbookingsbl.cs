@@ -2675,6 +2675,23 @@ namespace ODLMWebAPI.BL
                             tblAlertInstanceTO.AlertComment = "Your Booking #" + tblBookingsTO.BookingDisplayNo + " is confirmed. Rate : " + tblBookingsTO.BookingRate + " AND Qty : " + tblBookingsTO.BookingQty;
                         }
                         tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
+                        //Reshma Added for 
+                        TblConfigParamsTO tblConfigParamsTOTemp1 = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_WhatsApp_Msg);
+                        if (tblConfigParamsTOTemp1 != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp1.ConfigParamVal))
+                        {
+                            Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp1.ConfigParamVal);
+                            if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                            {
+                                
+                                    TblConfigParamsTO tblConfigParamsTOForRate = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_NEW_BOOKING);
+                                    if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
+                                    {
+                                        tblAlertInstanceTO.WhatsAppComment = tblBookingsTO.CreatedOn.ToShortDateString(); 
+                                        tblAlertInstanceTO.WhatsAppComment2 = tblBookingsTO.CreatedOn.ToString("hh:mm tt");
+                                    }
+                            }
+                        }
+
                         // SMS to Dealer
                         TblSmsTO smsTO = new TblSmsTO();
                         Dictionary<Int32, String> orgMobileNoDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblBookingsTO.DealerOrgId.ToString(), conn, tran);
@@ -2724,6 +2741,23 @@ namespace ODLMWebAPI.BL
                         {
                             isCnfAcceptDirectly = true;
                         }
+                        //Reshma Added for 
+                        TblConfigParamsTO tblConfigParamsTOTemp1 = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_WhatsApp_Msg);
+                        if (tblConfigParamsTOTemp1 != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp1.ConfigParamVal))
+                        {
+                            Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp1.ConfigParamVal);
+                            if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                            {
+
+                                TblConfigParamsTO tblConfigParamsTOForRate = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_NEW_BOOKING);
+                                if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
+                                {
+                                    tblAlertInstanceTO.WhatsAppComment = tblBookingsTO.CreatedOn.ToShortDateString();
+                                    tblAlertInstanceTO.WhatsAppComment2 = tblBookingsTO.CreatedOn.ToString("hh:mm tt");
+                                }
+                            }
+                        }
+
                         resultMessage = SendNotification(tblBookingsTO, isCnfAcceptDirectly, isFromNewBooking, conn, tran);
                         if (resultMessage.MessageType != ResultMessageE.Information)
                         {
@@ -4145,6 +4179,7 @@ namespace ODLMWebAPI.BL
                             tblAlertInstanceTO.AlertComment = AlertComment; 
                         }
 
+
                         if (dealerNameActive == 1)//Vijaymala added[03-05-2018]
                         {
                             tblAlertInstanceTO.SmsComment = tblAlertInstanceTO.AlertComment;
@@ -4298,7 +4333,24 @@ namespace ODLMWebAPI.BL
                             }
                             tblAlertInstanceTO.SmsTOList.Add(smsTO);
                         }
+                        //Reshma Added for 
+                        TblConfigParamsTO tblConfigParamsTOTemp1 = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_WhatsApp_Msg);
+                        if (tblConfigParamsTOTemp1 != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp1.ConfigParamVal))
+                        {
+                            Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOTemp1.ConfigParamVal);
+                            if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                            {
 
+                                TblConfigParamsTO tblConfigParamsTOForRate = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_NEW_BOOKING);
+                                if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
+                                {
+                                    tblAlertInstanceTO.WhatsAppComment = tblBookingsTO.CreatedOn.ToShortDateString();
+                                    tblAlertInstanceTO.WhatsAppComment2 = tblBookingsTO.CreatedOn.ToString("hh:mm");
+
+                                    tblAlertInstanceTO.WHATS_APP_SEND_MESSAGE_REQUESJSON = tblConfigParamsTOForRate.ConfigParamVal;
+                                }
+                            }
+                        }
                         result = _iTblAlertInstanceBL.ResetAlertInstance((int)NotificationConstants.NotificationsE.BOOKING_APPROVED_BY_DIRECTORS, tblBookingsTO.IdBooking, 0, conn, tran);
                         if (result < 0)
                         {

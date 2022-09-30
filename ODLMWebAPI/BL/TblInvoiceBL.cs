@@ -12292,6 +12292,7 @@ namespace ODLMWebAPI.BL
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
             ResultMessage resultMSg = new ResultMessage();
+            int result = 0;
             ResultMessage resultMessage = new ResultMessage();
             try
             {
@@ -12305,14 +12306,14 @@ namespace ODLMWebAPI.BL
                         resultMessage = PrintReportV2(invoiceId, true, false, false);
 
                         //ResultMessage resuMsg = PrintWeighingReport(invoiceId, false, Constants.WeighmentSlip, false);
-                        TblInvoiceTO tblInvoiceTO = SelectTblInvoiceTOWithDetails (invoiceId);
+                        TblInvoiceTO tblInvoiceTO = SelectTblInvoiceTOWithDetails(invoiceId);
                         if (tblInvoiceTO == null)
                         {
                             resultMessage.DefaultBehaviour("tblInvoiceTO is NULL in Send whatsApp Msg");
                             return resultMessage;
                         }
                         String fileName = resultMessage.Tag.ToString();
-                       
+
 
                         Byte[] bytes = File.ReadAllBytes(fileName);
                         TblDocumentDetailsTO tblDocumentDetailsT0 = new TblDocumentDetailsTO();
@@ -12359,7 +12360,7 @@ namespace ODLMWebAPI.BL
                             tempInvoiceDocumentDetailsTO.CreatedBy = 1;
                             tempInvoiceDocumentDetailsTO.CreatedOn = _iCommon.ServerDateTime;
                             tempInvoiceDocumentDetailsTO.IsActive = 1;
-                            int result = _iTempInvoiceDocumentDetailsDAO.InsertTempInvoiceDocumentDetails(tempInvoiceDocumentDetailsTO, conn, tran);
+                            result = _iTempInvoiceDocumentDetailsDAO.InsertTempInvoiceDocumentDetails(tempInvoiceDocumentDetailsTO, conn, tran);
                             if (result != 1)
                             {
                                 resultMessage.DefaultBehaviour("Error in Insert InvoiceTbl");
@@ -12374,7 +12375,7 @@ namespace ODLMWebAPI.BL
                         #endregion
                         if (resultMessage.MessageType == ResultMessageE.Information)
                         {
-                            tran.Commit(); 
+                            tran.Commit();
                             resultMSg.DefaultSuccessBehaviour();
                         }
                         else
@@ -12382,7 +12383,7 @@ namespace ODLMWebAPI.BL
                             tran.Rollback();
                         }
                         //return resultMessage;
-                        List<TblDocumentDetailsTO> tblDocumentDetailsTOListtemp =(List<TblDocumentDetailsTO>)resultMessage.Tag;
+                        List<TblDocumentDetailsTO> tblDocumentDetailsTOListtemp = (List<TblDocumentDetailsTO>)resultMessage.Tag;
                         if (tblDocumentDetailsTOListtemp == null)
                         {
                             resultMessage.DefaultBehaviour("tblDocumentDetailsTOListtemp is null in send WhatsApp Msg");
@@ -12396,25 +12397,27 @@ namespace ODLMWebAPI.BL
                             resultMessage.DefaultBehaviour("tblOrganizationTO is null in send WhatsApp Msg");
                             return resultMessage;
                         }
-                        double  invoiceCnt = 0;
+                        double invoiceCnt = 0;
                         List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOList = tblInvoiceTO.InvoiceItemDetailsTOList;
                         if (tblInvoiceItemDetailsTOList != null && tblInvoiceItemDetailsTOList.Count > 0)
                         {
-                            invoiceCnt = tblInvoiceItemDetailsTOList.Where (w=>w.LoadingSlipExtId >0).Sum(w => w.InvoiceQty);
+                            invoiceCnt = tblInvoiceItemDetailsTOList.Where(w => w.LoadingSlipExtId > 0).Sum(w => w.InvoiceQty);
                         }
                         TblLoadingSlipTO tblLoadingSlipTO = _iTblLoadingSlipBL.SelectTblLoadingSlipTO(tblInvoiceTO.LoadingSlipId);
+
+                        string whatsAppMsgTOStr = "";
                         TblConfigParamsTO tblConfigParamsTOForRate = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_INVOICE_MSG_SEND);
                         if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
                         {
-                            string whatsAppMsgTOStr = tblConfigParamsTOForRate.ConfigParamVal ;
+                            whatsAppMsgTOStr = tblConfigParamsTOForRate.ConfigParamVal;
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@mobileNo", tblOrganizationTO.RegisteredMobileNos);
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment1", tblInvoiceTO.InvoiceNo);
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment2", tblInvoiceTO.CreatedOnStr);
-                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment3", invoiceCnt.ToString ());
-                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment4", tblInvoiceTO.VehicleNo );
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment3", invoiceCnt.ToString());
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment4", tblInvoiceTO.VehicleNo);
                             if (tblLoadingSlipTO != null)
                             {
-                                if(!string .IsNullOrEmpty (tblLoadingSlipTO.DriverName))
+                                if (!string.IsNullOrEmpty(tblLoadingSlipTO.DriverName))
                                     whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment5", tblLoadingSlipTO.DriverName);
                                 else
                                     whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment5", "--");
@@ -12433,7 +12436,7 @@ namespace ODLMWebAPI.BL
                                 }
 
                             }
-                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment7", tblInvoiceTO.GrandTotal.ToString ());
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment7", tblInvoiceTO.GrandTotal.ToString());
 
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@url", uploadedFileName);
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@fileName", fileName1);
@@ -12460,44 +12463,148 @@ namespace ODLMWebAPI.BL
                                 }
                                 WhatsAppIntegrationAPI = WhatsAppConfTO.ConfigParamVal;
                                 _iCommon.SendWhatsAppMsg(whatsAppMsgTOStr, WhatsAppIntegrationAPI, WhatsAppMsgRequestHeaderStr);
-                                 
-                                tran = conn.BeginTransaction();
-                                TblAlertInstanceTO tblAlertInstanceTO   = new TblAlertInstanceTO();
-                                tblAlertInstanceTO.EffectiveFromDate = _iCommon.ServerDateTime;
-                                tblAlertInstanceTO.EffectiveToDate  = _iCommon.ServerDateTime;
-                                tblAlertInstanceTO.AlertComment = whatsAppMsgTOStr;
-                                tblAlertInstanceTO.RaisedOn  = _iCommon.ServerDateTime;
-                                tblAlertInstanceTO.RaisedBy = tblInvoiceTO.UpdatedBy;
-                                tblAlertInstanceTO.SourceEntityId  = tblInvoiceTO.IdInvoice;
-                                tblAlertInstanceTO.SourceDisplayId = NotificationConstants.NotificationsE.Send_Invoice_Msg.ToString ();
-                                tblAlertInstanceTO.IsAutoReset  =  1;
-                                tblAlertInstanceTO.AlertAction  =NotificationConstants.NotificationsE.Send_Invoice_Msg.ToString();
-                                tblAlertInstanceTO.AlertDefinitionId  =(int)NotificationConstants.NotificationsE.Send_Invoice_Msg;
-                                tblAlertInstanceTO.IsActive  = 1;
-                                tblAlertInstanceTO.WhatsAppComment  = whatsAppMsgTOStr;
-                                int result =_iTblAlertInstanceBL . InsertTblAlertInstance(tblAlertInstanceTO,conn ,tran  );
-                                if (result != 1)
-                                {
-                                    tran.Rollback(); 
-                                    resultMessage.DefaultBehaviour("Error While InsertTblAlertInstance"); 
-                                    return resultMessage;
-                                }
-                                tblInvoiceTO.IsSendWhatsAppMsg = true;
-                                result = _iTblInvoiceDAO.UpdateWhatsAppMsgSendInvoiceNo(tblInvoiceTO, conn, tran);
-                                if (result != 1)
-                                {
-                                    tran.Rollback();
-                                    resultMessage.DefaultBehaviour("Error While UpdateWhatsAppMsgSendInvoiceNo");
-                                    return resultMessage;
-                                }
-                                else
-                                    tran.Commit();
-
-                                resultMessage.DefaultSuccessBehaviour();
-                                return resultMessage;
                             }
+                            //tran = conn.BeginTransaction();
+                            //TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
+                            //tblAlertInstanceTO.EffectiveFromDate = _iCommon.ServerDateTime;
+                            //tblAlertInstanceTO.EffectiveToDate = _iCommon.ServerDateTime;
+                            //tblAlertInstanceTO.AlertComment = whatsAppMsgTOStr;
+                            //tblAlertInstanceTO.RaisedOn = _iCommon.ServerDateTime;
+                            //tblAlertInstanceTO.RaisedBy = tblInvoiceTO.UpdatedBy;
+                            //tblAlertInstanceTO.SourceEntityId = tblInvoiceTO.IdInvoice;
+                            //tblAlertInstanceTO.SourceDisplayId = NotificationConstants.NotificationsE.Send_Invoice_Msg.ToString();
+                            //tblAlertInstanceTO.IsAutoReset = 1;
+                            //tblAlertInstanceTO.AlertAction = NotificationConstants.NotificationsE.Send_Invoice_Msg.ToString();
+                            //tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.Send_Invoice_Msg;
+                            //tblAlertInstanceTO.IsActive = 1;
+                            //tblAlertInstanceTO.WhatsAppComment = whatsAppMsgTOStr;
+                            //int result = _iTblAlertInstanceBL.InsertTblAlertInstance(tblAlertInstanceTO, conn, tran);
+                            //if (result != 1)
+                            //{
+                            //    tran.Rollback();
+                            //    resultMessage.DefaultBehaviour("Error While InsertTblAlertInstance");
+                            //    return resultMessage;
+                            //}
+                            //tblInvoiceTO.IsSendWhatsAppMsg = true;
+                            //result = _iTblInvoiceDAO.UpdateWhatsAppMsgSendInvoiceNo(tblInvoiceTO, conn, tran);
+                            //if (result != 1)
+                            //{
+                            //    tran.Rollback();
+                            //    resultMessage.DefaultBehaviour("Error While UpdateWhatsAppMsgSendInvoiceNo");
+                            //    return resultMessage;
+                            //}
+                            //else
+                            //    tran.Commit();
+
+                            //resultMessage.DefaultSuccessBehaviour();
+                            //return resultMessage;
+
 
                         }
+
+                        TblConfigParamsTO tblConfigParamsTOForRateForMetaroll = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_INVOICE_MSG_SEND_FOR_METAROLL);
+                        if (tblConfigParamsTOForRateForMetaroll != null && !String.IsNullOrEmpty(tblConfigParamsTOForRateForMetaroll.ConfigParamVal))
+                        {
+                            whatsAppMsgTOStr = tblConfigParamsTOForRateForMetaroll.ConfigParamVal;
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@mobileNo", tblOrganizationTO.RegisteredMobileNos);
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment1", tblInvoiceTO.DealerName);
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment2", tblInvoiceTO.InvoiceNo);
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment3", tblInvoiceTO.CreatedOnStr.ToString ());
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment4", tblInvoiceTO.GrandTotal .ToString ());
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment5", invoiceCnt.ToString ());
+                            DateTime eWayBillExpiry=new DateTime();
+                            string  response = _iTblInvoiceDAO.SelectresponseForPhotoInReport(invoiceId,(int)EInvoiceAPIE.GENERATE_EWAYBILL);
+                            if (!String.IsNullOrEmpty(response))
+                            {
+                                JObject json = JObject.Parse(response);
+
+                                if (json.ContainsKey("data"))
+                                {
+                                    JObject jsonData = JObject.Parse(json["data"].ToString());
+
+                                    if (jsonData.ContainsKey("EwbValidTill"))
+                                    {
+                                        eWayBillExpiry = (DateTime)jsonData["EwbValidTill"];
+                                        whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment6", eWayBillExpiry.ToString(("MM-dd-yyyy")));
+                                    }
+                                    
+                                }
+                            }
+                            else
+                                whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment6", "--");
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment7", tblInvoiceTO.VehicleNo);
+                            if (tblLoadingSlipTO != null)
+                            {
+                                if (!string.IsNullOrEmpty(tblLoadingSlipTO.DriverName))
+                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment8", tblLoadingSlipTO.DriverName);
+                                else
+                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment8", "--");
+                            }
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment9", tblInvoiceTO.LrNumber);
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment10", tblInvoiceTO.TransporterName);
+
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@url", uploadedFileName);
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@fileName", fileName1);
+                            TblConfigParamsTO WhatsAppConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.WHATS_APP_SEND_MESSAGE_INTEGRATION_API, conn, tran);
+                            String WhatsAppIntegrationAPI = "";
+                            string WhatsAppMsgRequestHeaderStr = "";
+                            string WhatsAppKey = "";
+                            if (WhatsAppConfTO != null && !String.IsNullOrEmpty(WhatsAppConfTO.ConfigParamVal))
+                            {
+                                TblConfigParamsTO WhatsAppHeaderConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_HEADER_JSON, conn, tran);
+                                if (WhatsAppHeaderConfTO != null && !String.IsNullOrEmpty(WhatsAppHeaderConfTO.ConfigParamVal))
+                                {
+                                    WhatsAppMsgRequestHeaderStr = WhatsAppHeaderConfTO.ConfigParamVal;
+                                    TblConfigParamsTO WhatsAppKeyConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.WHATS_APP_API_KEY, conn, tran);
+                                    if (WhatsAppKeyConfTO != null && !String.IsNullOrEmpty(WhatsAppKeyConfTO.ConfigParamVal))
+                                    {
+                                        WhatsAppKey = WhatsAppKeyConfTO.ConfigParamVal;
+                                    }
+                                    if (!String.IsNullOrEmpty(WhatsAppMsgRequestHeaderStr) && !String.IsNullOrEmpty(WhatsAppKey))
+                                    {
+                                        WhatsAppMsgRequestHeaderStr = WhatsAppMsgRequestHeaderStr.Replace("@API_KEY", WhatsAppKey);
+                                    }
+
+                                }
+                                WhatsAppIntegrationAPI = WhatsAppConfTO.ConfigParamVal;
+                                _iCommon.SendWhatsAppMsg(whatsAppMsgTOStr, WhatsAppIntegrationAPI, WhatsAppMsgRequestHeaderStr);
+                            }
+                        }
+                        tran = conn.BeginTransaction();
+                        TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
+                        tblAlertInstanceTO.EffectiveFromDate = _iCommon.ServerDateTime;
+                        tblAlertInstanceTO.EffectiveToDate = _iCommon.ServerDateTime;
+                        tblAlertInstanceTO.AlertComment = whatsAppMsgTOStr;
+                        tblAlertInstanceTO.RaisedOn = _iCommon.ServerDateTime;
+                        tblAlertInstanceTO.RaisedBy = tblInvoiceTO.UpdatedBy;
+                        tblAlertInstanceTO.SourceEntityId = tblInvoiceTO.IdInvoice;
+                        tblAlertInstanceTO.SourceDisplayId = NotificationConstants.NotificationsE.Send_Invoice_Msg.ToString();
+                        tblAlertInstanceTO.IsAutoReset = 1;
+                        tblAlertInstanceTO.AlertAction = NotificationConstants.NotificationsE.Send_Invoice_Msg.ToString();
+                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.Send_Invoice_Msg;
+                        tblAlertInstanceTO.IsActive = 1;
+                        tblAlertInstanceTO.WhatsAppComment = whatsAppMsgTOStr;
+                        result = _iTblAlertInstanceBL.InsertTblAlertInstance(tblAlertInstanceTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("Error While InsertTblAlertInstance");
+                            return resultMessage;
+                        }
+                        tblInvoiceTO.IsSendWhatsAppMsg = true;
+                        result = _iTblInvoiceDAO.UpdateWhatsAppMsgSendInvoiceNo(tblInvoiceTO, conn, tran);
+                        if (result != 1)
+                        {
+                            tran.Rollback();
+                            resultMessage.DefaultBehaviour("Error While UpdateWhatsAppMsgSendInvoiceNo");
+                            return resultMessage;
+                        }
+                        else
+                            tran.Commit();
+
+                        resultMessage.DefaultSuccessBehaviour();
+                        return resultMessage;
+
                     }
                 }
             }
