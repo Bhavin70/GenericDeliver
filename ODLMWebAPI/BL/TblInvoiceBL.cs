@@ -12405,7 +12405,6 @@ namespace ODLMWebAPI.BL
                         {
                             invoiceCnt = tblInvoiceItemDetailsTOList.Where(w => w.LoadingSlipExtId > 0).Sum(w => w.InvoiceQty);
                         }
-                        Decimal d =Convert .ToDecimal(invoiceCnt);
                         TblLoadingSlipTO tblLoadingSlipTO = _iTblLoadingSlipBL.SelectTblLoadingSlipTO(tblInvoiceTO.LoadingSlipId);
 
                         string whatsAppMsgTOStr = "";
@@ -12418,28 +12417,7 @@ namespace ODLMWebAPI.BL
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment2", tblInvoiceTO.CreatedOnStr);
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment3", invoiceCnt.ToString());
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment4", tblInvoiceTO.VehicleNo);
-                            if (tblLoadingSlipTO != null)
-                            {
-                                if (!string.IsNullOrEmpty(tblLoadingSlipTO.DriverName))
-                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment5", tblLoadingSlipTO.DriverName);
-                                else
-                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment5", "--");
-                                if (!string.IsNullOrEmpty(tblLoadingSlipTO.ContactNo))
-                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment6", tblLoadingSlipTO.ContactNo);
-                                else
-                                {
-                                    //commented as per discussion with akshay
-                                    //TblOrganizationTO tblOrganizationTOself = _iTblOrganizationBL.SelectTblOrganizationTO(tblInvoiceTO.InvFromOrgId );
-                                    //if (tblOrganizationTOself == null)
-                                    //{
-                                    //    resultMessage.DefaultBehaviour("tblOrganizationTOself is null in send WhatsApp Msg");
-                                    //    return resultMessage;
-                                    //}
-                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment6", "--");
-                                }
-
-                            }
-                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment7", tblInvoiceTO.GrandTotal.ToString());
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment5", tblInvoiceTO.GrandTotal.ToString());
 
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@url", uploadedFileName);
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@fileName", fileName1);

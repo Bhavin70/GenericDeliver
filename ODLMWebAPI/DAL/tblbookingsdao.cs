@@ -36,7 +36,7 @@ namespace ODLMWebAPI.DAL
                                   " CASE WHEN orgDealer.addrId IS NULL THEN '' Else case WHEN address.villageName IS NOT NULL THEN address.villageName " +
                                   " ELSE CASE WHEN address.talukaName IS NOT NULL THEN address.talukaName ELSE CASE WHEN address.districtName IS NOT NULL THEN address.districtName ELSE address.stateName END END END END AS dealerName," +
                                   " CONCAT (dimStatus.statusName,'-', ISNULL(userStatusBy.userDisplayName,'') ) AS statusName , brandDtl.brandName, address.stateId, address.districtId, address.talukaId,orderType.consumerType as consumerTypeName" + //02-12-2020 Dhananjay added address.districtId, address.talukaId
-                                  " ,AA.statusRemark  as 'DirectorRemark'" +//Reshma Added For Comment
+                                  " ,AA.statusRemark  as 'DirectorComment'" +//Reshma Added For Comment
                                   " FROM tblbookings bookings LEFT JOIN tblOrganization orgCnf  ON bookings.cnfOrgId = orgCnf.idOrganization" +
 
                                   " LEFT JOIN tblTranActions tblTranAction ON tblTranAction.transId = bookings.idBooking AND tblTranAction.userId = " + loginUserId +
@@ -2009,9 +2009,9 @@ namespace ODLMWebAPI.DAL
                     if (tblBookingsTODT["cnfChkSelected"] != DBNull.Value)
                         tblBookingsTONew.CnfChkSelected = Convert.ToInt32(tblBookingsTODT["cnfChkSelected"]);
 
-                    if (tblBookingsTODT["DirectorRemark"] != DBNull.Value)
-                        tblBookingsTONew.DirectorComment  = Convert.ToString(tblBookingsTODT["DirectorRemark"]);
-
+                    if (tblBookingsTODT["DirectorComment"] != DBNull.Value)
+                        tblBookingsTONew.DirectorComment  = Convert.ToString(tblBookingsTODT["DirectorComment"]);
+                  
                     if (tblBookingsTODT["brokerName"] != DBNull.Value)
                         tblBookingsTONew.BrokerName = Convert.ToString(tblBookingsTODT["brokerName"]);
 
