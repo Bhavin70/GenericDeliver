@@ -12522,7 +12522,7 @@ namespace ODLMWebAPI.BL
                                     whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment8", "--");
                             }
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment9", tblInvoiceTO.LrNumber);
-                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment10", tblInvoiceTO.TransporterName);
+                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment", tblInvoiceTO.TransporterName);
 
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@url", uploadedFileName);
                             whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@fileName", fileName1);
