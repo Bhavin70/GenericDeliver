@@ -41,6 +41,18 @@ namespace ODLMWebAPI.Models
         public double InvoiceQty { get => invoiceQty; set => invoiceQty = value; }
         public double TotalQty { get => totalQty; set => totalQty = value; }
         public double GrandTotalQty { get => grandTotalQty; set => grandTotalQty = value; }
+        public string VehicleNo { get ; set ; }//
+        public string SaleEngineer { get; set; }
+        public string ItemDecscription { get; set; }
+        public double Rate { get; set; }
+        public double BVCAmt { get; set; }
+        public double CDPct { get; set; }
+        public double TotalAmt { get; set; }
+
+        public double TCS { get; set; }
+        public double Freight { get; set; }
+        public double OtherAmt { get; set; }
+
 
         #endregion
 

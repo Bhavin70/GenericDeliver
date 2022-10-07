@@ -1406,6 +1406,16 @@ namespace ODLMWebAPI.BL
                             invoiceReportTO.InvoiceDate = invoiceReportTOListLocal[0].InvoiceDate;
                             invoiceReportTO.InvoiceId = invoiceReportTOListLocal[0].InvoiceId;
                             invoiceReportTO.SuperwiserName = invoiceReportTOListLocal[0].SuperwiserName;
+                            invoiceReportTO.VehicleNo = invoiceReportTOListLocal[0].VehicleNo;//Reshma added FOr Gajkesari report
+                            invoiceReportTO.SaleEngineer = invoiceReportTOListLocal[0].SaleEngineer;
+                            invoiceReportTO.BVCAmt = invoiceReportTOListLocal[0].BVCAmt;
+                            invoiceReportTO.ItemDecscription  = invoiceReportTOListLocal[0].ItemDecscription;
+                            invoiceReportTO.Rate  = invoiceReportTOListLocal[0].Rate ;
+                            invoiceReportTO.CDPct  = invoiceReportTOListLocal[0].CDPct;
+                            invoiceReportTO.TotalAmt = invoiceReportTOListLocal[0].TotalAmt ;
+                            invoiceReportTO.Freight = invoiceReportTOListLocal[0].Freight;
+                            invoiceReportTO.OtherAmt = invoiceReportTOListLocal[0].OtherAmt;
+                            invoiceReportTO.TCS = invoiceReportTOListLocal[0].TCS;
 
                             Double total = 0;
                             for (int iC = 0; iC < invoiceReportTOListLocal.Count; iC++)

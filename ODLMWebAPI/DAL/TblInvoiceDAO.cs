@@ -2830,6 +2830,8 @@ namespace ODLMWebAPI.DAL
 
                 String query = "select tempInvoice.idInvoice, dimProdCat.prodCateDesc,dimProdSpec.prodSpecDesc,tblMaterial.materialSubType " +
                     " ,tempInvoice.invoiceNo, tempInvoice.invoiceDate,tempInvoiceItemDetails.invoiceQty,  tempLoadingSlipExt.* ,tblUser.userDisplayName as 'SuperWise Name' " +
+                    " ,tempInvoice.vehicleNo   ,tblBookings.bookingRate,salesEngMaster.firmName  as SaleEngineer , [tempInvoiceItemDetails].cdStructure as 'CDStructure1',tblParityDetails.baseValCorAmt ,tempInvoice .grandTotal  " +//Reshma Added For Sizewise report changes for Gajkesari
+                    " ,TCS.grandTotal as TCSAmt  ,Freight .taxableAmt as FreightAmt,tempLoadingSlip.orcAmt as OtherAmount " +
                     " from[dbo].[tempInvoiceItemDetails] " +
                     " Join tempInvoice On tempInvoice.idInvoice = tempInvoiceItemDetails.invoiceId " +
                     " Join tempLoadingSlipExt On tempLoadingSlipExt.idLoadingSlipExt = tempInvoiceItemDetails.loadingSlipExtId " +
@@ -2839,7 +2841,12 @@ namespace ODLMWebAPI.DAL
                     " Left join tempLoadingSlip  on tempInvoice.loadingSlipId  =tempLoadingSlip.idLoadingSlip  "+
                     " Left join tempLoading on tempLoadingSlip.loadingId = tempLoading.idLoading "+
                     " Left join tblUser on tblUser.idUser = tempLoading.superwisorId "+
-                    " Where  CAST(tempInvoice.invoiceDate AS Date) BETWEEN @fromDate AND @toDate Order by tempInvoice.invoiceDate";
+                    "   left join tblBookings on tblBookings .idBooking =tempLoadingSlipExt.bookingId  " +
+                    "  left join tblOrganization salesEngMaster on salesEngMaster.idOrganization =tblBookings.cnFOrgId " +
+                    "  left join tblParityDetails on tblParityDetails .idParityDtl =tempLoadingSlipExt.parityDtlId " +
+                    "  left join [tempInvoiceItemDetails] TCS on tempInvoice.idInvoice =TCS.invoiceId and TCS.otherTaxId = "+ (Int32)Constants.OtherTaxTypeE.AFTERCESS +
+                    "  left join [tempInvoiceItemDetails] Freight on tempInvoice.idInvoice =Freight.invoiceId and Freight.otherTaxId =" + (Int32)Constants.OtherTaxTypeE.FREIGHT +
+                    " Where  CAST(tempInvoice.invoiceDate AS Date) BETWEEN @fromDate AND @toDate  Order by tempInvoice.invoiceDate";
                 conn.Open();
                 cmdSelect.CommandText = query;
                 cmdSelect.Connection = conn;
@@ -2862,6 +2869,26 @@ namespace ODLMWebAPI.DAL
                         invoiceReportTO.InvoiceQty = Convert.ToDouble(dt.Rows[i]["invoiceQty"]);
                         invoiceReportTO.InvoiceNo = Convert.ToString(dt.Rows[i]["invoiceNo"]);
                         invoiceReportTO.SuperwiserName = Convert.ToString(dt.Rows[i]["SuperWise Name"]);
+                        invoiceReportTO.VehicleNo = Convert.ToString(dt.Rows[i]["vehicleNo"]);
+                        invoiceReportTO.ItemDecscription = Convert.ToString(dt.Rows[i]["prodSpecDesc"]);
+                        if (dt.Rows[i]["bookingRate"] != DBNull.Value)
+                            invoiceReportTO.Rate = Convert.ToDouble(dt.Rows[i]["bookingRate"].ToString());
+                        if (dt.Rows[i]["SaleEngineer"] != DBNull.Value)
+                            invoiceReportTO.SaleEngineer = Convert.ToString(dt.Rows[i]["SaleEngineer"].ToString());
+                        if (dt.Rows[i]["CDStructure1"] != DBNull.Value)
+                            invoiceReportTO.CDPct = Convert.ToDouble(dt.Rows[i]["CDStructure1"].ToString());
+
+                        if (dt.Rows[i]["grandTotal"] != DBNull.Value)
+                            invoiceReportTO.TotalAmt = Convert.ToDouble(dt.Rows[i]["grandTotal"].ToString());
+                        if (dt.Rows[i]["baseValCorAmt"] != DBNull.Value)
+                            invoiceReportTO.BVCAmt = Convert.ToDouble(dt.Rows[i]["baseValCorAmt"].ToString());
+                        if (dt.Rows[i]["TCSAmt"] != DBNull.Value)
+                            invoiceReportTO.TCS = Convert.ToDouble(dt.Rows[i]["TCSAmt"].ToString());
+                        if (dt.Rows[i]["FreightAmt"] != DBNull.Value)
+                            invoiceReportTO.Freight = Convert.ToDouble(dt.Rows[i]["FreightAmt"].ToString());
+                        if (dt.Rows[i]["OtherAmount"] != DBNull.Value)
+                            invoiceReportTO.OtherAmt = Convert.ToDouble(dt.Rows[i]["OtherAmount"].ToString());
+
                         invoiceReportTOList.Add(invoiceReportTO);
 
                     }
