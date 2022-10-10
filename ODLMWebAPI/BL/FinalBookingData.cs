@@ -626,7 +626,9 @@ namespace ODLMWebAPI.BL
             int oldLoadingSlipId = 0;
             double totalLoadingQty = 0;
             int result = 0;
-
+            string oldInvoiceId = "";
+            List<string> invoiceTOListAll = new List<string>();
+            TblInvoiceTO TblInvoiceTOlocal = new TblInvoiceTO();
             try
             {
 
@@ -681,7 +683,20 @@ namespace ODLMWebAPI.BL
 
                         // Select invoice details.
                         List<TblInvoiceTO> invoiceTOList =_iTblInvoiceDAO .SelectAllTempInvoice(loadingSlipTO.IdLoadingSlip, conn, tran);
+                        if (invoiceTOList != null && invoiceTOList.Count > 0)
+                        {
+                            if (invoiceTOListAll != null && invoiceTOListAll.Count > 0)
+                            {
+                                for (int k = 0; k < invoiceTOList.Count; k++)
+                                {
+                                    //statusIds.Contains(Convert.ToString(w.StatusId)
+                                    Boolean invoiceTOListnew = invoiceTOListAll.Contains(Convert.ToString(invoiceTOList[k].IdInvoice.ToString()));
+                                    if (invoiceTOListnew)
+                                        invoiceTOList.RemoveAt(k);
 
+                                }
+                            }
+                        }
 
                         // Insert loading slip.
                         loadingSlipTO.LoadingId = loadingTO.IdLoading;
@@ -807,8 +822,11 @@ namespace ODLMWebAPI.BL
                         // Insert invoice details.
                         if (invoiceTOList != null && invoiceTOList.Count > 0)
                         {
+                            //invoiceTOListAll.Add ();//Reshma Added For avoid duplicate data for migration.
                             foreach (var invoiceTO in invoiceTOList)
                             {
+                                oldInvoiceId = invoiceTO.IdInvoice.ToString();
+                                invoiceTOListAll.Add(oldInvoiceId);
                                 //Added Dhananjay [23-12-2020] Select invoice eInvoice API response.
                                 List<TblEInvoiceApiResponseTO> eInvoiceApiResponseTOList =_iTblEInvoiceApiResponseBL.SelectTblEInvoiceApiResponseListForInvoiceId(invoiceTO.IdInvoice, conn, tran);
                                 // Select invoice address details.
@@ -947,6 +965,7 @@ namespace ODLMWebAPI.BL
                                         }
                                     }
                                 }
+                               
                             }
                         }
                     }
