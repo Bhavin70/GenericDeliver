@@ -4312,10 +4312,63 @@ namespace ODLMWebAPI.BL
                                 TblConfigParamsTO tblConfigParamsTOForRate = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_NEW_BOOKING);
                                 if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
                                 {
-                                    tblAlertInstanceTO.WhatsAppComment = tblBookingsTO.CreatedOn.ToShortDateString();
-                                    tblAlertInstanceTO.WhatsAppComment2 = tblBookingsTO.CreatedOn.ToString("hh:mm tt");
+                                    string whatsAppMsgTOStr = tblConfigParamsTOForRate.ConfigParamVal;
+                                    
+                                        whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment1", tblBookingsTO.CreatedOn.ToShortDateString());
+                                        whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment2", tblBookingsTO.CreatedOn.ToString("hh:mm tt"));
 
-                                    tblAlertInstanceTO.WHATS_APP_SEND_MESSAGE_REQUESJSON = tblConfigParamsTOForRate.ConfigParamVal;
+
+                                    TblOrganizationTO tblOrganizationTO = _iTblOrganizationDAO.SelectTblOrganizationTO(tblBookingsTO .DealerOrgId);
+                                    if (tblOrganizationTO == null)
+                                    {
+                                        resultMessage.DefaultBehaviour("tblOrganizationTO is null in send WhatsApp Msg");
+                                        return resultMessage;
+                                    }
+                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@mobileNo", tblOrganizationTO.RegisteredMobileNos);
+                                    TblConfigParamsTO WhatsAppConfTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_INTEGRATION_API);
+                                    String WhatsAppIntegrationAPI = "";
+                                    string WhatsAppMsgRequestHeaderStr = "";
+                                    string WhatsAppKey = "";
+                                    if (WhatsAppConfTO != null && !String.IsNullOrEmpty(WhatsAppConfTO.ConfigParamVal))
+                                    {
+                                        TblConfigParamsTO WhatsAppHeaderConfTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_HEADER_JSON);
+                                        if (WhatsAppHeaderConfTO != null && !String.IsNullOrEmpty(WhatsAppHeaderConfTO.ConfigParamVal))
+                                        {
+                                            WhatsAppMsgRequestHeaderStr = WhatsAppHeaderConfTO.ConfigParamVal;
+                                            TblConfigParamsTO WhatsAppKeyConfTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.WHATS_APP_API_KEY);
+                                            if (WhatsAppKeyConfTO != null && !String.IsNullOrEmpty(WhatsAppKeyConfTO.ConfigParamVal))
+                                            {
+                                                WhatsAppKey = WhatsAppKeyConfTO.ConfigParamVal;
+                                            }
+                                            if (!String.IsNullOrEmpty(WhatsAppMsgRequestHeaderStr) && !String.IsNullOrEmpty(WhatsAppKey))
+                                            {
+                                                WhatsAppMsgRequestHeaderStr = WhatsAppMsgRequestHeaderStr.Replace("@API_KEY", WhatsAppKey);
+                                            }
+
+                                        }
+                                        WhatsAppIntegrationAPI = WhatsAppConfTO.ConfigParamVal;
+                                        _iCommon.SendWhatsAppMsg(whatsAppMsgTOStr, WhatsAppIntegrationAPI, WhatsAppMsgRequestHeaderStr);
+                                        TblAlertInstanceTO tblAlertInstanceTOTemp = new TblAlertInstanceTO();
+                                        tblAlertInstanceTOTemp.EffectiveFromDate = _iCommon.ServerDateTime;
+                                        tblAlertInstanceTOTemp.EffectiveToDate = _iCommon.ServerDateTime;
+                                        tblAlertInstanceTOTemp.AlertComment = whatsAppMsgTOStr;
+                                        tblAlertInstanceTOTemp.RaisedOn = _iCommon.ServerDateTime;
+                                        tblAlertInstanceTOTemp.RaisedBy = tblBookingsTO.CreatedBy;
+                                        tblAlertInstanceTOTemp.SourceEntityId = tblBookingsTO.IdBooking ;
+                                        tblAlertInstanceTOTemp.SourceDisplayId ="Booking Add";
+                                        tblAlertInstanceTOTemp.IsAutoReset = 1;
+                                        tblAlertInstanceTOTemp.AlertAction = tblAlertInstanceTO.AlertAction;
+                                        tblAlertInstanceTOTemp.AlertDefinitionId = tblAlertInstanceTO.AlertDefinitionId;
+                                        tblAlertInstanceTOTemp.IsActive = 1;
+                                        tblAlertInstanceTOTemp.WhatsAppComment = whatsAppMsgTOStr;
+                                        result = _iTblAlertInstanceBL.InsertTblAlertInstance(tblAlertInstanceTOTemp, conn, tran);
+                                        if (result != 1)
+                                        {
+                                            tran.Rollback();
+                                            resultMessage.DefaultBehaviour("Error While InsertTblAlertInstance");
+                                            return resultMessage;
+                                        }
+                                    }
                                 }
                             }
                         }
