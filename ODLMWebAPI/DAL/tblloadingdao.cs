@@ -1876,7 +1876,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblOrganization fromOrgNameTbl on fromOrgNameTbl.idOrganization = loading.fromOrgId " +
                                   " LEFT JOIN tblUser createdUser ON createdUser.idUser=loading.createdBy WHERE loading.statusId IN " +
                                   " ( " + (int)Constants.TranStatusE.LOADING_DELIVERED + "," + (int)Constants.TranStatusE.LOADING_CANCEL + ")" +
-                                  " AND  CONVERT (DATE,statusDate,103) <= @StatusDate and loading.idloading=9579  " +
+                                  " AND  CONVERT (DATE,statusDate,103) <= @StatusDate  " +
                                   " ORDER BY idloading ASC ";
 
                 cmdSelect.CommandText = sqlQuery;

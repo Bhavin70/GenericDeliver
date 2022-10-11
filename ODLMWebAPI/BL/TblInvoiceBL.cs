@@ -1464,6 +1464,11 @@ namespace ODLMWebAPI.BL
                         invoiceReportTO.InvoiceNo = "Total";
                         invoiceReportTO.TotalQty = Math.Round(grandTotal, 2);
                         invoiceReportTO.ProdMaterialQtyDCT = ProdMaterialQtyDCT;
+                        invoiceReportTO.TCS = Math.Round(Convert.ToDouble(invoiceReportTOListFinal.Sum(s => s.TCS)),2);
+                        invoiceReportTO.TotalAmt = Math.Round(Convert.ToDouble(invoiceReportTOListFinal.Sum(s => s.TotalAmt)),2);
+                        invoiceReportTO.Freight = Math.Round(Convert.ToDouble(invoiceReportTOListFinal.Sum(s => s.Freight)),2);
+                        invoiceReportTO.BVCAmt = Math.Round(Convert.ToDouble(invoiceReportTOListFinal.Sum(s => s.BVCAmt)),2);
+                        invoiceReportTO.OtherAmt = Math.Round(Convert.ToDouble(invoiceReportTOListFinal.Sum(s => s.OtherAmt)),2);
                         invoiceReportTOListFinal.Add(invoiceReportTO);
 
                     }
