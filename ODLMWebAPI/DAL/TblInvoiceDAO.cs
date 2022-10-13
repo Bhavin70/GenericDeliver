@@ -1021,7 +1021,7 @@ namespace ODLMWebAPI.DAL
                     " FROM ( Select distinct  itemDetails.invoiceId as ItemInvId, invoice.idInvoice as InvId, CONVERT(VARCHAR(10), invoice.createdOn, 103) as Date, invoice.createdOn, " +
                     " (case when isnull(tblAddress.villageName,'')<>'' then  orgdealer.firmName   + ',' + tblAddress.villageName else orgdealer.firmName End ) as DealerName, invoice.vehicleNo, " +
                     " itemDetails.prodItemDesc as Size,isnull(lExt.loadedWeight, 0) as NetWt,isnull(lExt.calcTareWeight, 0)  as TareWt, " +
-                   " isnull(WM.weightMT, 0)  as GrossWt,itemDetails.bundles  as Bundle, isnull(booking.bookingRate,0) as BASICRATE,PD.nonConfParityAmt as Difference ,isnull(itemDetails.cdStructure,0) as CD" +
+                   " isnull(WM.weightMT, 0)  as GrossWt,isnull((case when isnull(itemDetails.bundles,'')='' then 0  else itemDetails.bundles end ),0)  as Bundle, isnull(booking.bookingRate,0) as BASICRATE,PD.nonConfParityAmt as Difference ,isnull(itemDetails.cdStructure,0) as CD" +
                    ",isnull(lExt.ratePerMT,0)  as FinalRate,(case when isnull(itemDetails.loadingSlipExtId,'')='' then itemDetails.grandTotal else isnull(lExt.ratePerMT,0) * (isnull(lExt.loadedWeight, 0)/1000) end ) as FinalAmt   " +
                    " ,itemDetails.cdStructure,invoice.narration,invoice.isConfirmed, " +
                     " invoice.statusId,invoice.invoiceNo " +
@@ -1036,7 +1036,7 @@ namespace ODLMWebAPI.DAL
                    " Select distinct  itemDetails.invoiceId as ItemInvId, invoice.idInvoice as InvId ,CONVERT(VARCHAR(10), invoice.createdOn, 103) as Date,invoice.createdOn , " +
                    " (case when isnull(tblAddress.villageName,'')<>'' then  orgdealer.firmName   + ',' + tblAddress.villageName else orgdealer.firmName End ) as DealerName,invoice.vehicleNo,itemDetails.prodItemDesc  as Size  , " +
                   "  isnull(lExt.loadedWeight, 0)  as NetWt,isnull(lExt.calcTareWeight, 0)  as TareWt,isnull(WM.weightMT, 0)  as GrossWt,  " +
-                 "  itemDetails.bundles  as Bundle, isnull(booking.bookingRate,0) as BASICRATE,PD.nonConfParityAmt as Difference ,isnull(itemDetails.cdStructure,0) as CD" +
+                 "  isnull(itemDetails.bundles,0)  as Bundle, isnull(booking.bookingRate,0) as BASICRATE,PD.nonConfParityAmt as Difference ,isnull(itemDetails.cdStructure,0) as CD" +
                  ",isnull(lExt.ratePerMT,0)  as FinalRate,(case when isnull(itemDetails.loadingSlipExtId,'')='' then itemDetails.grandTotal else isnull(lExt.ratePerMT,0) * (isnull(lExt.loadedWeight, 0)/1000) end ) as FinalAmt  " +
                    " ,itemDetails.cdStructure, " +
                     " invoice.narration,invoice.isConfirmed,invoice.statusId,invoice.invoiceNo " +
@@ -1878,7 +1878,7 @@ namespace ODLMWebAPI.DAL
                             if (tblInvoiceRptTODT.GetName(i).Equals("Bundle"))
                             {
                                 if (tblInvoiceRptTODT["Bundle"] != DBNull.Value)
-                                    tblInvoiceRptTONew.Bundle = Convert.ToInt32(tblInvoiceRptTODT["Bundle"].ToString());
+                                    tblInvoiceRptTONew.Bundle = Convert.ToInt32(Convert.ToString(tblInvoiceRptTODT["Bundle"]));
                             }
                             if (tblInvoiceRptTODT.GetName(i).Equals("BASICRATE"))
                             {
@@ -1910,7 +1910,7 @@ namespace ODLMWebAPI.DAL
                             if (tblInvoiceRptTODT.GetName(i).Equals("Remark"))
                             {
                                 if (tblInvoiceRptTODT["Remark"] != DBNull.Value)
-                                    tblInvoiceRptTONew.Remark = tblInvoiceRptTODT["Remark"].ToString();
+                                    tblInvoiceRptTONew.Remark = Convert.ToString(tblInvoiceRptTODT["Remark"]);
                             }
                             if (tblInvoiceRptTODT.GetName(i).Equals("Date"))
                             {
