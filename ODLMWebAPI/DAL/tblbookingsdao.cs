@@ -2709,6 +2709,7 @@ namespace ODLMWebAPI.DAL
                             " ,[enquiryId] = @enquiryId" +
                             " , [consumerTypeId]=@consumerTypeId" +
                             " , [cnfChkSelected]=@CnfChkSelected" +
+                             " , [isMigration]=0" +
                             " WHERE  [idBooking] = @IdBooking";
 
             cmdUpdate.CommandText = sqlQuery;
