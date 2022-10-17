@@ -2831,7 +2831,8 @@ namespace ODLMWebAPI.DAL
                 String query = "select tempInvoice.idInvoice, dimProdCat.prodCateDesc,dimProdSpec.prodSpecDesc,tblMaterial.materialSubType " +
                     " ,tempInvoice.invoiceNo, tempInvoice.invoiceDate,tempInvoiceItemDetails.invoiceQty,  tempLoadingSlipExt.* ,tblUser.userDisplayName as 'SuperWise Name' " +
                     " ,tempInvoice.vehicleNo   ,tblBookings.bookingRate,salesEngMaster.firmName  as SaleEngineer , [tempInvoiceItemDetails].cdStructure as 'CDStructure1',tblParityDetails.baseValCorAmt ,tempInvoice .grandTotal  " +//Reshma Added For Sizewise report changes for Gajkesari
-                    " ,TCS.grandTotal as TCSAmt  ,Freight .taxableAmt as FreightAmt,tempLoadingSlip.orcAmt as OtherAmount " +
+                    " ,TCS.grandTotal as TCSAmt  ,Freight .taxableAmt as FreightAmt,tempLoadingSlip.orcAmt as OtherAmount" +
+                    " ,case when tempInvoice.isConfirmed=1 then 0 else tblParityDetails.parityAmt end As ParityAmt " +
                     " from[dbo].[tempInvoiceItemDetails] " +
                     " Join tempInvoice On tempInvoice.idInvoice = tempInvoiceItemDetails.invoiceId " +
                     " Join tempLoadingSlipExt On tempLoadingSlipExt.idLoadingSlipExt = tempInvoiceItemDetails.loadingSlipExtId " +
@@ -2888,7 +2889,8 @@ namespace ODLMWebAPI.DAL
                             invoiceReportTO.Freight = Convert.ToDouble(dt.Rows[i]["FreightAmt"].ToString());
                         if (dt.Rows[i]["OtherAmount"] != DBNull.Value)
                             invoiceReportTO.OtherAmt = Convert.ToDouble(dt.Rows[i]["OtherAmount"].ToString());
-
+                        if (dt.Rows[i]["ParityAmt"] != DBNull.Value)
+                            invoiceReportTO.ParityAmt = Convert.ToDouble(dt.Rows[i]["ParityAmt"].ToString());
                         invoiceReportTOList.Add(invoiceReportTO);
 
                     }

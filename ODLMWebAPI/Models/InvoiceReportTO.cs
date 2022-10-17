@@ -52,7 +52,7 @@ namespace ODLMWebAPI.Models
         public double TCS { get; set; }
         public double Freight { get; set; }
         public double OtherAmt { get; set; }
-
+        public double ParityAmt { get; set; }
 
         #endregion
 
