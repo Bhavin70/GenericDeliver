@@ -1417,6 +1417,7 @@ namespace ODLMWebAPI.BL
                             invoiceReportTO.OtherAmt = invoiceReportTOListLocal[0].OtherAmt;
                             invoiceReportTO.TCS = invoiceReportTOListLocal[0].TCS;
                             invoiceReportTO.ParityAmt  = invoiceReportTOListLocal[0].ParityAmt;
+                            invoiceReportTO.NonconfParityAmt = invoiceReportTOListLocal[0].NonconfParityAmt;
                             Double total = 0;
                             for (int iC = 0; iC < invoiceReportTOListLocal.Count; iC++)
                             {

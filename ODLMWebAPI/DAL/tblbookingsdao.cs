@@ -2340,7 +2340,7 @@ namespace ODLMWebAPI.DAL
                         if (hasColumn(tblBookingsTODT, "pendingQty") == true)
                         {
                             if (tblBookingsTODT["pendingQty"] != DBNull.Value)
-                                tblBookingsTONew.BookingQty = Convert.ToDouble(tblBookingsTODT["pendingQty"].ToString());
+                                tblBookingsTONew.pendingQty = Convert.ToDouble(tblBookingsTODT["pendingQty"].ToString());
                         }
                         if (hasColumn(tblBookingsTODT, "dispatchedQty") == true)
                         {

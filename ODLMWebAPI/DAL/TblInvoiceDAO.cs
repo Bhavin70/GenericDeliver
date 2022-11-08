@@ -2832,8 +2832,8 @@ namespace ODLMWebAPI.DAL
                     " ,tempInvoice.invoiceNo, tempInvoice.invoiceDate,tempInvoiceItemDetails.invoiceQty,  tempLoadingSlipExt.* ,tblUser.userDisplayName as 'SuperWise Name' " +
                     " ,tempInvoice.vehicleNo   ,tblBookings.bookingRate,salesEngMaster.firmName  as SaleEngineer , [tempInvoiceItemDetails].cdStructure as 'CDStructure1',tblParityDetails.baseValCorAmt ,tempInvoice .grandTotal  " +//Reshma Added For Sizewise report changes for Gajkesari
                     " ,TCS.grandTotal as TCSAmt  ,Freight .taxableAmt as FreightAmt,tempLoadingSlip.orcAmt as OtherAmount" +
-                    " ,case when tempInvoice.isConfirmed=1 then 0 else tblParityDetails.parityAmt end As ParityAmt " +
-                    " ,case when tempInvoice.isConfirmed=0 then 0 else tblParityDetails.nonConfParityAmt end As NonconfParityAmt " +
+                    " ,tblParityDetails.parityAmt  As ParityAmt "  +
+                    " ,tblParityDetails.nonConfParityAmt  As NonconfParityAmt " +
                     " from[dbo].[tempInvoiceItemDetails] " +
                     " Join tempInvoice On tempInvoice.idInvoice = tempInvoiceItemDetails.invoiceId " +
                     " Join tempLoadingSlipExt On tempLoadingSlipExt.idLoadingSlipExt = tempInvoiceItemDetails.loadingSlipExtId " +

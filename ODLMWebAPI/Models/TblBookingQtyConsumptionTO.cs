@@ -106,6 +106,6 @@ namespace ODLMWebAPI.Models
         public string ConsumerType { get; set; }
         public Int32 DistributorId { get; set; }
         public Int32 DealerId { get; set; }
-        public Int32 pendingQty { get; set; }
+        public Double pendingQty { get; set; }
     }
 }
