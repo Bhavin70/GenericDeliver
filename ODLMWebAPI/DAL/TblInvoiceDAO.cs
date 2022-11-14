@@ -2361,7 +2361,8 @@ namespace ODLMWebAPI.DAL
                 }
                 cmdSelect.CommandText = "SELECT * FROM (" + selectQuery + ")sq1 WHERE sq1.isConfirmed =" + isConfirm +
                      //" AND CAST(sq1.deliveredOn AS DATE) BETWEEN @fromDate AND @toDate" +
-                     " AND CAST(sq1.statusDate AS DATE) BETWEEN @fromDate AND @toDate" + formOrgIdCondtion +
+                   //  " AND sq1.idInvoice in (22872,22875,22879,22873,22880,22881)   " +
+                     " And CAST(sq1.statusDate AS DATE) BETWEEN @fromDate AND @toDate" + formOrgIdCondtion +
                      " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED +
                      " order by sq1.invoiceNo asc"; ;
 
