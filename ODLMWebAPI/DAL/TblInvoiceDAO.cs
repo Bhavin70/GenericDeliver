@@ -3025,7 +3025,8 @@ namespace ODLMWebAPI.DAL
                     " ,tempInvoice.invoiceNo, tempInvoice.invoiceDate,tempInvoiceItemDetails.invoiceQty,  tempLoadingSlipExt.* ,tblUser.userDisplayName as 'SuperWise Name' " +
                     " ,tempInvoice.vehicleNo   ,tblBookings.bookingRate,salesEngMaster.firmName  as SaleEngineer , [tempInvoiceItemDetails].cdStructure as 'CDStructure1',tblParityDetails.baseValCorAmt ,tempInvoice .grandTotal  " +//Reshma Added For Sizewise report changes for Gajkesari
                     " ,TCS.grandTotal as TCSAmt  ,Freight .taxableAmt as FreightAmt,tempLoadingSlip.orcAmt as OtherAmount" +
-                    " ,case when tempInvoice.isConfirmed=1 then 0 else tblParityDetails.nonConfParityAmt end As ParityAmt " +
+                    " ,tblParityDetails.parityAmt  As ParityAmt "  +
+                    " ,tblParityDetails.nonConfParityAmt  As NonconfParityAmt " +
                     " from[dbo].[tempInvoiceItemDetails] " +
                     " Join tempInvoice On tempInvoice.idInvoice = tempInvoiceItemDetails.invoiceId " +
                     " Join tempLoadingSlipExt On tempLoadingSlipExt.idLoadingSlipExt = tempInvoiceItemDetails.loadingSlipExtId " +
@@ -3084,7 +3085,12 @@ namespace ODLMWebAPI.DAL
                             invoiceReportTO.OtherAmt = Convert.ToDouble(dt.Rows[i]["OtherAmount"].ToString());
                         if (dt.Rows[i]["ParityAmt"] != DBNull.Value)
                             invoiceReportTO.ParityAmt = Convert.ToDouble(dt.Rows[i]["ParityAmt"].ToString());
+                        if (dt.Rows[i]["NonconfParityAmt"] != DBNull.Value)
+                            invoiceReportTO.NonconfParityAmt = Convert.ToDouble(dt.Rows[i]["NonconfParityAmt"].ToString());
                         invoiceReportTOList.Add(invoiceReportTO);
+
+                        
+
 
                     }
                 }

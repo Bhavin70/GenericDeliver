@@ -1523,6 +1523,7 @@ namespace ODLMWebAPI.BL
                             invoiceReportTO.OtherAmt = invoiceReportTOListLocal[0].OtherAmt;
                             invoiceReportTO.TCS = invoiceReportTOListLocal[0].TCS;
                             invoiceReportTO.ParityAmt  = invoiceReportTOListLocal[0].ParityAmt;
+                            invoiceReportTO.NonconfParityAmt = invoiceReportTOListLocal[0].NonconfParityAmt;
                             Double total = 0;
                             for (int iC = 0; iC < invoiceReportTOListLocal.Count; iC++)
                             {
@@ -1571,11 +1572,12 @@ namespace ODLMWebAPI.BL
                         invoiceReportTO.TotalQty = Math.Round(grandTotal, 2);
                         invoiceReportTO.ProdMaterialQtyDCT = ProdMaterialQtyDCT;
                         invoiceReportTO.TCS = Math.Round(Convert.ToDouble(invoiceReportTOListFinal.Sum(s => s.TCS)),2);
-                        invoiceReportTO.TotalAmt = Math.Round(Convert.ToDouble(invoiceReportTOListFinal.Sum(s => s.TotalAmt)),2);
+                        invoiceReportTO.TotalAmt = Convert.ToDouble(invoiceReportTOListFinal.Sum(s => s.TotalAmt));
                         invoiceReportTO.Freight = Math.Round(Convert.ToDouble(invoiceReportTOListFinal.Sum(s => s.Freight)),2);
                         invoiceReportTO.BVCAmt = Math.Round(Convert.ToDouble(invoiceReportTOListFinal.Sum(s => s.BVCAmt)),2);
                         invoiceReportTO.OtherAmt = Math.Round(Convert.ToDouble(invoiceReportTOListFinal.Sum(s => s.OtherAmt)),2);
                         invoiceReportTO.ParityAmt  = Math.Round(Convert.ToDouble(invoiceReportTOListFinal.Sum(s => s.ParityAmt)), 2);
+                        invoiceReportTO.NonconfParityAmt = Math.Round(Convert.ToDouble(invoiceReportTOListFinal.Sum(s => s.NonconfParityAmt)), 2);
 
                         invoiceReportTOListFinal.Add(invoiceReportTO);
 

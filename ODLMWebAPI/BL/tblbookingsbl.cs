@@ -1401,11 +1401,14 @@ namespace ODLMWebAPI.BL
                 temp = temp.OrderBy(a => a.CreatedOn).ToList();
                 double totalDays = (temp[temp.Count - 1].CreatedOn - temp[0].CreatedOn).TotalDays;
                 double sumOfBookingQty = (from x in temp select x.BookingQty).Sum();
+                double sumOfpendingQty = (from x in temp select x.pendingQty).Sum();
                 tblBookingsTO.BookingRate = ((from x in temp select x.BookingRate * x.BookingQty).Sum()) / sumOfBookingQty;
                 tblBookingsTO.BookingQty = sumOfBookingQty;
+                tblBookingsTO.pendingQty = sumOfpendingQty;
                 tblBookingsTO.DispatchedQty = (from x in temp select x.DispatchedQty).Sum();
                 tblBookingsTO.BookingRate = Math.Round(tblBookingsTO.BookingRate, 2);
                 tblBookingsTO.BookingQty = Math.Round(tblBookingsTO.BookingQty, 3);
+                tblBookingsTO.pendingQty = Math.Round(tblBookingsTO.pendingQty, 3);
                 tblBookingsTO.AvgBookingFrequency = Math.Round(Math.Round(totalDays) / temp.Count, 3);
 
             }

@@ -101,9 +101,11 @@ namespace ODLMWebAPI.Models
         public Double AvgBookingFrequency { get; set; }
         public Double DispatchedQty { get; set; }
         public string DealerName { get; set; }
+        public string districtName { get; set; }
         public string DistributorName { get; set; }
         public string ConsumerType { get; set; }
         public Int32 DistributorId { get; set; }
         public Int32 DealerId { get; set; }
+        public Double pendingQty { get; set; }
     }
 }
