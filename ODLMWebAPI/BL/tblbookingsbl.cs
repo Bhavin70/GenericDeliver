@@ -1489,9 +1489,12 @@ namespace ODLMWebAPI.BL
                     tblBookingAnalysisReportTO.DistributorName = "Total";
                     double sumOfBookingQty = (from x in listTemp select x.BookingQty).Sum();
                     tblBookingAnalysisReportTO.BookingQty = sumOfBookingQty;
+                    double sumOfpendingQty = (from x in listTemp select x.pendingQty).Sum();
+                    tblBookingAnalysisReportTO.pendingQty = sumOfpendingQty;
                     tblBookingAnalysisReportTO.BookingRate = ((from x in listTemp select x.BookingRate * x.BookingQty).Sum()) / sumOfBookingQty;
                     tblBookingAnalysisReportTO.BookingRate = Math.Round(tblBookingAnalysisReportTO.BookingRate, 2);
                     tblBookingAnalysisReportTO.BookingQty = Math.Round(tblBookingAnalysisReportTO.BookingQty, 3);
+                    tblBookingAnalysisReportTO.pendingQty = Math.Round(tblBookingAnalysisReportTO.pendingQty, 3);
 
                     tblBookingAnalysisReportTO.SrNo = -1;
                     listReturn.Add(tblBookingAnalysisReportTO);
