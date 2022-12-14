@@ -6652,13 +6652,14 @@ namespace ODLMWebAPI.BL
                             //headerDT.Rows[0]["Date"] = tblInvoiceTO.CreatedOnStr;
                             if (tblInvoiceTO != null && tblInvoiceTO.CreatedOn != new DateTime())
                             {
-                                string dtStr = tblInvoiceTO.CreatedOn.ToShortDateString();
+                                //string dtStr = tblInvoiceTO.CreatedOn.ToShortDateString();
+                                string dtStr = tblInvoiceTO.InvoiceDateStr ;
                                 headerDT.Rows[0]["DateTime"] = tblInvoiceTO.CreatedOnStr;
                                 headerDT.Rows[0]["Date"] = dtStr;
                             }
                             else
                             {
-                                string dtStr = TblLoadingSlipTO.CreatedOn.ToShortDateString();
+                                string dtStr = TblLoadingSlipTO.CreatedOn.ToString("dd-MM-yyyy"); ;
                                 headerDT.Rows[0]["DateTime"] = TblLoadingSlipTO.CreatedOnStr;
                                 headerDT.Rows[0]["Date"] = dtStr;
                             }
