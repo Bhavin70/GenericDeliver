@@ -4252,7 +4252,7 @@ namespace ODLMWebAPI.BL
                             //To calculate tare,gross and net weight
                             var minTareWt = tblInvoiceTOList.Min(minEle => minEle.TareWeight);
                             finalInvoiceTO.TareWeight = minTareWt;
-                            var maxGrossWt = finalInvoiceItemDetailsTOList.Sum(maxEle => maxEle.InvoiceQty);
+                            var maxGrossWt = finalInvoiceItemDetailsTOList.Where (w=>w.OtherTaxId == 0 ).Sum(maxEle => maxEle.InvoiceQty);
                             finalInvoiceTO.NetWeight = (maxGrossWt * 1000);
                             finalInvoiceTO.GrossWeight = finalInvoiceTO.TareWeight + finalInvoiceTO.NetWeight;
                             var expenseAmt = tblInvoiceTOList.Sum(o => o.ExpenseAmt);
