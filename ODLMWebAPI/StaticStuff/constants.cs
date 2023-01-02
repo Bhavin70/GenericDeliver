@@ -818,12 +818,15 @@ namespace ODLMWebAPI.StaticStuff
 
         //Harshala added
         public static string CP_TCS_OTHER_TAX_ID = "CP_TCS_OTHER_TAX_ID";
+        public static string CP_LOADING_CHARGES_OTHER_TAX_ID = "CP_LOADING_CHARGES_OTHER_TAX_ID";
+        public static string CP_LOADING_CHARGES_AMT = "CP_LOADING_CHARGES_AMT";
 
         public static string DEFAULT_TCS_PERCENT_IF_PAN_PRESENT = "DEFAULT_TCS_PERCENT_IF_PAN_PRESENT";
 
         public static string DEFAULT_TCS_PERCENT_IF_PAN_NOT_PRESENT = "DEFAULT_TCS_PERCENT_IF_PAN_NOT_PRESENT";
 
         public static string CP_IS_INCLUDE_TCS_TO_AUTO_INVOICE = "CP_IS_INCLUDE_TCS_TO_AUTO_INVOICE";
+        public static string CP_IS_INCLUDE_Loading_Charges_TO_AUTO_INVOICE = "CP_IS_INCLUDE_Loading_Charges_TO_AUTO_INVOICE";
 
         public static string CP_SPLIT_BOOKING_AGAINST_INVOICE = "CP_SPLIT_BOOKING_AGAINST_INVOICE";
 
@@ -1097,7 +1100,8 @@ namespace ODLMWebAPI.StaticStuff
             FREIGHT = 2,
             CESS = 3,
             AFTERCESS = 4,
-            INSURANCE_ON_SALE=5
+            INSURANCE_ON_SALE=5,
+            Loading_Charges = 7
 
         }
 

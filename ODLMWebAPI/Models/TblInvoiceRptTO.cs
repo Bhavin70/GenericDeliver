@@ -551,6 +551,7 @@ namespace ODLMWebAPI.Models
         public double GrossWeight { get; set; }
         public double NetWeight { get; set; }
         public double RoundOffAmt { get; set; }
+        public double LoadingCharges { get; set; }
         public string InvoiceTypeDesc { get; set; }
         
         public string BuyerAddress { get; set; }

@@ -5234,7 +5234,7 @@ namespace ODLMWebAPI.BL
 
                 tblBookingQtyConsumption.ConsumptionQty = tblBookingsTO.PendingQty;
                 tblBookingsTO.PendingQty = 0;
-
+                tblBookingsTO.Comments = tblBookingQtyConsumption.Remark;
                 result = _iTblBookingsDAO.UpdatePendingQuantity(tblBookingsTO, conn, tran);
                 if (result != 1)
                 {

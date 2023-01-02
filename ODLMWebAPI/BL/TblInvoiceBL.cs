@@ -2900,11 +2900,19 @@ namespace ODLMWebAPI.BL
                         //return resultMsg;
                     }
                 }
-
-
-
-
-
+                TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_IS_INCLUDE_Loading_Charges_TO_AUTO_INVOICE, conn, tran);
+                if (configParamsTO != null)
+                {
+                    resultMsg = AddLoadingChargesTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableTotal, ref basicTotal, isPanNoPresent, tblInvoiceItemDetailsTOList, tblInvoiceTO, ref otherTaxAmt, tblOrganizationTO.IsDeclarationRec);
+                    if (resultMsg == null || resultMsg.MessageType != ResultMessageE.Information)
+                    {
+                        resultMsg.DefaultBehaviour(resultMsg.Text);
+                        //return resultMsg;
+                    }
+                    tblInvoiceTO.GrandTotal = grandTotal;
+                    tblInvoiceTO.TaxableAmt = taxableTotal;
+                    tblInvoiceTO.BasicAmt = basicTotal;
+                }
             }
             else
             {
@@ -3083,6 +3091,95 @@ namespace ODLMWebAPI.BL
                                 tcsItemTO.GrandTotal = tcsGrandTotal;
                                 // taxableTotal += tcsItemTO.TaxableAmt;
 
+
+                                if (maxTaxableItemTO.InvoiceItemTaxDtlsTOList != null && maxTaxableItemTO.InvoiceItemTaxDtlsTOList.Count > 0)
+                                {
+                                    for (int ti = 0; ti < maxTaxableItemTO.InvoiceItemTaxDtlsTOList.Count; ti++)
+                                    {
+                                        TblInvoiceItemTaxDtlsTO taxDtlTO = maxTaxableItemTO.InvoiceItemTaxDtlsTOList[ti].DeepCopy();
+                                        taxDtlTO.TaxableAmt = tcsItemTO.TaxableAmt;
+                                        taxDtlTO.TaxAmt = 0;
+                                        taxDtlTO.TaxRatePct = 0.00;
+
+                                        if (tcsItemTO.InvoiceItemTaxDtlsTOList == null)
+                                            tcsItemTO.InvoiceItemTaxDtlsTOList = new List<TblInvoiceItemTaxDtlsTO>();
+                                        tcsItemTO.InvoiceItemTaxDtlsTOList.Add(taxDtlTO);
+                                    }
+                                }
+                                tblInvoiceItemDetailsTOList.Add(tcsItemTO);
+
+                                grandTotal += tcsGrandTotal;
+                                otherTaxAmt += tcsGrandTotal;
+                            }
+                        }
+                    }
+                }
+            }
+            resultMessage.DefaultSuccessBehaviour();
+            return resultMessage;
+
+        }
+        //Reshma Added For ddition of Loading charges
+        private ResultMessage AddLoadingChargesTOInTaxItemDtls(SqlConnection conn, SqlTransaction tran, ref double grandTotal, ref double taxableTotal, ref double basicTotal, bool isPanNoPresent, List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOList, TblInvoiceTO tblInvoiceTo, ref double otherTaxAmt, Int32 isDeclarationRec)
+        {
+
+            ResultMessage resultMessage = new ResultMessage();
+
+            if (tblInvoiceTo.InvoiceTypeE != Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+            {
+                TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_IS_INCLUDE_Loading_Charges_TO_AUTO_INVOICE, conn, tran);
+
+                if (configParamsTO != null)
+                {
+                    if (configParamsTO.ConfigParamVal == "1")
+                    {
+                        TblConfigParamsTO tcsConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_LOADING_CHARGES_OTHER_TAX_ID, conn, tran);
+                        if (tcsConfigParamsTO == null)
+                        {
+                            resultMessage.DefaultBehaviour("Other Tax id is not configured for Loading Charges");
+                            return resultMessage;
+                        }
+                        Int32 isForItemWiseRoundup = 2;
+                        TblConfigParamsTO cPisForItemWiseRoundup = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.ITEM_GRAND_TOTAL_ROUNDUP_VALUE, conn, tran);
+                        if (cPisForItemWiseRoundup != null)
+                        {
+                            isForItemWiseRoundup = Convert.ToInt32(cPisForItemWiseRoundup.ConfigParamVal);
+                        }
+                        TblConfigParamsTO tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_LOADING_CHARGES_AMT, conn, tran);
+
+                        if (tcsPercentConfigParamsTO == null)
+                        {
+                            resultMessage.DefaultBehaviour("Loading Charges Tax Pct is not defined.");
+                            return resultMessage;
+                        }
+
+                        if (tcsPercentConfigParamsTO != null)
+                        {
+                            if (tcsPercentConfigParamsTO.ConfigParamVal != "0" && tcsPercentConfigParamsTO.ConfigParamVal != null)
+                            {
+                                Int32 tcsOtherTaxId = Convert.ToInt32(tcsConfigParamsTO.ConfigParamVal);
+                                Double tcsGrandTotal = 0;
+                                TblInvoiceItemDetailsTO tcsItemTO = new TblInvoiceItemDetailsTO();
+                                tcsItemTO.OtherTaxId = tcsOtherTaxId;
+                                TblOtherTaxesTO otherTaxesTO = _iTblOtherTaxesDAO.SelectTblOtherTaxes(tcsOtherTaxId);
+                                if (otherTaxesTO != null)
+                                    tcsItemTO.ProdItemDesc = otherTaxesTO.TaxName;
+                                else
+                                    tcsItemTO.ProdItemDesc = "Loading Charges";
+
+                                var maxTaxableItemTO = tblInvoiceItemDetailsTOList.OrderByDescending(m => m.TaxableAmt).FirstOrDefault();
+
+                                double invoiceQty = tblInvoiceItemDetailsTOList.Where(w => w.OtherTaxId == 0).Sum(s => s.InvoiceQty);
+                                tcsItemTO.ProdGstCodeId = maxTaxableItemTO.ProdGstCodeId;
+                                tcsItemTO.GstinCodeNo = maxTaxableItemTO.GstinCodeNo;
+                                Double tcsTaxPercent = Convert.ToDouble(tcsPercentConfigParamsTO.ConfigParamVal);
+                                tcsItemTO.TaxPct = tcsTaxPercent;
+                                tcsItemTO.TaxableAmt = ((invoiceQty* tcsTaxPercent)/118)*100;//118= 100 is loading charges and 18 is tax
+                                //tcsItemTO.TaxableAmt = Math.Round(tcsItemTO.TaxableAmt, 2);
+                                tcsItemTO.TaxableAmt = Math.Round(tcsItemTO.TaxableAmt, isForItemWiseRoundup);
+                                tcsGrandTotal += tcsItemTO.TaxableAmt;
+                                tcsItemTO.GrandTotal = tcsGrandTotal;
+                                // taxableTotal += tcsItemTO.TaxableAmt;
 
                                 if (maxTaxableItemTO.InvoiceItemTaxDtlsTOList != null && maxTaxableItemTO.InvoiceItemTaxDtlsTOList.Count > 0)
                                 {
@@ -3804,6 +3901,12 @@ namespace ODLMWebAPI.BL
                         {
                             tblInvoiceTO.IsTcsApplicable = tblOrganizationTO.IsTcsApplicable;
                             message = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal1, ref taxableAmt, ref basicTotalAmt, isPanPresent, invoiceItemTOList, tblInvoiceTO, ref otherTaxAmt, tblOrganizationTO.IsDeclarationRec);
+                        }
+                        TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_IS_INCLUDE_Loading_Charges_TO_AUTO_INVOICE, conn, tran);
+
+                        if (configParamsTO != null)
+                        {
+                            message=AddLoadingChargesTOInTaxItemDtls(conn, tran, ref grandTotal1, ref taxableAmt, ref basicTotalAmt, isPanPresent, invoiceItemTOList, tblInvoiceTO, ref otherTaxAmt, tblOrganizationTO.IsDeclarationRec);
                         }
                         tblInvoiceTO.GrandTotal = grandTotal1;
                         tblInvoiceTO.TaxableAmt = taxableAmt;
@@ -5152,6 +5255,9 @@ namespace ODLMWebAPI.BL
                 invoiceDT.Columns.Add("AckNo");
                 headerDT.Columns.Add("BrokerName");
                 invoiceDT.Columns.Add("BrokerName");
+
+                headerDT.Columns.Add("loadingCharges");
+                invoiceDT.Columns.Add("loadingCharges");
                 TblAddressTO tblAddressTO = _iTblAddressBL.SelectOrgAddressWrtAddrType(organizationTO.IdOrganization, Constants.AddressTypeE.OFFICE_ADDRESS);
                 List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
                 if (organizationTO != null)
@@ -5392,7 +5498,6 @@ namespace ODLMWebAPI.BL
 
                     invoiceDT.Rows[0]["DeliveryNoteNo"] = tblInvoiceTO.DeliveryNoteNo;
                     invoiceDT.Rows[0]["DispatchDocNo"] = tblInvoiceTO.DispatchDocNo;
-
                     //if (isMathRoundoff == 1)
                     if (isMathRoundoff == 1)  //Not applicable as each value will round off upto 2
                     {
@@ -5701,6 +5806,19 @@ namespace ODLMWebAPI.BL
                             else
                             {
                                 invoiceDT.Rows[0]["insuranceAmt"] = Math.Round(insuranceTo.TaxableAmt, 2);
+                            }
+
+                        }
+                        var loadingCharges = tblInvoiceTO.InvoiceItemDetailsTOList.Where(ele => ele.OtherTaxId == (Int32)Constants.OtherTaxTypeE.Loading_Charges).FirstOrDefault();
+                        if (loadingCharges != null)
+                        {
+                            if (isMathRoundoff == 1)
+                            {
+                                invoiceDT.Rows[0]["loadingCharges"] = loadingCharges.TaxableAmt;
+                            }
+                            else
+                            {
+                                invoiceDT.Rows[0]["loadingCharges"] = Math.Round(loadingCharges.TaxableAmt, 2);
                             }
 
                         }

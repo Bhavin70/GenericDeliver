@@ -1722,9 +1722,11 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["TCS_GL"] != DBNull.Value)
                                     tblInvoiceRptTONew.TCS_GL = Convert.ToString(tblInvoiceRptTODT["TCS_GL"].ToString());
                             }
-
-
-
+                            if (tblInvoiceRptTODT.GetName(i).Equals("LoadingCharges"))
+                            {
+                                if (tblInvoiceRptTODT["LoadingCharges"] != DBNull.Value)
+                                    tblInvoiceRptTONew.LoadingCharges  = Convert.ToDouble(tblInvoiceRptTODT["LoadingCharges"].ToString());
+                            }
                             tblInvoiceRptTONew.ContactName = ""+tblInvoiceRptTONew.OwnerPersonFirstName +"  "+  tblInvoiceRptTONew.OwnerPersonLastName+"";
                         }
 
@@ -2019,7 +2021,7 @@ namespace ODLMWebAPI.DAL
                     " invAddrCons.consigneePinCode,invAddrCons.stateName as consigneeState,invAddrCons.gstinNo as consigneeGstNo, " +
                     " invAddrCons.txnAddrTypeId as consigneeTypeId,booking.bookingRate,itemDetails.prodItemDesc,(case when isnull(lExt.prodCatId,0)=1 then  mat.materialSubType else itemDetails.prodItemDesc end ) " +
                     " as materialName, itemDetails.bundles, itemDetails.cdStructure,itemDetails.invoiceQty,itemDetails.basicTotal " +
-                    " as taxableAmt  ,freightItem.freightAmt,Insurance.InsuranceAmt ,totalItemQtyTbl.TotalItemQty,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId, itemDetails.gstinCodeNo as 'GST_Code_No',   " +
+                    " as taxableAmt  ,freightItem.freightAmt,Insurance.InsuranceAmt ,totalItemQtyTbl.TotalItemQty,tcsItem.tcsAmt,loadingChargesAMt.loadingCharges LoadingCharges  ,itemDetails.idInvoiceItem as invoiceItemId, itemDetails.gstinCodeNo as 'GST_Code_No',   " +
                     " invoice.cgstAmt,invoice.igstAmt,invoice.sgstAmt,itemDetails.rate,   itemDetails.cdAmt,itemDetails.otherTaxId, " +
                     " transportOrg.firmName as transporterName,invoice.deliveryLocation,invoice.vehicleNo,transportOrg.registeredMobileNos as contactNo , " +
                     " invoice.grandTotal, invoice.isConfirmed , invoice.statusId, invoice.invFromOrgId ," +
@@ -2072,10 +2074,12 @@ namespace ODLMWebAPI.DAL
                     " from tempInvoiceItemDetails where otherTaxId is null GROUP BY invoiceId )totalItemQtyTbl On totalItemQtyTbl.invoiceId = invoice.idInvoice" +
                     " LEFT JOIN(select invoiceId, taxableAmt as freightAmt " +
                     " from tempInvoiceItemDetails where otherTaxId = 2  )freightItem On freightItem.invoiceId = invoice.idInvoice " +
-                    "LEFT JOIN(select invoiceId, taxableAmt as InsuranceAmt  from tempInvoiceItemDetails where otherTaxId = 5  )Insurance " +
+                    "  LEFT JOIN(select invoiceId, taxableAmt as InsuranceAmt  from tempInvoiceItemDetails where otherTaxId = 5  )Insurance " +
                      "   On Insurance.invoiceId = invoice.idInvoice " +
                     " LEFT JOIN(select invoiceId, taxableAmt as tcsAmt " +
-                    " from tempInvoiceItemDetails where otherTaxId = 4  )tcsItem On tcsItem.invoiceId = invoice.idInvoice " +
+                    " from tempInvoiceItemDetails where otherTaxId = 4  )tcsItem On tcsItem.invoiceId = invoice.idInvoice" +
+                    "  LEFT JOIN(select invoiceId, taxableAmt as loadingCharges  from tempInvoiceItemDetails where otherTaxId = 7  )loadingChargesAMt "+
+                     "   On loadingChargesAMt.invoiceId = invoice.idInvoice " +
                     " LEFT JOIN tempLoadingSlip loadingSlip on loadingSlip.idLoadingSlip = invoice.loadingSlipId " +
                     " LEFT JOIN tempLoading loading on loading.idLoading = loadingSlip.loadingId" +
                     " LEFT join dimProdSpec PS on lExt.prodSpecId = PS.idProdSpec " +
@@ -2094,7 +2098,8 @@ namespace ODLMWebAPI.DAL
                     " invAddrCons.consigneePinCode,invAddrCons.stateName as consigneeState,invAddrCons.gstinNo as consigneeGstNo, " +
                     " invAddrCons.txnAddrTypeId as consigneeTypeId,booking.bookingRate,itemDetails.prodItemDesc,(case when isnull(lExt.prodCatId,0)=1 then  mat.materialSubType else itemDetails.prodItemDesc end ) " +
                     " as materialName, itemDetails.bundles, itemDetails.cdStructure,itemDetails.invoiceQty,itemDetails.basicTotal " +
-                    " as taxableAmt  ,freightItem.freightAmt,Insurance.InsuranceAmt ,totalItemQtyTbl.TotalItemQty,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId,itemDetails.gstinCodeNo as 'GST_Code_No',  " +
+                    " as taxableAmt  ,freightItem.freightAmt,Insurance.InsuranceAmt ,totalItemQtyTbl.TotalItemQty,tcsItem.tcsAmt,loadingChargesAMt.loadingCharges LoadingCharges," +
+                    "  itemDetails.idInvoiceItem as invoiceItemId,itemDetails.gstinCodeNo as 'GST_Code_No',  " +
                     " invoice.cgstAmt,invoice.igstAmt,invoice.sgstAmt,itemDetails.rate,   itemDetails.cdAmt,itemDetails.otherTaxId,  " +
                     " transportOrg.firmName as transporterName,invoice.deliveryLocation,invoice.vehicleNo,transportOrg.registeredMobileNos as contactNo, " +
                     " invoice.grandTotal, invoice.isConfirmed ,invoice.statusId, invoice.invFromOrgId ," +
@@ -2152,6 +2157,8 @@ namespace ODLMWebAPI.DAL
                     " On Insurance.invoiceId = invoice.idInvoice " +
                     " LEFT JOIN(select invoiceId, taxableAmt as tcsAmt " +
                     " from finalInvoiceItemDetails where otherTaxId = 4  )tcsItem On tcsItem.invoiceId = invoice.idInvoice " +
+                    " LEFT JOIN(select invoiceId, taxableAmt as loadingCharges  from tempInvoiceItemDetails where otherTaxId = 7  )loadingChargesAMt " +
+                     "   On loadingChargesAMt.invoiceId = invoice.idInvoice " +
                     " LEFT JOIN finalLoadingSlip loadingSlip on loadingSlip.idLoadingSlip = invoice.loadingSlipId " +
                     " LEFT JOIN finalLoading loading on loading.idLoading = loadingSlip.loadingId" +
                     " LEFT join dimProdSpec PS on lExt.prodSpecId = PS.idProdSpec " +
@@ -2175,6 +2182,7 @@ namespace ODLMWebAPI.DAL
 
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.CommandTimeout = 120;
                 cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.DateTime).Value = frmDt;
                 cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.DateTime).Value = toDt;
                 reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
@@ -2263,6 +2271,8 @@ namespace ODLMWebAPI.DAL
                     " from tempInvoiceItemDetails where otherTaxId = 2  )freightItem On freightItem.invoiceId = invoice.idInvoice " +
                     " LEFT JOIN(select invoiceId, taxableAmt as tcsAmt " +
                     " from tempInvoiceItemDetails where otherTaxId = 4  )tcsItem On tcsItem.invoiceId = invoice.idInvoice " +
+                     " LEFT JOIN(select invoiceId, taxableAmt as LoadingChargesAmt " +
+                    " from tempInvoiceItemDetails where otherTaxId = 7  )LoadingCharge On LoadingCharge.invoiceId = invoice.idInvoice " +
                     " LEFT JOIN tempLoadingSlip loadingSlip on loadingSlip.idLoadingSlip = invoice.loadingSlipId " +
                     " LEFT JOIN tempLoading loading on loading.idLoading = loadingSlip.loadingId" +
                     " LEFT JOIN dimBrand brand ON brand.idBrand = invoice.brandId " +
@@ -2341,6 +2351,8 @@ namespace ODLMWebAPI.DAL
                     " from finalInvoiceItemDetails where otherTaxId = 2  )freightItem On freightItem.invoiceId = invoice.idInvoice " +
                     " LEFT JOIN(select invoiceId, taxableAmt as tcsAmt " +
                     " from finalInvoiceItemDetails where otherTaxId = 4  )tcsItem On tcsItem.invoiceId = invoice.idInvoice " +
+                     " LEFT JOIN(select invoiceId, taxableAmt as LoadingChargesAmt " +
+                    " from tempInvoiceItemDetails where otherTaxId = 7  )LoadingCharge On LoadingCharge.invoiceId = invoice.idInvoice " +
                     " LEFT JOIN finalLoadingSlip loadingSlip on loadingSlip.idLoadingSlip = invoice.loadingSlipId " +
                     " LEFT JOIN finalLoading loading on loading.idLoading = loadingSlip.loadingId" +
                     " LEFT JOIN dimBrand brand ON brand.idBrand = invoice.brandId " +
@@ -2416,7 +2428,8 @@ namespace ODLMWebAPI.DAL
                     " invAddrCons.consigneePinCode,invAddrCons.stateName as consigneeState,invAddrCons.gstinNo as consigneeGstNo, " +
                     " invAddrCons.txnAddrTypeId as consigneeTypeId,booking.bookingRate,itemDetails.prodItemDesc,mat.materialSubType " +
                     " as materialName, itemDetails.bundles, itemDetails.cdStructure,itemDetails.invoiceQty,itemDetails.taxableAmt " +
-                    " as taxableAmt  ,freightItem.freightAmt,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId,   " +
+                    " as taxableAmt  ,freightItem.freightAmt,tcsItem.tcsAmt,itemDetails.idInvoiceItem as invoiceItemId," +
+                    " LoadingCharge.LoadingChargesAmt as  LoadingCharges " +
                     " (SELECT itemTax.taxAmt FROM [tempInvoiceItemTaxDtls] itemTax  LEFT JOIN tblTaxRates taxRate ON itemTax.taxRateId = taxRate.idTaxRate" +
                     " where itemTax.invoiceItemId = itemDetails.idInvoiceItem AND taxRate.taxTypeId = 2) as cgstAmt," +
                     " (SELECT itemTax.taxAmt FROM[tempInvoiceItemTaxDtls] itemTax  LEFT JOIN tblTaxRates taxRate ON itemTax.taxRateId = taxRate.idTaxRate " +
