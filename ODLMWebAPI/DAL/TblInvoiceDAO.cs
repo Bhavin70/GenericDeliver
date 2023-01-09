@@ -914,7 +914,9 @@ namespace ODLMWebAPI.DAL
                           "   itemDetails.cdStructure,itemDetails.cdAmt,itemDetails.otherTaxId,itemTaxDetails.taxRatePct ,taxRate.taxTypeId , " +
                             " invoice.freightAmt,itemDetails.invoiceQty,itemDetails.basicTotal as taxableAmt  , itemTaxDetails.taxAmt,itemDetails.grandTotal, " +
                             " invoice.isConfirmed,invoiceAddress.txnAddrTypeId,invoice.statusId,orgInv.enq_ref_id,tblItemTallyRefDtls.enquiryTallyRefId" +
-                            " ,invoice.deliveredOn FROM tempInvoice invoice " +
+                            " ,invoice.deliveredOn,invoice.dealerOrgId as DealerIDOrganization " +
+                            ",(case when isnull(dealAdd.villageName,'')<> '' then convert(varchar(20), booking.bookingRate)  +',' + Replace(convert(varchar, bookingDatetime, 103), '/', '-') + ',' + dealAdd.villageName else  convert(varchar(20), booking.bookingRate) + ',' + Replace(convert(varchar, bookingDatetime, 103), '/', '-') end) as DealerData " +
+                            "FROM tempInvoice invoice " +
                             " INNER JOIN tempInvoiceAddress invoiceAddress " +
                             " ON invoiceAddress.invoiceId = invoice.idInvoice " +
                             " LEFT JOIN tblOrganization orgInv on orgInv.idOrganization = invoiceAddress.billingOrgId" +
@@ -932,7 +934,9 @@ namespace ODLMWebAPI.DAL
                             " LEFT JOIN tempInvoiceItemTaxDtls itemTaxDetails " +
                             " ON itemTaxDetails.invoiceItemId = itemDetails.idInvoiceItem " +
                             " LEFT JOIN tblTaxRates taxRate  ON taxRate.idTaxRate = itemTaxDetails.taxRateId " +
-                          
+                           " INNER JOIN tblOrganization Deal ON Deal.idOrganization = invoice.dealerOrgId " +
+                           " inner join tblAddress dealAdd on dealAdd.idAddr = Deal.addrId " +
+
 
 
                 // Vaibhav [10-Jan-2018] Added to select from finalInvoice.
@@ -945,7 +949,9 @@ namespace ODLMWebAPI.DAL
                           "   itemDetails.cdStructure,itemDetails.cdAmt,itemDetails.otherTaxId,itemTaxDetails.taxRatePct ,taxRate.taxTypeId , " +
                             " invoice.freightAmt,itemDetails.invoiceQty,itemDetails.basicTotal as taxableAmt  , itemTaxDetails.taxAmt,itemDetails.grandTotal, " +
                             " invoice.isConfirmed,invoiceAddress.txnAddrTypeId,invoice.statusId,orgInv.enq_ref_id,tblItemTallyRefDtls.enquiryTallyRefId " +
-                            " ,invoice.deliveredOn  FROM finalInvoice invoice " +
+                              " ,invoice.deliveredOn,invoice.dealerOrgId as DealerIDOrganization " +
+                            ",(case when isnull(dealAdd.villageName,'')<> '' then convert(varchar(20), booking.bookingRate)  +',' + Replace(convert(varchar, bookingDatetime, 103), '/', '-') + ',' + dealAdd.villageName else  convert(varchar(20), booking.bookingRate) + ',' + Replace(convert(varchar, bookingDatetime, 103), '/', '-') end) as DealerData " +
+                            " FROM finalInvoice invoice " +
                             " INNER JOIN finalInvoiceAddress invoiceAddress " +
                             " ON invoiceAddress.invoiceId = invoice.idInvoice " +
                             " LEFT JOIN tblOrganization orgInv on orgInv.idOrganization = invoiceAddress.billingOrgId" +
@@ -962,11 +968,13 @@ namespace ODLMWebAPI.DAL
                             " LEFT JOIN tblBookings booking  ON lExt.bookingId = booking.idBooking " +
                             " LEFT JOIN finalInvoiceItemTaxDtls itemTaxDetails " +
                             " ON itemTaxDetails.invoiceItemId = itemDetails.idInvoiceItem " +
-                            " LEFT JOIN tblTaxRates taxRate  ON taxRate.idTaxRate = itemTaxDetails.taxRateId ";
-                           
+                            " LEFT JOIN tblTaxRates taxRate  ON taxRate.idTaxRate = itemTaxDetails.taxRateId " +
+                           " INNER JOIN tblOrganization Deal ON Deal.idOrganization = invoice.dealerOrgId " +
+                          " inner join tblAddress dealAdd on dealAdd.idAddr = Deal.addrId "; 
 
-                //chetan[13-feb-2020] added for get data from org Id
-                String formOrgIdCondtion = String.Empty;
+
+               //chetan[13-feb-2020] added for get data from org Id
+               String formOrgIdCondtion = String.Empty;
                 if (fromOrgId > 0)
                 {
                     formOrgIdCondtion = " AND sq1.invFromOrgId = " + fromOrgId;
@@ -1727,6 +1735,17 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["LoadingCharges"] != DBNull.Value)
                                     tblInvoiceRptTONew.LoadingCharges  = Convert.ToDouble(tblInvoiceRptTODT["LoadingCharges"].ToString());
                             }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("DealerData"))
+                            {
+                                if (tblInvoiceRptTODT["DealerData"] != DBNull.Value)
+                                    tblInvoiceRptTONew.DealerData = Convert.ToString(tblInvoiceRptTODT["DealerData"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("DealerIDOrganization"))
+                            {
+                                if (tblInvoiceRptTODT["DealerIDOrganization"] != DBNull.Value)
+                                    tblInvoiceRptTONew.DealerIDOrganization = Convert.ToString(tblInvoiceRptTODT["DealerIDOrganization"].ToString());
+                            }
+
                             tblInvoiceRptTONew.ContactName = ""+tblInvoiceRptTONew.OwnerPersonFirstName +"  "+  tblInvoiceRptTONew.OwnerPersonLastName+"";
                         }
 
