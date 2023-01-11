@@ -915,7 +915,7 @@ namespace ODLMWebAPI.DAL
                             " invoice.freightAmt,itemDetails.invoiceQty,itemDetails.basicTotal as taxableAmt  , itemTaxDetails.taxAmt,itemDetails.grandTotal, " +
                             " invoice.isConfirmed,invoiceAddress.txnAddrTypeId,invoice.statusId,orgInv.enq_ref_id,tblItemTallyRefDtls.enquiryTallyRefId" +
                             " ,invoice.deliveredOn,invoice.dealerOrgId as DealerIDOrganization " +
-                            ",(case when isnull(dealAdd.villageName,'')<> '' then convert(varchar(20), booking.bookingRate)  +',' + Replace(convert(varchar, bookingDatetime, 103), '/', '-') + ',' + dealAdd.villageName else  convert(varchar(20), booking.bookingRate) + ',' + Replace(convert(varchar, bookingDatetime, 103), '/', '-') end) as DealerData " +
+                            ",(case when isnull(dealAdd.villageName,'')<> '' then convert(varchar(20), floor(booking.bookingRate))  +'/' + Replace(convert(varchar, bookingDatetime, 103), '/', '-') + '/' + dealAdd.villageName else  convert(varchar(20), floor(booking.bookingRate)) + '/' + Replace(convert(varchar, bookingDatetime, 103), '/', '-') end) as DealerData " +
                             "FROM tempInvoice invoice " +
                             " INNER JOIN tempInvoiceAddress invoiceAddress " +
                             " ON invoiceAddress.invoiceId = invoice.idInvoice " +
@@ -950,7 +950,7 @@ namespace ODLMWebAPI.DAL
                             " invoice.freightAmt,itemDetails.invoiceQty,itemDetails.basicTotal as taxableAmt  , itemTaxDetails.taxAmt,itemDetails.grandTotal, " +
                             " invoice.isConfirmed,invoiceAddress.txnAddrTypeId,invoice.statusId,orgInv.enq_ref_id,tblItemTallyRefDtls.enquiryTallyRefId " +
                               " ,invoice.deliveredOn,invoice.dealerOrgId as DealerIDOrganization " +
-                            ",(case when isnull(dealAdd.villageName,'')<> '' then convert(varchar(20), booking.bookingRate)  +',' + Replace(convert(varchar, bookingDatetime, 103), '/', '-') + ',' + dealAdd.villageName else  convert(varchar(20), booking.bookingRate) + ',' + Replace(convert(varchar, bookingDatetime, 103), '/', '-') end) as DealerData " +
+                            ",(case when isnull(dealAdd.villageName,'')<> '' then convert(varchar(20), floor(booking.bookingRate))  +'/' + Replace(convert(varchar, bookingDatetime, 103), '/', '-') + '/' + dealAdd.villageName else  convert(varchar(20), floor(booking.bookingRate)) + '/' + Replace(convert(varchar, bookingDatetime, 103), '/', '-') end) as DealerData " +
                             " FROM finalInvoice invoice " +
                             " INNER JOIN finalInvoiceAddress invoiceAddress " +
                             " ON invoiceAddress.invoiceId = invoice.idInvoice " +
