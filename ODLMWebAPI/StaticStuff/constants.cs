@@ -869,6 +869,7 @@ namespace ODLMWebAPI.StaticStuff
         public static string WHATS_APP_SEND_MESSAGE_REQUEST_JSON = "WHATS_APP_SEND_MESSAGE_REQUEST_JSON";
         public static string WHATS_APP_API_KEY = "WHATS_APP_API_KEY";
         public static string WHATS_APP_SEND_MESSAGE_REQUEST_HEADER_JSON = "WHATS_APP_SEND_MESSAGE_REQUEST_HEADER_JSON";
+        public static string cp_is_show_NC_report_col_for_metaroll = "cp_is_show_NC_report_col_for_metaroll";  //Added for metaroll
         #region Common functions
 
         public static Boolean IsNeedToRemoveFromList(string[] sizeList, Int32 materialId)

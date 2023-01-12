@@ -111,6 +111,7 @@ namespace ODLMWebAPI.Models
         string salesLedgerName;
         String orgGstNo;
         Double insuranceAmt;
+       
         #endregion
 
         #region Constructor
@@ -523,10 +524,11 @@ namespace ODLMWebAPI.Models
             get { return salesLedgerName; }
             set { salesLedgerName = value; }
         }
-       
 
 
-
+        
+      
+   
 
         //public String DispatchDocNo { get => dispatchDocNo; set => dispatchDocNo = value; }
         public String VoucherClass { get => voucherClass; set => voucherClass = value; }
@@ -585,7 +587,10 @@ namespace ODLMWebAPI.Models
         public string TCS_GL { get; set; }
         public string Freight_GL { get; set; }
         public string Insurance_GL { get; set; }
-
+        public String DealerIDOrganization { get; set; }
+       
+        public String DealerData { get; set; }
+       
 
 
         #endregion
