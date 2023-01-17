@@ -714,6 +714,138 @@ namespace ODLMWebAPI.BL
                     #region Excel Column Prepareration
                     ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add(Constants.ExcelSheetName);
 
+                    // Add By Samadhan 9 jan 2023
+                    Int32 ShowNewColNCRptMetaroll = 0;
+
+                    TblConfigParamsTO tblConfigParamsTONewColNCRptshow = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.cp_is_show_NC_report_col_for_metaroll);
+                    if (tblConfigParamsTONewColNCRptshow != null)
+                    {
+                        ShowNewColNCRptMetaroll = Convert.ToInt32(tblConfigParamsTONewColNCRptshow.ConfigParamVal);
+                    }                   
+
+                  
+                    if (ShowNewColNCRptMetaroll == 1)
+                    {
+                        excelWorksheet.Cells[1, 1].Value = "Vehicle No";
+                        excelWorksheet.Cells[1, 2].Value = "Transaction Date";                  
+                        excelWorksheet.Cells[1, 3].Value = "Party Name";
+                        excelWorksheet.Cells[1, 4].Value = "Distributor";
+                        excelWorksheet.Cells[1, 5].Value = "Booking Rate";                    
+                        excelWorksheet.Cells[1, 6].Value = "Size";
+                        excelWorksheet.Cells[1, 7].Value = "Size Bundle";
+                        excelWorksheet.Cells[1, 8].Value = "Gross Weight";
+                        excelWorksheet.Cells[1, 9].Value = "Tare Weight";
+                        excelWorksheet.Cells[1, 10].Value = "Net Weight";
+                        excelWorksheet.Cells[1, 11].Value = "Size Rate";
+                        excelWorksheet.Cells[1, 12].Value = "CD (%)"; 
+                        excelWorksheet.Cells[1, 13].Value = "SIZE WEIGHT";
+                        excelWorksheet.Cells[1, 14].Value = "BASIC SALE VALUE";                      
+                        excelWorksheet.Cells[1, 15].Value = "GROSS VALUE";
+                        excelWorksheet.Cells[1, 16].Value = "CD VALUE";
+                        excelWorksheet.Cells[1, 17].Value = "PARTY RECEIVABLE";
+                        excelWorksheet.Cells[1, 18].Value = "Narration";
+                        excelWorksheet.Cells[1, 19].Value = "DealerIDOrganization";
+                        
+
+                        excelWorksheet.Cells[1, 1, 1, 19].Style.Font.Bold = true;
+                      
+                        for (int i = 0; i < TblInvoiceRptTOListByInvoiceItemId.Count; i++)
+                        {
+                            if (invoiceId != 0 && invoiceId != TblInvoiceRptTOListByInvoiceItemId[i].IdInvoice)
+                            {
+                                List<TblInvoiceRptTO> TblInvoiceRptTOListnew = TblInvoiceRptTOListByInvoiceItemId.Where(ele => ele.IdInvoice == invoiceId).Select(ele => ele).ToList();
+
+                                excelWorksheet.Cells[cellRow, 2].Value = "Total";
+                                excelWorksheet.Cells[cellRow, 12].Value = TblInvoiceRptTOListnew.Select(ele => ele.CdStructure);                              
+                                excelWorksheet.Cells[cellRow, 13].Value = TblInvoiceRptTOListnew.Sum(ele => ele.InvoiceQty);
+                                excelWorksheet.Cells[cellRow, 14].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.TaxableAmt), 2);
+                              
+                                excelWorksheet.Cells[cellRow, 15].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.GrandTotal), 2);
+                                excelWorksheet.Cells[cellRow, 16].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.CdAmt), 2);
+                                excelWorksheet.Cells[cellRow, 17].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.GrandTotal), 2);
+
+                                excelWorksheet.Cells[cellRow, 8].Value = TblInvoiceRptTOListnew.Select(ele => ele.GrossWeight / 1000);
+                                excelWorksheet.Cells[cellRow, 9].Value = TblInvoiceRptTOListnew.Select(ele => ele.TareWeight / 1000);
+                                excelWorksheet.Cells[cellRow, 10].Value = TblInvoiceRptTOListnew.Select(ele => ele.NetWeight / 1000);
+
+                                excelWorksheet.Cells[cellRow, 1, cellRow, 19].Style.Font.Bold = true;                               
+                                cellRow++;
+
+                            }
+
+                            excelWorksheet.Cells[cellRow, 1].Value = TblInvoiceRptTOListByInvoiceItemId[i].VehicleNo;
+                            excelWorksheet.Cells[cellRow, 2].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceDateStr;
+                            excelWorksheet.Cells[cellRow, 3].Value = TblInvoiceRptTOListByInvoiceItemId[i].PartyName;
+                            excelWorksheet.Cells[cellRow, 4].Value = TblInvoiceRptTOListByInvoiceItemId[i].CnfName;
+                            excelWorksheet.Cells[cellRow, 5].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].BookingRate, 2);
+                            excelWorksheet.Cells[cellRow, 6].Value = TblInvoiceRptTOListByInvoiceItemId[i].ProdItemDesc;
+                            excelWorksheet.Cells[cellRow, 7].Value = TblInvoiceRptTOListByInvoiceItemId[i].Bundles;
+                            //excelWorksheet.Cells[cellRow, 8].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].GrossWeight, 2);
+                           // excelWorksheet.Cells[cellRow, 9].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].TareWeight, 2);
+                            //excelWorksheet.Cells[cellRow, 10].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].NetWeight, 2);
+                            excelWorksheet.Cells[cellRow, 11].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].Rate, 2);
+                            excelWorksheet.Cells[cellRow, 12].Value = TblInvoiceRptTOListByInvoiceItemId[i].CdStructure;                           
+                            excelWorksheet.Cells[cellRow, 13].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceQty;
+                            excelWorksheet.Cells[cellRow, 14].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].TaxableAmt, 2);
+                            excelWorksheet.Cells[cellRow, 15].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].GrandTotal, 2);
+                            excelWorksheet.Cells[cellRow, 16].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].CdAmt, 2);
+                            excelWorksheet.Cells[cellRow, 17].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].GrandTotal, 2);                           
+                            excelWorksheet.Cells[cellRow, 18].Value = TblInvoiceRptTOListByInvoiceItemId[i].DealerData;
+                            excelWorksheet.Cells[cellRow, 19].Value = TblInvoiceRptTOListByInvoiceItemId[i].DealerIDOrganization;
+                          
+                            invoiceId = TblInvoiceRptTOListByInvoiceItemId[i].IdInvoice;
+                            cellRow++;
+
+                            // For last record.
+                            if (i == (TblInvoiceRptTOListByInvoiceItemId.Count - 1))
+                            {
+                                List<TblInvoiceRptTO> TblInvoiceRptTOListnew = TblInvoiceRptTOListByInvoiceItemId.Where(ele => ele.IdInvoice == invoiceId).Select(ele => ele).ToList();
+
+                                excelWorksheet.Cells[cellRow, 2].Value = "Total";
+                                excelWorksheet.Cells[cellRow, 12].Value = TblInvoiceRptTOListnew.Select(ele => ele.CdStructure);                               
+                                excelWorksheet.Cells[cellRow, 13].Value = TblInvoiceRptTOListnew.Sum(ele => ele.InvoiceQty);
+                                excelWorksheet.Cells[cellRow, 14].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.TaxableAmt), 2);
+                                excelWorksheet.Cells[cellRow, 15].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.GrandTotal), 2);
+                                excelWorksheet.Cells[cellRow, 16].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.CdAmt), 2);
+                                excelWorksheet.Cells[cellRow, 17].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.GrandTotal), 2);
+
+                                excelWorksheet.Cells[cellRow, 8].Value = TblInvoiceRptTOListnew.Select(ele => ele.GrossWeight / 1000);
+                                excelWorksheet.Cells[cellRow, 9].Value = TblInvoiceRptTOListnew.Select(ele => ele.TareWeight / 1000);
+                                excelWorksheet.Cells[cellRow, 10].Value = TblInvoiceRptTOListnew.Select(ele => ele.NetWeight / 1000);
+
+                                excelWorksheet.Cells[cellRow, 1, cellRow, 21].Style.Font.Bold = true;
+                                cellRow++;
+
+                                // For final total.
+                                excelWorksheet.Cells[cellRow, 9].Value = "Grand Total";
+                                excelWorksheet.Cells[cellRow, 13].Value = TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.InvoiceQty);
+                                excelWorksheet.Cells[cellRow, 14].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.TaxableAmt), 2);
+
+                                excelWorksheet.Cells[cellRow, 15].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.GrandTotal), 2);
+                                excelWorksheet.Cells[cellRow, 16].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.CdAmt), 2);
+                                excelWorksheet.Cells[cellRow, 17].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.GrandTotal), 2);
+
+                                excelWorksheet.Cells[cellRow, 1, cellRow, 21].Style.Font.Bold = true;
+                              
+
+                                using (ExcelRange range = excelWorksheet.Cells[1, 1, cellRow, 19])
+                                {
+                                    range.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                                    range.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                                    range.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                                    range.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                                    range.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium); 
+                                    range.Style.Font.Name = "Times New Roman";
+                                    range.Style.Font.Size = 10;
+                                }
+                            }
+                        }
+
+
+                    }
+                    else
+                    { 
+
                     excelWorksheet.Cells[1, 1].Value = "Vehicle No";
                     excelWorksheet.Cells[1, 2].Value = "Invoice No";
                     excelWorksheet.Cells[1, 3].Value = "Transaction Date";
@@ -742,121 +874,126 @@ namespace ODLMWebAPI.BL
                     excelWorksheet.Cells[1, 26].Value = "PARTY RECEIVABLE";
                     excelWorksheet.Cells[1, 27].Value = "Narration";
 
-                    excelWorksheet.Cells[1, 1, 1, 24].Style.Font.Bold = true;
-                    #endregion
-                    for (int i = 0; i < TblInvoiceRptTOListByInvoiceItemId.Count; i++)
-                    {
-                        if (invoiceId != 0 && invoiceId != TblInvoiceRptTOListByInvoiceItemId[i].IdInvoice)
+                        excelWorksheet.Cells[1, 1, 1, 24].Style.Font.Bold = true;
+                        for (int i = 0; i < TblInvoiceRptTOListByInvoiceItemId.Count; i++)
                         {
-                            List<TblInvoiceRptTO> TblInvoiceRptTOListnew = TblInvoiceRptTOListByInvoiceItemId.Where(ele => ele.IdInvoice == invoiceId).Select(ele => ele).ToList();
-
-                            excelWorksheet.Cells[cellRow, 2].Value = "Total";
-                            excelWorksheet.Cells[cellRow, 25].Value = TblInvoiceRptTOListnew.Select(ele => ele.CdStructure);
-                            excelWorksheet.Cells[cellRow, 16].Value = TblInvoiceRptTOListnew.Select(ele => ele.CgstPct);
-                            excelWorksheet.Cells[cellRow, 17].Value = TblInvoiceRptTOListnew.Select(ele => ele.SgstPct);
-                            excelWorksheet.Cells[cellRow, 18].Value = TblInvoiceRptTOListnew.Select(ele => ele.IgstPct);
-                            excelWorksheet.Cells[cellRow, 19].Value = TblInvoiceRptTOListnew.Sum(ele => ele.InvoiceQty);
-                            excelWorksheet.Cells[cellRow, 20].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.TaxableAmt), 2);
-
-                            excelWorksheet.Cells[cellRow, 21].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.CgstTaxAmt), 2);
-                            excelWorksheet.Cells[cellRow, 22].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.SgstTaxAmt), 2);
-                            excelWorksheet.Cells[cellRow, 23].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.IgstTaxAmt), 2);
-                            excelWorksheet.Cells[cellRow, 24].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.GrandTotal), 2);
-                            excelWorksheet.Cells[cellRow, 25].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.CdAmt), 2);
-                            excelWorksheet.Cells[cellRow, 26].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.GrandTotal), 2);
-
-                            excelWorksheet.Cells[cellRow, 11].Value = TblInvoiceRptTOListnew.Select(ele => ele.GrossWeight / 1000);
-                            excelWorksheet.Cells[cellRow, 12].Value = TblInvoiceRptTOListnew.Select(ele => ele.TareWeight / 1000);
-                            excelWorksheet.Cells[cellRow, 13].Value = TblInvoiceRptTOListnew.Select(ele => ele.NetWeight / 1000);
-
-                            excelWorksheet.Cells[cellRow, 1, cellRow, 21].Style.Font.Bold = true;
-                            cellRow++;
-
-                        }
-
-                        excelWorksheet.Cells[cellRow, 1].Value = TblInvoiceRptTOListByInvoiceItemId[i].VehicleNo;
-                        excelWorksheet.Cells[cellRow, 2].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceNoWrtDate;
-                        excelWorksheet.Cells[cellRow, 3].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceDateStr;
-                        excelWorksheet.Cells[cellRow, 5].Value = TblInvoiceRptTOListByInvoiceItemId[i].PartyName;
-                        excelWorksheet.Cells[cellRow, 6].Value = TblInvoiceRptTOListByInvoiceItemId[i].CnfName;
-
-                        excelWorksheet.Cells[cellRow, 7].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].BookingRate, 2);
-                        excelWorksheet.Cells[cellRow, 9].Value = TblInvoiceRptTOListByInvoiceItemId[i].ProdItemDesc;
-                        excelWorksheet.Cells[cellRow, 10].Value = TblInvoiceRptTOListByInvoiceItemId[i].Bundles;
-                        excelWorksheet.Cells[cellRow, 14].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].Rate, 2);
-                        excelWorksheet.Cells[cellRow, 15].Value = TblInvoiceRptTOListByInvoiceItemId[i].CdStructure;
-
-                        excelWorksheet.Cells[cellRow, 16].Value = TblInvoiceRptTOListByInvoiceItemId[i].CgstPct;
-                        excelWorksheet.Cells[cellRow, 17].Value = TblInvoiceRptTOListByInvoiceItemId[i].SgstPct;
-                        excelWorksheet.Cells[cellRow, 18].Value = TblInvoiceRptTOListByInvoiceItemId[i].IgstPct;
-                        excelWorksheet.Cells[cellRow, 19].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceQty;
-                        excelWorksheet.Cells[cellRow, 20].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].TaxableAmt, 2);
-
-                        excelWorksheet.Cells[cellRow, 21].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].CgstTaxAmt, 2);
-                        excelWorksheet.Cells[cellRow, 22].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].SgstTaxAmt, 2);
-                        excelWorksheet.Cells[cellRow, 23].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].IgstTaxAmt, 2);
-                        excelWorksheet.Cells[cellRow, 24].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].GrandTotal, 2);
-                        excelWorksheet.Cells[cellRow, 25].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].CdAmt, 2);
-                        excelWorksheet.Cells[cellRow, 26].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].GrandTotal, 2);
-                        excelWorksheet.Cells[cellRow, 27].Value = TblInvoiceRptTOListByInvoiceItemId[i].Narration;
-
-                        invoiceId = TblInvoiceRptTOListByInvoiceItemId[i].IdInvoice;
-                        cellRow++;
-
-                        // For last record.
-                        if (i == (TblInvoiceRptTOListByInvoiceItemId.Count - 1))
-                        {
-                            List<TblInvoiceRptTO> TblInvoiceRptTOListnew = TblInvoiceRptTOListByInvoiceItemId.Where(ele => ele.IdInvoice == invoiceId).Select(ele => ele).ToList();
-
-                            excelWorksheet.Cells[cellRow, 2].Value = "Total";
-                            excelWorksheet.Cells[cellRow, 15].Value = TblInvoiceRptTOListnew.Select(ele => ele.CdStructure);
-                            excelWorksheet.Cells[cellRow, 16].Value = TblInvoiceRptTOListnew.Select(ele => ele.CgstPct);
-                            excelWorksheet.Cells[cellRow, 17].Value = TblInvoiceRptTOListnew.Select(ele => ele.SgstPct);
-                            excelWorksheet.Cells[cellRow, 18].Value = TblInvoiceRptTOListnew.Select(ele => ele.IgstPct);
-                            excelWorksheet.Cells[cellRow, 19].Value = TblInvoiceRptTOListnew.Sum(ele => ele.InvoiceQty);
-                            excelWorksheet.Cells[cellRow, 20].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.TaxableAmt), 2);
-
-                            excelWorksheet.Cells[cellRow, 21].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.CgstTaxAmt), 2);
-                            excelWorksheet.Cells[cellRow, 22].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.SgstTaxAmt), 2);
-                            excelWorksheet.Cells[cellRow, 23].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.IgstTaxAmt), 2);
-                            excelWorksheet.Cells[cellRow, 24].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.GrandTotal), 2);
-                            excelWorksheet.Cells[cellRow, 25].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.CdAmt), 2);
-                            excelWorksheet.Cells[cellRow, 26].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.GrandTotal), 2);
-
-                            excelWorksheet.Cells[cellRow, 11].Value = TblInvoiceRptTOListnew.Select(ele => ele.GrossWeight / 1000);
-                            excelWorksheet.Cells[cellRow, 12].Value = TblInvoiceRptTOListnew.Select(ele => ele.TareWeight / 1000);
-                            excelWorksheet.Cells[cellRow, 13].Value = TblInvoiceRptTOListnew.Select(ele => ele.NetWeight / 1000);
-
-                            excelWorksheet.Cells[cellRow, 1, cellRow, 21].Style.Font.Bold = true;
-                            cellRow++;
-
-                            // For final total.
-                            excelWorksheet.Cells[cellRow, 9].Value = "Grand Total";
-                            excelWorksheet.Cells[cellRow, 19].Value = TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.InvoiceQty);
-                            excelWorksheet.Cells[cellRow, 20].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.TaxableAmt), 2);
-
-                            excelWorksheet.Cells[cellRow, 21].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.CgstTaxAmt), 2);
-                            excelWorksheet.Cells[cellRow, 22].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.SgstTaxAmt), 2);
-                            excelWorksheet.Cells[cellRow, 23].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.IgstTaxAmt), 2);
-                            excelWorksheet.Cells[cellRow, 24].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.GrandTotal), 2);
-                            excelWorksheet.Cells[cellRow, 25].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.CdAmt), 2);
-                            excelWorksheet.Cells[cellRow, 26].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.GrandTotal), 2);
-
-                            excelWorksheet.Cells[cellRow, 1, cellRow, 21].Style.Font.Bold = true;
-
-                            using (ExcelRange range = excelWorksheet.Cells[1, 1, cellRow, 21])
+                            if (invoiceId != 0 && invoiceId != TblInvoiceRptTOListByInvoiceItemId[i].IdInvoice)
                             {
-                                range.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                                range.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                                range.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                                range.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                                range.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
-                                range.Style.Font.Name = "Times New Roman";
-                                range.Style.Font.Size = 10;
+                                List<TblInvoiceRptTO> TblInvoiceRptTOListnew = TblInvoiceRptTOListByInvoiceItemId.Where(ele => ele.IdInvoice == invoiceId).Select(ele => ele).ToList();
+
+                                excelWorksheet.Cells[cellRow, 2].Value = "Total";
+                                excelWorksheet.Cells[cellRow, 25].Value = TblInvoiceRptTOListnew.Select(ele => ele.CdStructure);
+                                excelWorksheet.Cells[cellRow, 16].Value = TblInvoiceRptTOListnew.Select(ele => ele.CgstPct);
+                                excelWorksheet.Cells[cellRow, 17].Value = TblInvoiceRptTOListnew.Select(ele => ele.SgstPct);
+                                excelWorksheet.Cells[cellRow, 18].Value = TblInvoiceRptTOListnew.Select(ele => ele.IgstPct);
+                                excelWorksheet.Cells[cellRow, 19].Value = TblInvoiceRptTOListnew.Sum(ele => ele.InvoiceQty);
+                                excelWorksheet.Cells[cellRow, 20].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.TaxableAmt), 2);
+
+                                excelWorksheet.Cells[cellRow, 21].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.CgstTaxAmt), 2);
+                                excelWorksheet.Cells[cellRow, 22].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.SgstTaxAmt), 2);
+                                excelWorksheet.Cells[cellRow, 23].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.IgstTaxAmt), 2);
+                                excelWorksheet.Cells[cellRow, 24].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.GrandTotal), 2);
+                                excelWorksheet.Cells[cellRow, 25].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.CdAmt), 2);
+                                excelWorksheet.Cells[cellRow, 26].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.GrandTotal), 2);
+
+                                excelWorksheet.Cells[cellRow, 11].Value = TblInvoiceRptTOListnew.Select(ele => ele.GrossWeight / 1000);
+                                excelWorksheet.Cells[cellRow, 12].Value = TblInvoiceRptTOListnew.Select(ele => ele.TareWeight / 1000);
+                                excelWorksheet.Cells[cellRow, 13].Value = TblInvoiceRptTOListnew.Select(ele => ele.NetWeight / 1000);
+
+                                excelWorksheet.Cells[cellRow, 1, cellRow, 21].Style.Font.Bold = true;
+                                cellRow++;
+
+                            }
+
+                            excelWorksheet.Cells[cellRow, 1].Value = TblInvoiceRptTOListByInvoiceItemId[i].VehicleNo;
+                            excelWorksheet.Cells[cellRow, 2].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceNoWrtDate;
+                            excelWorksheet.Cells[cellRow, 3].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceDateStr;
+                            excelWorksheet.Cells[cellRow, 5].Value = TblInvoiceRptTOListByInvoiceItemId[i].PartyName;
+                            excelWorksheet.Cells[cellRow, 6].Value = TblInvoiceRptTOListByInvoiceItemId[i].CnfName;
+
+                            excelWorksheet.Cells[cellRow, 7].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].BookingRate, 2);
+                            excelWorksheet.Cells[cellRow, 9].Value = TblInvoiceRptTOListByInvoiceItemId[i].ProdItemDesc;
+                            excelWorksheet.Cells[cellRow, 10].Value = TblInvoiceRptTOListByInvoiceItemId[i].Bundles;
+                            excelWorksheet.Cells[cellRow, 14].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].Rate, 2);
+                            excelWorksheet.Cells[cellRow, 15].Value = TblInvoiceRptTOListByInvoiceItemId[i].CdStructure;
+
+                            excelWorksheet.Cells[cellRow, 16].Value = TblInvoiceRptTOListByInvoiceItemId[i].CgstPct;
+                            excelWorksheet.Cells[cellRow, 17].Value = TblInvoiceRptTOListByInvoiceItemId[i].SgstPct;
+                            excelWorksheet.Cells[cellRow, 18].Value = TblInvoiceRptTOListByInvoiceItemId[i].IgstPct;
+                            excelWorksheet.Cells[cellRow, 19].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceQty;
+                            excelWorksheet.Cells[cellRow, 20].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].TaxableAmt, 2);
+
+                            excelWorksheet.Cells[cellRow, 21].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].CgstTaxAmt, 2);
+                            excelWorksheet.Cells[cellRow, 22].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].SgstTaxAmt, 2);
+                            excelWorksheet.Cells[cellRow, 23].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].IgstTaxAmt, 2);
+                            excelWorksheet.Cells[cellRow, 24].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].GrandTotal, 2);
+                            excelWorksheet.Cells[cellRow, 25].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].CdAmt, 2);
+                            excelWorksheet.Cells[cellRow, 26].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId[i].GrandTotal, 2);
+                            excelWorksheet.Cells[cellRow, 27].Value = TblInvoiceRptTOListByInvoiceItemId[i].Narration;
+
+                            invoiceId = TblInvoiceRptTOListByInvoiceItemId[i].IdInvoice;
+                            cellRow++;
+
+                            // For last record.
+                            if (i == (TblInvoiceRptTOListByInvoiceItemId.Count - 1))
+                            {
+                                List<TblInvoiceRptTO> TblInvoiceRptTOListnew = TblInvoiceRptTOListByInvoiceItemId.Where(ele => ele.IdInvoice == invoiceId).Select(ele => ele).ToList();
+
+                                excelWorksheet.Cells[cellRow, 2].Value = "Total";
+                                excelWorksheet.Cells[cellRow, 15].Value = TblInvoiceRptTOListnew.Select(ele => ele.CdStructure);
+                                excelWorksheet.Cells[cellRow, 16].Value = TblInvoiceRptTOListnew.Select(ele => ele.CgstPct);
+                                excelWorksheet.Cells[cellRow, 17].Value = TblInvoiceRptTOListnew.Select(ele => ele.SgstPct);
+                                excelWorksheet.Cells[cellRow, 18].Value = TblInvoiceRptTOListnew.Select(ele => ele.IgstPct);
+                                excelWorksheet.Cells[cellRow, 19].Value = TblInvoiceRptTOListnew.Sum(ele => ele.InvoiceQty);
+                                excelWorksheet.Cells[cellRow, 20].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.TaxableAmt), 2);
+
+                                excelWorksheet.Cells[cellRow, 21].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.CgstTaxAmt), 2);
+                                excelWorksheet.Cells[cellRow, 22].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.SgstTaxAmt), 2);
+                                excelWorksheet.Cells[cellRow, 23].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.IgstTaxAmt), 2);
+                                excelWorksheet.Cells[cellRow, 24].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.GrandTotal), 2);
+                                excelWorksheet.Cells[cellRow, 25].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.CdAmt), 2);
+                                excelWorksheet.Cells[cellRow, 26].Value = Math.Round(TblInvoiceRptTOListnew.Sum(ele => ele.GrandTotal), 2);
+
+                                excelWorksheet.Cells[cellRow, 11].Value = TblInvoiceRptTOListnew.Select(ele => ele.GrossWeight / 1000);
+                                excelWorksheet.Cells[cellRow, 12].Value = TblInvoiceRptTOListnew.Select(ele => ele.TareWeight / 1000);
+                                excelWorksheet.Cells[cellRow, 13].Value = TblInvoiceRptTOListnew.Select(ele => ele.NetWeight / 1000);
+
+                                excelWorksheet.Cells[cellRow, 1, cellRow, 21].Style.Font.Bold = true;
+                                cellRow++;
+
+                                // For final total.
+                                excelWorksheet.Cells[cellRow, 9].Value = "Grand Total";
+                                excelWorksheet.Cells[cellRow, 19].Value = TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.InvoiceQty);
+                                excelWorksheet.Cells[cellRow, 20].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.TaxableAmt), 2);
+
+                                excelWorksheet.Cells[cellRow, 21].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.CgstTaxAmt), 2);
+                                excelWorksheet.Cells[cellRow, 22].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.SgstTaxAmt), 2);
+                                excelWorksheet.Cells[cellRow, 23].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.IgstTaxAmt), 2);
+                                excelWorksheet.Cells[cellRow, 24].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.GrandTotal), 2);
+                                excelWorksheet.Cells[cellRow, 25].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.CdAmt), 2);
+                                excelWorksheet.Cells[cellRow, 26].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.GrandTotal), 2);
+
+                                excelWorksheet.Cells[cellRow, 1, cellRow, 21].Style.Font.Bold = true;
+
+                                using (ExcelRange range = excelWorksheet.Cells[1, 1, cellRow, 21])
+                                {
+                                    range.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                                    range.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                                    range.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                                    range.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                                    range.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                                    range.Style.Font.Name = "Times New Roman";
+                                    range.Style.Font.Size = 10;
+                                }
                             }
                         }
+
+
                     }
 
+                  
+                    #endregion
+                   
                     excelWorksheet.Protection.IsProtected = true;
                     excelPackage.Workbook.Protection.LockStructure = true;
                     #region Upload File to Azure
@@ -3006,11 +3143,19 @@ namespace ODLMWebAPI.BL
                         //return resultMsg;
                     }
                 }
-
-
-
-
-
+                TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_IS_INCLUDE_Loading_Charges_TO_AUTO_INVOICE, conn, tran);
+                if (configParamsTO != null)
+                {
+                    resultMsg = AddLoadingChargesTOInTaxItemDtls(conn, tran, ref grandTotal, ref taxableTotal, ref basicTotal, isPanNoPresent, tblInvoiceItemDetailsTOList, tblInvoiceTO, ref otherTaxAmt, tblOrganizationTO.IsDeclarationRec);
+                    if (resultMsg == null || resultMsg.MessageType != ResultMessageE.Information)
+                    {
+                        resultMsg.DefaultBehaviour(resultMsg.Text);
+                        //return resultMsg;
+                    }
+                    tblInvoiceTO.GrandTotal = grandTotal;
+                    tblInvoiceTO.TaxableAmt = taxableTotal;
+                    tblInvoiceTO.BasicAmt = basicTotal;
+                }
             }
             else
             {
@@ -3189,6 +3334,95 @@ namespace ODLMWebAPI.BL
                                 tcsItemTO.GrandTotal = tcsGrandTotal;
                                 // taxableTotal += tcsItemTO.TaxableAmt;
 
+
+                                if (maxTaxableItemTO.InvoiceItemTaxDtlsTOList != null && maxTaxableItemTO.InvoiceItemTaxDtlsTOList.Count > 0)
+                                {
+                                    for (int ti = 0; ti < maxTaxableItemTO.InvoiceItemTaxDtlsTOList.Count; ti++)
+                                    {
+                                        TblInvoiceItemTaxDtlsTO taxDtlTO = maxTaxableItemTO.InvoiceItemTaxDtlsTOList[ti].DeepCopy();
+                                        taxDtlTO.TaxableAmt = tcsItemTO.TaxableAmt;
+                                        taxDtlTO.TaxAmt = 0;
+                                        taxDtlTO.TaxRatePct = 0.00;
+
+                                        if (tcsItemTO.InvoiceItemTaxDtlsTOList == null)
+                                            tcsItemTO.InvoiceItemTaxDtlsTOList = new List<TblInvoiceItemTaxDtlsTO>();
+                                        tcsItemTO.InvoiceItemTaxDtlsTOList.Add(taxDtlTO);
+                                    }
+                                }
+                                tblInvoiceItemDetailsTOList.Add(tcsItemTO);
+
+                                grandTotal += tcsGrandTotal;
+                                otherTaxAmt += tcsGrandTotal;
+                            }
+                        }
+                    }
+                }
+            }
+            resultMessage.DefaultSuccessBehaviour();
+            return resultMessage;
+
+        }
+        //Reshma Added For ddition of Loading charges
+        private ResultMessage AddLoadingChargesTOInTaxItemDtls(SqlConnection conn, SqlTransaction tran, ref double grandTotal, ref double taxableTotal, ref double basicTotal, bool isPanNoPresent, List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOList, TblInvoiceTO tblInvoiceTo, ref double otherTaxAmt, Int32 isDeclarationRec)
+        {
+
+            ResultMessage resultMessage = new ResultMessage();
+
+            if (tblInvoiceTo.InvoiceTypeE != Constants.InvoiceTypeE.SEZ_WITHOUT_DUTY)
+            {
+                TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_IS_INCLUDE_Loading_Charges_TO_AUTO_INVOICE, conn, tran);
+
+                if (configParamsTO != null)
+                {
+                    if (configParamsTO.ConfigParamVal == "1")
+                    {
+                        TblConfigParamsTO tcsConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_LOADING_CHARGES_OTHER_TAX_ID, conn, tran);
+                        if (tcsConfigParamsTO == null)
+                        {
+                            resultMessage.DefaultBehaviour("Other Tax id is not configured for Loading Charges");
+                            return resultMessage;
+                        }
+                        Int32 isForItemWiseRoundup = 2;
+                        TblConfigParamsTO cPisForItemWiseRoundup = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.ITEM_GRAND_TOTAL_ROUNDUP_VALUE, conn, tran);
+                        if (cPisForItemWiseRoundup != null)
+                        {
+                            isForItemWiseRoundup = Convert.ToInt32(cPisForItemWiseRoundup.ConfigParamVal);
+                        }
+                        TblConfigParamsTO tcsPercentConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_LOADING_CHARGES_AMT, conn, tran);
+
+                        if (tcsPercentConfigParamsTO == null)
+                        {
+                            resultMessage.DefaultBehaviour("Loading Charges Tax Pct is not defined.");
+                            return resultMessage;
+                        }
+
+                        if (tcsPercentConfigParamsTO != null)
+                        {
+                            if (tcsPercentConfigParamsTO.ConfigParamVal != "0" && tcsPercentConfigParamsTO.ConfigParamVal != null)
+                            {
+                                Int32 tcsOtherTaxId = Convert.ToInt32(tcsConfigParamsTO.ConfigParamVal);
+                                Double tcsGrandTotal = 0;
+                                TblInvoiceItemDetailsTO tcsItemTO = new TblInvoiceItemDetailsTO();
+                                tcsItemTO.OtherTaxId = tcsOtherTaxId;
+                                TblOtherTaxesTO otherTaxesTO = _iTblOtherTaxesDAO.SelectTblOtherTaxes(tcsOtherTaxId);
+                                if (otherTaxesTO != null)
+                                    tcsItemTO.ProdItemDesc = otherTaxesTO.TaxName;
+                                else
+                                    tcsItemTO.ProdItemDesc = "Loading Charges";
+
+                                var maxTaxableItemTO = tblInvoiceItemDetailsTOList.OrderByDescending(m => m.TaxableAmt).FirstOrDefault();
+
+                                double invoiceQty = tblInvoiceItemDetailsTOList.Where(w => w.OtherTaxId == 0).Sum(s => s.InvoiceQty);
+                                tcsItemTO.ProdGstCodeId = maxTaxableItemTO.ProdGstCodeId;
+                                tcsItemTO.GstinCodeNo = maxTaxableItemTO.GstinCodeNo;
+                                Double tcsTaxPercent = Convert.ToDouble(tcsPercentConfigParamsTO.ConfigParamVal);
+                                tcsItemTO.TaxPct = tcsTaxPercent;
+                                tcsItemTO.TaxableAmt = ((invoiceQty* tcsTaxPercent)/118)*100;//118= 100 is loading charges and 18 is tax
+                                //tcsItemTO.TaxableAmt = Math.Round(tcsItemTO.TaxableAmt, 2);
+                                tcsItemTO.TaxableAmt = Math.Round(tcsItemTO.TaxableAmt, isForItemWiseRoundup);
+                                tcsGrandTotal += tcsItemTO.TaxableAmt;
+                                tcsItemTO.GrandTotal = tcsGrandTotal;
+                                // taxableTotal += tcsItemTO.TaxableAmt;
 
                                 if (maxTaxableItemTO.InvoiceItemTaxDtlsTOList != null && maxTaxableItemTO.InvoiceItemTaxDtlsTOList.Count > 0)
                                 {
@@ -3910,6 +4144,12 @@ namespace ODLMWebAPI.BL
                         {
                             tblInvoiceTO.IsTcsApplicable = tblOrganizationTO.IsTcsApplicable;
                             message = AddTcsTOInTaxItemDtls(conn, tran, ref grandTotal1, ref taxableAmt, ref basicTotalAmt, isPanPresent, invoiceItemTOList, tblInvoiceTO, ref otherTaxAmt, tblOrganizationTO.IsDeclarationRec);
+                        }
+                        TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_IS_INCLUDE_Loading_Charges_TO_AUTO_INVOICE, conn, tran);
+
+                        if (configParamsTO != null)
+                        {
+                            message=AddLoadingChargesTOInTaxItemDtls(conn, tran, ref grandTotal1, ref taxableAmt, ref basicTotalAmt, isPanPresent, invoiceItemTOList, tblInvoiceTO, ref otherTaxAmt, tblOrganizationTO.IsDeclarationRec);
                         }
                         tblInvoiceTO.GrandTotal = grandTotal1;
                         tblInvoiceTO.TaxableAmt = taxableAmt;
@@ -5258,6 +5498,9 @@ namespace ODLMWebAPI.BL
                 invoiceDT.Columns.Add("AckNo");
                 headerDT.Columns.Add("BrokerName");
                 invoiceDT.Columns.Add("BrokerName");
+
+                headerDT.Columns.Add("loadingCharges");
+                invoiceDT.Columns.Add("loadingCharges");
                 TblAddressTO tblAddressTO = _iTblAddressBL.SelectOrgAddressWrtAddrType(organizationTO.IdOrganization, Constants.AddressTypeE.OFFICE_ADDRESS);
                 List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
                 if (organizationTO != null)
@@ -5498,7 +5741,6 @@ namespace ODLMWebAPI.BL
 
                     invoiceDT.Rows[0]["DeliveryNoteNo"] = tblInvoiceTO.DeliveryNoteNo;
                     invoiceDT.Rows[0]["DispatchDocNo"] = tblInvoiceTO.DispatchDocNo;
-
                     //if (isMathRoundoff == 1)
                     if (isMathRoundoff == 1)  //Not applicable as each value will round off upto 2
                     {
@@ -5807,6 +6049,19 @@ namespace ODLMWebAPI.BL
                             else
                             {
                                 invoiceDT.Rows[0]["insuranceAmt"] = Math.Round(insuranceTo.TaxableAmt, 2);
+                            }
+
+                        }
+                        var loadingCharges = tblInvoiceTO.InvoiceItemDetailsTOList.Where(ele => ele.OtherTaxId == (Int32)Constants.OtherTaxTypeE.Loading_Charges).FirstOrDefault();
+                        if (loadingCharges != null)
+                        {
+                            if (isMathRoundoff == 1)
+                            {
+                                invoiceDT.Rows[0]["loadingCharges"] = loadingCharges.TaxableAmt;
+                            }
+                            else
+                            {
+                                invoiceDT.Rows[0]["loadingCharges"] = Math.Round(loadingCharges.TaxableAmt, 2);
                             }
 
                         }

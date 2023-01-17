@@ -545,6 +545,7 @@ namespace ODLMWebAPI.Models
         public Int32 IsEWayBillGenerated { get => isEWayBillGenerated; set => isEWayBillGenerated = value; }
         public Decimal DistanceInKM { get => distanceInKM; set => distanceInKM = value; }
         public double TdsAmt { get => tdsAmt; set => tdsAmt = value; }
+        public double LoadingCharges { get; set ; }
         public int IsTcsApplicable { get => isTcsApplicable; set => isTcsApplicable = value; }
         public int IsDeclarationRec { get => isDeclarationRec; set => isDeclarationRec = value; }
 

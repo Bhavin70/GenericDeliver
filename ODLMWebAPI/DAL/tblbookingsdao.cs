@@ -2808,6 +2808,7 @@ namespace ODLMWebAPI.DAL
 
                 String sqlQuery = @" UPDATE [tblBookings] SET " +
                                 " [pendingQty] = 0" +
+                                " , comments='"+ tblBookingsTO .Comments+"'"+
                                 " WHERE idBooking = @IdBooking ";
 
                 cmdUpdate.CommandText = sqlQuery;
