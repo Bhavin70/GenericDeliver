@@ -319,7 +319,47 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-        
+
+        public List<TblLoadingTO> GetPendingBookingQtyList(DateTime fromDate)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlDataReader sqlReader = null;
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = "select tblBookings.cnFOrgId , firmName cnfOrgName ,sum(pendingQty) PendingBookingQty  " +
+                    ",IsNULL(Loading.loadingQty,0) totalLoadingQty " +
+                    " from tblBookings left join tblOrganization cnfId on tblBookings.cnFOrgId =cnfId.idOrganization " +
+                    " left outer join (select tempLoadingSlip. cnfOrgId,sum(tempLoadingSlipExt.loadingqty) loadingQty from tempLoading " +
+                    " left join tempLoadingSlip   on tempLoading.idLoading =tempLoadingSlip.loadingId  " +
+                    " left join tempLoadingSlipExt  on tempLoadingSlip.idLoadingSlip   =tempLoadingSlipExt.loadingSlipId " +
+                    " where  tempLoading.createdOn  BETWEEN @fromDate AND @toDate and tempLoadingSlip.statusId not in (18)  " +
+                    " group by tempLoadingSlip.cnfOrgId ) As Loading on Loading.cnfOrgId =tblBookings.cnFOrgId " +
+                    "  where pendingQty >0  group by firmName  ,tblBookings.cnFOrgId ,Loading.loadingQty" ;
+
+                
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.DateTime).Value = fromDate;
+                cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.DateTime).Value = fromDate;
+
+                sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblLoadingTO> list = ConvertDTToListForLoading(sqlReader);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                sqlReader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
         public List<TblLoadingTO> SelectAllLoadingsFromParentLoadingId(Int32 parentLoadingId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -1567,6 +1607,29 @@ namespace ODLMWebAPI.DAL
             return tblLoadingTOList;
         }
 
+        public List<TblLoadingTO> ConvertDTToListForLoading(SqlDataReader tblLoadingTODT)
+        {
+            List<TblLoadingTO> tblLoadingTOList = new List<TblLoadingTO>();
+            if (tblLoadingTODT != null)
+            {
+                while (tblLoadingTODT.Read())
+                {
+                    TblLoadingTO tblLoadingTONew = new TblLoadingTO();
+                  
+
+                    if (tblLoadingTODT["cnfOrgId"] != DBNull.Value)
+                        tblLoadingTONew.CnfOrgId = Convert.ToInt32(tblLoadingTODT["cnfOrgId"].ToString());
+                    if (tblLoadingTODT["cnfOrgName"] != DBNull.Value)
+                        tblLoadingTONew.CnfOrgName = Convert.ToString(tblLoadingTODT["cnfOrgName"].ToString());
+                    if (tblLoadingTODT["totalLoadingQty"] != DBNull.Value)
+                        tblLoadingTONew.TotalLoadingQty = Convert.ToDouble(tblLoadingTODT["totalLoadingQty"].ToString());
+                    if (tblLoadingTODT["PendingBookingQty"] != DBNull.Value)
+                        tblLoadingTONew.Qty = Convert.ToDouble(tblLoadingTODT["PendingBookingQty"].ToString());
+                    tblLoadingTOList.Add(tblLoadingTONew);
+                }
+            }
+            return tblLoadingTOList;
+        }
         public List<TblLoadingTO> ConvertDTToListForDealer(SqlDataReader tblLoadingTODT)
         {
             List<TblLoadingTO> tblLoadingTOList = new List<TblLoadingTO>();
