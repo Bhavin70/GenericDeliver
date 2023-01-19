@@ -25,6 +25,7 @@ namespace ODLMWebAPI.DashboardModels
         public double SoldStock { get => soldStock; set => soldStock = value; }
         public double UnsoldStock { get => unsoldStock; set => unsoldStock = value; }
         public double TodaysStock { get => todaysStock; set => todaysStock = value; }
+        public double TodaysPendingStock { get ; set ; }
         public string PendingQtyWithOrderType { get => pendingQtyWithOrderType; set => pendingQtyWithOrderType = value; }
 
         #endregion

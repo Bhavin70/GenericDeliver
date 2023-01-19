@@ -492,6 +492,10 @@ namespace ODLMWebAPI.BL {
             } 
         }
 
+        public List<TblLoadingTO> GetPendingBookingQtyList(DateTime startDate)
+        {
+            return _iTblLoadingDAO.GetPendingBookingQtyList(startDate);
+        }
         public ResultMessage PingIOTDevice(TblLoadingTO tblLoadingTO)
         {
             ResultMessage resultMessage = new ResultMessage();

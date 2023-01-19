@@ -2259,12 +2259,14 @@ namespace ODLMWebAPI.DAL
                 conn.Open();
                 
                 cmdSelect.CommandText = " select bookingDisplayNo, cnFOrgId,orgCNf.firmName as distributorName,tblBookings.consumerTypeId,orderType.consumerType," +
-                    " tblBookings.createdOn, dealerOrgId,dealerOrg.firmName as dealerName,bookingQty,bookingRate ,tblBookings.bookingQty - ISNULL(tblBookingQtyConsumption.consumptionQty,tblBookings.pendingQty) as dispatchedQty " +
+                    " tblBookings.createdOn, dealerOrgId,dealerOrg.firmName as dealerName,bookingQty,pendingQty,bookingRate ,tblBookings.bookingQty - ISNULL(tblBookingQtyConsumption.consumptionQty,tblBookings.pendingQty) as dispatchedQty,addrDtl.districtName" +
                     " from tblBookings tblBookings " +
                     " LEFT JOIN tblOrganization orgCNf ON orgCNf.idOrganization = tblBookings.cnFOrgId " +
                     " LEFT JOIN tblOrganization dealerOrg ON dealerOrg.idOrganization = tblBookings.dealerOrgId LEFT JOIN dimConsumerType orderType ON orderType.idConsumer = tblBookings.consumerTypeId  " +
                     " LEFT JOIN tblBookingQtyConsumption tblBookingQtyConsumption on tblBookingQtyConsumption.bookingId = tblBookings.idBooking " +
-                    " where tblBookings.statusId  IN (11) ";
+                    "LEFT JOIN  (  SELECT tblAddress.*,organizationId ,dimDistrict.districtName  FROM tblOrgAddress  INNER JOIN tblAddress ON idAddr = addressId "+
+                    "LEFT JOIN dimDistrict ON dimdistrict.idDistrict = tblAddress.districtId WHERE addrTypeId = 1 AND isAddrVisible = 1 ) addrDtl on addrDtl.organizationId =dealerOrg.idOrganization  " +
+                    "Where tblBookings.statusId  IN (11) ";
 
 
                 if (skipDate == 0)
@@ -2325,10 +2327,20 @@ namespace ODLMWebAPI.DAL
                             if (tblBookingsTODT["dealerName"] != DBNull.Value)
                                 tblBookingsTONew.DealerName = Convert.ToString(tblBookingsTODT["dealerName"].ToString());
                         }
+                        if (hasColumn(tblBookingsTODT, "districtName") == true)
+                        {
+                            if (tblBookingsTODT["districtName"] != DBNull.Value)
+                                tblBookingsTONew.districtName = Convert.ToString(tblBookingsTODT["districtName"].ToString());
+                        }
                         if (hasColumn(tblBookingsTODT, "bookingQty") == true)
                         {
                             if (tblBookingsTODT["bookingQty"] != DBNull.Value)
                                 tblBookingsTONew.BookingQty = Convert.ToDouble(tblBookingsTODT["bookingQty"].ToString());
+                        }
+                        if (hasColumn(tblBookingsTODT, "pendingQty") == true)
+                        {
+                            if (tblBookingsTODT["pendingQty"] != DBNull.Value)
+                                tblBookingsTONew.pendingQty = Convert.ToDouble(tblBookingsTODT["pendingQty"].ToString());
                         }
                         if (hasColumn(tblBookingsTODT, "dispatchedQty") == true)
                         {
@@ -2796,6 +2808,7 @@ namespace ODLMWebAPI.DAL
 
                 String sqlQuery = @" UPDATE [tblBookings] SET " +
                                 " [pendingQty] = 0" +
+                                " , comments='"+ tblBookingsTO .Comments+"'"+
                                 " WHERE idBooking = @IdBooking ";
 
                 cmdUpdate.CommandText = sqlQuery;

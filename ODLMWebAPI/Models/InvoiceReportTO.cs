@@ -53,6 +53,8 @@ namespace ODLMWebAPI.Models
         public double Freight { get; set; }
         public double OtherAmt { get; set; }
         public double ParityAmt { get; set; }
+        public double NonconfParityAmt { get; set; }
+
 
         #endregion
 
