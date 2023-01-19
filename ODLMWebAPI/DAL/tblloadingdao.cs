@@ -335,15 +335,15 @@ namespace ODLMWebAPI.DAL
                     " left outer join (select tempLoadingSlip. cnfOrgId,sum(tempLoadingSlipExt.loadingqty) loadingQty from tempLoading " +
                     " left join tempLoadingSlip   on tempLoading.idLoading =tempLoadingSlip.loadingId  " +
                     " left join tempLoadingSlipExt  on tempLoadingSlip.idLoadingSlip   =tempLoadingSlipExt.loadingSlipId " +
-                    " where  tempLoading.createdOn  BETWEEN @fromDate AND @toDate and tempLoadingSlip.statusId not in (18)  " +
+                    " where  CONVERT (DATE, tempLoading.createdOn ,103)  BETWEEN @fromDate AND @toDate and tempLoadingSlip.statusId not in (18)  " +
                     " group by tempLoadingSlip.cnfOrgId ) As Loading on Loading.cnfOrgId =tblBookings.cnFOrgId " +
                     "  where pendingQty >0  group by firmName  ,tblBookings.cnFOrgId ,Loading.loadingQty" ;
 
                 
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
-                cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.DateTime).Value = fromDate;
-                cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.DateTime).Value = fromDate;
+                cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.DateTime).Value = fromDate.Date;
+                cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.DateTime).Value = fromDate.Date;
 
                 sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
                 List<TblLoadingTO> list = ConvertDTToListForLoading(sqlReader);
@@ -1624,7 +1624,7 @@ namespace ODLMWebAPI.DAL
                     if (tblLoadingTODT["totalLoadingQty"] != DBNull.Value)
                         tblLoadingTONew.TotalLoadingQty = Convert.ToDouble(tblLoadingTODT["totalLoadingQty"].ToString());
                     if (tblLoadingTODT["PendingBookingQty"] != DBNull.Value)
-                        tblLoadingTONew.Qty = Convert.ToDouble(tblLoadingTODT["PendingBookingQty"].ToString());
+                        tblLoadingTONew.MaxWeighingOty = Convert.ToDouble(tblLoadingTODT["PendingBookingQty"].ToString());
                     tblLoadingTOList.Add(tblLoadingTONew);
                 }
             }
