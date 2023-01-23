@@ -251,9 +251,9 @@ namespace ODLMWebAPI.BL
             return emptyStkTemplateList;
         }
 
-        public List<SizeSpecWiseStockTO> SelectSizeAndSpecWiseStockSummary(DateTime stockDate,int compartmentId)
+        public List<SizeSpecWiseStockTO> SelectSizeAndSpecWiseStockSummary(DateTime stockDate, DateTime FromDate, DateTime ToDate,int compartmentId)
         {
-            return _iTblStockDetailsDAO.SelectSizeAndSpecWiseStockSummary(stockDate, compartmentId);
+            return _iTblStockDetailsDAO.SelectSizeAndSpecWiseStockSummary(stockDate, FromDate,ToDate, compartmentId);
         }
 
         // Vaibhav [26-Mar-2018] Added compartmentId filter.

@@ -172,13 +172,13 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetStockSummaryDetails")]
         [HttpGet]
-        public List<SizeSpecWiseStockTO> GetStockSummaryDetails(DateTime stockDate,int compartmentId=0)
+        public List<SizeSpecWiseStockTO> GetStockSummaryDetails(DateTime stockDate, DateTime startDt, DateTime endDt, int compartmentId=0)
         {
             if (stockDate == DateTime.MinValue)
                 stockDate = _iCommon.ServerDateTime.Date;
 
             // Vaibhav [21-April-2018] Added compartment filter.
-            List<SizeSpecWiseStockTO>  list = _iTblStockDetailsBL.SelectSizeAndSpecWiseStockSummary(new DateTime(), compartmentId);
+            List<SizeSpecWiseStockTO>  list = _iTblStockDetailsBL.SelectSizeAndSpecWiseStockSummary(new DateTime(), startDt, endDt, compartmentId);
             //List<SizeSpecWiseStockTO>  xx=list.OrderBy(sp => sp.ProdSpecId).ToList();
             return list;
 
@@ -307,6 +307,7 @@ namespace ODLMWebAPI.Controllers
             {
                 TblStockSummaryTO stockSummaryTO = JsonConvert.DeserializeObject<TblStockSummaryTO>(data["stockSummaryTO"].ToString());
                 var loginUserId = data["loginUserId"].ToString();
+               // var isTodaysProduction = data["isTodaysProduction"].ToString();
 
                 if (stockSummaryTO == null)
                 {
@@ -333,6 +334,7 @@ namespace ODLMWebAPI.Controllers
 
                 stockSummaryTO.CreatedOn = _iCommon.ServerDateTime;
                 stockSummaryTO.CreatedBy = Convert.ToInt32(loginUserId);
+               // stockSummaryTO.IsTodaysProduction = Convert.ToBoolean(isTodaysProduction);
 
                 for (int i = 0; i < stockSummaryTO.StockDetailsTOList.Count; i++)
                 {

@@ -531,7 +531,10 @@ namespace ODLMWebAPI.DAL
 
                     if (tblStockDetailsTODT["prodItemId"] != DBNull.Value)
                         tblStockDetailsTONew.ProdItemId = Convert.ToInt32(tblStockDetailsTODT["prodItemId"].ToString());
-                    
+                    if (tblStockDetailsTODT["prodNoOfBundles"] != DBNull.Value)
+                        tblStockDetailsTONew.ProdNoOfBundles = Convert.ToDouble(tblStockDetailsTODT["prodNoOfBundles"].ToString());
+                    if (tblStockDetailsTODT["prodtotalStock"] != DBNull.Value)
+                        tblStockDetailsTONew.ProdtotalStock = Convert.ToDouble(tblStockDetailsTODT["prodtotalStock"].ToString());
                     tblStockDetailsTOList.Add(tblStockDetailsTONew);
                 }
             }
@@ -617,7 +620,7 @@ namespace ODLMWebAPI.DAL
             return sizeSpecWiseStockTOList;
         }
 
-        public List<SizeSpecWiseStockTO> SelectSizeAndSpecWiseStockSummary(DateTime stockDate,int compartmentId)
+        public List<SizeSpecWiseStockTO> SelectSizeAndSpecWiseStockSummary(DateTime stockDate,DateTime FromDate, DateTime ToDate,int compartmentId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -627,10 +630,10 @@ namespace ODLMWebAPI.DAL
                 conn.Open();
                 // Vaibhav [12-April-2018] Added to select stock compartment wise.           
                 String compCondition = String.Empty;
-
+                //compCondition = " WHERE  CAST(stockSummary.stockDate  AS DATE) BETWEEN '" + Convert.ToString(FromDate) + "'  AND '" + Convert.ToString(ToDate) + "' ";
                 if (compartmentId > 0)
                 {
-                    compCondition = " WHERE locationId = " + compartmentId;
+                    compCondition = " WHERE  locationId = " + compartmentId;
                 }
 
                 cmdSelect.CommandText = " SELECT stockDtl.*,prodClass.displayName +'/'+productItem.itemDesc as displayName ,  " +
@@ -665,7 +668,9 @@ namespace ODLMWebAPI.DAL
                                        " AND YEAR(stockSummary.stockDate) = " + stockDate.Year;
                                        
                 }
-                cmdSelect.CommandText += " ORDER BY prodSpec.displaySequence";
+                cmdSelect.CommandText += " where CAST(stockSummary.stockDate  AS DATE) BETWEEN @fromDate  AND  @toDate ORDER BY prodSpec.displaySequence";
+                cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.Date).Value = FromDate;
+                cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.Date).Value = ToDate;
 
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
@@ -837,6 +842,9 @@ namespace ODLMWebAPI.DAL
                                 " ,[isConsolidatedStock]" +
                                 " ,[isInMT]" +
                                 " ,[prodItemId]"+
+                                " ,[prodNoOfBundles]" +
+                                " ,[prodtotalStock]" +
+
                                 " )" +
                     " VALUES (" +
                                 "  @StockSummaryId " +
@@ -858,6 +866,8 @@ namespace ODLMWebAPI.DAL
                                 " ,@IsConsolidatedStock " +
                                 " ,@IsInMT " +
                                 " ,@ProdItemId" +
+                                " ,@ProdNoOfBundles " +
+                                " ,@ProdtotalStock " +
                                 " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -883,6 +893,8 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@IsConsolidatedStock", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockDetailsTO.IsConsolidatedStock);
             cmdInsert.Parameters.Add("@IsInMT", System.Data.SqlDbType.Int).Value = tblStockDetailsTO.IsInMT;
             cmdInsert.Parameters.Add("@ProdItemId", System.Data.SqlDbType.Int).Value = tblStockDetailsTO.ProdItemId;
+            cmdInsert.Parameters.Add("@ProdNoOfBundles", System.Data.SqlDbType.NVarChar).Value = tblStockDetailsTO.ProdNoOfBundles;
+            cmdInsert.Parameters.Add("@ProdtotalStock", System.Data.SqlDbType.NVarChar).Value = tblStockDetailsTO.ProdtotalStock;
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = Constants.IdentityColumnQuery;
@@ -956,6 +968,8 @@ namespace ODLMWebAPI.DAL
                             " ,[isConsolidatedStock] = @IsConsolidatedStock " +
                             " ,[isInMT] = @IsInMT " +
                             " ,[prodItemId] = @ProdItemId " +
+                            " ,[prodNoOfBundles]= @ProdNoOfBundles" +
+                            " ,[prodtotalStock]= @ProdtotalStock" +
                             " WHERE  [idStockDtl] = @IdStockDtl";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -980,6 +994,8 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@IsConsolidatedStock", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockDetailsTO.IsConsolidatedStock);
             cmdUpdate.Parameters.Add("@IsInMT", System.Data.SqlDbType.Int).Value = tblStockDetailsTO.IsInMT;
             cmdUpdate.Parameters.Add("@ProdItemId", System.Data.SqlDbType.Int).Value = tblStockDetailsTO.ProdItemId;
+            cmdUpdate.Parameters.Add("@ProdNoOfBundles", System.Data.SqlDbType.NVarChar).Value = tblStockDetailsTO.ProdNoOfBundles;
+            cmdUpdate.Parameters.Add("@ProdtotalStock", System.Data.SqlDbType.NVarChar).Value = tblStockDetailsTO.ProdtotalStock;
             return cmdUpdate.ExecuteNonQuery();
         }
         #endregion

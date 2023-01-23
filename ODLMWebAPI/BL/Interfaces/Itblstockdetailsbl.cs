@@ -22,7 +22,7 @@ namespace ODLMWebAPI.BL.Interfaces
         TblStockDetailsTO SelectTblStockDetailsTO(TblRunningSizesTO runningSizeTO, SqlConnection conn, SqlTransaction tran);
         List<TblStockDetailsTO> SelectAllEmptyStockTemplateList(int prodCatId, int locationId, int brandId, Int32 isConsolidateStk);
         List<TblStockDetailsTO> SelectAllTblStockDetailsList(int locationId, int prodCatId, DateTime stockDate, int brandId);
-        List<SizeSpecWiseStockTO> SelectSizeAndSpecWiseStockSummary(DateTime stockDate, int compartmentId);
+        List<SizeSpecWiseStockTO> SelectSizeAndSpecWiseStockSummary(DateTime stockDate, DateTime FromDate, DateTime ToDate, int compartmentId);
         List<TblStockDetailsTO> SelectAllTblStockDetails(Int32 prodCatId, Int32 prodSpecId, DateTime stockDate, Int32 brandId, int compartmentId, SqlConnection conn, SqlTransaction tran);
         List<TblStockDetailsTO> SelectAllTblStockDetailsOther(Int32 prodCatId, Int32 prodSpecId, Int32 prodItemId, DateTime stockDate, Int32 brandId, int compartmentId, SqlConnection conn, SqlTransaction tran);
         Double SelectTotalBalanceStock(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 brandId);

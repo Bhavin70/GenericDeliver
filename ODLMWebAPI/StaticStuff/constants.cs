@@ -114,6 +114,13 @@ namespace ODLMWebAPI.StaticStuff
                 SAUDA = 501
         }
 
+        public enum StockTransactionType
+        {
+            StockData = 1,
+            ProductionData = 2,
+            
+        }
+
         //public static DateTime ServerDateTime
         //{
         //    get
