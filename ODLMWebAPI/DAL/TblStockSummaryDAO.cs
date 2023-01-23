@@ -366,11 +366,13 @@ namespace ODLMWebAPI.DAL
                 //                        " ON CAST(stockInfo.createdOn as date) = CAST(bookStock.createdOn as date)";
 
 
-                cmdSelect.CommandText = " SELECT * FROM(SELECT totalStock, createdOn FROM tblStockSummary " +
+                cmdSelect.CommandText = " SELECT * FROM(SELECT totalStock, createdOn ,idStockSummary FROM tblStockSummary " +
                                         " ) AS stockInfo " +
                                         " LEFT JOIN(SELECT stockInMT, stockFactor , createdOn FROM tblStockAsPerBooks " +
                                         " ) As bookStock " +
-                                        " ON CAST(stockInfo.createdOn as date) = CAST(bookStock.createdOn as date) ";
+                                        " ON CAST(stockInfo.createdOn as date) = CAST(bookStock.createdOn as date) " +
+                                        " left join (select sum(balanceStock ) as PendingStock,stockSummaryId from tblStockDetails group by stockSummaryId  ) as PendingStock " +
+                                        "   on PendingStock.stockSummaryId=stockInfo.idStockSummary  ";
 
 
                 cmdSelect.Connection = conn;
@@ -386,7 +388,8 @@ namespace ODLMWebAPI.DAL
                         stockUpdateInfoNew.StockFactor = Convert.ToDouble(tblLoadingTODT["stockFactor"].ToString());
                     if (tblLoadingTODT["stockInMT"] != DBNull.Value)
                         stockUpdateInfoNew.TotalBooksStock = Convert.ToDouble(tblLoadingTODT["stockInMT"].ToString());
-
+                    if (tblLoadingTODT["PendingStock"] != DBNull.Value)
+                        stockUpdateInfoNew.TodaysPendingStock = Convert.ToDouble(tblLoadingTODT["PendingStock"].ToString());
                     return stockUpdateInfoNew;
                 }
 

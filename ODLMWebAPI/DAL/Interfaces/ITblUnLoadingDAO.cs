@@ -26,6 +26,6 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblUnLoading(Int32 idUnLoading);
         int DeleteTblUnLoading(Int32 idUnLoading, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idUnLoading, SqlCommand cmdDelete);
-
+        
     }
 }

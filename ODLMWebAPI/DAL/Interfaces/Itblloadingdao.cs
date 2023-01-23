@@ -56,7 +56,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         TblLoadingTO SelectTblLoading(Int32 idLoading);
         TblLoadingTO SelectTblLoadingTOByModBusRefId(Int32 modBusRefId, SqlConnection conn, SqlTransaction tran);
 
-
+        List<TblLoadingTO> GetPendingBookingQtyList(DateTime startDate);
 
     }
 }

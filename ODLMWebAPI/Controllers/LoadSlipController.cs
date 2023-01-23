@@ -2544,7 +2544,14 @@ namespace ODLMWebAPI.Controllers
                 return resultMessage;
             }
         }
-
+        //Reshma Added For Cnf Pending Booking data
+        [Route("GetPendingBookingQtyList")]
+        [HttpGet]
+        public List<TblLoadingTO> GetPendingBookingQtyList()
+        {
+            DateTime today = _iCommon.ServerDateTime;
+            return _iTblLoadingBL.GetPendingBookingQtyList(today);
+        }
         #endregion
 
     }
