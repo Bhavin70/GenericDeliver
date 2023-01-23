@@ -153,7 +153,7 @@ namespace ODLMWebAPI.DAL
                 }
 
                 if (stocDate != new DateTime())
-                    cmdSelect.CommandText = SqlSelectQuery() + " WHERE stockDate= @stockDate";
+                    cmdSelect.CommandText = SqlSelectQuery() + " WHERE stockDate= @stockDate and transactionType=1";
                 else
                     cmdSelect.CommandText = SqlSelectQuery();
 
