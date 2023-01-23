@@ -37,6 +37,7 @@ namespace ODLMWebAPI.Models
         Int32 prodItemId;
 
         Int32 otherItem;
+      
 
         #endregion
 
@@ -139,6 +140,8 @@ namespace ODLMWebAPI.Models
             get { return materialDesc; }
             set { materialDesc = value; }
         }
+       public Double ProdNoOfBundles {get;set;}
+      public Double ProdtotalStock { get; set; }
 
         public int ProductId
         {

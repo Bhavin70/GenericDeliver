@@ -153,9 +153,165 @@ namespace ODLMWebAPI.DAL
                 }
 
                 if (stocDate != new DateTime())
-                    cmdSelect.CommandText = SqlSelectQuery() + " WHERE stockDate= @stockDate";
+                    cmdSelect.CommandText = SqlSelectQuery() + " WHERE stockDate= @stockDate and transactionType=1";
                 else
                     cmdSelect.CommandText = SqlSelectQuery();
+
+                //cmdSelect.Connection = conn;
+                //cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                if (stocDate != new DateTime())
+                    cmdSelect.Parameters.Add("@stockDate", System.Data.SqlDbType.DateTime).Value = stocDate.Date;
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblStockSummaryTO> list = ConvertDTToList(reader);
+                if (reader != null)
+                    reader.Dispose();
+
+                if (list != null && list.Count == 1)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (reader != null)
+                    reader.Dispose();
+                cmdSelect.Dispose();
+                if (!isConnection)
+                    conn.Close();
+            }
+        }
+        public TblStockSummaryTO SelectTblProdStockSummary(DateTime stocDate, SqlConnection conn = null, SqlTransaction tran = null)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            Boolean isConnection = false;
+            try
+            {
+                if (conn != null)
+                {
+                    cmdSelect.Connection = conn;
+                    cmdSelect.Transaction = tran;
+                    isConnection = true;
+                }
+                else
+                {
+                    String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+                    conn = new SqlConnection(sqlConnStr);
+                    cmdSelect.Connection = conn;
+                    conn.Open();
+                }
+
+                cmdSelect.CommandText = "select * from tblStockSummary where isnull(noOfBundles,0)=0 and transactionType=2 and stockDate= @stockDate";//SqlSelectQuery() + " WHERE stockDate= @stockDate";
+
+
+                //cmdSelect.Connection = conn;
+                //cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                if (stocDate != new DateTime())
+                    cmdSelect.Parameters.Add("@stockDate", System.Data.SqlDbType.DateTime).Value = stocDate.Date;
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblStockSummaryTO> list = ConvertDTToList(reader);
+                if (reader != null)
+                    reader.Dispose();
+
+                if (list != null && list.Count == 1)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (reader != null)
+                    reader.Dispose();
+                cmdSelect.Dispose();
+                if (!isConnection)
+                    conn.Close();
+            }
+        }
+        public TblStockSummaryTO SelectTblProdStockSummaryExist(DateTime stocDate, SqlConnection conn = null, SqlTransaction tran = null)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            Boolean isConnection = false;
+            try
+            {
+                if (conn != null)
+                {
+                    cmdSelect.Connection = conn;
+                    cmdSelect.Transaction = tran;
+                    isConnection = true;
+                }
+                else
+                {
+                    String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+                    conn = new SqlConnection(sqlConnStr);
+                    cmdSelect.Connection = conn;
+                    conn.Open();
+                }
+
+                cmdSelect.CommandText = "select * from tblStockSummary where  transactionType=2 and stockDate= @stockDate";//SqlSelectQuery() + " WHERE stockDate= @stockDate";
+
+
+                //cmdSelect.Connection = conn;
+                //cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                if (stocDate != new DateTime())
+                    cmdSelect.Parameters.Add("@stockDate", System.Data.SqlDbType.DateTime).Value = stocDate.Date;
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblStockSummaryTO> list = ConvertDTToList(reader);
+                if (reader != null)
+                    reader.Dispose();
+
+                if (list != null && list.Count == 1)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (reader != null)
+                    reader.Dispose();
+                cmdSelect.Dispose();
+                if (!isConnection)
+                    conn.Close();
+            }
+        }
+        public TblStockSummaryTO SelectTblStockSummaryExist(DateTime stocDate, SqlConnection conn = null, SqlTransaction tran = null)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            Boolean isConnection = false;
+            try
+            {
+                if (conn != null)
+                {
+                    cmdSelect.Connection = conn;
+                    cmdSelect.Transaction = tran;
+                    isConnection = true;
+                }
+                else
+                {
+                    String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+                    conn = new SqlConnection(sqlConnStr);
+                    cmdSelect.Connection = conn;
+                    conn.Open();
+                }
+
+                cmdSelect.CommandText = "select top 1 * from tblStockSummary where  transactionType=1 and stockDate= @stockDate";
+
 
                 //cmdSelect.Connection = conn;
                 //cmdSelect.Transaction = tran;
@@ -392,6 +548,7 @@ namespace ODLMWebAPI.DAL
                                 " ,[updatedOn]" +
                                 " ,[noOfBundles]" +
                                 " ,[totalStock]" +
+                                " ,[transactionType]" +
                                 " )" +
                     " VALUES (" +
                                 "  @ConfirmedBy " +
@@ -402,7 +559,8 @@ namespace ODLMWebAPI.DAL
                                 " ,@CreatedOn " +
                                 " ,@UpdatedOn " +
                                 " ,@NoOfBundles " +
-                                " ,@TotalStock " + 
+                                " ,@TotalStock " +
+                                " ,@TransactionType " +
                                 " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -418,6 +576,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@UpdatedOn", System.Data.SqlDbType.DateTime).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockSummaryTO.UpdatedOn);
             cmdInsert.Parameters.Add("@NoOfBundles", System.Data.SqlDbType.NVarChar).Value = tblStockSummaryTO.NoOfBundles;
             cmdInsert.Parameters.Add("@TotalStock", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockSummaryTO.TotalStock);
+            cmdInsert.Parameters.Add("@TransactionType", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockSummaryTO.TransactionType);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {

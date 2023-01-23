@@ -25,7 +25,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblStockDetailsTO> ConvertDTToList(SqlDataReader tblStockDetailsTODT);
         List<TblStockDetailsTO> ConvertReaderToList(SqlDataReader tblStockDetailsTODT, int locationId);
         List<SizeSpecWiseStockTO> ConvertReaderToStockList(SqlDataReader tblStockDetailsTODT);
-        List<SizeSpecWiseStockTO> SelectSizeAndSpecWiseStockSummary(DateTime stockDate, int compartmentId);
+        List<SizeSpecWiseStockTO> SelectSizeAndSpecWiseStockSummary(DateTime stockDate, DateTime FromDate, DateTime ToDate, int compartmentId);
         Double SelectTotalBalanceStock(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 brandId);
         List<TblStockDetailsTO> SelectTblStockDetailsList(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 brandId, int compartmentId, int prodItemId);
         int InsertTblStockDetails(TblStockDetailsTO tblStockDetailsTO);

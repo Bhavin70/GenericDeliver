@@ -17,6 +17,8 @@ namespace ODLMWebAPI.Models
         DateTime updatedOn;
         Double noOfBundles;
         Double totalStock;
+        Int32 transactionType;
+        Boolean isTodaysProduction;
         List<TblStockDetailsTO> stockDetailsTOList;
         #endregion
 
@@ -79,13 +81,23 @@ namespace ODLMWebAPI.Models
             set { totalStock = value; }
         }
 
+        public Int32 TransactionType
+        {
+            get { return transactionType; }
+            set { transactionType = value; }
+        }
+
+        public Boolean IsTodaysProduction
+        {
+            get { return isTodaysProduction; }
+            set { isTodaysProduction = value; }
+        }
         public List<TblStockDetailsTO> StockDetailsTOList
         {
             get
             {
                 return stockDetailsTOList;
             }
-
             set
             {
                 stockDetailsTOList = value;

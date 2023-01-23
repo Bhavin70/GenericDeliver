@@ -214,7 +214,9 @@ namespace ODLMWebAPI.BL
 
                 #region consuption details
 
-                String sqlCmd = "DELETE FROM tblStockConsumption";
+                // String sqlCmd = "DELETE FROM tblStockConsumption";
+                // Add By Samadhan 20 Jan2023 Delete Todays Stock 
+                String sqlCmd = "DELETE FROM tblStockConsumption where cast(createdOn as date) =cast (GETDATE() as date)";
                 result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
                 if (result == -2)
                 {
@@ -231,7 +233,9 @@ namespace ODLMWebAPI.BL
                 #endregion
 
                 #region  Stock Details
-                sqlCmd = "DELETE FROM tblStockDetails";
+                // Add By Samadhan 20 Jan2023 Delete Todays Stock 
+                //sqlCmd = "DELETE FROM tblStockDetails";
+                sqlCmd = "DELETE FROM tblStockDetails where cast(createdOn as date) =cast (GETDATE() as date)";
                 result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
                 if (result == -2)
                 {
@@ -247,8 +251,9 @@ namespace ODLMWebAPI.BL
                 #endregion
 
                 #region Stock Summary
-
-                sqlCmd = "DELETE FROM tblStockSummary";
+                // Add By Samadhan 20 Jan2023 Delete Todays Stock 
+                // sqlCmd = "DELETE FROM tblStockSummary";
+                sqlCmd = "DELETE FROM tblStockSummary where cast(createdOn as date) =cast (GETDATE() as date)";
                 result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
                 if (result == -2)
                 {
@@ -322,12 +327,41 @@ namespace ODLMWebAPI.BL
 
                 //Check if Todays Stock Summary Record is inserted or not
                 // If Inserted then its update request else insert request
+                var isTodaysProduction = tblStockSummaryTO.IsTodaysProduction;
                 DateTime stockDate = _iCommon.ServerDateTime.Date;
-                TblStockSummaryTO todaysStockSummaryTO = _iTblStockSummaryDAO.SelectTblStockSummary(new DateTime(), conn, tran);
+
+                //TblStockSummaryTO todaysStockSummaryTO = _iTblStockSummaryDAO.SelectTblStockSummary(new DateTime(), conn, tran);
+                TblStockSummaryTO todaysStockSummaryTO = _iTblStockSummaryDAO.SelectTblStockSummary(stockDate, conn, tran);
                 if (todaysStockSummaryTO == null)
                 {
                     tblStockSummaryTO.StockDate = stockDate;
-                    result = InsertTblStockSummary(tblStockSummaryTO, conn, tran);
+                    if (tblStockSummaryTO.IsTodaysProduction == true)
+                    {
+                        DateTime ProdstockDate1 = _iCommon.ServerDateTime.Date;
+                        TblStockSummaryTO ProdtodaysStockSummaryTO1 = _iTblStockSummaryDAO.SelectTblProdStockSummaryExist(ProdstockDate1, conn, tran);
+
+                        if (ProdtodaysStockSummaryTO1 == null)
+                        {
+                            tblStockSummaryTO.TransactionType = (Int32)StaticStuff.Constants.StockTransactionType.ProductionData;
+                            result = InsertTblStockSummary(tblStockSummaryTO, conn, tran);
+                        }
+                    }
+
+                    DateTime stockDate1 = _iCommon.ServerDateTime.Date;
+                    TblStockSummaryTO todaysStockSummaryTO1 = _iTblStockSummaryDAO.SelectTblStockSummaryExist(stockDate1, conn, tran);
+                    if (todaysStockSummaryTO1 == null)
+                    {
+                        tblStockSummaryTO.TransactionType = (Int32)StaticStuff.Constants.StockTransactionType.StockData;
+                        result = InsertTblStockSummary(tblStockSummaryTO, conn, tran);
+                    }
+                    else
+                    {
+                        //tblStockSummaryTO.IdStockSummary = todaysStockSummaryTO1.IdStockSummary;
+                        todaysStockSummaryTO1.StockDetailsTOList = tblStockSummaryTO.StockDetailsTOList;
+                        tblStockSummaryTO = todaysStockSummaryTO1;
+                        tblStockSummaryTO.IsTodaysProduction = Convert.ToBoolean(isTodaysProduction);
+                    }
+
                     if (result != 1)
                     {
                         tran.Rollback();
@@ -348,10 +382,24 @@ namespace ODLMWebAPI.BL
                     //    resultMessage.DisplayMessage = resultMessage.Text;
                     //    resultMessage.MessageType = ResultMessageE.Error;
                     //    return resultMessage;
-                    //}
+                    //}                  
 
+                   
+                    tblStockSummaryTO.IsTodaysProduction = Convert.ToBoolean(isTodaysProduction);
+                    if (tblStockSummaryTO.IsTodaysProduction == true)
+                    {
+                        DateTime ProdstockDate = _iCommon.ServerDateTime.Date;
+                        TblStockSummaryTO ProdtodaysStockSummaryTO = _iTblStockSummaryDAO.SelectTblProdStockSummaryExist(ProdstockDate, conn, tran);
+                        if (ProdtodaysStockSummaryTO == null)
+                        {
+                            tblStockSummaryTO.StockDate = stockDate;
+                            tblStockSummaryTO.TransactionType = (Int32)StaticStuff.Constants.StockTransactionType.ProductionData;
+                            result = InsertTblStockSummary(tblStockSummaryTO, conn, tran);
+                        }
+                    }
                     todaysStockSummaryTO.StockDetailsTOList = tblStockSummaryTO.StockDetailsTOList;
                     tblStockSummaryTO = todaysStockSummaryTO;
+                    tblStockSummaryTO.IsTodaysProduction = Convert.ToBoolean(isTodaysProduction);
                 }
 
                 #endregion
@@ -378,10 +426,28 @@ namespace ODLMWebAPI.BL
                         Double newQtyInMt = 0;
                         Int32 isInMTExisting = 0;
 
+                        Double existingNoOfBundles = 0;
+
                         if (existingStockList != null && existingStockList.Count > 0)
                         {
 
-                            TblStockDetailsTO existingStocDtlTO = existingStockList.Where(w => w.IdStockDtl == tblStockSummaryTO.StockDetailsTOList[i].IdStockDtl).FirstOrDefault();
+                            //TblStockDetailsTO existingStocDtlTO = existingStockList.Where(w => w.IdStockDtl == tblStockSummaryTO.StockDetailsTOList[i].IdStockDtl).FirstOrDefault();
+                            // Add By Samadhan 20 Jan 2023
+                            TblStockDetailsTO existingStocDtlTO = new TblStockDetailsTO();
+                            if (tblStockSummaryTO.IsTodaysProduction == true)
+                            {
+                              existingStocDtlTO = existingStockList.Where(w => w.CreatedOn.Date == tblStockSummaryTO.StockDetailsTOList[i].CreatedOn.Date
+                              && w.ProdCatId==tblStockSummaryTO.StockDetailsTOList[i].ProdCatId 
+                              && w.ProdSpecId == tblStockSummaryTO.StockDetailsTOList[i].ProdSpecId 
+                              && w.MaterialId == tblStockSummaryTO.StockDetailsTOList[i].MaterialId
+
+                              ).FirstOrDefault();
+                            }
+                            else
+                            {
+                                 existingStocDtlTO = existingStockList.Where(w => w.IdStockDtl == tblStockSummaryTO.StockDetailsTOList[i].IdStockDtl).FirstOrDefault();
+                            }
+
 
                             //if (tblStockSummaryTO.StockDetailsTOList[i].IsConsolidatedStock == 1)
                             //{
@@ -400,8 +466,13 @@ namespace ODLMWebAPI.BL
                                 isExist = true;
                                 tblStockSummaryTO.StockDetailsTOList[i].IdStockDtl = existingStocDtlTO.IdStockDtl;
                                 isInMTExisting = existingStocDtlTO.IsInMT;
-
                                 existingQtyInMt = existingStocDtlTO.BalanceStock;
+                                // Add By samadhan 19 Jan 23
+                                if (tblStockSummaryTO.IsTodaysProduction == true)
+                                {
+                                    existingNoOfBundles = existingStocDtlTO.NoOfBundles;
+                                }
+
 
                             }
                         }
@@ -435,6 +506,12 @@ namespace ODLMWebAPI.BL
                                         tblStockSummaryTO.StockDetailsTOList[i].TodaysStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
                                         tblStockSummaryTO.StockDetailsTOList[i].ProductId = productInfo.IdProduct;
                                         tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles = noOfBundles;
+
+                                        if (tblStockSummaryTO.IsTodaysProduction == true)
+                                        {
+                                            tblStockSummaryTO.StockDetailsTOList[i].ProdNoOfBundles = noOfBundles;
+                                            tblStockSummaryTO.StockDetailsTOList[i].ProdtotalStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
+                                        }
                                     }
                                     else
                                     {
@@ -478,11 +555,32 @@ namespace ODLMWebAPI.BL
 
                                 if (productInfo != null)
                                 {
-                                    Double totalStkInMT = tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles * productInfo.NoOfPcs * productInfo.AvgSecWt * productInfo.StdLength;
+                                    Double totalStkInMT = 0;
+                                    Double ProdtotalStkInMT = 0;
+                                    totalStkInMT = tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles * productInfo.NoOfPcs * productInfo.AvgSecWt * productInfo.StdLength;
                                     tblStockSummaryTO.StockDetailsTOList[i].TotalStock = totalStkInMT / 1000;
                                     tblStockSummaryTO.StockDetailsTOList[i].BalanceStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
                                     tblStockSummaryTO.StockDetailsTOList[i].TodaysStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
                                     tblStockSummaryTO.StockDetailsTOList[i].ProductId = productInfo.IdProduct;
+
+                                    // Add By samadhan 19 Jan 23
+                                    if (tblStockSummaryTO.IsTodaysProduction == true)
+                                    {
+                                        ProdtotalStkInMT = tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles * productInfo.NoOfPcs * productInfo.AvgSecWt * productInfo.StdLength;
+                                        tblStockSummaryTO.StockDetailsTOList[i].ProdtotalStock = ProdtotalStkInMT / 1000;
+                                        totalStkInMT = (tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles + existingNoOfBundles) * productInfo.NoOfPcs * productInfo.AvgSecWt * productInfo.StdLength;
+                                        tblStockSummaryTO.StockDetailsTOList[i].TotalStock = totalStkInMT / 1000;
+                                        tblStockSummaryTO.StockDetailsTOList[i].BalanceStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
+                                        tblStockSummaryTO.StockDetailsTOList[i].TodaysStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
+                                        tblStockSummaryTO.StockDetailsTOList[i].ProdNoOfBundles = tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles;
+                                        tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles = tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles + existingNoOfBundles;
+                                       
+
+                                    }
+
+                                   
+
+                                  
                                 }
                                 else
                                 {
@@ -603,6 +701,8 @@ namespace ODLMWebAPI.BL
                 List<TblStockDetailsTO> totalStockList = _iTblStockDetailsBL.SelectAllTblStockDetailsList(tblStockSummaryTO.IdStockSummary, conn, tran);
                 Double totalNoOfBundles = 0;
                 Double totalStockMT = 0;
+                Double ProdtotalNoOfBundles = 0;
+                Double ProdtotalStockMT = 0;
                 int skipOtherQty = 0;
                 // Aniket [18-02-2019] added to skip TotalQty of other marerial  should not add in tblStockSummary table
                 TblConfigParamsTO tblConfigParams = _iTblConfigParamsBL.SelectTblConfigParamsValByName(StaticStuff.Constants.IS_OTHER_MATERIAL_QTY_HIDE_ON_DASHBOARD);
@@ -616,18 +716,29 @@ namespace ODLMWebAPI.BL
                
                 if (totalStockList != null && totalStockList.Count > 0)
                 {
-                    
-                    if(skipOtherQty==1)
+
+                    if (skipOtherQty == 1)
                     {
                         totalNoOfBundles = totalStockList.Where(x => x.ProdItemId == 0).Sum(x => x.NoOfBundles);
                         totalStockMT = totalStockList.Where(x => x.ProdItemId == 0).Sum(x => x.TotalStock);
+                        if (tblStockSummaryTO.IsTodaysProduction == true)
+                        {
+                            ProdtotalNoOfBundles = totalStockList.Where(x => x.ProdItemId == 0).Sum(x => x.ProdNoOfBundles);
+                            ProdtotalStockMT = totalStockList.Where(x => x.ProdItemId == 0).Sum(x => x.ProdtotalStock);
+                        }
                     }
                     else
                     {
                         totalNoOfBundles = totalStockList.Sum(t => t.NoOfBundles);
                         totalStockMT = totalStockList.Sum(t => t.TotalStock);
+                        if (tblStockSummaryTO.IsTodaysProduction == true)
+                        {
+                            ProdtotalNoOfBundles = totalStockList.Sum(t => t.ProdNoOfBundles);
+                            ProdtotalStockMT = totalStockList.Sum(t => t.ProdtotalStock);
+                        }
                     }
-                    
+                    //DateTime stockDate = _iCommon.ServerDateTime.Date;
+                    //TblStockSummaryTO todaysStockSummaryTO = _iTblStockSummaryDAO.SelectTblStockSummary(new DateTime(), conn, tran);
 
                     tblStockSummaryTO.NoOfBundles = totalNoOfBundles;
                     tblStockSummaryTO.TotalStock = totalStockMT;
@@ -644,8 +755,34 @@ namespace ODLMWebAPI.BL
                             resultMessage.Result = 0;
                             return resultMessage;
                         }
-                  #region Priyanka [02-08-2018] : Set the total stock to the configuration param.
-                    TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_TODAYS_BOOKING_OPENING_BALANCE);
+
+                        if (tblStockSummaryTO.IsTodaysProduction == true)
+                        {
+                            DateTime ProdstockDate = _iCommon.ServerDateTime.Date;
+                            TblStockSummaryTO ProdtodaysStockSummaryTO = _iTblStockSummaryDAO.SelectTblProdStockSummary(ProdstockDate, conn, tran);
+                            if (ProdtodaysStockSummaryTO != null)
+                            {
+                                tblStockSummaryTO.NoOfBundles = ProdtotalNoOfBundles;
+                                tblStockSummaryTO.TotalStock = ProdtotalStockMT;
+                                tblStockSummaryTO.UpdatedBy = updateOrCreatedUser;
+                                tblStockSummaryTO.UpdatedOn = _iCommon.ServerDateTime;
+                                tblStockSummaryTO.IdStockSummary = ProdtodaysStockSummaryTO.IdStockSummary;
+                                result = UpdateTblStockSummary(tblStockSummaryTO, conn, tran);
+                                if (result != 1)
+                                {
+                                    tran.Rollback();
+                                    resultMessage.Text = "Error,While UpdateTblStockSummary from Todays Production Data : Method UpdateDailyStock";
+                                    resultMessage.DisplayMessage = "Error.. Records could not be saved";
+                                    resultMessage.MessageType = ResultMessageE.Error;
+                                    resultMessage.Result = 0;
+                                    return resultMessage;
+                                }
+                            }
+
+                            }
+
+                        #region Priyanka [02-08-2018] : Set the total stock to the configuration param.
+                        TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_TODAYS_BOOKING_OPENING_BALANCE);
                     if (tblConfigParamsTO != null)
                     {
                         //DashboardModels.StockUpdateInfo stockUpdateInfo = _iTblStockSummaryDAO.SelectDashboardStockUpdateInfo(stockDate);

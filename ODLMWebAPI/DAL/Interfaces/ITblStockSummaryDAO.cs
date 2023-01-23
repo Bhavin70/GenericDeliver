@@ -14,6 +14,9 @@ namespace ODLMWebAPI.DAL.Interfaces
         String SelectLastStockUpdatedDateTime(Int32 compartmentId, Int32 prodCatId);
         TblStockSummaryTO SelectTblStockSummary(Int32 idStockSummary, SqlConnection conn, SqlTransaction tran);
         TblStockSummaryTO SelectTblStockSummary(DateTime stocDate, SqlConnection conn = null, SqlTransaction tran = null);
+        TblStockSummaryTO SelectTblProdStockSummary(DateTime stocDate, SqlConnection conn = null, SqlTransaction tran = null);
+        TblStockSummaryTO SelectTblProdStockSummaryExist(DateTime stocDate, SqlConnection conn = null, SqlTransaction tran = null);
+        TblStockSummaryTO SelectTblStockSummaryExist(DateTime stocDate, SqlConnection conn = null, SqlTransaction tran = null);
         ODLMWebAPI.DashboardModels.StockUpdateInfo SelectDashboardStockUpdateInfo(DateTime sysDate);
         List<TblStockSummaryTO> ConvertDTToList(SqlDataReader tblStockSummaryTODT);
         int InsertTblStockSummary(TblStockSummaryTO tblStockSummaryTO);
