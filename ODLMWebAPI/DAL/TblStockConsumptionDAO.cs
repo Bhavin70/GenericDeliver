@@ -258,8 +258,10 @@ namespace ODLMWebAPI.DAL
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
-                cmdInsert.CommandText = Constants.IdentityColumnQuery;
-                tblStockConsumptionTO.IdStockConsumption = Convert.ToInt32(cmdInsert.ExecuteScalar());
+                //cmdInsert.CommandText = Constants.IdentityColumnQuery;
+                //tblStockConsumptionTO.IdStockConsumption = Convert.ToInt32(cmdInsert.ExecuteScalar());
+                cmdInsert.CommandText = Constants.SQL_SELECT_IDENTITY_QUERY;
+                tblStockConsumptionTO.IdStockConsumption = Convert.ToInt64(cmdInsert.ExecuteScalar());
                 return 1;
             }
             else return 0;

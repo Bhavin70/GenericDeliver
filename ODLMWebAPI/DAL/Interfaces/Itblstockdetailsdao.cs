@@ -13,14 +13,14 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblStockDetailsTO> SelectAllTblStockDetails();
         List<TblStockDetailsTO> SelectAllTblStockDetailsConsolidated(Int32 isConsolidated, Int32 brandId);
         List<TblStockDetailsTO> SelectAllTblStockDetailsConsolidated(Int32 isConsolidated, Int32 brandId, SqlConnection conn, SqlTransaction tran);
-        List<TblStockDetailsTO> SelectAllTblStockDetails(Int32 stockSummaryId, SqlConnection conn, SqlTransaction tran);
+        List<TblStockDetailsTO> SelectAllTblStockDetails(Int64 stockSummaryId, SqlConnection conn, SqlTransaction tran);
         List<TblStockDetailsTO> SelectAllTblStockDetails(Int32 prodCatId, Int32 prodSpecId, DateTime stockDate, Int32 brandId, int compartmentId, SqlConnection conn, SqlTransaction tran);
         List<TblStockDetailsTO> SelectAllTblStockDetailsOther(Int32 prodCatId, Int32 prodSpecId, Int32 prodItemId, Int32 brandId, int compartmentId, DateTime stockDate, SqlConnection conn, SqlTransaction tran);
         List<TblStockDetailsTO> SelectAllTblStockDetails(Int32 prodCatId, Int32 prodSpecId, DateTime stockDate, SqlConnection conn, SqlTransaction tran);
         List<TblStockDetailsTO> SelectAllTblStockDetails(Int32 prodCatId, Int32 prodSpecId, int materialId, DateTime stockDate, SqlConnection conn, SqlTransaction tran);
         List<TblStockDetailsTO> SelectAllTblStockDetails(int locationId, int prodCatId, DateTime stockDate, int brandId);
         List<TblStockDetailsTO> SelectEmptyStockDetailsTemplate(int prodCatId, int locationId, int brandId, Int32 isConsolidate);
-        TblStockDetailsTO SelectTblStockDetails(Int32 idStockDtl, SqlConnection conn, SqlTransaction tran);
+        TblStockDetailsTO SelectTblStockDetails(Int64 idStockDtl, SqlConnection conn, SqlTransaction tran);
         TblStockDetailsTO SelectTblStockDetails(TblRunningSizesTO runningSizeTO, SqlConnection conn, SqlTransaction tran);
         List<TblStockDetailsTO> ConvertDTToList(SqlDataReader tblStockDetailsTODT);
         List<TblStockDetailsTO> ConvertReaderToList(SqlDataReader tblStockDetailsTODT, int locationId);

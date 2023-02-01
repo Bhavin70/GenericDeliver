@@ -206,7 +206,7 @@ namespace ODLMWebAPI.DAL
                     conn.Open();
                 }
 
-                cmdSelect.CommandText = "select * from tblStockSummary where isnull(noOfBundles,0)=0 and transactionType=2 and stockDate= @stockDate";//SqlSelectQuery() + " WHERE stockDate= @stockDate";
+                cmdSelect.CommandText = "select * from tblStockSummary where  transactionType=2 and stockDate= @stockDate";//SqlSelectQuery() + " WHERE stockDate= @stockDate";
 
 
                 //cmdSelect.Connection = conn;
@@ -580,8 +580,10 @@ namespace ODLMWebAPI.DAL
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
-                cmdInsert.CommandText = Constants.IdentityColumnQuery;
-                tblStockSummaryTO.IdStockSummary = Convert.ToInt32(cmdInsert.ExecuteScalar());
+                //cmdInsert.CommandText = Constants.IdentityColumnQuery;
+                //tblStockSummaryTO.IdStockSummary = Convert.ToInt32(cmdInsert.ExecuteScalar());
+                cmdInsert.CommandText = Constants.SQL_SELECT_IDENTITY_QUERY;
+                tblStockSummaryTO.IdStockSummary = Convert.ToInt64(cmdInsert.ExecuteScalar());
                 return 1;
             }
             else return 0;
