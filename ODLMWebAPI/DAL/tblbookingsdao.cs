@@ -2247,7 +2247,7 @@ namespace ODLMWebAPI.DAL
             return bookingGraphRptTOList;
         }
 
-        public List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate, int isFromProject)
+        public List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate, int isFromProject, int stateId, int districtId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -2260,12 +2260,15 @@ namespace ODLMWebAPI.DAL
                 
                 cmdSelect.CommandText = " select bookingDisplayNo, cnFOrgId,orgCNf.firmName as distributorName,tblBookings.consumerTypeId,orderType.consumerType," +
                     " tblBookings.createdOn, dealerOrgId,dealerOrg.firmName as dealerName,bookingQty,pendingQty,bookingRate ,tblBookings.bookingQty - ISNULL(tblBookingQtyConsumption.consumptionQty,tblBookings.pendingQty) as dispatchedQty,addrDtl.districtName" +
+                    "   ,addrDtl.districtId ,addrDtl .stateId ,addrDtl.stateName  " +
                     " from tblBookings tblBookings " +
                     " LEFT JOIN tblOrganization orgCNf ON orgCNf.idOrganization = tblBookings.cnFOrgId " +
                     " LEFT JOIN tblOrganization dealerOrg ON dealerOrg.idOrganization = tblBookings.dealerOrgId LEFT JOIN dimConsumerType orderType ON orderType.idConsumer = tblBookings.consumerTypeId  " +
                     " LEFT JOIN tblBookingQtyConsumption tblBookingQtyConsumption on tblBookingQtyConsumption.bookingId = tblBookings.idBooking " +
-                    "LEFT JOIN  (  SELECT tblAddress.*,organizationId ,dimDistrict.districtName  FROM tblOrgAddress  INNER JOIN tblAddress ON idAddr = addressId "+
-                    "LEFT JOIN dimDistrict ON dimdistrict.idDistrict = tblAddress.districtId WHERE addrTypeId = 1 AND isAddrVisible = 1 ) addrDtl on addrDtl.organizationId =dealerOrg.idOrganization  " +
+                    "LEFT JOIN  (  SELECT tblAddress.*,organizationId ,dimDistrict.districtName,dimState.stateName  FROM tblOrgAddress  INNER JOIN tblAddress ON idAddr = addressId " +
+                    "LEFT JOIN dimDistrict ON dimdistrict.idDistrict = tblAddress.districtId " +
+                    " LEFT JOIN dimState on dimState.idstate=tblAddress.stateId " +
+                    "WHERE addrTypeId = 1 AND isAddrVisible = 1 ) addrDtl on addrDtl.organizationId =dealerOrg.idOrganization  " +
                     "Where tblBookings.statusId  IN (11) ";
 
 
@@ -2285,6 +2288,11 @@ namespace ODLMWebAPI.DAL
                     cmdSelect.CommandText += " AND ISNULL(tblBookings.consumerTypeId,0) IN (" + Convert.ToInt32(Constants.ConsumerTypeE.Government_Project) + "," + Convert.ToInt32(Constants.ConsumerTypeE.Private_Project) +")";
                 else
                     cmdSelect.CommandText += " AND ISNULL(tblBookings.consumerTypeId,0) = " + Convert.ToInt32( Constants.ConsumerTypeE.Dealer);
+                //Reshma Added For Gajkeasri Booking analysis report filter.
+                if(stateId >0)
+                    cmdSelect.CommandText += " AND ISNULL(stateId,0) = " + stateId;
+                if (districtId  > 0)
+                    cmdSelect.CommandText += " AND ISNULL(districtId,0) = " + districtId;
 
                 cmdSelect.CommandText += " order by distributorName asc  ";
 
