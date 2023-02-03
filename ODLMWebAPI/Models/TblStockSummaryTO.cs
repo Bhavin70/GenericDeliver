@@ -7,7 +7,7 @@ namespace ODLMWebAPI.Models
     public class TblStockSummaryTO
     {
         #region Declarations
-        Int32 idStockSummary;
+        Int64 idStockSummary;
         Int32 confirmedBy;
         Int32 createdBy;
         Int32 updatedBy;
@@ -30,7 +30,7 @@ namespace ODLMWebAPI.Models
         #endregion
 
         #region GetSet
-        public Int32 IdStockSummary
+        public Int64 IdStockSummary
         {
             get { return idStockSummary; }
             set { idStockSummary = value; }

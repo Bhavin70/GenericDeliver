@@ -51,7 +51,7 @@ namespace ODLMWebAPI.BL.Interfaces
         void CalculateActualPriceInclusiveOfTaxes();
         ResultMessage UpdateNCToCLoadingSlip(Int32 loginUserId);
         ResultMessage SaveNewLoadingSlip(TblLoadingTO tblLoadingTO);
-        ResultMessage UpdateStockAndConsumptionHistory(TblLoadingSlipExtTO tblLoadingSlipExtTO, TblLoadingTO tblLoadingTO, int stockDtlId, ref Double totalLoadingQty, TblProductInfoTO prodConfgTO, SqlConnection conn, SqlTransaction tran);
+        ResultMessage UpdateStockAndConsumptionHistory(TblLoadingSlipExtTO tblLoadingSlipExtTO, TblLoadingTO tblLoadingTO, Int64 stockDtlId, ref Double totalLoadingQty, TblProductInfoTO prodConfgTO, SqlConnection conn, SqlTransaction tran);
         int UpdateTblLoading(TblLoadingTO tblLoadingTO);
         int UpdateTblLoading(TblLoadingTO tblLoadingTO, SqlConnection conn, SqlTransaction tran);
         ResultMessage UpdateDeliverySlipConfirmations(TblLoadingTO tblLoadingTO);

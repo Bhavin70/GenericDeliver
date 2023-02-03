@@ -7,8 +7,8 @@ namespace ODLMWebAPI.Models
     public class TblStockDetailsTO
     {
         #region Declarations
-        Int32 idStockDtl;
-        Int32 stockSummaryId;
+        Int64 idStockDtl;
+        Int64 stockSummaryId;
         Int32 locationId;
         Int32 prodCatId;
         Int32 materialId;
@@ -49,12 +49,12 @@ namespace ODLMWebAPI.Models
         #endregion
 
         #region GetSet
-        public Int32 IdStockDtl
+        public Int64 IdStockDtl
         {
             get { return idStockDtl; }
             set { idStockDtl = value; }
         }
-        public Int32 StockSummaryId
+        public Int64 StockSummaryId
         {
             get { return stockSummaryId; }
             set { stockSummaryId = value; }

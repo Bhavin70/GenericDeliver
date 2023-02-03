@@ -124,7 +124,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblStockDetailsTO> SelectAllTblStockDetails(Int32 stockSummaryId,SqlConnection conn,SqlTransaction tran)
+        public List<TblStockDetailsTO> SelectAllTblStockDetails(Int64 stockSummaryId,SqlConnection conn,SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader sqlReader = null;
@@ -318,8 +318,10 @@ namespace ODLMWebAPI.DAL
 
                 cmdSelect.CommandText = SqlSelectQuery() + " WHERE stockDtl.locationId=" + locationId + // "AND stockDtl.prodCatId=" + prodCatId +
                                     //" AND stkSummary.stockDate=@stockDt AND stockDtl.brandId = " + brandId;
-                                    " AND stockDtl.brandId = " + brandId;
+                                    " AND stockDtl.brandId = " + brandId + "  " +
+                    " order by stockDtl.idStockDtl desc";
 
+                
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -402,7 +404,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public TblStockDetailsTO SelectTblStockDetails(Int32 idStockDtl, SqlConnection conn, SqlTransaction tran)
+        public TblStockDetailsTO SelectTblStockDetails(Int64 idStockDtl, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader reader = null;
@@ -897,8 +899,10 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@ProdtotalStock", System.Data.SqlDbType.NVarChar).Value = tblStockDetailsTO.ProdtotalStock;
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
-                cmdInsert.CommandText = Constants.IdentityColumnQuery;
-                tblStockDetailsTO.IdStockDtl = Convert.ToInt32(cmdInsert.ExecuteScalar());
+                //cmdInsert.CommandText = Constants.IdentityColumnQuery;
+                //tblStockDetailsTO.IdStockDtl = Convert.ToInt32(cmdInsert.ExecuteScalar());
+                cmdInsert.CommandText = Constants.SQL_SELECT_IDENTITY_QUERY;
+                tblStockDetailsTO.IdStockDtl = Convert.ToInt64(cmdInsert.ExecuteScalar());
                 return 1;
             }
             else return 0;

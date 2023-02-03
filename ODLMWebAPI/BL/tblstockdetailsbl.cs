@@ -89,7 +89,7 @@ namespace ODLMWebAPI.BL
             return _iTblStockDetailsDAO.SelectAllTblStockDetails(prodCatId, prodSpecId, materialId, stockDate, conn, tran);
         }
 
-        public List<TblStockDetailsTO> SelectAllTblStockDetailsList(Int32 stockSummaryId)
+        public List<TblStockDetailsTO> SelectAllTblStockDetailsList(Int64 stockSummaryId)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -109,7 +109,7 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        public List<TblStockDetailsTO> SelectAllTblStockDetailsList(Int32 stockSummaryId,SqlConnection conn,SqlTransaction tran)
+        public List<TblStockDetailsTO> SelectAllTblStockDetailsList(Int64 stockSummaryId,SqlConnection conn,SqlTransaction tran)
         {
             return _iTblStockDetailsDAO.SelectAllTblStockDetails(stockSummaryId,conn,tran);
         }

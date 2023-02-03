@@ -427,6 +427,12 @@ namespace ODLMWebAPI.BL
                         Int32 isInMTExisting = 0;
 
                         Double existingNoOfBundles = 0;
+                        Double existingProdNoOfBundles = 0;
+                        Double existingProdtotalStkInMT = 0;
+                        Double existingBalanceStock = 0;
+                        Double existingToadayStock = 0;
+                        Double existingTotalStock = 0;
+
 
                         if (existingStockList != null && existingStockList.Count > 0)
                         {
@@ -471,6 +477,11 @@ namespace ODLMWebAPI.BL
                                 if (tblStockSummaryTO.IsTodaysProduction == true)
                                 {
                                     existingNoOfBundles = existingStocDtlTO.NoOfBundles;
+                                    existingProdNoOfBundles = existingStocDtlTO.ProdNoOfBundles;
+                                    existingProdtotalStkInMT = existingStocDtlTO.ProdtotalStock;
+                                    existingBalanceStock = existingStocDtlTO.BalanceStock;
+                                    existingToadayStock = existingStocDtlTO.TodaysStock;
+                                    existingTotalStock = existingStocDtlTO.TotalStock;
                                 }
 
 
@@ -497,21 +508,29 @@ namespace ODLMWebAPI.BL
                                         Double totalStkInMT = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
                                         totalStkInMT = totalStkInMT * 1000;
 
+                                        Double ProdtotalStkInMT = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
+                                        ProdtotalStkInMT = ProdtotalStkInMT * 1000;
+
                                         Double noOfBundles = 0;
+                                        Double ProdnoOfBundles = 0;
                                         if (productInfo.AvgBundleWt != 0)
                                             noOfBundles = (totalStkInMT) / productInfo.AvgBundleWt;
+                                        if (productInfo.AvgBundleWt != 0)
+                                            ProdnoOfBundles = (ProdtotalStkInMT) / productInfo.AvgBundleWt;
                                         //Double noOfBundles = Math.Round(totalStkInMT / productInfo.NoOfPcs / productInfo.AvgSecWt / productInfo.StdLength, 2);
-
-                                        tblStockSummaryTO.StockDetailsTOList[i].BalanceStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
-                                        tblStockSummaryTO.StockDetailsTOList[i].TodaysStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
+                                         tblStockSummaryTO.StockDetailsTOList[i].BalanceStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock + existingBalanceStock;
+                                        tblStockSummaryTO.StockDetailsTOList[i].TodaysStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock + existingToadayStock;
                                         tblStockSummaryTO.StockDetailsTOList[i].ProductId = productInfo.IdProduct;
-                                        tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles = noOfBundles;
+                                        tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles = noOfBundles + existingNoOfBundles;
 
                                         if (tblStockSummaryTO.IsTodaysProduction == true)
                                         {
-                                            tblStockSummaryTO.StockDetailsTOList[i].ProdNoOfBundles = noOfBundles;
-                                            tblStockSummaryTO.StockDetailsTOList[i].ProdtotalStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
+                                             tblStockSummaryTO.StockDetailsTOList[i].ProdNoOfBundles = noOfBundles + existingProdNoOfBundles;
+                                            tblStockSummaryTO.StockDetailsTOList[i].ProdtotalStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock + existingProdtotalStkInMT;
                                         }
+                                        tblStockSummaryTO.StockDetailsTOList[i].TotalStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock + existingTotalStock;
+
+
                                     }
                                     else
                                     {
@@ -567,12 +586,12 @@ namespace ODLMWebAPI.BL
                                     if (tblStockSummaryTO.IsTodaysProduction == true)
                                     {
                                         ProdtotalStkInMT = tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles * productInfo.NoOfPcs * productInfo.AvgSecWt * productInfo.StdLength;
-                                        tblStockSummaryTO.StockDetailsTOList[i].ProdtotalStock = ProdtotalStkInMT / 1000;
+                                        tblStockSummaryTO.StockDetailsTOList[i].ProdtotalStock = existingProdtotalStkInMT + (ProdtotalStkInMT / 1000);
                                         totalStkInMT = (tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles + existingNoOfBundles) * productInfo.NoOfPcs * productInfo.AvgSecWt * productInfo.StdLength;
                                         tblStockSummaryTO.StockDetailsTOList[i].TotalStock = totalStkInMT / 1000;
                                         tblStockSummaryTO.StockDetailsTOList[i].BalanceStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
                                         tblStockSummaryTO.StockDetailsTOList[i].TodaysStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
-                                        tblStockSummaryTO.StockDetailsTOList[i].ProdNoOfBundles = tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles;
+                                        tblStockSummaryTO.StockDetailsTOList[i].ProdNoOfBundles = tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles + existingProdNoOfBundles;
                                         tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles = tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles + existingNoOfBundles;
                                        
 
@@ -744,8 +763,8 @@ namespace ODLMWebAPI.BL
                     tblStockSummaryTO.TotalStock = totalStockMT;
                     tblStockSummaryTO.UpdatedBy = updateOrCreatedUser;
                     tblStockSummaryTO.UpdatedOn = _iCommon.ServerDateTime;
-                               
-                        result = UpdateTblStockSummary(tblStockSummaryTO, conn, tran);
+                   
+                    result = UpdateTblStockSummary(tblStockSummaryTO, conn, tran);
                         if (result != 1)
                         {
                             tran.Rollback();
@@ -1083,7 +1102,7 @@ namespace ODLMWebAPI.BL
                 tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(10);
                 tblAlertInstanceTO.IsActive = 1;
                 tblAlertInstanceTO.SourceDisplayId = "TODAYS_STOCK_CONFIRMED";
-                tblAlertInstanceTO.SourceEntityId = stockSummaryTO.IdStockSummary;
+                tblAlertInstanceTO.SourceEntityId =Convert.ToInt32(stockSummaryTO.IdStockSummary);
                 tblAlertInstanceTO.RaisedBy = stockSummaryTO.ConfirmedBy;
                 tblAlertInstanceTO.RaisedOn = stockSummaryTO.ConfirmedOn;
                 tblAlertInstanceTO.IsAutoReset = 1;
@@ -1112,7 +1131,7 @@ namespace ODLMWebAPI.BL
                 tblAlertInstanceTO.EffectiveToDate = tblAlertInstanceTO.EffectiveFromDate.AddHours(10);
                 tblAlertInstanceTO.IsActive = 1;
                 tblAlertInstanceTO.SourceDisplayId = "LOADING_QUOTA_DECLARED";
-                tblAlertInstanceTO.SourceEntityId = stockSummaryTO.IdStockSummary;
+                tblAlertInstanceTO.SourceEntityId =Convert.ToInt32(stockSummaryTO.IdStockSummary);
                 tblAlertInstanceTO.RaisedBy = stockSummaryTO.ConfirmedBy;
                 tblAlertInstanceTO.RaisedOn = stockSummaryTO.ConfirmedOn;
                 tblAlertInstanceTO.IsAutoReset = 1;
