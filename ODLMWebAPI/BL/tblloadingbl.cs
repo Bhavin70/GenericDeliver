@@ -5489,7 +5489,7 @@ namespace ODLMWebAPI.BL {
                                         Double upQty = tblLoadingSlipExtTO.LoadingQty;
                                         Double existingQtyInMt = 0;
                                         Double newQtyInMt = 0;
-                                        Int32 stockDtlId = 0;
+                                        Int64 stockDtlId = 0;
                                         List<TblLocationTO> tblLocationTOList = _iTblLocationDAO.SelectAllTblLocation ();
 
                                         Double totalLoadingQty = tblLoadingSlipExtTO.LoadingQty;
@@ -6534,7 +6534,7 @@ namespace ODLMWebAPI.BL {
             }
         }
 
-        public ResultMessage UpdateStockAndConsumptionHistory (TblLoadingSlipExtTO tblLoadingSlipExtTO, TblLoadingTO tblLoadingTO, int stockDtlId, ref Double totalLoadingQty, TblProductInfoTO prodConfgTO, SqlConnection conn, SqlTransaction tran) {
+        public ResultMessage UpdateStockAndConsumptionHistory (TblLoadingSlipExtTO tblLoadingSlipExtTO, TblLoadingTO tblLoadingTO, Int64 stockDtlId, ref Double totalLoadingQty, TblProductInfoTO prodConfgTO, SqlConnection conn, SqlTransaction tran) {
             ResultMessage resultMessage = new StaticStuff.ResultMessage ();
             int result = 0;
             Double stockQty = 0;

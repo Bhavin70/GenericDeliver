@@ -7,7 +7,7 @@ namespace ODLMWebAPI.Models
     public class TblStockSummaryTO
     {
         #region Declarations
-        Int32 idStockSummary;
+        Int64 idStockSummary;
         Int32 confirmedBy;
         Int32 createdBy;
         Int32 updatedBy;
@@ -17,6 +17,8 @@ namespace ODLMWebAPI.Models
         DateTime updatedOn;
         Double noOfBundles;
         Double totalStock;
+        Int32 transactionType;
+        Boolean isTodaysProduction;
         List<TblStockDetailsTO> stockDetailsTOList;
         #endregion
 
@@ -28,7 +30,7 @@ namespace ODLMWebAPI.Models
         #endregion
 
         #region GetSet
-        public Int32 IdStockSummary
+        public Int64 IdStockSummary
         {
             get { return idStockSummary; }
             set { idStockSummary = value; }
@@ -79,13 +81,23 @@ namespace ODLMWebAPI.Models
             set { totalStock = value; }
         }
 
+        public Int32 TransactionType
+        {
+            get { return transactionType; }
+            set { transactionType = value; }
+        }
+
+        public Boolean IsTodaysProduction
+        {
+            get { return isTodaysProduction; }
+            set { isTodaysProduction = value; }
+        }
         public List<TblStockDetailsTO> StockDetailsTOList
         {
             get
             {
                 return stockDetailsTOList;
             }
-
             set
             {
                 stockDetailsTOList = value;

@@ -114,6 +114,13 @@ namespace ODLMWebAPI.StaticStuff
                 SAUDA = 501
         }
 
+        public enum StockTransactionType
+        {
+            StockData = 1,
+            ProductionData = 2,
+            
+        }
+
         //public static DateTime ServerDateTime
         //{
         //    get
@@ -487,6 +494,7 @@ namespace ODLMWebAPI.StaticStuff
         public static String AZURE_CONNECTION_STRING = "AzureConnectionStr";
         public static String REQUEST_ORIGIN_STRING = "RequestOriginString";
         public static String IdentityColumnQuery = "Select @@Identity";
+        public static String SQL_SELECT_IDENTITY_QUERY = "SELECT @@IDENTITY";
         public static String DefaultCountry = "India";
         public static Int32 DefaultCountryID = 101;
         public static String DefaultDateFormat = "dd-MM-yyyy HH:mm tt";
