@@ -503,7 +503,9 @@ namespace ODLMWebAPI.BL
                                 if (productInfo != null)
                                 {
 
-                                    if (tblStockSummaryTO.StockDetailsTOList[i].TotalStock > 0)
+                                    // if (tblStockSummaryTO.StockDetailsTOList[i].TotalStock > 0)
+                                    // Add By Samadhan 7 feb 2023
+                                    if (tblStockSummaryTO.StockDetailsTOList[i].TotalStock > 0 || tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles > 0)
                                     {
                                         Double totalStkInMT = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
                                         totalStkInMT = totalStkInMT * 1000;
