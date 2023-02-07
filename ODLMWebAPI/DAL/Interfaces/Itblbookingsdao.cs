@@ -54,6 +54,6 @@ namespace ODLMWebAPI.DAL.Interfaces
         int UpdatePendingQuantity(TblBookingsTO tblBookingsTO, SqlConnection conn, SqlTransaction tran);
 
         int UpdateSizeQuantity(TblBookingsTO tblBookingsTO, SqlConnection conn, SqlTransaction tran);
-        List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate, int isFromProject);
+        List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate, int isFromProject, int stateId, int districtId);
     }
 }
