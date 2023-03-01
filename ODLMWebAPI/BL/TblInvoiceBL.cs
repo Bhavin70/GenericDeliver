@@ -12672,6 +12672,13 @@ namespace ODLMWebAPI.BL
                             resultMessage.DefaultBehaviour("tblOrganizationTO is null in send WhatsApp Msg");
                             return resultMessage;
                         }
+                     
+                        TblOrganizationTO tblSalesOrganizationTO = _iTblOrganizationBL.SelectTblOrganizationTOForCNF(tblInvoiceTO.DistributorOrgId);
+                        if (tblSalesOrganizationTO == null)
+                        {
+                            resultMessage.DefaultBehaviour("tblSalesOrganizationTO is null in send WhatsApp Msg");
+                            return resultMessage;
+                        }
                         double invoiceCnt = 0;
 
                         
@@ -12686,39 +12693,52 @@ namespace ODLMWebAPI.BL
                         TblConfigParamsTO tblConfigParamsTOForRate = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_JSON_FOR_INVOICE_MSG_SEND);
                         if (tblConfigParamsTOForRate != null && !String.IsNullOrEmpty(tblConfigParamsTOForRate.ConfigParamVal))
                         {
-                            whatsAppMsgTOStr = tblConfigParamsTOForRate.ConfigParamVal;
-                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@mobileNo", tblOrganizationTO.RegisteredMobileNos);
-                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment1", tblInvoiceTO.InvoiceNo);
-                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment2", tblInvoiceTO.CreatedOnStr);
-                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment3", invoiceCnt.ToString());
-                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment4", tblInvoiceTO.VehicleNo);
-                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment5", tblInvoiceTO.GrandTotal.ToString());
-
-                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@url", uploadedFileName);
-                            whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@fileName", fileName1);
-                            TblConfigParamsTO WhatsAppConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.WHATS_APP_SEND_MESSAGE_INTEGRATION_API, conn, tran);
-                            String WhatsAppIntegrationAPI = "";
-                            string WhatsAppMsgRequestHeaderStr = "";
-                            string WhatsAppKey = "";
-                            if (WhatsAppConfTO != null && !String.IsNullOrEmpty(WhatsAppConfTO.ConfigParamVal))
+                            List<TblOrganizationTO> tblOrganizationTOTemplist = new List<TblOrganizationTO>();
+                            if (tblOrganizationTO != null && tblSalesOrganizationTO != null)
                             {
-                                TblConfigParamsTO WhatsAppHeaderConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_HEADER_JSON, conn, tran);
-                                if (WhatsAppHeaderConfTO != null && !String.IsNullOrEmpty(WhatsAppHeaderConfTO.ConfigParamVal))
+                                tblOrganizationTOTemplist.Add(tblOrganizationTO);
+                                tblOrganizationTOTemplist.Add(tblSalesOrganizationTO);
+                            }
+                            if (tblOrganizationTOTemplist != null && tblOrganizationTOTemplist.Count > 0)
+                            {
+                                for (int k = 0; k < tblOrganizationTOTemplist.Count; k++)
                                 {
-                                    WhatsAppMsgRequestHeaderStr = WhatsAppHeaderConfTO.ConfigParamVal;
-                                    TblConfigParamsTO WhatsAppKeyConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.WHATS_APP_API_KEY, conn, tran);
-                                    if (WhatsAppKeyConfTO != null && !String.IsNullOrEmpty(WhatsAppKeyConfTO.ConfigParamVal))
-                                    {
-                                        WhatsAppKey = WhatsAppKeyConfTO.ConfigParamVal;
-                                    }
-                                    if (!String.IsNullOrEmpty(WhatsAppMsgRequestHeaderStr) && !String.IsNullOrEmpty(WhatsAppKey))
-                                    {
-                                        WhatsAppMsgRequestHeaderStr = WhatsAppMsgRequestHeaderStr.Replace("@API_KEY", WhatsAppKey);
-                                    }
+                                    TblOrganizationTO TblOrganizationTOTemp = tblOrganizationTOTemplist[k];
+                                    whatsAppMsgTOStr = tblConfigParamsTOForRate.ConfigParamVal;
+                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@mobileNo", TblOrganizationTOTemp.RegisteredMobileNos);
+                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment1", tblInvoiceTO.InvoiceNo);
+                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment2", tblInvoiceTO.CreatedOnStr);
+                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment3", invoiceCnt.ToString());
+                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment4", tblInvoiceTO.VehicleNo);
+                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@comment5", tblInvoiceTO.GrandTotal.ToString());
 
+                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@url", uploadedFileName);
+                                    whatsAppMsgTOStr = whatsAppMsgTOStr.Replace("@fileName", fileName1);
+                                    TblConfigParamsTO WhatsAppConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.WHATS_APP_SEND_MESSAGE_INTEGRATION_API, conn, tran);
+                                    String WhatsAppIntegrationAPI = "";
+                                    string WhatsAppMsgRequestHeaderStr = "";
+                                    string WhatsAppKey = "";
+                                    if (WhatsAppConfTO != null && !String.IsNullOrEmpty(WhatsAppConfTO.ConfigParamVal))
+                                    {
+                                        TblConfigParamsTO WhatsAppHeaderConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.WHATS_APP_SEND_MESSAGE_REQUEST_HEADER_JSON, conn, tran);
+                                        if (WhatsAppHeaderConfTO != null && !String.IsNullOrEmpty(WhatsAppHeaderConfTO.ConfigParamVal))
+                                        {
+                                            WhatsAppMsgRequestHeaderStr = WhatsAppHeaderConfTO.ConfigParamVal;
+                                            TblConfigParamsTO WhatsAppKeyConfTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.WHATS_APP_API_KEY, conn, tran);
+                                            if (WhatsAppKeyConfTO != null && !String.IsNullOrEmpty(WhatsAppKeyConfTO.ConfigParamVal))
+                                            {
+                                                WhatsAppKey = WhatsAppKeyConfTO.ConfigParamVal;
+                                            }
+                                            if (!String.IsNullOrEmpty(WhatsAppMsgRequestHeaderStr) && !String.IsNullOrEmpty(WhatsAppKey))
+                                            {
+                                                WhatsAppMsgRequestHeaderStr = WhatsAppMsgRequestHeaderStr.Replace("@API_KEY", WhatsAppKey);
+                                            }
+
+                                        }
+                                        WhatsAppIntegrationAPI = WhatsAppConfTO.ConfigParamVal;
+                                        _iCommon.SendWhatsAppMsg(whatsAppMsgTOStr, WhatsAppIntegrationAPI, WhatsAppMsgRequestHeaderStr);
+                                    }
                                 }
-                                WhatsAppIntegrationAPI = WhatsAppConfTO.ConfigParamVal;
-                                _iCommon.SendWhatsAppMsg(whatsAppMsgTOStr, WhatsAppIntegrationAPI, WhatsAppMsgRequestHeaderStr);
                             }
                             //tran = conn.BeginTransaction();
                             //TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();

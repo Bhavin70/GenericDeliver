@@ -851,6 +851,146 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+
+        public TblOrganizationTO SelectTblOrganizationTOForCNF(Int32 idOrganization, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader rdr = null;
+            ResultMessage resultMessage = new ResultMessage();
+            try
+            {
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE idOrganization = " + idOrganization + " ";
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                rdr = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblOrganizationTO> list = ConvertDTToListV2(rdr);
+                if (list != null && list.Count > 0)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "SelectTblOrganization");
+                return null;
+            }
+            finally
+            {
+                if (rdr != null)
+                    rdr.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
+        public List<TblOrganizationTO> ConvertDTToListV2(SqlDataReader tblOrganizationTODT)
+        {
+            List<TblOrganizationTO> tblOrganizationTOList = new List<TblOrganizationTO>();
+            if (tblOrganizationTODT != null)
+            {
+                while (tblOrganizationTODT.Read())
+                {
+                    TblOrganizationTO tblOrganizationTONew = new TblOrganizationTO();
+                    if (tblOrganizationTODT["idOrganization"] != DBNull.Value)
+                        tblOrganizationTONew.IdOrganization = Convert.ToInt32(tblOrganizationTODT["idOrganization"].ToString());
+                    if (tblOrganizationTODT["orgTypeId"] != DBNull.Value)
+                        tblOrganizationTONew.OrgTypeId = Convert.ToInt32(tblOrganizationTODT["orgTypeId"].ToString());
+                    if (tblOrganizationTODT["addrId"] != DBNull.Value)
+                        tblOrganizationTONew.AddrId = Convert.ToInt32(tblOrganizationTODT["addrId"].ToString());
+                    if (tblOrganizationTODT["firstOwnerPersonId"] != DBNull.Value)
+                        tblOrganizationTONew.FirstOwnerPersonId = Convert.ToInt32(tblOrganizationTODT["firstOwnerPersonId"].ToString());
+                    if (tblOrganizationTODT["secondOwnerPersonId"] != DBNull.Value)
+                        tblOrganizationTONew.SecondOwnerPersonId = Convert.ToInt32(tblOrganizationTODT["secondOwnerPersonId"].ToString());
+                    if (tblOrganizationTODT["parentId"] != DBNull.Value)
+                        tblOrganizationTONew.ParentId = Convert.ToInt32(tblOrganizationTODT["parentId"].ToString());
+                    if (tblOrganizationTODT["createdBy"] != DBNull.Value)
+                        tblOrganizationTONew.CreatedBy = Convert.ToInt32(tblOrganizationTODT["createdBy"].ToString());
+                    if (tblOrganizationTODT["createdOn"] != DBNull.Value)
+                        tblOrganizationTONew.CreatedOn = Convert.ToDateTime(tblOrganizationTODT["createdOn"].ToString());
+                    if (tblOrganizationTODT["firmName"] != DBNull.Value)
+                        tblOrganizationTONew.FirmName = Convert.ToString(tblOrganizationTODT["firmName"].ToString());
+
+                    if (tblOrganizationTODT["phoneNo"] != DBNull.Value)
+                        tblOrganizationTONew.PhoneNo = Convert.ToString(tblOrganizationTODT["phoneNo"].ToString());
+                    if (tblOrganizationTODT["faxNo"] != DBNull.Value)
+                        tblOrganizationTONew.FaxNo = Convert.ToString(tblOrganizationTODT["faxNo"].ToString());
+                    if (tblOrganizationTODT["emailAddr"] != DBNull.Value)
+                        tblOrganizationTONew.EmailAddr = Convert.ToString(tblOrganizationTODT["emailAddr"].ToString());
+                    if (tblOrganizationTODT["website"] != DBNull.Value)
+                        tblOrganizationTONew.Website = Convert.ToString(tblOrganizationTODT["website"].ToString());
+
+                    if (tblOrganizationTODT["registeredMobileNos"] != DBNull.Value)
+                        tblOrganizationTONew.RegisteredMobileNos = Convert.ToString(tblOrganizationTODT["registeredMobileNos"].ToString());
+
+                    if (tblOrganizationTODT["cdStructureId"] != DBNull.Value)
+                        tblOrganizationTONew.CdStructureId = Convert.ToInt32(tblOrganizationTODT["cdStructureId"].ToString());
+                    if (tblOrganizationTODT["cdValue"] != DBNull.Value)
+                        tblOrganizationTONew.CdStructure = Convert.ToDouble(tblOrganizationTODT["cdValue"].ToString());
+                    if (tblOrganizationTODT["delPeriodId"] != DBNull.Value)
+                        tblOrganizationTONew.DelPeriodId = Convert.ToInt32(tblOrganizationTODT["delPeriodId"].ToString());
+                    if (tblOrganizationTODT["deliveryPeriod"] != DBNull.Value)
+                        tblOrganizationTONew.DeliveryPeriod = Convert.ToInt32(tblOrganizationTODT["deliveryPeriod"].ToString());
+
+                    if (tblOrganizationTODT["isActive"] != DBNull.Value)
+                        tblOrganizationTONew.IsActive = Convert.ToInt32(tblOrganizationTODT["isActive"].ToString());
+                    if (tblOrganizationTODT["remark"] != DBNull.Value)
+                        tblOrganizationTONew.Remark = Convert.ToString(tblOrganizationTODT["remark"].ToString());
+                    if (tblOrganizationTODT["villageName"] != DBNull.Value)
+                        tblOrganizationTONew.VillageName = Convert.ToString(tblOrganizationTODT["villageName"].ToString());
+                    if (tblOrganizationTODT["isSpecialCnf"] != DBNull.Value)
+                        tblOrganizationTONew.IsSpecialCnf = Convert.ToInt32(tblOrganizationTODT["isSpecialCnf"].ToString());
+
+                    if (tblOrganizationTODT["digitalSign"] != DBNull.Value)
+                        tblOrganizationTONew.DigitalSign = Convert.ToString(tblOrganizationTODT["digitalSign"].ToString());
+                    if (tblOrganizationTODT["deactivatedOn"] != DBNull.Value)
+                        tblOrganizationTONew.DeactivatedOn = Convert.ToDateTime(tblOrganizationTODT["deactivatedOn"].ToString());
+
+                    if (tblOrganizationTODT["districtId"] != DBNull.Value)
+                        tblOrganizationTONew.DistrictId = Convert.ToInt32(tblOrganizationTODT["districtId"].ToString());
+
+                    if (tblOrganizationTODT["orgLogo"] != DBNull.Value)
+                        tblOrganizationTONew.OrgLogo = Convert.ToString(tblOrganizationTODT["orgLogo"].ToString());
+
+                    if (tblOrganizationTODT["creditLimit"] != DBNull.Value)
+                        tblOrganizationTONew.CreditLimit = Convert.ToDouble(tblOrganizationTODT["creditLimit"].ToString());
+
+
+                    //Added By Gokul[14 - 02 - 21]
+                    if (tblOrganizationTODT["consumerTypeId"] != DBNull.Value)
+                        tblOrganizationTONew.ConsumerTypeId = Convert.ToInt32(tblOrganizationTODT["consumerTypeId"].ToString());
+                    
+
+                    if (tblOrganizationTODT["overdue_ref_id"] != DBNull.Value)
+                        tblOrganizationTONew.OverdueRefId = Convert.ToString(tblOrganizationTODT["overdue_ref_id"].ToString());
+
+                    if (tblOrganizationTODT["enq_ref_id"] != DBNull.Value)
+                        tblOrganizationTONew.EnqRefId = Convert.ToString(tblOrganizationTODT["enq_ref_id"].ToString());
+
+                    if (tblOrganizationTODT["firmTypeId"] != DBNull.Value)
+                        tblOrganizationTONew.FirmTypeId = Convert.ToInt32(tblOrganizationTODT["firmTypeId"].ToString());
+
+                    if (tblOrganizationTODT["influencerTypeId"] != DBNull.Value)
+                        tblOrganizationTONew.InfluencerTypeId = Convert.ToInt32(tblOrganizationTODT["influencerTypeId"].ToString());
+
+                    //Priyanka [07-06-2018] : Added for SHIVANGI
+                    if (tblOrganizationTODT["isOverdueExist"] != DBNull.Value)
+                        tblOrganizationTONew.IsOverdueExist = Convert.ToInt32(tblOrganizationTODT["isOverdueExist"].ToString());
+
+                    //Sudhir[22-APR-2018]
+                    if (tblOrganizationTODT["dateOfEstablishment"] != DBNull.Value)
+                        tblOrganizationTONew.DateOfEstablishment = Convert.ToDateTime(tblOrganizationTODT["dateOfEstablishment"].ToString());
+
+                    if (tblOrganizationTODT["isTcsApplicable"] != DBNull.Value)
+                        tblOrganizationTONew.IsTcsApplicable = Convert.ToInt32(tblOrganizationTODT["isTcsApplicable"].ToString());
+
+                    if (tblOrganizationTODT["isDeclarationRec"] != DBNull.Value)
+                        tblOrganizationTONew.IsDeclarationRec = Convert.ToInt32(tblOrganizationTODT["isDeclarationRec"].ToString());
+
+                    tblOrganizationTOList.Add(tblOrganizationTONew);
+                }
+            }
+            return tblOrganizationTOList;
+        }
+
         public Dictionary<int, string> SelectRegisteredMobileNoDCT(String orgIds, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();

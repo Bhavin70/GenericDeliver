@@ -13,6 +13,7 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblOrganizationTO> SelectAllTblOrganizationList();
         //List<TblOrganizationTO> SelectSalesAgentListWithBrandAndRate();
         TblOrganizationTO SelectTblOrganizationTO(Int32 idOrganization);
+        TblOrganizationTO SelectTblOrganizationTOForCNF(Int32 idOrganization);
         List<TblOrganizationTO> SelectExistingAllTblOrganizationByRefIds(Int32 orgId, String overdueRefId, String enqRefId);
         TblOrganizationTO SelectTblOrganizationTO(Int32 idOrganization, SqlConnection conn, SqlTransaction tran);
         List<TblOrganizationTO> SelectAllChildOrganizationList(int orgTypeId, int parentId);
