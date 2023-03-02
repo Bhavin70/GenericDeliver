@@ -584,8 +584,8 @@ namespace ODLMWebAPI.DAL
                 {
                     SizeSpecWiseStockTO sizeSpecWiseStockTO = new SizeSpecWiseStockTO();
 
-                    if (tblStockDetailsTODT["stockSummaryId"] != DBNull.Value)
-                        sizeSpecWiseStockTO.StockSummaryId = Convert.ToInt32(tblStockDetailsTODT["stockSummaryId"].ToString());
+                    //if (tblStockDetailsTODT["stockSummaryId"] != DBNull.Value)
+                    //    sizeSpecWiseStockTO.StockSummaryId = Convert.ToInt32(tblStockDetailsTODT["stockSummaryId"].ToString());
                     if (tblStockDetailsTODT["materialId"] != DBNull.Value)
                         sizeSpecWiseStockTO.MaterialId = Convert.ToInt32(tblStockDetailsTODT["materialId"].ToString());
                     if (tblStockDetailsTODT["prodSpecId"] != DBNull.Value)
@@ -638,23 +638,26 @@ namespace ODLMWebAPI.DAL
                     compCondition = " WHERE  locationId = " + compartmentId;
                 }
 
-                cmdSelect.CommandText = " SELECT stockDtl.*,prodClass.displayName +'/'+productItem.itemDesc as displayName ,  " +
+                cmdSelect.CommandText = " SELECT prodClass.displayName +'/'+productItem.itemDesc as displayName ,  " +
                                                            " stockSummary.confirmedBy, " +
                                                            " stockSummary.confirmedOn, " +
                                                            " prodSpec.prodSpecDesc, " +
                                                            " material.materialSubType as materialDesc " +
+                                                           " , prodItemId, prodSpecId, materialId, brandId , isConsolidatedStock , SUM(stockDtl.noOfBundles) noOfBundles, SUM(todaysStock) todaysStock , SUM(stockDtl.totalStock) totalStock ,SUM(balanceStock) balanceStock   " +
                                                            " FROM tblStockSummary stockSummary " +
-                                                           " INNER JOIN " +
-                                                           " ( " +
-                                                           "    SELECT stockSummaryId,prodItemId, prodSpecId, materialId, brandId , isConsolidatedStock ,  " +
-                                                           "    SUM(noOfBundles) noOfBundles, SUM(todaysStock) todaysStock , SUM(totalStock) totalStock ,SUM(balanceStock) balanceStock" +
-                                                           "    FROM tblStockDetails " +
-                                                           
-                                                           " "+ compCondition +" " +
-                                                           
-                                                           "    GROUP BY stockSummaryId, prodSpecId, materialId , brandId , isConsolidatedStock,prodItemId" +
-                                                           " ) stockDtl " +
-                                                           " ON stockSummary.idStockSummary = stockDtl.stockSummaryId " +
+                                                           //Reshma Commented For Gajkesari Requirement
+                                                           //" INNER JOIN " +
+                                                           //" ( " +
+                                                           //"    SELECT stockSummaryId,prodItemId, prodSpecId, materialId, brandId , isConsolidatedStock ,  " +
+                                                           //"    SUM(noOfBundles) noOfBundles, SUM(todaysStock) todaysStock , SUM(totalStock) totalStock ,SUM(balanceStock) balanceStock" +
+                                                           //"    FROM tblStockDetails " +
+
+                                                           //" "+ compCondition +" " +
+
+                                                           //"    GROUP BY stockSummaryId, prodSpecId, materialId , brandId , isConsolidatedStock,prodItemId" +
+                                                           //" ) stockDtl " +
+                                                           //" ON stockSummary.idStockSummary = stockDtl.stockSummaryId " +
+                                                           " left join tblStockDetails stockDtl on  stockSummary.idStockSummary = stockDtl.stockSummaryId  "+
                                                            " LEFT JOIN dimProdSpec prodSpec " +
                                                            " ON prodSpec.idProdSpec = stockDtl.prodSpecId " +
                                                            " LEFT JOIN tblMaterial material " +
@@ -670,7 +673,10 @@ namespace ODLMWebAPI.DAL
                                        " AND YEAR(stockSummary.stockDate) = " + stockDate.Year;
                                        
                 }
-                cmdSelect.CommandText += " where CAST(stockSummary.stockDate  AS DATE) BETWEEN @fromDate  AND  @toDate ORDER BY prodSpec.displaySequence";
+                cmdSelect.CommandText += " where CAST(stockSummary.stockDate  AS DATE) BETWEEN @fromDate  AND  @toDate" +
+                    " group by prodSpecId, materialId , brandId , isConsolidatedStock,prodItemId ,prodClass.displayName,+productItem.itemDesc ,   stockSummary.confirmedBy,  " +
+                    "   stockSummary.confirmedOn,  prodSpec.prodSpecDesc,  material.materialSubType   , prodItemId, prodSpecId, materialId, brandId , isConsolidatedStock   ";
+                   // " ORDER BY prodSpec.displaySequence";
                 cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.Date).Value = FromDate;
                 cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.Date).Value = ToDate;
 
