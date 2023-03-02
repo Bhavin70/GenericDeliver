@@ -23,6 +23,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblStockConsumption(Int32 idStockConsumption);
         int DeleteTblStockConsumption(Int32 idStockConsumption, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idStockConsumption, SqlCommand cmdDelete);
+        Int64 GetLastIdStockConsumption( SqlConnection conn, SqlTransaction tran);
 
     }
 }

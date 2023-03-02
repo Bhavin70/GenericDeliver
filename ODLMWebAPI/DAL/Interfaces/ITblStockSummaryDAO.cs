@@ -29,5 +29,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         int DeleteTblStockSummary(Int32 idStockSummary, SqlConnection conn, SqlTransaction tran);
         int ExecuteDeletionCommand(Int32 idStockSummary, SqlCommand cmdDelete);
         StockSummaryTO GetLastStockSummaryDetails();
+        Int64 GetLastIdStockSummary(SqlConnection conn = null, SqlTransaction tran = null);
+        
+
     }
 }
