@@ -289,6 +289,34 @@ namespace ODLMWebAPI.DAL
                     conn.Close();
             }
         }
+
+        public Int64 GetLastIdStockSummary( SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                cmdSelect.CommandText = "select isnull(max(isnull(idStockSummary,0)),0) +  1  as Id from tblStockSummary";
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                return Convert.ToInt64(cmdSelect.ExecuteScalar());
+
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
+      
+       
+       
         public TblStockSummaryTO SelectTblStockSummaryExist(DateTime stocDate, SqlConnection conn = null, SqlTransaction tran = null)
         {
             SqlCommand cmdSelect = new SqlCommand();
@@ -538,8 +566,10 @@ namespace ODLMWebAPI.DAL
 
         public int ExecuteInsertionCommand(TblStockSummaryTO tblStockSummaryTO, SqlCommand cmdInsert)
         {
-            String sqlQuery = @" INSERT INTO [tblStockSummary]( " + 
-                                "  [confirmedBy]" +
+            
+            String sqlQuery = @" INSERT INTO [tblStockSummary]( " +
+                                "  [idStockSummary]" +
+                                "  ,[confirmedBy]" +
                                 " ,[createdBy]" +
                                 " ,[updatedBy]" +
                                 " ,[stockDate]" +
@@ -551,7 +581,8 @@ namespace ODLMWebAPI.DAL
                                 " ,[transactionType]" +
                                 " )" +
                     " VALUES (" +
-                                "  @ConfirmedBy " +
+                                "  @IdStockSummary " +
+                                "  ,@ConfirmedBy " +
                                 " ,@CreatedBy " +
                                 " ,@UpdatedBy " +
                                 " ,@StockDate " +
@@ -566,7 +597,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
 
-            //cmdInsert.Parameters.Add("@IdStockSummary", System.Data.SqlDbType.Int).Value = tblStockSummaryTO.IdStockSummary;
+            cmdInsert.Parameters.Add("@IdStockSummary", System.Data.SqlDbType.Int).Value = tblStockSummaryTO.IdStockSummary;
             cmdInsert.Parameters.Add("@ConfirmedBy", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockSummaryTO.ConfirmedBy);
             cmdInsert.Parameters.Add("@CreatedBy", System.Data.SqlDbType.Int).Value = tblStockSummaryTO.CreatedBy;
             cmdInsert.Parameters.Add("@UpdatedBy", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockSummaryTO.UpdatedBy);
@@ -582,8 +613,8 @@ namespace ODLMWebAPI.DAL
             {
                 //cmdInsert.CommandText = Constants.IdentityColumnQuery;
                 //tblStockSummaryTO.IdStockSummary = Convert.ToInt32(cmdInsert.ExecuteScalar());
-                cmdInsert.CommandText = Constants.SQL_SELECT_IDENTITY_QUERY;
-                tblStockSummaryTO.IdStockSummary = Convert.ToInt64(cmdInsert.ExecuteScalar());
+                //cmdInsert.CommandText = Constants.SQL_SELECT_IDENTITY_QUERY;
+                //tblStockSummaryTO.IdStockSummary = Convert.ToInt64(cmdInsert.ExecuteScalar());
                 return 1;
             }
             else return 0;

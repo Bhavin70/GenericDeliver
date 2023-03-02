@@ -87,7 +87,30 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+        public Int64 GetLastIdStockConsumption(SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                cmdSelect.CommandText = "select isnull(max(isnull(idStockConsumption,0)),0) +  1  as Id from tblStockConsumption";
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
 
+                return Convert.ToInt64(cmdSelect.ExecuteScalar());
+
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
         public TblStockConsumptionTO SelectTblStockConsumption(Int32 idStockConsumption)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -207,7 +230,8 @@ namespace ODLMWebAPI.DAL
         public int ExecuteInsertionCommand(TblStockConsumptionTO tblStockConsumptionTO, SqlCommand cmdInsert)
         {
             String sqlQuery = @" INSERT INTO [tblStockConsumption]( " +
-                            "  [stockDtlId]" +
+                            "  [idStockConsumption]" +
+                            " ,[stockDtlId]" +
                             " ,[loadingSlipExtId]" +
                             " ,[transferNoteId]" +
                             " ,[txnOpTypeId]" +
@@ -222,7 +246,8 @@ namespace ODLMWebAPI.DAL
                             " ,[tranTypeId]" +
                             " )" +
                 " VALUES (" +
-                            "  @StockDtlId " +
+                            "  @IdStockConsumption " +
+                            " ,@StockDtlId " +
                             " ,@LoadingSlipExtId " +
                             " ,@TransferNoteId " +
                             " ,@TxnOpTypeId " +
@@ -240,7 +265,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
 
-            //cmdInsert.Parameters.Add("@IdStockConsumption", System.Data.SqlDbType.Int).Value = tblStockConsumptionTO.IdStockConsumption;
+            cmdInsert.Parameters.Add("@IdStockConsumption", System.Data.SqlDbType.Int).Value = tblStockConsumptionTO.IdStockConsumption;
             cmdInsert.Parameters.Add("@StockDtlId", System.Data.SqlDbType.Int).Value = tblStockConsumptionTO.StockDtlId;
             cmdInsert.Parameters.Add("@LoadingSlipExtId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockConsumptionTO.LoadingSlipExtId);
             cmdInsert.Parameters.Add("@TransferNoteId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockConsumptionTO.TransferNoteId);
@@ -260,8 +285,8 @@ namespace ODLMWebAPI.DAL
             {
                 //cmdInsert.CommandText = Constants.IdentityColumnQuery;
                 //tblStockConsumptionTO.IdStockConsumption = Convert.ToInt32(cmdInsert.ExecuteScalar());
-                cmdInsert.CommandText = Constants.SQL_SELECT_IDENTITY_QUERY;
-                tblStockConsumptionTO.IdStockConsumption = Convert.ToInt64(cmdInsert.ExecuteScalar());
+                //cmdInsert.CommandText = Constants.SQL_SELECT_IDENTITY_QUERY;
+                //tblStockConsumptionTO.IdStockConsumption = Convert.ToInt64(cmdInsert.ExecuteScalar());
                 return 1;
             }
             else return 0;
