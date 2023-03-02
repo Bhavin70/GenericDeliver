@@ -180,6 +180,26 @@ namespace ODLMWebAPI.BL
             }
         }
 
+        public TblOrganizationTO SelectTblOrganizationTOForCNF(Int32 idOrganization)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            ResultMessage resultMessage = new ResultMessage();
+            try
+            {
+                conn.Open();
+                return _iTblOrganizationDAO.SelectTblOrganizationTOForCNF(idOrganization, conn, tran);
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "SelectTblOrganizationTO");
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
         public List<TblOrganizationTO> SelectExistingAllTblOrganizationByRefIds(Int32 orgId, String overdueRefId, String enqRefId)
         {
             return _iTblOrganizationDAO.SelectExistingAllTblOrganizationByRefIds(orgId, overdueRefId, enqRefId);
