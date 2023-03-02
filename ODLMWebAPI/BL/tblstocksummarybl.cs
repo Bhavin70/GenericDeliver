@@ -28,9 +28,11 @@ namespace ODLMWebAPI.BL
         private readonly ITblLoadingQuotaDeclarationBL _iTblLoadingQuotaDeclarationBL;
         private readonly ITblLoadingQuotaDeclarationDAO _iTblLoadingQuotaDeclarationDAO;
         private readonly ITblAlertInstanceBL _iTblAlertInstanceBL;
+        private readonly ITblStockDetailsDAO _iTblStockDetailsDAO;
+        private readonly ITblStockConsumptionDAO _iTblStockConsumptionDAO;
         private readonly IConnectionString _iConnectionString;
         private readonly ICommon _iCommon;
-        public TblStockSummaryBL(ICommon iCommon, IConnectionString iConnectionString, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaDeclarationBL iTblLoadingQuotaDeclarationBL, ITblLoadingSlipExtBL iTblLoadingSlipExtBL, ITblBookingsBL iTblBookingsBL, ITblStockConsumptionBL iTblStockConsumptionBL, ITblProductInfoBL iTblProductInfoBL, ITblStockSummaryDAO iTblStockSummaryDAO, ITblConfigParamsBL iTblConfigParamsBL, IDimensionBL iDimensionBL, ITblStockDetailsBL iTblStockDetailsBL)
+        public TblStockSummaryBL(ICommon iCommon, IConnectionString iConnectionString, ITblAlertInstanceBL iTblAlertInstanceBL, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaDeclarationBL iTblLoadingQuotaDeclarationBL, ITblLoadingSlipExtBL iTblLoadingSlipExtBL, ITblBookingsBL iTblBookingsBL, ITblStockConsumptionBL iTblStockConsumptionBL, ITblProductInfoBL iTblProductInfoBL, ITblStockSummaryDAO iTblStockSummaryDAO, ITblConfigParamsBL iTblConfigParamsBL, IDimensionBL iDimensionBL, ITblStockDetailsBL iTblStockDetailsBL, ITblStockDetailsDAO iTblStockDetailsDAO, ITblStockConsumptionDAO iTblStockConsumptionDAO)
         {
             _iTblStockSummaryDAO = iTblStockSummaryDAO;
             _iTblConfigParamsBL = iTblConfigParamsBL;
@@ -45,6 +47,8 @@ namespace ODLMWebAPI.BL
             _iTblAlertInstanceBL = iTblAlertInstanceBL;
             _iConnectionString = iConnectionString;
             _iCommon = iCommon;
+            _iTblStockDetailsDAO = iTblStockDetailsDAO;
+            _iTblStockConsumptionDAO = iTblStockConsumptionDAO;
         }
         #region Selection
 
@@ -343,6 +347,9 @@ namespace ODLMWebAPI.BL
                         if (ProdtodaysStockSummaryTO1 == null)
                         {
                             tblStockSummaryTO.TransactionType = (Int32)StaticStuff.Constants.StockTransactionType.ProductionData;
+
+                            Int64 IdStockSummary = _iTblStockSummaryDAO.GetLastIdStockSummary(conn, tran);
+                            tblStockSummaryTO.IdStockSummary = IdStockSummary;
                             result = InsertTblStockSummary(tblStockSummaryTO, conn, tran);
                         }
                     }
@@ -352,6 +359,8 @@ namespace ODLMWebAPI.BL
                     if (todaysStockSummaryTO1 == null)
                     {
                         tblStockSummaryTO.TransactionType = (Int32)StaticStuff.Constants.StockTransactionType.StockData;
+                        Int64 IdStockSummary = _iTblStockSummaryDAO.GetLastIdStockSummary(conn, tran);
+                        tblStockSummaryTO.IdStockSummary = IdStockSummary;
                         result = InsertTblStockSummary(tblStockSummaryTO, conn, tran);
                     }
                     else
@@ -394,6 +403,8 @@ namespace ODLMWebAPI.BL
                         {
                             tblStockSummaryTO.StockDate = stockDate;
                             tblStockSummaryTO.TransactionType = (Int32)StaticStuff.Constants.StockTransactionType.ProductionData;
+                            Int64 IdStockSummary = _iTblStockSummaryDAO.GetLastIdStockSummary(conn, tran);
+                            tblStockSummaryTO.IdStockSummary = IdStockSummary;
                             result = InsertTblStockSummary(tblStockSummaryTO, conn, tran);
                         }
                     }
@@ -503,7 +514,9 @@ namespace ODLMWebAPI.BL
                                 if (productInfo != null)
                                 {
 
-                                    if (tblStockSummaryTO.StockDetailsTOList[i].TotalStock > 0)
+                                    // if (tblStockSummaryTO.StockDetailsTOList[i].TotalStock > 0)
+                                    // Add By Samadhan 7 feb 2023
+                                    if (tblStockSummaryTO.StockDetailsTOList[i].TotalStock > 0 || tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles > 0)
                                     {
                                         Double totalStkInMT = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
                                         totalStkInMT = totalStkInMT * 1000;
@@ -642,6 +655,8 @@ namespace ODLMWebAPI.BL
                             // Insert New Stock Entry
                             tblStockSummaryTO.StockDetailsTOList[i].UpdatedOn = DateTime.MinValue;
                             tblStockSummaryTO.StockDetailsTOList[i].UpdatedBy = 0;
+                            Int64 IdStockDetails = _iTblStockDetailsDAO.GetLastIdStockDtl(conn, tran);
+                            tblStockSummaryTO.StockDetailsTOList[i].IdStockDtl = IdStockDetails;
                             result = _iTblStockDetailsBL.InsertTblStockDetails(tblStockSummaryTO.StockDetailsTOList[i], conn, tran);
                             if (result != 1)
                             {
@@ -684,7 +699,8 @@ namespace ODLMWebAPI.BL
                         if (tblStockConsumptionTO.TxnQty != 0)
                         {
 
-
+                            Int64 IdStockConsumption = _iTblStockConsumptionDAO.GetLastIdStockConsumption(conn, tran);
+                            tblStockConsumptionTO.IdStockConsumption = IdStockConsumption;
 
                             result = _iTblStockConsumptionBL.InsertTblStockConsumption(tblStockConsumptionTO, conn, tran);
                             if (result != 1)

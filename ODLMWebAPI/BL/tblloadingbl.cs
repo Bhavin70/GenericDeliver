@@ -9145,6 +9145,9 @@ namespace ODLMWebAPI.BL {
                 {
                     tblLoadingTO.VehicleNo = LoadingTO.VehicleNo;
                     tblLoadingTO.TransporterOrgId = LoadingTO.TransporterOrgId;
+                    tblLoadingTO.DriverName = LoadingTO.DriverName;
+                    tblLoadingTO.ContactNo = LoadingTO.ContactNo;
+
                 }
                 tblLoadingTO.UpdatedBy = LoadingTO.UpdatedBy;
                 tblLoadingTO.UpdatedOn = LoadingTO.UpdatedOn;
@@ -9182,6 +9185,8 @@ namespace ODLMWebAPI.BL {
                 {
                     loadindingSlip.VehicleNo = LoadingTO.VehicleNo;
                     loadindingSlip.TransporterOrgId = LoadingTO.TransporterOrgId;
+                    loadindingSlip.DriverName = LoadingTO.DriverName;
+                    loadindingSlip.ContactNo = LoadingTO.ContactNo;
 
                     result = _iTblLoadingSlipBL.UpdateTblLoadingSlip(loadindingSlip, conn, tran);
                     if (result != 1)

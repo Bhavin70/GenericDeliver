@@ -22,6 +22,7 @@ namespace ODLMWebAPI.DAL.Interfaces
           List<DropDownTO> SelectDealerListForDropDown(Int32 cnfId, TblUserRoleTO tblUserRoleTO, Int32 consumerType = 0);
           List<DropDownTO> GetDealerForLoadingDropDownList(Int32 cnfId);
           TblOrganizationTO SelectTblOrganization(Int32 idOrganization, SqlConnection conn, SqlTransaction tran);
+        TblOrganizationTO SelectTblOrganizationTOForCNF(Int32 idOrganization, SqlConnection conn, SqlTransaction tran);
           Dictionary<int, string> SelectRegisteredMobileNoDCT(String orgIds, SqlConnection conn, SqlTransaction tran);
           Dictionary<int, string> SelectRegisteredMobileNoDCTByOrgType(String orgTypeId, SqlConnection conn, SqlTransaction tran);
           String SelectFirmNameOfOrganiationById(Int32 organizationId);

@@ -53,7 +53,7 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage UpdatePendingQuantity(TblBookingQtyConsumptionTO tblBookingQtyConsumptionTO);
 
         ResultMessage SendBookingDueNotification();
-        List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate, int isFromProject);
+        List<TblBookingAnalysisReportTO> GetBookingAnalysisReport(DateTime startDate, DateTime endDate, int distributorId, int cOrNcId, int brandId, int skipDate, int isFromProject, int stateId , int districtId );
 
         //ResultMessage DeleteAllBookings(List<Int32> bookingsIdList);
         //ResultMessage DeleteAllBookings(List<int> bookingsIdsList, SqlConnection conn, SqlTransaction tran);
