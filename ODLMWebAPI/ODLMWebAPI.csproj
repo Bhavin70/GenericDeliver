@@ -66,9 +66,9 @@
 
   <ItemGroup>
     <Reference Include="Interop.SAPbobsCOM">
-      <HintPath>C:\Users\VITPL-IT-65\Downloads\Interop.SAPbobsCOM.dll</HintPath>
-      <Private>true</Private>
+      <HintPath>..\..\..\..\..\Interop.SAPbobsCOM.dll</HintPath>
       <EmbedInteropTypes>true</EmbedInteropTypes>
+      <Private>true</Private>
     </Reference>
   </ItemGroup>
 

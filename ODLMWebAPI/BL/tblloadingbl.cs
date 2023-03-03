@@ -6557,7 +6557,7 @@ namespace ODLMWebAPI.BL {
             stockConsumptionTO.StockDtlId = stockDetailsTO.IdStockDtl;
             stockConsumptionTO.TxnOpTypeId = (int) Constants.TxnOperationTypeE.OUT;
             stockConsumptionTO.TxnQty = -stockQty;
-
+           
             result = _iTblStockConsumptionDAO.InsertTblStockConsumption (stockConsumptionTO, conn, tran);
             if (result != 1) {
                 resultMessage.DefaultBehaviour ();
