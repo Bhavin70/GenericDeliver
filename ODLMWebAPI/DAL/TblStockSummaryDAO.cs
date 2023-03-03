@@ -568,8 +568,8 @@ namespace ODLMWebAPI.DAL
         {
             
             String sqlQuery = @" INSERT INTO [tblStockSummary]( " +
-                                "  [idStockSummary]" +
-                                "  ,[confirmedBy]" +
+                               
+                                "  [confirmedBy]" +
                                 " ,[createdBy]" +
                                 " ,[updatedBy]" +
                                 " ,[stockDate]" +
@@ -581,8 +581,8 @@ namespace ODLMWebAPI.DAL
                                 " ,[transactionType]" +
                                 " )" +
                     " VALUES (" +
-                                "  @IdStockSummary " +
-                                "  ,@ConfirmedBy " +
+                              
+                                "  @ConfirmedBy " +
                                 " ,@CreatedBy " +
                                 " ,@UpdatedBy " +
                                 " ,@StockDate " +
@@ -597,7 +597,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
 
-            cmdInsert.Parameters.Add("@IdStockSummary", System.Data.SqlDbType.Int).Value = tblStockSummaryTO.IdStockSummary;
+            //cmdInsert.Parameters.Add("@IdStockSummary", System.Data.SqlDbType.Int).Value = tblStockSummaryTO.IdStockSummary;
             cmdInsert.Parameters.Add("@ConfirmedBy", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockSummaryTO.ConfirmedBy);
             cmdInsert.Parameters.Add("@CreatedBy", System.Data.SqlDbType.Int).Value = tblStockSummaryTO.CreatedBy;
             cmdInsert.Parameters.Add("@UpdatedBy", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockSummaryTO.UpdatedBy);
@@ -613,8 +613,8 @@ namespace ODLMWebAPI.DAL
             {
                 //cmdInsert.CommandText = Constants.IdentityColumnQuery;
                 //tblStockSummaryTO.IdStockSummary = Convert.ToInt32(cmdInsert.ExecuteScalar());
-                //cmdInsert.CommandText = Constants.SQL_SELECT_IDENTITY_QUERY;
-                //tblStockSummaryTO.IdStockSummary = Convert.ToInt64(cmdInsert.ExecuteScalar());
+                cmdInsert.CommandText = Constants.SQL_SELECT_IDENTITY_QUERY;
+                tblStockSummaryTO.IdStockSummary = Convert.ToInt64(cmdInsert.ExecuteScalar());
                 return 1;
             }
             else return 0;

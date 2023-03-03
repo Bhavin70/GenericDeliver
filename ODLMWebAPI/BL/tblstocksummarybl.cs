@@ -227,12 +227,12 @@ namespace ODLMWebAPI.BL
                     throw new Exception("Error while deleteing the stock consumption records");
                 }
 
-                sqlCmd = "DBCC CHECKIDENT ('[tblStockConsumption]', RESEED, 0);";
-                result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
-                if (result == -2)
-                {
-                    throw new Exception("Error while deleteing the stock consumption records");
-                }
+                //sqlCmd = "DBCC CHECKIDENT ('[tblStockConsumption]', RESEED, 0);";
+                //result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
+                //if (result == -2)
+                //{
+                //    throw new Exception("Error while deleteing the stock consumption records");
+                //}
 
                 #endregion
 
@@ -245,12 +245,12 @@ namespace ODLMWebAPI.BL
                 {
                     throw new Exception("Error while deleteing the stock detials records");
                 }
-                sqlCmd = "DBCC CHECKIDENT ('[tblStockDetails]', RESEED, 0);";
-                result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
-                if (result == -2)
-                {
-                    throw new Exception("Error while deleteing the stock detials records");
-                }
+                //sqlCmd = "DBCC CHECKIDENT ('[tblStockDetails]', RESEED, 0);";
+                //result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
+                //if (result == -2)
+                //{
+                //    throw new Exception("Error while deleteing the stock detials records");
+                //}
 
                 #endregion
 
@@ -264,12 +264,12 @@ namespace ODLMWebAPI.BL
                     throw new Exception("Error while deleteing the stock summary records");
                 }
 
-                sqlCmd = "DBCC CHECKIDENT ('[tblStockSummary]', RESEED, 0);";
-                result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
-                if (result == -2)
-                {
-                    throw new Exception("Error while deleteing the stock summary records");
-                }
+                //sqlCmd = "DBCC CHECKIDENT ('[tblStockSummary]', RESEED, 0);";
+                //result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
+                //if (result == -2)
+                //{
+                //    throw new Exception("Error while deleteing the stock summary records");
+                //}
 
                 TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_TODAYS_BOOKING_OPENING_BALANCE);
                 tblConfigParamsTO.ConfigParamVal = "0";
@@ -348,8 +348,7 @@ namespace ODLMWebAPI.BL
                         {
                             tblStockSummaryTO.TransactionType = (Int32)StaticStuff.Constants.StockTransactionType.ProductionData;
 
-                            Int64 IdStockSummary = _iTblStockSummaryDAO.GetLastIdStockSummary(conn, tran);
-                            tblStockSummaryTO.IdStockSummary = IdStockSummary;
+                           
                             result = InsertTblStockSummary(tblStockSummaryTO, conn, tran);
                         }
                     }
@@ -359,8 +358,7 @@ namespace ODLMWebAPI.BL
                     if (todaysStockSummaryTO1 == null)
                     {
                         tblStockSummaryTO.TransactionType = (Int32)StaticStuff.Constants.StockTransactionType.StockData;
-                        Int64 IdStockSummary = _iTblStockSummaryDAO.GetLastIdStockSummary(conn, tran);
-                        tblStockSummaryTO.IdStockSummary = IdStockSummary;
+                       
                         result = InsertTblStockSummary(tblStockSummaryTO, conn, tran);
                     }
                     else
@@ -403,8 +401,7 @@ namespace ODLMWebAPI.BL
                         {
                             tblStockSummaryTO.StockDate = stockDate;
                             tblStockSummaryTO.TransactionType = (Int32)StaticStuff.Constants.StockTransactionType.ProductionData;
-                            Int64 IdStockSummary = _iTblStockSummaryDAO.GetLastIdStockSummary(conn, tran);
-                            tblStockSummaryTO.IdStockSummary = IdStockSummary;
+                           
                             result = InsertTblStockSummary(tblStockSummaryTO, conn, tran);
                         }
                     }
@@ -655,8 +652,7 @@ namespace ODLMWebAPI.BL
                             // Insert New Stock Entry
                             tblStockSummaryTO.StockDetailsTOList[i].UpdatedOn = DateTime.MinValue;
                             tblStockSummaryTO.StockDetailsTOList[i].UpdatedBy = 0;
-                            Int64 IdStockDetails = _iTblStockDetailsDAO.GetLastIdStockDtl(conn, tran);
-                            tblStockSummaryTO.StockDetailsTOList[i].IdStockDtl = IdStockDetails;
+                           
                             result = _iTblStockDetailsBL.InsertTblStockDetails(tblStockSummaryTO.StockDetailsTOList[i], conn, tran);
                             if (result != 1)
                             {
@@ -698,10 +694,7 @@ namespace ODLMWebAPI.BL
 
                         if (tblStockConsumptionTO.TxnQty != 0)
                         {
-
-                            Int64 IdStockConsumption = _iTblStockConsumptionDAO.GetLastIdStockConsumption(conn, tran);
-                            tblStockConsumptionTO.IdStockConsumption = IdStockConsumption;
-
+                          
                             result = _iTblStockConsumptionBL.InsertTblStockConsumption(tblStockConsumptionTO, conn, tran);
                             if (result != 1)
                             {
