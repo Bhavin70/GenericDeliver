@@ -372,7 +372,7 @@ namespace ODLMWebAPI.Controllers
         }
         [Route("GetRptNCList")]
         [HttpGet]
-        public ResultMessage GetRptNCList(string fromDate, string toDate, int isConfirm, int fromOrgId)
+        public ResultMessage GetRptNCList(string fromDate, string toDate)
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
@@ -387,10 +387,10 @@ namespace ODLMWebAPI.Controllers
             }
 
             if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
-                frmDt = _iCommon.ServerDateTime.Date;
+                frmDt = _iCommon.ServerDateTime.Date  ;
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
-                toDt = _iCommon.ServerDateTime.Date;
-            return _iTblInvoiceBL.SelectAllRptNCList(frmDt, toDt, isConfirm, fromOrgId);
+                toDt = _iCommon.ServerDateTime.Date  ;
+            return _iTblInvoiceBL.SelectAllRptNCList(frmDt, toDt);
         }
 
         [Route("GetRptNCInvoiceList")]

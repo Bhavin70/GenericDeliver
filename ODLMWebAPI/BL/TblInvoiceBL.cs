@@ -1029,14 +1029,14 @@ namespace ODLMWebAPI.BL
             return resultMessage;
         }
 
-        public ResultMessage SelectAllRptNCList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId)
+        public ResultMessage SelectAllRptNCList(DateTime frmDt, DateTime toDt)
         {
 
             ResultMessage resultMessage = new ResultMessage();
             try
             {
                 List<TblInvoiceRptTO> TblInvoiceRptTOList = new List<TblInvoiceRptTO>();
-                TblInvoiceRptTOList = _iTblInvoiceDAO.SelectAllRptNCList(frmDt, toDt, isConfirm, fromOrgId);
+                TblInvoiceRptTOList = _iTblInvoiceDAO.SelectAllRptNCList(frmDt, toDt);
                 if (TblInvoiceRptTOList != null && TblInvoiceRptTOList.Count > 0)
                 {
                     ExcelPackage excelPackage = new ExcelPackage();

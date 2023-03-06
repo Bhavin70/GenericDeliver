@@ -1008,7 +1008,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblInvoiceRptTO> SelectAllRptNCList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId)
+        public List<TblInvoiceRptTO> SelectAllRptNCList(DateTime frmDt, DateTime toDt)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -1021,7 +1021,7 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 SWhere = " CAST(sq1.createdOn  AS DATETIME) BETWEEN @fromDate AND @toDate " +
-                   " and sq1.isConfirmed = '" + Convert.ToString(isConfirm) + "'  " +
+                   " and sq1.isConfirmed = 0" +
                       " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED;
 
                 selectQuery = " select  SrNo, SrNo2, Date,DealerName, vehicleNo, Size, NetWt, TareWt, GrossWt, Bundle,BASICRATE,CD,Difference, FinalRate, FinalAmt, Remark " +
