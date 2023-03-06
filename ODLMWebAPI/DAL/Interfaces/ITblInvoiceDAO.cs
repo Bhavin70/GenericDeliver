@@ -20,6 +20,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblInvoiceTO> SelectInvoiceListFromLoadingSlipIds(String loadingSlipIds, SqlConnection conn, SqlTransaction tran);
         List<TblInvoiceTO> ConvertDTToList(SqlDataReader tblInvoiceTODT);
         List<TblInvoiceRptTO> SelectAllRptInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm,int fromOrgId);
+        List<TblInvoiceRptTO> SelectAllRptNCList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
         List<TblInvoiceRptTO> ConvertDTToListForRPTInvoice(SqlDataReader tblInvoiceRptTODT);
         List<TblInvoiceRptTO> SelectInvoiceExportList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
         List<TblInvoiceRptTO> SelectHsnExportList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
