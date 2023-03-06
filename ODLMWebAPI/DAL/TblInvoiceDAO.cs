@@ -1089,6 +1089,120 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+
+        public List<TblInvoiceRptTO> ConvertDTToListForRPTNC(SqlDataReader tblInvoiceRptTODT)
+        {
+            List<TblInvoiceRptTO> tblInvoiceRPtTOList = new List<TblInvoiceRptTO>();
+            try
+            {
+                if (tblInvoiceRptTODT != null)
+                {
+
+                    while (tblInvoiceRptTODT.Read())
+                    {
+                        TblInvoiceRptTO tblInvoiceRptTONew = new TblInvoiceRptTO();
+                        for (int i = 0; i < tblInvoiceRptTODT.FieldCount; i++)
+                        {
+                            if (tblInvoiceRptTODT.GetName(i).Equals("SrNo"))
+                            {
+                                if (tblInvoiceRptTODT["SrNo"] != DBNull.Value)
+                                    tblInvoiceRptTONew.SrNo = Convert.ToString(tblInvoiceRptTODT["SrNo"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("Date"))
+                            {
+                                if (tblInvoiceRptTODT["Date"] != DBNull.Value)
+                                    tblInvoiceRptTONew.Date = tblInvoiceRptTODT["Date"].ToString();
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("DealerName"))
+                            {
+                                if (tblInvoiceRptTODT["DealerName"] != DBNull.Value)
+                                    tblInvoiceRptTONew.DealerName = Convert.ToString(tblInvoiceRptTODT["DealerName"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("vehicleNo"))
+                            {
+                                if (tblInvoiceRptTODT["vehicleNo"] != DBNull.Value)
+                                    tblInvoiceRptTONew.VehicleNo = Convert.ToString(tblInvoiceRptTODT["vehicleNo"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("Size"))
+                            {
+                                if (tblInvoiceRptTODT["Size"] != DBNull.Value)
+                                    tblInvoiceRptTONew.Size = Convert.ToString(tblInvoiceRptTODT["Size"].ToString());
+                            }
+
+
+                            if (tblInvoiceRptTODT.GetName(i).Equals("NetWt"))
+                            {
+                                if (tblInvoiceRptTODT["NetWt"] != DBNull.Value)
+                                    tblInvoiceRptTONew.NetWt = Convert.ToDecimal(tblInvoiceRptTODT["NetWt"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("TareWt"))
+                            {
+                                if (tblInvoiceRptTODT["TareWt"] != DBNull.Value)
+                                    tblInvoiceRptTONew.TareWt = Convert.ToDecimal(tblInvoiceRptTODT["TareWt"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("GrossWt"))
+                            {
+                                if (tblInvoiceRptTODT["GrossWt"] != DBNull.Value)
+                                    tblInvoiceRptTONew.GrossWt = Convert.ToDecimal(tblInvoiceRptTODT["GrossWt"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("Bundle"))
+                            {
+                                if (tblInvoiceRptTODT["Bundle"] != DBNull.Value)
+                                    tblInvoiceRptTONew.Bundle = Convert.ToInt32(Convert.ToString(tblInvoiceRptTODT["Bundle"]));
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("BASICRATE"))
+                            {
+                                if (tblInvoiceRptTODT["BASICRATE"] != DBNull.Value)
+                                    tblInvoiceRptTONew.BASICRATE = Convert.ToDecimal(tblInvoiceRptTODT["BASICRATE"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("CD"))
+                            {
+                                if (tblInvoiceRptTODT["CD"] != DBNull.Value)
+                                    tblInvoiceRptTONew.CD = Convert.ToDecimal(tblInvoiceRptTODT["CD"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("Difference"))
+                            {
+                                if (tblInvoiceRptTODT["Difference"] != DBNull.Value)
+                                    tblInvoiceRptTONew.Difference = Convert.ToDecimal(tblInvoiceRptTODT["Difference"].ToString());
+                            }
+
+                            if (tblInvoiceRptTODT.GetName(i).Equals("FinalRate"))
+                            {
+                                if (tblInvoiceRptTODT["FinalRate"] != DBNull.Value)
+                                    tblInvoiceRptTONew.FinalRate = Convert.ToDecimal(tblInvoiceRptTODT["FinalRate"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("FinalAmt"))
+                            {
+                                if (tblInvoiceRptTODT["FinalAmt"] != DBNull.Value)
+                                    tblInvoiceRptTONew.FinalAmt = Convert.ToDecimal(tblInvoiceRptTODT["FinalAmt"].ToString());
+                            }
+
+                            if (tblInvoiceRptTODT.GetName(i).Equals("Remark"))
+                            {
+                                if (tblInvoiceRptTODT["Remark"] != DBNull.Value)
+                                    tblInvoiceRptTONew.Remark = Convert.ToString(tblInvoiceRptTODT["Remark"]);
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("Date"))
+                            {
+                                if (tblInvoiceRptTODT["Date"] != DBNull.Value)
+                                    tblInvoiceRptTONew.InvDate = Convert.ToDateTime(tblInvoiceRptTODT["Date"].ToString());
+                            }
+
+                        }
+
+                        tblInvoiceRPtTOList.Add(tblInvoiceRptTONew);
+
+                    }
+                }
+
+                return tblInvoiceRPtTOList;
+            }
+            catch (Exception ex)
+            {
+
+                return null;
+            }
+        }
         /// <summary>
         /// Vijaymala[15-09-2017] Added This method to convert dt to rpt invoice List
         /// </summary>
