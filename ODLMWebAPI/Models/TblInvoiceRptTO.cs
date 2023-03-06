@@ -590,7 +590,24 @@ namespace ODLMWebAPI.Models
         public String DealerIDOrganization { get; set; }
        
         public String DealerData { get; set; }
-       
+
+
+        // Add By Samadhan 17 Aug
+        public string SrNo { get; set; }
+        public DateTime InvDate { get; set; }
+        public String Date { get; set; }
+        public string DealerName { get; set; }
+        public string Size { get; set; }
+        public int Bundle { get; set; }
+        public decimal NetWt { get; set; }
+        public decimal TareWt { get; set; }
+        public decimal GrossWt { get; set; }
+        public decimal FinalRate { get; set; }
+        public decimal FinalAmt { get; set; }
+        public string Remark { get; set; }
+        public decimal BASICRATE { get; set; }
+        public decimal CD { get; set; }
+        public decimal Difference { get; set; }
 
 
         #endregion
