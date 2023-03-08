@@ -1020,7 +1020,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                SWhere = " CAST(sq1.createdOn  AS DATETIME) BETWEEN @fromDate AND @toDate " +
+                SWhere = " sq1.createdOn  >= DATEADD(day, -1, GETDATE()) " +
                    " and sq1.isConfirmed = 0" +
                       " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED;
 
