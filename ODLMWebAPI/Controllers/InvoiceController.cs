@@ -370,6 +370,28 @@ namespace ODLMWebAPI.Controllers
                 toDt = _iCommon.ServerDateTime.Date;
             return  _iTblInvoiceBL.SelectAllRptInvoiceList(frmDt, toDt, isConfirm, fromOrgId);
         }
+        [Route("GetRptNCList")]
+        [HttpGet]
+        public ResultMessage GetRptNCList(string fromDate, string toDate)
+        {
+            DateTime frmDt = DateTime.MinValue;
+            DateTime toDt = DateTime.MinValue;
+            if (Constants.IsDateTime(fromDate))
+            {
+                frmDt = Convert.ToDateTime(fromDate);
+
+            }
+            if (Constants.IsDateTime(toDate))
+            {
+                toDt = Convert.ToDateTime(toDate);
+            }
+
+            if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
+                frmDt = _iCommon.ServerDateTime.Date  ;
+            if (Convert.ToDateTime(toDt) == DateTime.MinValue)
+                toDt = _iCommon.ServerDateTime.Date  ;
+            return _iTblInvoiceBL.SelectAllRptNCList(frmDt, toDt);
+        }
 
         [Route("GetRptNCInvoiceList")]
         [HttpGet]

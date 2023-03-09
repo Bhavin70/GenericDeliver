@@ -514,10 +514,10 @@ namespace ODLMWebAPI.StaticStuff
         // Vaibhav [17-Dec-2017] Added to file encrypt descrypt and upload to azure
         //public static string AzureConnectionStr = "DefaultEndpointsProtocol=https;AccountName=apkupdates;AccountKey=IvC+sc8RLDl3DeH8uZ97A4jX978v78bVFHRQk/qxg2C/J8w/DRslJlLsK7JTF+KhOM0MNUZg443GCVXe3jIanA==";
         //public static string EncryptDescryptKey = "MAKV2SPBNI99212";
-        public static string AzureSourceContainerName = "simplideliver";
+        //public static string AzureSourceContainerName = "simplideliver";        
         //public static string AzureSourceContainerName = "metarolldataextract";
-       // public static string AzureSourceContainerName = "kalikadataextract";
-        
+         public static string AzureSourceContainerName = "kalikadataextractdeliver";//"kalikadataextract";
+
         //public static string AzureSourceContainerName = "srjdocuments";
         public static string AzureTargetContainerName = "srjnewdocuments";
         public static string ExcelSheetName = "TranData";
@@ -878,6 +878,7 @@ namespace ODLMWebAPI.StaticStuff
         public static string WHATS_APP_API_KEY = "WHATS_APP_API_KEY";
         public static string WHATS_APP_SEND_MESSAGE_REQUEST_HEADER_JSON = "WHATS_APP_SEND_MESSAGE_REQUEST_HEADER_JSON";
         public static string cp_is_show_NC_report_col_for_metaroll = "cp_is_show_NC_report_col_for_metaroll";  //Added for metaroll
+        public static string ExcelFileNameForNCRpt = "NC Report";
         #region Common functions
 
         public static Boolean IsNeedToRemoveFromList(string[] sizeList, Int32 materialId)
