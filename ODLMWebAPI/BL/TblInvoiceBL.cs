@@ -1111,7 +1111,7 @@ namespace ODLMWebAPI.BL
                     CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
                     // Retrieve reference to a target container.
-                    CloudBlobContainer container = blobClient.GetContainerReference(Constants.AzureSourceContainerNameKalikaDeliver);
+                    CloudBlobContainer container = blobClient.GetContainerReference(Constants.AzureSourceContainerName);
 
                     String fileName = Constants.ExcelFileNameForNCRpt + _iCommon.ServerDateTime.ToString("ddMMyyyyHHmmss") + "-" + minDate + "-" + maxDate + "-R" + ".xlsx";
                     CloudBlockBlob blockBlob = container.GetBlockBlobReference(fileName);
