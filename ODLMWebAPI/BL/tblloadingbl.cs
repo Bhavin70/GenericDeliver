@@ -6229,7 +6229,7 @@ namespace ODLMWebAPI.BL {
                     isAllowLoading = Convert.ToInt32 (tblConfigParamsTO.ConfigParamVal);
                 }
                 if (isAllowLoading == 1) {
-                    List<TblStockDetailsTO> stockList = _iTblStockDetailsDAO.SelectAllTblStockDetailsOther (tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.BrandId, tblLoadingSlipExtTO.CompartmentId, tblLoadingTO.StatusDate, conn, tran);
+                    List<TblStockDetailsTO> stockList = _iTblStockDetailsDAO.SelectAllTblStockDetailsOther (tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.BrandId, tblLoadingSlipExtTO.CompartmentId, tblLoadingTO.StatusDate , conn, tran);
                     String isItemized = "Itemized";
 
                     stockList = stockList.Where (l => l.ProdCatId == tblLoadingSlipExtTO.ProdCatId &&

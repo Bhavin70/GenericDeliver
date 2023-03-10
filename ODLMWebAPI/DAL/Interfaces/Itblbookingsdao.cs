@@ -25,6 +25,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblBookingsTO> GetOrderwiseDealerList();
         List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId, Int32 orderTypeId=0);
         List<TblBookingSummaryTO> SelectBookingSummaryList(Int32 typeId, Int32 masterId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 cnfId);
+        List<TblBookingsTO> SelectBookingListV2(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId, Int32 orderTypeId = 0);
+
         List<TblBookingsTO> SelectUserwiseBookingList(DateTime fromDate, DateTime toDate, Int32 statusId, Int32 activeUserId);
         TblBookingsTO SelectTblBookings(Int32 idBooking);
         TblBookingsTO SelectBookingsTOWithDetails(Int32 idBooking);

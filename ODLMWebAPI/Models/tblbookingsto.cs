@@ -571,6 +571,26 @@ namespace ODLMWebAPI.Models
 
         public string DirectorComment { get; set; }
         public string BrokerName { get; set; }
+        public DateTime SizeUpdationDate { get; set; }
+        public DateTime LoadingSlipDate { get; set; }
+        public DateTime InvoiceDate { get; set; }
+        public DateTime VehicleOutDate { get; set; }
+        public String SizeUpdationDateStr
+        {
+            get { return SizeUpdationDate.ToString(Constants.DefaultDateFormat); }
+        }
+        public String InvoiceDateStr
+        {
+            get { return InvoiceDate.ToString(Constants.DefaultDateFormat); }
+        }
+        public String LoadingSlipDateStr
+        {
+            get { return LoadingSlipDate.ToString(Constants.DefaultDateFormat); }
+        }
+        public String VehicleOutDateStr
+        {
+            get { return VehicleOutDate.ToString(Constants.DefaultDateFormat); }
+        }
         #endregion
 
         #region Methods
