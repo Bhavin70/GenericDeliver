@@ -48,6 +48,8 @@ namespace ODLMWebAPI.Models
         public Int32 IsDefault { get => isDefault; set => isDefault = value; }
         public string ShortNm { get => shortNm; set => shortNm = value; }
         public int IsTaxInclusive { get => isTaxInclusive; set => isTaxInclusive = value; }
+        public int IsBothTaxType { get; set ; }
+
         #endregion
     }
 }
