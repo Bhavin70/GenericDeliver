@@ -34,6 +34,13 @@ namespace ODLMWebAPI.BL
             return  _iTblStockDetailsDAO.SelectAllTblStockDetails();
         }
 
+        public List<TblLocationTO> SelectAllTblLocation()
+        {
+            return _iTblStockDetailsDAO.SelectAllTblLocation().FindAll(ele => ele.ParentLocId > 0);
+        }
+        
+
+
         public List<TblStockDetailsTO> SelectAllTblStockDetailsListConsolidated(Int32 isConsolidated, Int32 brandId)
         {
             return _iTblStockDetailsDAO.SelectAllTblStockDetailsConsolidated(isConsolidated, brandId);
@@ -148,6 +155,10 @@ namespace ODLMWebAPI.BL
         {
             return _iTblStockDetailsDAO.SelectEmptyStockDetailsTemplate(prodCatId, locationId, brandId, isConsolidateStk);
         }
+        public List<TblStockDetailsTO> SelectAllEmptyStockTemplateListForAutoInsert( Int32 isConsolidateStk)
+        {
+            return _iTblStockDetailsDAO.SelectEmptyStockDetailsTemplateForAutoInsert(isConsolidateStk);
+        }
 
         public List<TblStockDetailsTO> SelectAllTblStockDetailsList(int locationId, int prodCatId, DateTime stockDate, int brandId)
         {
@@ -250,7 +261,107 @@ namespace ODLMWebAPI.BL
 
             return emptyStkTemplateList;
         }
+        public List<TblStockDetailsTO> SelectAllTblStockDetailsListForAutoInsert(int locationId)
+        {
 
+            Int32 isConsolidateStk = _iTblConfigParamsBL.GetStockConfigIsConsolidate();
+            int brandId = 1;
+            List<TblStockDetailsTO> emptyStkTemplateList = SelectAllEmptyStockTemplateListForAutoInsert( isConsolidateStk);
+            List<TblStockDetailsTO> existingList = _iTblStockDetailsDAO.SelectAllTblStockDetailsForAutoInsert();
+            if (emptyStkTemplateList != null && emptyStkTemplateList.Count > 0)
+            {
+                if (existingList != null && existingList.Count > 0)
+                {
+                    for (int i = 0; i < emptyStkTemplateList.Count; i++)
+                    {
+                        TblStockDetailsTO existingStockDetailsTO = existingList.Where(a => a.ProdCatId == emptyStkTemplateList[i].ProdCatId && a.ProdSpecId == emptyStkTemplateList[i].ProdSpecId && a.MaterialId == emptyStkTemplateList[i].MaterialId
+                        && a.LocationId == locationId && emptyStkTemplateList[i].BrandId == brandId && a.IsConsolidatedStock == 0).FirstOrDefault();
+                        if (existingStockDetailsTO != null)
+                        {
+                            emptyStkTemplateList[i].LocationId = locationId;
+                            emptyStkTemplateList[i].StockSummaryId = existingStockDetailsTO.StockSummaryId;
+                            emptyStkTemplateList[i].IdStockDtl = existingStockDetailsTO.IdStockDtl;
+                            emptyStkTemplateList[i].NoOfBundles = existingStockDetailsTO.NoOfBundles;
+                            emptyStkTemplateList[i].TotalStock = existingStockDetailsTO.TotalStock;
+                            emptyStkTemplateList[i].LoadedStock = existingStockDetailsTO.LoadedStock;
+                            emptyStkTemplateList[i].BalanceStock = existingStockDetailsTO.BalanceStock;
+                            emptyStkTemplateList[i].CreatedBy = existingStockDetailsTO.CreatedBy;
+                            emptyStkTemplateList[i].CreatedOn = existingStockDetailsTO.CreatedOn;
+                            emptyStkTemplateList[i].UpdatedBy = existingStockDetailsTO.UpdatedBy;
+                            emptyStkTemplateList[i].UpdatedOn = existingStockDetailsTO.UpdatedOn;
+                            emptyStkTemplateList[i].ProductId = existingStockDetailsTO.ProductId;
+                            emptyStkTemplateList[i].BrandId = existingStockDetailsTO.BrandId;
+                            emptyStkTemplateList[i].IsInMT = existingStockDetailsTO.IsInMT;
+
+                        }
+                    }
+                }
+
+            }
+
+            #region OtherItemStock
+            //sudhir[12-jan-2018] Added for otheritemStock if found then add else create empty.
+            List<TblProductItemTO> productItemTOList = _iTblProductItemBL.SelectProductItemListStockUpdateRequire(1);
+
+            if (productItemTOList != null && productItemTOList.Count > 0)
+            {
+                for (int i = 0; i < productItemTOList.Count; i++)
+                {
+                    //TblStockDetailsTO StockDetailsTO = existingList.Where(x => x.ProdItemId == productItemTOList[i].IdProdItem && x.LocationId == locationId && x.ProdCatId==prodCatId && x.BrandId==brandId ).FirstOrDefault(); 
+                    TblStockDetailsTO StockDetailsTO = existingList.Where(x => x.ProdItemId == productItemTOList[i].IdProdItem && x.LocationId == locationId && x.BrandId == brandId).FirstOrDefault();
+                    if (StockDetailsTO != null)
+                    {
+                        StockDetailsTO.MaterialDesc = productItemTOList[i].ProdClassDisplayName + "/" + productItemTOList[i].ItemDesc;
+                        StockDetailsTO.OtherItem = 1;
+                        emptyStkTemplateList.Add(StockDetailsTO);
+
+                    }
+                    else //Add Empty Stock 
+                    {
+                        TblStockDetailsTO emptyItemStockTO = new TblStockDetailsTO();
+                        emptyItemStockTO.ProdItemId = productItemTOList[i].IdProdItem;
+                        emptyItemStockTO.MaterialDesc = productItemTOList[i].ProdClassDisplayName + "/" + productItemTOList[i].ItemDesc;
+                        emptyItemStockTO.LocationId = locationId;
+                        emptyItemStockTO.IsInMT = 1;
+                        emptyItemStockTO.OtherItem = 1;
+
+                        // Saket - To disable tmt other items.
+                        //emptyItemStockTO.ProdCatId = prodCatId;
+                        emptyItemStockTO.BrandId = brandId;
+                        emptyStkTemplateList.Add(emptyItemStockTO);
+                    }
+                }
+            }
+            #endregion
+
+
+            #region Consolidated Stock Entry
+
+            if (isConsolidateStk == 1)
+            {
+                List<TblStockDetailsTO> tblStockDetailsTOListConsolidated = SelectAllTblStockDetailsListConsolidated(1, brandId);
+
+
+
+                if (tblStockDetailsTOListConsolidated != null && tblStockDetailsTOListConsolidated.Count > 0)
+                {
+                    tblStockDetailsTOListConsolidated.ForEach(e => e.IsInMT = 1);  //For consolidation alway stock In MT.
+                    emptyStkTemplateList.AddRange(tblStockDetailsTOListConsolidated);
+                }
+                else
+                {
+                    //Add Emty consolidate TO if not present
+                    TblStockDetailsTO emptyConsoidatedTO = new TblStockDetailsTO();
+                    emptyConsoidatedTO.IsConsolidatedStock = 1;
+                    emptyConsoidatedTO.IsInMT = 1;
+                    emptyConsoidatedTO.BrandId = brandId;
+                    emptyStkTemplateList.Add(emptyConsoidatedTO);
+                }
+            }
+            #endregion
+
+            return emptyStkTemplateList;
+        }
         public List<SizeSpecWiseStockTO> SelectSizeAndSpecWiseStockSummary(DateTime stockDate, DateTime FromDate, DateTime ToDate,int compartmentId)
         {
             return _iTblStockDetailsDAO.SelectSizeAndSpecWiseStockSummary(stockDate, FromDate,ToDate, compartmentId);

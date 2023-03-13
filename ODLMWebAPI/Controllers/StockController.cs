@@ -153,11 +153,11 @@ namespace ODLMWebAPI.Controllers
         public List<TblStockDetailsTO> GetMateAndSpecsList(Int32 locationId,Int32 prodCatId,DateTime stockDate,Int32 brandId)
         {
             if (stockDate == DateTime.MinValue)
-                stockDate = _iCommon.ServerDateTime.Date;
-
+                stockDate = _iCommon.ServerDateTime.Date;           
             return _iTblStockDetailsBL.SelectAllTblStockDetailsList(locationId, prodCatId, stockDate, brandId);
             
-        }
+        }        
+       
 
         [Route("GetStockDtlsByCategAndSpecs")]
         [HttpGet]
@@ -356,6 +356,84 @@ namespace ODLMWebAPI.Controllers
                 return returnMsg;
             }
         }
+
+        // Add By Samadhan 10 March 2023
+        [Route("ClosingStockUpdate")]
+        [HttpPost]
+        public ResultMessage ClosingStockUpdate()
+        {
+            ResultMessage returnMsg = new StaticStuff.ResultMessage();
+            try
+            {
+                TblStockSummaryTO stockSummaryTO = new TblStockSummaryTO();
+                int locationId = 1;
+                List<TblLocationTO> tblLocationTOList = _iTblStockDetailsBL.SelectAllTblLocation();
+
+                if (tblLocationTOList == null || tblLocationTOList.Count > 0)
+                {
+                    for (int k = 0; k < tblLocationTOList.Count; k++)
+                    {
+                        List<TblStockDetailsTO> tblStockDetailsTO = _iTblStockDetailsBL.SelectAllTblStockDetailsListForAutoInsert(tblLocationTOList[k].IdLocation);
+
+                        if (tblStockDetailsTO == null || tblStockDetailsTO.Count > 0)
+                        {
+                            stockSummaryTO.StockDetailsTOList = tblStockDetailsTO;
+                        }
+
+                        var loginUserId = "1";
+
+                        stockSummaryTO.CreatedOn = _iCommon.ServerDateTime;
+                        stockSummaryTO.CreatedBy = Convert.ToInt32(loginUserId);
+
+                        if (stockSummaryTO == null)
+                        {
+                            returnMsg.MessageType = ResultMessageE.Error;
+                            returnMsg.Result = 0;
+                            returnMsg.Text = "API : Stock Object Found Null";
+                            return returnMsg;
+                        }
+                        if (Convert.ToInt32(loginUserId) <= 0)
+                        {
+                            returnMsg.MessageType = ResultMessageE.Error;
+                            returnMsg.Result = 0;
+                            returnMsg.Text = "API : UserID Found Null";
+                            return returnMsg;
+                        }
+
+                        if (stockSummaryTO.StockDetailsTOList == null || stockSummaryTO.StockDetailsTOList.Count == 0)
+                        {
+                            returnMsg.MessageType = ResultMessageE.Error;
+                            returnMsg.Result = 0;
+                            returnMsg.Text = "API : StockDetailsTOList Found Null";
+                            return returnMsg;
+                        }
+
+                        for (int i = 0; i < stockSummaryTO.StockDetailsTOList.Count; i++)
+                        {
+                            stockSummaryTO.StockDetailsTOList[i].CreatedBy = Convert.ToInt32(loginUserId);
+                            stockSummaryTO.StockDetailsTOList[i].UpdatedBy = Convert.ToInt32(loginUserId);
+                            stockSummaryTO.StockDetailsTOList[i].CreatedOn = stockSummaryTO.CreatedOn;
+                            stockSummaryTO.StockDetailsTOList[i].UpdatedOn = stockSummaryTO.CreatedOn;
+                        }
+                    }
+                }
+                
+
+               
+
+                ResultMessage resMsg = _iTblStockSummaryBL.UpdateDailyStock(stockSummaryTO);
+                return resMsg;
+            }
+            catch (Exception ex)
+            {
+                returnMsg.MessageType = ResultMessageE.Error;
+                returnMsg.Result = -1;
+                returnMsg.Exception = ex;
+                returnMsg.Text = "API : Exception Error While DailyStockUpdate";
+                return returnMsg;
+            }
+        }
+
 
         // POST api/values
         [Route("PostStockSummaryConfirmation")]

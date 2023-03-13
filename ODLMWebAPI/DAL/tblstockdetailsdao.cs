@@ -37,6 +37,14 @@ namespace ODLMWebAPI.DAL
 
             return sqlSelectQry;
         }
+
+        public String SqlSelectLocationQuery()
+        {
+            String sqlSelectQry = " SELECT loc.*, parentLoc.locationDesc AS parentLocDesc FROM tblLocation loc " +
+                                  " LEFT JOIN tblLocation parentLoc ON loc.parentLocId = parentLoc.idLocation ";
+
+            return sqlSelectQry;
+        }
         #endregion
 
         #region Selection
@@ -343,7 +351,96 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+        public List<TblStockDetailsTO> SelectAllTblStockDetailsForAutoInsert()
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                conn.Open();
+               
+                cmdSelect.CommandText = SqlSelectQuery() + " order by stockDtl.idStockDtl desc";
 
+
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+               // cmdSelect.Parameters.Add("@stockDt", System.Data.SqlDbType.DateTime).Value = stockDate;
+
+                SqlDataReader sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblStockDetailsTO> list = ConvertDTToList(sqlReader);
+                if (sqlReader != null)
+                    sqlReader.Dispose();
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+        public List<TblLocationTO> SelectAllTblLocation()
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = SqlSelectLocationQuery();
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                SqlDataReader sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblLocationTO> list = ConvertDTToListLoc(sqlReader);
+                if (sqlReader != null)
+                    sqlReader.Dispose();
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+        public List<TblLocationTO> ConvertDTToListLoc(SqlDataReader tblLocationTODT)
+        {
+            List<TblLocationTO> tblLocationTOList = new List<TblLocationTO>();
+            if (tblLocationTODT != null)
+            {
+                while (tblLocationTODT.Read())
+                {
+                    TblLocationTO tblLocationTONew = new TblLocationTO();
+                    if (tblLocationTODT["idLocation"] != DBNull.Value)
+                        tblLocationTONew.IdLocation = Convert.ToInt32(tblLocationTODT["idLocation"].ToString());
+                    if (tblLocationTODT["parentLocId"] != DBNull.Value)
+                        tblLocationTONew.ParentLocId = Convert.ToInt32(tblLocationTODT["parentLocId"].ToString());
+                    if (tblLocationTODT["createdBy"] != DBNull.Value)
+                        tblLocationTONew.CreatedBy = Convert.ToInt32(tblLocationTODT["createdBy"].ToString());
+                    if (tblLocationTODT["updatedBy"] != DBNull.Value)
+                        tblLocationTONew.UpdatedBy = Convert.ToInt32(tblLocationTODT["updatedBy"].ToString());
+                    if (tblLocationTODT["createdOn"] != DBNull.Value)
+                        tblLocationTONew.CreatedOn = Convert.ToDateTime(tblLocationTODT["createdOn"].ToString());
+                    if (tblLocationTODT["updatedOn"] != DBNull.Value)
+                        tblLocationTONew.UpdatedOn = Convert.ToDateTime(tblLocationTODT["updatedOn"].ToString());
+                    if (tblLocationTODT["locationDesc"] != DBNull.Value)
+                        tblLocationTONew.LocationDesc = Convert.ToString(tblLocationTODT["locationDesc"].ToString());
+                    if (tblLocationTODT["parentLocDesc"] != DBNull.Value)
+                        tblLocationTONew.ParentLocationDesc = Convert.ToString(tblLocationTODT["parentLocDesc"].ToString());
+                    tblLocationTOList.Add(tblLocationTONew);
+                }
+            }
+            return tblLocationTOList;
+        }
         public List<TblStockDetailsTO> SelectEmptyStockDetailsTemplate(int prodCatId,int locationId, int brandId, Int32 isConsolidate)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -403,7 +500,60 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+        
+        public List<TblStockDetailsTO> SelectEmptyStockDetailsTemplateForAutoInsert(Int32 isConsolidate)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                conn.Open();
+                if (isConsolidate == 1)
+                {
 
+                    cmdSelect.CommandText = " SELECT idProdCat AS prodCatId, prodCateDesc, prodSpec.idProdSpec AS prodSpecId,prodSpecDesc, idMaterial AS materialId,materialSubType  " +
+                                            " ,brand.idBrand AS brandId" +
+                                            " FROM dimProdSpec prodSpec " +
+                                            " FULL OUTER JOIN tblMaterial material ON 1 = 1 AND material.isActive = 1 " +
+                                            " FULL OUTER JOIN dimProdCat prodCat ON 1 = 1 " +
+                                            " FULL OUTER JOIN dimBrand brand ON 1 = 1 " +
+                                            " LEFT JOIN tblStockConfig tblStockConfig  " +
+                                            " ON prodSpec.idProdSpec = tblStockConfig.prodSpecId AND material.idMaterial = tblStockConfig.materialId " +
+                                            " AND tblStockConfig.brandId = brand.idBrand  AND tblStockConfig.prodCatId = prodCat.idProdCat " +
+                                            " WHERE idProdSpec <> 0 AND idProdCat <> 0 AND idBrand <> 0 AND tblStockConfig.isItemizedStock = 1 AND prodSpec.isActive = 1  " +                                           
+                                            " ORDER BY prodSpec.displaySequence";
+                }
+                else
+                {
+                    cmdSelect.CommandText = " SELECT idProdCat AS prodCatId, prodCateDesc, prodSpec.idProdSpec AS prodSpecId,prodSpecDesc, idMaterial AS materialId,materialSubType  " +
+                                            " ,brand.idBrand AS brandId" +
+                                            " FROM dimProdSpec prodSpec " +
+                                            " FULL OUTER JOIN tblMaterial material ON 1 = 1 AND material.isActive = 1 " +
+                                            " FULL OUTER JOIN dimProdCat prodCat ON 1 = 1 " +
+                                            " FULL OUTER JOIN dimBrand brand ON 1 = 1 " +
+                                            " WHERE idProdSpec <> 0 AND idProdCat <> 0 AND idBrand <> 0   AND prodSpec.isActive = 1  " +                                             
+                                            " ORDER BY prodSpec.displaySequence";
+                }
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                SqlDataReader sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblStockDetailsTO> list = ConvertReaderToList(sqlReader);
+                if (sqlReader != null)
+                    sqlReader.Dispose();
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
         public TblStockDetailsTO SelectTblStockDetails(Int64 idStockDtl, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();
@@ -553,6 +703,38 @@ namespace ODLMWebAPI.DAL
                     TblStockDetailsTO tblStockDetailsTONew = new TblStockDetailsTO();
 
                     tblStockDetailsTONew.LocationId = locationId;
+                    if (tblStockDetailsTODT["prodCatId"] != DBNull.Value)
+                        tblStockDetailsTONew.ProdCatId = Convert.ToInt32(tblStockDetailsTODT["prodCatId"].ToString());
+                    if (tblStockDetailsTODT["materialId"] != DBNull.Value)
+                        tblStockDetailsTONew.MaterialId = Convert.ToInt32(tblStockDetailsTODT["materialId"].ToString());
+                    if (tblStockDetailsTODT["prodSpecId"] != DBNull.Value)
+                        tblStockDetailsTONew.ProdSpecId = Convert.ToInt32(tblStockDetailsTODT["prodSpecId"].ToString());
+                    if (tblStockDetailsTODT["prodSpecDesc"] != DBNull.Value)
+                        tblStockDetailsTONew.ProdSpecDesc = Convert.ToString(tblStockDetailsTODT["prodSpecDesc"].ToString());
+                    if (tblStockDetailsTODT["prodCateDesc"] != DBNull.Value)
+                        tblStockDetailsTONew.ProdCatDesc = Convert.ToString(tblStockDetailsTODT["prodCateDesc"].ToString());
+                    if (tblStockDetailsTODT["materialSubType"] != DBNull.Value)
+                        tblStockDetailsTONew.MaterialDesc = Convert.ToString(tblStockDetailsTODT["materialSubType"].ToString());
+
+                    if (tblStockDetailsTODT["brandId"] != DBNull.Value)
+                        tblStockDetailsTONew.BrandId = Convert.ToInt32(tblStockDetailsTODT["brandId"].ToString());
+
+                    tblStockDetailsTOList.Add(tblStockDetailsTONew);
+                }
+            }
+            return tblStockDetailsTOList;
+        }
+
+        public List<TblStockDetailsTO> ConvertReaderToList(SqlDataReader tblStockDetailsTODT)
+        {
+            List<TblStockDetailsTO> tblStockDetailsTOList = new List<TblStockDetailsTO>();
+            if (tblStockDetailsTODT != null)
+            {
+                while (tblStockDetailsTODT.Read())
+                {
+                    TblStockDetailsTO tblStockDetailsTONew = new TblStockDetailsTO();
+
+                    //tblStockDetailsTONew.LocationId = locationId;
                     if (tblStockDetailsTODT["prodCatId"] != DBNull.Value)
                         tblStockDetailsTONew.ProdCatId = Convert.ToInt32(tblStockDetailsTODT["prodCatId"].ToString());
                     if (tblStockDetailsTODT["materialId"] != DBNull.Value)

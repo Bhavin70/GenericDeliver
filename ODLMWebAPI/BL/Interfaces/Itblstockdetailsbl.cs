@@ -21,7 +21,7 @@ namespace ODLMWebAPI.BL.Interfaces
         TblStockDetailsTO SelectTblStockDetailsTO(Int32 idStockDtl, SqlConnection conn, SqlTransaction tran);
         TblStockDetailsTO SelectTblStockDetailsTO(TblRunningSizesTO runningSizeTO, SqlConnection conn, SqlTransaction tran);
         List<TblStockDetailsTO> SelectAllEmptyStockTemplateList(int prodCatId, int locationId, int brandId, Int32 isConsolidateStk);
-        List<TblStockDetailsTO> SelectAllTblStockDetailsList(int locationId, int prodCatId, DateTime stockDate, int brandId);
+        List<TblStockDetailsTO> SelectAllTblStockDetailsList(int locationId, int prodCatId, DateTime stockDate, int brandId);            
         List<SizeSpecWiseStockTO> SelectSizeAndSpecWiseStockSummary(DateTime stockDate, DateTime FromDate, DateTime ToDate, int compartmentId);
         List<TblStockDetailsTO> SelectAllTblStockDetails(Int32 prodCatId, Int32 prodSpecId, DateTime stockDate, Int32 brandId, int compartmentId, SqlConnection conn, SqlTransaction tran);
         List<TblStockDetailsTO> SelectAllTblStockDetailsOther(Int32 prodCatId, Int32 prodSpecId, Int32 prodItemId, DateTime stockDate, Int32 brandId, int compartmentId, SqlConnection conn, SqlTransaction tran);
@@ -33,5 +33,7 @@ namespace ODLMWebAPI.BL.Interfaces
         int UpdateTblStockDetails(TblStockDetailsTO tblStockDetailsTO, SqlConnection conn, SqlTransaction tran);
         int DeleteTblStockDetails(Int32 idStockDtl);
         int DeleteTblStockDetails(Int32 idStockDtl, SqlConnection conn, SqlTransaction tran);
+        List<TblLocationTO> SelectAllTblLocation();
+        List<TblStockDetailsTO> SelectAllTblStockDetailsListForAutoInsert(int locationId);
     }
 }
