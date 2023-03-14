@@ -1110,7 +1110,7 @@ namespace ODLMWebAPI.DAL
                                  " CONCAT (dimStatus.statusName,'-', ISNULL(userStatusBy.userDisplayName,'') ) AS statusName , brandDtl.brandName, address.stateId, address.districtId, address.talukaId,orderType.consumerType as consumerTypeName" + //02-12-2020 Dhananjay added address.districtId, address.talukaId
                                  " ,AA.statusRemark  as 'DirectorComment' ,orgDealer.firmName as 'Dealer'," +
                                  "  bookingsch   .Scheduledate  as 'Sizes Updation Date and Time',tempLoadingSlip.createdOn AS 'Loading Slip Generation Date'," +
-                                 "  tempInvoice.createdOn as 'Invoice Generate Date' ,case when tempLoadingSlip.statusId=17 then tempLoadingSlip.statusDate else  '' End as 'Vehicle Out' " +//Reshma Added For Comment
+                                 "  tempInvoice.createdOn as 'Invoice Generate Date' ,case when tempLoadingSlip.statusId=17 then tempLoadingSlip.statusDate else  '' End as 'Vehicle Out',AA.statusDate as 'FinanceApprove' " +//Reshma Added For Comment
                                  " FROM tblbookings bookings LEFT JOIN tblOrganization orgCnf  ON bookings.cnfOrgId = orgCnf.idOrganization" +
 
                                  " LEFT JOIN tblTranActions tblTranAction ON tblTranAction.transId = bookings.idBooking AND tblTranAction.userId = " + userId +
@@ -1128,8 +1128,8 @@ namespace ODLMWebAPI.DAL
                                  " LEFT JOIN vAddressDetails address ON address.idAddr = orgDealer.addrId " +
                                  " LEFT JOIN tblCRMEnquiry tblCRMEnquiry ON tblCRMEnquiry.idEnquiry = bookings.enquiryId " +
                                  "LEFT JOIN dimConsumerType orderType ON orderType.idConsumer = bookings.consumerTypeId " +
-                                 " left outer join  (select top 1 A.idBooking,  B.statusRemark  from tblBookings A inner join tblBookingBeyondQuota B on A.idBooking=B.bookingId and B.statusId   ="
-                                 + (Int32)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR + " )AA on AA.idBooking=bookings.idBooking" +
+                                 " left outer join  (select  A.idBooking,  B.statusRemark,A.statusDate   from tblBookings A inner join tblBookingBeyondQuota B on A.idBooking=B.bookingId and B.statusId   ="
+                                 + (Int32)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR + " And   CAST(A.createdOn AS DATE) BETWEEN @fromDate AND @toDate   )AA on AA.idBooking=bookings.idBooking" +
                                  "  left outer join ( select   tblBookingSchedule.bookingId ,tblBookingSchedule.createdOn as 'Scheduledate' " +
                                  "  from tblbookings  left  join tblBookingSchedule on tblBookingSchedule.bookingId =tblbookings.idBooking" +
                                  " WHERE CAST(tblbookings.createdOn AS DATE) BETWEEN @fromDate AND @toDate   and ISNULL (loadinglayerid,1) =1  )  " +
@@ -2419,6 +2419,8 @@ namespace ODLMWebAPI.DAL
                         tblBookingsTONew.LoadingSlipDate = Convert.ToDateTime(tblBookingsTODT["Loading Slip Generation Date"]);
                     if (tblBookingsTODT["Vehicle Out"] != DBNull.Value)
                         tblBookingsTONew.VehicleOutDate = Convert.ToDateTime(tblBookingsTODT["Vehicle Out"]);
+                    if (tblBookingsTODT["FinanceApprove"] != DBNull.Value)
+                        tblBookingsTONew.FinanceApprovalDate = Convert.ToDateTime(tblBookingsTODT["FinanceApprove"]);
 
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }

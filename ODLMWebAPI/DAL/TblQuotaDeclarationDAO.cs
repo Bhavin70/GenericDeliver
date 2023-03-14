@@ -225,6 +225,8 @@ namespace ODLMWebAPI.DAL
                         tblQuotaDeclarationTONew.BrandId = Convert.ToInt32(tblQuotaDeclarationTODT["brandId"].ToString());
                     if (tblQuotaDeclarationTODT["isAutoSelect"] != DBNull.Value)
                         tblQuotaDeclarationTONew.IsAutoSelect = Convert.ToInt32(tblQuotaDeclarationTODT["isAutoSelect"].ToString());
+                    if (tblQuotaDeclarationTODT["isBothTaxType"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.IsBothTaxType = Convert.ToInt32(tblQuotaDeclarationTODT["isBothTaxType"].ToString());
                     tblQuotaDeclarationTOList.Add(tblQuotaDeclarationTONew);
                 }
             }
@@ -372,7 +374,7 @@ namespace ODLMWebAPI.DAL
                 //                        " LEFT JOIN dimBrand brand on brand.idBrand=latestRate.brandId) AS latestRateInfo ON latestRateInfo.idGlobalRate = quota.globalRateId WHERE";
                 // Above query commented by Aniket [4-7-2019] as discussed with saket, and written below new query
                 // new query has been written due to validUp mins issues while rate declaration
-                cmdSelect.CommandText= " SELECT quota.*,g.rate as declaredRate,b.brandName,b.idBrand as brandId,b.isAutoSelect as isAutoSelect " + 
+                cmdSelect.CommandText= " SELECT quota.*,g.rate as declaredRate,b.brandName,b.idBrand as brandId,b.isAutoSelect as isAutoSelect,b.isBothTaxType " + 
                                         " FROM tblQuotaDeclaration quota "+
                                         " LEFT JOIN tblGlobalRate g ON quota.globalRateId = g.idGlobalRate "+
                                         " left join dimBrand b ON b.idBrand = g.brandId WHERE";
