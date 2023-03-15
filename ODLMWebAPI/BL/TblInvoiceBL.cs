@@ -1033,12 +1033,17 @@ namespace ODLMWebAPI.BL
         {
 
             ResultMessage resultMessage = new ResultMessage();
+            int Lresult = 0;
             try
             {
                 List<TblInvoiceRptTO> TblInvoiceRptTOList = new List<TblInvoiceRptTO>();
+
+                Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", "before select Data");
                 TblInvoiceRptTOList = _iTblInvoiceDAO.SelectAllRptNCList(frmDt, toDt);
+                Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", "After select Data");
                 if (TblInvoiceRptTOList != null && TblInvoiceRptTOList.Count > 0)
                 {
+                    Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", "TblInvoiceRptTOList not null and Count > 0 ");
                     ExcelPackage excelPackage = new ExcelPackage();
                     int cellRow = 2;
                     excelPackage = new ExcelPackage();
@@ -1127,10 +1132,11 @@ namespace ODLMWebAPI.BL
 
                 }
                 resultMessage.DefaultBehaviour();
-                //return _iTblInvoiceDAO.SelectAllRptInvoiceList(frmDt, toDt, isConfirm, fromOrgId);
+                
             }
             catch (Exception ex)
             {
+                Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", ex.ToString());
                 resultMessage.DefaultExceptionBehaviour(ex, "CreateTempInvoiceExcel");
             }
             return resultMessage;
