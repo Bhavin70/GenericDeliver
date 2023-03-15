@@ -21,7 +21,7 @@ namespace ODLMWebAPI.DAL
         #region Methods
         public String SqlSelectQuery()
         {
-            String sqlSelectQry = " SELECT rate.*,bookings.*,reasonDtl.reasonDesc ,brand.brandName,groups.groupName FROM tblGlobalRate rate " +
+            String sqlSelectQry = " SELECT rate.*,bookings.*,reasonDtl.reasonDesc ,brand.brandName,groups.groupName,isBothTaxType FROM tblGlobalRate rate " +
                                   " LEFT JOIN " +
                                   " ( " +
                                   "     SELECT globalRateId, SUM(bookingQty)qty, (SUM(bookingQty * bookingRate) / SUM(bookingQty)) avgPrice " +
@@ -362,7 +362,8 @@ namespace ODLMWebAPI.DAL
                     {
                         tblGlobalRateTONew.BrandName = Convert.ToString(tblGlobalRateTODT["groupName"]);
                     }
-                   
+                    if (tblGlobalRateTODT["isBothTaxType"] != DBNull.Value)
+                        tblGlobalRateTONew.IsBothTaxType = Convert.ToInt16(tblGlobalRateTODT["isBothTaxType"]);
                     tblGlobalRateTOList.Add(tblGlobalRateTONew);
                 }
             }

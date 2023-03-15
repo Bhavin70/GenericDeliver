@@ -2413,7 +2413,7 @@ namespace ODLMWebAPI.BL
                                     tblBookingExtTO.BookingId = tblBookingsTO.IdBooking;
                                     //if(isBalajiClient==0)
                                     //Prajakta[2021-04-23] Commented as rate will get as per parity from GUI
-                                    if(!isAddItemWiseRate)
+                                    if(!isAddItemWiseRate && globalRateTO .IsBothTaxType !=1)
                                         tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
 
                                     tblBookingExtTO.ScheduleId = tblBookingScheduleTO.IdSchedule;
@@ -2482,7 +2482,7 @@ namespace ODLMWebAPI.BL
                             tblBookingExtTO.BalanceQty = tblBookingExtTO.BookedQty;
                             //if(isBalajiClient==0)
                             //Prajakta[2021-04-23] Commented as rate will get as per parity from GUI
-                            if (!isAddItemWiseRate)
+                            if (!isAddItemWiseRate && globalRateTO.IsBothTaxType != 1)
                                 tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
 
                             result = _iTblBookingExtDAO.InsertTblBookingExt(tblBookingExtTO, conn, tran);
@@ -4830,13 +4830,26 @@ namespace ODLMWebAPI.BL
                             }
                         }
 
+                        TblGlobalRateTO globalRateTO = new TblGlobalRateTO();
+                        globalRateTO = _iTblGlobalRateDAO.SelectTblGlobalRate(tblBookingsTO.GlobalRateId, conn, tran);
+                        if (globalRateTO == null)
+                        {
+                            tran.Rollback();
+                            resultMessage.Text = "Sorry..Record Could not be saved. Rate Declaration Not Found";
+                            resultMessage.DisplayMessage = "Sorry..Record Could not be saved.";
+                            resultMessage.Result = 0;
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            return resultMessage;
+                        }
+
                         if (tblBookingScheduleTO.OrderDetailsLst != null && tblBookingScheduleTO.OrderDetailsLst.Count > 0)
                         {
                             for (int j = 0; j < tblBookingScheduleTO.OrderDetailsLst.Count; j++)
                             {
                                 TblBookingExtTO tblBookingExtTO = tblBookingScheduleTO.OrderDetailsLst[j];
                                 tblBookingExtTO.BookingId = tblBookingsTO.IdBooking;
-                                tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
+                                if(globalRateTO.IsBothTaxType !=1)//Reshma Added For Aone New Project Develoment
+                                    tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
                                 tblBookingExtTO.ScheduleId = tblBookingScheduleTO.IdSchedule;
                                 //[05-09-2018] : Vijaymala added to get default brand for other booking
                                 if (!isRegular)
