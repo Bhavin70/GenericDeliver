@@ -1038,12 +1038,12 @@ namespace ODLMWebAPI.BL
             {
                 List<TblInvoiceRptTO> TblInvoiceRptTOList = new List<TblInvoiceRptTO>();
 
-                Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", "before select Data");
+              //  Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", "before select Data");
                 TblInvoiceRptTOList = _iTblInvoiceDAO.SelectAllRptNCList(frmDt, toDt);
-                Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", "After select Data");
+               // Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", "After select Data");
                 if (TblInvoiceRptTOList != null && TblInvoiceRptTOList.Count > 0)
                 {
-                    Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", "TblInvoiceRptTOList not null and Count > 0 ");
+                   // Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", "TblInvoiceRptTOList not null and Count > 0 ");
                     ExcelPackage excelPackage = new ExcelPackage();
                     int cellRow = 2;
                     excelPackage = new ExcelPackage();

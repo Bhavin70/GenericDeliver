@@ -1078,9 +1078,9 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.DateTime).Value = frmDt;
                 cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.DateTime).Value = toDt;
                 reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
-                Lresult = InsertNCReportLog("SelectAllRptNCList", "before list");
+               
                 List<TblInvoiceRptTO> list = ConvertDTToListForRPTNC(reader);
-                Lresult = InsertNCReportLog("SelectAllRptNCList", "after list");
+               
                 return list;
             }
             catch (Exception ex)
@@ -1136,7 +1136,6 @@ namespace ODLMWebAPI.DAL
                                     tblInvoiceRptTONew.Size = Convert.ToString(tblInvoiceRptTODT["Size"].ToString());
                             }
 
-
                             if (tblInvoiceRptTODT.GetName(i).Equals("NetWt"))
                             {
                                 if (tblInvoiceRptTODT["NetWt"] != DBNull.Value)
@@ -1189,11 +1188,7 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["Remark"] != DBNull.Value)
                                     tblInvoiceRptTONew.Remark = Convert.ToString(tblInvoiceRptTODT["Remark"]);
                             }
-                            if (tblInvoiceRptTODT.GetName(i).Equals("Date"))
-                            {
-                                if (tblInvoiceRptTODT["Date"] != DBNull.Value)
-                                    tblInvoiceRptTONew.InvDate = Convert.ToDateTime(tblInvoiceRptTODT["Date"].ToString());
-                            }
+                            
                         }
                         tblInvoiceRPtTOList.Add(tblInvoiceRptTONew);
 
