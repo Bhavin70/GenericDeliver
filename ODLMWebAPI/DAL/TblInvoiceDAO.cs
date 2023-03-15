@@ -1010,6 +1010,7 @@ namespace ODLMWebAPI.DAL
 
         public List<TblInvoiceRptTO> SelectAllRptNCList(DateTime frmDt, DateTime toDt)
         {
+            int Lresult = 0;
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
             SqlCommand cmdSelect = new SqlCommand();
@@ -1019,6 +1020,9 @@ namespace ODLMWebAPI.DAL
             string SWhere = "";
             try
             {
+                //sq1.createdOn >= '2023-03-13 09:00:04.410'   and sq1.createdOn <= '2023-03-14 09:00:04.410'
+                //sq1.createdOn  >= DATEADD(day, -1, GETDATE())
+
                 conn.Open();
                 SWhere = " sq1.createdOn  >= DATEADD(day, -1, GETDATE()) " +
                    " and sq1.isConfirmed = 0" +
@@ -1074,12 +1078,14 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.DateTime).Value = frmDt;
                 cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.DateTime).Value = toDt;
                 reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+               
                 List<TblInvoiceRptTO> list = ConvertDTToListForRPTNC(reader);
-
+               
                 return list;
             }
             catch (Exception ex)
             {
+                Lresult = InsertNCReportLog("SelectAllRptNCList", ex.ToString());
                 return null;
             }
             finally
@@ -1093,6 +1099,7 @@ namespace ODLMWebAPI.DAL
         public List<TblInvoiceRptTO> ConvertDTToListForRPTNC(SqlDataReader tblInvoiceRptTODT)
         {
             List<TblInvoiceRptTO> tblInvoiceRPtTOList = new List<TblInvoiceRptTO>();
+            int Lresult = 0;
             try
             {
                 if (tblInvoiceRptTODT != null)
@@ -1128,7 +1135,6 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["Size"] != DBNull.Value)
                                     tblInvoiceRptTONew.Size = Convert.ToString(tblInvoiceRptTODT["Size"].ToString());
                             }
-
 
                             if (tblInvoiceRptTODT.GetName(i).Equals("NetWt"))
                             {
@@ -1182,14 +1188,8 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["Remark"] != DBNull.Value)
                                     tblInvoiceRptTONew.Remark = Convert.ToString(tblInvoiceRptTODT["Remark"]);
                             }
-                            if (tblInvoiceRptTODT.GetName(i).Equals("Date"))
-                            {
-                                if (tblInvoiceRptTODT["Date"] != DBNull.Value)
-                                    tblInvoiceRptTONew.InvDate = Convert.ToDateTime(tblInvoiceRptTODT["Date"].ToString());
-                            }
-
+                            
                         }
-
                         tblInvoiceRPtTOList.Add(tblInvoiceRptTONew);
 
                     }
@@ -1199,9 +1199,56 @@ namespace ODLMWebAPI.DAL
             }
             catch (Exception ex)
             {
-
+                Lresult = InsertNCReportLog("ConvertDTToListForRPTNC", ex.ToString());
                 return null;
             }
+        }
+
+        public  int InsertNCReportLog(string FunName, String ErrName)
+        {
+             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);           
+            conn.Open();
+
+
+            SqlCommand cmdInsert = new SqlCommand();
+            try
+            {
+                cmdInsert.Connection = conn;                
+                return ExecuteInsertionCommandforNCReportLog(FunName, ErrName, cmdInsert);
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+            finally
+            {
+                cmdInsert.Dispose();
+                conn.Close();
+
+            }
+        }
+        public  int ExecuteInsertionCommandforNCReportLog(string FunName, string ErrName, SqlCommand cmdInsert)
+        {
+
+            String sqlQuery = @" INSERT INTO [NCReportlog]( " +
+         "  [FunName]" +
+         " ,[Err]" +
+         " ,[RecEntDate]" +
+
+         " )" +
+" VALUES (" +
+         "  @FunName " +
+         " ,@Err " +
+         " ,@RecEntDate " +
+         " )";
+            cmdInsert.CommandText = sqlQuery;
+            cmdInsert.CommandType = System.Data.CommandType.Text;
+
+            cmdInsert.Parameters.Add("@FunName", System.Data.SqlDbType.NVarChar).Value = FunName.ToString();
+            cmdInsert.Parameters.Add("@Err", System.Data.SqlDbType.NVarChar).Value = ErrName.ToString();
+            cmdInsert.Parameters.Add("@RecEntDate", System.Data.SqlDbType.DateTime).Value = DateTime.Now;
+            return cmdInsert.ExecuteNonQuery();
         }
         /// <summary>
         /// Vijaymala[15-09-2017] Added This method to convert dt to rpt invoice List
