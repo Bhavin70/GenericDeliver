@@ -40,6 +40,7 @@ namespace ODLMWebAPI.Models
 
         #region GetSet
 
+        public Int32 IsBothTaxType { get; set; }
         public Int32 IsAutoSelect { get; set; }
         public Int32 IdQuotaDeclaration
         {

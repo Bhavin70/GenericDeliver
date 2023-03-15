@@ -71,7 +71,24 @@ namespace ODLMWebAPI.Models
         #endregion
     }
 
+    public class DimBrand
+    {
+       public Int32 IdBrand { get; set; }
+        public string BrandName { get; set; }
+        public DateTime  CreatedOn { get; set; }
+        public Int32 IsActive { get; set; }
+        public Int32 IsDefault { get; set; }
+        public string ShortNm { get; set; }
+        public Int32 isTaxInclusive { get; set; }
+        public string prodCatIdStr { get; set; }
+        public string materialIdStr { get; set; }
+        public string specificationIdStr { get; set; }
+        public Int32 isAutoSelect { get; set; }
+        public Int32 isBothTaxType { get; set; }
 
+
+
+    }
     public class DropDownToForParity
     {
         #region

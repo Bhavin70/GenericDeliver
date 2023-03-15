@@ -1506,7 +1506,7 @@ namespace ODLMWebAPI.DAL
                     //[05-09-2018]Vijaymala added to get default brand data for other item
                     if (dateReader["isDefault"] != DBNull.Value)
                         dropDownTONew.Tag = Convert.ToString(dateReader["isDefault"].ToString());
-
+                   
                     dropDownTOList.Add(dropDownTONew);
                 }
 
@@ -1526,6 +1526,50 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public List<DimBrandTO> SelectBrandListV2()
+        {
+
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            try
+            {
+                conn.Open();
+                String aqlQuery = "SELECT * FROM dimBrand WHERE isActive=1 ";
+
+                cmdSelect = new SqlCommand(aqlQuery, conn);
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DimBrandTO> dropDownTOList = new List<Models.DimBrandTO>();
+                while (dateReader.Read())
+                {
+                    DimBrandTO dropDownTONew = new DimBrandTO();
+                    if (dateReader["idBrand"] != DBNull.Value)
+                        dropDownTONew.IdBrand = Convert.ToInt32(dateReader["idBrand"].ToString());
+                    if (dateReader["brandName"] != DBNull.Value)
+                        dropDownTONew.BrandName = Convert.ToString(dateReader["brandName"].ToString());
+                    //[05-09-2018]Vijaymala added to get default brand data for other item
+                    if (dateReader["isDefault"] != DBNull.Value)
+                        dropDownTONew.IsDefault = Convert.ToInt32(dateReader["isDefault"].ToString());
+                    if (dateReader["isBothTaxType"] != DBNull.Value)
+                        dropDownTONew.IsBothTaxType = Convert.ToInt32(dateReader["isBothTaxType"].ToString());
+                    dropDownTOList.Add(dropDownTONew);
+                }
+
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return dropDownTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
         /// <summary>
         /// [2017-01-02]Vijaymala:Added to get loading layer list 
         /// </summary>
@@ -1570,7 +1614,47 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+        
+        public List<DropDownTO> GetBookingTaxCategoryList()
+        {
 
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            try
+            {
+                conn.Open();
+                String sqlQuery = "SELECT * FROM dimBookingTaxCategory WHERE isActive=1 ";
+
+                cmdSelect = new SqlCommand(sqlQuery, conn);
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DropDownTO> dropDownTOList = new List<Models.DropDownTO>();
+                while (dateReader.Read())
+                {
+                    DropDownTO dropDownTONew = new DropDownTO();
+                    if (dateReader["idTaxCat"] != DBNull.Value)
+                        dropDownTONew.Value = Convert.ToInt32(dateReader["idTaxCat"].ToString());
+                    if (dateReader["TaxCateName"] != DBNull.Value)
+                        dropDownTONew.Text = Convert.ToString(dateReader["TaxCateName"].ToString());
+
+                    dropDownTOList.Add(dropDownTONew);
+                }
+
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return dropDownTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
         public List<DimExportTypeTO> GetExportTypeList()
         {
 

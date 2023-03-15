@@ -911,6 +911,14 @@ namespace ODLMWebAPI.Controllers
             return brandList;
         }
 
+        [Route("GetBrandListV2")]
+        [HttpGet]
+        public List<DimBrandTO> GetBrandListV2()
+        {
+            List<DimBrandTO> brandList = _iDimensionBL.SelectBrandListV2();
+            return brandList;
+        }
+
 
         //Vijaymala[08-09-2017] Added To Get Designation List
         [Route("GetStockConfigurationList")]
@@ -941,6 +949,13 @@ namespace ODLMWebAPI.Controllers
             return loadingLayerList;
         }
 
+        [Route("GetBookingTaxCategoryList")]
+        [HttpGet]
+        public List<DropDownTO> GetBookingTaxCategoryList()
+        {
+            List<DropDownTO> loadingLayerList = _iDimensionBL.GetBookingTaxCategoryList();
+            return loadingLayerList;
+        }
         /// <summary>
         ///Sudhir[09-12-2017] Added For GetAllStatesList 
         /// </summary>

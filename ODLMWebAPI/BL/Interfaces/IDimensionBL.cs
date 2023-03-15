@@ -44,7 +44,9 @@ namespace ODLMWebAPI.BL.Interfaces
         List<DropDownTO> GetReportingType();
         List<DimVisitIssueReasonsTO> GetVisitIssueReasonsList();
         List<DropDownTO> SelectBrandList();
+        List<DimBrandTO> SelectBrandListV2();
         List<DropDownTO> SelectLoadingLayerList();
+        List<DropDownTO> GetBookingTaxCategoryList();
         DropDownTO SelectStateCode(Int32 stateId);
         List<DropDownTO> GetItemProductCategoryListForDropDown();
         List<DropDownTO> GetInvoiceStatusDropDown();

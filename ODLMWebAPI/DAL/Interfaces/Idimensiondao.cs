@@ -41,7 +41,9 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<DropDownTO> SelectReportingType();
         List<DimVisitIssueReasonsTO> SelectVisitIssueReasonsList();
         List<DropDownTO> SelectBrandList();
+        List<DimBrandTO> SelectBrandListV2();
         List<DropDownTO> SelectLoadingLayerList();
+        List<DropDownTO> GetBookingTaxCategoryList();
         DropDownTO SelectStateCode(Int32 stateId);
         List<DropDownTO> GetItemProductCategoryListForDropDown();
         List<DropDownTO> GetInvoiceStatusDropDown();

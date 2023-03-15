@@ -368,7 +368,10 @@ namespace ODLMWebAPI.BL
         {
             return _iDimensionDAO.SelectBrandList();
         }
-
+        public List<DimBrandTO> SelectBrandListV2()
+        {
+            return _iDimensionDAO.SelectBrandListV2();
+        }
 
         /// <summary>
         /// [2018-01-02]Vijaymala:Added to get loading layer list  
@@ -377,6 +380,10 @@ namespace ODLMWebAPI.BL
         public List<DropDownTO> SelectLoadingLayerList()
         {
             return _iDimensionDAO.SelectLoadingLayerList();
+        }
+        public List<DropDownTO> GetBookingTaxCategoryList()
+        {
+            return _iDimensionDAO.GetBookingTaxCategoryList();
         }
 
         // Vijaymala [09-11-2017] added to get state Code
