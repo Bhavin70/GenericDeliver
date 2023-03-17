@@ -12778,7 +12778,7 @@ namespace ODLMWebAPI.BL
                             return resultMessage;
                         }
                         String uploadedFileName = tblDocumentDetailsTOListtemp[0].Path;
-                        String fileName1 = Path.GetFileName(uploadedFileName);
+                        String fileName1 =  Path.GetFileName(uploadedFileName);
                         TblOrganizationTO tblOrganizationTO = _iTblOrganizationBL.SelectTblOrganizationTO(tblInvoiceTO.DealerOrgId);
                         if (tblOrganizationTO == null)
                         {

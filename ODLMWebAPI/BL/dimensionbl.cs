@@ -386,6 +386,10 @@ namespace ODLMWebAPI.BL
             return _iDimensionDAO.GetBookingTaxCategoryList();
         }
 
+        public List<DropDownTO> GetBookingCommentCategoryList()
+        {
+            return _iDimensionDAO.GetBookingCommentCategoryList();
+        }
         // Vijaymala [09-11-2017] added to get state Code
         public DropDownTO SelectStateCode(Int32 stateId)
         {
