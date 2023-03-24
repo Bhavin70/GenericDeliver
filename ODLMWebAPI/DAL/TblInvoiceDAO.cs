@@ -885,6 +885,10 @@ namespace ODLMWebAPI.DAL
                         tblInvoiceTONew.SalesLedgerId = Convert.ToInt32(tblInvoiceTODT["salesLedgerId"].ToString());
                     if (tblInvoiceTODT["brokerName"] != DBNull.Value)
                         tblInvoiceTONew.BrokerName = Convert.ToString(tblInvoiceTODT["brokerName"]);
+                    if (tblInvoiceTODT["bookingTaxCategoryId"] != DBNull.Value)
+                        tblInvoiceTONew.BookingTaxCategoryId = Convert.ToInt32(tblInvoiceTODT["bookingTaxCategoryId"].ToString());
+                    if (tblInvoiceTODT["bookingCommentCategoryId"] != DBNull.Value)
+                        tblInvoiceTONew.BookingCommentCategoryId = Convert.ToInt32(tblInvoiceTODT["bookingCommentCategoryId"].ToString());
 
                     tblInvoiceTOList.Add(tblInvoiceTONew);
                 }
@@ -3301,6 +3305,8 @@ namespace ODLMWebAPI.DAL
                                 " ,[voucherClassId]" +
                                 " ,[salesLedgerId]" +
                                   ", [brokerName]" +
+                                  ", [bookingTaxCategoryId]" +
+                                  ", [bookingCommentCategoryId]" +
                                 " )" +
                     " VALUES (" +
                                 "  @InvoiceTypeId " +
@@ -3366,6 +3372,8 @@ namespace ODLMWebAPI.DAL
                                 " ,@VoucherClassId" +
                                 " ,@SalesLedgerId" +
                                 ",@brokerName" +
+                                  ",@bookingTaxCategoryId" +
+                                  ",@bookingCommentCategoryId" +
                                  " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
@@ -3434,6 +3442,10 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@VoucherClassId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.VoucherClassId);
             cmdInsert.Parameters.Add("@SalesLedgerId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.SalesLedgerId);
             cmdInsert.Parameters.Add("@brokerName", System.Data.SqlDbType.NVarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.BrokerName);
+            cmdInsert.Parameters.Add("@bookingTaxCategoryId", System.Data.SqlDbType.NVarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.BookingTaxCategoryId );
+            cmdInsert.Parameters.Add("@bookingCommentCategoryId", System.Data.SqlDbType.NVarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.BookingCommentCategoryId);
+
+
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = Constants.IdentityColumnQuery;
@@ -3707,6 +3719,8 @@ namespace ODLMWebAPI.DAL
                              " ,[voucherClassId]=@VoucherClassId " +
                              " ,[salesLedgerId]=@SalesLedgerId " +
                              " ,[brokerName]=@brokerName "+
+                              " ,[bookingTaxCategoryId]=@bookingTaxCategoryId " +
+                               " ,[bookingCommentCategoryId]=@bookingCommentCategoryId " +
                              " WHERE [idInvoice] = @IdInvoice";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -3773,6 +3787,8 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@VoucherClassId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.VoucherClassId);
             cmdUpdate.Parameters.Add("@SalesLedgerId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.SalesLedgerId);
             cmdUpdate.Parameters.Add("@brokerName", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.BrokerName);
+            cmdUpdate.Parameters.Add("@bookingTaxCategoryId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.BookingTaxCategoryId);
+            cmdUpdate.Parameters.Add("@bookingCommentCategoryId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.BookingCommentCategoryId);
 
 
             return cmdUpdate.ExecuteNonQuery();

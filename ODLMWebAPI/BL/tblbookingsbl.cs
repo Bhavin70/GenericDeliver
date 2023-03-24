@@ -2413,7 +2413,7 @@ namespace ODLMWebAPI.BL
                                     tblBookingExtTO.BookingId = tblBookingsTO.IdBooking;
                                     //if(isBalajiClient==0)
                                     //Prajakta[2021-04-23] Commented as rate will get as per parity from GUI
-                                    if(!isAddItemWiseRate && globalRateTO .IsBothTaxType !=1)
+                                    if(!isAddItemWiseRate || tblBookingsTO.BookingTaxCategoryId != (int)Constants.BookingTaxCategory.Excluding)
                                         tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
 
                                     tblBookingExtTO.ScheduleId = tblBookingScheduleTO.IdSchedule;
@@ -2482,7 +2482,7 @@ namespace ODLMWebAPI.BL
                             tblBookingExtTO.BalanceQty = tblBookingExtTO.BookedQty;
                             //if(isBalajiClient==0)
                             //Prajakta[2021-04-23] Commented as rate will get as per parity from GUI
-                            if (!isAddItemWiseRate && globalRateTO.IsBothTaxType != 1)
+                            if (!isAddItemWiseRate || tblBookingsTO.BookingTaxCategoryId != (int)Constants.BookingTaxCategory.Excluding)
                                 tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
 
                             result = _iTblBookingExtDAO.InsertTblBookingExt(tblBookingExtTO, conn, tran);
@@ -4848,7 +4848,7 @@ namespace ODLMWebAPI.BL
                             {
                                 TblBookingExtTO tblBookingExtTO = tblBookingScheduleTO.OrderDetailsLst[j];
                                 tblBookingExtTO.BookingId = tblBookingsTO.IdBooking;
-                                if(globalRateTO.IsBothTaxType !=1)//Reshma Added For Aone New Project Develoment
+                                if (tblBookingsTO.BookingTaxCategoryId != (int)Constants.BookingTaxCategory.Excluding)//Reshma Added For Aone New Project Develoment
                                     tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
                                 tblBookingExtTO.ScheduleId = tblBookingScheduleTO.IdSchedule;
                                 //[05-09-2018] : Vijaymala added to get default brand for other booking

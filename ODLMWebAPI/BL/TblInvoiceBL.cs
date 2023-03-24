@@ -2564,6 +2564,10 @@ namespace ODLMWebAPI.BL
                     isSez = true;
                 }
                 tblInvoiceTO.BrokerName = tblBookingsTO.BrokerName;
+                tblInvoiceTO.BookingCommentCategoryId  = tblBookingsTO.BookingCommentCategoryId;
+                tblInvoiceTO.BookingTaxCategoryId  = tblBookingsTO.BookingTaxCategoryId;
+
+
             }
             else
             {
@@ -2789,7 +2793,7 @@ namespace ODLMWebAPI.BL
                     tblInvoiceItemDetailsTO.CdStructure = loadingSlipTo.CdStructure;
                     tblInvoiceItemDetailsTO.CdStructureId = loadingSlipTo.CdStructureId; //Saket [2018-02-06] 
                     tblInvoiceItemDetailsTO.Rate = loadingSlipExtTo.CdApplicableAmt;
-
+                    
                     //[05-03-2018]Vijaymala:Changes the code to change prodItemDesc as per Kalika and SRJ requirement 
                     //cnetan[20-feb-2020] added for display brand name in report on setting base.
                     Int32 isCPDisplayBrandOnInvoice = 0;
@@ -2930,15 +2934,12 @@ namespace ODLMWebAPI.BL
                 }
                 if (isRoundOffCD != "")
                 {
-                    discountTotal += Math.Round(tblInvoiceItemDetailsTO.CdAmt,Convert.ToInt32(isRoundOffCD));
+                    discountTotal += Math.Round(tblInvoiceItemDetailsTO.CdAmt, Convert.ToInt32(isRoundOffCD));
                 }
                 else
                 {
                     discountTotal += tblInvoiceItemDetailsTO.CdAmt;
                 }
-                    
-
-                                    
                 Double taxbleAmt = 0;
                 //Double totalFreExpOtherAmt = loadingSlipExtTo.LoadedWeight * conversionFactor * loadingSlipExtTo.FreExpOtherAmt;
 
@@ -2972,34 +2973,62 @@ namespace ODLMWebAPI.BL
 
                 tblInvoiceItemDetailsTO.GstinCodeNo = gstCodeDtlsTO.CodeNumber;
 
+                double grandtotal = 0;
+                double invoiceAmt = 0;
+                if (tblBookingsTO.BookingTaxCategoryId == (int)Constants.BookingTaxCategory.Excluding)
+                {
+                     grandtotal = tblInvoiceItemDetailsTO.TaxableAmt;
+                     invoiceAmt = (grandtotal * gstCodeDtlsTO.TaxPct) / 100;
+
+                    tblInvoiceItemDetailsTO.TaxableAmt = grandtotal - invoiceAmt;
+                    tblInvoiceItemDetailsTO.BasicTotal = tblInvoiceItemDetailsTO.TaxableAmt;
+                    taxableTotal = tblInvoiceItemDetailsTO.BasicTotal;
+                    basicTotal = tblInvoiceItemDetailsTO.BasicTotal;
+                }
+
                 #region 4 Added Invoice Item Tax details
 
                 foreach (var taxRateTo in gstCodeDtlsTO.TaxRatesTOList)
                 {
+                   
                     TblInvoiceItemTaxDtlsTO tblInvoiceItemTaxDtlsTO = new TblInvoiceItemTaxDtlsTO();
                     tblInvoiceItemTaxDtlsTO.TaxRateId = taxRateTo.IdTaxRate;
                     tblInvoiceItemTaxDtlsTO.TaxPct = taxRateTo.TaxPct;
                     tblInvoiceItemTaxDtlsTO.TaxRatePct = (gstCodeDtlsTO.TaxPct * taxRateTo.TaxPct) / 100;
-                    tblInvoiceItemTaxDtlsTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
+                    //if (tblBookingsTO.BookingTaxCategoryId == (int)Constants.BookingTaxCategory.Excluding)
+                    //{
+                    //     grandtotal = tblInvoiceItemDetailsTO.TaxableAmt;
+                    //     invoiceAmt = (grandtotal * gstCodeDtlsTO.TaxPct)  / 100;
+                    //    tblInvoiceItemTaxDtlsTO.TaxableAmt = grandtotal - invoiceAmt;
+                    //    //tblInvoiceItemTaxDtlsTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
+
+                    //}
+                    //else
+                        tblInvoiceItemTaxDtlsTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
                     if (isSez)
                     {
                         tblInvoiceItemTaxDtlsTO.TaxRatePct = 0;
                         tblInvoiceItemTaxDtlsTO.TaxableAmt = 0;
                     }
-                    tblInvoiceItemTaxDtlsTO.TaxAmt = ((tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100);
+                    if (tblBookingsTO.BookingTaxCategoryId == (int)Constants.BookingTaxCategory.Excluding)
+                        tblInvoiceItemTaxDtlsTO.TaxAmt = (grandtotal * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100;
+                    else
+                        tblInvoiceItemTaxDtlsTO.TaxAmt = ((tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100);
                     tblInvoiceItemTaxDtlsTO.TaxTypeId = taxRateTo.TaxTypeId;
                     if (billingStateId == ofcAddrTO.StateId)
                     {
                         if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.CGST)
                         {
                             cgstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                            itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                            if (tblBookingsTO.BookingTaxCategoryId != (int)Constants.BookingTaxCategory.Excluding)
+                                itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
                             tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
                         }
                         else if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.SGST)
                         {
                             sgstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                            itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                            if (tblBookingsTO.BookingTaxCategoryId != (int)Constants.BookingTaxCategory.Excluding)
+                                itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
                             tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
                         }
                         else continue;
@@ -3009,7 +3038,8 @@ namespace ODLMWebAPI.BL
                         if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.IGST)
                         {
                             igstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                            itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                            if (tblBookingsTO.BookingTaxCategoryId != (int)Constants.BookingTaxCategory.Excluding)
+                                itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
                             tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
                         }
                         else continue;
@@ -3017,8 +3047,11 @@ namespace ODLMWebAPI.BL
                 }
                 #endregion
 
+                if (tblBookingsTO.BookingTaxCategoryId != (int)Constants.BookingTaxCategory.Excluding)
+                    grandTotal += itemGrandTotal;
+                else
+                    grandTotal = itemGrandTotal;
 
-                grandTotal += itemGrandTotal;
                 tblInvoiceItemDetailsTO.GrandTotal = Math.Round(itemGrandTotal, isForItemWiseRoundup);
                 tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList = tblInvoiceItemTaxDtlsTOList;
                 tblInvoiceItemDetailsTOList.Add(tblInvoiceItemDetailsTO);

@@ -458,7 +458,7 @@ namespace ODLMWebAPI.BL
                             {
                                 CloudBlockBlob blockBlob = container.GetBlockBlobReference(fileName);
 
-
+                                blockBlob.Properties.ContentType = "application/pdf";
                                 var fileStream = tblDocumentDetailsTO.FileData;
 
                                 Task t1 = blockBlob.UploadFromByteArrayAsync(fileStream, 0, fileStream.Length);
