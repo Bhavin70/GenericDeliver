@@ -27,7 +27,7 @@ namespace ODLMWebAPI.DAL
         public String SqlSelectQuery()
         {
             String sqlSelectQry = " SELECT "+ (int)Constants.TranTableType.TEMP + " AS tableType, invoice.*,loading.isDBup ,dealer.firmName as dealerName,distributor.firmName AS distributorName " +
-                                  " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc,loadingSlip.statusId as loadingStatusId  " +
+                                  " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc,loadingSlip.statusId as loadingStatusId,dimBookingCommentCategory.CommentCategoryName   " +
                                   " FROM tempInvoice invoice " +
                                   " LEFT JOIN tblOrganization dealer ON dealer.idOrganization = invoice.dealerOrgId " +
                                   " LEFT JOIN tblOrganization distributor ON distributor.idOrganization = invoice.distributorOrgId " +
@@ -37,12 +37,13 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN dimCurrency ON idCurrency = invoice.currencyId " +
                                   " LEFT JOIN tempLoadingSlip loadingSlip ON idLoadingSlip = invoice.loadingSlipId " +
                                   " LEFT JOIN tempLoading loading ON idLoading = loadingSlip.loadingid " +
+                                  "   left join dimBookingCommentCategory dimBookingCommentCategory on dimBookingCommentCategory.idCat =invoice.bookingCommentCategoryId " +
 
                                   // Vaibhav [10-Jan-2018] Added to select from finalInvoice
 
                                   " UNION ALL " +
                                   " SELECT " + (int)Constants.TranTableType.FINAL + " AS tableType, invoice.*,loading.isDBup ,dealer.firmName as dealerName,distributor.firmName AS distributorName " +
-                                  " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc,loadingSlip.statusId as loadingStatusId  " +
+                                  " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc,loadingSlip.statusId as loadingStatusId ,dimBookingCommentCategory.CommentCategoryName   " +
                                   " FROM finalInvoice invoice " +
                                   " LEFT JOIN tblOrganization dealer ON dealer.idOrganization = invoice.dealerOrgId " +
                                   " LEFT JOIN tblOrganization distributor ON distributor.idOrganization = invoice.distributorOrgId " +
@@ -51,7 +52,8 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN dimInvoiceTypes ON idInvoiceType = invoice.invoiceTypeId " +
                                   " LEFT JOIN dimCurrency ON idCurrency = invoice.currencyId "+
                                   " LEFT JOIN finalLoadingSlip loadingSlip  ON idLoadingSlip = invoice.loadingSlipId " +
-                                  " LEFT JOIN finalLoading loading ON idLoading = loadingSlip.loadingid ";
+                                  " LEFT JOIN finalLoading loading ON idLoading = loadingSlip.loadingid " +
+                                  " left join dimBookingCommentCategory dimBookingCommentCategory on dimBookingCommentCategory.idCat =invoice.bookingCommentCategoryId  ";
 
             return sqlSelectQry;
         }
@@ -150,7 +152,7 @@ namespace ODLMWebAPI.DAL
                 conn.Open();
                 // Vaibhav [10-Jan-2018] Added to select from finalInvoice
                 String sqlQueryTemp = " SELECT " + (int)Constants.TranTableType.TEMP + " AS tableType, invoice.*,loading.isDBup ,distributor.firmName AS distributorName,dealer.firmName+', '+CASE WHEN dealer.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerName" +
-                                  " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc, loadingSlip.statusId as loadingStatusId " +
+                                  " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc, loadingSlip.statusId as loadingStatusId ,dimBookingCommentCategory.CommentCategoryName  " +
                                   " FROM tempInvoice invoice " +
                                   " LEFT JOIN tblOrganization dealer ON dealer.idOrganization = invoice.dealerOrgId " +
                                   " LEFT JOIN tblOrganization distributor ON distributor.idOrganization = invoice.distributorOrgId " +
@@ -160,10 +162,11 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN dimCurrency ON idCurrency = invoice.currencyId "+
                                   "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = dealer.addrId" + // Aniket K[2-Jan-2019] added villageName against dealer
                                    " LEFT JOIN tempLoadingSlip loadingSlip ON idLoadingSlip = invoice.loadingSlipId " + 
-                                   " LEFT JOIN temploading loading ON idLoading = loadingSlip.loadingId "; //Aniket [22-8-2019] added for IoT
+                                   " LEFT JOIN temploading loading ON idLoading = loadingSlip.loadingId " +
+                                   "   left join dimBookingCommentCategory dimBookingCommentCategory on dimBookingCommentCategory.idCat =invoice.bookingCommentCategoryId "; //Aniket [22-8-2019] added for IoT
 
                 String sqlQueryFinal = " SELECT " + (int)Constants.TranTableType.FINAL + " AS tableType, invoice.* ,loading.isDBup ,distributor.firmName AS distributorName,dealer.firmName+', '+CASE WHEN dealer.addrId IS NULL THEN '' Else case WHEN vAddr.villageName IS NOT NULL THEN vAddr.villageName ELSE CASE WHEN vAddr.talukaName IS NOT NULL THEN vAddr.talukaName ELSE CASE WHEN vAddr.districtName IS NOT NULL THEN vAddr.districtName ELSE vAddr.stateName END END END END AS  dealerName" +
-                " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc ,loadingSlip.statusId as loadingStatusId " +
+                " , transport.firmName AS transporterName,currencyName,statusName,invoiceTypeDesc ,loadingSlip.statusId as loadingStatusId,dimBookingCommentCategory.CommentCategoryName  " +
                                   " FROM finalInvoice invoice " +
                                   " LEFT JOIN tblOrganization dealer ON dealer.idOrganization = invoice.dealerOrgId " +
                                   " LEFT JOIN tblOrganization distributor ON distributor.idOrganization = invoice.distributorOrgId " +
@@ -173,7 +176,8 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN dimCurrency ON idCurrency = invoice.currencyId "+
                                    "LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = dealer.addrId"+ // Aniket K[2-Jan-2019] added villageName against dealer
                                     " LEFT JOIN finalLoadingSlip loadingSlip ON idLoadingSlip = invoice.loadingSlipId " +
-                               " LEFT JOIN finalloading loading ON idLoading = loadingSlip.loadingId ";
+                               " LEFT JOIN finalloading loading ON idLoading = loadingSlip.loadingId " +
+                               "   left join dimBookingCommentCategory dimBookingCommentCategory on dimBookingCommentCategory.idCat =invoice.bookingCommentCategoryId ";
 
 
                 if (isConfEn == 1)
@@ -889,6 +893,11 @@ namespace ODLMWebAPI.DAL
                         tblInvoiceTONew.BookingTaxCategoryId = Convert.ToInt32(tblInvoiceTODT["bookingTaxCategoryId"].ToString());
                     if (tblInvoiceTODT["bookingCommentCategoryId"] != DBNull.Value)
                         tblInvoiceTONew.BookingCommentCategoryId = Convert.ToInt32(tblInvoiceTODT["bookingCommentCategoryId"].ToString());
+
+                    if (tblInvoiceTODT["isTestCertificate"] != DBNull.Value)
+                        tblInvoiceTONew.IsTestCertificate = Convert.ToInt32(tblInvoiceTODT["isTestCertificate"].ToString());
+                    if (tblInvoiceTODT["CommentCategoryName"] != DBNull.Value)
+                        tblInvoiceTONew.CommentCategoryName = Convert.ToString(tblInvoiceTODT["CommentCategoryName"].ToString());
 
                     tblInvoiceTOList.Add(tblInvoiceTONew);
                 }
@@ -3721,6 +3730,7 @@ namespace ODLMWebAPI.DAL
                              " ,[brokerName]=@brokerName "+
                               " ,[bookingTaxCategoryId]=@bookingTaxCategoryId " +
                                " ,[bookingCommentCategoryId]=@bookingCommentCategoryId " +
+                               "  ,isTestCertificate=@isTestCertificate" +
                              " WHERE [idInvoice] = @IdInvoice";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -3789,6 +3799,7 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@brokerName", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.BrokerName);
             cmdUpdate.Parameters.Add("@bookingTaxCategoryId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.BookingTaxCategoryId);
             cmdUpdate.Parameters.Add("@bookingCommentCategoryId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.BookingCommentCategoryId);
+            cmdUpdate.Parameters.Add("@isTestCertificate", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.IsTestCertificate);
 
 
             return cmdUpdate.ExecuteNonQuery();

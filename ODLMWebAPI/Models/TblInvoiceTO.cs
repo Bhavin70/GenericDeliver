@@ -557,7 +557,8 @@ namespace ODLMWebAPI.Models
         public Int32 SalesLedgerId { get => salesLedgerId; set => salesLedgerId = value; }
         public Int32 BookingTaxCategoryId { get; set; }
         public Int32 BookingCommentCategoryId { get ; set; }
-
+        public Int32 IsTestCertificate { get; set; }
+        public string CommentCategoryName { get; set; }
 
         public string BrokerName { get; set; }
         public Boolean  IsSendWhatsAppMsg { get; set; }

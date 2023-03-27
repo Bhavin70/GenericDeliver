@@ -71,6 +71,7 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage UpdateInvoiceAfterloadingSlipOut(Int32 loadingId, SqlConnection conn, SqlTransaction tran);
         ResultMessage UpdateInvoiceDate(TblInvoiceTO tblInvoiceTO);
         ResultMessage DeactivateInvoiceDocumentDetails(TempInvoiceDocumentDetailsTO tempInvoiceDocumentDetailsTO, Int32 loginUserId);
+        ResultMessage UpdateIsTestCertificateInvoiceDocumentDetails(TempInvoiceDocumentDetailsTO tempInvoiceDocumentDetailsTO, Int32 loginUserId);
         int DeleteTblInvoice(Int32 idInvoice);
         int DeleteTblInvoice(Int32 idInvoice, SqlConnection conn, SqlTransaction tran);
         ResultMessage DeleteTblInvoiceDetails(TblInvoiceTO tblInvoiceTO, SqlConnection conn, SqlTransaction tran);
