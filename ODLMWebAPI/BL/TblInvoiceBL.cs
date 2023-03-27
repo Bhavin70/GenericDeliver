@@ -14695,54 +14695,54 @@ namespace ODLMWebAPI.BL
                 // printDataSet.Tables.Add(shippingAddressDT);
                 //creating template'''''''''''''''''
                 //Reshma Added For Aone new group development
-                DataTable PhotoDT = new DataTable();
-                DataTable PhotoDT1 = new DataTable();
-                DataTable NotesDT = new DataTable();
-                PhotoDT.Columns.Add("Photo", typeof(byte[]));
-                PhotoDT1.Columns.Add("Photo1", typeof(byte[]));
-                NotesDT.Columns.Add("Note");
-                byte[] PhotoCodeInBytesV2 = null;
-                List<TempInvoiceDocumentDetailsTO> newTempInvoiceDocumentTOList = _iTempInvoiceDocumentDetailsDAO.SelectTempInvoiceDocumentDetailsByInvoiceId(tempInvoiceDocumentDetailsTO.InvoiceId, conn, tran);
-                if (newTempInvoiceDocumentTOList != null && newTempInvoiceDocumentTOList.Count > 0)
-                {
-                    newTempInvoiceDocumentTOList = newTempInvoiceDocumentTOList.Where(w => w.IsTestCertificate == 1).ToList();
-                    if (newTempInvoiceDocumentTOList != null && newTempInvoiceDocumentTOList.Count > 0)
-                    {
-                        for (int k = 0; k < newTempInvoiceDocumentTOList.Count; k++)
-                        {
-                            int index = 0;
-                            TblAddonsFunDtlsTO tblAddonsFunDtlsTO = _iTblAddonsFunDtlsDAO.SelectTblAddonsFunDtls(newTempInvoiceDocumentTOList[k].DocumentId);
-                            if (tblAddonsFunDtlsTO != null)
-                            {
-                                PhotoCodeInBytesV2 = null;
-                                WebClient wc = new WebClient();
-                                PhotoCodeInBytesV2 = wc.DownloadData(tblAddonsFunDtlsTO.FunRefVal);
-                                if (PhotoCodeInBytes != null)
-                                {
-                                    if (index % 2 == 0)
-                                    {
-                                        PhotoDT.Rows.Add();
-                                        int RowCount = PhotoDT.Rows.Count - 1;
-                                        PhotoDT.Rows[RowCount]["Photo"] = PhotoCodeInBytesV2;
-                                    }
-                                    else
-                                    {
-                                        PhotoDT1.Rows.Add();
-                                        int RowCount = PhotoDT1.Rows.Count - 1;
-                                        PhotoDT1.Rows[RowCount]["Photo1"] = PhotoCodeInBytesV2;
-                                    }
-                                    index++;
-                                }
-                            }
-                        }
-                        PhotoDT.TableName = "PhotoDT";
-                        NotesDT.TableName = "NotesDT";
-                        PhotoDT1.TableName = "PhotoDT1";
-                        printDataSet.Tables.Add(PhotoDT);
-                        printDataSet.Tables.Add(PhotoDT1);
-                        printDataSet.Tables.Add(NotesDT);
-                    }
-                }
+                //DataTable PhotoDT = new DataTable();
+                //DataTable PhotoDT1 = new DataTable();
+                //DataTable NotesDT = new DataTable();
+                //PhotoDT.Columns.Add("Photo", typeof(byte[]));
+                //PhotoDT1.Columns.Add("Photo1", typeof(byte[]));
+                //NotesDT.Columns.Add("Note");
+                //byte[] PhotoCodeInBytesV2 = null;
+                //List<TempInvoiceDocumentDetailsTO> newTempInvoiceDocumentTOList = _iTempInvoiceDocumentDetailsDAO.SelectTempInvoiceDocumentDetailsByInvoiceId(tempInvoiceDocumentDetailsTO.InvoiceId, conn, tran);
+                //if (newTempInvoiceDocumentTOList != null && newTempInvoiceDocumentTOList.Count > 0)
+                //{
+                //    newTempInvoiceDocumentTOList = newTempInvoiceDocumentTOList.Where(w => w.IsTestCertificate == 1).ToList();
+                //    if (newTempInvoiceDocumentTOList != null && newTempInvoiceDocumentTOList.Count > 0)
+                //    {
+                //        for (int k = 0; k < newTempInvoiceDocumentTOList.Count; k++)
+                //        {
+                //            int index = 0;
+                //            TblAddonsFunDtlsTO tblAddonsFunDtlsTO = _iTblAddonsFunDtlsDAO.SelectTblAddonsFunDtls(newTempInvoiceDocumentTOList[k].DocumentId);
+                //            if (tblAddonsFunDtlsTO != null)
+                //            {
+                //                PhotoCodeInBytesV2 = null;
+                //                WebClient wc = new WebClient();
+                //                PhotoCodeInBytesV2 = wc.DownloadData(tblAddonsFunDtlsTO.FunRefVal);
+                //                if (PhotoCodeInBytes != null)
+                //                {
+                //                    if (index % 2 == 0)
+                //                    {
+                //                        PhotoDT.Rows.Add();
+                //                        int RowCount = PhotoDT.Rows.Count - 1;
+                //                        PhotoDT.Rows[RowCount]["Photo"] = PhotoCodeInBytesV2;
+                //                    }
+                //                    else
+                //                    {
+                //                        PhotoDT1.Rows.Add();
+                //                        int RowCount = PhotoDT1.Rows.Count - 1;
+                //                        PhotoDT1.Rows[RowCount]["Photo1"] = PhotoCodeInBytesV2;
+                //                    }
+                //                    index++;
+                //                }
+                //            }
+                //        }
+                //        PhotoDT.TableName = "PhotoDT";
+                //        NotesDT.TableName = "NotesDT";
+                //        PhotoDT1.TableName = "PhotoDT1";
+                //        printDataSet.Tables.Add(PhotoDT);
+                //        printDataSet.Tables.Add(PhotoDT1);
+                //        printDataSet.Tables.Add(NotesDT);
+                //    }
+                //}
                 int isMultipleTemplateByCorNc = 0;
 
                 string templateName = "WhatsAppInvoiceReport";  
