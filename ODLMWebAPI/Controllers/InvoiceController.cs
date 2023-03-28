@@ -1292,7 +1292,7 @@ namespace ODLMWebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         /// 
-        [Route("PostDeactivateInvoiceDocumentDetails")]
+        [Route("PostInvoiceDocumentDetails")]
         [HttpPost]
         public ResultMessage PostDeactivateInvoiceDocumentDetails([FromBody] JObject data)
         {
@@ -1328,7 +1328,42 @@ namespace ODLMWebAPI.Controllers
             }
 
         }
+        [Route("PostIsTestCertificateInvoiceDocumentDetails")]
+        [HttpPost]
+        public ResultMessage PostIsTestCertificateInvoiceDocumentDetails([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                TempInvoiceDocumentDetailsTO tempInvoiceDocumentDetailsTO = JsonConvert.DeserializeObject<TempInvoiceDocumentDetailsTO>(data["invoiceDocumentDetailsTO"].ToString());
 
+                var loginUserId = data["loginUserId"].ToString();
+
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    resultMessage.DefaultBehaviour("loginUserId Not Found");
+                    return resultMessage;
+                }
+
+                if (tempInvoiceDocumentDetailsTO != null)
+                {
+                    DateTime serverDate = _iCommon.ServerDateTime;
+                    return _iTblInvoiceBL.UpdateIsTestCertificateInvoiceDocumentDetails(tempInvoiceDocumentDetailsTO, Convert.ToInt32(loginUserId));
+                }
+
+                else
+                {
+                    resultMessage.DefaultBehaviour("tempInvoiceDocumentDetailsTO Found NULL");
+                    return resultMessage;
+                }
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "PostDeactivateInvoiceDocumentDetails");
+                return resultMessage;
+            }
+
+        }
 
         [Route("PrintInvoiceDetails")]
         [HttpPost]
@@ -1527,7 +1562,17 @@ namespace ODLMWebAPI.Controllers
                 {
                     return resultMessage;
                 }
-                
+                TblInvoiceTO tblInvoiceTO = _iTblInvoiceBL.SelectTblInvoiceTO(Convert.ToInt32(idInvoice));
+                if (tblInvoiceTO != null)
+                {
+                    if (tblInvoiceTO.IsTestCertificate == 0 && tblInvoiceTO.BookingCommentCategoryId >0)
+                    {
+                        resultMessage.DisplayMessage = "Test Certificate is manadatory!";
+                        ///resultMessage.DefaultBehaviour("Test Certificate is manadatory!");
+                        return resultMessage;
+                    }
+                }
+
                 return _iTblInvoiceBL.GenerateEInvoice(Convert.ToInt32(loginUserId), Convert.ToInt32(idInvoice), Convert.ToInt32(eInvoiceCreationType));
             }
             catch (Exception ex)

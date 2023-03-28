@@ -71,6 +71,7 @@ namespace ODLMWebAPI.Models
         }
 
         public int IsActive { get => isActive; set => isActive = value; }
+        public int IsTestCertificate { get; set; }
         #endregion
     }
 }

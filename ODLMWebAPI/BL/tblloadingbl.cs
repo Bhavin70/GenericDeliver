@@ -3319,6 +3319,7 @@ namespace ODLMWebAPI.BL {
                                 {
                                     isTaxInclusive = dimBrandTO.IsTaxInclusive;
                                 }
+                                
                                 if (tblLoadingSlipExtTO.LoadingQty > 0)
                                 {
 
@@ -3389,6 +3390,19 @@ namespace ODLMWebAPI.BL {
                                         }
                                     }
 
+                                    if (tblBookingsTO.BookingTaxCategoryId  == (int) Constants.BookingTaxCategory .Excluding)
+                                    {
+                                        if (bookingExtTOList != null && bookingExtTOList.Count > 0)
+                                        {
+                                            foreach (TblBookingExtTO item in bookingExtTOList)
+                                            {
+                                                if (item.ProdCatId == tblLoadingSlipExtTO.ProdCatId && item.ProdSpecId == tblLoadingSlipExtTO.ProdSpecId && item.BrandId == tblLoadingSlipExtTO.BrandId && item.MaterialId == tblLoadingSlipExtTO.MaterialId && item.ProdItemId == tblLoadingSlipExtTO.ProdItemId)
+                                                {
+                                                    bookingPrice = item.Rate;
+                                                }
+                                            }
+                                        }
+                                    }
                                     TblGstCodeDtlsTO gstCodeDtlsTO = _iTblGstCodeDtlsDAO.SelectGstCodeDtlsTO(tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.MaterialId, tblLoadingSlipExtTO.ProdItemId, conn, tran);
                                     if (gstCodeDtlsTO == null)
                                     {
@@ -3500,7 +3514,14 @@ namespace ODLMWebAPI.BL {
 
                                         //[23-MARCH-2018] Added For New Parity Setting Logic
                                         paritySettingAmt = parityDtlTO.BaseValCorAmt + parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
+                                        if (tblBookingsTO.BookingTaxCategoryId == (int)Constants.BookingTaxCategory.Excluding)
+                                        {
+                                            parityDtlTO.OtherAmt = 0;
+                                            parityDtlTO.ExpenseAmt = 0;
+                                            parityDtlTO.BaseValCorAmt = 0;
+                                        }
                                         bvcAmt = parityDtlTO.BaseValCorAmt;
+                                        
                                         rateCalcDesc += "BVC Amt :" + parityDtlTO.BaseValCorAmt + "|" + "Exp Amt :" + parityDtlTO.ExpenseAmt + "|" + " Other :" + parityDtlTO.OtherAmt + "|";
                                     }
                                     else
@@ -3509,11 +3530,17 @@ namespace ODLMWebAPI.BL {
                                     }
 
                                     Double cdApplicableAmt = 0;
-                                    cdApplicableAmt = (bookingPrice + orcAmtPerTon + parityAmt + priceSetOff + bvcAmt);
+                                    //Reshma Added For New India Gold Project changes.
+                                    if (tblBookingsTO.BookingTaxCategoryId == (int)Constants.BookingTaxCategory.Excluding)
+                                    {
+                                        cdApplicableAmt = bookingPrice ;
+                                    }
+                                    else
+                                        cdApplicableAmt = (bookingPrice + orcAmtPerTon + parityAmt + priceSetOff + bvcAmt);
                                     //if (tblLoadingSlipTO.IsConfirmed == 1)
                                     //    cdApplicableAmt += parityTO.ExpenseAmt + parityTO.OtherAmt;
 
-                                    if (tblLoadingSlipTO.IsConfirmed == 1)
+                                    if (tblLoadingSlipTO.IsConfirmed == 1 && tblBookingsTO.BookingTaxCategoryId != (int)Constants.BookingTaxCategory.Excluding)
                                         cdApplicableAmt += parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
 
 
@@ -3586,12 +3613,17 @@ namespace ODLMWebAPI.BL {
                                         gstAmt = (gstApplicableAmt * gstCodeDtlsTO.TaxPct) / 100;
                                         gstAmt = Math.Round(gstAmt, 2);
 
-                                        if (tblLoadingSlipTO.IsConfirmed == 1)
-                                            finalRate = gstApplicableAmt + gstAmt;
-                                        //else
-                                        //finalRate = gstApplicableAmt + gstAmt + freightPerMT + parityTO.ExpenskeAmt + parityTO.OtherAmt; Sudhir[23-MARCH-2018] Commented
+                                        if (tblBookingsTO.BookingTaxCategoryId != (int)Constants.BookingTaxCategory.Excluding)
+                                        {
+                                            if (tblLoadingSlipTO.IsConfirmed == 1)
+                                                finalRate = gstApplicableAmt + gstAmt;
+                                            //else
+                                            //finalRate = gstApplicableAmt + gstAmt + freightPerMT + parityTO.ExpenskeAmt + parityTO.OtherAmt; Sudhir[23-MARCH-2018] Commented
+                                            else
+                                                finalRate = gstApplicableAmt + gstAmt + freightPerMT + parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
+                                        }
                                         else
-                                            finalRate = gstApplicableAmt + gstAmt + freightPerMT + parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
+                                            finalRate = gstApplicableAmt;
                                     }
                                     else
                                     {
@@ -3640,9 +3672,6 @@ namespace ODLMWebAPI.BL {
 
                                     }
 
-
-
-
                                     tblLoadingSlipExtTO.TaxableRateMT = gstApplicableAmt;
                                     tblLoadingSlipExtTO.RatePerMT = finalRate;
                                     if (isRateRounded)
@@ -3665,6 +3694,14 @@ namespace ODLMWebAPI.BL {
                                     if (isHideCorNC == 0)
                                     {
                                         isNCAmt = " NC Amt :" + priceSetOff + "|";
+                                    }
+                                    if (tblBookingsTO.BookingTaxCategoryId == (int)Constants.BookingTaxCategory.Excluding)
+                                    {
+                                        orcAmtPerTon = 0;
+                                        parityAmt = 0;
+                                        isNCAmt = "";
+                                        freightPerMT = 0;
+                                        gstAmt = 0;
                                     }
                                     rateCalcDesc += " ORC :" + orcAmtPerTon + "|" + " Parity :" + parityAmt + "|" + isNCAmt + " Freight :" + freightPerMT + "|" + " GST :" + gstAmt + "|";
                                     tblLoadingSlipExtTO.RateCalcDesc = rateCalcDesc;

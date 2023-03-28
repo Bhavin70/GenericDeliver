@@ -94,6 +94,17 @@ namespace ODLMWebAPI.StaticStuff
         {
             USER_CONFIG = 1
         }
+
+        public enum BookingCommentCategory
+        {
+            Ex_Factory = 1,
+            FOR_Delivery=2
+        }
+        public enum BookingTaxCategory
+        {
+            Including = 1,
+            Excluding = 2
+        }
         public enum AddressTypeE
         {
             OFFICE_ADDRESS = 1,

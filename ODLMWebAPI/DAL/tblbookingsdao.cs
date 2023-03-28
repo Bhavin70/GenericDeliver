@@ -1130,9 +1130,9 @@ namespace ODLMWebAPI.DAL
                                  "LEFT JOIN dimConsumerType orderType ON orderType.idConsumer = bookings.consumerTypeId " +
                                  " left outer join  (select distinct A.idBooking ,A.statusDate   from tblBookings A inner join tblBookingBeyondQuota B on A.idBooking=B.bookingId and B.statusId   ="
                                  + (Int32)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR + " where    CAST(A.createdOn AS DATE) BETWEEN @fromDate AND @toDate   )AA on AA.idBooking=bookings.idBooking" +
-                                 "  left outer join ( select   tblBookingSchedule.bookingId , case when  tblBookingExt.scheduleId is not null then  tblBookingSchedule.createdOn  else  '' end   as 'Scheduledate' " +
-                                 "  from tblbookings  left  join tblBookingSchedule on tblBookingSchedule.bookingId =tblbookings.idBooking" +
-                                 "  left join tblBookingExt on tblBookingExt.bookingId =tblbookings.idBooking   " +
+                                 "  left outer join ( select distinct  tblBookingSchedule.bookingId , case when  tblBookingExt.scheduleId is not null then  tblBookingSchedule.createdOn  else  '' end   as 'Scheduledate' " +
+                                 "  from tblbookings  left  join tblBookingSchedule on tblBookingSchedule.bookingId =tblbookings.idBooking      " +
+                                 "  left join tblBookingExt on tblBookingExt.bookingId =tblbookings.idBooking  and scheduleId is not null   " +
                                  " WHERE CAST(tblbookings.createdOn AS DATE) BETWEEN @fromDate AND @toDate   and ISNULL (loadinglayerid,1) =1  )  " +
                                  "  bookingsch    on bookingsch   .bookingId = bookings .idBooking  " +
                                  "  LEFT JOIN tempLoadingSlipDtl ON bookings.idBooking =tempLoadingSlipDtl.bookingId " +

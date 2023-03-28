@@ -19,6 +19,7 @@ using OfficeOpenXml;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage;
 using System.Threading.Tasks;
+using System;
 using Microsoft.AspNetCore.Http;
 
 
@@ -53,6 +54,7 @@ namespace ODLMWebAPI.BL
         private readonly ITblOrganizationBL _iTblOrganizationBL;
         private readonly ITblOrgLicenseDtlDAO _iTblOrgLicenseDtlDAO;
         private readonly ITempInvoiceDocumentDetailsDAO _iTempInvoiceDocumentDetailsDAO;
+        private readonly ITblAddonsFunDtlsDAO _iTblAddonsFunDtlsDAO;
         private readonly ITblOtherTaxesDAO _iTblOtherTaxesDAO;
         private readonly ITblInvoiceHistoryBL _iTblInvoiceHistoryBL;
         private readonly ITblDocumentDetailsBL _iTblDocumentDetailsBL;
@@ -89,7 +91,7 @@ namespace ODLMWebAPI.BL
         private readonly ITempLoadingSlipInvoiceDAO _iTempLoadingSlipInvoiceDAO;
 
         public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, IIotCommunication iIotCommunication, ITblInvoiceChangeOrgHistoryDAO iTblInvoiceChangeOrgHistoryDAO, IGateCommunication iGateCommunication, ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL, IDimensionDAO iDimensionDAO, ITblEInvoiceApiDAO iTblEInvoiceApiDAO, ITblEInvoiceApiResponseDAO iTblEInvoiceApiResponseDAO, ITblEInvoiceSessionApiResponseDAO iTblEInvoiceSessionApiResponseDAO, ITblOrgLicenseDtlBL iTblOrgLicenseDtlBL, ITblProductItemBL iTblProductItemBL, ITblProdGstCodeDtlsBL iTblProdGstCodeDtlsBL, ITblMaterialDAO iTblMaterialDAO
-            , ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO)
+            , ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblAddonsFunDtlsDAO iTblAddonsFunDtlsDAO)
         // public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblInvoiceChangeOrgHistoryDAO iTblInvoiceChangeOrgHistoryDAO, ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL)
         {
             _iTblInvoiceChangeOrgHistoryDAO = iTblInvoiceChangeOrgHistoryDAO;
@@ -153,6 +155,7 @@ namespace ODLMWebAPI.BL
             _iTblProdGstCodeDtlsBL = iTblProdGstCodeDtlsBL;
             _iTblMaterialDAO = iTblMaterialDAO;
             _iTempLoadingSlipInvoiceDAO = iTempLoadingSlipInvoiceDAO;
+            _iTblAddonsFunDtlsDAO = iTblAddonsFunDtlsDAO;
         }
         #region Selection
 
@@ -2564,6 +2567,10 @@ namespace ODLMWebAPI.BL
                     isSez = true;
                 }
                 tblInvoiceTO.BrokerName = tblBookingsTO.BrokerName;
+                tblInvoiceTO.BookingCommentCategoryId  = tblBookingsTO.BookingCommentCategoryId;
+                tblInvoiceTO.BookingTaxCategoryId  = tblBookingsTO.BookingTaxCategoryId;
+
+
             }
             else
             {
@@ -2789,7 +2796,7 @@ namespace ODLMWebAPI.BL
                     tblInvoiceItemDetailsTO.CdStructure = loadingSlipTo.CdStructure;
                     tblInvoiceItemDetailsTO.CdStructureId = loadingSlipTo.CdStructureId; //Saket [2018-02-06] 
                     tblInvoiceItemDetailsTO.Rate = loadingSlipExtTo.CdApplicableAmt;
-
+                    
                     //[05-03-2018]Vijaymala:Changes the code to change prodItemDesc as per Kalika and SRJ requirement 
                     //cnetan[20-feb-2020] added for display brand name in report on setting base.
                     Int32 isCPDisplayBrandOnInvoice = 0;
@@ -2930,15 +2937,12 @@ namespace ODLMWebAPI.BL
                 }
                 if (isRoundOffCD != "")
                 {
-                    discountTotal += Math.Round(tblInvoiceItemDetailsTO.CdAmt,Convert.ToInt32(isRoundOffCD));
+                    discountTotal += Math.Round(tblInvoiceItemDetailsTO.CdAmt, Convert.ToInt32(isRoundOffCD));
                 }
                 else
                 {
                     discountTotal += tblInvoiceItemDetailsTO.CdAmt;
                 }
-                    
-
-                                    
                 Double taxbleAmt = 0;
                 //Double totalFreExpOtherAmt = loadingSlipExtTo.LoadedWeight * conversionFactor * loadingSlipExtTo.FreExpOtherAmt;
 
@@ -2972,34 +2976,62 @@ namespace ODLMWebAPI.BL
 
                 tblInvoiceItemDetailsTO.GstinCodeNo = gstCodeDtlsTO.CodeNumber;
 
+                double grandtotal = 0;
+                double invoiceAmt = 0;
+                if (tblBookingsTO.BookingTaxCategoryId == (int)Constants.BookingTaxCategory.Excluding)
+                {
+                     grandtotal = tblInvoiceItemDetailsTO.TaxableAmt;
+                     invoiceAmt = (grandtotal * gstCodeDtlsTO.TaxPct) / 100;
+
+                    tblInvoiceItemDetailsTO.TaxableAmt = grandtotal - invoiceAmt;
+                    tblInvoiceItemDetailsTO.BasicTotal = tblInvoiceItemDetailsTO.TaxableAmt;
+                    taxableTotal = tblInvoiceItemDetailsTO.BasicTotal;
+                    basicTotal = tblInvoiceItemDetailsTO.BasicTotal;
+                }
+
                 #region 4 Added Invoice Item Tax details
 
                 foreach (var taxRateTo in gstCodeDtlsTO.TaxRatesTOList)
                 {
+                   
                     TblInvoiceItemTaxDtlsTO tblInvoiceItemTaxDtlsTO = new TblInvoiceItemTaxDtlsTO();
                     tblInvoiceItemTaxDtlsTO.TaxRateId = taxRateTo.IdTaxRate;
                     tblInvoiceItemTaxDtlsTO.TaxPct = taxRateTo.TaxPct;
                     tblInvoiceItemTaxDtlsTO.TaxRatePct = (gstCodeDtlsTO.TaxPct * taxRateTo.TaxPct) / 100;
-                    tblInvoiceItemTaxDtlsTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
+                    //if (tblBookingsTO.BookingTaxCategoryId == (int)Constants.BookingTaxCategory.Excluding)
+                    //{
+                    //     grandtotal = tblInvoiceItemDetailsTO.TaxableAmt;
+                    //     invoiceAmt = (grandtotal * gstCodeDtlsTO.TaxPct)  / 100;
+                    //    tblInvoiceItemTaxDtlsTO.TaxableAmt = grandtotal - invoiceAmt;
+                    //    //tblInvoiceItemTaxDtlsTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
+
+                    //}
+                    //else
+                        tblInvoiceItemTaxDtlsTO.TaxableAmt = tblInvoiceItemDetailsTO.TaxableAmt;
                     if (isSez)
                     {
                         tblInvoiceItemTaxDtlsTO.TaxRatePct = 0;
                         tblInvoiceItemTaxDtlsTO.TaxableAmt = 0;
                     }
-                    tblInvoiceItemTaxDtlsTO.TaxAmt = ((tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100);
+                    if (tblBookingsTO.BookingTaxCategoryId == (int)Constants.BookingTaxCategory.Excluding)
+                        tblInvoiceItemTaxDtlsTO.TaxAmt = (grandtotal * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100;
+                    else
+                        tblInvoiceItemTaxDtlsTO.TaxAmt = ((tblInvoiceItemTaxDtlsTO.TaxableAmt * tblInvoiceItemTaxDtlsTO.TaxRatePct) / 100);
                     tblInvoiceItemTaxDtlsTO.TaxTypeId = taxRateTo.TaxTypeId;
                     if (billingStateId == ofcAddrTO.StateId)
                     {
                         if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.CGST)
                         {
                             cgstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                            itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                            if (tblBookingsTO.BookingTaxCategoryId != (int)Constants.BookingTaxCategory.Excluding)
+                                itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
                             tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
                         }
                         else if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.SGST)
                         {
                             sgstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                            itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                            if (tblBookingsTO.BookingTaxCategoryId != (int)Constants.BookingTaxCategory.Excluding)
+                                itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
                             tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
                         }
                         else continue;
@@ -3009,7 +3041,8 @@ namespace ODLMWebAPI.BL
                         if (taxRateTo.TaxTypeId == (int)Constants.TaxTypeE.IGST)
                         {
                             igstTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
-                            itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
+                            if (tblBookingsTO.BookingTaxCategoryId != (int)Constants.BookingTaxCategory.Excluding)
+                                itemGrandTotal += tblInvoiceItemTaxDtlsTO.TaxAmt;
                             tblInvoiceItemTaxDtlsTOList.Add(tblInvoiceItemTaxDtlsTO);
                         }
                         else continue;
@@ -3017,8 +3050,11 @@ namespace ODLMWebAPI.BL
                 }
                 #endregion
 
+                if (tblBookingsTO.BookingTaxCategoryId != (int)Constants.BookingTaxCategory.Excluding)
+                    grandTotal += itemGrandTotal;
+                else
+                    grandTotal = itemGrandTotal;
 
-                grandTotal += itemGrandTotal;
                 tblInvoiceItemDetailsTO.GrandTotal = Math.Round(itemGrandTotal, isForItemWiseRoundup);
                 tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList = tblInvoiceItemTaxDtlsTOList;
                 tblInvoiceItemDetailsTOList.Add(tblInvoiceItemDetailsTO);
@@ -5718,6 +5754,14 @@ namespace ODLMWebAPI.BL
                     invoiceDT.Columns.Add("vehicleNo");
                     invoiceDT.Columns.Add("transporterName");
                     invoiceDT.Columns.Add("Narration");
+                    headerDT.Columns.Add("Narration");
+
+                    invoiceDT.Columns.Add("distributorName");
+                    headerDT.Columns.Add("distributorName");
+
+                    invoiceDT.Columns.Add("freightCategory");
+                    headerDT.Columns.Add("freightCategory");
+
                     invoiceDT.Columns.Add("deliveryLocation");
                     invoiceDT.Columns.Add("lrNumber");
                     invoiceDT.Columns.Add("disPer", typeof(double));
@@ -5832,6 +5876,8 @@ namespace ODLMWebAPI.BL
 
                     invoiceDT.Rows[0]["transporterName"] = tblInvoiceTO.TransporterName;
                     invoiceDT.Rows[0]["Narration"] = tblInvoiceTO.Narration;
+                    invoiceDT.Rows[0]["distributorName"] = tblInvoiceTO.DistributorName;
+                    invoiceDT.Rows[0]["freightCategory"] = tblInvoiceTO.CommentCategoryName;
 
                     if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
                     {
@@ -5937,6 +5983,23 @@ namespace ODLMWebAPI.BL
                                 invoiceItemDT.Rows[invoiceItemDTCount]["basicTotal"] = Math.Round(tblInvoiceItemDetailsTO.BasicTotal, 2);
                                 invoiceItemDT.Rows[invoiceItemDTCount]["GrandTotal"] = Math.Round(tblInvoiceItemDetailsTO.GrandTotal, 2);
                                 invoiceItemDT.Rows[invoiceItemDTCount]["RateWithTax"] = Math.Round((tblInvoiceItemDetailsTO.GrandTotal / tblInvoiceItemDetailsTO.InvoiceQty), 2);
+                            }
+                            TblConfigParamsTO tblConfigParamsTOForGajkesari = _iTblConfigParamsDAO.SelectTblConfigParamsValByName("CP_SHOW_GAJKESARI_INVOICE_PRINT_CHANGES");
+                            if (tblConfigParamsTOForGajkesari != null)
+                            {
+                                if (tblConfigParamsTOForGajkesari.ConfigParamVal  == 1.ToString () && tblInvoiceItemDetailsTO.LoadingSlipExtId>0)
+                                {
+                                    TblLoadingSlipExtTO TblLoadingSlipExtTO = _iTblLoadingSlipExtDAO.SelectTblLoadingSlipExt(tblInvoiceItemDetailsTO.LoadingSlipExtId);
+                                    if (tblInvoiceItemDetailsTO != null)
+                                    {
+                                        string itemDesc = "M.S. TMT BAR " + TblLoadingSlipExtTO.MaterialDesc;
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["prodItemDesc"] = itemDesc;
+                                        double Cdrate = tblInvoiceItemDetailsTO.CdAmt / tblInvoiceItemDetailsTO.InvoiceQty;
+                                        double invoiceRate = Math.Round(tblInvoiceItemDetailsTO.Rate, 2) - Math.Round(Cdrate, 2);
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["rate"] = Math.Round(invoiceRate, 2);
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["basicTotal"] = Math.Round(tblInvoiceItemDetailsTO.TaxableAmt, 2);
+                                    }
+                                }
                             }
 
                             if (gstCodeUptoDigits > 0)
@@ -9682,6 +9745,78 @@ namespace ODLMWebAPI.BL
             return resultMessage;
         }
 
+        public ResultMessage UpdateIsTestCertificateInvoiceDocumentDetails(TempInvoiceDocumentDetailsTO tempInvoiceDocumentDetailsTO, Int32 loginUserId)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            Int32 result = 0;
+            if (tempInvoiceDocumentDetailsTO == null)
+            {
+                resultMessage.DefaultBehaviour("tempInvoiceDocumentDetailsTO Found Null againest document Id");
+                return resultMessage;
+            }
+            TblInvoiceTO tblInvoiceTO = SelectTblInvoiceTO(tempInvoiceDocumentDetailsTO.InvoiceId);
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlTransaction tran = null;
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+                DateTime serverDateTime = _iCommon.ServerDateTime;
+                tempInvoiceDocumentDetailsTO.UpdatedOn = serverDateTime;
+                tempInvoiceDocumentDetailsTO.UpdatedBy = loginUserId;
+                result = _iTempInvoiceDocumentDetailsDAO.UpdateTempInvoiceDocumentDetails(tempInvoiceDocumentDetailsTO);
+                if (result != 1)
+                {
+                    resultMessage.DefaultBehaviour();
+                    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                    resultMessage.Text = "Error While UpdateTempInvoiceDocumentDetails While updating invoice document details";
+                    return resultMessage;
+                }
+                List<TempInvoiceDocumentDetailsTO> newTempInvoiceDocumentTOList = _iTempInvoiceDocumentDetailsDAO.SelectTempInvoiceDocumentDetailsByInvoiceId(tempInvoiceDocumentDetailsTO.InvoiceId,conn,tran );
+                if (newTempInvoiceDocumentTOList != null && newTempInvoiceDocumentTOList.Count > 0)
+                {
+                    newTempInvoiceDocumentTOList = newTempInvoiceDocumentTOList.Where(w => w.IsTestCertificate == 1).ToList();
+                    if (newTempInvoiceDocumentTOList != null && newTempInvoiceDocumentTOList.Count > 0)
+                    {
+                        tblInvoiceTO.IsTestCertificate = 1;
+                        result = UpdateTblInvoice(tblInvoiceTO, conn, tran);
+                        if (result != 1)
+                        {
+                            resultMessage.DefaultBehaviour();
+                            resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                            resultMessage.Text = "Error While UpdateTempInvoiceDocumentDetails While updating invoice document details";
+                            return resultMessage;
+                        }
+                    }
+                    else
+                    {
+                        tblInvoiceTO.IsTestCertificate = 0;
+                        result = UpdateTblInvoice(tblInvoiceTO, conn, tran);
+                        if (result != 1)
+                        {
+                            resultMessage.DefaultBehaviour();
+                            resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                            resultMessage.Text = "Error While UpdateTempInvoiceDocumentDetails While updating invoice document details";
+                            return resultMessage;
+                        }
+                    }
+                }
+                tran.Commit();
+                conn.Close();
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "UpdateIsTestCertificateInvoiceDocumentDetails");
+                return resultMessage;
+            }
+            finally
+            {
+                conn.Close();
+            }
+            resultMessage.DefaultSuccessBehaviour();
+            return resultMessage;
+        }
 
         #endregion
 
@@ -14479,7 +14614,7 @@ namespace ODLMWebAPI.BL
                 else
                 {
                     defaultCompOrgId = tblInvoiceTO.InvFromOrgId;
-                } 
+                }
                 if (organizationTO != null)
                 {
                     //headerDT.Rows.Add();
@@ -14559,7 +14694,55 @@ namespace ODLMWebAPI.BL
                 printDataSet.Tables.Add(multipleInvoiceCopyDT);
                 // printDataSet.Tables.Add(shippingAddressDT);
                 //creating template'''''''''''''''''
-
+                //Reshma Added For Aone new group development
+                //DataTable PhotoDT = new DataTable();
+                //DataTable PhotoDT1 = new DataTable();
+                //DataTable NotesDT = new DataTable();
+                //PhotoDT.Columns.Add("Photo", typeof(byte[]));
+                //PhotoDT1.Columns.Add("Photo1", typeof(byte[]));
+                //NotesDT.Columns.Add("Note");
+                //byte[] PhotoCodeInBytesV2 = null;
+                //List<TempInvoiceDocumentDetailsTO> newTempInvoiceDocumentTOList = _iTempInvoiceDocumentDetailsDAO.SelectTempInvoiceDocumentDetailsByInvoiceId(tempInvoiceDocumentDetailsTO.InvoiceId, conn, tran);
+                //if (newTempInvoiceDocumentTOList != null && newTempInvoiceDocumentTOList.Count > 0)
+                //{
+                //    newTempInvoiceDocumentTOList = newTempInvoiceDocumentTOList.Where(w => w.IsTestCertificate == 1).ToList();
+                //    if (newTempInvoiceDocumentTOList != null && newTempInvoiceDocumentTOList.Count > 0)
+                //    {
+                //        for (int k = 0; k < newTempInvoiceDocumentTOList.Count; k++)
+                //        {
+                //            int index = 0;
+                //            TblAddonsFunDtlsTO tblAddonsFunDtlsTO = _iTblAddonsFunDtlsDAO.SelectTblAddonsFunDtls(newTempInvoiceDocumentTOList[k].DocumentId);
+                //            if (tblAddonsFunDtlsTO != null)
+                //            {
+                //                PhotoCodeInBytesV2 = null;
+                //                WebClient wc = new WebClient();
+                //                PhotoCodeInBytesV2 = wc.DownloadData(tblAddonsFunDtlsTO.FunRefVal);
+                //                if (PhotoCodeInBytes != null)
+                //                {
+                //                    if (index % 2 == 0)
+                //                    {
+                //                        PhotoDT.Rows.Add();
+                //                        int RowCount = PhotoDT.Rows.Count - 1;
+                //                        PhotoDT.Rows[RowCount]["Photo"] = PhotoCodeInBytesV2;
+                //                    }
+                //                    else
+                //                    {
+                //                        PhotoDT1.Rows.Add();
+                //                        int RowCount = PhotoDT1.Rows.Count - 1;
+                //                        PhotoDT1.Rows[RowCount]["Photo1"] = PhotoCodeInBytesV2;
+                //                    }
+                //                    index++;
+                //                }
+                //            }
+                //        }
+                //        PhotoDT.TableName = "PhotoDT";
+                //        NotesDT.TableName = "NotesDT";
+                //        PhotoDT1.TableName = "PhotoDT1";
+                //        printDataSet.Tables.Add(PhotoDT);
+                //        printDataSet.Tables.Add(PhotoDT1);
+                //        printDataSet.Tables.Add(NotesDT);
+                //    }
+                //}
                 int isMultipleTemplateByCorNc = 0;
 
                 string templateName = "WhatsAppInvoiceReport";  

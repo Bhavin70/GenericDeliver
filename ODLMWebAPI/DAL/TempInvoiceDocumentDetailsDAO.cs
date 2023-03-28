@@ -151,6 +151,9 @@ namespace ODLMWebAPI.DAL
                         tempInvoiceDocumentDetailsTONew.Path = Convert.ToString(tempInvoiceDocumentDetailsTODT["path"].ToString());
                     if (tempInvoiceDocumentDetailsTODT["isActive"] != DBNull.Value)
                         tempInvoiceDocumentDetailsTONew.IsActive = Convert.ToInt32(tempInvoiceDocumentDetailsTODT["isActive"].ToString());
+
+                    if (tempInvoiceDocumentDetailsTODT["isTestCertificate"] != DBNull.Value)
+                        tempInvoiceDocumentDetailsTONew.IsTestCertificate = Convert.ToInt32(tempInvoiceDocumentDetailsTODT["isTestCertificate"].ToString());
                     tempInvoiceDocumentDetailsTOList.Add(tempInvoiceDocumentDetailsTONew);
                 }
             }
@@ -353,6 +356,7 @@ namespace ODLMWebAPI.DAL
             " ,[createdOn] = @CreatedOn" +
             " ,[updatedOn] = @UpdatedOn" +
             " ,[isActive] = @IsActive" +
+            "  ,isTestCertificate=@isTestCertificate "+
             " WHERE   [idInvoiceDocument] = @IdInvoiceDocument" ;
 
             cmdUpdate.CommandText = sqlQuery;
@@ -366,6 +370,7 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@CreatedOn", System.Data.SqlDbType.DateTime).Value = tempInvoiceDocumentDetailsTO.CreatedOn;
             cmdUpdate.Parameters.Add("@UpdatedOn", System.Data.SqlDbType.DateTime).Value = tempInvoiceDocumentDetailsTO.UpdatedOn;
             cmdUpdate.Parameters.Add("@IsActive", System.Data.SqlDbType.Int).Value = tempInvoiceDocumentDetailsTO.IsActive;
+            cmdUpdate.Parameters.Add("@isTestCertificate", System.Data.SqlDbType.Int).Value = tempInvoiceDocumentDetailsTO.IsTestCertificate;
 
             return cmdUpdate.ExecuteNonQuery();
         }
