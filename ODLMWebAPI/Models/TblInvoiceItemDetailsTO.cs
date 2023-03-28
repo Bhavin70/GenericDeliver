@@ -107,6 +107,7 @@ namespace ODLMWebAPI.Models
             get { return prodItemDesc; }
             set { prodItemDesc = value; }
         }
+        public Int32 SizeTestingDtlId { get; set; }
         public List<TblInvoiceItemTaxDtlsTO> InvoiceItemTaxDtlsTOList
         {
             get { return invoiceItemTaxDtlsTOList; }

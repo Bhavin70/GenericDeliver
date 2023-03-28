@@ -2863,6 +2863,14 @@ namespace ODLMWebAPI.BL
                     //Commented by Aniket [12-6-2019]
                     //conversionFactor = tblProductItemTO.ConversionFactor;
                 }
+                if (loadingSlipExtTo.MaterialId > 0)
+                {
+                    SizeTestingDtlTO SizeTestingDtlTO = _iTblParitySummaryDAO.SelectTestCertificateDdtlofMaterial(loadingSlipExtTo.MaterialId, conn, tran);
+                    if (SizeTestingDtlTO != null)
+                    {
+                        tblInvoiceItemDetailsTO.SizeTestingDtlId = SizeTestingDtlTO.IdTestDtl;
+                    }
+                }
                 tblInvoiceTO.NetWeight += loadingSlipExtTo.LoadedWeight;
                 tblInvoiceTO.GrossWeight += loadingSlipExtTo.LoadedWeight;
                 tblInvoiceItemDetailsTO.InvoiceQty = Math.Round(loadingSlipExtTo.LoadedWeight * conversionFactor, 3);
@@ -5995,7 +6003,7 @@ namespace ODLMWebAPI.BL
                                         string itemDesc = "M.S. TMT BAR " + TblLoadingSlipExtTO.MaterialDesc;
                                         invoiceItemDT.Rows[invoiceItemDTCount]["prodItemDesc"] = itemDesc;
                                         double Cdrate = tblInvoiceItemDetailsTO.CdAmt / tblInvoiceItemDetailsTO.InvoiceQty;
-                                        double invoiceRate = Math.Round(tblInvoiceItemDetailsTO.Rate, 2) - Math.Round(Cdrate, 2);
+                                        double invoiceRate = Math.Round(tblInvoiceItemDetailsTO.Rate, 2) - Math.Round(tblInvoiceItemDetailsTO.CdAmt, 2);
                                         invoiceItemDT.Rows[invoiceItemDTCount]["rate"] = Math.Round(invoiceRate, 2);
                                         invoiceItemDT.Rows[invoiceItemDTCount]["basicTotal"] = Math.Round(tblInvoiceItemDetailsTO.TaxableAmt, 2);
                                     }

@@ -309,6 +309,7 @@ namespace ODLMWebAPI.DAL
                                 " ,[taxAmt]" +
                                 " ,[cdStructureId]" +
                                 " ,[brandId]" +
+                                  " ,[sizeTestingDtlId]" +
                                 " )" +
                     " VALUES (" +
                                 "  @InvoiceId " +
@@ -329,6 +330,7 @@ namespace ODLMWebAPI.DAL
                                 " ,@taxAmt " +
                                 " ,@cdStructureId " +
                                 " ,@BrandId " +
+                                " ,@sizeTestingDtlId "+
                                 " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
@@ -352,6 +354,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@taxAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceItemDetailsTO.TaxAmt);
             cmdInsert.Parameters.Add("@cdStructureId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceItemDetailsTO.CdStructureId);
             cmdInsert.Parameters.Add("@BrandId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceItemDetailsTO.BrandId);
+            cmdInsert.Parameters.Add("@sizeTestingDtlId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceItemDetailsTO.SizeTestingDtlId);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
