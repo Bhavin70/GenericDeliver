@@ -953,8 +953,16 @@ namespace ODLMWebAPI.Controllers
         [HttpGet]
         public List<DropDownTO> GetBookingTaxCategoryList()
         {
-            List<DropDownTO> loadingLayerList = _iDimensionBL.GetBookingTaxCategoryList();
-            return loadingLayerList;
+            List<DropDownTO> BookingTaxCategoryList = _iDimensionBL.GetBookingTaxCategoryList();
+            return BookingTaxCategoryList;
+        }
+
+        [Route("GetBookingCommentCategoryList")]
+        [HttpGet]
+        public List<DropDownTO> GetBookingCommentCategoryList()
+        {
+            List<DropDownTO> BookingCommentCategoryList = _iDimensionBL.GetBookingCommentCategoryList();
+            return BookingCommentCategoryList;
         }
         /// <summary>
         ///Sudhir[09-12-2017] Added For GetAllStatesList 

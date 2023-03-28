@@ -1655,6 +1655,46 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+
+        public List<DropDownTO> GetBookingCommentCategoryList()
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            try
+            {
+                conn.Open();
+                String sqlQuery = "SELECT * FROM dimBookingCommentCategory WHERE isActive=1 ";
+
+                cmdSelect = new SqlCommand(sqlQuery, conn);
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<DropDownTO> dropDownTOList = new List<Models.DropDownTO>();
+                while (dateReader.Read())
+                {
+                    DropDownTO dropDownTONew = new DropDownTO();
+                    if (dateReader["idCat"] != DBNull.Value)
+                        dropDownTONew.Value = Convert.ToInt32(dateReader["idCat"].ToString());
+                    if (dateReader["CommentCategoryName"] != DBNull.Value)
+                        dropDownTONew.Text = Convert.ToString(dateReader["CommentCategoryName"].ToString());
+
+                    dropDownTOList.Add(dropDownTONew);
+                }
+
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return dropDownTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
         public List<DimExportTypeTO> GetExportTypeList()
         {
 

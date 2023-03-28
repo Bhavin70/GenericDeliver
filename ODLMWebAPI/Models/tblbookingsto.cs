@@ -571,6 +571,10 @@ namespace ODLMWebAPI.Models
 
         public string DirectorComment { get; set; }
         public string BrokerName { get; set; }
+        public int BookingTaxCategoryId { get; set; }
+        public int BookingCommentCategoryId { get; set; }
+        public int IsBothTaxType { get; set; }
+
         public DateTime SizeUpdationDate { get; set; }
         public DateTime LoadingSlipDate { get; set; }
         public DateTime InvoiceDate { get; set; }

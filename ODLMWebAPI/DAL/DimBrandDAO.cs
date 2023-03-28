@@ -194,7 +194,8 @@ namespace ODLMWebAPI.DAL
                         dimBrandTONew.ShortNm = Convert.ToString(dimBrandTODT["shortNm"].ToString());
                     if (dimBrandTODT["isTaxInclusive"] != DBNull.Value)
                         dimBrandTONew.IsTaxInclusive = Convert.ToInt32(dimBrandTODT["isTaxInclusive"].ToString());
-                    
+                    if (dimBrandTODT["isBothTaxType"] != DBNull.Value)
+                        dimBrandTONew.IsBothTaxType = Convert.ToInt32(dimBrandTODT["isBothTaxType"].ToString());
                     dimBrandTOList.Add(dimBrandTONew);
                 }
             }

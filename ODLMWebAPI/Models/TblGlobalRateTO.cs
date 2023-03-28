@@ -104,6 +104,7 @@ namespace ODLMWebAPI.Models
         public List<TblQuotaDeclarationTO> QuotaDeclarationTOList { get => quotaDeclarationTOList; set => quotaDeclarationTOList = value; }
         public List<TblQuotaDeclarationTO> PreviousQuotaDeclarationTOList { get => previousQuotaDeclarationTOList; set => previousQuotaDeclarationTOList = value; }
         public int GroupId { get => groupId; set => groupId = value; }
+        public int IsBothTaxType { get ; set ; }
         #endregion
     }
 }
