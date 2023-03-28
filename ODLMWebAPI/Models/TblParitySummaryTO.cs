@@ -182,6 +182,14 @@ namespace ODLMWebAPI.Models
             get { return mechTEle; }
             set { mechTEle = value; }
         }
+        public decimal ChemCE
+        {
+            get;set;
+        }
+        public decimal ChemT
+        {
+            get;set;
+        }
         public string CastNo
         {
             get { return castNo; }

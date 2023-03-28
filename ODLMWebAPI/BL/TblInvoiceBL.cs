@@ -6848,6 +6848,215 @@ namespace ODLMWebAPI.BL
                 return resultMessage;
             }
         }
+
+        //Reshma Added FOr test Certificate Print
+        public ResultMessage PrintTestCertificateInvoiceDetails(Int32 invoiceId)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            String response = String.Empty;
+            String signedQRCode = String.Empty;
+            Int32 apiId = (int)EInvoiceAPIE.GENERATE_EINVOICE;
+            byte[] PhotoCodeInBytes = null;
+            try
+            {
+                TblInvoiceTO tblInvoiceTO = SelectTblInvoiceTOWithDetails(invoiceId);
+
+
+                DataSet printDataSet = new DataSet();
+                DataTable headerDT = new DataTable();
+                DataTable invoiceDT = new DataTable();
+                DataTable invoiceItemDT = new DataTable();
+                DataTable addressDT = new DataTable();
+
+                addressDT.TableName = "addressDT";
+                //headerDT.TableName = "headerDT";
+                invoiceDT.TableName = "headerDT";
+                invoiceItemDT.TableName = "invoiceItemDT";
+                int defaultCompOrgId = 0;
+
+                if (tblInvoiceTO.InvFromOrgId == 0)
+                {
+                    TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_DEFAULT_MATE_COMP_ORGID);
+                    if (configParamsTO != null)
+                    {
+                        defaultCompOrgId = Convert.ToInt16(configParamsTO.ConfigParamVal);
+                    }
+                }
+                else
+                {
+                    defaultCompOrgId = tblInvoiceTO.InvFromOrgId;
+                }
+                TblOrganizationTO organizationTO = _iTblOrganizationBL.SelectTblOrganizationTO(defaultCompOrgId);
+
+                if (tblInvoiceTO != null)
+                {
+
+                    if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                    {
+                        tblInvoiceTO.VehicleNo = tblInvoiceTO.VehicleNo.ToUpper();
+                    }
+                    invoiceDT.Columns.Add("invoiceNo");
+                    invoiceDT.Columns.Add("invoiceDateStr");
+                    invoiceDT.Columns.Add("vehicleNo");
+
+                    invoiceDT.Rows.Add();
+                    invoiceDT.Rows[0]["invoiceNo"] = tblInvoiceTO.InvoiceNo;
+                    invoiceDT.Rows[0]["invoiceDateStr"] = tblInvoiceTO.InvoiceDateStr;
+
+                    if (!String.IsNullOrEmpty(tblInvoiceTO.VehicleNo))
+                    {
+                        invoiceDT.Rows[0]["vehicleNo"] = tblInvoiceTO.VehicleNo;
+                    }
+
+                    addressDT.Columns.Add("billingNm");
+                    addressDT.Columns.Add("consigneeNm");
+                    if (tblInvoiceTO.InvoiceAddressTOList != null && tblInvoiceTO.InvoiceAddressTOList.Count > 0)
+                    {
+                        addressDT.Rows.Add();
+                        TblInvoiceAddressTO tblBillingInvoiceAddressTO = tblInvoiceTO.InvoiceAddressTOList.Where(eleA => eleA.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS).FirstOrDefault();
+                        if (tblBillingInvoiceAddressTO != null)
+                        {
+                            addressDT.Rows[0]["billingNm"] = tblBillingInvoiceAddressTO.BillingName;
+                        }
+                        TblInvoiceAddressTO tblBillingInvoiceAddressTOV2 = tblInvoiceTO.InvoiceAddressTOList.Where(eleA => eleA.TxnAddrTypeId == (int)Constants.TxnDeliveryAddressTypeE.CONSIGNEE_ADDRESS).FirstOrDefault();
+                        if (tblBillingInvoiceAddressTOV2 != null)
+                        {
+                            addressDT.Rows[0]["consigneeNm"] = tblBillingInvoiceAddressTOV2.BillingName;
+                        }
+                    }
+                    //Int32 finalItemCount = 15;
+                    if (tblInvoiceTO.InvoiceItemDetailsTOList != null && tblInvoiceTO.InvoiceItemDetailsTOList.Count > 0)
+                    {
+                        tblInvoiceTO.InvoiceItemDetailsTOList = tblInvoiceTO.InvoiceItemDetailsTOList;
+                        List<TblInvoiceItemDetailsTO> invoiceItemlist = tblInvoiceTO.InvoiceItemDetailsTOList.Where(ele => ele.OtherTaxId == 0).ToList();
+                        if (invoiceItemlist != null && invoiceItemlist.Count > 0)
+                        {
+                            invoiceItemDT.Columns.Add("srNo");
+                            invoiceItemDT.Columns.Add("prodItemDesc");
+                            invoiceItemDT.Columns.Add("bundles");
+                            invoiceItemDT.Columns.Add("invoiceQty", typeof(double));
+                            invoiceItemDT.Columns.Add("TestingDate");
+                            invoiceItemDT.Columns.Add("ChemC", typeof(double));
+                            invoiceItemDT.Columns.Add("ChemS", typeof(double));
+                            invoiceItemDT.Columns.Add("ChemP", typeof(double));
+                            invoiceItemDT.Columns.Add("MechProof", typeof(double));
+                            invoiceItemDT.Columns.Add("MechTen", typeof(double));
+                            invoiceItemDT.Columns.Add("MechElon", typeof(double));
+                            invoiceItemDT.Columns.Add("MechTEle", typeof(double));
+                            invoiceItemDT.Columns.Add("ChemCE", typeof(double));
+                            invoiceItemDT.Columns.Add("ChemT", typeof(double));
+
+                            invoiceItemDT.Columns.Add("CastNo");
+                            invoiceItemDT.Columns.Add("Grade");
+                            invoiceItemDT.Columns.Add("BendTest");
+                            invoiceItemDT.Columns.Add("RebandTest");
+                            invoiceItemDT.Columns.Add("GradeOfSteel");
+                            invoiceItemDT.Columns.Add("Remark");
+
+
+                            for (int x = 0; x < invoiceItemlist.Count; x++)
+                            {
+                                invoiceItemDT.Rows.Add();
+                                int count = invoiceItemDT.Rows.Count - 1;
+                                TblInvoiceItemDetailsTO TblInvoiceItemDetailsTO = invoiceItemlist[x];
+                                if (TblInvoiceItemDetailsTO.LoadingSlipExtId > 0)
+                                {
+                                    TblLoadingSlipExtTO tblLoadingSlipExtTO = _iTblLoadingSlipExtDAO.SelectTblLoadingSlipExt(TblInvoiceItemDetailsTO.LoadingSlipExtId);
+                                    SizeTestingDtlTO sizeTestingDtlTO = _iTblParitySummaryDAO.SelectTestCertificateDdtl(TblInvoiceItemDetailsTO.SizeTestingDtlId);
+                                    if (tblLoadingSlipExtTO != null)
+                                    {
+                                        invoiceItemDT.Rows[count]["srNo"] = x + 1;
+                                        invoiceItemDT.Rows[count]["prodItemDesc"] = tblLoadingSlipExtTO.MaterialDesc;
+                                        invoiceItemDT.Rows[count]["invoiceQty"] = TblInvoiceItemDetailsTO.InvoiceQty;
+                                        if (sizeTestingDtlTO != null)
+                                        {
+                                            invoiceItemDT.Rows[count]["TestingDate"] = sizeTestingDtlTO.TestingDate.ToString("dd-MM-yyyy");
+                                            invoiceItemDT.Rows[count]["ChemC"] = sizeTestingDtlTO.ChemC;
+                                            invoiceItemDT.Rows[count]["ChemS"] = sizeTestingDtlTO.ChemS;
+                                            invoiceItemDT.Rows[count]["ChemP"] = sizeTestingDtlTO.ChemP;
+                                            invoiceItemDT.Rows[count]["MechProof"] = sizeTestingDtlTO.MechProof;
+                                            invoiceItemDT.Rows[count]["MechTen"] = sizeTestingDtlTO.MechTen;
+                                            invoiceItemDT.Rows[count]["MechElon"] = sizeTestingDtlTO.MechElon;
+                                            invoiceItemDT.Rows[count]["MechTEle"] = sizeTestingDtlTO.MechTEle;
+
+                                            invoiceItemDT.Rows[count]["ChemCE"] = sizeTestingDtlTO.ChemCE;
+                                            invoiceItemDT.Rows[count]["ChemT"] = sizeTestingDtlTO.ChemT;
+
+                                            invoiceItemDT.Rows[count]["CastNo"] = sizeTestingDtlTO.CastNo;
+                                            invoiceItemDT.Rows[count]["Grade"] = sizeTestingDtlTO.Grade;
+                                            invoiceItemDT.Rows[count]["BendTest"] = "OK";
+                                            invoiceItemDT.Rows[count]["RebandTest"] = "OK";
+                                            invoiceItemDT.Rows[count]["GradeOfSteel"] = "OK";
+                                            invoiceItemDT.Rows[count]["Remark"] = "OK";
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                    //headerDT = invoiceDT.Clone();
+                    printDataSet.Tables.Add(addressDT);
+                    printDataSet.Tables.Add(invoiceDT);
+                    printDataSet.Tables.Add(invoiceItemDT);
+                    //printDataSet.Tables.Add(headerDT);
+
+                    String templateFilePath = _iDimReportTemplateBL.SelectReportFullName("InvoiceTestCertificate");
+                    // templateFilePath = @"C:\Deliver Templates\SER INVOICE Template.xls";
+                    String fileName = "Bill-" + DateTime.Now.Ticks;
+                    //download location for rewrite  template file
+                    String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
+                    // RunReport runReport = new RunReport();
+                    Boolean IsProduction = true;
+                    TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName("IS_PRODUCTION_ENVIRONMENT_ACTIVE");
+                    if (tblConfigParamsTO != null)
+                    {
+                        if (Convert.ToInt32(tblConfigParamsTO.ConfigParamVal) == 0)
+                        {
+                            IsProduction = false;
+                        }
+                    }
+                    resultMessage = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePath, saveLocation, Constants.ReportE.PDF_DONT_OPEN, IsProduction);
+                    if (resultMessage.MessageType == ResultMessageE.Information)
+                    {
+                        String filePath = String.Empty;
+
+                        if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
+                        {
+                            filePath = resultMessage.Tag.ToString();
+                        }
+                        //driveName + path;
+                        Byte[] bytes = DeleteFile(saveLocation, filePath);
+
+                        if (bytes != null && bytes.Length > 0)
+                        {
+                            resultMessage.Tag = Convert.ToBase64String(bytes);
+                        }
+
+                        else
+                            resultMessage.Tag = filePath;
+
+                        resultMessage.DefaultSuccessBehaviour();
+                    }
+                    else
+                    {
+                        resultMessage.Text = "Something wents wrong please try again";
+                        resultMessage.DisplayMessage = "Something wents wrong please try again";
+                        resultMessage.Result = 0;
+                    }
+
+                }
+
+                return resultMessage;
+
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "");
+                return resultMessage;
+            }
+        }
         public ResultMessage PostUpdateInvoiceStatus(TblInvoiceTO tblInvoiceTO)
         {
             ResultMessage resultMessage = new ResultMessage();

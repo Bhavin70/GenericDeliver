@@ -1400,7 +1400,39 @@ namespace ODLMWebAPI.Controllers
             }
         }
 
+        [Route("PrintTestCertificateInvoiceDetails")]
+        [HttpPost]
+        public ResultMessage PrintTestCertificateInvoiceDetails([FromBody] JObject data)
+        {
+            try
+            {
+                ResultMessage resultMessage = new StaticStuff.ResultMessage();
+                var invoiceId = data["invoiceId"].ToString();
+                // var firmNameId = data["firmId"].ToString();
 
+                if (invoiceId != null)
+                {
+                    DateTime serverDate = _iCommon.ServerDateTime;
+                    return _iTblInvoiceBL.PrintTestCertificateInvoiceDetails(Convert.ToInt32(invoiceId));
+                    //, Convert.ToInt32(firmNameId));
+                }
+
+                else
+                {
+                    resultMessage.DefaultBehaviour("tempInvoiceDocumentDetailsTO Found NULL");
+                    return resultMessage;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+
+            }
+        }
         [Route("PrintDataInvoiceDetails")]
         [HttpPost]
         public void PrintDataInvoiceDetails([FromBody] JObject data)

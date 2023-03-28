@@ -238,6 +238,8 @@ namespace ODLMWebAPI.DAL
                         tblInvoiceItemDetailsTONew.ProductNameWoBrand = tblInvoiceItemDetailsTONew.ProdItemDesc.Replace(tblInvoiceItemDetailsTONew.BrandName, "");
                     }
 
+                    if (tblInvoiceItemDetailsTODT["sizeTestingDtlId"] != DBNull.Value)
+                        tblInvoiceItemDetailsTONew.SizeTestingDtlId = Convert.ToInt32(tblInvoiceItemDetailsTODT["sizeTestingDtlId"]);
                     tblInvoiceItemDetailsTOList.Add(tblInvoiceItemDetailsTONew);
                 }
             }

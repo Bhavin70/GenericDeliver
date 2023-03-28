@@ -14,6 +14,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         TblParitySummaryTO SelectTblParitySummary(Int32 idParity, SqlConnection conn, SqlTransaction tran);
         TblParitySummaryTO SelectParitySummaryFromParityDtlId(Int32 parityDtlId, SqlConnection conn, SqlTransaction tran);
         SizeTestingDtlTO SelectTestCertificateDdtlofMaterial(Int32 materialId, SqlConnection conn, SqlTransaction tran);
+        SizeTestingDtlTO SelectTestCertificateDdtl(Int32 idmaterialDtl);
         TblParitySummaryTO SelectStatesActiveParitySummary(Int32 stateId, Int32 brandId, SqlConnection conn, SqlTransaction tran);
         List<TblParitySummaryTO> SelectActiveParitySummaryTOList(int dealerId, SqlConnection conn, SqlTransaction tran);
         List<TblParitySummaryTO> ConvertDTToList(SqlDataReader tblParitySummaryTODT);

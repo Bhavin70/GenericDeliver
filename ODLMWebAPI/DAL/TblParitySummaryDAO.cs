@@ -259,6 +259,37 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public SizeTestingDtlTO SelectTestCertificateDdtl(Int32 idmaterialDtl)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader sqlReader = null;
+            try
+            {
+                String sqlSelectQry = "select * from SizeTestingDtl  where idTestDtl =" + idmaterialDtl + "";
+                conn.Open();
+                cmdSelect.CommandText = sqlSelectQry;
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                SqlDataAdapter da = new SqlDataAdapter(cmdSelect);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                List<SizeTestingDtlTO> list = ConvertDTToListV2(dt);
+                if (list != null && list.Count == 1)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                cmdSelect.Dispose();
+            }
+        }
         List<SizeTestingDtlTO> ConvertDTToListV2(DataTable sizeTestingDtlTODT)
         {
             List<SizeTestingDtlTO> sizeTestingDtlTOList = new List<SizeTestingDtlTO>();
@@ -293,6 +324,10 @@ namespace ODLMWebAPI.DAL
                         sizeTestingDtlTONew.MechElon = Convert.ToDecimal(sizeTestingDtlTODT.Rows[rowCount]["MechElon"].ToString());
                     if (sizeTestingDtlTODT.Rows[rowCount]["MechTEle"] != DBNull.Value)
                         sizeTestingDtlTONew.MechTEle = Convert.ToDecimal(sizeTestingDtlTODT.Rows[rowCount]["MechTEle"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["ChemCE"] != DBNull.Value)
+                        sizeTestingDtlTONew.ChemCE = Convert.ToDecimal(sizeTestingDtlTODT.Rows[rowCount]["ChemCE"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["ChemT"] != DBNull.Value)
+                        sizeTestingDtlTONew.ChemT = Convert.ToDecimal(sizeTestingDtlTODT.Rows[rowCount]["ChemT"].ToString());
                     if (sizeTestingDtlTODT.Rows[rowCount]["CastNo"] != DBNull.Value)
                         sizeTestingDtlTONew.CastNo = Convert.ToString(sizeTestingDtlTODT.Rows[rowCount]["CastNo"].ToString());
                     if (sizeTestingDtlTODT.Rows[rowCount]["Grade"] != DBNull.Value)
