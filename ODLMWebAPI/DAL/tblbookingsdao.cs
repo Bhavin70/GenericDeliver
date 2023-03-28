@@ -1111,6 +1111,7 @@ namespace ODLMWebAPI.DAL
                                  "  ,orgDealer.firmName as 'Dealer'," +
                                  "  bookingsch   .Scheduledate  as 'Sizes Updation Date and Time',tempLoadingSlip.createdOn AS 'Loading Slip Generation Date'," +
                                  "  tempInvoice.createdOn as 'Invoice Generate Date' ,case when tempLoadingSlip.statusId=17 then tempLoadingSlip.statusDate else  '' End as 'Vehicle Out',AA.statusDate as 'FinanceApprove' " +//Reshma Added For Comment
+                                 " ,tempWeighingMeasures.createdOn  as 'StartWeight',tempWeighingMeasures1.createdOn  as 'EndWeight'" +
                                  " FROM tblbookings bookings LEFT JOIN tblOrganization orgCnf  ON bookings.cnfOrgId = orgCnf.idOrganization" +
 
                                  " LEFT JOIN tblTranActions tblTranAction ON tblTranAction.transId = bookings.idBooking AND tblTranAction.userId = " + userId +
@@ -1137,7 +1138,10 @@ namespace ODLMWebAPI.DAL
                                  "  bookingsch    on bookingsch   .bookingId = bookings .idBooking  " +
                                  "  LEFT JOIN tempLoadingSlipDtl ON bookings.idBooking =tempLoadingSlipDtl.bookingId " +
                                  "  LEFT JOIN tempLoadingSlip ON tempLoadingSlipDtl.loadingSlipId =tempLoadingSlip.idLoadingSlip " +
-                                 " LEFT JOIN tempInvoice ON tempLoadingSlip.idLoadingSlip=tempInvoice.loadingSlipId   ";//Reshma Added For SRJ Enquiry tracking report.
+                                 " LEFT JOIN tempInvoice ON tempLoadingSlip.idLoadingSlip=tempInvoice.loadingSlipId   " +//Reshma Added For SRJ Enquiry tracking report.
+                                 "LEFT JOIN temploading ON tempLoadingSlip.loadingid = tempLoading.idloading" +
+                                 "LEFT JOIN tempWeighingMeasures ON tempLoading.idloading = tempWeighingMeasures.loadingid AND tempWeighingMeasures.weightMeasurTypeid = 1" +
+                                 "LEFT JOIN tempWeighingMeasures as tempWeighingMeasures1 ON tempLoading.idloading = tempWeighingMeasures1.loadingid AND tempWeighingMeasures1.weightMeasurTypeid = 3";
 
 
             if (tblUserRoleTO != null)
@@ -2425,6 +2429,12 @@ namespace ODLMWebAPI.DAL
                         tblBookingsTONew.VehicleOutDate = Convert.ToDateTime(tblBookingsTODT["Vehicle Out"]);
                     if (tblBookingsTODT["FinanceApprove"] != DBNull.Value)
                         tblBookingsTONew.FinanceApprovalDate = Convert.ToDateTime(tblBookingsTODT["FinanceApprove"]);
+
+                    if (tblBookingsTODT["StartWeight"] != DBNull.Value)
+                        tblBookingsTONew.StartWeight = Convert.ToDateTime(tblBookingsTODT["StartWeight"]);
+
+                    if (tblBookingsTODT["EndWeight"] != DBNull.Value)
+                        tblBookingsTONew.EndWeight = Convert.ToDateTime(tblBookingsTODT["EndWeight"]);
 
                     if (tblBookingsTODT["bookingTaxCategoryId"] != DBNull.Value)
                         tblBookingsTONew.BookingTaxCategoryId = Convert.ToInt32(tblBookingsTODT["bookingTaxCategoryId"]);
