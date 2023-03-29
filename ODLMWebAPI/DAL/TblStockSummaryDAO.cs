@@ -532,7 +532,6 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.CommandText = "select idStockSummary,isnull(noOfBundles,0) as noOfBundles,isnull(totalStock,0) as totalStock,transactionType,createdOn,stockDate from tblStockSummary where cast(stockDate as date) = cast(getdate() as date)";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
-
                 stocksummaryTO = cmdSelect.ExecuteReader(CommandBehavior.Default);
                 if (stocksummaryTO.HasRows)
                 {
