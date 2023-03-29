@@ -224,6 +224,119 @@ namespace ODLMWebAPI.DAL
             return tblParitySummaryTOList;
         }
 
+        public SizeTestingDtlTO SelectTestCertificateDdtlofMaterial(Int32 materialId, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader sqlReader = null;
+            try
+            {
+                String sqlSelectQry = " SELECT testDtl.* , userDisplayName FROM tblMaterial " +
+                                 " LEFT JOIN tblUser ON idUser = createdBy   " +
+                                 "   left outer join (select top 1 SizeTestingDtl .* from SizeTestingDtl SizeTestingDtl  " +
+                                 "   left join tblMaterial tblMaterial on tblMaterial.idMaterial =SizeTestingDtl.materialId " +
+                                 "   where  tblMaterial.isActive=1 and materialId =" + materialId + "" +
+                                 "  order by idTestDtl desc) as testDtl on testDtl.materialId =tblMaterial.idMaterial " +
+                                 " where tblMaterial.isActive=1 and materialId =" + materialId + "";
+                cmdSelect.CommandText = sqlSelectQry;
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                SqlDataAdapter da = new SqlDataAdapter(cmdSelect);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                List<SizeTestingDtlTO> list = ConvertDTToListV2(dt);
+                if (list != null && list.Count == 1)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                cmdSelect.Dispose();
+            }
+        }
+
+        public SizeTestingDtlTO SelectTestCertificateDdtl(Int32 idmaterialDtl)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader sqlReader = null;
+            try
+            {
+                String sqlSelectQry = "select * from SizeTestingDtl  where idTestDtl =" + idmaterialDtl + "";
+                conn.Open();
+                cmdSelect.CommandText = sqlSelectQry;
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                SqlDataAdapter da = new SqlDataAdapter(cmdSelect);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                List<SizeTestingDtlTO> list = ConvertDTToListV2(dt);
+                if (list != null && list.Count == 1)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                cmdSelect.Dispose();
+            }
+        }
+        List<SizeTestingDtlTO> ConvertDTToListV2(DataTable sizeTestingDtlTODT)
+        {
+            List<SizeTestingDtlTO> sizeTestingDtlTOList = new List<SizeTestingDtlTO>();
+            if (sizeTestingDtlTODT != null)
+            {
+                for (int rowCount = 0; rowCount < sizeTestingDtlTODT.Rows.Count; rowCount++)
+                {
+                    SizeTestingDtlTO sizeTestingDtlTONew = new SizeTestingDtlTO();
+                    if (sizeTestingDtlTODT.Rows[rowCount]["createOn"] != DBNull.Value)
+                        sizeTestingDtlTONew.CreateOn = Convert.ToDateTime(sizeTestingDtlTODT.Rows[rowCount]["createOn"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["idTestDtl"] != DBNull.Value)
+                        sizeTestingDtlTONew.IdTestDtl = Convert.ToInt32(sizeTestingDtlTODT.Rows[rowCount]["idTestDtl"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["materialId"] != DBNull.Value)
+                        sizeTestingDtlTONew.MaterialId = Convert.ToInt32(sizeTestingDtlTODT.Rows[rowCount]["materialId"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["createdBy"] != DBNull.Value)
+                        sizeTestingDtlTONew.CreatedBy = Convert.ToInt32(sizeTestingDtlTODT.Rows[rowCount]["createdBy"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["isActive"] != DBNull.Value)
+                        sizeTestingDtlTONew.IsActive = Convert.ToInt32(sizeTestingDtlTODT.Rows[rowCount]["isActive"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["TestingDate"] != DBNull.Value)
+                        sizeTestingDtlTONew.TestingDate = Convert.ToDateTime(sizeTestingDtlTODT.Rows[rowCount]["TestingDate"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["ChemC"] != DBNull.Value)
+                        sizeTestingDtlTONew.ChemC = Convert.ToDecimal(sizeTestingDtlTODT.Rows[rowCount]["ChemC"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["ChemS"] != DBNull.Value)
+                        sizeTestingDtlTONew.ChemS = Convert.ToDecimal(sizeTestingDtlTODT.Rows[rowCount]["ChemS"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["ChemP"] != DBNull.Value)
+                        sizeTestingDtlTONew.ChemP = Convert.ToDecimal(sizeTestingDtlTODT.Rows[rowCount]["ChemP"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["MechProof"] != DBNull.Value)
+                        sizeTestingDtlTONew.MechProof = Convert.ToDecimal(sizeTestingDtlTODT.Rows[rowCount]["MechProof"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["MechTen"] != DBNull.Value)
+                        sizeTestingDtlTONew.MechTen = Convert.ToDecimal(sizeTestingDtlTODT.Rows[rowCount]["MechTen"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["MechElon"] != DBNull.Value)
+                        sizeTestingDtlTONew.MechElon = Convert.ToDecimal(sizeTestingDtlTODT.Rows[rowCount]["MechElon"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["MechTEle"] != DBNull.Value)
+                        sizeTestingDtlTONew.MechTEle = Convert.ToDecimal(sizeTestingDtlTODT.Rows[rowCount]["MechTEle"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["ChemCE"] != DBNull.Value)
+                        sizeTestingDtlTONew.ChemCE = Convert.ToDecimal(sizeTestingDtlTODT.Rows[rowCount]["ChemCE"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["ChemT"] != DBNull.Value)
+                        sizeTestingDtlTONew.ChemT = Convert.ToDecimal(sizeTestingDtlTODT.Rows[rowCount]["ChemT"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["CastNo"] != DBNull.Value)
+                        sizeTestingDtlTONew.CastNo = Convert.ToString(sizeTestingDtlTODT.Rows[rowCount]["CastNo"].ToString());
+                    if (sizeTestingDtlTODT.Rows[rowCount]["Grade"] != DBNull.Value)
+                        sizeTestingDtlTONew.Grade = Convert.ToString(sizeTestingDtlTODT.Rows[rowCount]["Grade"].ToString());
+                    sizeTestingDtlTOList.Add(sizeTestingDtlTONew);
+                }
+            }
+            return sizeTestingDtlTOList;
+        }
         #endregion
 
         #region Insertion

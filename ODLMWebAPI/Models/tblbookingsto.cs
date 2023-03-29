@@ -581,6 +581,10 @@ namespace ODLMWebAPI.Models
         public DateTime VehicleOutDate { get; set; }
 
         public DateTime FinanceApprovalDate { get; set; }
+
+        public DateTime StartWeight { get; set; }
+
+        public DateTime EndWeight { get; set; }
         public String FinanceApprovalDateStr
         {
             get { return FinanceApprovalDate.ToString(Constants.DefaultDateFormat); }
