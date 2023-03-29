@@ -188,7 +188,11 @@ namespace ODLMWebAPI.BL
         {
             return _iTblStockSummaryDAO.GetLastStockSummaryDetails();
         }
-
+        public StockSummaryTO GetTodaysStockSummaryDetails()
+        {
+            return _iTblStockSummaryDAO.GetTodaysStockSummaryDetails();
+        }
+        
         #endregion
 
         #region Insertion

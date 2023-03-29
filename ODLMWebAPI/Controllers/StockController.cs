@@ -259,6 +259,13 @@ namespace ODLMWebAPI.Controllers
         {
             return _iTblStockSummaryBL.GetLastStockSummaryDetails();
         }
+
+        [Route("GetTodaysStockSummaryDetails")]
+        [HttpGet]
+        public StockSummaryTO GetTodaysStockSummaryDetails()
+        {
+            return _iTblStockSummaryBL.GetTodaysStockSummaryDetails();
+        }
         #endregion
 
         #region Post

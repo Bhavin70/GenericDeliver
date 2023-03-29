@@ -26,5 +26,6 @@ namespace ODLMWebAPI.BL.Interfaces
         int DeleteTblStockSummary(Int32 idStockSummary, SqlConnection conn, SqlTransaction tran);
         ResultMessage ConfirmStockSummary(List<SizeSpecWiseStockTO> sizeSpecWiseStockTOList);
         StockSummaryTO GetLastStockSummaryDetails();
+        StockSummaryTO GetTodaysStockSummaryDetails();
     }
 }
