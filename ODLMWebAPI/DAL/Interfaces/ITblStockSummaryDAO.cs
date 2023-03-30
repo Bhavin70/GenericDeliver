@@ -31,7 +31,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         StockSummaryTO GetLastStockSummaryDetails();
 
         Int64 GetLastIdStockSummary(SqlConnection conn = null, SqlTransaction tran = null);
-        
+        StockSummaryTO GetTodaysStockSummaryDetails();
+
 
     }
 }

@@ -138,6 +138,29 @@ namespace ODLMWebAPI.Models
             get { return UpdatedOn.ToString("dd-MM-yyyy HH:mm"); }
             
         }
+
+
+        public Int64 IdStockSummary { get; set; }
+       
+        public Int32 ConfirmedBy { get; set; }        
+
+        public DateTime StockDate { get; set; }
+
+        public DateTime ConfirmedOn { get; set; }
+
+        public DateTime CreatedOn { get; set; }
+
+      
+
+        public Double NoOfBundles { get; set; }
+
+        public Double TotalStock { get; set; }
+
+
+        public Int32 TransactionType { get; set; }
+
+   
+      
         #endregion
 
     }

@@ -520,6 +520,63 @@ namespace ODLMWebAPI.DAL
                 conn.Close();
             }
         }
+        public StockSummaryTO GetTodaysStockSummaryDetails()
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader stocksummaryTO = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = "select idStockSummary,isnull(noOfBundles,0) as noOfBundles,isnull(totalStock,0) as totalStock,transactionType,createdOn,stockDate from tblStockSummary where cast(stockDate as date) = cast(getdate() as date)";
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                stocksummaryTO = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                if (stocksummaryTO.HasRows)
+                {
+                    if (stocksummaryTO.Read())
+                    {
+                        StockSummaryTO stocksummary = new StockSummaryTO();
+                        if (stocksummaryTO["idStockSummary"] != DBNull.Value)
+                            stocksummary.IdStockSummary = Convert.ToInt64(stocksummaryTO["idStockSummary"]);
+                        if (stocksummaryTO["noOfBundles"] != DBNull.Value)
+                            stocksummary.NoOfBundles = Convert.ToDouble(stocksummaryTO["noOfBundles"]);
+                        if (stocksummaryTO["totalStock"] != DBNull.Value)
+                            stocksummary.TotalStock = Convert.ToInt32(stocksummaryTO["totalStock"]);
+                        if (stocksummaryTO["transactionType"] != DBNull.Value)
+                            stocksummary.TransactionType = Convert.ToInt32(stocksummaryTO["transactionType"]);
+                        if (stocksummaryTO["createdOn"] != DBNull.Value)
+                            stocksummary.CreatedOn = Convert.ToDateTime(stocksummaryTO["createdOn"]);
+                        if (stocksummaryTO["stockDate"] != DBNull.Value)
+                            stocksummary.StockDate = Convert.ToDateTime(stocksummaryTO["stockDate"]);
+
+
+                        return stocksummary;
+
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+       
         #endregion
 
         #region Insertion
