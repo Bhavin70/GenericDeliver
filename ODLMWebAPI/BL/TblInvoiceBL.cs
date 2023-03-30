@@ -3067,6 +3067,16 @@ namespace ODLMWebAPI.BL
                 tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList = tblInvoiceItemTaxDtlsTOList;
                 tblInvoiceItemDetailsTOList.Add(tblInvoiceItemDetailsTO);
             }
+            if (tblInvoiceItemDetailsTOList != null && tblInvoiceItemDetailsTOList.Count > 0)
+            {
+                List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOListTemp  = tblInvoiceItemDetailsTOList.Where(w => w.SizeTestingDtlId > 0).ToList();
+                if (tblInvoiceItemDetailsTOListTemp != null && tblInvoiceItemDetailsTOListTemp.Count > 0)
+                {
+                    tblInvoiceTO.IsTestCertificate = 1;
+                }
+                
+            }
+
 
             #endregion
 
@@ -6898,6 +6908,8 @@ namespace ODLMWebAPI.BL
                     invoiceDT.Columns.Add("invoiceNo");
                     invoiceDT.Columns.Add("invoiceDateStr");
                     invoiceDT.Columns.Add("vehicleNo");
+                    invoiceDT.Columns.Add("poNo");
+                    invoiceDT.Columns.Add("poDateStr");
 
                     invoiceDT.Rows.Add();
                     invoiceDT.Rows[0]["invoiceNo"] = tblInvoiceTO.InvoiceNo;
@@ -6945,6 +6957,7 @@ namespace ODLMWebAPI.BL
                             invoiceItemDT.Columns.Add("MechTEle", typeof(double));
                             invoiceItemDT.Columns.Add("ChemCE", typeof(double));
                             invoiceItemDT.Columns.Add("ChemT", typeof(double));
+                            invoiceItemDT.Columns.Add("RatioTS", typeof(double));
 
                             invoiceItemDT.Columns.Add("CastNo");
                             invoiceItemDT.Columns.Add("Grade");
@@ -6953,7 +6966,7 @@ namespace ODLMWebAPI.BL
                             invoiceItemDT.Columns.Add("GradeOfSteel");
                             invoiceItemDT.Columns.Add("Remark");
 
-
+                            int bookingId = 0;
                             for (int x = 0; x < invoiceItemlist.Count; x++)
                             {
                                 invoiceItemDT.Rows.Add();
@@ -6965,6 +6978,8 @@ namespace ODLMWebAPI.BL
                                     SizeTestingDtlTO sizeTestingDtlTO = _iTblParitySummaryDAO.SelectTestCertificateDdtl(TblInvoiceItemDetailsTO.SizeTestingDtlId);
                                     if (tblLoadingSlipExtTO != null)
                                     {
+                                        if (tblLoadingSlipExtTO.BookingId >0 && bookingId==0)
+                                            bookingId = tblLoadingSlipExtTO.BookingId;
                                         invoiceItemDT.Rows[count]["srNo"] = x + 1;
                                         invoiceItemDT.Rows[count]["prodItemDesc"] = tblLoadingSlipExtTO.MaterialDesc;
                                         invoiceItemDT.Rows[count]["invoiceQty"] = TblInvoiceItemDetailsTO.InvoiceQty;
@@ -6981,6 +6996,7 @@ namespace ODLMWebAPI.BL
 
                                             invoiceItemDT.Rows[count]["ChemCE"] = sizeTestingDtlTO.ChemCE;
                                             invoiceItemDT.Rows[count]["ChemT"] = sizeTestingDtlTO.ChemT;
+                                            invoiceItemDT.Rows[count]["RatioTS"] =Math.Round ( sizeTestingDtlTO.MechTen/ sizeTestingDtlTO.MechProof,2);
 
                                             invoiceItemDT.Rows[count]["CastNo"] = sizeTestingDtlTO.CastNo;
                                             invoiceItemDT.Rows[count]["Grade"] = sizeTestingDtlTO.Grade;
@@ -6991,6 +7007,16 @@ namespace ODLMWebAPI.BL
                                         }
 
                                     }
+                                }
+                            }
+
+                            if (bookingId > 0)
+                            {
+                                TblBookingsTO tblBookingsTO = _iTblBookingsBL.SelectTblBookingsTO(bookingId);
+                                if (tblBookingsTO != null)
+                                {
+                                    invoiceDT.Rows[0]["poNo"] = tblBookingsTO.PoNo;
+                                    invoiceDT.Rows[0]["poDateStr"] = tblBookingsTO.PoDateStr;
                                 }
                             }
                         }
@@ -9989,35 +10015,6 @@ namespace ODLMWebAPI.BL
                     resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
                     resultMessage.Text = "Error While UpdateTempInvoiceDocumentDetails While updating invoice document details";
                     return resultMessage;
-                }
-                List<TempInvoiceDocumentDetailsTO> newTempInvoiceDocumentTOList = _iTempInvoiceDocumentDetailsDAO.SelectTempInvoiceDocumentDetailsByInvoiceId(tempInvoiceDocumentDetailsTO.InvoiceId,conn,tran );
-                if (newTempInvoiceDocumentTOList != null && newTempInvoiceDocumentTOList.Count > 0)
-                {
-                    newTempInvoiceDocumentTOList = newTempInvoiceDocumentTOList.Where(w => w.IsTestCertificate == 1).ToList();
-                    if (newTempInvoiceDocumentTOList != null && newTempInvoiceDocumentTOList.Count > 0)
-                    {
-                        tblInvoiceTO.IsTestCertificate = 1;
-                        result = UpdateTblInvoice(tblInvoiceTO, conn, tran);
-                        if (result != 1)
-                        {
-                            resultMessage.DefaultBehaviour();
-                            resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                            resultMessage.Text = "Error While UpdateTempInvoiceDocumentDetails While updating invoice document details";
-                            return resultMessage;
-                        }
-                    }
-                    else
-                    {
-                        tblInvoiceTO.IsTestCertificate = 0;
-                        result = UpdateTblInvoice(tblInvoiceTO, conn, tran);
-                        if (result != 1)
-                        {
-                            resultMessage.DefaultBehaviour();
-                            resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
-                            resultMessage.Text = "Error While UpdateTempInvoiceDocumentDetails While updating invoice document details";
-                            return resultMessage;
-                        }
-                    }
                 }
                 tran.Commit();
                 conn.Close();

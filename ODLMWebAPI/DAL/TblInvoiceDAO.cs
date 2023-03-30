@@ -3316,6 +3316,8 @@ namespace ODLMWebAPI.DAL
                                   ", [brokerName]" +
                                   ", [bookingTaxCategoryId]" +
                                   ", [bookingCommentCategoryId]" +
+                                  ", [isTestCertificate]" +
+
                                 " )" +
                     " VALUES (" +
                                 "  @InvoiceTypeId " +
@@ -3383,6 +3385,7 @@ namespace ODLMWebAPI.DAL
                                 ",@brokerName" +
                                   ",@bookingTaxCategoryId" +
                                   ",@bookingCommentCategoryId" +
+                                  "  ,@isTestCertificate " +
                                  " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
@@ -3453,6 +3456,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@brokerName", System.Data.SqlDbType.NVarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.BrokerName);
             cmdInsert.Parameters.Add("@bookingTaxCategoryId", System.Data.SqlDbType.NVarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.BookingTaxCategoryId );
             cmdInsert.Parameters.Add("@bookingCommentCategoryId", System.Data.SqlDbType.NVarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.BookingCommentCategoryId);
+            cmdInsert.Parameters.Add("@isTestCertificate", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblInvoiceTO.IsTestCertificate);
 
 
             if (cmdInsert.ExecuteNonQuery() == 1)
