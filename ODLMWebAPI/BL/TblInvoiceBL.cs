@@ -6010,7 +6010,7 @@ namespace ODLMWebAPI.BL
                                     TblLoadingSlipExtTO TblLoadingSlipExtTO = _iTblLoadingSlipExtDAO.SelectTblLoadingSlipExt(tblInvoiceItemDetailsTO.LoadingSlipExtId);
                                     if (tblInvoiceItemDetailsTO != null)
                                     {
-                                        string itemDesc = "M.S.T TMT BAR " + TblLoadingSlipExtTO.MaterialDesc;
+                                        string itemDesc = "M.S. TMT BARS " + TblLoadingSlipExtTO.MaterialDesc;
                                         invoiceItemDT.Rows[invoiceItemDTCount]["prodItemDesc"] = itemDesc;
                                         double CdRateAmt = tblInvoiceItemDetailsTO.BasicTotal - tblInvoiceItemDetailsTO.CdAmt;
                                         double Cdrate = tblInvoiceItemDetailsTO.CdAmt / tblInvoiceItemDetailsTO.InvoiceQty;
