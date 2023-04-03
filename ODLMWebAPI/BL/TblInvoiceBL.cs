@@ -6010,11 +6010,12 @@ namespace ODLMWebAPI.BL
                                     TblLoadingSlipExtTO TblLoadingSlipExtTO = _iTblLoadingSlipExtDAO.SelectTblLoadingSlipExt(tblInvoiceItemDetailsTO.LoadingSlipExtId);
                                     if (tblInvoiceItemDetailsTO != null)
                                     {
-                                        string itemDesc = "M.S. TMT BAR " + TblLoadingSlipExtTO.MaterialDesc;
+                                        string itemDesc = "M.S.T TMT BAR " + TblLoadingSlipExtTO.MaterialDesc;
                                         invoiceItemDT.Rows[invoiceItemDTCount]["prodItemDesc"] = itemDesc;
+                                        double CdRateAmt = tblInvoiceItemDetailsTO.BasicTotal - tblInvoiceItemDetailsTO.CdAmt;
                                         double Cdrate = tblInvoiceItemDetailsTO.CdAmt / tblInvoiceItemDetailsTO.InvoiceQty;
-                                        double invoiceRate = Math.Round(tblInvoiceItemDetailsTO.Rate, 2) - Math.Round(tblInvoiceItemDetailsTO.CdAmt, 2);
-                                        invoiceItemDT.Rows[invoiceItemDTCount]["rate"] = Math.Round(invoiceRate, 2);
+                                        double invoiceRate = Math.Round(CdRateAmt ,2) / Math.Round(tblInvoiceItemDetailsTO.InvoiceQty, 2);
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["rate"] = Math.Round( invoiceRate,2);// Math.Round(tblInvoiceItemDetailsTO.TaxableAmt, 2);
                                         invoiceItemDT.Rows[invoiceItemDTCount]["basicTotal"] = Math.Round(tblInvoiceItemDetailsTO.TaxableAmt, 2);
                                     }
                                 }

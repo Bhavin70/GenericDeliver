@@ -585,6 +585,8 @@ namespace ODLMWebAPI.Models
         public DateTime StartWeight { get; set; }
 
         public DateTime EndWeight { get; set; }
+        public String StartWeightDateStr { get { return StartWeight.ToString(Constants.DefaultDateFormat); } }
+        public String EndWeightDateStr { get { return EndWeight.ToString(Constants.DefaultDateFormat); } }
         public String FinanceApprovalDateStr
         {
             get { return FinanceApprovalDate.ToString(Constants.DefaultDateFormat); }

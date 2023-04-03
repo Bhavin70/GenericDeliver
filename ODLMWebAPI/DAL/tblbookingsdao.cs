@@ -1139,9 +1139,9 @@ namespace ODLMWebAPI.DAL
                                  "  LEFT JOIN tempLoadingSlipDtl ON bookings.idBooking =tempLoadingSlipDtl.bookingId " +
                                  "  LEFT JOIN tempLoadingSlip ON tempLoadingSlipDtl.loadingSlipId =tempLoadingSlip.idLoadingSlip " +
                                  " LEFT JOIN tempInvoice ON tempLoadingSlip.idLoadingSlip=tempInvoice.loadingSlipId   " +//Reshma Added For SRJ Enquiry tracking report.
-                                 "LEFT JOIN temploading ON tempLoadingSlip.loadingid = tempLoading.idloading" +
-                                 "LEFT JOIN tempWeighingMeasures ON tempLoading.idloading = tempWeighingMeasures.loadingid AND tempWeighingMeasures.weightMeasurTypeid = 1" +
-                                 "LEFT JOIN tempWeighingMeasures as tempWeighingMeasures1 ON tempLoading.idloading = tempWeighingMeasures1.loadingid AND tempWeighingMeasures1.weightMeasurTypeid = 3";
+                                 " LEFT JOIN temploading ON tempLoadingSlip.loadingid = tempLoading.idloading  " +
+                                 " LEFT JOIN tempWeighingMeasures ON tempLoading.idloading = tempWeighingMeasures.loadingid AND tempWeighingMeasures.weightMeasurTypeid = 1  " +
+                                 " LEFT JOIN tempWeighingMeasures as tempWeighingMeasures1 ON tempLoading.idloading = tempWeighingMeasures1.loadingid AND tempWeighingMeasures1.weightMeasurTypeid = 3  ";
 
 
             if (tblUserRoleTO != null)
