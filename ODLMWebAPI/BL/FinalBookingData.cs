@@ -2969,6 +2969,8 @@ namespace ODLMWebAPI.BL
                                 " ,[oldEwayBillNo]" +
                                 " ,[newEwayBillNo]" +
                                 " ,[statusRemark]" +
+                                   " ,[bookingTaxCategoryId]" +
+                                      " ,[bookingCommentCategoryId]" +
                                 " )" +
                     " VALUES (" +
                                 "  @InvoiceId " +
@@ -2990,6 +2992,8 @@ namespace ODLMWebAPI.BL
                                 " ,@OldEwayBillNo " +
                                 " ,@NewEwayBillNo " +
                                 " ,@StatusRemark " +
+                                " ,@bookingTaxCategoryId " +
+                                " ,@bookingCommentCategoryId " +
                                 " )";
             cmdInsert.CommandText = sqlQuery;
             cmdInsert.CommandType = System.Data.CommandType.Text;
@@ -3014,6 +3018,10 @@ namespace ODLMWebAPI.BL
             cmdInsert.Parameters.Add("@OldEwayBillNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceHistoryTO.OldEwayBillNo);
             cmdInsert.Parameters.Add("@NewEwayBillNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceHistoryTO.NewEwayBillNo);
             cmdInsert.Parameters.Add("@StatusRemark", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceHistoryTO.StatusRemark);
+
+            cmdInsert.Parameters.Add("@bookingTaxCategoryId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceHistoryTO.BookingTaxCategoryId);
+            cmdInsert.Parameters.Add("@bookingCommentCategoryId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblInvoiceHistoryTO.BookingCommentCategoryId);
+
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = Constants.IdentityColumnQuery;

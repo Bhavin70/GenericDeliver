@@ -1287,47 +1287,43 @@ namespace ODLMWebAPI.Controllers
 
         }
 
-        /// <summary>
-        /// Vijaymala[22-05-2018] : Added To save invoice document details.
-        /// </summary>
-        /// <returns></returns>
-        /// 
-        [Route("PostInvoiceDocumentDetails")]
-        [HttpPost]
-        public ResultMessage PostDeactivateInvoiceDocumentDetails([FromBody] JObject data)
-        {
-            ResultMessage resultMessage = new StaticStuff.ResultMessage();
-            try
-            {
-                TempInvoiceDocumentDetailsTO tempInvoiceDocumentDetailsTO = JsonConvert.DeserializeObject<TempInvoiceDocumentDetailsTO>(data["invoiceDocumentDetailsTO"].ToString());
+        
+        //[Route("PostInvoiceDocumentDetails")]
+        //[HttpPost]
+        //public ResultMessage PostDeactivateInvoiceDocumentDetails([FromBody] JObject data)
+        //{
+        //    ResultMessage resultMessage = new StaticStuff.ResultMessage();
+        //    try
+        //    {
+        //        TempInvoiceDocumentDetailsTO tempInvoiceDocumentDetailsTO = JsonConvert.DeserializeObject<TempInvoiceDocumentDetailsTO>(data["invoiceDocumentDetailsTO"].ToString());
 
-                var loginUserId = data["loginUserId"].ToString();
+        //        var loginUserId = data["loginUserId"].ToString();
 
-                if (Convert.ToInt32(loginUserId) <= 0)
-                {
-                    resultMessage.DefaultBehaviour("loginUserId Not Found");
-                    return resultMessage;
-                }
+        //        if (Convert.ToInt32(loginUserId) <= 0)
+        //        {
+        //            resultMessage.DefaultBehaviour("loginUserId Not Found");
+        //            return resultMessage;
+        //        }
 
-                if (tempInvoiceDocumentDetailsTO != null)
-                {
-                    DateTime serverDate = _iCommon.ServerDateTime;
-                    return _iTblInvoiceBL.DeactivateInvoiceDocumentDetails(tempInvoiceDocumentDetailsTO, Convert.ToInt32(loginUserId));
-                }
+        //        if (tempInvoiceDocumentDetailsTO != null)
+        //        {
+        //            DateTime serverDate = _iCommon.ServerDateTime;
+        //            return _iTblInvoiceBL.DeactivateInvoiceDocumentDetails(tempInvoiceDocumentDetailsTO, Convert.ToInt32(loginUserId));
+        //        }
 
-                else
-                {
-                    resultMessage.DefaultBehaviour("tempInvoiceDocumentDetailsTO Found NULL");
-                    return resultMessage;
-                }
-            }
-            catch (Exception ex)
-            {
-                resultMessage.DefaultExceptionBehaviour(ex, "PostDeactivateInvoiceDocumentDetails");
-                return resultMessage;
-            }
+        //        else
+        //        {
+        //            resultMessage.DefaultBehaviour("tempInvoiceDocumentDetailsTO Found NULL");
+        //            return resultMessage;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        resultMessage.DefaultExceptionBehaviour(ex, "PostDeactivateInvoiceDocumentDetails");
+        //        return resultMessage;
+        //    }
 
-        }
+        //}
         [Route("PostIsTestCertificateInvoiceDocumentDetails")]
         [HttpPost]
         public ResultMessage PostIsTestCertificateInvoiceDocumentDetails([FromBody] JObject data)
@@ -1380,6 +1376,7 @@ namespace ODLMWebAPI.Controllers
                 {
                     DateTime serverDate = _iCommon.ServerDateTime;
                     return _iTblInvoiceBL.PrintReport(Convert.ToInt32(invoiceId), isPrinted);
+
                         //, Convert.ToInt32(firmNameId));
                 }
 
