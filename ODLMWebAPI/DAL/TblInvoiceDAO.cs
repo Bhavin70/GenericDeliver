@@ -999,7 +999,7 @@ namespace ODLMWebAPI.DAL
                      " AND sq1.txnAddrTypeId = " + (int)Constants.TxnDeliveryAddressTypeE.BILLING_ADDRESS + formOrgIdCondtion+
                      " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED
                      //+ " order by sq1.deliveredOn asc";
-                     + " order by sq1.invoiceNo asc";
+                     + " order by sq1.idInvoice asc";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
                 cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.DateTime).Value = frmDt;
@@ -2452,7 +2452,7 @@ namespace ODLMWebAPI.DAL
                      //" AND CAST(sq1.deliveredOn AS DATE) BETWEEN @fromDate AND @toDate" +
                      " AND CAST(sq1.statusDate AS DATE) BETWEEN @fromDate AND @toDate" + formOrgIdCondtion +
                      " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED +
-                     " order by sq1.invoiceNo asc"; ;
+                     " order by sq1.idInvoice asc"; ;
 
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
