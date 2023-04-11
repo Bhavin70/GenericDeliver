@@ -1287,43 +1287,43 @@ namespace ODLMWebAPI.Controllers
 
         }
 
-        
-        //[Route("PostInvoiceDocumentDetails")]
-        //[HttpPost]
-        //public ResultMessage PostDeactivateInvoiceDocumentDetails([FromBody] JObject data)
-        //{
-        //    ResultMessage resultMessage = new StaticStuff.ResultMessage();
-        //    try
-        //    {
-        //        TempInvoiceDocumentDetailsTO tempInvoiceDocumentDetailsTO = JsonConvert.DeserializeObject<TempInvoiceDocumentDetailsTO>(data["invoiceDocumentDetailsTO"].ToString());
 
-        //        var loginUserId = data["loginUserId"].ToString();
+        [Route("PostDeactivateInvoiceDocumentDetails")]
+        [HttpPost]
+        public ResultMessage PostDeactivateInvoiceDocumentDetails([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                TempInvoiceDocumentDetailsTO tempInvoiceDocumentDetailsTO = JsonConvert.DeserializeObject<TempInvoiceDocumentDetailsTO>(data["invoiceDocumentDetailsTO"].ToString());
 
-        //        if (Convert.ToInt32(loginUserId) <= 0)
-        //        {
-        //            resultMessage.DefaultBehaviour("loginUserId Not Found");
-        //            return resultMessage;
-        //        }
+                var loginUserId = data["loginUserId"].ToString();
 
-        //        if (tempInvoiceDocumentDetailsTO != null)
-        //        {
-        //            DateTime serverDate = _iCommon.ServerDateTime;
-        //            return _iTblInvoiceBL.DeactivateInvoiceDocumentDetails(tempInvoiceDocumentDetailsTO, Convert.ToInt32(loginUserId));
-        //        }
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    resultMessage.DefaultBehaviour("loginUserId Not Found");
+                    return resultMessage;
+                }
 
-        //        else
-        //        {
-        //            resultMessage.DefaultBehaviour("tempInvoiceDocumentDetailsTO Found NULL");
-        //            return resultMessage;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        resultMessage.DefaultExceptionBehaviour(ex, "PostDeactivateInvoiceDocumentDetails");
-        //        return resultMessage;
-        //    }
+                if (tempInvoiceDocumentDetailsTO != null)
+                {
+                    DateTime serverDate = _iCommon.ServerDateTime;
+                    return _iTblInvoiceBL.DeactivateInvoiceDocumentDetails(tempInvoiceDocumentDetailsTO, Convert.ToInt32(loginUserId));
+                }
 
-        //}
+                else
+                {
+                    resultMessage.DefaultBehaviour("tempInvoiceDocumentDetailsTO Found NULL");
+                    return resultMessage;
+                }
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "PostDeactivateInvoiceDocumentDetails");
+                return resultMessage;
+            }
+
+        }
         [Route("PostIsTestCertificateInvoiceDocumentDetails")]
         [HttpPost]
         public ResultMessage PostIsTestCertificateInvoiceDocumentDetails([FromBody] JObject data)
