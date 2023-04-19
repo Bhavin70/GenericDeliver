@@ -1483,7 +1483,7 @@ namespace ODLMWebAPI.Controllers
         [Route("PrintWeighingDetails")]
         [HttpPost]
         public ResultMessage PrintWeighingDetails([FromBody] JObject data)
-        {
+      {
             try
             {
                 ResultMessage resultMessage = new StaticStuff.ResultMessage();

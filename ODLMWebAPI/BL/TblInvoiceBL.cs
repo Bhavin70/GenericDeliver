@@ -15132,6 +15132,9 @@ namespace ODLMWebAPI.BL
                 String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
                 // RunReport runReport = new RunReport();
                 Boolean IsProduction = true;
+                WriteLog("ConsoleLog", String.Format("{0} @ {1}", "Log is Created at", DateTime.Now));
+                WriteLog(" ConsoleLog", "\\n Log is Written Successfully !!!");
+                //Console.ReadLine();
 
                 TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName("IS_PRODUCTION_ENVIRONMENT_ACTIVE");
                 if (tblConfigParamsTO != null)
@@ -15145,52 +15148,74 @@ namespace ODLMWebAPI.BL
                 resultMessage = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePath, saveLocation, Constants.ReportE.PDF_DONT_OPEN, IsProduction);
                 if (resultMessage.MessageType == ResultMessageE.Information)
                 {
-
-                    if (tblInvoiceTO != null && tblInvoiceTO.BookingTaxCategoryId > 0)
+                    try
                     {
-                        string templateNameTeV2 = "WhatsAppInvoiceTestCertificateAone";
-                        String templateFilePathV2 = _iDimReportTemplateBL.SelectReportFullName(templateNameTeV2);
-                        // templateFilePath = @"C:\Deliver Templates\SER INVOICE Template.xls";
-                        String fileNameV2 = "TestCertificate-" + DateTime.Now.Ticks;
-
-                        //download location for rewrite  template file
-                        String saveLocationV2 = AppDomain.CurrentDomain.BaseDirectory + fileNameV2 + ".xls";
-                        // RunReport runReport = new RunReport();
-                        Boolean IsProductionV2 = true;
-
-                        TblConfigParamsTO tblConfigParamsTOV2 = _iTblConfigParamsBL.SelectTblConfigParamsValByName("IS_PRODUCTION_ENVIRONMENT_ACTIVE");
-                        if (tblConfigParamsTOV2 != null)
+                        WriteLog(" ConsoleLog", "\\n Old File is created");
+                        if (tblInvoiceTO != null && tblInvoiceTO.BookingTaxCategoryId > 0)
                         {
-                            if (Convert.ToInt32(tblConfigParamsTOV2.ConfigParamVal) == 0)
-                            {
-                                IsProductionV2 = false;
-                            }
-                        }
-                        ResultMessage resultMsg = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePathV2, saveLocationV2, Constants.ReportE.PDF_DONT_OPEN, IsProductionV2);
-                        if (resultMessage.MessageType == ResultMessageE.Information)
-                        {
-                            string[] PDFfileNames = new string[2];
-                            PDFfileNames[1] = resultMsg.Tag.ToString();
-                            PDFfileNames[0] = resultMessage.Tag.ToString();
+                            WriteLog(" ConsoleLog", "\\n  tblInvoiceTO.BookingTaxCategoryId ");
+                            string templateNameTeV2 = "WhatsAppInvoiceTestCertificateAone";
+                            String templateFilePathV2 = _iDimReportTemplateBL.SelectReportFullName(templateNameTeV2);
+                            WriteLog(" ConsoleLog", "\\n templateFilePathV2 " + templateFilePathV2);
+
+                            // templateFilePath = @"C:\Deliver Templates\SER INVOICE Template.xls";
+                            String fileNameV2 = "TestCertificate-" + DateTime.Now.Ticks;
+
                             //download location for rewrite  template file
-                            String saveLocationFinal = AppDomain.CurrentDomain.BaseDirectory + fileNameV2+"_V2" + ".pdf";
-                            //string OutputFile = "E:\\Simpli Work Mask BC\\Simpli Deliver Generic\\ODLMAPICode\\ODLMWebAPI\\bin\\Debug\\netcoreapp2.0\\Test.pdf";
-                            DirectoryInfo dirInfo = Directory.GetParent(saveLocationFinal);
-                            if (!Directory.Exists(dirInfo.FullName))
+                            String saveLocationV2 = AppDomain.CurrentDomain.BaseDirectory + fileNameV2 + ".xls";
+                            // RunReport runReport = new RunReport();
+                            Boolean IsProductionV2 = true;
+
+                            TblConfigParamsTO tblConfigParamsTOV2 = _iTblConfigParamsBL.SelectTblConfigParamsValByName("IS_PRODUCTION_ENVIRONMENT_ACTIVE");
+                            if (tblConfigParamsTOV2 != null)
                             {
-                                Directory.CreateDirectory(dirInfo.FullName);
+                                if (Convert.ToInt32(tblConfigParamsTOV2.ConfigParamVal) == 0)
+                                {
+                                    IsProductionV2 = false;
+                                }
                             }
-                           int pdfResult= MargeMultiplePDF(PDFfileNames, saveLocationFinal);
-                            if (pdfResult != 1)
+
+                            WriteLog(" ConsoleLog", "\\n  Before Test Certificate ");
+                            ResultMessage resultMsg = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePathV2, saveLocationV2, Constants.ReportE.PDF_DONT_OPEN, IsProductionV2);
+                            WriteLog(" ConsoleLog", "\\n After Test Certificate " + resultMsg.Result );
+                            if (resultMessage.MessageType == ResultMessageE.Information)
                             {
-                                resultMessage.Text = "Error in MargeMultiplePDF()";
-                                resultMessage.DisplayMessage = "Error in MargeMultiplePDF()";
-                                resultMessage.Result = 0;
+                                string[] PDFfileNames = new string[2];
+                                PDFfileNames[1] = resultMsg.Tag.ToString();
+                                PDFfileNames[0] = resultMessage.Tag.ToString();
+                                //download location for rewrite  template file
+                                String saveLocationFinal = AppDomain.CurrentDomain.BaseDirectory + fileNameV2 + "_V2" + ".pdf";
+                                WriteLog(" ConsoleLog", "\\n  saveLocationFinal " + saveLocationFinal);
+                                //string OutputFile = "E:\\Simpli Work Mask BC\\Simpli Deliver Generic\\ODLMAPICode\\ODLMWebAPI\\bin\\Debug\\netcoreapp2.0\\Test.pdf";
+                                DirectoryInfo dirInfo = Directory.GetParent(saveLocationFinal);
+                                if (!Directory.Exists(dirInfo.FullName))
+                                {
+                                    Directory.CreateDirectory(dirInfo.FullName);
+                                }
+                                WriteLog(" ConsoleLog", "\\n  Before Merge PDF ");
+                                int pdfResult = MargeMultiplePDF(PDFfileNames, saveLocationFinal);
+                                WriteLog(" ConsoleLog", "\\n  After Merge PDF Result " + pdfResult);
+                                if (pdfResult != 1)
+                                {
+                                    WriteLog(" ConsoleLog", "\\n  After Merge PDF Result in result " + pdfResult);
+                                    resultMessage.Text = "Error in MargeMultiplePDF()";
+                                    resultMessage.DisplayMessage = "Error in MargeMultiplePDF()";
+                                    resultMessage.Result = 0;
+                                }
+                                WriteLog(" ConsoleLog", "\\n saveLocationFinal  " + saveLocationFinal);
+                                resultMessage.Tag = saveLocationFinal;
                             }
-                            resultMessage.Tag = saveLocationFinal;
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        WriteLog(" ConsoleLog", "\\n saveLocationFinal Exception " + ex.GetBaseException().ToString ());
+                        resultMessage.Text = "Something wents wrong please try again";
+                        resultMessage.DisplayMessage = "Something wents wrong please try again";
+                        resultMessage.Result = 0;
+                    }
                     String filePath = String.Empty;
+                    WriteLog(" ConsoleLog", "\\n resultMessage  " + resultMessage.Tag.ToString());
 
                     if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
                     {
@@ -15231,6 +15256,22 @@ namespace ODLMWebAPI.BL
             {
                 resultMessage.DefaultExceptionBehaviour(ex, "");
                 return resultMessage;
+            }
+        }
+        public  bool WriteLog(string strFileName, string strMessage)
+        {
+            try
+            {
+                FileStream objFilestream = new FileStream(string.Format("{0}\\{1}", Path.GetTempPath(), strFileName), FileMode.Append, FileAccess.Write);
+                StreamWriter objStreamWriter = new StreamWriter((Stream)objFilestream);
+                objStreamWriter.Write(strMessage);
+                objStreamWriter.Close();
+                objFilestream.Close();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
             }
         }
         /// <summary>
