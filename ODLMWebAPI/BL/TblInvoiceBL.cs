@@ -15108,8 +15108,8 @@ namespace ODLMWebAPI.BL
                                 TblBookingsTO tblBookingsTOV2 = _iTblBookingsBL.SelectTblBookingsTO(bookingId);
                                 if (tblBookingsTO != null)
                                 {
-                                    invoiceDTV2.Rows[0]["poNo"] = tblBookingsTOV2.PoNo;
-                                    invoiceDTV2.Rows[0]["poDateStr"] = tblBookingsTOV2.PoDateStr;
+                                    headerDT.Rows[0]["poNo"] = tblBookingsTOV2.PoNo;
+                                    headerDT.Rows[0]["poDateStr"] = tblBookingsTOV2.PoDateStr;
                                 }
                             }
                         }
@@ -15132,8 +15132,8 @@ namespace ODLMWebAPI.BL
                 String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
                 // RunReport runReport = new RunReport();
                 Boolean IsProduction = true;
-                WriteLog("ConsoleLog", String.Format("{0} @ {1}", "Log is Created at", DateTime.Now));
-                WriteLog(" ConsoleLog", "\\n Log is Written Successfully !!!");
+                //WriteLog("ConsoleLog", String.Format("{0} @ {1}", "Log is Created at", DateTime.Now));
+                //WriteLog(" ConsoleLog", "\\n Log is Written Successfully !!!");
                 //Console.ReadLine();
 
                 TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName("IS_PRODUCTION_ENVIRONMENT_ACTIVE");
@@ -15150,13 +15150,13 @@ namespace ODLMWebAPI.BL
                 {
                     try
                     {
-                        WriteLog(" ConsoleLog", "\\n Old File is created");
+                        //WriteLog(" ConsoleLog", "\\n Old File is created");
                         if (tblInvoiceTO != null && tblInvoiceTO.BookingTaxCategoryId > 0)
                         {
-                            WriteLog(" ConsoleLog", "\\n  tblInvoiceTO.BookingTaxCategoryId ");
+                            //WriteLog(" ConsoleLog", "\\n  tblInvoiceTO.BookingTaxCategoryId ");
                             string templateNameTeV2 = "WhatsAppInvoiceTestCertificateAone";
                             String templateFilePathV2 = _iDimReportTemplateBL.SelectReportFullName(templateNameTeV2);
-                            WriteLog(" ConsoleLog", "\\n templateFilePathV2 " + templateFilePathV2);
+                            //WriteLog(" ConsoleLog", "\\n templateFilePathV2 " + templateFilePathV2);
 
                             // templateFilePath = @"C:\Deliver Templates\SER INVOICE Template.xls";
                             String fileNameV2 = "TestCertificate-" + DateTime.Now.Ticks;
@@ -15175,9 +15175,9 @@ namespace ODLMWebAPI.BL
                                 }
                             }
 
-                            WriteLog(" ConsoleLog", "\\n  Before Test Certificate ");
+                            //WriteLog(" ConsoleLog", "\\n  Before Test Certificate ");
                             ResultMessage resultMsg = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePathV2, saveLocationV2, Constants.ReportE.PDF_DONT_OPEN, IsProductionV2);
-                            WriteLog(" ConsoleLog", "\\n After Test Certificate " + resultMsg.Result );
+                            //WriteLog(" ConsoleLog", "\\n After Test Certificate " + resultMsg.Result );
                             if (resultMessage.MessageType == ResultMessageE.Information)
                             {
                                 string[] PDFfileNames = new string[2];
@@ -15185,37 +15185,37 @@ namespace ODLMWebAPI.BL
                                 PDFfileNames[0] = resultMessage.Tag.ToString();
                                 //download location for rewrite  template file
                                 String saveLocationFinal = AppDomain.CurrentDomain.BaseDirectory + fileNameV2 + "_V2" + ".pdf";
-                                WriteLog(" ConsoleLog", "\\n  saveLocationFinal " + saveLocationFinal);
+                                //WriteLog(" ConsoleLog", "\\n  saveLocationFinal " + saveLocationFinal);
                                 //string OutputFile = "E:\\Simpli Work Mask BC\\Simpli Deliver Generic\\ODLMAPICode\\ODLMWebAPI\\bin\\Debug\\netcoreapp2.0\\Test.pdf";
                                 DirectoryInfo dirInfo = Directory.GetParent(saveLocationFinal);
                                 if (!Directory.Exists(dirInfo.FullName))
                                 {
                                     Directory.CreateDirectory(dirInfo.FullName);
                                 }
-                                WriteLog(" ConsoleLog", "\\n  Before Merge PDF ");
+                                //WriteLog(" ConsoleLog", "\\n  Before Merge PDF ");
                                 int pdfResult = MargeMultiplePDF(PDFfileNames, saveLocationFinal);
-                                WriteLog(" ConsoleLog", "\\n  After Merge PDF Result " + pdfResult);
+                                //WriteLog(" ConsoleLog", "\\n  After Merge PDF Result " + pdfResult);
                                 if (pdfResult != 1)
                                 {
-                                    WriteLog(" ConsoleLog", "\\n  After Merge PDF Result in result " + pdfResult);
+                                    //WriteLog(" ConsoleLog", "\\n  After Merge PDF Result in result " + pdfResult);
                                     resultMessage.Text = "Error in MargeMultiplePDF()";
                                     resultMessage.DisplayMessage = "Error in MargeMultiplePDF()";
                                     resultMessage.Result = 0;
                                 }
-                                WriteLog(" ConsoleLog", "\\n saveLocationFinal  " + saveLocationFinal);
+                                //WriteLog(" ConsoleLog", "\\n saveLocationFinal  " + saveLocationFinal);
                                 resultMessage.Tag = saveLocationFinal;
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        WriteLog(" ConsoleLog", "\\n saveLocationFinal Exception " + ex.GetBaseException().ToString ());
+                        //WriteLog(" ConsoleLog", "\\n saveLocationFinal Exception " + ex.GetBaseException().ToString ());
                         resultMessage.Text = "Something wents wrong please try again";
                         resultMessage.DisplayMessage = "Something wents wrong please try again";
                         resultMessage.Result = 0;
                     }
                     String filePath = String.Empty;
-                    WriteLog(" ConsoleLog", "\\n resultMessage  " + resultMessage.Tag.ToString());
+                    //WriteLog(" ConsoleLog", "\\n resultMessage  " + resultMessage.Tag.ToString());
 
                     if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
                     {

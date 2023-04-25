@@ -71,7 +71,7 @@
       <EmbedInteropTypes>true</EmbedInteropTypes>
     </Reference>
     <Reference Include="itextsharp">
-      <HintPath>..\..\..\itextsharp.dll</HintPath>
+      <HintPath>bin\Debug\netcoreapp2.0\itextsharp.dll</HintPath>
     </Reference>
   </ItemGroup>
 
