@@ -311,8 +311,97 @@ namespace ODLMWebAPI.DAL
             }
             else return 0;
         }
+
+        public int InsertSizeTestingDtlV2(TblMaterialTO sizeTestingDtlTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdInsert = new SqlCommand();
+            try
+            {
+                cmdInsert.Connection = conn;
+                cmdInsert.Transaction = tran;
+                return ExecuteInsertionCommandV2(sizeTestingDtlTO, cmdInsert);
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+            finally
+            {
+                //conn.Close();
+                cmdInsert.Dispose();
+            }
+        }
+
+        int ExecuteInsertionCommandV2(TblMaterialTO sizeTestingDtlTO, SqlCommand cmdInsert)
+        {
+            String sqlQuery = @" INSERT INTO [SizeTestingDtl]( " +
+            "  [createOn]" +
+            " ,[materialId]" +
+            " ,[createdBy]" +
+            " ,[isActive]" +
+            " ,[TestingDate]" +
+            " ,[ChemC]" +
+            " ,[ChemS]" +
+            " ,[ChemP]" +
+            " ,[MechProof]" +
+            " ,[MechTen]" +
+            " ,[MechElon]" +
+            " ,[MechTEle]" +
+            " ,[CastNo]" +
+            " ,[Grade]" +
+            " ,ChemCE " +
+            " ,ChemT " +
+            " )" +
+" VALUES (" +
+            "  @CreateOn " +
+            " ,@MaterialId " +
+            " ,@CreatedBy " +
+            " ,@IsActive " +
+            " ,@TestingDate " +
+            " ,@ChemC " +
+            " ,@ChemS " +
+            " ,@ChemP " +
+            " ,@MechProof " +
+            " ,@MechTen " +
+            " ,@MechElon " +
+            " ,@MechTEle " +
+            " ,@CastNo " +
+            " ,@Grade " +
+              " ,@ChemCE " +
+            " ,@ChemT " +
+            " )";
+            cmdInsert.CommandText = sqlQuery;
+            cmdInsert.CommandType = System.Data.CommandType.Text;
+            String sqlSelectIdentityQry = "Select @@Identity";
+
+            cmdInsert.Parameters.Add("@CreateOn", System.Data.SqlDbType.DateTime).Value = sizeTestingDtlTO.CreatedOn;
+            cmdInsert.Parameters.Add("@MaterialId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(sizeTestingDtlTO.MaterialId);
+            cmdInsert.Parameters.Add("@CreatedBy", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(sizeTestingDtlTO.CreatedBy);
+            cmdInsert.Parameters.Add("@IsActive", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(sizeTestingDtlTO.IsActive);
+            cmdInsert.Parameters.Add("@TestingDate", System.Data.SqlDbType.DateTime).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(sizeTestingDtlTO.TestingDate);
+            cmdInsert.Parameters.Add("@ChemC", System.Data.SqlDbType.Decimal).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(sizeTestingDtlTO.ChemC);
+            cmdInsert.Parameters.Add("@ChemS", System.Data.SqlDbType.Decimal).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(sizeTestingDtlTO.ChemS);
+            cmdInsert.Parameters.Add("@ChemP", System.Data.SqlDbType.Decimal).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(sizeTestingDtlTO.ChemP);
+            cmdInsert.Parameters.Add("@MechProof", System.Data.SqlDbType.Decimal).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(sizeTestingDtlTO.MechProof);
+            cmdInsert.Parameters.Add("@MechTen", System.Data.SqlDbType.Decimal).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(sizeTestingDtlTO.MechTen);
+            cmdInsert.Parameters.Add("@MechElon", System.Data.SqlDbType.Decimal).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(sizeTestingDtlTO.MechElon);
+            cmdInsert.Parameters.Add("@MechTEle", System.Data.SqlDbType.Decimal).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(sizeTestingDtlTO.MechTEle);
+            cmdInsert.Parameters.Add("@CastNo", System.Data.SqlDbType.NVarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(sizeTestingDtlTO.CastNo);
+            cmdInsert.Parameters.Add("@Grade", System.Data.SqlDbType.NVarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(sizeTestingDtlTO.Grade);
+            cmdInsert.Parameters.Add("@ChemCE", System.Data.SqlDbType.Decimal).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(sizeTestingDtlTO.ChemCE);
+            cmdInsert.Parameters.Add("@ChemT", System.Data.SqlDbType.Decimal).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(sizeTestingDtlTO.ChemT);
+
+
+            if (cmdInsert.ExecuteNonQuery() == 1)
+            {
+                cmdInsert.CommandText = sqlSelectIdentityQry;
+                sizeTestingDtlTO.IdTestDtl = Convert.ToInt32(cmdInsert.ExecuteScalar());
+                return 1;
+            }
+            else return 0;
+        }
         #endregion
-        
+
         #region Updation
         public int UpdateTblMaterial(TblMaterialTO tblMaterialTO)
         {

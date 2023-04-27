@@ -43,8 +43,12 @@ namespace ODLMWebAPI.Controllers
         private readonly ICommon _iCommon;
         private readonly ITblLoadingSlipBL _iTblLoadingSlipBL;
         private readonly IIotCommunication _iIotCommunication;
+        private readonly ITblMaterialBL _iTblMaterialBL;
 
-        public InvoiceController(IIotCommunication iIotCommunication,ITblLoadingSlipBL iTblLoadingSlipBL,ITblLoadingBL iTblLoadingBL, ITblConfigParamsBL iTblConfigParamsBL, ITempInvoiceDocumentDetailsBL iTempInvoiceDocumentDetailsBL, IDimensionBL iDimensionBL, ITblUserBL iTblUserBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, ITblTaxRatesBL iTblTaxRatesBL, ITblGstCodeDtlsBL iTblGstCodeDtlsBL, ITblProdGstCodeDtlsBL iTblProdGstCodeDtlsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ICommon iCommon, ITblInvoiceBL iTblInvoiceBL)
+        public InvoiceController(IIotCommunication iIotCommunication,ITblLoadingSlipBL iTblLoadingSlipBL,ITblLoadingBL iTblLoadingBL, ITblConfigParamsBL iTblConfigParamsBL, ITempInvoiceDocumentDetailsBL iTempInvoiceDocumentDetailsBL, IDimensionBL iDimensionBL,
+            ITblUserBL iTblUserBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, ITblTaxRatesBL iTblTaxRatesBL, ITblGstCodeDtlsBL iTblGstCodeDtlsBL, 
+            ITblProdGstCodeDtlsBL iTblProdGstCodeDtlsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, 
+            ITblInvoiceAddressBL iTblInvoiceAddressBL, ICommon iCommon, ITblInvoiceBL iTblInvoiceBL, ITblMaterialBL iTblMaterialBL)
         {
             _iTblInvoiceBL = iTblInvoiceBL;
             _iTblInvoiceAddressBL = iTblInvoiceAddressBL;
@@ -62,6 +66,7 @@ namespace ODLMWebAPI.Controllers
             _iCommon = iCommon;
             _iTblLoadingSlipBL = iTblLoadingSlipBL;
             _iIotCommunication = iIotCommunication;
+            _iTblMaterialBL = iTblMaterialBL;
         }
 
         // GET: api/values
@@ -1542,6 +1547,49 @@ namespace ODLMWebAPI.Controllers
             }
         }
 
+        [Route("PostNewTestCertificateOfMaterial")]
+        [HttpPost]
+        public ResultMessage PostNewTestCertificateOfMaterial([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                TblMaterialTO tblMaterialTO = JsonConvert.DeserializeObject<TblMaterialTO>(data["materialSizeTO"].ToString());
+
+                var loginUserId = data["loginUserId"].ToString();
+
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    resultMessage.DefaultBehaviour("loginUserId Found NULL");
+                    return resultMessage;
+                }
+
+                if (tblMaterialTO == null)
+                {
+                    resultMessage.DefaultBehaviour("tblMaterialTO Found NULL");
+                    return resultMessage;
+                }
+                tblMaterialTO.CreatedBy = Convert.ToInt32(loginUserId);
+                tblMaterialTO.CreatedOn = _iCommon.ServerDateTime;
+                tblMaterialTO.IsActive = 1;
+                tblMaterialTO.MaterialId = tblMaterialTO.IdMaterial;
+                int result = _iTblMaterialBL.InsertSizeTestingDtl(tblMaterialTO);
+               
+                if (result != 1)
+                {
+                    resultMessage.DefaultBehaviour("Error... Record could not be saved");
+                    return resultMessage;
+                }
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "PostNewMaterial");
+                return resultMessage;
+            }
+
+        }
 
         // PUT api/values/5
         [HttpPut("{id}")]

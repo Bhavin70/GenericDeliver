@@ -459,6 +459,36 @@ namespace ODLMWebAPI.DAL
 
             return cmdUpdate.ExecuteNonQuery();
         }
+
+        public int UpdateTestCertiOfInvoiceItemDetails(TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO, SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmdUpdate = new SqlCommand();
+            try
+            {
+                cmdUpdate.Connection = conn;
+                cmdUpdate.Transaction = tran;
+
+                String sqlQuery = @" UPDATE [tempInvoiceItemDetails] SET " +
+                               " [SizeTestingDtlId]= @SizeTestingDtlId" +
+                               " WHERE [idInvoiceItem] = @IdInvoiceItem";
+
+                cmdUpdate.CommandText = sqlQuery;
+                cmdUpdate.CommandType = System.Data.CommandType.Text;
+
+                cmdUpdate.Parameters.Add("@IdInvoiceItem", System.Data.SqlDbType.Int).Value = tblInvoiceItemDetailsTO.IdInvoiceItem;
+                cmdUpdate.Parameters.Add("@SizeTestingDtlId", System.Data.SqlDbType.Int).Value = tblInvoiceItemDetailsTO.SizeTestingDtlId;
+            
+                return cmdUpdate.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+            finally
+            {
+                cmdUpdate.Dispose();
+            }
+        }
         #endregion
 
         #region Deletion

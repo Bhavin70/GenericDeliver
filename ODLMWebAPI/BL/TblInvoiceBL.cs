@@ -7245,7 +7245,7 @@ namespace ODLMWebAPI.BL
             }
         }
 
-
+       
         public ResultMessage PrintWeighingReport(Int32 invoiceId, Boolean isSendEmailForWeighment = false, String reportType = null, Boolean isFileDelete = true)
         {
             ResultMessage resultMessage = new ResultMessage();

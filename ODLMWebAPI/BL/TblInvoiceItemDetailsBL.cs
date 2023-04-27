@@ -98,6 +98,10 @@ namespace ODLMWebAPI.BL
         {
             return _iTblInvoiceItemDetailsDAO.UpdateTblInvoiceItemDetails(tblInvoiceItemDetailsTO);
         }
+        public int UpdateTestCertiOfInvoiceItemDetails(TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO,SqlConnection conn,SqlTransaction tran)
+        {
+            return _iTblInvoiceItemDetailsDAO.UpdateTestCertiOfInvoiceItemDetails(tblInvoiceItemDetailsTO,conn,tran);
+        }
 
         public int UpdateTblInvoiceItemDetails(TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO, SqlConnection conn, SqlTransaction tran)
         {
