@@ -27,5 +27,6 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage ConfirmStockSummary(List<SizeSpecWiseStockTO> sizeSpecWiseStockTOList);
         StockSummaryTO GetLastStockSummaryDetails();
         StockSummaryTO GetTodaysStockSummaryDetails();
+        
     }
 }

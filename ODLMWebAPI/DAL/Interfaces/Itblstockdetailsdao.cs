@@ -43,6 +43,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int ExecuteDeletionCommand(Int32 idStockDtl, SqlCommand cmdDelete);
         Int64 GetLastIdStockDtl(SqlConnection conn, SqlTransaction tran);
         List<TblLocationTO> SelectAllTblLocation();
+        int IsExistStockLocwise(int locationId);
 
     }
 }

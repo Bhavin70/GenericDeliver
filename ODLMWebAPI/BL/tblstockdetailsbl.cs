@@ -389,6 +389,13 @@ namespace ODLMWebAPI.BL
         {
             return _iTblStockDetailsDAO.SelectTblStockDetailsList(materialId, prodCatId, prodSpecId, brandId,compartmentId, prodItemId);
         }
+
+        public int IsExistStockLocwise(int locationId)
+        {
+            return _iTblStockDetailsDAO.IsExistStockLocwise(locationId);
+        }
+
+        
         #endregion
 
         #region Insertion

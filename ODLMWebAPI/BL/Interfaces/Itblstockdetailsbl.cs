@@ -35,5 +35,7 @@ namespace ODLMWebAPI.BL.Interfaces
         int DeleteTblStockDetails(Int32 idStockDtl, SqlConnection conn, SqlTransaction tran);
         List<TblLocationTO> SelectAllTblLocation();
         List<TblStockDetailsTO> SelectAllTblStockDetailsListForAutoInsert(int locationId);
+
+        int IsExistStockLocwise(int locationId);
     }
 }
