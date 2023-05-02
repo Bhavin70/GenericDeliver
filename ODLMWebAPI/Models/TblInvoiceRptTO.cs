@@ -608,6 +608,7 @@ namespace ODLMWebAPI.Models
         public decimal BASICRATE { get; set; }
         public decimal CD { get; set; }
         public decimal Difference { get; set; }
+        public string ProdSpec { get; set; }
 
 
         #endregion
