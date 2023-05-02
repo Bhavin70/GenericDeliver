@@ -138,6 +138,8 @@ namespace ODLMWebAPI.Models
             get { return statusRemark; }
             set { statusRemark = value; }
         }
+        public int BookingTaxCategoryId { get; set; }
+        public int BookingCommentCategoryId { get; set; }
         #endregion
     }
 }
