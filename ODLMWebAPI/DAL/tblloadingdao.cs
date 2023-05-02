@@ -337,7 +337,7 @@ namespace ODLMWebAPI.DAL
                     " left join tempLoadingSlipExt  on tempLoadingSlip.idLoadingSlip   =tempLoadingSlipExt.loadingSlipId " +
                     " where  CONVERT (DATE, tempLoading.createdOn ,103)  BETWEEN @fromDate AND @toDate and tempLoadingSlip.statusId not in (18)  " +
                     " group by tempLoadingSlip.cnfOrgId ) As Loading on Loading.cnfOrgId =tblBookings.cnFOrgId " +
-                    "  where pendingQty >0  group by firmName  ,tblBookings.cnFOrgId ,Loading.loadingQty" ;
+                    "  where pendingQty >0 AND  tblBookings.statusId NOT IN(13)   group by firmName  ,tblBookings.cnFOrgId ,Loading.loadingQty";
 
                 
                 cmdSelect.Connection = conn;
