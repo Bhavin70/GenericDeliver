@@ -15,9 +15,13 @@ namespace ODLMWebAPI.BL
     public class TblMaterialBL : ITblMaterialBL
     {
         private readonly ITblMaterialDAO _iTblMaterialDAO;
-        public TblMaterialBL(ITblMaterialDAO iTblMaterialDAO)
+        private readonly ITblInvoiceItemDetailsBL _iTblInvoiceItemDetailsBL;
+        private readonly IConnectionString _iConnectionString;
+        public TblMaterialBL(ITblMaterialDAO iTblMaterialDAO, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, IConnectionString iConnectionString)
         {
             _iTblMaterialDAO = iTblMaterialDAO;
+            _iTblInvoiceItemDetailsBL = iTblInvoiceItemDetailsBL;
+            _iConnectionString = iConnectionString;
         }
         #region Selection
 
@@ -75,7 +79,7 @@ namespace ODLMWebAPI.BL
             return list;
 
         }
-
+        
 
         #endregion
 
@@ -89,9 +93,48 @@ namespace ODLMWebAPI.BL
         {
             return _iTblMaterialDAO.InsertTblMaterial(tblMaterialTO, conn, tran);
         }
+        public int InsertSizeTestingDtl(TblMaterialTO sizeTestingDtlTO)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            int result = 0;
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
 
+                result = _iTblMaterialDAO.InsertSizeTestingDtlV2(sizeTestingDtlTO, conn, tran);
+                if (result == 1)
+                {
+                    TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = new TblInvoiceItemDetailsTO();
+                    tblInvoiceItemDetailsTO.IdInvoiceItem = sizeTestingDtlTO.IdInvoiceItem;
+                    tblInvoiceItemDetailsTO.SizeTestingDtlId = sizeTestingDtlTO.IdTestDtl;
+
+                    result = _iTblInvoiceItemDetailsBL.UpdateTestCertiOfInvoiceItemDetails(tblInvoiceItemDetailsTO, conn, tran);
+                    if (result != 1)
+                    {
+                        tran.Rollback();
+                    }
+                    tran.Commit();
+                    conn.Close();
+                }
+                else
+                {
+                    tran.Rollback();
+                }
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+            }
+            finally
+            {
+                conn.Close();
+            }
+            return result;
+        }
         #endregion
-        
+
         #region Updation
         public int UpdateTblMaterial(TblMaterialTO tblMaterialTO)
         {

@@ -9,7 +9,7 @@ namespace ODLMWebAPI.DAL.Interfaces
 {
     public interface IDimOrgTypeDAO
     {
-                      String SqlSelectQuery();
+             String SqlSelectQuery();
           List<DimOrgTypeTO> SelectAllDimOrgType();
           DimOrgTypeTO SelectDimOrgType(Int32 idOrgType, SqlConnection conn, SqlTransaction tran);
           DataTable SelectAllDimOrgType(SqlConnection conn, SqlTransaction tran);

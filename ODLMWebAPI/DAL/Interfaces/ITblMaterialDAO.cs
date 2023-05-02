@@ -16,6 +16,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblMaterialTO> ConvertDTToList(SqlDataReader tblMaterialTODT);
         List<DropDownTO> SelectMaterialTypeDropDownList();
         int InsertTblMaterial(TblMaterialTO tblMaterialTO);
+        int InsertSizeTestingDtlV2(TblMaterialTO tblMaterialTO, SqlConnection conn, SqlTransaction tran);
         int InsertTblMaterial(TblMaterialTO tblMaterialTO, SqlConnection conn, SqlTransaction tran);
         int ExecuteInsertionCommand(TblMaterialTO tblMaterialTO, SqlCommand cmdInsert);
         int UpdateTblMaterial(TblMaterialTO tblMaterialTO);

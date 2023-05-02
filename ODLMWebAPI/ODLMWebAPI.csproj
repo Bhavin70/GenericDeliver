@@ -70,6 +70,9 @@
       <Private>true</Private>
       <EmbedInteropTypes>true</EmbedInteropTypes>
     </Reference>
+    <Reference Include="itextsharp">
+      <HintPath>bin\Debug\netcoreapp2.0\itextsharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

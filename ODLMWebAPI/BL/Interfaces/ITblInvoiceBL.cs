@@ -52,6 +52,7 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage PrintReport(Int32 invoiceId,Boolean isPrinted=false,Boolean isSendEmailForInvoice = false,Boolean isFileDelete = true);
         ResultMessage PrintWeighingReport(Int32 invoiceId,Boolean isSendEmailForWeighment = false,String reportType=null, Boolean isFileDelete = true);
         ResultMessage SendInvoiceEmail(SendMail mailInformationTo);
+        
         ResultMessage PrintTestCertificateInvoiceDetails(Int32 invoiceId);
         String currencyTowords(Double amount, Int32 currencyId);
         string ConvertNumbertoWords(long number);

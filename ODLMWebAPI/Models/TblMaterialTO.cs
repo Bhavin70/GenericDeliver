@@ -23,6 +23,8 @@ namespace ODLMWebAPI.Models
         Int32 deactivatedBy;
         DateTime deactivatedOn;
         Int32 isActive;
+        Int32 materialId;
+        Int32 idInvoiceItem;
         #endregion
 
         #region Constructor
@@ -63,6 +65,16 @@ namespace ODLMWebAPI.Models
             get { return createdOn; }
             set { createdOn = value; }
         }
+        public int MaterialId
+        {
+            get { return materialId; }
+            set { materialId = value; }
+        }
+        public Int32 IdInvoiceItem
+        {
+            get { return idInvoiceItem; }
+            set { idInvoiceItem = value; }
+        }
         public String MaterialSubType
         {
             get { return materialSubType; }
@@ -95,6 +107,64 @@ namespace ODLMWebAPI.Models
         }
 
         public string UserDisplayName { get => userDisplayName; set => userDisplayName = value; }
+
+        public decimal ChemCE
+        {
+            get; set;
+        }
+        public decimal ChemT
+        {
+            get; set;
+        }
+        public DateTime CreateOn
+        {
+            get; set;
+        }
+        public int IdTestDtl
+        {
+            get; set; 
+        }
+       
+        public DateTime TestingDate
+        {
+            get; set;
+        }
+        public decimal ChemC
+        {
+            get; set;
+        }
+        public decimal ChemS
+        {
+            get; set;
+        }
+        public decimal ChemP
+        {
+            get; set;
+        }
+        public decimal MechProof
+        {
+            get; set;
+        }
+        public decimal MechTen
+        {
+            get; set;
+        }
+        public decimal MechElon
+        {
+            get; set;
+        }
+        public decimal MechTEle
+        {
+            get; set;
+        }
+        public string CastNo
+        {
+            get; set;
+        }
+        public string Grade
+        {
+            get; set;
+        }
         #endregion
     }
 }

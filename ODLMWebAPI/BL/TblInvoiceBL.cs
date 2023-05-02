@@ -5384,7 +5384,7 @@ namespace ODLMWebAPI.BL
             byte[] PhotoCodeInBytes = null;
             try
             {
-                resultMessage = PrintReportV2(invoiceId, true, false, false);
+               // resultMessage = PrintReportV2(invoiceId, true, false, false);
 
                 TblInvoiceTO tblInvoiceTO = SelectTblInvoiceTOWithDetails(invoiceId);
 
@@ -7134,6 +7134,56 @@ namespace ODLMWebAPI.BL
             return bytes;
         }
 
+        int  MargeMultiplePDF(string[] PDFfileNames, string OutputFile)
+        {
+            // Create document object  
+            int result = 0;
+            iTextSharp.text.Document PDFdoc = new iTextSharp.text.Document();
+            try
+            {
+                // Create a object of FileStream which will be disposed at the end  
+                using (System.IO.FileStream MyFileStream = new System.IO.FileStream(OutputFile, System.IO.FileMode.Create))
+                {
+                    // Create a PDFwriter that is listens to the Pdf document  
+                    iTextSharp.text.pdf.PdfCopy PDFwriter = new iTextSharp.text.pdf.PdfCopy(PDFdoc, MyFileStream);
+                    if (PDFwriter == null)
+                    {
+                        return 0;
+                    }
+                    // Open the PDFdocument  
+                    PDFdoc.Open();
+                    foreach (string fileName in PDFfileNames)
+                    {
+                        // Create a PDFreader for a certain PDFdocument  
+                        iTextSharp.text.pdf.PdfReader PDFreader = new iTextSharp.text.pdf.PdfReader(fileName);
+                        PDFreader.ConsolidateNamedDestinations();
+                        // Add content  
+                        for (int i = 1; i <= PDFreader.NumberOfPages; i++)
+                        {
+                            iTextSharp.text.pdf.PdfImportedPage page = PDFwriter.GetImportedPage(PDFreader, i);
+                            PDFwriter.AddPage(page);
+                        }
+                        iTextSharp.text.pdf.PRAcroForm form = PDFreader.AcroForm;
+                        if (form != null)
+                        {
+                            PDFwriter.CopyAcroForm(PDFreader);
+                        }
+                        // Close PDFreader  
+                        PDFreader.Close();
+                    }
+                    // Close the PDFdocument and PDFwriter  
+                    PDFwriter.Close();
+                    PDFdoc.Close();
+                    return 1;
+                }// Disposes the Object of FileStream  
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+            return 0;
+        }
+
         public ResultMessage SendInvoiceEmail(SendMail mailInformationTo)
         {
             ResultMessage resultMessage = new ResultMessage();
@@ -7195,7 +7245,7 @@ namespace ODLMWebAPI.BL
             }
         }
 
-
+       
         public ResultMessage PrintWeighingReport(Int32 invoiceId, Boolean isSendEmailForWeighment = false, String reportType = null, Boolean isFileDelete = true)
         {
             ResultMessage resultMessage = new ResultMessage();
@@ -13553,6 +13603,9 @@ namespace ODLMWebAPI.BL
                 invoiceDT.Columns.Add("AckNo");
                 headerDT.Columns.Add("BrokerName");
                 invoiceDT.Columns.Add("BrokerName");
+                invoiceDT.Columns.Add("freightCategory");
+                headerDT.Columns.Add("freightCategory");
+
                 TblAddressTO tblAddressTO = _iTblAddressBL.SelectOrgAddressWrtAddrType(organizationTO.IdOrganization, Constants.AddressTypeE.OFFICE_ADDRESS);
                 List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
                 if (organizationTO != null)
@@ -14229,6 +14282,8 @@ namespace ODLMWebAPI.BL
 
                     headerDT.Rows[0]["BrokerName"] = tblInvoiceTO.BrokerName;
                     invoiceDT.Rows[0]["BrokerName"] = tblInvoiceTO.BrokerName;
+
+                    invoiceDT.Rows[0]["freightCategory"] = tblInvoiceTO.CommentCategoryName;
                     if (!String.IsNullOrEmpty(tblInvoiceTO.PoDateStr))
                     {
                         DateTime poDate = Convert.ToDateTime(tblInvoiceTO.PoDateStr);
@@ -15053,8 +15108,8 @@ namespace ODLMWebAPI.BL
                                 TblBookingsTO tblBookingsTOV2 = _iTblBookingsBL.SelectTblBookingsTO(bookingId);
                                 if (tblBookingsTO != null)
                                 {
-                                    invoiceDTV2.Rows[0]["poNo"] = tblBookingsTOV2.PoNo;
-                                    invoiceDTV2.Rows[0]["poDateStr"] = tblBookingsTOV2.PoDateStr;
+                                    headerDT.Rows[0]["poNo"] = tblBookingsTOV2.PoNo;
+                                    headerDT.Rows[0]["poDateStr"] = tblBookingsTOV2.PoDateStr;
                                 }
                             }
                         }
@@ -15077,6 +15132,9 @@ namespace ODLMWebAPI.BL
                 String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
                 // RunReport runReport = new RunReport();
                 Boolean IsProduction = true;
+                //WriteLog("ConsoleLog", String.Format("{0} @ {1}", "Log is Created at", DateTime.Now));
+                //WriteLog(" ConsoleLog", "\\n Log is Written Successfully !!!");
+                //Console.ReadLine();
 
                 TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName("IS_PRODUCTION_ENVIRONMENT_ACTIVE");
                 if (tblConfigParamsTO != null)
@@ -15086,11 +15144,78 @@ namespace ODLMWebAPI.BL
                         IsProduction = false;
                     }
                 }
+                //ResultMessage resultMsg = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePath, saveLocation, Constants.ReportE.PDF_DONT_OPEN, IsProduction);
                 resultMessage = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePath, saveLocation, Constants.ReportE.PDF_DONT_OPEN, IsProduction);
                 if (resultMessage.MessageType == ResultMessageE.Information)
                 {
+                    try
+                    {
+                        //WriteLog(" ConsoleLog", "\\n Old File is created");
+                        if (tblInvoiceTO != null && tblInvoiceTO.BookingTaxCategoryId > 0)
+                        {
+                            //WriteLog(" ConsoleLog", "\\n  tblInvoiceTO.BookingTaxCategoryId ");
+                            string templateNameTeV2 = "WhatsAppInvoiceTestCertificateAone";
+                            String templateFilePathV2 = _iDimReportTemplateBL.SelectReportFullName(templateNameTeV2);
+                            //WriteLog(" ConsoleLog", "\\n templateFilePathV2 " + templateFilePathV2);
 
+                            // templateFilePath = @"C:\Deliver Templates\SER INVOICE Template.xls";
+                            String fileNameV2 = "TestCertificate-" + DateTime.Now.Ticks;
+
+                            //download location for rewrite  template file
+                            String saveLocationV2 = AppDomain.CurrentDomain.BaseDirectory + fileNameV2 + ".xls";
+                            // RunReport runReport = new RunReport();
+                            Boolean IsProductionV2 = true;
+
+                            TblConfigParamsTO tblConfigParamsTOV2 = _iTblConfigParamsBL.SelectTblConfigParamsValByName("IS_PRODUCTION_ENVIRONMENT_ACTIVE");
+                            if (tblConfigParamsTOV2 != null)
+                            {
+                                if (Convert.ToInt32(tblConfigParamsTOV2.ConfigParamVal) == 0)
+                                {
+                                    IsProductionV2 = false;
+                                }
+                            }
+
+                            //WriteLog(" ConsoleLog", "\\n  Before Test Certificate ");
+                            ResultMessage resultMsg = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePathV2, saveLocationV2, Constants.ReportE.PDF_DONT_OPEN, IsProductionV2);
+                            //WriteLog(" ConsoleLog", "\\n After Test Certificate " + resultMsg.Result );
+                            if (resultMessage.MessageType == ResultMessageE.Information)
+                            {
+                                string[] PDFfileNames = new string[2];
+                                PDFfileNames[1] = resultMsg.Tag.ToString();
+                                PDFfileNames[0] = resultMessage.Tag.ToString();
+                                //download location for rewrite  template file
+                                String saveLocationFinal = AppDomain.CurrentDomain.BaseDirectory + fileNameV2 + "_V2" + ".pdf";
+                                //WriteLog(" ConsoleLog", "\\n  saveLocationFinal " + saveLocationFinal);
+                                //string OutputFile = "E:\\Simpli Work Mask BC\\Simpli Deliver Generic\\ODLMAPICode\\ODLMWebAPI\\bin\\Debug\\netcoreapp2.0\\Test.pdf";
+                                DirectoryInfo dirInfo = Directory.GetParent(saveLocationFinal);
+                                if (!Directory.Exists(dirInfo.FullName))
+                                {
+                                    Directory.CreateDirectory(dirInfo.FullName);
+                                }
+                                //WriteLog(" ConsoleLog", "\\n  Before Merge PDF ");
+                                int pdfResult = MargeMultiplePDF(PDFfileNames, saveLocationFinal);
+                                //WriteLog(" ConsoleLog", "\\n  After Merge PDF Result " + pdfResult);
+                                if (pdfResult != 1)
+                                {
+                                    //WriteLog(" ConsoleLog", "\\n  After Merge PDF Result in result " + pdfResult);
+                                    resultMessage.Text = "Error in MargeMultiplePDF()";
+                                    resultMessage.DisplayMessage = "Error in MargeMultiplePDF()";
+                                    resultMessage.Result = 0;
+                                }
+                                //WriteLog(" ConsoleLog", "\\n saveLocationFinal  " + saveLocationFinal);
+                                resultMessage.Tag = saveLocationFinal;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //WriteLog(" ConsoleLog", "\\n saveLocationFinal Exception " + ex.GetBaseException().ToString ());
+                        resultMessage.Text = "Something wents wrong please try again";
+                        resultMessage.DisplayMessage = "Something wents wrong please try again";
+                        resultMessage.Result = 0;
+                    }
                     String filePath = String.Empty;
+                    //WriteLog(" ConsoleLog", "\\n resultMessage  " + resultMessage.Tag.ToString());
 
                     if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
                     {
@@ -15131,6 +15256,22 @@ namespace ODLMWebAPI.BL
             {
                 resultMessage.DefaultExceptionBehaviour(ex, "");
                 return resultMessage;
+            }
+        }
+        public  bool WriteLog(string strFileName, string strMessage)
+        {
+            try
+            {
+                FileStream objFilestream = new FileStream(string.Format("{0}\\{1}", Path.GetTempPath(), strFileName), FileMode.Append, FileAccess.Write);
+                StreamWriter objStreamWriter = new StreamWriter((Stream)objFilestream);
+                objStreamWriter.Write(strMessage);
+                objStreamWriter.Close();
+                objFilestream.Close();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
             }
         }
         /// <summary>

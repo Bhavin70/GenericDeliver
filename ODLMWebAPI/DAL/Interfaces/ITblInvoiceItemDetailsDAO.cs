@@ -20,6 +20,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int InsertTblInvoiceItemDetails(TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO, SqlConnection conn, SqlTransaction tran);
         int ExecuteInsertionCommand(TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO, SqlCommand cmdInsert);
         int UpdateTblInvoiceItemDetails(TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO);
+        int UpdateTestCertiOfInvoiceItemDetails(TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO, SqlConnection conn, SqlTransaction tran);
         int UpdateTblInvoiceItemDetails(TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO, SqlConnection conn, SqlTransaction tran);
         int ExecuteUpdationCommand(TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO, SqlCommand cmdUpdate);
         int DeleteTblInvoiceItemDetails(Int32 idInvoiceItem);

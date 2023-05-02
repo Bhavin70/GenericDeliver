@@ -19,5 +19,6 @@ namespace ODLMWebAPI.BL.Interfaces
         int UpdateTblMaterial(TblMaterialTO tblMaterialTO);
         int DeleteTblMaterial(Int32 idMaterial);
         int DeleteTblMaterial(Int32 idMaterial, SqlConnection conn, SqlTransaction tran);
+        int InsertSizeTestingDtl(TblMaterialTO sizeTestingDtlTO);
     }
 }

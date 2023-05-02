@@ -43,8 +43,12 @@ namespace ODLMWebAPI.Controllers
         private readonly ICommon _iCommon;
         private readonly ITblLoadingSlipBL _iTblLoadingSlipBL;
         private readonly IIotCommunication _iIotCommunication;
+        private readonly ITblMaterialBL _iTblMaterialBL;
 
-        public InvoiceController(IIotCommunication iIotCommunication,ITblLoadingSlipBL iTblLoadingSlipBL,ITblLoadingBL iTblLoadingBL, ITblConfigParamsBL iTblConfigParamsBL, ITempInvoiceDocumentDetailsBL iTempInvoiceDocumentDetailsBL, IDimensionBL iDimensionBL, ITblUserBL iTblUserBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, ITblTaxRatesBL iTblTaxRatesBL, ITblGstCodeDtlsBL iTblGstCodeDtlsBL, ITblProdGstCodeDtlsBL iTblProdGstCodeDtlsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ICommon iCommon, ITblInvoiceBL iTblInvoiceBL)
+        public InvoiceController(IIotCommunication iIotCommunication,ITblLoadingSlipBL iTblLoadingSlipBL,ITblLoadingBL iTblLoadingBL, ITblConfigParamsBL iTblConfigParamsBL, ITempInvoiceDocumentDetailsBL iTempInvoiceDocumentDetailsBL, IDimensionBL iDimensionBL,
+            ITblUserBL iTblUserBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, ITblTaxRatesBL iTblTaxRatesBL, ITblGstCodeDtlsBL iTblGstCodeDtlsBL, 
+            ITblProdGstCodeDtlsBL iTblProdGstCodeDtlsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, 
+            ITblInvoiceAddressBL iTblInvoiceAddressBL, ICommon iCommon, ITblInvoiceBL iTblInvoiceBL, ITblMaterialBL iTblMaterialBL)
         {
             _iTblInvoiceBL = iTblInvoiceBL;
             _iTblInvoiceAddressBL = iTblInvoiceAddressBL;
@@ -62,6 +66,7 @@ namespace ODLMWebAPI.Controllers
             _iCommon = iCommon;
             _iTblLoadingSlipBL = iTblLoadingSlipBL;
             _iIotCommunication = iIotCommunication;
+            _iTblMaterialBL = iTblMaterialBL;
         }
 
         // GET: api/values
@@ -1287,43 +1292,43 @@ namespace ODLMWebAPI.Controllers
 
         }
 
-        
-        //[Route("PostInvoiceDocumentDetails")]
-        //[HttpPost]
-        //public ResultMessage PostDeactivateInvoiceDocumentDetails([FromBody] JObject data)
-        //{
-        //    ResultMessage resultMessage = new StaticStuff.ResultMessage();
-        //    try
-        //    {
-        //        TempInvoiceDocumentDetailsTO tempInvoiceDocumentDetailsTO = JsonConvert.DeserializeObject<TempInvoiceDocumentDetailsTO>(data["invoiceDocumentDetailsTO"].ToString());
 
-        //        var loginUserId = data["loginUserId"].ToString();
+        [Route("PostDeactivateInvoiceDocumentDetails")]
+        [HttpPost]
+        public ResultMessage PostDeactivateInvoiceDocumentDetails([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                TempInvoiceDocumentDetailsTO tempInvoiceDocumentDetailsTO = JsonConvert.DeserializeObject<TempInvoiceDocumentDetailsTO>(data["invoiceDocumentDetailsTO"].ToString());
 
-        //        if (Convert.ToInt32(loginUserId) <= 0)
-        //        {
-        //            resultMessage.DefaultBehaviour("loginUserId Not Found");
-        //            return resultMessage;
-        //        }
+                var loginUserId = data["loginUserId"].ToString();
 
-        //        if (tempInvoiceDocumentDetailsTO != null)
-        //        {
-        //            DateTime serverDate = _iCommon.ServerDateTime;
-        //            return _iTblInvoiceBL.DeactivateInvoiceDocumentDetails(tempInvoiceDocumentDetailsTO, Convert.ToInt32(loginUserId));
-        //        }
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    resultMessage.DefaultBehaviour("loginUserId Not Found");
+                    return resultMessage;
+                }
 
-        //        else
-        //        {
-        //            resultMessage.DefaultBehaviour("tempInvoiceDocumentDetailsTO Found NULL");
-        //            return resultMessage;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        resultMessage.DefaultExceptionBehaviour(ex, "PostDeactivateInvoiceDocumentDetails");
-        //        return resultMessage;
-        //    }
+                if (tempInvoiceDocumentDetailsTO != null)
+                {
+                    DateTime serverDate = _iCommon.ServerDateTime;
+                    return _iTblInvoiceBL.DeactivateInvoiceDocumentDetails(tempInvoiceDocumentDetailsTO, Convert.ToInt32(loginUserId));
+                }
 
-        //}
+                else
+                {
+                    resultMessage.DefaultBehaviour("tempInvoiceDocumentDetailsTO Found NULL");
+                    return resultMessage;
+                }
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "PostDeactivateInvoiceDocumentDetails");
+                return resultMessage;
+            }
+
+        }
         [Route("PostIsTestCertificateInvoiceDocumentDetails")]
         [HttpPost]
         public ResultMessage PostIsTestCertificateInvoiceDocumentDetails([FromBody] JObject data)
@@ -1483,7 +1488,7 @@ namespace ODLMWebAPI.Controllers
         [Route("PrintWeighingDetails")]
         [HttpPost]
         public ResultMessage PrintWeighingDetails([FromBody] JObject data)
-        {
+      {
             try
             {
                 ResultMessage resultMessage = new StaticStuff.ResultMessage();
@@ -1542,6 +1547,49 @@ namespace ODLMWebAPI.Controllers
             }
         }
 
+        [Route("PostNewTestCertificateOfMaterial")]
+        [HttpPost]
+        public ResultMessage PostNewTestCertificateOfMaterial([FromBody] JObject data)
+        {
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            try
+            {
+                TblMaterialTO tblMaterialTO = JsonConvert.DeserializeObject<TblMaterialTO>(data["materialSizeTO"].ToString());
+
+                var loginUserId = data["loginUserId"].ToString();
+
+                if (Convert.ToInt32(loginUserId) <= 0)
+                {
+                    resultMessage.DefaultBehaviour("loginUserId Found NULL");
+                    return resultMessage;
+                }
+
+                if (tblMaterialTO == null)
+                {
+                    resultMessage.DefaultBehaviour("tblMaterialTO Found NULL");
+                    return resultMessage;
+                }
+                tblMaterialTO.CreatedBy = Convert.ToInt32(loginUserId);
+                tblMaterialTO.CreatedOn = _iCommon.ServerDateTime;
+                tblMaterialTO.IsActive = 1;
+                tblMaterialTO.MaterialId = tblMaterialTO.IdMaterial;
+                int result = _iTblMaterialBL.InsertSizeTestingDtl(tblMaterialTO);
+               
+                if (result != 1)
+                {
+                    resultMessage.DefaultBehaviour("Error... Record could not be saved");
+                    return resultMessage;
+                }
+                resultMessage.DefaultSuccessBehaviour();
+                return resultMessage;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "PostNewMaterial");
+                return resultMessage;
+            }
+
+        }
 
         // PUT api/values/5
         [HttpPut("{id}")]

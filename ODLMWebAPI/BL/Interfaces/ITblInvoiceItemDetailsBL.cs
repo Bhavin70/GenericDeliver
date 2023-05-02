@@ -18,6 +18,7 @@ namespace ODLMWebAPI.BL.Interfaces
         int InsertTblInvoiceItemDetails(TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO);
         int InsertTblInvoiceItemDetails(TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO, SqlConnection conn, SqlTransaction tran);
         int UpdateTblInvoiceItemDetails(TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO);
+        int UpdateTestCertiOfInvoiceItemDetails(TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO,SqlConnection conn,SqlTransaction tran);
         int UpdateTblInvoiceItemDetails(TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO, SqlConnection conn, SqlTransaction tran);
         int DeleteTblInvoiceItemDetails(Int32 idInvoiceItem);
         int DeleteTblInvoiceItemDetails(Int32 idInvoiceItem, SqlConnection conn, SqlTransaction tran);
