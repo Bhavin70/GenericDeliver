@@ -609,7 +609,8 @@ namespace ODLMWebAPI.Models
         public decimal CD { get; set; }
         public decimal Difference { get; set; }
         public string ProdSpec { get; set; }
-
+        public decimal TaxableRateMT { get; set; }
+        public string prodClassDesc { get; set; }
 
         #endregion
     }

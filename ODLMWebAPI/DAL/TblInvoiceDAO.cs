@@ -2005,6 +2005,16 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["ProdSpec"] != DBNull.Value)
                                     tblInvoiceRptTONew.ProdSpec = Convert.ToString(tblInvoiceRptTODT["ProdSpec"].ToString());
                             }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("taxableRateMT"))
+                            {
+                                if (tblInvoiceRptTODT["taxableRateMT"] != DBNull.Value)
+                                    tblInvoiceRptTONew.TaxableRateMT = Convert.ToDecimal(tblInvoiceRptTODT["taxableRateMT"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("prodClassDesc"))
+                            {
+                                if (tblInvoiceRptTODT["prodClassDesc"] != DBNull.Value)
+                                    tblInvoiceRptTONew.prodClassDesc = Convert.ToString(tblInvoiceRptTODT["prodClassDesc"].ToString());
+                            }
                             tblInvoiceRptTONew.ContactName = ""+tblInvoiceRptTONew.OwnerPersonFirstName +"  "+  tblInvoiceRptTONew.OwnerPersonLastName+"";
                         }
 
@@ -2320,6 +2330,7 @@ namespace ODLMWebAPI.DAL
                    "else itemDetails.prodItemDesc end) + '(' + 'Intra-State' + ')' else  (case when isnull(lExt.prodCatId,0)= 1 then 'TMT BAR' " +
                    "when isnull(lExt.prodCatId,0)= 2 then 'Threaded Bars' else itemDetails.prodItemDesc end ) +'(' + 'Inter-State' + ')'   end ) end ) as salesLedgerName " +
                      " ,'TAXABLE FREIGHT OUTWARD' as Freight_GL,'Insurance on Sale (HSN 997136)' as Insurance_GL,'TCS 206C(1H)' as TCS_GL  ,concat   (  'M.S.' , dimProdCat.prodCateDesc   ) As ProdSpec " +
+                     ",lExt .taxableRateMT,p.prodClassDesc    " +
                      " FROM tempInvoice invoice " +
                     " LEFT JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.txnAddrTypeId, " +
                     " invAddrB.gstinNo, invAddrB.state as stateName ,orgB.overdue_ref_id,invAddrB.address as BuyerAddress  ,invAddrB.taluka as BuyerTaluka,invAddrB.district as BuyerDistict,Cntry.countryName as  BuyercountryName,invAddrB.pinCode as BuyerPincode  from tempInvoiceAddress invAddrB " +
@@ -2367,6 +2378,8 @@ namespace ODLMWebAPI.DAL
                     " left outer join (select A.idInvoiceItem, sum (isnull(B.taxRatePct,0)) as TaxPCT from tempInvoiceItemDetails A " +
                      " left join tempInvoiceItemTaxDtls B on A.idInvoiceItem = B.invoiceItemId group by A.idInvoiceItem " +
                      " )Tax on Tax.idInvoiceItem = itemDetails.idInvoiceItem " +
+                    "  left join tblProductItem on lExt.prodItemId=tblProductItem.idProdItem  left join tblProdClassification SG on tblProductItem.prodClassId =SG.idProdClass " +
+                    " left join tblProdClassification G on SG.parentProdClassId  =G.idProdClass left join tblProdClassification P on G.parentProdClassId  =P.idProdClass  " +
                     // Vaibhav [17-Jan-2018] To select from final tables.
                     " UNION ALL " +
 
@@ -2398,7 +2411,8 @@ namespace ODLMWebAPI.DAL
                   "else itemDetails.prodItemDesc end) + '(' + 'Intra-State' + ')' else  (case when isnull(lExt.prodCatId,0)= 1 then 'TMT BAR' " +
                   "when isnull(lExt.prodCatId,0)= 2 then 'Threaded Bars' else itemDetails.prodItemDesc end ) +'(' + 'Inter-State' + ')'   end ) end ) as salesLedgerName " +
 
-                    " ,'TAXABLE FREIGHT OUTWARD' as Freight_GL,'Insurance on Sale (HSN 997136)' as Insurance_GL,'TCS 206C(1H)' as TCS_GL ,concat   (  'M.S.' , dimProdCat.prodCateDesc   ) As ProdSpec " +
+                    " ,'TAXABLE FREIGHT OUTWARD' as Freight_GL,'Insurance on Sale (HSN 997136)' as Insurance_GL,'TCS 206C(1H)' as TCS_GL ,concat   (  'M.S.' , dimProdCat.prodCateDesc   ) As ProdSpec" +
+                    "  ,lExt .taxableRateMT,p.prodClassDesc    " +
                     " FROM finalInvoice invoice " +
 
                     " LEFT JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.txnAddrTypeId, " +
@@ -2445,8 +2459,11 @@ namespace ODLMWebAPI.DAL
                  " left join finalEInvoiceApiResponse Ack on invoice.idInvoice = Ack.invoiceId  and Ack.apiId = 3 " +
                     " left join finalEInvoiceApiResponse EwbNo on invoice.idInvoice = EwbNo.invoiceId  and EwbNo.apiId = 6 " +
                     " left outer join (select A.idInvoiceItem, sum (isnull(B.taxRatePct,0)) as TaxPCT from finalInvoiceItemDetails A " +
-                " left join finalInvoiceItemTaxDtls B on A.idInvoiceItem = B.invoiceItemId group by A.idInvoiceItem " +
-                " )Tax on Tax.idInvoiceItem = itemDetails.idInvoiceItem ";
+                " left join finalInvoiceItemTaxDtls B on A.idInvoiceItem = B.invoiceItemId group by A.idInvoiceItem" +
+
+                " )Tax on Tax.idInvoiceItem = itemDetails.idInvoiceItem "+
+                 "  left join tblProductItem on lExt.prodItemId=tblProductItem.idProdItem  left join tblProdClassification SG on tblProductItem.prodClassId =SG.idProdClass " +
+                " left join tblProdClassification G on SG.parentProdClassId  =G.idProdClass left join tblProdClassification P on G.parentProdClassId  =P.idProdClass  " ;
 
            //chetan[13-feb-2020] added get data from org id
            String formOrgIdCondtion = String.Empty;
