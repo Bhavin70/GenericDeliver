@@ -328,6 +328,7 @@ namespace ODLMWebAPI.BL
             Int32 updateOrCreatedUser = 0;
             try
             {
+              
                 conn.Open();
                 tran = conn.BeginTransaction();
 
@@ -431,6 +432,7 @@ namespace ODLMWebAPI.BL
                     for (int i = 0; i < tblStockSummaryTO.StockDetailsTOList.Count; i++)
                     {
                         tblStockSummaryTO.StockDetailsTOList[i].StockSummaryId = tblStockSummaryTO.IdStockSummary;
+                       
 
                         Boolean isExist = false;
 
@@ -514,6 +516,7 @@ namespace ODLMWebAPI.BL
                                                                     && p.BrandId == tblStockSummaryTO.StockDetailsTOList[i].BrandId).OrderByDescending(d => d.CreatedOn).FirstOrDefault();
                                 if (productInfo != null)
                                 {
+                                   
 
                                     // if (tblStockSummaryTO.StockDetailsTOList[i].TotalStock > 0)
                                     // Add By Samadhan 7 feb 2023
@@ -589,7 +592,8 @@ namespace ODLMWebAPI.BL
                                 if (productInfo != null)
                                 {
                                     Double totalStkInMT = 0;
-                                    Double ProdtotalStkInMT = 0;
+                                    Double ProdtotalStkInMT = 0; 
+                                    
                                     totalStkInMT = tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles * productInfo.NoOfPcs * productInfo.AvgSecWt * productInfo.StdLength;
                                     tblStockSummaryTO.StockDetailsTOList[i].TotalStock = totalStkInMT / 1000;
                                     tblStockSummaryTO.StockDetailsTOList[i].BalanceStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;

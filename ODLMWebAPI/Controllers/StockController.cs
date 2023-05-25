@@ -370,6 +370,8 @@ namespace ODLMWebAPI.Controllers
         public ResultMessage ClosingStockUpdate()
         {
             ResultMessage returnMsg = new StaticStuff.ResultMessage();
+
+            ResultMessage resMsg  = new StaticStuff.ResultMessage();
             try
             {
                 TblStockSummaryTO stockSummaryTO = new TblStockSummaryTO();
@@ -420,15 +422,23 @@ namespace ODLMWebAPI.Controllers
                             stockSummaryTO.StockDetailsTOList[i].CreatedBy = Convert.ToInt32(loginUserId);
                             stockSummaryTO.StockDetailsTOList[i].UpdatedBy = Convert.ToInt32(loginUserId);
                             stockSummaryTO.StockDetailsTOList[i].CreatedOn = stockSummaryTO.CreatedOn;
-                            stockSummaryTO.StockDetailsTOList[i].UpdatedOn = stockSummaryTO.CreatedOn;
+                            stockSummaryTO.StockDetailsTOList[i].UpdatedOn = stockSummaryTO.CreatedOn;                           
                         }
-                    }
-                }
-                
 
+                        int IsRec  = _iTblStockDetailsBL.IsExistStockLocwise(Convert.ToInt32(tblLocationTOList[k].IdLocation));
+
+                        if(IsRec > 0)
+                        {
+                            resMsg = _iTblStockSummaryBL.UpdateDailyStock(stockSummaryTO);
+                        }
+
+
+                       
+                    }
+                }               
                
 
-                ResultMessage resMsg = _iTblStockSummaryBL.UpdateDailyStock(stockSummaryTO);
+               
                 return resMsg;
             }
             catch (Exception ex)

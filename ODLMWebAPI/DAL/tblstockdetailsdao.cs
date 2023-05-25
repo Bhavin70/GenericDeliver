@@ -905,6 +905,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+        
         public Double  SelectTotalBalanceStock(Int32 materialId, Int32 prodCatId, Int32 prodSpecId, Int32 brandId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -1215,6 +1216,34 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@ProdtotalStock", System.Data.SqlDbType.NVarChar).Value = tblStockDetailsTO.ProdtotalStock;
             return cmdUpdate.ExecuteNonQuery();
         }
+
+        public int IsExistStockLocwise( int locationId)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = "select top 1 1 as cnt from tblStockDetails where locationId = " + locationId + " ";
+                cmdSelect.Connection = conn;               
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                return Convert.ToInt32(cmdSelect.ExecuteScalar());
+
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+            finally
+            {
+                conn.Close();
+                if (reader != null) reader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
         #endregion
 
         #region Deletion
@@ -1272,6 +1301,7 @@ namespace ODLMWebAPI.DAL
             //cmdDelete.Parameters.Add("@idStockDtl", System.Data.SqlDbType.Int).Value = tblStockDetailsTO.IdStockDtl;
             return cmdDelete.ExecuteNonQuery();
         }
+
         #endregion
 
     }
