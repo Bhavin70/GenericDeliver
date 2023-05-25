@@ -3605,6 +3605,8 @@ namespace ODLMWebAPI.BL {
                                             gstApplicableAmt = rateAfterCD + freightPerMT;
                                         else
                                             gstApplicableAmt = rateAfterCD;
+                                        if (tblBookingsTO.BookingTaxCategoryId == (int)Constants.BookingTaxCategory.Excluding)
+                                            gstApplicableAmt = cdApplicableAmt;
                                         if (isSez)
                                         {
                                             gstCodeDtlsTO.TaxPct = 0;
@@ -3623,7 +3625,15 @@ namespace ODLMWebAPI.BL {
                                                 finalRate = gstApplicableAmt + gstAmt + freightPerMT + parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
                                         }
                                         else
+                                        {
                                             finalRate = gstApplicableAmt;
+                                            finalRate = gstApplicableAmt / 1.18;
+                                            finalRate = Math.Round(finalRate, 2);
+                                            gstApplicableAmt = finalRate;
+                                            gstAmt = (gstApplicableAmt * gstCodeDtlsTO.TaxPct) / 100;
+                                            gstAmt = Math.Round(gstAmt, 2);
+                                            //finalRate = finalRate - gstAmt;
+                                        }
                                     }
                                     else
                                     {
@@ -3697,11 +3707,11 @@ namespace ODLMWebAPI.BL {
                                     }
                                     if (tblBookingsTO.BookingTaxCategoryId == (int)Constants.BookingTaxCategory.Excluding)
                                     {
-                                        orcAmtPerTon = 0;
-                                        parityAmt = 0;
-                                        isNCAmt = "";
-                                        freightPerMT = 0;
-                                        gstAmt = 0;
+                                        //orcAmtPerTon = 0;
+                                        //parityAmt = 0;
+                                        //isNCAmt = "";
+                                        //freightPerMT = 0;
+                                        //gstAmt = 0;
                                     }
                                     rateCalcDesc += " ORC :" + orcAmtPerTon + "|" + " Parity :" + parityAmt + "|" + isNCAmt + " Freight :" + freightPerMT + "|" + " GST :" + gstAmt + "|";
                                     tblLoadingSlipExtTO.RateCalcDesc = rateCalcDesc;
