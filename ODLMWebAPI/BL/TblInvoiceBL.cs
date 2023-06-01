@@ -6211,7 +6211,8 @@ namespace ODLMWebAPI.BL
 
                         }
                         itemFooterDetailsDT.Rows[0]["totalBundles"] = sum;
-                        tblInvoiceTO.BasicAmt = invoiceItemlist.Sum(s => Convert.ToInt32(s.BasicTotal));//added code to sum of items basic total
+                        //Reshma comented below line for showing invoice data as on print.
+                        //tblInvoiceTO.BasicAmt = invoiceItemlist.Sum(s => Convert.ToInt32(s.BasicTotal));//added code to sum of items basic total
                         itemFooterDetailsDT.Rows[0]["totalBasicAmt"] = Math.Round(tblInvoiceTO.BasicAmt, 2);
                         invoiceDT.Rows[0]["totalBundles"] = sum;
                         if (isMathRoundoff == 1)
