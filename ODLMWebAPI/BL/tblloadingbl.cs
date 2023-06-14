@@ -3390,15 +3390,18 @@ namespace ODLMWebAPI.BL {
                                         }
                                     }
 
-                                    if (tblBookingsTO.BookingTaxCategoryId  == (int) Constants.BookingTaxCategory .Excluding)
+                                    if (dimBrandTO !=null)
                                     {
-                                        if (bookingExtTOList != null && bookingExtTOList.Count > 0)
+                                        if (dimBrandTO.IsBothTaxType == 1)
                                         {
-                                            foreach (TblBookingExtTO item in bookingExtTOList)
+                                            if (bookingExtTOList != null && bookingExtTOList.Count > 0)
                                             {
-                                                if (item.ProdCatId == tblLoadingSlipExtTO.ProdCatId && item.ProdSpecId == tblLoadingSlipExtTO.ProdSpecId && item.BrandId == tblLoadingSlipExtTO.BrandId && item.MaterialId == tblLoadingSlipExtTO.MaterialId && item.ProdItemId == tblLoadingSlipExtTO.ProdItemId)
+                                                foreach (TblBookingExtTO item in bookingExtTOList)
                                                 {
-                                                    bookingPrice = item.Rate;
+                                                    if (item.ProdCatId == tblLoadingSlipExtTO.ProdCatId && item.ProdSpecId == tblLoadingSlipExtTO.ProdSpecId && item.BrandId == tblLoadingSlipExtTO.BrandId && item.MaterialId == tblLoadingSlipExtTO.MaterialId && item.ProdItemId == tblLoadingSlipExtTO.ProdItemId)
+                                                    {
+                                                        bookingPrice = item.Rate;
+                                                    }
                                                 }
                                             }
                                         }

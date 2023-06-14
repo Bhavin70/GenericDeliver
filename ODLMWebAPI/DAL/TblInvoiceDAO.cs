@@ -185,7 +185,7 @@ namespace ODLMWebAPI.DAL
                     //modified by vijaymala acc to brandwise allocation or districtwise allocation[26-07-2018]
                     areConfJoin = " INNER JOIN " +
                                  " ( " +
-                                 "   SELECT areaConf.cnfOrgId, idOrganization  FROM tblOrganization " +
+                                 "   SELECT areaConf.cnfOrgId, idOrganization ,brandId FROM tblOrganization " +
                                  "   INNER JOIN tblCnfDealers ON dealerOrgId = idOrganization " +
                                  "   INNER JOIN " +
                                  "   ( " +
@@ -201,7 +201,7 @@ namespace ODLMWebAPI.DAL
                                  // "   UNION ALL " +
                                  //"    SELECT areaConf.cnfOrgId, idOrganization = 0 FROM tblUserAreaAllocation  areaConf where  areaConf.userId = " + userId + " " + "   AND areaConf.isActive = 1 " +
 
-                                 " ) AS userAreaDealer On (userAreaDealer.cnfOrgId = invoice.distributorOrgId AND invoice.dealerOrgId = userAreaDealer.idOrganization )";
+                                 " ) AS userAreaDealer On (userAreaDealer.cnfOrgId = invoice.distributorOrgId AND invoice.dealerOrgId = userAreaDealer.idOrganization )    and invoice .brandId =userAreaDealer.brandId ";
                         
                 }
                 //if (cnfId == 0 && dealerId == 0)

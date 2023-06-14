@@ -2411,10 +2411,21 @@ namespace ODLMWebAPI.BL
                                 {
                                     TblBookingExtTO tblBookingExtTO = tblBookingScheduleTO.OrderDetailsLst[j];
                                     tblBookingExtTO.BookingId = tblBookingsTO.IdBooking;
+                                    DimBrandTO dimBrandTOTemp = new DimBrandTO();
+                                    Boolean isAllowBookingItemwiserate = false;
+                                    if (brandList != null && brandList.Count > 0 && tblBookingExtTO.BrandId >0)
+                                    {
+                                        dimBrandTOTemp = brandList.Where(ele => ele.IdBrand == tblBookingExtTO.BrandId && ele.IsBothTaxType ==1 ).FirstOrDefault();
+                                        if (dimBrandTOTemp != null)
+                                            isAllowBookingItemwiserate = true;
+                                    }
                                     //if(isBalajiClient==0)
                                     //Prajakta[2021-04-23] Commented as rate will get as per parity from GUI
-                                    if(!isAddItemWiseRate || tblBookingsTO.BookingTaxCategoryId != (int)Constants.BookingTaxCategory.Excluding)
-                                        tblBookingExtTO.Rate = tblBookingsTO.BookingRate; //For the time being Rate is declare global for the order. i.e. single Rate for All Material
+                                    if (!isAddItemWiseRate && !isAllowBookingItemwiserate)
+                                    {
+                                        tblBookingExtTO.Rate = tblBookingsTO.BookingRate;
+                                    }//For the time being Rate is declare global for the order. i.e. single Rate for All Material
+                                    //else if(!isAddItemWiseRate && isAllowBookingItemwiserate)
 
                                     tblBookingExtTO.ScheduleId = tblBookingScheduleTO.IdSchedule;
                                     if (!isRegular)
