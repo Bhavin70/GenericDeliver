@@ -1033,11 +1033,12 @@ namespace ODLMWebAPI.DAL
             string SWhere = "";
             try
             {
-                //sq1.createdOn >= '2023-03-13 09:00:04.410'   and sq1.createdOn <= '2023-03-14 09:00:04.410'
+                //sq1.createdOn >= '2023-03-13 09:00:04.410'   and sq1.createdOn <= '2023-03-14 09:00:04.410';
                 //sq1.createdOn  >= DATEADD(day, -1, GETDATE())
 
                 conn.Open();
-                SWhere = " sq1.createdOn  >= DATEADD(day, -1, GETDATE()) " +
+                //SWhere = " sq1.createdOn  >= DATEADD(day, -1, GETDATE()) " +
+                SWhere = " sq1.createdOn >= '2023-06-12 09:00:04.410'   and sq1.createdOn <= '2023-06-14 09:00:04.410'" +
                    " and sq1.isConfirmed = 0" +
                       " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED;
 

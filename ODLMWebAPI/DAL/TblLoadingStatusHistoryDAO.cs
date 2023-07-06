@@ -55,6 +55,35 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public List<TblLoadingStatusHistoryTO> SelectAllTblLoadingStatusHistory(int loadingId)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = " SELECT * FROM (" + SqlSelectQuery() + ")sq1 WHERE loadingId=" + loadingId;
+                //cmdSelect.Connection = conn;
+                // cmdSelect.Transaction = tran;
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                SqlDataReader sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblLoadingStatusHistoryTO> list = ConvertDTToList(sqlReader);
+                sqlReader.Dispose();
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                cmdSelect.Dispose();
+                conn.Close();
+            }
+        }
         public TblLoadingStatusHistoryTO SelectTblLoadingStatusHistory(Int32 idLoadingHistory)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);

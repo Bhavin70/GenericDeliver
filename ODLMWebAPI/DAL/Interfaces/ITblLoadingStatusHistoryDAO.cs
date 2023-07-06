@@ -11,6 +11,7 @@ namespace ODLMWebAPI.DAL.Interfaces
     {
         String SqlSelectQuery();
         List<TblLoadingStatusHistoryTO> SelectAllTblLoadingStatusHistory(int loadingId, SqlConnection conn, SqlTransaction tran);
+        List<TblLoadingStatusHistoryTO> SelectAllTblLoadingStatusHistory(int loadingId);
         TblLoadingStatusHistoryTO SelectTblLoadingStatusHistory(Int32 idLoadingHistory);
         List<TblLoadingStatusHistoryTO> ConvertDTToList(SqlDataReader tblLoadingStatusHistoryTODT);
         int InsertTblLoadingStatusHistory(TblLoadingStatusHistoryTO tblLoadingStatusHistoryTO);
