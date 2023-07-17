@@ -187,6 +187,7 @@ namespace ODLMWebAPI.StaticStuff
             BOOKING_PENDING_FOR_DIRECTOR_APPROVAL = 24,  //Sanjay [2017-12-19] New Status when Finance Forward Booking to Director Approval.
             BOOKING_HOLD_BY_ADMIN_OR_DIRECTOR = 25,                          //Priyanka [2018-30-07] Added for adding new status in booking.
             INVOICE_GENERATED_AND_READY_FOR_DISPACH = 26,
+            Pending_For_Marketing_Approval=40,//Reshma Added for marketing approval status for kalika changes
         }
 
         public enum LoadingLayerE
@@ -698,6 +699,7 @@ namespace ODLMWebAPI.StaticStuff
         public static string CP_DASHBOARD_ENQ_QTY_STATUSES = "DASHBOARD_ENQ_QTY_STATUSES";
 
         public static string CP_AUTO_FINANCE_APPROVAL_FOR_ENQUIRY = "AUTO_FINANCE_APPROVAL_FOR_ENQUIRY";
+        public static string CP_ROLE_ID_FOR_MARKETING_APPROVAL_BOOKING = "CP_ROLE_ID_FOR_MARKETING_APPROVAL_BOOKING";
 
         //Sanjay [2017-07-04] Tax Calculations Inclusive Of Taxes Or Exclusive Of Taxes. Reported From Customer Shivangi Rolling Mills
         public static string CP_RATE_CALCULATIONS_TAX_INCLUSIVE = "RATE_CALCULATIONS_TAX_INCLUSIVE";

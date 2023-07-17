@@ -2173,11 +2173,11 @@ namespace ODLMWebAPI.BL
                         //else
                         //    statusId = (Int32)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR;//Reshma Added
                     }
-
+                    TblUserRoleTO tblUserRoleTO=new TblUserRoleTO();
                     List<TblUserRoleTO> tblUserRoleTOList = _iTblUserRoleBL.SelectAllActiveUserRoleList(tblBookingsTO.CreatedBy);
                     if (tblUserRoleTOList != null && tblUserRoleTOList.Count > 0)
                     {
-                        TblUserRoleTO tblUserRoleTO = tblUserRoleTOList.Where(ele => ele.UserId == tblBookingsTO.CreatedBy).FirstOrDefault();
+                        tblUserRoleTO = tblUserRoleTOList.Where(ele => ele.UserId == tblBookingsTO.CreatedBy).FirstOrDefault();
                         Dictionary<int, string> sysEleAccessDCT = _iTblSysElementsBL.SelectSysElementUserEntitlementDCT(tblUserRoleTO.UserId, tblUserRoleTO.RoleId);
 
                         if (sysEleAccessDCT != null || sysEleAccessDCT.Count > 0)
@@ -2190,9 +2190,21 @@ namespace ODLMWebAPI.BL
 
                         }
                     }
-
                     if (tblBookingsTO.EnquiryId == 0)
                         tblBookingsTO.StatusId = statusId;
+
+                    //Reshma Added For add marketing user booking show for approval in marketing approval for kalika changes
+                    TblConfigParamsTO tblConfigParamsToMarketingApproval = _iTblConfigParamsDAO.SelectTblConfigParams(Constants.CP_ROLE_ID_FOR_MARKETING_APPROVAL_BOOKING, conn, tran);
+                    if (tblConfigParamsToMarketingApproval != null && tblUserRoleTO != null)
+                    {
+                        int  marketingRoleId = Convert.ToInt32(tblConfigParamsToMarketingApproval.ConfigParamVal);
+                        if (marketingRoleId == tblUserRoleTO.RoleId )
+                        {
+                            statusId = Convert.ToInt32(Constants.TranStatusE.Pending_For_Marketing_Approval);
+                            tblBookingsTO.StatusId = statusId;
+                        }
+                    }
+                    
                     //Aniket [24-7-2019] added to check scheduled NoOfDeliveries against booking
                     if (tblBookingsTO.BookingScheduleTOLst != null && tblBookingsTO.BookingScheduleTOLst.Count > 0)
                     {
@@ -2202,7 +2214,7 @@ namespace ODLMWebAPI.BL
                         if (res != null)
                             tblBookingsTO.NoOfDeliveries = res.Count();
                     }
-
+                  
                     result = InsertTblBookings(tblBookingsTO, conn, tran);
                     if (result != 1)
                     {
