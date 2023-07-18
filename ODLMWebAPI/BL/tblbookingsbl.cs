@@ -2925,6 +2925,11 @@ namespace ODLMWebAPI.BL
                         resultMessage.Text = "Success, Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is Approved";
                         resultMessage.DisplayMessage = "Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is Approved";
                     }
+                    else if (tblBookingsTO.TranStatusE == Constants.TranStatusE.Pending_For_Marketing_Approval)
+                    {
+                        resultMessage.Text = "Success, Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is generated Successfully But Sent For Marketing Approval";
+                        resultMessage.DisplayMessage = "Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is generated Successfully But Sent For Marketing Approval";
+                    }
                     else
                     {
                         resultMessage.Text = "Success, Enquiry # - " + tblBookingsTO.BookingDisplayNo + " is generated Successfully But Sent For Approval";
