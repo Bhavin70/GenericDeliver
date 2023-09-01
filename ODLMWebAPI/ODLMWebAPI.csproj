@@ -34,6 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="3.7.202.4" />
     <PackageReference Include="EPPlus.Core" Version="1.5.4" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="2.4.0" />
     <PackageReference Include="MailKit" Version="2.0.1" />
@@ -66,12 +67,12 @@
 
   <ItemGroup>
     <Reference Include="Interop.SAPbobsCOM">
-      <HintPath>C:\Users\VITPL-IT-65\Downloads\Interop.SAPbobsCOM.dll</HintPath>
+      <HintPath>C:\MaskBC\Project\SimpliStock\simpliStockAPI\simpliSTOCKAPI\simpliSTOCKAPI\obj\Debug\netcoreapp2.0\Interop.SAPbobsCOM.dll</HintPath>
       <Private>true</Private>
       <EmbedInteropTypes>true</EmbedInteropTypes>
     </Reference>
     <Reference Include="itextsharp">
-      <HintPath>bin\Debug\netcoreapp2.0\itextsharp.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Samadhan\DLL\itextsharp.dll</HintPath>
     </Reference>
   </ItemGroup>
 

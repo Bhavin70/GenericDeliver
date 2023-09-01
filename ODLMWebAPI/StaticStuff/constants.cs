@@ -892,6 +892,13 @@ namespace ODLMWebAPI.StaticStuff
         public static string WHATS_APP_SEND_MESSAGE_REQUEST_HEADER_JSON = "WHATS_APP_SEND_MESSAGE_REQUEST_HEADER_JSON";
         public static string cp_is_show_NC_report_col_for_metaroll = "cp_is_show_NC_report_col_for_metaroll";  //Added for metaroll
         public static string ExcelFileNameForNCRpt = "NC Report";
+
+        // Add By Samadhan 31 Agust 2023
+        public static string IS_FILE_UPLOAD_TO_AWS = "IS_FILE_UPLOAD_TO_AWS";
+        public static string AWS_DELIVER_BUCKET_NAME = "AWS_DELIVER_BUCKET_NAME";
+        public static string AWS_ACCESS_KEY = "AWS_ACCESS_KEY";
+        public static string AWS_ACCESS_SECRET_KEY = "AWS_ACCESS_SECRET_KEY";
+
         #region Common functions
 
         public static Boolean IsNeedToRemoveFromList(string[] sizeList, Int32 materialId)
