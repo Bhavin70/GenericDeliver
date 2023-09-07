@@ -1341,10 +1341,21 @@ namespace ODLMWebAPI.BL
 
                     excelWorksheet.Protection.IsProtected = true;
                     excelPackage.Workbook.Protection.LockStructure = true;
-                    #region Upload File to Azure
 
-                    // Create azure storage  account connection.
-                    CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_iConnectionString.GetConnectionString(Constants.AZURE_CONNECTION_STRING));
+                    // Samadhan Added 31 Agust 2023 File upload AWS Or Azure on the basis configPara
+                    #region Upload File to Cloud
+
+                    TblConfigParamsTO configParamTOForAWS = _iTblConfigParamsBL.SelectTblConfigParamsValByName(StaticStuff.Constants.IS_FILE_UPLOAD_TO_AWS);
+
+                    String fileName = Constants.ExcelFileName + _iCommon.ServerDateTime.ToString("ddMMyyyyHHmmss") + "-" + minDate + "-" + maxDate + "-R" + ".xlsx";
+                    var fileStream = excelPackage.GetAsByteArray();
+
+                    if (configParamTOForAWS == null || configParamTOForAWS.ConfigParamVal.ToString() == "0")
+                    {
+                        #region Upload File to Azure
+
+                        // Create azure storage  account connection.
+                        CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_iConnectionString.GetConnectionString(Constants.AZURE_CONNECTION_STRING));
 
                     // Create the blob client.
                     CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
@@ -1352,14 +1363,41 @@ namespace ODLMWebAPI.BL
                     // Retrieve reference to a target container.
                     CloudBlobContainer container = blobClient.GetContainerReference(Constants.AzureSourceContainerName);
 
-                    String fileName = Constants.ExcelFileName + _iCommon.ServerDateTime.ToString("ddMMyyyyHHmmss") + "-" + minDate + "-" + maxDate + "-R" + ".xlsx";
-                    CloudBlockBlob blockBlob = container.GetBlockBlobReference(fileName);
+                      CloudBlockBlob blockBlob = container.GetBlockBlobReference(fileName);
 
-                    var fileStream = excelPackage.GetAsByteArray();
+                  
 
                     Task t1 = blockBlob.UploadFromByteArrayAsync(fileStream, 0, fileStream.Length);
 
+                   
+                        #endregion
+                    }
+                    else
+                    {
+                        #region Upload File to AWS
+
+                        TblConfigParamsTO configParamTOForAWSRecycleBucket = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.AWS_DELIVER_BUCKET_NAME);
+                        if (configParamTOForAWSRecycleBucket == null)
+                        {
+                            throw new Exception("configParamTOForAWSRecycleBucket == null");
+                        }
+                        TblConfigParamsTO configParamTOForAWSAccessKey = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.AWS_ACCESS_KEY);
+                        if (configParamTOForAWSAccessKey == null)
+                        {
+                            throw new Exception("configParamTOForAWSAccessKey == null");
+                        }
+                        TblConfigParamsTO configParamTOForAWSSecretKey = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.AWS_ACCESS_SECRET_KEY);
+                        if (configParamTOForAWSSecretKey == null)
+                        {
+                            throw new Exception("configParamTOForAWSSecretKey == null");
+                        }
+
+                        var result = _iCommon.UploadFileToAWS(configParamTOForAWSAccessKey.ConfigParamVal, configParamTOForAWSSecretKey.ConfigParamVal, configParamTOForAWSRecycleBucket.ConfigParamVal, fileName, fileStream, "");
+                          
+                        #endregion
+                    }
                     excelPackage.Dispose();
+
                     #endregion
                     resultMessage.DefaultSuccessBehaviour();
                     return resultMessage;

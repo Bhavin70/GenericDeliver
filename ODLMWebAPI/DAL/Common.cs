@@ -21,6 +21,9 @@ using QRCoder;
 using System.Drawing;
 using System.IO.Compression;
 using System.Reflection;
+using Amazon.S3.Model;
+using Amazon.S3;
+
 
 namespace ODLMWebAPI.DAL
 { 
@@ -708,5 +711,33 @@ public  string SelectApKLoginArray(int userId)
                 throw ex;
             }
         }
+
+        // Samadhan Added 31 Agust 2023
+        public int UploadFileToAWS(string AWSAccessKey, string AWSAccessSecret, string BucketName, string fileName, byte[] fileStream, string ContentType)
+        {
+            var client = new AmazonS3Client(AWSAccessKey, AWSAccessSecret, Amazon.RegionEndpoint.APSouth1);
+
+            // testing  vivek
+            //byte[] bytes = File.ReadAllBytes("D:\\New folder\\Policy.png");
+            PutObjectResponse response = null;
+
+            using (var memoryStream = new MemoryStream(fileStream))
+            {
+                var request = new PutObjectRequest
+                {
+                    BucketName = BucketName,
+                    Key = fileName,
+                    InputStream = memoryStream,
+                    ContentType = ContentType,
+                    CannedACL = S3CannedACL.PublicRead
+                };
+
+                response = client.PutObjectAsync(request).Result;
+            };
+            return response.HttpStatusCode == HttpStatusCode.OK ? 1 : 0;
+        }
+
+
+
     }
 }

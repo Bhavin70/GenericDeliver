@@ -9,6 +9,7 @@ namespace ODLMWebAPI.DAL.Interfaces
     {
         System.DateTime SelectServerDateTime();
         DateTime ServerDateTime { get; }
+        int UploadFileToAWS(string AWSAccessKey, string AWSAccessSecret, string BucketName, string fileName, byte[] fileStream, string ContentType);
 
 
         String getNotificationTimeHint(DateTime raisedDate);
