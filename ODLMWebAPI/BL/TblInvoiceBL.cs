@@ -21,6 +21,9 @@ using Microsoft.WindowsAzure.Storage;
 using System.Threading.Tasks;
 using System;
 using Microsoft.AspNetCore.Http;
+using Amazon;
+using Amazon.S3;
+using Amazon.S3.Transfer;
 
 
 namespace ODLMWebAPI.BL
@@ -1371,6 +1374,349 @@ namespace ODLMWebAPI.BL
             return resultMessage;
         }
 
+        public ResultMessage GetRptInvoiceNCListForGajkesri(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId)
+        {
+            //Reshma Added
+            ResultMessage resultMessage = new ResultMessage();
+            try
+            {
+                List<TblInvoiceRptTO> TblInvoiceRptTOList = new List<TblInvoiceRptTO>();
+                List<TblInvoiceRptTO> TblInvoiceRptTOListByInvoiceItemId = new List<TblInvoiceRptTO>();
+                // return _iTblInvoiceDAO.SelectSalesInvoiceListForReport(frmDt, toDt, isConfirm, fromOrgId);
+                TblInvoiceRptTOList = _iTblInvoiceDAO.SelectSalesInvoiceListForReport(frmDt, toDt, isConfirm, fromOrgId);
+                if (TblInvoiceRptTOList != null && TblInvoiceRptTOList.Count > 0)
+                {
+                    ExcelPackage excelPackage = new ExcelPackage();
+                    int cellRow = 2;
+                    int invoiceId = 0;
+                    excelPackage = new ExcelPackage();
+                    string minDate = TblInvoiceRptTOList.Min(ele => ele.InvoiceDate).ToString("ddMMyy");
+                    string maxDate = TblInvoiceRptTOList.Max(ele => ele.InvoiceDate).ToString("ddMMyy");
+
+                    List<TblInvoiceRptTO> TblInvoiceRptTOListByInvoiceItemDistictId = TblInvoiceRptTOList.GroupBy(ele => ele.IdInvoice).Select(ele => ele.FirstOrDefault()).ToList();
+
+                    foreach (var items in TblInvoiceRptTOListByInvoiceItemDistictId)
+                    {
+                        List<TblInvoiceRptTO> TblInvoiceRptTOListNew = TblInvoiceRptTOList.Where(ele => ele.InvoiceItemId == items.InvoiceItemId).Select(ele => ele).ToList();
+
+                        foreach (var item in TblInvoiceRptTOListNew)
+                        {
+                            if (item.TaxTypeId == (int)Constants.TaxTypeE.IGST)
+                            {
+                                items.IgstTaxAmt = item.TaxAmt;
+                                items.IgstPct = item.TaxRatePct;
+                            }
+
+                            if (item.TaxTypeId == (int)Constants.TaxTypeE.CGST)
+                            {
+                                items.CgstTaxAmt = item.TaxAmt;
+                                items.CgstPct = item.TaxRatePct;
+                            }
+                            if (item.TaxTypeId == (int)Constants.TaxTypeE.SGST)
+                            {
+                                items.SgstTaxAmt = item.TaxAmt;
+                                items.SgstPct = item.TaxRatePct;
+                            }
+                        }
+                    }
+                    #region Excel Column Prepareration
+                    ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add(Constants.ExcelSheetName);
+
+                    // Add By Samadhan 9 jan 2023
+                    Int32 ShowNewColNCRptMetaroll = 0;
+
+                    // if (ShowNewColNCRptMetaroll == 1)
+                    if (TblInvoiceRptTOListByInvoiceItemDistictId != null && TblInvoiceRptTOListByInvoiceItemDistictId.Count > 0)
+                    {
+                        #region Excel column
+                        excelWorksheet.Cells[1, 1].Value = "Invoice No.";
+                        excelWorksheet.Cells[1, 2].Value = "Transaction Date";
+                        excelWorksheet.Cells[1, 3].Value = "Party Name";
+                        excelWorksheet.Cells[1, 4].Value = "Buyer Address 1";
+                        excelWorksheet.Cells[1, 5].Value = "Buyer Address 2";
+                        excelWorksheet.Cells[1, 6].Value = "Buyer Address 3";
+                        excelWorksheet.Cells[1, 7].Value = "Buyer Address 4";
+                        excelWorksheet.Cells[1, 8].Value = "Buyers State";
+                        excelWorksheet.Cells[1, 9].Value = "Country";
+                        excelWorksheet.Cells[1, 10].Value = "PinCode";
+                        excelWorksheet.Cells[1, 11].Value = "Buyers GSTIN / UIN";
+                        excelWorksheet.Cells[1, 12].Value = "Distributor";
+                        excelWorksheet.Cells[1, 13].Value = "Consignee Name";
+                        excelWorksheet.Cells[1, 14].Value = "Consignee Address 1";
+                        excelWorksheet.Cells[1, 15].Value = "Consignee Address 2";
+                        excelWorksheet.Cells[1, 16].Value = "Consignee Address 3";
+                        excelWorksheet.Cells[1, 17].Value = "Consignee Address 4";
+                        excelWorksheet.Cells[1, 18].Value = "State";
+                        excelWorksheet.Cells[1, 19].Value = "Country";
+                        excelWorksheet.Cells[1, 20].Value = "PinCode";
+                        excelWorksheet.Cells[1, 21].Value = "Buyers GSTIN / UIN";
+                        excelWorksheet.Cells[1, 22].Value = "Delivery Location to";
+                        excelWorksheet.Cells[1, 23].Value = "Item Description";
+                        excelWorksheet.Cells[1, 24].Value = "GST %";
+                        excelWorksheet.Cells[1, 25].Value = "HSN";
+                        excelWorksheet.Cells[1, 26].Value = "Size";
+                        excelWorksheet.Cells[1, 27].Value = "Size Bundle";
+                        excelWorksheet.Cells[1, 28].Value = "SIZE WEIGHT";
+                        excelWorksheet.Cells[1, 29].Value = "Booking Rate";
+                        excelWorksheet.Cells[1, 30].Value = "Size Rate";
+                        excelWorksheet.Cells[1, 31].Value = "CD";
+                        excelWorksheet.Cells[1, 32].Value = "BASIC VALUE";
+                        excelWorksheet.Cells[1, 33].Value = "Taxable Amt.";
+                        excelWorksheet.Cells[1, 34].Value = "Sales Ledger";
+                        excelWorksheet.Cells[1, 35].Value = "Adv. Freight Amt";
+                        excelWorksheet.Cells[1, 36].Value = "Insurance GL";
+                        excelWorksheet.Cells[1, 37].Value = "CGST OUTPUT";
+                        excelWorksheet.Cells[1, 38].Value = "SGST OUTPUT";
+                        excelWorksheet.Cells[1, 39].Value = "IGST OUTPUT";
+                        excelWorksheet.Cells[1, 40].Value = "TCS GL";
+                        excelWorksheet.Cells[1, 41].Value = "TCS 1% F.Y. 2017-18 (PAYABLE)";
+                        excelWorksheet.Cells[1, 42].Value = "Round Off";
+                        excelWorksheet.Cells[1, 43].Value = "PARTY RECEIVABLE";
+                        excelWorksheet.Cells[1, 44].Value = "Acknowledgment No.";
+                        excelWorksheet.Cells[1, 45].Value = "Ack Date";
+                        excelWorksheet.Cells[1, 46].Value = "E-way bill No";
+                        excelWorksheet.Cells[1, 47].Value = "Eway bill Date";
+                        excelWorksheet.Cells[1, 48].Value = "Dispatched Through/ Transporter";
+                        excelWorksheet.Cells[1, 49].Value = "Motor Vehicle No";
+                        excelWorksheet.Cells[1, 50].Value = "Bill of Lading / LR-RR No";
+                        excelWorksheet.Cells[1, 51].Value = "LR Date";
+                        excelWorksheet.Cells[1, 52].Value = "Customer Phone NO";
+                        excelWorksheet.Cells[1, 53].Value = "Driver Phone No";
+                        excelWorksheet.Cells[1, 54].Value = "Narration";
+
+                        excelWorksheet.Cells[1, 1, 1, 19].Style.Font.Bold = true;
+                        #endregion
+                        for (int k = 0; k < TblInvoiceRptTOListByInvoiceItemDistictId.Count; k++)
+                        {
+                            invoiceId = 0;
+                            TblInvoiceRptTOListByInvoiceItemId = TblInvoiceRptTOList.
+                                Where(w => w.IdInvoice == TblInvoiceRptTOListByInvoiceItemDistictId[k].IdInvoice).ToList();
+                            for (int i = 0; i < TblInvoiceRptTOListByInvoiceItemId.Count; i++)
+                            {
+                                if (invoiceId != 0)// && invoiceId != TblInvoiceRptTOListByInvoiceItemId[i].IdInvoice)
+                                {
+
+                                    excelWorksheet.Cells[cellRow, 1].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceNo;
+                                    excelWorksheet.Cells[cellRow, 2].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceDateStr;
+                                    excelWorksheet.Cells[cellRow, 3].Value = TblInvoiceRptTOListByInvoiceItemId[i].PartyName;
+                                    excelWorksheet.Cells[cellRow, 4].Value = TblInvoiceRptTOListByInvoiceItemId[i].BuyerAddress;
+                                    excelWorksheet.Cells[cellRow, 5].Value = TblInvoiceRptTOListByInvoiceItemId[i].BuyerDistict;
+                                    excelWorksheet.Cells[cellRow, 6].Value = TblInvoiceRptTOListByInvoiceItemId[i].BuyerTaluka;
+                                    excelWorksheet.Cells[cellRow, 7].Value = "";
+                                    excelWorksheet.Cells[cellRow, 8].Value = "";
+                                    excelWorksheet.Cells[cellRow, 9].Value = "";
+                                    excelWorksheet.Cells[cellRow, 10].Value = "";
+                                    excelWorksheet.Cells[cellRow, 11].Value = "";
+                                    excelWorksheet.Cells[cellRow, 12].Value = TblInvoiceRptTOListByInvoiceItemId[i].CnfName;
+                                    excelWorksheet.Cells[cellRow, 13].Value = "";
+                                    excelWorksheet.Cells[cellRow, 14].Value = "";
+                                    excelWorksheet.Cells[cellRow, 15].Value = "";
+                                    excelWorksheet.Cells[cellRow, 16].Value = TblInvoiceRptTOListByInvoiceItemId[i].ConsigneeTaluka;
+                                    excelWorksheet.Cells[cellRow, 17].Value = "";
+                                    excelWorksheet.Cells[cellRow, 18].Value = "";
+                                    excelWorksheet.Cells[cellRow, 19].Value = "";
+                                    excelWorksheet.Cells[cellRow, 20].Value = "";
+                                    excelWorksheet.Cells[cellRow, 21].Value = "";
+
+                                    excelWorksheet.Cells[cellRow, 22].Value = "";
+                                    excelWorksheet.Cells[cellRow, 23].Value = TblInvoiceRptTOListByInvoiceItemId[i].ProDesc;
+                                    excelWorksheet.Cells[cellRow, 24].Value = TblInvoiceRptTOListByInvoiceItemId[i].TaxPCT;
+                                    excelWorksheet.Cells[cellRow, 25].Value = TblInvoiceRptTOListByInvoiceItemId[i].GstCodeNo;
+                                    excelWorksheet.Cells[cellRow, 26].Value = TblInvoiceRptTOListByInvoiceItemId[i].MaterialName;
+                                    excelWorksheet.Cells[cellRow, 27].Value = TblInvoiceRptTOListByInvoiceItemId[i].Bundles;
+                                    excelWorksheet.Cells[cellRow, 28].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceQty;
+                                    excelWorksheet.Cells[cellRow, 29].Value = TblInvoiceRptTOListByInvoiceItemId[i].BookingRate;
+                                    excelWorksheet.Cells[cellRow, 30].Value = TblInvoiceRptTOListByInvoiceItemId[i].Rate;
+                                    excelWorksheet.Cells[cellRow, 31].Value = TblInvoiceRptTOListByInvoiceItemId[i].CdStructure;
+                                    excelWorksheet.Cells[cellRow, 32].Value = TblInvoiceRptTOListByInvoiceItemId[i].TaxableAmt;
+
+                                    excelWorksheet.Cells[cellRow, 33].Value = "";
+                                    excelWorksheet.Cells[cellRow, 34].Value = TblInvoiceRptTOListByInvoiceItemId[i].SalesLedger;
+                                    excelWorksheet.Cells[cellRow, 35].Value = "";
+                                    excelWorksheet.Cells[cellRow, 36].Value = "";
+                                    excelWorksheet.Cells[cellRow, 37].Value = "";
+                                    excelWorksheet.Cells[cellRow, 38].Value = "";
+                                    excelWorksheet.Cells[cellRow, 39].Value = "";
+                                    excelWorksheet.Cells[cellRow, 40].Value = "";
+                                    excelWorksheet.Cells[cellRow, 41].Value = "";
+                                    excelWorksheet.Cells[cellRow, 42].Value = TblInvoiceRptTOListByInvoiceItemId[i].roundOffAmt;
+                                    excelWorksheet.Cells[cellRow, 43].Value = "";
+                                    excelWorksheet.Cells[cellRow, 44].Value = "";
+
+                                    excelWorksheet.Cells[cellRow, 45].Value = "";
+                                    excelWorksheet.Cells[cellRow, 46].Value = "";
+                                    excelWorksheet.Cells[cellRow, 47].Value = "";
+                                    excelWorksheet.Cells[cellRow, 48].Value = "";
+                                    excelWorksheet.Cells[cellRow, 49].Value = "";
+                                    excelWorksheet.Cells[cellRow, 50].Value = "";
+                                    excelWorksheet.Cells[cellRow, 51].Value = "";
+                                    excelWorksheet.Cells[cellRow, 52].Value = "";
+                                    excelWorksheet.Cells[cellRow, 53].Value = "";
+                                    excelWorksheet.Cells[cellRow, 54].Value = "";
+
+                                    //  excelWorksheet.Cells[cellRow, 1, cellRow, 54].Style.Font.Bold = true;
+                                    cellRow++;
+
+                                }
+                                else
+                                {
+                                    excelWorksheet.Cells[cellRow, 1].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceNo;
+                                    excelWorksheet.Cells[cellRow, 2].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceDateStr;
+                                    excelWorksheet.Cells[cellRow, 3].Value = TblInvoiceRptTOListByInvoiceItemId[i].PartyName;
+                                    excelWorksheet.Cells[cellRow, 4].Value = TblInvoiceRptTOListByInvoiceItemId[i].BuyerAddress;
+                                    excelWorksheet.Cells[cellRow, 5].Value = TblInvoiceRptTOListByInvoiceItemId[i].BuyerDistict;
+                                    excelWorksheet.Cells[cellRow, 6].Value = TblInvoiceRptTOListByInvoiceItemId[i].BuyerTaluka;
+                                    excelWorksheet.Cells[cellRow, 7].Value = "";
+                                    excelWorksheet.Cells[cellRow, 8].Value = TblInvoiceRptTOListByInvoiceItemId[i].BuyerState;
+                                    excelWorksheet.Cells[cellRow, 9].Value = TblInvoiceRptTOListByInvoiceItemId[i].BuyercountryName;
+                                    excelWorksheet.Cells[cellRow, 10].Value = TblInvoiceRptTOListByInvoiceItemId[i].BuyerPincode;
+                                    excelWorksheet.Cells[cellRow, 11].Value = TblInvoiceRptTOListByInvoiceItemId[i].BuyerGstNo;
+                                    excelWorksheet.Cells[cellRow, 12].Value = TblInvoiceRptTOListByInvoiceItemId[i].CnfName;
+                                    excelWorksheet.Cells[cellRow, 13].Value = TblInvoiceRptTOListByInvoiceItemId[i].Consignee;
+                                    excelWorksheet.Cells[cellRow, 14].Value = TblInvoiceRptTOListByInvoiceItemId[i].ConsigneeAddress;
+                                    excelWorksheet.Cells[cellRow, 15].Value = TblInvoiceRptTOListByInvoiceItemId[i].ConsigneeDistict;
+                                    excelWorksheet.Cells[cellRow, 16].Value = TblInvoiceRptTOListByInvoiceItemId[i].ConsigneeTaluka;
+                                    excelWorksheet.Cells[cellRow, 17].Value = "";
+                                    excelWorksheet.Cells[cellRow, 18].Value = TblInvoiceRptTOListByInvoiceItemId[i].ConsigneeState;
+                                    excelWorksheet.Cells[cellRow, 19].Value = TblInvoiceRptTOListByInvoiceItemId[i].consigneecountryName;
+                                    excelWorksheet.Cells[cellRow, 20].Value = TblInvoiceRptTOListByInvoiceItemId[i].ConsigneePinCode;
+                                    excelWorksheet.Cells[cellRow, 21].Value = TblInvoiceRptTOListByInvoiceItemId[i].ConsigneeGstNo;
+
+                                    excelWorksheet.Cells[cellRow, 22].Value = TblInvoiceRptTOListByInvoiceItemId[i].DeliveryLocation;
+                                    excelWorksheet.Cells[cellRow, 23].Value = TblInvoiceRptTOListByInvoiceItemId[i].ProDesc;
+                                    excelWorksheet.Cells[cellRow, 24].Value = TblInvoiceRptTOListByInvoiceItemId[i].TaxPCT;
+                                    excelWorksheet.Cells[cellRow, 25].Value = TblInvoiceRptTOListByInvoiceItemId[i].GstCodeNo;
+                                    excelWorksheet.Cells[cellRow, 26].Value = TblInvoiceRptTOListByInvoiceItemId[i].MaterialName;
+                                    excelWorksheet.Cells[cellRow, 27].Value = TblInvoiceRptTOListByInvoiceItemId[i].Bundles;
+                                    excelWorksheet.Cells[cellRow, 28].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceQty;
+                                    excelWorksheet.Cells[cellRow, 29].Value = TblInvoiceRptTOListByInvoiceItemId[i].BookingRate;
+                                    excelWorksheet.Cells[cellRow, 30].Value = TblInvoiceRptTOListByInvoiceItemId[i].Rate;
+                                    excelWorksheet.Cells[cellRow, 31].Value = TblInvoiceRptTOListByInvoiceItemId[i].CdStructure;
+                                    excelWorksheet.Cells[cellRow, 32].Value = TblInvoiceRptTOListByInvoiceItemId[i].TaxableAmt;
+
+                                    excelWorksheet.Cells[cellRow, 33].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceTaxableAmt;
+                                    excelWorksheet.Cells[cellRow, 34].Value = TblInvoiceRptTOListByInvoiceItemId[i].SalesLedger;
+                                    excelWorksheet.Cells[cellRow, 35].Value = TblInvoiceRptTOListByInvoiceItemId[i].Freight_GL;
+                                    excelWorksheet.Cells[cellRow, 36].Value = TblInvoiceRptTOListByInvoiceItemId[i].FreightAmt;
+                                    excelWorksheet.Cells[cellRow, 37].Value = TblInvoiceRptTOListByInvoiceItemId[i].CgstTaxAmt;
+                                    excelWorksheet.Cells[cellRow, 38].Value = TblInvoiceRptTOListByInvoiceItemId[i].SgstTaxAmt;
+                                    excelWorksheet.Cells[cellRow, 39].Value = TblInvoiceRptTOListByInvoiceItemId[i].IgstTaxAmt;
+                                    excelWorksheet.Cells[cellRow, 40].Value = TblInvoiceRptTOListByInvoiceItemId[i].TCS_GL;
+                                    excelWorksheet.Cells[cellRow, 41].Value = TblInvoiceRptTOListByInvoiceItemId[i].TcsAmt;
+                                    excelWorksheet.Cells[cellRow, 42].Value = TblInvoiceRptTOListByInvoiceItemId[i].roundOffAmt;
+                                    excelWorksheet.Cells[cellRow, 43].Value = TblInvoiceRptTOListByInvoiceItemId[i].GrandTotal;
+                                    excelWorksheet.Cells[cellRow, 44].Value = TblInvoiceRptTOListByInvoiceItemId[i].AckNo;
+
+                                    excelWorksheet.Cells[cellRow, 45].Value = TblInvoiceRptTOListByInvoiceItemId[i].AckDate;
+                                    excelWorksheet.Cells[cellRow, 46].Value = TblInvoiceRptTOListByInvoiceItemId[i].EwbNo;
+                                    excelWorksheet.Cells[cellRow, 47].Value = TblInvoiceRptTOListByInvoiceItemId[i].EwbDate;
+                                    excelWorksheet.Cells[cellRow, 48].Value = TblInvoiceRptTOListByInvoiceItemId[i].TransporterName;
+                                    excelWorksheet.Cells[cellRow, 49].Value = TblInvoiceRptTOListByInvoiceItemId[i].VehicleNo;
+                                    excelWorksheet.Cells[cellRow, 50].Value = TblInvoiceRptTOListByInvoiceItemId[i].LrNumber;
+                                    excelWorksheet.Cells[cellRow, 51].Value = "";
+                                    excelWorksheet.Cells[cellRow, 52].Value = TblInvoiceRptTOListByInvoiceItemId[i].DealerMobNo;
+                                    excelWorksheet.Cells[cellRow, 53].Value = TblInvoiceRptTOListByInvoiceItemId[i].ContactNo;
+                                    excelWorksheet.Cells[cellRow, 54].Value = TblInvoiceRptTOListByInvoiceItemId[i].NarrationConcat;
+
+
+                                    invoiceId = TblInvoiceRptTOListByInvoiceItemId[i].IdInvoice;
+                                    excelWorksheet.Cells[cellRow, 1, cellRow, 54].Style.Font.Bold = true;
+                                    cellRow++;
+
+                                }
+                            }
+                            // For last record.
+                            //if (i == (TblInvoiceRptTOListByInvoiceItemId.Count - 1))
+
+                        }
+
+                        // List<TblInvoiceRptTO> TblInvoiceRptTOListnew = TblInvoiceRptTOListByInvoiceItemId.Where(ele => ele.IdInvoice == invoiceId).Select(ele => ele).ToList();
+
+                        excelWorksheet.Cells[cellRow, 1].Value = "Grand Total";
+                        excelWorksheet.Cells[cellRow, 28].Value = Math.Round(TblInvoiceRptTOList.Sum(ele => ele.InvoiceQty), 2);
+                        excelWorksheet.Cells[cellRow, 32].Value = Math.Round(TblInvoiceRptTOList.Sum(ele => ele.TaxableAmt), 2);
+                        excelWorksheet.Cells[cellRow, 33].Value = Math.Round(TblInvoiceRptTOList.Sum(ele => ele.InvoiceTaxableAmt), 2);
+                        excelWorksheet.Cells[cellRow, 37].Value = Math.Round(TblInvoiceRptTOList.Sum(ele => ele.CgstTaxAmt), 2);
+                        excelWorksheet.Cells[cellRow, 38].Value = Math.Round(TblInvoiceRptTOList.Sum(ele => ele.SgstTaxAmt), 2);
+                        excelWorksheet.Cells[cellRow, 39].Value = Math.Round(TblInvoiceRptTOList.Sum(ele => ele.IgstTaxAmt), 2);
+                        excelWorksheet.Cells[cellRow, 43].Value = Math.Round(TblInvoiceRptTOList.Sum(ele => ele.GrandTotal), 2);
+
+                        //excelWorksheet.Cells[cellRow, 8].Value = TblInvoiceRptTOListnew.Select(ele => ele.GrossWeight / 1000);
+                        //excelWorksheet.Cells[cellRow, 9].Value = TblInvoiceRptTOListnew.Select(ele => ele.TareWeight / 1000);
+                        //excelWorksheet.Cells[cellRow, 10].Value = TblInvoiceRptTOListnew.Select(ele => ele.NetWeight / 1000);
+
+                        excelWorksheet.Cells[cellRow, 1, cellRow, 54].Style.Font.Bold = true;
+                        //cellRow++;
+
+                        // For final total.
+                        //excelWorksheet.Cells[cellRow, 9].Value = "Grand Total";
+                        //excelWorksheet.Cells[cellRow, 13].Value = TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.InvoiceQty);
+                        //excelWorksheet.Cells[cellRow, 14].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.TaxableAmt), 2);
+
+                        //excelWorksheet.Cells[cellRow, 15].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.GrandTotal), 2);
+                        //excelWorksheet.Cells[cellRow, 16].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.CdAmt), 2);
+                        //excelWorksheet.Cells[cellRow, 17].Value = Math.Round(TblInvoiceRptTOListByInvoiceItemId.Sum(ele => ele.GrandTotal), 2);
+
+                        excelWorksheet.Cells[cellRow, 1, cellRow, 54].Style.Font.Bold = true;
+
+
+                        using (ExcelRange range = excelWorksheet.Cells[1, 1, cellRow, 54])
+                        {
+                            range.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                            range.Style.Font.Name = "Times New Roman";
+                            range.Style.Font.Size = 10;
+                        }
+
+                    }
+
+
+                    #endregion
+
+                    excelWorksheet.Protection.IsProtected = true;
+                    excelPackage.Workbook.Protection.LockStructure = true;
+                    #region Upload File to Azure
+
+                    //IAmazonS3 client = Amazon.AWSClientFactory.CreateAmazonS3Client(RegionEndpoint.EUWest1);
+                    //IAmazonS3 client = Amazon.S3.AWSClientFactory.CreateAmazonS3Client(RegionEndpoint.EUWest1);
+
+                    Amazon.Runtime.AWSCredentials credentials = new Amazon.Runtime.StoredProfileAWSCredentials("development");
+                    Amazon.S3.IAmazonS3 s3Client = new AmazonS3Client(credentials, Amazon.RegionEndpoint.USWest2);
+
+                    // Create azure storage  account connection.
+                    CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_iConnectionString.GetConnectionString(Constants.AZURE_CONNECTION_STRING));
+
+                    // Create the blob client.
+                    CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+
+                    // Retrieve reference to a target container.
+                    CloudBlobContainer container = blobClient.GetContainerReference(Constants.AzureSourceContainerName);
+
+                    String fileName = Constants.ExcelFileName + _iCommon.ServerDateTime.ToString("ddMMyyyyHHmmss") + "-" + minDate + "-" + maxDate + "-R" + ".xlsx";
+                    CloudBlockBlob blockBlob = container.GetBlockBlobReference(fileName);
+
+                    var fileStream = excelPackage.GetAsByteArray();
+
+                    Task t1 = blockBlob.UploadFromByteArrayAsync(fileStream, 0, fileStream.Length);
+
+                    excelPackage.Dispose();
+                    #endregion
+                    resultMessage.DefaultSuccessBehaviour();
+                    return resultMessage;
+                }
+                resultMessage.DefaultBehaviour();
+                //return _iTblInvoiceDAO.SelectAllRptInvoiceList(frmDt, toDt, isConfirm, fromOrgId);
+            }
+            catch (Exception ex)
+            {
+                resultMessage.DefaultExceptionBehaviour(ex, "CreateTempInvoiceExcel");
+            }
+            return resultMessage;
+        }
+        
         public ResultMessage SelectAllRptNCList(DateTime frmDt, DateTime toDt)
         {
 
@@ -9697,7 +10043,66 @@ namespace ODLMWebAPI.BL
                     {
                         TblInvoiceChangeOrgHistoryTO changeHisTO = new TblInvoiceChangeOrgHistoryTO();
                         resultMessage = PrepareAndSaveInternalTaxInvoices(invoiceTO, invGenModeId, fromOrgId, toOrgId, 0, changeHisTO, conn, tran);
+                        TblConfigParamsTO tblConfigParamsTOVasudha = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_NOTIFICATIONS);
 
+                        if (tblConfigParamsTOVasudha != null && !String.IsNullOrEmpty(tblConfigParamsTOVasudha.ConfigParamVal))
+                        {
+                            Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOVasudha.ConfigParamVal);
+                            if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                            {
+                                TblConfigParamsTO MessageTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName("IS_SEND_SMS_AS_PER_VASUDHA");
+                                if (MessageTO != null && !String.IsNullOrEmpty(MessageTO.ConfigParamVal))
+                                {
+                                    string AlertComment = "";
+                                    TblAlertInstanceTO tblAlertInstanceTO = new TblAlertInstanceTO();
+                                    if (invoiceTO != null )
+                                    {
+                                        TblOrganizationTO tblOrganizationTO = _iTblOrganizationBL.SelectTblOrganizationTO(invoiceTO.DealerOrgId);
+                                        if (tblOrganizationTO == null)
+                                        {
+                                            resultMessage.DefaultBehaviour("tblOrganizationTO is null in send Vasudha SMS Msg");
+                                            return resultMessage;
+                                        }
+                                        TblConfigParamsTO MessageTOV2 = _iTblConfigParamsDAO.SelectTblConfigParamsValByName("CP_DELIVER_SEND_VEHICLE_OUT_MSG_FOR_VASUDHA");
+                                        if (MessageTOV2 != null && !String.IsNullOrEmpty(MessageTOV2.ConfigParamVal))
+                                        {
+                                            AlertComment = MessageTOV2.ConfigParamVal;
+                                          
+                                            TblLoadingSlipTO tblLoadingSlipTO = _iTblLoadingSlipDAO.SelectTblLoadingSlip(invoiceTO.LoadingSlipId,conn,tran);
+                                            if(tblLoadingSlipTO !=null)
+                                                AlertComment = AlertComment.Replace("@mobileNo", tblLoadingSlipTO.ContactNo);
+                                            else
+                                                AlertComment = AlertComment.Replace("@mobileNo","--");
+                                        }
+                                        List<TblAlertUsersTO> tblAlertUsersTOList = new List<TblAlertUsersTO>();
+                                        TblAlertUsersTO tblAlertUsersTO = new TblAlertUsersTO();
+                                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.VEHICLE_OUT_FOR_DELIVERY;
+                                        tblAlertInstanceTO.AlertAction = "Vehicle OUT";
+                                        tblAlertInstanceTO.AlertComment = AlertComment;
+                                        TblSmsTO smsTO = new TblSmsTO();
+                                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
+
+                                        smsTO.MobileNo = tblOrganizationTO.RegisteredMobileNos;
+                                        smsTO.SourceTxnDesc = AlertComment;
+                                        string confirmMsg = string.Empty;
+
+                                        smsTO.SmsTxt = AlertComment;
+                                        tblAlertInstanceTO.SmsTOList.Add(smsTO);
+
+
+                                        ResultMessage rMessage = _iTblAlertInstanceBL.SaveNewAlertInstance(tblAlertInstanceTO, conn, tran);
+                                        if (rMessage.MessageType != ResultMessageE.Information)
+                                        {
+                                            tran.Rollback();
+                                            resultMessage.DefaultBehaviour();
+                                            resultMessage.Text = "Error While Generating Notification For Send SMS in Vasudha";
+                                            // return resultMessage;
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
                         if (resultMessage.MessageType == ResultMessageE.Information)
                         {
                             tran.Commit();

@@ -433,11 +433,43 @@ namespace ODLMWebAPI.DAL
                                   " SELECT tblAddress.*, organizationId FROM tblOrgAddress " +
                                   " INNER JOIN tblAddress ON idAddr = addressId WHERE addrTypeId = 1 " +
                                   " ) addrDtl " +
-                                  " ON idOrganization = organizationId " + 
+                                  " ON idOrganization = organizationId " +
                                     "WHERE isActive=1 AND  orgTypeId=" + (int)orgTypeE;
 
                 }
+                else if (orgTypeE == Constants.OrgTypeE.DEALER)
+                {
+                    int isConfEn = 0;
+                    if (userRoleTO != null)
+                        isConfEn = userRoleTO.EnableAreaAlloc;
+
+                    if (isConfEn == 1)
+                        sqlQuery = sqlQuery = " SELECT idOrganization,(CASE WHEN villageName IS NULL then  firmName  ELSE firmName +',' + villageName END) as firmName ," +
+                                      " isSpecialCnf FROM tblOrganization  " +
+                                      " LEFT JOIN " +
+                                      " ( " +
+                                      " SELECT tblAddress.*, organizationId FROM tblOrgAddress " +
+                                      " INNER JOIN tblAddress ON idAddr = addressId WHERE addrTypeId = 1 " +
+                                      " ) addrDtl " +
+                                      " ON idOrganization = organizationId" +
+                                      "  left join tblCnfDealers on tblCnfDealers.dealerOrgId =tblOrganization.idOrganization " +
+                                      " left join (SELECT idOrganization,firmName , isSpecialCnf FROM tblOrganization WHERE  orgTypeId=1 "+
+                                      " AND idOrganization IN(SELECT cnfOrgId FROM tblUserAreaAllocation WHERE userId=" + userRoleTO.UserId + "AND isActive = 1) " +
+                                      " AND isActive = 1)  cnf on cnf.idOrganization = tblCnfDealers.cnfOrgId " +
+                                      "WHERE tblOrganization. isActive=1 AND orgTypeId=" + (int)orgTypeE;
+                    else
+                        sqlQuery = " SELECT idOrganization,(CASE WHEN villageName IS NULL then  firmName  ELSE firmName +',' + villageName END) as firmName ," +
+                                      " isSpecialCnf FROM tblOrganization  " +
+                                      " LEFT JOIN " +
+                                      " ( " +
+                                      " SELECT tblAddress.*, organizationId FROM tblOrgAddress " +
+                                      " INNER JOIN tblAddress ON idAddr = addressId WHERE addrTypeId = 1 " +
+                                      " ) addrDtl " +
+                                      " ON idOrganization = organizationId " +
+                                      "WHERE  isActive=1 AND orgTypeId=" + (int)orgTypeE;
+                }
                 else
+                {
                     sqlQuery = " SELECT idOrganization,(CASE WHEN villageName IS NULL then  firmName  ELSE firmName +',' + villageName END) as firmName ," +
                                   " isSpecialCnf FROM tblOrganization  " +
                                   " LEFT JOIN " +
@@ -447,7 +479,7 @@ namespace ODLMWebAPI.DAL
                                   " ) addrDtl " +
                                   " ON idOrganization = organizationId " +
                                   "WHERE  isActive=1 AND orgTypeId=" + (int)orgTypeE;
-
+                }
 
                 cmdSelect.CommandText = sqlQuery;
                 cmdSelect.Connection = conn;

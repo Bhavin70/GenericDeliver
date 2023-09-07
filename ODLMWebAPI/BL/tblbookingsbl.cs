@@ -2696,11 +2696,22 @@ namespace ODLMWebAPI.BL
                                     }
                                 }
                             }
+
+                        }
+                        TblConfigParamsTO tblConfigParamsTOVasudha = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.CP_DELIVER_IS_SEND_CUSTOM_NOTIFICATIONS);
+                        if (tblConfigParamsTOVasudha != null && !String.IsNullOrEmpty(tblConfigParamsTOVasudha.ConfigParamVal))
+                        {
+                            Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOVasudha.ConfigParamVal);
+                            if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                            {
+
+                            }
+
                         }
                         if (!string.IsNullOrEmpty(AlertComment))
                         {
                             TblOrganizationTO OrganizationTO = _iTblOrganizationDAO.SelectTblOrganizationTO((int)Constants.DefaultCompanyId);
-                            AlertComment = AlertComment.Replace("@Org_Name", OrganizationTO .FirmName);
+                            AlertComment = AlertComment.Replace("@Org_Name", OrganizationTO.FirmName);
                             tblAlertInstanceTO.AlertComment = AlertComment;
 
                         }
