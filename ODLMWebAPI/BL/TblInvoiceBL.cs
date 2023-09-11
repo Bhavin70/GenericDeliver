@@ -1124,28 +1124,34 @@ namespace ODLMWebAPI.BL
                         excelWorksheet.Cells[1, 30].Value = "Size Rate";
                         excelWorksheet.Cells[1, 31].Value = "CD";
                         excelWorksheet.Cells[1, 32].Value = "BASIC VALUE";
-                        excelWorksheet.Cells[1, 33].Value = "Taxable Amt.";
-                        excelWorksheet.Cells[1, 34].Value = "Sales Ledger";
-                        excelWorksheet.Cells[1, 35].Value = "Adv. Freight Amt";
-                        excelWorksheet.Cells[1, 36].Value = "Insurance GL";
-                        excelWorksheet.Cells[1, 37].Value = "CGST OUTPUT";
-                        excelWorksheet.Cells[1, 38].Value = "SGST OUTPUT";
-                        excelWorksheet.Cells[1, 39].Value = "IGST OUTPUT";
-                        excelWorksheet.Cells[1, 40].Value = "TCS GL";
-                        excelWorksheet.Cells[1, 41].Value = "TCS 1% F.Y. 2017-18 (PAYABLE)";
-                        excelWorksheet.Cells[1, 42].Value = "Round Off";
-                        excelWorksheet.Cells[1, 43].Value = "PARTY RECEIVABLE";
-                        excelWorksheet.Cells[1, 44].Value = "Acknowledgment No.";
-                        excelWorksheet.Cells[1, 45].Value = "Ack Date";
-                        excelWorksheet.Cells[1, 46].Value = "E-way bill No";
-                        excelWorksheet.Cells[1, 47].Value = "Eway bill Date";
-                        excelWorksheet.Cells[1, 48].Value = "Dispatched Through/ Transporter";
-                        excelWorksheet.Cells[1, 49].Value = "Motor Vehicle No";
-                        excelWorksheet.Cells[1, 50].Value = "Bill of Lading / LR-RR No";
-                        excelWorksheet.Cells[1, 51].Value = "LR Date";
-                        excelWorksheet.Cells[1, 52].Value = "Customer Phone NO";
-                        excelWorksheet.Cells[1, 53].Value = "Driver Phone No";
-                        excelWorksheet.Cells[1, 54].Value = "Narration";
+
+                        excelWorksheet.Cells[1, 33].Value = "Discount Amt.";
+
+                        excelWorksheet.Cells[1, 34].Value = "Taxable Amt.";
+                        excelWorksheet.Cells[1, 35].Value = "Sales Ledger";
+                        excelWorksheet.Cells[1, 36].Value = "Adv. Freight Amt";
+                        excelWorksheet.Cells[1, 37].Value = "Insurance GL";
+
+                        excelWorksheet.Cells[1, 38].Value = "Insurance";
+
+                        excelWorksheet.Cells[1, 39].Value = "CGST OUTPUT";
+                        excelWorksheet.Cells[1, 40].Value = "SGST OUTPUT";
+                        excelWorksheet.Cells[1, 41].Value = "IGST OUTPUT";
+                        excelWorksheet.Cells[1, 42].Value = "TCS GL";
+                        excelWorksheet.Cells[1, 43].Value = "TCS 1% F.Y. 2017-18 (PAYABLE)";
+                        excelWorksheet.Cells[1, 44].Value = "Round Off";
+                        excelWorksheet.Cells[1, 45].Value = "PARTY RECEIVABLE";
+                        excelWorksheet.Cells[1, 46].Value = "Acknowledgment No.";
+                        excelWorksheet.Cells[1, 47].Value = "Ack Date";
+                        excelWorksheet.Cells[1, 48].Value = "E-way bill No";
+                        excelWorksheet.Cells[1, 49].Value = "Eway bill Date";
+                        excelWorksheet.Cells[1, 50].Value = "Dispatched Through/ Transporter";
+                        excelWorksheet.Cells[1, 51].Value = "Motor Vehicle No";
+                        excelWorksheet.Cells[1, 52].Value = "Bill of Lading / LR-RR No";
+                        excelWorksheet.Cells[1, 53].Value = "LR Date";
+                        excelWorksheet.Cells[1, 54].Value = "Customer Phone NO";
+                        excelWorksheet.Cells[1, 55].Value = "Driver Phone No";
+                        excelWorksheet.Cells[1, 56].Value = "Narration";
 
                         excelWorksheet.Cells[1, 1, 1, 19].Style.Font.Bold = true;
                         #endregion
@@ -1192,21 +1198,21 @@ namespace ODLMWebAPI.BL
                                     excelWorksheet.Cells[cellRow, 30].Value = TblInvoiceRptTOListByInvoiceItemId[i].Rate;
                                     excelWorksheet.Cells[cellRow, 31].Value = TblInvoiceRptTOListByInvoiceItemId[i].CdStructure;
                                     excelWorksheet.Cells[cellRow, 32].Value = TblInvoiceRptTOListByInvoiceItemId[i].TaxableAmt;
+                                    excelWorksheet.Cells[cellRow, 33].Value ="";
 
-                                    excelWorksheet.Cells[cellRow, 33].Value = "";
-                                    excelWorksheet.Cells[cellRow, 34].Value = TblInvoiceRptTOListByInvoiceItemId[i].SalesLedger;
-                                    excelWorksheet.Cells[cellRow, 35].Value = "";
+                                    excelWorksheet.Cells[cellRow, 34].Value = "";
+                                    excelWorksheet.Cells[cellRow, 35].Value = TblInvoiceRptTOListByInvoiceItemId[i].SalesLedger;
                                     excelWorksheet.Cells[cellRow, 36].Value = "";
                                     excelWorksheet.Cells[cellRow, 37].Value = "";
-                                    excelWorksheet.Cells[cellRow, 38].Value = "";
+                                    excelWorksheet.Cells[cellRow, 38].Value ="";
                                     excelWorksheet.Cells[cellRow, 39].Value = "";
                                     excelWorksheet.Cells[cellRow, 40].Value = "";
                                     excelWorksheet.Cells[cellRow, 41].Value = "";
                                     excelWorksheet.Cells[cellRow, 42].Value = TblInvoiceRptTOListByInvoiceItemId[i].roundOffAmt;
-                                    excelWorksheet.Cells[cellRow, 43].Value = "";
+                                    excelWorksheet.Cells[cellRow, 43].Value ="";
                                     excelWorksheet.Cells[cellRow, 44].Value = "";
-
                                     excelWorksheet.Cells[cellRow, 45].Value = "";
+
                                     excelWorksheet.Cells[cellRow, 46].Value = "";
                                     excelWorksheet.Cells[cellRow, 47].Value = "";
                                     excelWorksheet.Cells[cellRow, 48].Value = "";
@@ -1216,8 +1222,10 @@ namespace ODLMWebAPI.BL
                                     excelWorksheet.Cells[cellRow, 52].Value = "";
                                     excelWorksheet.Cells[cellRow, 53].Value = "";
                                     excelWorksheet.Cells[cellRow, 54].Value = "";
-
-                                  //  excelWorksheet.Cells[cellRow, 1, cellRow, 54].Style.Font.Bold = true;
+                                    excelWorksheet.Cells[cellRow, 55].Value = "";
+                                    excelWorksheet.Cells[cellRow, 56].Value = "";
+                                    //excelWorksheet.Cells[cellRow, 57].Value = "";
+                                    //  excelWorksheet.Cells[cellRow, 1, cellRow, 54].Style.Font.Bold = true;
                                     cellRow++;
 
                                 }
@@ -1256,30 +1264,33 @@ namespace ODLMWebAPI.BL
                                     excelWorksheet.Cells[cellRow, 30].Value = TblInvoiceRptTOListByInvoiceItemId[i].Rate;
                                     excelWorksheet.Cells[cellRow, 31].Value = TblInvoiceRptTOListByInvoiceItemId[i].CdStructure;
                                     excelWorksheet.Cells[cellRow, 32].Value = TblInvoiceRptTOListByInvoiceItemId[i].TaxableAmt;
+                                    excelWorksheet.Cells[cellRow, 33].Value = TblInvoiceRptTOListByInvoiceItemId[i].CdAmt;
 
-                                    excelWorksheet.Cells[cellRow, 33].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceTaxableAmt;
-                                    excelWorksheet.Cells[cellRow, 34].Value = TblInvoiceRptTOListByInvoiceItemId[i].SalesLedger;
-                                    excelWorksheet.Cells[cellRow, 35].Value = TblInvoiceRptTOListByInvoiceItemId[i].Freight_GL;
-                                    excelWorksheet.Cells[cellRow, 36].Value = TblInvoiceRptTOListByInvoiceItemId[i].FreightAmt;
-                                    excelWorksheet.Cells[cellRow, 37].Value = TblInvoiceRptTOListByInvoiceItemId[i].CgstTaxAmt;
-                                    excelWorksheet.Cells[cellRow, 38].Value = TblInvoiceRptTOListByInvoiceItemId[i].SgstTaxAmt;
-                                    excelWorksheet.Cells[cellRow, 39].Value = TblInvoiceRptTOListByInvoiceItemId[i].IgstTaxAmt;
-                                    excelWorksheet.Cells[cellRow, 40].Value = TblInvoiceRptTOListByInvoiceItemId[i].TCS_GL;
-                                    excelWorksheet.Cells[cellRow, 41].Value = TblInvoiceRptTOListByInvoiceItemId[i].TcsAmt;
-                                    excelWorksheet.Cells[cellRow, 42].Value = TblInvoiceRptTOListByInvoiceItemId[i].roundOffAmt;
-                                    excelWorksheet.Cells[cellRow, 43].Value = TblInvoiceRptTOListByInvoiceItemId[i].GrandTotal;
-                                    excelWorksheet.Cells[cellRow, 44].Value = TblInvoiceRptTOListByInvoiceItemId[i].AckNo;
+                                    excelWorksheet.Cells[cellRow, 34].Value = TblInvoiceRptTOListByInvoiceItemId[i].InvoiceTaxableAmt;
+                                    excelWorksheet.Cells[cellRow, 35].Value = TblInvoiceRptTOListByInvoiceItemId[i].SalesLedger;
+                                    excelWorksheet.Cells[cellRow, 36].Value = TblInvoiceRptTOListByInvoiceItemId[i].Freight_GL;
+                                    excelWorksheet.Cells[cellRow, 37].Value = TblInvoiceRptTOListByInvoiceItemId[i].FreightAmt;
+                                    excelWorksheet.Cells[cellRow, 38].Value = TblInvoiceRptTOListByInvoiceItemId[i].InsuranceAmt;
 
-                                    excelWorksheet.Cells[cellRow, 45].Value = TblInvoiceRptTOListByInvoiceItemId[i].AckDate;
-                                    excelWorksheet.Cells[cellRow, 46].Value = TblInvoiceRptTOListByInvoiceItemId[i].EwbNo;
-                                    excelWorksheet.Cells[cellRow, 47].Value = TblInvoiceRptTOListByInvoiceItemId[i].EwbDate;
-                                    excelWorksheet.Cells[cellRow, 48].Value = TblInvoiceRptTOListByInvoiceItemId[i].TransporterName;
-                                    excelWorksheet.Cells[cellRow, 49].Value = TblInvoiceRptTOListByInvoiceItemId[i].VehicleNo;
-                                    excelWorksheet.Cells[cellRow, 50].Value = TblInvoiceRptTOListByInvoiceItemId[i].LrNumber;
-                                    excelWorksheet.Cells[cellRow, 51].Value = "";
-                                    excelWorksheet.Cells[cellRow, 52].Value = TblInvoiceRptTOListByInvoiceItemId[i].DealerMobNo;
-                                    excelWorksheet.Cells[cellRow, 53].Value = TblInvoiceRptTOListByInvoiceItemId[i].ContactNo;
-                                    excelWorksheet.Cells[cellRow, 54].Value = TblInvoiceRptTOListByInvoiceItemId[i].NarrationConcat;
+                                    excelWorksheet.Cells[cellRow, 39].Value = TblInvoiceRptTOListByInvoiceItemId[i].CgstTaxAmt;
+                                    excelWorksheet.Cells[cellRow, 40].Value = TblInvoiceRptTOListByInvoiceItemId[i].SgstTaxAmt;
+                                    excelWorksheet.Cells[cellRow, 41].Value = TblInvoiceRptTOListByInvoiceItemId[i].IgstTaxAmt;
+                                    excelWorksheet.Cells[cellRow, 42].Value = TblInvoiceRptTOListByInvoiceItemId[i].TCS_GL;
+                                    excelWorksheet.Cells[cellRow, 43].Value = TblInvoiceRptTOListByInvoiceItemId[i].TcsAmt;
+                                    excelWorksheet.Cells[cellRow, 44].Value = TblInvoiceRptTOListByInvoiceItemId[i].roundOffAmt;
+                                    excelWorksheet.Cells[cellRow, 45].Value = TblInvoiceRptTOListByInvoiceItemId[i].GrandTotal;
+                                    excelWorksheet.Cells[cellRow, 46].Value = TblInvoiceRptTOListByInvoiceItemId[i].AckNo;
+
+                                    excelWorksheet.Cells[cellRow, 47].Value = TblInvoiceRptTOListByInvoiceItemId[i].AckDate;
+                                    excelWorksheet.Cells[cellRow, 48].Value = TblInvoiceRptTOListByInvoiceItemId[i].EwbNo;
+                                    excelWorksheet.Cells[cellRow, 49].Value = TblInvoiceRptTOListByInvoiceItemId[i].EwbDate;
+                                    excelWorksheet.Cells[cellRow, 50].Value = TblInvoiceRptTOListByInvoiceItemId[i].TransporterName;
+                                    excelWorksheet.Cells[cellRow, 51].Value = TblInvoiceRptTOListByInvoiceItemId[i].VehicleNo;
+                                    excelWorksheet.Cells[cellRow, 52].Value = TblInvoiceRptTOListByInvoiceItemId[i].LrNumber;
+                                    excelWorksheet.Cells[cellRow, 53].Value = "";
+                                    excelWorksheet.Cells[cellRow, 54].Value = TblInvoiceRptTOListByInvoiceItemId[i].DealerMobNo;
+                                    excelWorksheet.Cells[cellRow, 55].Value = TblInvoiceRptTOListByInvoiceItemId[i].ContactNo;
+                                    excelWorksheet.Cells[cellRow, 56].Value = TblInvoiceRptTOListByInvoiceItemId[i].NarrationConcat;
 
 
                                     invoiceId = TblInvoiceRptTOListByInvoiceItemId[i].IdInvoice;
