@@ -30,7 +30,7 @@ namespace ODLMWebAPI.DAL
 
         {
 
-            String sqlSelectQry = "SELECT bookings.*,tblCRMEnquiry.enqDisplayNo,dimStat.statusName as dealerCat,dimStat.colorCode,orgDealer.creditLimit ,userCreatedBy.userDisplayName As createdByName,userUpdatedBy.userDisplayName As updatedByName, " +
+            String sqlSelectQry = "SELECT  distinct bookings.*,tblCRMEnquiry.enqDisplayNo,dimStat.statusName as dealerCat,dimStat.colorCode,orgDealer.creditLimit ,userCreatedBy.userDisplayName As createdByName,userUpdatedBy.userDisplayName As updatedByName, " +
                                  "orgCnf.firmName as cnfName,orgDealer.isOverdueExist  as isOrgOverDue, tblTranAction.tranActionTypeId As tranActionTypeId," +
                                  " orgDealer.firmName + ',' + " +
                                  " CASE WHEN orgDealer.addrId IS NULL THEN '' Else case WHEN address.villageName IS NOT NULL THEN address.villageName " +
