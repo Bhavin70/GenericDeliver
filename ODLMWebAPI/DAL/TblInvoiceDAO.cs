@@ -2016,6 +2016,12 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["prodClassDesc"] != DBNull.Value)
                                     tblInvoiceRptTONew.prodClassDesc = Convert.ToString(tblInvoiceRptTODT["prodClassDesc"].ToString());
                             }
+                            //itemTaxablAmt
+                            if (tblInvoiceRptTODT.GetName(i).Equals("itemTaxablAmt"))
+                            {
+                                if (tblInvoiceRptTODT["itemTaxablAmt"] != DBNull.Value)
+                                    tblInvoiceRptTONew.ItemTaxablAmt = Convert.ToDouble(tblInvoiceRptTODT["itemTaxablAmt"].ToString());
+                            }
                             tblInvoiceRptTONew.ContactName = ""+tblInvoiceRptTONew.OwnerPersonFirstName +"  "+  tblInvoiceRptTONew.OwnerPersonLastName+"";
                         }
 
@@ -2331,7 +2337,7 @@ namespace ODLMWebAPI.DAL
                    "else itemDetails.prodItemDesc end) + '(' + 'Intra-State' + ')' else  (case when isnull(lExt.prodCatId,0)= 1 then 'TMT BAR' " +
                    "when isnull(lExt.prodCatId,0)= 2 then 'Threaded Bars' else itemDetails.prodItemDesc end ) +'(' + 'Inter-State' + ')'   end ) end ) as salesLedgerName " +
                      " ,'TAXABLE FREIGHT OUTWARD' as Freight_GL,'Insurance on Sale (HSN 997136)' as Insurance_GL,'TCS 206C(1H)' as TCS_GL  ,concat   (  'M.S.' , dimProdCat.prodCateDesc   ) As ProdSpec " +
-                     ",lExt .taxableRateMT,p.prodClassDesc    " +
+                     ",lExt .taxableRateMT,p.prodClassDesc,itemDetails.taxableAmt  itemTaxablAmt  " +
                      " FROM tempInvoice invoice " +
                     " LEFT JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.txnAddrTypeId, " +
                     " invAddrB.gstinNo, invAddrB.state as stateName ,orgB.overdue_ref_id,invAddrB.address as BuyerAddress  ,invAddrB.taluka as BuyerTaluka,invAddrB.district as BuyerDistict,Cntry.countryName as  BuyercountryName,invAddrB.pinCode as BuyerPincode  from tempInvoiceAddress invAddrB " +
@@ -2413,7 +2419,7 @@ namespace ODLMWebAPI.DAL
                   "when isnull(lExt.prodCatId,0)= 2 then 'Threaded Bars' else itemDetails.prodItemDesc end ) +'(' + 'Inter-State' + ')'   end ) end ) as salesLedgerName " +
 
                     " ,'TAXABLE FREIGHT OUTWARD' as Freight_GL,'Insurance on Sale (HSN 997136)' as Insurance_GL,'TCS 206C(1H)' as TCS_GL ,concat   (  'M.S.' , dimProdCat.prodCateDesc   ) As ProdSpec" +
-                    "  ,lExt .taxableRateMT,p.prodClassDesc    " +
+                    "  ,lExt .taxableRateMT,p.prodClassDesc  ,itemDetails.taxableAmt  itemTaxablAmt   " +
                     " FROM finalInvoice invoice " +
 
                     " LEFT JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.txnAddrTypeId, " +

@@ -611,7 +611,7 @@ namespace ODLMWebAPI.Models
         public string ProdSpec { get; set; }
         public decimal TaxableRateMT { get; set; }
         public string prodClassDesc { get; set; }
-
+        public Double ItemTaxablAmt { get; set; }
         #endregion
     }
 }
