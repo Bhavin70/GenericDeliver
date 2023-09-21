@@ -527,10 +527,10 @@ namespace ODLMWebAPI.StaticStuff
         // Vaibhav [17-Dec-2017] Added to file encrypt descrypt and upload to azure
         //public static string AzureConnectionStr = "DefaultEndpointsProtocol=https;AccountName=apkupdates;AccountKey=IvC+sc8RLDl3DeH8uZ97A4jX978v78bVFHRQk/qxg2C/J8w/DRslJlLsK7JTF+KhOM0MNUZg443GCVXe3jIanA==";
         //public static string EncryptDescryptKey = "MAKV2SPBNI99212";
-       // public static string AzureSourceContainerName = "simplideliver";//For testing
+        // public static string AzureSourceContainerName = "simplideliver";//For testing
         //public static string AzureSourceContainerName = "metarolldataextract";//For Metaroll
-        //public static string AzureSourceContainerName = "kalikadataextractdeliver";//"kalikadataextract";//For Kalika
-        public static string AzureSourceContainerName = "vasudhadataextractdeliver";//For Vasudha
+        public static string AzureSourceContainerName = "kalikadataextractdeliver";//"kalikadataextract";//For Kalika
+        //public static string AzureSourceContainerName = "vasudhadataextractdeliver";//For Vasudha
 
 
         //public static string AzureSourceContainerName = "srjdocuments";
