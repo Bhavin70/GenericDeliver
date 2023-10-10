@@ -417,7 +417,7 @@ namespace ODLMWebAPI.Controllers
                 frmDt = _iCommon.ServerDateTime.Date  ;
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date  ;
-            return _iTblInvoiceBL.SelectAllRptNCList(frmDt, toDt);
+            return _iTblInvoiceBL.SelectAllRptNCList(_iCommon.ServerDateTime.Date, _iCommon.ServerDateTime.Date);
         }
 
         [Route("GetRptNCInvoiceList")]
