@@ -395,7 +395,7 @@ namespace ODLMWebAPI.Controllers
                 frmDt = _iCommon.ServerDateTime.Date;
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date;
-            return _iTblInvoiceBL.GetRptInvoiceNCListForVasudha(frmDt, toDt, isConfirm, fromOrgId);
+            return _iTblInvoiceBL.GetRptInvoiceNCListForVasudha(_iCommon.ServerDateTime.Date, _iCommon.ServerDateTime.Date, isConfirm, fromOrgId);
         }
         [Route("GetRptNCList")]
         [HttpGet]
@@ -417,7 +417,7 @@ namespace ODLMWebAPI.Controllers
                 frmDt = _iCommon.ServerDateTime.Date  ;
             if (Convert.ToDateTime(toDt) == DateTime.MinValue)
                 toDt = _iCommon.ServerDateTime.Date  ;
-            return _iTblInvoiceBL.SelectAllRptNCList(_iCommon.ServerDateTime.Date, _iCommon.ServerDateTime.Date);
+            return _iTblInvoiceBL.SelectAllRptNCList(frmDt, toDt);
         }
 
         [Route("GetRptNCInvoiceList")]
