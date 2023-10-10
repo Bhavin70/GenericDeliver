@@ -758,6 +758,27 @@ namespace ODLMWebAPI.Controllers
             }
         }
 
+        [Route("GetAllInvoicesONCloud")]
+        [HttpGet]
+        public List<InvoiceReportTO> GetAllInvoicesONCloud()
+        {
+            try
+            {
+                var Invoices = GetAllInvoices(DateTime.Today.AddDays(-1).ToString(), DateTime.Today.AddTicks(-1).ToString());
+                
+                if(Invoices == null || Invoices.Count == 0)
+                return null;
+
+                 _iTblInvoiceBL.GetAllInvoicesONCloud(Invoices);
+
+                return Invoices;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
 
         [Route("GetInvoiceDocumentDetails")]
         [HttpGet]

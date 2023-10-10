@@ -24,6 +24,8 @@ using Microsoft.AspNetCore.Http;
 using Amazon;
 using Amazon.S3;
 using Amazon.S3.Transfer;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
+using Org.BouncyCastle.Asn1.Pkcs;
 
 
 namespace ODLMWebAPI.BL
@@ -2482,6 +2484,180 @@ namespace ODLMWebAPI.BL
         #endregion
 
         #region Insertion
+
+        public int GetAllInvoicesONCloud(List<InvoiceReportTO> Invoices)
+        {
+            ExcelPackage excelPackage = new ExcelPackage();
+            try
+            {
+                #region Create Excel File
+                
+                ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add("SizeWise");
+
+                excelWorksheet.Cells[1, 1].Value = "Sr.No.";
+                excelWorksheet.Cells[1, 2].Value = "Sales Engineer";
+                excelWorksheet.Cells[1, 3].Value = "Party Name";
+                excelWorksheet.Cells[1, 4].Value = "Vehicle No";
+                excelWorksheet.Cells[1, 5].Value = "Item Description";
+                excelWorksheet.Cells[1, 6].Value = "Bill No";
+                excelWorksheet.Cells[1, 7].Value = "8 MM";
+                excelWorksheet.Cells[1, 8].Value = "10 MM";
+                excelWorksheet.Cells[1, 9].Value = "12 MM";
+                excelWorksheet.Cells[1, 10].Value = "16 MM";
+                excelWorksheet.Cells[1, 11].Value = "20 MM";
+                excelWorksheet.Cells[1, 12].Value = "25 MM";
+                excelWorksheet.Cells[1, 13].Value = "32 MM";
+                excelWorksheet.Cells[1, 14].Value = "Binding Wires";
+                excelWorksheet.Cells[1, 15].Value = "Grand Total";
+                excelWorksheet.Cells[1, 16].Value = "Rate";
+                excelWorksheet.Cells[1, 17].Value = "Parity Amount";
+                excelWorksheet.Cells[1, 18].Value = "NC Parity Amount";
+                excelWorksheet.Cells[1, 19].Value = "Loading ChargesM";
+                excelWorksheet.Cells[1, 20].Value = "Other Amount";
+                excelWorksheet.Cells[1, 21].Value = "Freight Amount";
+                excelWorksheet.Cells[1, 22].Value = "CD%";
+                excelWorksheet.Cells[1, 23].Value = "TCS";
+                excelWorksheet.Cells[1, 24].Value = "Amount";
+
+                excelWorksheet.Cells[1, 1, 1, 24].Style.Font.Bold = true;
+                int cellRow = 2;
+
+                foreach (var item in Invoices)
+                {
+                    excelWorksheet.Cells[cellRow, 1].Value = cellRow - 1;
+                    excelWorksheet.Cells[cellRow, 2].Value = item.SaleEngineer;
+                    excelWorksheet.Cells[cellRow, 3].Value = item.PartyName;
+                    excelWorksheet.Cells[cellRow, 4].Value = item.VehicleNo;
+                    excelWorksheet.Cells[cellRow, 5].Value = item.ItemDecscription;
+                    excelWorksheet.Cells[cellRow, 6].Value = item.InvoiceNo;
+                    excelWorksheet.Cells[cellRow, 7].Value = "--";
+                    excelWorksheet.Cells[cellRow, 8].Value = "--";
+                    excelWorksheet.Cells[cellRow, 9].Value = "--";
+                    excelWorksheet.Cells[cellRow, 10].Value = "--";
+                    excelWorksheet.Cells[cellRow, 11].Value = "--";
+                    excelWorksheet.Cells[cellRow, 12].Value = "--";
+                    excelWorksheet.Cells[cellRow, 13].Value = "--";
+                    foreach (var item1 in item.ProdMaterialQtyDCT)
+                    {
+                        if(item1.Key.ToUpper().Trim() == "8 MM")
+                            excelWorksheet.Cells[cellRow, 7].Value = item1.Value;
+                        else if(item1.Key.ToUpper().Trim() == "10 MM")
+                            excelWorksheet.Cells[cellRow, 8].Value = item1.Value;
+                        else if (item1.Key.ToUpper().Trim() == "12 MM")
+                            excelWorksheet.Cells[cellRow, 9].Value = item1.Value;
+                        else if (item1.Key.ToUpper().Trim() == "16 MM")
+                            excelWorksheet.Cells[cellRow, 10].Value = item1.Value;
+                        else if (item1.Key.ToUpper().Trim() == "20 MM")
+                            excelWorksheet.Cells[cellRow, 11].Value = item1.Value;
+                        else if (item1.Key.ToUpper().Trim() == "25 MM")
+                            excelWorksheet.Cells[cellRow, 12].Value = item1.Value;
+                        else if (item1.Key.ToUpper().Trim() == "32 MM")
+                            excelWorksheet.Cells[cellRow, 13].Value = item1.Value;
+                    }
+
+                    excelWorksheet.Cells[cellRow, 14].Value = "--";
+                    excelWorksheet.Cells[cellRow, 15].Style.Numberformat.Format = "#,##0.000";
+                    excelWorksheet.Cells[cellRow, 15].Value = item.TotalQty;
+                    excelWorksheet.Cells[cellRow, 16].Style.Numberformat.Format = "#,##0.000";
+                    excelWorksheet.Cells[cellRow, 16].Value = item.Rate;
+                    excelWorksheet.Cells[cellRow, 17].Style.Numberformat.Format = "#,##0.000";
+                    excelWorksheet.Cells[cellRow, 17].Value = item.ParityAmt;
+                    excelWorksheet.Cells[cellRow, 18].Style.Numberformat.Format = "#,##0.000";
+                    excelWorksheet.Cells[cellRow, 18].Value = item.NonconfParityAmt;
+                    excelWorksheet.Cells[cellRow, 19].Style.Numberformat.Format = "#,##0.000";
+                    excelWorksheet.Cells[cellRow, 19].Value = item.BVCAmt;
+                    excelWorksheet.Cells[cellRow, 20].Style.Numberformat.Format = "#,##0.000";
+                    excelWorksheet.Cells[cellRow, 20].Value = item.OtherAmt;
+                    excelWorksheet.Cells[cellRow, 21].Style.Numberformat.Format = "#,##0.000";
+                    excelWorksheet.Cells[cellRow, 21].Value = item.Freight;
+                    excelWorksheet.Cells[cellRow, 22].Style.Numberformat.Format = "#,##0.000";
+                    excelWorksheet.Cells[cellRow, 22].Value = item.CDPct;
+                    excelWorksheet.Cells[cellRow, 23].Style.Numberformat.Format = "#,##0.000";
+                    excelWorksheet.Cells[cellRow, 23].Value = item.TCS;
+                    excelWorksheet.Cells[cellRow, 24].Style.Numberformat.Format = "#,##0.000";
+                    excelWorksheet.Cells[cellRow, 24].Value = item.TotalAmt;
+                    cellRow++;
+
+                    using (ExcelRange range = excelWorksheet.Cells[1, 1, cellRow, 24])
+                    {
+                        range.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                        range.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                        range.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                        range.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                        range.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                        range.Style.Font.Name = "Times New Roman";
+                        range.Style.Font.Size = 10;
+                        range.AutoFitColumns();
+                    }
+                }
+
+                excelWorksheet.Protection.IsProtected = true;
+                excelPackage.Workbook.Protection.LockStructure = true;
+
+                #endregion
+
+                #region Upload File to Cloud
+
+                TblConfigParamsTO configParamTOForAWS = _iTblConfigParamsBL.SelectTblConfigParamsValByName(StaticStuff.Constants.IS_FILE_UPLOAD_TO_AWS);
+                string filename = "SIZE_WISE_Report-" + DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss") + ".xlsx";
+                var fileStream = excelPackage.GetAsByteArray();
+
+                if (configParamTOForAWS == null || configParamTOForAWS.ConfigParamVal.ToString() == "0")
+                {
+                    #region Upload File to Azure
+
+                    // Create azure storage  account connection.
+                    CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_iConnectionString.GetConnectionString(Constants.AZURE_CONNECTION_STRING));
+
+                    // Create the blob client.
+                    CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+
+                    // Retrieve reference to a target container.
+                    CloudBlobContainer container = blobClient.GetContainerReference(Constants.AzureSourceContainerName);
+
+                    CloudBlockBlob blockBlob = container.GetBlockBlobReference(filename);
+
+
+
+                    Task t1 = blockBlob.UploadFromByteArrayAsync(fileStream, 0, fileStream.Length);
+
+
+                    #endregion
+                }
+                else
+                {
+                    #region Upload File to AWS
+
+                    TblConfigParamsTO configParamTOForAWSRecycleBucket = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.AWS_DELIVER_BUCKET_NAME);
+                    if (configParamTOForAWSRecycleBucket == null)
+                    {
+                        throw new Exception("configParamTOForAWSRecycleBucket == null");
+                    }
+                    TblConfigParamsTO configParamTOForAWSAccessKey = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.AWS_ACCESS_KEY);
+                    if (configParamTOForAWSAccessKey == null)
+                    {
+                        throw new Exception("configParamTOForAWSAccessKey == null");
+                    }
+                    TblConfigParamsTO configParamTOForAWSSecretKey = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.AWS_ACCESS_SECRET_KEY);
+                    if (configParamTOForAWSSecretKey == null)
+                    {
+                        throw new Exception("configParamTOForAWSSecretKey == null");
+                    }
+
+                    var result = _iCommon.UploadFileToAWS(configParamTOForAWSAccessKey.ConfigParamVal, configParamTOForAWSSecretKey.ConfigParamVal, configParamTOForAWSRecycleBucket.ConfigParamVal, filename, fileStream, "");
+
+                    #endregion
+                }
+                excelPackage.Dispose();
+            }
+            catch (Exception e)
+            {
+                excelPackage.Dispose();
+                return 1;
+            }
+            #endregion
+            return 0;
+        }
 
 
         //public ResultMessage CreateIntermediateInvoiceAgainstLoading(String loadingIds, Int32 userId)

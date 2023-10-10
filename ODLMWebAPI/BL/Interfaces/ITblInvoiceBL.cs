@@ -125,6 +125,7 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage PrintSaleReport(DateTime frmDt, DateTime toDt, int isConfirm, string selectedOrg, int isFromPurchase = 0);
 
         List<InvoiceReportTO> GetAllInvoices(DateTime fromDate, DateTime toDate, ref String errorMsg);
+        int GetAllInvoicesONCloud(List<InvoiceReportTO> Invoices);
         ResultMessage PostUpdateInvoiceStatus(TblInvoiceTO tblInvoiceTO);
 
         ResultMessage ReverseWeighingDtlData(int InvoiceId,int userId);
