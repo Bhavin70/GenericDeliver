@@ -377,25 +377,11 @@ namespace ODLMWebAPI.Controllers
         }
         [Route("GetRptInvoiceNCListForVasudha")]
         [HttpGet]
-        public ResultMessage GetRptInvoiceNCListForVasudha(string fromDate, string toDate, int isConfirm, int fromOrgId)
+        public ResultMessage GetRptInvoiceNCListForVasudha()
         {
-            DateTime frmDt = DateTime.MinValue;
-            DateTime toDt = DateTime.MinValue;
-            if (Constants.IsDateTime(fromDate))
-            {
-                frmDt = Convert.ToDateTime(fromDate);
-
-            }
-            if (Constants.IsDateTime(toDate))
-            {
-                toDt = Convert.ToDateTime(toDate);
-            }
-
-            if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
-                frmDt = _iCommon.ServerDateTime.Date;
-            if (Convert.ToDateTime(toDt) == DateTime.MinValue)
-                toDt = _iCommon.ServerDateTime.Date;
-            return _iTblInvoiceBL.GetRptInvoiceNCListForVasudha(_iCommon.ServerDateTime.Date, _iCommon.ServerDateTime.Date, isConfirm, fromOrgId);
+            int isConfirm = 0;
+            int fromOrgId = 19;
+            return _iTblInvoiceBL.GetRptInvoiceNCListForVasudha(_iCommon.ServerDateTime.Date, _iCommon.ServerDateTime.Date , isConfirm, fromOrgId);
         }
         [Route("GetRptNCList")]
         [HttpGet]

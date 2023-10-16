@@ -1365,7 +1365,7 @@ namespace ODLMWebAPI.BL
 
                     if (configParamTOForAWS == null || configParamTOForAWS.ConfigParamVal.ToString() == "0")
                     {
-                        #region Upload File to Azure
+                        #region Upload File to Azur
 
                         // Create azure storage  account connection.
                         CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_iConnectionString.GetConnectionString(Constants.AZURE_CONNECTION_STRING));
