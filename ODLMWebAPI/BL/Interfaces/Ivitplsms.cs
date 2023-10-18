@@ -10,6 +10,7 @@ namespace ODLMWebAPI.BL.Interfaces
     {
         string SendSMSAsync(ODLMWebAPI.Models.TblSmsTO smsTO);
         Task<string> SendSMSViasmsLaneAsync(ODLMWebAPI.Models.TblSmsTO smsTO);
+        string SendSMSAsyncForVasudha(ODLMWebAPI.Models.TblSmsTO smsTO);
         DimSmsConfigTO GetSmsConfiguration();
     }
 }

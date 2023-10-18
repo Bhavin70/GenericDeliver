@@ -100,9 +100,53 @@ namespace ODLMWebAPI.BL
                 sr.Dispose();
                 smsTO.ReplyTxt = result;
             }
+
+            
+            HttpWebRequest objRequestv2 = (HttpWebRequest)WebRequest.Create(url);
+           // String result;
+            objRequest.Method = "GET";
+            //  objRequest.ContentType = "application/x-www-form-urlencoded";
+
+            //objRequest.Headers.Add(HttpRequestHeader.Authorization, "Bearer" + " " + accessTO.Access_token);
+            WebResponse objResponse2 = objRequestv2.GetResponseAsync().Result;
+            using (StreamReader sr = new StreamReader(objResponse2.GetResponseStream()))
+            {
+                result = sr.ReadToEnd();
+            }
+            return result;
+
             return result;
         }
 
+        public string SendSMSAsyncForVasudha(ODLMWebAPI.Models.TblSmsTO smsTO)
+        {
+            String result;
+            //For SRJ
+            string mobile = smsTO.MobileNo;
+            string message = smsTO.SmsTxt;
+            DimSmsConfigTO dimSmsConfigTO = GetSmsConfiguration();
+            String url = dimSmsConfigTO.SmsConfigUrl.Replace("+ *****mobile***** +", mobile).Replace("+ *****message***** +", message);
+
+            //For Kalika
+            // String url = "http://www.smsjust.com/sms/user/urlsms.php?username=kalikatemplate&pass=Kalika@11&senderid=" + sender + "&dest_mobileno="+ mobile + "&message=" + message + "&response =Y";
+
+            StreamWriter myWriter = null;
+            HttpWebRequest objRequest = (HttpWebRequest)WebRequest.Create(url);
+
+            objRequest.Method = "GET";
+            //objRequest.ContentLength = Encoding.UTF8.GetByteCount(url);
+
+            WebResponse objResponse = objRequest.GetResponseAsync().Result;
+            using (StreamReader sr = new StreamReader(objResponse.GetResponseStream()))
+            {
+                result = sr.ReadToEnd();
+                // Close and clean up the StreamReader
+                sr.Dispose();
+                smsTO.ReplyTxt = result;
+            }
+
+            return result;
+        }
         public async Task<string> SendSMSViasmsLaneAsync(ODLMWebAPI.Models.TblSmsTO smsTO)
         {
             String result;

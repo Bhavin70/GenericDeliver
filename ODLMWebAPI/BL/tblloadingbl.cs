@@ -7202,16 +7202,70 @@ namespace ODLMWebAPI.BL {
                             tblAlertInstanceTO.SmsComment = tempTxt;
                             //tblAlertInstanceTO.AlertComment += " (" + dealerOrgNames + ").";//      
                         }
-
-                        tblAlertInstanceTO.SourceDisplayId = "LOADING_SLIP_CONFIRMED";
-                        tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
-                        Dictionary<int, string> cnfDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblLoadingTO.CnfOrgId.ToString(), conn, tran);
-                        if (cnfDCT != null) {
-                            foreach (var item in cnfDCT.Keys) {
-                                TblSmsTO smsTO = new TblSmsTO();
-                                smsTO.MobileNo = cnfDCT[item];
-                                smsTO.SourceTxnDesc = "LOADING_SLIP_CONFIRMED";
-                                smsTO.SmsTxt = tblAlertInstanceTO.AlertComment;
+                        string AlertComment = "";
+                        Boolean isSendVasudhaSMS = false;
+                        TblConfigParamsTO tblConfigParamsTOVasudha = _iTblConfigParamsDAO.SelectTblConfigParamsValByName("IS_SEND_SMS_AS_PER_VASUDHA");
+                        if (tblConfigParamsTOVasudha != null && !String.IsNullOrEmpty(tblConfigParamsTOVasudha.ConfigParamVal))
+                        {
+                            Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOVasudha.ConfigParamVal);
+                            if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                                isSendVasudhaSMS = true;
+                        }
+                        if (!isSendVasudhaSMS)
+                        {
+                            tblAlertInstanceTO.SourceDisplayId = "LOADING_SLIP_CONFIRMED";
+                            tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
+                            Dictionary<int, string> cnfDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblLoadingTO.CnfOrgId.ToString(), conn, tran);
+                            if (cnfDCT != null)
+                            {
+                                foreach (var item in cnfDCT.Keys)
+                                {
+                                    TblSmsTO smsTO = new TblSmsTO();
+                                    smsTO.MobileNo = cnfDCT[item];
+                                    smsTO.SourceTxnDesc = "LOADING_SLIP_CONFIRMED";
+                                    smsTO.SmsTxt = tblAlertInstanceTO.AlertComment;
+                                    tblAlertInstanceTO.SmsTOList.Add(smsTO);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            string bookingno = "";
+                            if (tblLoadingSlipTOList != null && tblLoadingSlipTOList.Count > 1)
+                            {
+                                for (int k = 0; k < tblLoadingSlipTOList.Count; k++)
+                                {
+                                    TblBookingsTO tblBookingsTO = _iTblBookingsDAO.SelectTblBookings(tblLoadingSlipTOList[k].BookingId, conn, tran);
+                                    if (tblBookingsTO != null)
+                                    {
+                                        if(string.IsNullOrEmpty (bookingno))
+                                            bookingno += tblBookingsTO.BookingDisplayNo;
+                                        else
+                                            bookingno= bookingno+","+ tblBookingsTO.BookingDisplayNo;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                               TblBookingsTO tblBookingsTO = _iTblBookingsDAO.SelectTblBookings(tblLoadingSlipTOList[0].BookingId, conn, tran);
+                                if (tblBookingsTO != null)
+                                {
+                                    bookingno = tblBookingsTO.BookingDisplayNo;
+                                }
+                            }
+                                
+                            AlertComment = "Dear Customer , Your Size For enquiry @bookingNo Is Received. @driverMobileNo Thank you VASUDHA ALLOYS PVT. LTD.";
+                            AlertComment = AlertComment.Replace("@bookingNo", bookingno);
+                            AlertComment = AlertComment.Replace("@driverMobileNo", tblLoadingTO.ContactNo.ToString());
+                            tblAlertInstanceTO.SmsComment = AlertComment;
+                            TblSmsTO smsTO = new TblSmsTO();
+                            smsTO.SmsTxt = AlertComment;
+                           TblOrganizationTO  tblOrganizationTO  = _iTblOrganizationDAO.SelectTblOrganization(tblLoadingSlipTOList[0].DealerOrgId, conn, tran);
+                            if (tblOrganizationTO != null)
+                            {
+                                tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
+                                smsTO.MobileNo = tblOrganizationTO.RegisteredMobileNos;
+                                smsTO.SmsTxt = AlertComment;
                                 tblAlertInstanceTO.SmsTOList.Add(smsTO);
                             }
                         }

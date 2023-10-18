@@ -3842,6 +3842,7 @@ namespace ODLMWebAPI.BL
                 tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_PENDING_FOR_DIRECTOR_APPROVAL ||
                 tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_REJECTED_BY_ADMIN_OR_DIRECTOR ||
                 tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR ||
+                tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_DELETE ||
                 tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_HOLD_BY_ADMIN_OR_DIRECTOR)
                 {
 
@@ -4205,6 +4206,20 @@ namespace ODLMWebAPI.BL
                             // tblAlertInstanceTO.AlertComment += " (" + tblBookingsTO.DealerName + ").";
                             tblAlertInstanceTO.AlertComment = tempTxt;
                         }
+                        //Reshma Added For Vasudha
+                        TblConfigParamsTO tblConfigParamsTOVasudha = _iTblConfigParamsDAO.SelectTblConfigParamsValByName("IS_SEND_SMS_AS_PER_VASUDHA");
+                        if (tblConfigParamsTOVasudha != null && !String.IsNullOrEmpty(tblConfigParamsTOVasudha.ConfigParamVal))
+                        {
+                            Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOVasudha.ConfigParamVal);
+                            if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                            {
+                                AlertComment = "Dear Customer Your enquiry Number @bookingNo of Quantity @Qty at rate @rate Has been Received Successfully Thank you for enquiry VASUDHA ALLOYS PRIVATE LIMITED";
+                                AlertComment = AlertComment.Replace("@bookingNo", tblBookingsTO.BookingDisplayNo );
+                                AlertComment = AlertComment.Replace("@Qty", tblBookingsTO.BookingQty.ToString());
+                                AlertComment = AlertComment.Replace("@rate", tblBookingsTO.BookingRate .ToString ());
+                                tblAlertInstanceTO.SmsComment = AlertComment;
+                            }
+                        }
 
                         tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
                         // SMS to Dealer
@@ -4324,22 +4339,36 @@ namespace ODLMWebAPI.BL
 
                             String SMSContent = string.Empty;
                             SMSContent = "Your Order Of Qty " + tblBookingsTO.BookingQty.ToString().Trim() + " MT with Rate " + tblBookingsTO.BookingRate + " (Rs/MT) is " + confirmMsg.Trim();
-
+                            int isSendVasudhaSMS = 0;
+                            TblConfigParamsTO tblConfigParamsTOVasudhav2 = _iTblConfigParamsDAO.SelectTblConfigParamsValByName("IS_SEND_SMS_AS_PER_VASUDHA");
+                            if (tblConfigParamsTOVasudhav2 != null && !String.IsNullOrEmpty(tblConfigParamsTOVasudhav2.ConfigParamVal))
+                            {
+                                Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOVasudhav2.ConfigParamVal);
+                                if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                                {
+                                    isSendVasudhaSMS = 1;
+                                }
+                            }
                             //Check the sms template for size
-                            if (smsTemplateForSize == 1)
+                            if (isSendVasudhaSMS != 1)
                             {
-                                if (tblBookingsTO.BookingType == Convert.ToInt32(Constants.BookingType.IsRegular))
-                                    smsTO.SmsTxt = SMSContent + keyValue + " Your Ref No : " + tblBookingsTO.BookingDisplayNo;
+                                if (smsTemplateForSize == 1)
+                                {
+                                    if (tblBookingsTO.BookingType == Convert.ToInt32(Constants.BookingType.IsRegular))
+                                        smsTO.SmsTxt = SMSContent + keyValue + " Your Ref No : " + tblBookingsTO.BookingDisplayNo;
+                                    else
+                                        smsTO.SmsTxt = SMSContent + keyValue + " Your Ref No : " + tblBookingsTO.BookingDisplayNo + " (Other)";
+                                }
                                 else
-                                    smsTO.SmsTxt = SMSContent + keyValue + " Your Ref No : " + tblBookingsTO.BookingDisplayNo + " (Other)";
-                            }
+                                {
+                                    if (tblBookingsTO.BookingType == Convert.ToInt32(Constants.BookingType.IsRegular))
+                                        smsTO.SmsTxt = SMSContent + " Your Ref No : " + tblBookingsTO.BookingDisplayNo;
+                                    else
+                                        smsTO.SmsTxt = SMSContent + " Your Ref No : " + tblBookingsTO.BookingDisplayNo + " (Other)";
+                                }
+                            }    
                             else
-                            {
-                                if (tblBookingsTO.BookingType == Convert.ToInt32(Constants.BookingType.IsRegular))
-                                    smsTO.SmsTxt = SMSContent + " Your Ref No : " + tblBookingsTO.BookingDisplayNo;
-                                else
-                                    smsTO.SmsTxt = SMSContent + " Your Ref No : " + tblBookingsTO.BookingDisplayNo + " (Other)";
-                            }
+                                smsTO.SmsTxt = tblAlertInstanceTO.SmsComment;
                             //Reshma Added
                             if (tblConfigParamsTOTemp != null && !String.IsNullOrEmpty(tblConfigParamsTOTemp.ConfigParamVal))
                             {
@@ -4467,7 +4496,54 @@ namespace ODLMWebAPI.BL
                             //return resultMessage;
                         }
                     }
+                    else if (tblBookingsTO.TranStatusE == Constants.TranStatusE.BOOKING_DELETE)
+                    {
+                        var tblAlertDefinitionTO = tblAlertDefinitionTOList.Find(x => x.IdAlertDef == (int)NotificationConstants.NotificationsE.BOOKING_APPROVED_BY_DIRECTORS);
+                        string tempTxt = "";
+                        tblAlertInstanceTO.AlertDefinitionId = (int)NotificationConstants.NotificationsE.BOOKINGS_CLOSED;
+                        tblAlertInstanceTO.AlertAction = "BOOKINGS CLOSED";
+                        //tblAlertInstanceTO.AlertComment = "Not Confirmed Booking #" + tblBookingsTO.IdBooking + " is accepted by Director";
+                        //Aniket [5-8-2019] added
+                        string cncStr = string.Empty;
+                            tblAlertInstanceTO.AlertComment = "Booking #" + tblBookingsTO.BookingDisplayNo + " is close ";
+                        //Reshma Added For Vasudha
+                        string AlertComment = "";
+                        TblConfigParamsTO tblConfigParamsTOVasudha = _iTblConfigParamsDAO.SelectTblConfigParamsValByName("IS_SEND_SMS_AS_PER_VASUDHA");
+                        if (tblConfigParamsTOVasudha != null && !String.IsNullOrEmpty(tblConfigParamsTOVasudha.ConfigParamVal))
+                        {
+                            Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOVasudha.ConfigParamVal);
+                            if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                            {
+                                AlertComment = "Dear Customer Your enquiry Number @bookingNo of Quantity@Qty at rate @rate has been cancelled Thank you VASUDHA ALLOYS PVT. LTD.";
+                                AlertComment = AlertComment.Replace("@bookingNo", tblBookingsTO.BookingDisplayNo);
+                                AlertComment = AlertComment.Replace("@Qty", tblBookingsTO.PendingQty.ToString());
+                                AlertComment = AlertComment.Replace("@rate", tblBookingsTO.BookingRate.ToString());
+                                tblAlertInstanceTO.SmsComment = AlertComment;
+                            }
+                        }
 
+                        tblAlertInstanceTO.AlertUsersTOList = tblAlertUsersTOList;
+                        // SMS to Dealer
+                        Dictionary<Int32, String> orgMobileNoDCT = _iTblOrganizationDAO.SelectRegisteredMobileNoDCT(tblBookingsTO.DealerOrgId.ToString(), conn, tran);
+                        if (orgMobileNoDCT != null && orgMobileNoDCT.Count == 1)
+                        {
+                            tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
+                            TblSmsTO smsTO = new TblSmsTO();
+                            smsTO.MobileNo = orgMobileNoDCT[tblBookingsTO.DealerOrgId];
+                            smsTO.SourceTxnDesc = "Booking delet";
+                            smsTO.SmsTxt = tblAlertInstanceTO.SmsComment;
+                            tblAlertInstanceTO.SmsTOList = new List<TblSmsTO>();
+                            tblAlertInstanceTO.SmsTOList.Add(smsTO);
+                        }
+                        result = _iTblAlertInstanceBL.ResetAlertInstance((int)NotificationConstants.NotificationsE.BOOKING_APPROVED_BY_DIRECTORS, tblBookingsTO.IdBooking, 0, conn, tran);
+                        if (result < 0)
+                        {
+                            tran.Rollback();
+                            resultMessage.MessageType = ResultMessageE.Error;
+                            resultMessage.Text = "Error While Reseting Prev Alert";
+                            //return resultMessage;
+                        }
+                    }
 
                     if (isFromNewBooking)
                     {

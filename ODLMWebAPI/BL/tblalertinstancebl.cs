@@ -31,9 +31,10 @@ namespace ODLMWebAPI.BL
         private readonly IVitplSMS _iVitplSMS;
         private readonly ITblSmsBL _iTblSmsBL;
         private readonly IConnectionString _iConnectionString;
+        private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
         private readonly ICommon _iCommon;
 
-        public TblAlertInstanceBL(ICommon iCommon,IConnectionString iConnectionString, ITblSmsBL iTblSmsBL, IVitplSMS iVitplSMS, ITblConfigParamsBL iTblConfigParamsBL, ISendMailBL iSendMailBL, IVitplNotify iVitplNotify, ITblUserBL iTblUserBL, ITblAlertUsersBL iTblAlertUsersBL, ITblAlertSubscriptSettingsBL iTblAlertSubscriptSettingsBL, ITblAlertDefinitionBL iTblAlertDefinitionBL, ITblAlertInstanceDAO iTblAlertInstanceDAO, ITblAlertActionDtlDAO iTblAlertActionDtlDAO)
+        public TblAlertInstanceBL(ICommon iCommon,IConnectionString iConnectionString, ITblSmsBL iTblSmsBL, IVitplSMS iVitplSMS, ITblConfigParamsBL iTblConfigParamsBL, ISendMailBL iSendMailBL, IVitplNotify iVitplNotify, ITblUserBL iTblUserBL, ITblAlertUsersBL iTblAlertUsersBL, ITblAlertSubscriptSettingsBL iTblAlertSubscriptSettingsBL, ITblAlertDefinitionBL iTblAlertDefinitionBL, ITblAlertInstanceDAO iTblAlertInstanceDAO, ITblAlertActionDtlDAO iTblAlertActionDtlDAO, ITblConfigParamsDAO iTblConfigParamsDAO)
         {
             _iTblAlertActionDtlDAO = iTblAlertActionDtlDAO;
             _iTblAlertInstanceDAO = iTblAlertInstanceDAO;
@@ -48,6 +49,7 @@ namespace ODLMWebAPI.BL
             _iTblSmsBL = iTblSmsBL;
             _iConnectionString = iConnectionString;
             _iCommon = iCommon;
+            _iTblConfigParamsDAO = iTblConfigParamsDAO;
         }
         #region Selection
 
@@ -720,9 +722,20 @@ namespace ODLMWebAPI.BL
                     {
                         for (int sms = 0; sms < alertInstanceTO.SmsTOList.Count; sms++)
                         {
-                            if (alertInstanceTO.SmsTOList[sms].MobileNo!=null && alertInstanceTO.SmsTOList[sms].MobileNo.Length >=10)
+                            if (alertInstanceTO.SmsTOList[sms].MobileNo != null && alertInstanceTO.SmsTOList[sms].MobileNo.Length >= 10)
                             {
-                                String smsResponse = _iVitplSMS.SendSMSAsync(alertInstanceTO.SmsTOList[sms]);
+                                String smsResponse = "";
+                                TblConfigParamsTO tblConfigParamsTOVasudha = _iTblConfigParamsDAO.SelectTblConfigParamsValByName("IS_SEND_SMS_AS_PER_VASUDHA");
+                                if (tblConfigParamsTOVasudha != null && !String.IsNullOrEmpty(tblConfigParamsTOVasudha.ConfigParamVal))
+                                {
+                                    Int32 IS_SEND_CUSTOM_NOTIFICATIONS = Convert.ToInt32(tblConfigParamsTOVasudha.ConfigParamVal);
+                                    if (IS_SEND_CUSTOM_NOTIFICATIONS == 1)
+                                         smsResponse = _iVitplSMS.SendSMSAsyncForVasudha(alertInstanceTO.SmsTOList[sms]);
+                                    else
+                                        smsResponse = _iVitplSMS.SendSMSAsync(alertInstanceTO.SmsTOList[sms]);
+                                }
+                                else
+                                     smsResponse = _iVitplSMS.SendSMSAsync(alertInstanceTO.SmsTOList[sms]);
                                 alertInstanceTO.SmsTOList[sms].ReplyTxt = smsResponse;
                                 alertInstanceTO.SmsTOList[sms].AlertInstanceId = alertInstanceTO.IdAlertInstance;
                                 alertInstanceTO.SmsTOList[sms].SentOn = alertInstanceTO.RaisedOn;
