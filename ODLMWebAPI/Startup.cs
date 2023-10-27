@@ -598,7 +598,7 @@ namespace ODLMWebAPI
         public void GetDateTimeQueryString()
         {
             string sqlQuery = "SELECT CURRENT_TIMESTAMP AS ServerDate";
-
+            SERVER_DATETIME_QUERY_STRING = sqlQuery;
             TblConfigParamsTO tblConfigParamsTO = TblConfigParamsDAO.SelectTblConfigParamValByName(Constants.SERVER_DATETIME_QUERY_STRING);
             if (tblConfigParamsTO.ConfigParamVal != null)
             {
