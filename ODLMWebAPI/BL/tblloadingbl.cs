@@ -6064,17 +6064,21 @@ namespace ODLMWebAPI.BL {
                                 tblStockConfigTO.MaterialId = tblLoadingSlipExtTO.MaterialId;
                                 List<TblLocationTO> tblLocationTOList = _iTblLocationDAO.SelectAllTblLocation ();
 
-                                if (totalLoadingQty > 0) {
-                                    resultMessage = UpdateStockAgainstItem (tblLoadingTO, totalLoadingQty, conn, tran, tblLoadingSlipExtTO, tblLoadingTO.CreatedBy, tblLocationTOList);
+                                if (totalLoadingQty > 0)
+                                {
+
+                                    resultMessage = UpdateStockAgainstItem(tblLoadingTO, totalLoadingQty, conn, tran, tblLoadingSlipExtTO, tblLoadingTO.CreatedBy, tblLocationTOList);
                                     // return ConfigureAllowStockUpdate(tblLoadingTO, conn, tran, ref result, resultMessage, tblLoadingSlipExtTO, ref stockList, isItemized, ref isAllowLoading, tblStockConfigTO, upQty, ref existingQtyInMt, ref stockDtlId, tblLocationTOList);
                                     // return resultMessage;
-                                    if (resultMessage.MessageType != ResultMessageE.Information) {
-                                        tran.Rollback ();
-                                        resultMessage.DefaultBehaviour ();
+                                    if (resultMessage.MessageType != ResultMessageE.Information)
+                                    {
+                                        tran.Rollback();
+                                        resultMessage.DefaultBehaviour();
                                         resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
                                         resultMessage.Text = "Error : While UpdateStockAgainstItem Against LoadingSlip";
                                         return resultMessage;
                                     }
+
                                 }
                             } else {
                                 if (totalLoadingQty > 0) {
@@ -6278,179 +6282,209 @@ namespace ODLMWebAPI.BL {
                 if (tblConfigParamsTO != null) {
                     isAllowLoading = Convert.ToInt32 (tblConfigParamsTO.ConfigParamVal);
                 }
+                int isAllowLoadingstockUpdate = 1;
+                TblConfigParamsTO tblConfigParamsTOLoading = _iTblConfigParamsBL.SelectTblConfigParamsTO("Is_Allow_Other_LoadingSlip_Stck_Effect", conn, tran);
+                if (tblConfigParamsTOLoading != null)
+                {
+                    isAllowLoadingstockUpdate = Convert.ToInt32(tblConfigParamsTOLoading.ConfigParamVal);
+                }
                 if (isAllowLoading == 1) {
-                    List<TblStockDetailsTO> stockList = _iTblStockDetailsDAO.SelectAllTblStockDetailsOther (tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.BrandId, tblLoadingSlipExtTO.CompartmentId, tblLoadingTO.StatusDate , conn, tran);
-                    String isItemized = "Itemized";
+                    if (isAllowLoadingstockUpdate > 0 && tblLoadingTO.LoadingType == 1)
+                    {
+                        List<TblStockDetailsTO> stockList = _iTblStockDetailsDAO.SelectAllTblStockDetailsOther(tblLoadingSlipExtTO.ProdCatId, tblLoadingSlipExtTO.ProdSpecId, tblLoadingSlipExtTO.ProdItemId, tblLoadingSlipExtTO.BrandId, tblLoadingSlipExtTO.CompartmentId, tblLoadingTO.StatusDate, conn, tran);
+                        String isItemized = "Itemized";
 
-                    stockList = stockList.Where (l => l.ProdCatId == tblLoadingSlipExtTO.ProdCatId &&
-                        l.ProdSpecId == tblLoadingSlipExtTO.ProdSpecId &&
-                        l.MaterialId == tblLoadingSlipExtTO.MaterialId &&
-                        l.BrandId == tblLoadingSlipExtTO.BrandId &&
-                        l.ProdItemId == tblLoadingSlipExtTO.ProdItemId &&
-                        l.LocationId == (tblLoadingSlipExtTO.CompartmentId > 0 ? tblLoadingSlipExtTO.CompartmentId : l.LocationId)).ToList ();
+                        stockList = stockList.Where(l => l.ProdCatId == tblLoadingSlipExtTO.ProdCatId &&
+                           l.ProdSpecId == tblLoadingSlipExtTO.ProdSpecId &&
+                           l.MaterialId == tblLoadingSlipExtTO.MaterialId &&
+                           l.BrandId == tblLoadingSlipExtTO.BrandId &&
+                           l.ProdItemId == tblLoadingSlipExtTO.ProdItemId &&
+                           l.LocationId == (tblLoadingSlipExtTO.CompartmentId > 0 ? tblLoadingSlipExtTO.CompartmentId : l.LocationId)).ToList();
 
-                    List<TblProductInfoTO> productList = _iTblProductInfoDAO.SelectAllLatestProductInfo (conn, tran);
-                    TblStockDetailsTO tblStockDetailsTONew = new TblStockDetailsTO ();
+                        List<TblProductInfoTO> productList = _iTblProductInfoDAO.SelectAllLatestProductInfo(conn, tran);
+                        TblStockDetailsTO tblStockDetailsTONew = new TblStockDetailsTO();
 
-                    if (stockList.Count == 0) {
-                        // For weight and Stock in MT calculations
-                        tblStockDetailsTONew.ProdCatId = tblLoadingSlipExtTO.ProdCatId;
-                        tblStockDetailsTONew.ProdSpecId = tblLoadingSlipExtTO.ProdSpecId;
-                        tblStockDetailsTONew.BrandId = tblLoadingSlipExtTO.BrandId;
-                        tblStockDetailsTONew.MaterialId = tblLoadingSlipExtTO.MaterialId;
-                        tblStockDetailsTONew.CreatedOn = _iCommon.ServerDateTime;
-                        tblStockDetailsTONew.CreatedBy = loginUserId;
-                        tblStockDetailsTONew.ProdItemId = tblLoadingSlipExtTO.ProdItemId;
+                        if (stockList.Count == 0)
+                        {
 
-                        if (tblLoadingSlipExtTO.CompartmentId > 0) {
-                            tblStockDetailsTONew.LocationId = tblLoadingSlipExtTO.CompartmentId;
-                        } else {
-                            Int32 tempLocatId = 0;
+                            // For weight and Stock in MT calculations
+                            tblStockDetailsTONew.ProdCatId = tblLoadingSlipExtTO.ProdCatId;
+                            tblStockDetailsTONew.ProdSpecId = tblLoadingSlipExtTO.ProdSpecId;
+                            tblStockDetailsTONew.BrandId = tblLoadingSlipExtTO.BrandId;
+                            tblStockDetailsTONew.MaterialId = tblLoadingSlipExtTO.MaterialId;
+                            tblStockDetailsTONew.CreatedOn = _iCommon.ServerDateTime;
+                            tblStockDetailsTONew.CreatedBy = loginUserId;
+                            tblStockDetailsTONew.ProdItemId = tblLoadingSlipExtTO.ProdItemId;
 
-                            var tempLocationLst = tblLocationTOList.Where (w => w.ParentLocId > 0).ToList ();
-                            if (tempLocationLst != null && tempLocationLst.Count > 0) {
-                                tempLocatId = tempLocationLst[0].IdLocation;
+                            if (tblLoadingSlipExtTO.CompartmentId > 0)
+                            {
+                                tblStockDetailsTONew.LocationId = tblLoadingSlipExtTO.CompartmentId;
+                            }
+                            else
+                            {
+                                Int32 tempLocatId = 0;
+
+                                var tempLocationLst = tblLocationTOList.Where(w => w.ParentLocId > 0).ToList();
+                                if (tempLocationLst != null && tempLocationLst.Count > 0)
+                                {
+                                    tempLocatId = tempLocationLst[0].IdLocation;
+                                }
+
+                                tblStockDetailsTONew.LocationId = tempLocatId;
                             }
 
-                            tblStockDetailsTONew.LocationId = tempLocatId;
+                            TblStockSummaryTO tblStockSummaryTO = _iTblStockSummaryDAO.SelectTblStockSummary(new DateTime());
+                            if (tblStockSummaryTO == null)
+                            {
+                                tblStockSummaryTO = new TblStockSummaryTO();
+                                tblStockSummaryTO.StockDate = _iCommon.ServerDateTime;
+                                tblStockSummaryTO.NoOfBundles = 0;
+                                tblStockSummaryTO.TotalStock = 0;
+                                tblStockSummaryTO.CreatedBy = loginUserId;
+                                tblStockSummaryTO.CreatedOn = _iCommon.ServerDateTime;
+
+                                result = _iTblStockSummaryDAO.InsertTblStockSummary(tblStockSummaryTO, conn, tran);
+                                if (result != 1)
+                                {
+                                    tran.Rollback();
+                                    resultMessage.MessageType = ResultMessageE.Error;
+                                    resultMessage.Text = "Error : While insert the stock summary";
+                                    resultMessage.DisplayMessage = "Error : Record Could Not Be Saved. " + isItemized + " exception while insert the stock summary for the Size " + tblLoadingSlipExtTO.DisplayName;
+                                    resultMessage.Result = 0;
+                                    return resultMessage;
+                                }
+                            }
+
+                            tblStockDetailsTONew.StockSummaryId = tblStockSummaryTO.IdStockSummary;
+
+                            result = _iTblStockDetailsDAO.InsertTblStockDetails(tblStockDetailsTONew, conn, tran);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
+                                resultMessage.MessageType = ResultMessageE.Error;
+                                resultMessage.Text = "Error : While insert the stock details";
+                                resultMessage.DisplayMessage = "Error : Record Could Not Be Saved. " + isItemized + " exception while insert the stock details for the Size " + tblLoadingSlipExtTO.DisplayName;
+                                resultMessage.Result = 0;
+                                return resultMessage;
+                            }
+
+                        }
+                        else
+                        {
+                            tblStockDetailsTONew = stockList[0];
                         }
 
-                        TblStockSummaryTO tblStockSummaryTO = _iTblStockSummaryDAO.SelectTblStockSummary (new DateTime ());
-                        if (tblStockSummaryTO == null) {
-                            tblStockSummaryTO = new TblStockSummaryTO ();
-                            tblStockSummaryTO.StockDate = _iCommon.ServerDateTime;
-                            tblStockSummaryTO.NoOfBundles = 0;
-                            tblStockSummaryTO.TotalStock = 0;
-                            tblStockSummaryTO.CreatedBy = loginUserId;
-                            tblStockSummaryTO.CreatedOn = _iCommon.ServerDateTime;
+                        Double adjustedBundles = 0;
 
-                            result = _iTblStockSummaryDAO.InsertTblStockSummary (tblStockSummaryTO, conn, tran);
-                            if (result != 1) {
-                                tran.Rollback ();
+                        tblStockDetailsTONew.TotalStock = tblStockDetailsTONew.BalanceStock - totalLoadingQty;
+
+                        tblStockDetailsTONew.LoadedStock += totalLoadingQty;
+                        tblStockDetailsTONew.BalanceStock = tblStockDetailsTONew.BalanceStock - totalLoadingQty;
+
+                        if (tblStockDetailsTONew.ProdItemId == 0)
+                        {
+                            TblProductInfoTO productInfoTO = productList.Where(p => p.MaterialId == tblStockDetailsTONew.MaterialId &&
+                               p.ProdCatId == tblStockDetailsTONew.ProdCatId && p.ProdSpecId == tblStockDetailsTONew.ProdSpecId &&
+                               p.BrandId == tblStockDetailsTONew.BrandId).FirstOrDefault();
+
+                            tblStockDetailsTONew.ProductId = productInfoTO.IdProduct;
+
+                            adjustedBundles = totalLoadingQty * 1000 / productInfoTO.AvgBundleWt;
+
+                        }
+                        else
+                        {
+                            adjustedBundles = totalLoadingQty;
+                        }
+
+                        tblStockDetailsTONew.NoOfBundles -= adjustedBundles;
+                        tblStockDetailsTONew.IsInMT = 1;
+
+                        if (tblStockDetailsTONew.IdStockDtl > 0)
+                        {
+                            tblStockDetailsTONew.UpdatedBy = loginUserId;
+                            tblStockDetailsTONew.UpdatedOn = _iCommon.ServerDateTime;
+                            result = _iTblStockDetailsDAO.UpdateTblStockDetails(tblStockDetailsTONew, conn, tran);
+                            if (result != 1)
+                            {
+                                tran.Rollback();
                                 resultMessage.MessageType = ResultMessageE.Error;
-                                resultMessage.Text = "Error : While insert the stock summary";
-                                resultMessage.DisplayMessage = "Error : Record Could Not Be Saved. " + isItemized + " exception while insert the stock summary for the Size " + tblLoadingSlipExtTO.DisplayName;
+                                resultMessage.Text = "Error : While update the stock details";
+                                resultMessage.DisplayMessage = "Error : Record Could Not Be Saved. " + isItemized + " exception while update the stock details for the Size " + tblLoadingSlipExtTO.DisplayName;
                                 resultMessage.Result = 0;
                                 return resultMessage;
                             }
                         }
-
-                        tblStockDetailsTONew.StockSummaryId = tblStockSummaryTO.IdStockSummary;
-
-                        result = _iTblStockDetailsDAO.InsertTblStockDetails (tblStockDetailsTONew, conn, tran);
-                        if (result != 1) {
-                            tran.Rollback ();
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Text = "Error : While insert the stock details";
-                            resultMessage.DisplayMessage = "Error : Record Could Not Be Saved. " + isItemized + " exception while insert the stock details for the Size " + tblLoadingSlipExtTO.DisplayName;
-                            resultMessage.Result = 0;
+                        else
+                        {
                             return resultMessage;
                         }
-                    } else {
-                        tblStockDetailsTONew = stockList[0];
-                    }
 
-                    Double adjustedBundles = 0;
+                        //TblStockSummaryTO mainSummaryTO = _iTblStockSummaryBL.SelectTblStockSummaryTO(tblStockDetailsTONew.StockSummaryId, conn, tran);
+                        //mainSummaryTO.NoOfBundles -= adjustedBundles;
+                        //mainSummaryTO.TotalStock -= totalLoadingQty;
+                        //mainSummaryTO.UpdatedBy = loginUserId;
+                        //mainSummaryTO.UpdatedOn = _iCommon.ServerDateTime;
 
-                    tblStockDetailsTONew.TotalStock = tblStockDetailsTONew.BalanceStock - totalLoadingQty;
-
-                    tblStockDetailsTONew.LoadedStock += totalLoadingQty;
-                    tblStockDetailsTONew.BalanceStock = tblStockDetailsTONew.BalanceStock - totalLoadingQty;
-
-                    if (tblStockDetailsTONew.ProdItemId == 0) {
-                        TblProductInfoTO productInfoTO = productList.Where (p => p.MaterialId == tblStockDetailsTONew.MaterialId &&
-                            p.ProdCatId == tblStockDetailsTONew.ProdCatId && p.ProdSpecId == tblStockDetailsTONew.ProdSpecId &&
-                            p.BrandId == tblStockDetailsTONew.BrandId).FirstOrDefault ();
-
-                        tblStockDetailsTONew.ProductId = productInfoTO.IdProduct;
-
-                        adjustedBundles = totalLoadingQty * 1000 / productInfoTO.AvgBundleWt;
-
-                    } else {
-                        adjustedBundles = totalLoadingQty;
-                    }
-
-                    tblStockDetailsTONew.NoOfBundles -= adjustedBundles;
-                    tblStockDetailsTONew.IsInMT = 1;
-
-                    if (tblStockDetailsTONew.IdStockDtl > 0) {
-                        tblStockDetailsTONew.UpdatedBy = loginUserId;
-                        tblStockDetailsTONew.UpdatedOn = _iCommon.ServerDateTime;
-                        result = _iTblStockDetailsDAO.UpdateTblStockDetails (tblStockDetailsTONew, conn, tran);
-                        if (result != 1) {
-                            tran.Rollback ();
-                            resultMessage.MessageType = ResultMessageE.Error;
-                            resultMessage.Text = "Error : While update the stock details";
-                            resultMessage.DisplayMessage = "Error : Record Could Not Be Saved. " + isItemized + " exception while update the stock details for the Size " + tblLoadingSlipExtTO.DisplayName;
-                            resultMessage.Result = 0;
-                            return resultMessage;
-                        }
-                    } else {
-                        return resultMessage;
-                    }
-
-                    //TblStockSummaryTO mainSummaryTO = _iTblStockSummaryBL.SelectTblStockSummaryTO(tblStockDetailsTONew.StockSummaryId, conn, tran);
-                    //mainSummaryTO.NoOfBundles -= adjustedBundles;
-                    //mainSummaryTO.TotalStock -= totalLoadingQty;
-                    //mainSummaryTO.UpdatedBy = loginUserId;
-                    //mainSummaryTO.UpdatedOn = _iCommon.ServerDateTime;
-
-                    //result = _iTblStockSummaryBL.UpdateTblStockSummary(mainSummaryTO, conn, tran);
-                    //if (result != 1)
-                    //{
-                    //    tran.Rollback();
-                    //    resultMessage.MessageType = ResultMessageE.Error;
-                    //    resultMessage.Text = "Error : While insert the stock summary";
-                    //    resultMessage.DisplayMessage = "Error : Record Could Not Be Saved. " + isItemized + " exception while insert the stock summary for the Size " + tblLoadingSlipExtTO.DisplayName;
-                    //    resultMessage.Result = 0;
-                    //    return resultMessage;
-                    //}
-
-                    //stockList = new List<TblStockDetailsTO>();
-                    //Insert Stock Summary
-
-                    //List<TblStockDetailsTO> tblStockDetailsTOList = BL._iTblStockDetailsBL.SelectAllTblStockDetailsList(tblStockSummaryTO.IdStockSummary, conn, tran);
-                    //if (tblStockDetailsTOList == null)
-                    if (true) {
-
-                        //    stockList.Add(tblStockDetailsTONew);
-                        //    stockDtlId = tblStockDetailsTONew.IdStockDtl;
-                        //}
-                        //else
+                        //result = _iTblStockSummaryBL.UpdateTblStockSummary(mainSummaryTO, conn, tran);
+                        //if (result != 1)
                         //{
-                        //    result = _iTblStockDetailsBL.UpdateTblStockDetails(tblStockDetailsTONew, conn, tran);
-                        //    if (result != 1)
-                        //    {
-                        //        tran.Rollback();
-                        //        resultMessage.MessageType = ResultMessageE.Error;
-                        //        resultMessage.Text = "Error : While update the stock details";
-                        //        resultMessage.DisplayMessage = "Error : Record Could Not Be Saved. " + isItemized + " exception while update the stock details for the Size " + tblLoadingSlipExtTO.DisplayName;
-                        //        resultMessage.Result = 0;
-                        //        return resultMessage;
-                        //    }
+                        //    tran.Rollback();
+                        //    resultMessage.MessageType = ResultMessageE.Error;
+                        //    resultMessage.Text = "Error : While insert the stock summary";
+                        //    resultMessage.DisplayMessage = "Error : Record Could Not Be Saved. " + isItemized + " exception while insert the stock summary for the Size " + tblLoadingSlipExtTO.DisplayName;
+                        //    resultMessage.Result = 0;
+                        //    return resultMessage;
                         //}
-                        //Update Stock Summary
 
-                        //Insert Into the TblStockConsumption.
+                        //stockList = new List<TblStockDetailsTO>();
+                        //Insert Stock Summary
 
-                        TblStockConsumptionTO stockConsumptionTO = new TblStockConsumptionTO ();
-                        stockConsumptionTO.BeforeStockQty = tblStockDetailsTONew.BalanceStock + totalLoadingQty;
-                        stockConsumptionTO.AfterStockQty = tblStockDetailsTONew.BalanceStock;
-                        stockConsumptionTO.LoadingSlipExtId = tblLoadingSlipExtTO.IdLoadingSlipExt;
-                        stockConsumptionTO.CreatedBy = loginUserId;
-                        stockConsumptionTO.CreatedOn = _iCommon.ServerDateTime;
-                        stockConsumptionTO.Remark = totalLoadingQty + " Qty is consumed against Loading Slip : " + tblLoadingTO.LoadingSlipNo;
-                        stockConsumptionTO.StockDtlId = tblStockDetailsTONew.IdStockDtl;
-                        stockConsumptionTO.TxnOpTypeId = (int) Constants.TxnOperationTypeE.OUT;
-                        stockConsumptionTO.TxnQty = -totalLoadingQty;
+                        //List<TblStockDetailsTO> tblStockDetailsTOList = BL._iTblStockDetailsBL.SelectAllTblStockDetailsList(tblStockSummaryTO.IdStockSummary, conn, tran);
+                        //if (tblStockDetailsTOList == null)
+                        if (true)
+                        {
 
-                        result = _iTblStockConsumptionDAO.InsertTblStockConsumption (stockConsumptionTO, conn, tran);
-                        if (result != 1) {
-                            resultMessage.DefaultBehaviour ();
-                            resultMessage.Text = "Error : While InsertTblStockConsumption Against LoadingSlip";
-                            return resultMessage;
+                            //    stockList.Add(tblStockDetailsTONew);
+                            //    stockDtlId = tblStockDetailsTONew.IdStockDtl;
+                            //}
+                            //else
+                            //{
+                            //    result = _iTblStockDetailsBL.UpdateTblStockDetails(tblStockDetailsTONew, conn, tran);
+                            //    if (result != 1)
+                            //    {
+                            //        tran.Rollback();
+                            //        resultMessage.MessageType = ResultMessageE.Error;
+                            //        resultMessage.Text = "Error : While update the stock details";
+                            //        resultMessage.DisplayMessage = "Error : Record Could Not Be Saved. " + isItemized + " exception while update the stock details for the Size " + tblLoadingSlipExtTO.DisplayName;
+                            //        resultMessage.Result = 0;
+                            //        return resultMessage;
+                            //    }
+                            //}
+                            //Update Stock Summary
+
+                            //Insert Into the TblStockConsumption.
+
+                            TblStockConsumptionTO stockConsumptionTO = new TblStockConsumptionTO();
+                            stockConsumptionTO.BeforeStockQty = tblStockDetailsTONew.BalanceStock + totalLoadingQty;
+                            stockConsumptionTO.AfterStockQty = tblStockDetailsTONew.BalanceStock;
+                            stockConsumptionTO.LoadingSlipExtId = tblLoadingSlipExtTO.IdLoadingSlipExt;
+                            stockConsumptionTO.CreatedBy = loginUserId;
+                            stockConsumptionTO.CreatedOn = _iCommon.ServerDateTime;
+                            stockConsumptionTO.Remark = totalLoadingQty + " Qty is consumed against Loading Slip : " + tblLoadingTO.LoadingSlipNo;
+                            stockConsumptionTO.StockDtlId = tblStockDetailsTONew.IdStockDtl;
+                            stockConsumptionTO.TxnOpTypeId = (int)Constants.TxnOperationTypeE.OUT;
+                            stockConsumptionTO.TxnQty = -totalLoadingQty;
+
+                            result = _iTblStockConsumptionDAO.InsertTblStockConsumption(stockConsumptionTO, conn, tran);
+                            if (result != 1)
+                            {
+                                resultMessage.DefaultBehaviour();
+                                resultMessage.Text = "Error : While InsertTblStockConsumption Against LoadingSlip";
+                                return resultMessage;
+                            }
+
                         }
-
                     }
                 }
                 resultMessage.DefaultSuccessBehaviour ();

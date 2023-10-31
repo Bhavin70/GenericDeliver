@@ -1292,8 +1292,9 @@ namespace ODLMWebAPI.BL
                                     excelWorksheet.Cells[cellRow, 52].Value = "";
                                     excelWorksheet.Cells[cellRow, 53].Value = TblInvoiceRptTOListByInvoiceItemId[i].DealerMobNo;
                                     excelWorksheet.Cells[cellRow, 54].Value = TblInvoiceRptTOListByInvoiceItemId[i].ContactNo;
-                                    excelWorksheet.Cells[cellRow, 55].Value = TblInvoiceRptTOListByInvoiceItemId[i].NarrationConcat;
-
+                                    excelWorksheet.Cells[cellRow, 55].Value = TblInvoiceRptTOListByInvoiceItemId[i].VehicleNo +" "+
+                                        TblInvoiceRptTOListByInvoiceItemId[i].InvoiceNo +" "+ TblInvoiceRptTOListByInvoiceItemId[i].InvoiceDateStr
+                                        +" "+ TblInvoiceRptTOListByInvoiceItemId[i].TotalItemQty;
 
                                     invoiceId = TblInvoiceRptTOListByInvoiceItemId[i].IdInvoice;
                                     excelWorksheet.Cells[cellRow, 1, cellRow, 55].Style.Font.Bold = true;
