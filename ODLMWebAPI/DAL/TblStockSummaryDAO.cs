@@ -381,17 +381,17 @@ namespace ODLMWebAPI.DAL
                 conn.Open();
 
                 //Saket [2018-02-08] Commented and added new queery.
-                cmdSelect.CommandText = " SELECT * FROM  " +
-                                        " ( " +
-                                        " SELECT totalStock, createdOn FROM tblStockSummary " +
-                                        " WHERE DAY(createdOn) = " + sysDate.Day + " AND MONTH(createdOn) = " + sysDate.Month + " AND YEAR(createdOn) = " + sysDate.Year +
-                                        " ) AS stockInfo " +
-                                        " LEFT JOIN " +
-                                        " ( " +
-                                        " SELECT stockInMT, stockFactor , createdOn FROM tblStockAsPerBooks " +
-                                        " WHERE DAY(createdOn) = " + sysDate.Day + " AND MONTH(createdOn) = " + sysDate.Month + " AND YEAR(createdOn) = " + sysDate.Year +
-                                        " ) As bookStock " +
-                                        " ON CAST(stockInfo.createdOn as date) = CAST(bookStock.createdOn as date)";
+                //cmdSelect.CommandText = " SELECT * FROM  " +
+                //                        " ( " +
+                //                        " SELECT totalStock, createdOn FROM tblStockSummary " +
+                //                        " WHERE DAY(createdOn) = " + sysDate.Day + " AND MONTH(createdOn) = " + sysDate.Month + " AND YEAR(createdOn) = " + sysDate.Year +
+                //                        " ) AS stockInfo " +
+                //                        " LEFT JOIN " +
+                //                        " ( " +
+                //                        " SELECT stockInMT, stockFactor , createdOn FROM tblStockAsPerBooks " +
+                //                        " WHERE DAY(createdOn) = " + sysDate.Day + " AND MONTH(createdOn) = " + sysDate.Month + " AND YEAR(createdOn) = " + sysDate.Year +
+                //                        " ) As bookStock " +
+                //                        " ON CAST(stockInfo.createdOn as date) = CAST(bookStock.createdOn as date)";
 
 
                 cmdSelect.CommandText = " SELECT * FROM(SELECT totalStock, createdOn ,idStockSummary FROM tblStockSummary " +
@@ -400,7 +400,7 @@ namespace ODLMWebAPI.DAL
                                         " ) As bookStock " +
                                         " ON CAST(stockInfo.createdOn as date) = CAST(bookStock.createdOn as date) " +
                                         " left join (select sum(balanceStock ) as PendingStock,stockSummaryId from tblStockDetails group by stockSummaryId  ) as PendingStock " +
-                                        "   on PendingStock.stockSummaryId=stockInfo.idStockSummary  ";
+                                        "   on PendingStock.stockSummaryId=stockInfo.idStockSummary  order by stockInfo.createdOn desc ";
 
 
                 cmdSelect.Connection = conn;
