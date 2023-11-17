@@ -3152,7 +3152,7 @@ namespace ODLMWebAPI.DAL
                     " ,tblParityDetails.parityAmt  As ParityAmt "  +
                     " ,tblParityDetails.nonConfParityAmt  As NonconfParityAmt " +
                     " from[dbo].[tempInvoiceItemDetails] " +
-                    " Join tempInvoice On tempInvoice.idInvoice = tempInvoiceItemDetails.invoiceId And tempInvoice.isConfirmed=1 " +
+                    " Join tempInvoice On tempInvoice.idInvoice = tempInvoiceItemDetails.invoiceId " +
                     " Join tempLoadingSlipExt On tempLoadingSlipExt.idLoadingSlipExt = tempInvoiceItemDetails.loadingSlipExtId " +
                     " Left Join dimProdCat On dimProdCat.idProdCat = tempLoadingSlipExt.prodCatId " +
                     " Left Join dimProdSpec On dimProdSpec.idProdSpec = tempLoadingSlipExt.prodSpecId " +
