@@ -14,7 +14,7 @@ namespace ODLMWebAPI.BL.Interfaces
     public interface ITblInvoiceBL
     {
         List<TblInvoiceTO> SelectAllTblInvoiceList();
-        List<TblInvoiceTO> SelectAllTblInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm, Int32 cnfId, Int32 dealerID, List<TblUserRoleTO> tblUserRoleTOList, Int32 brandId, Int32 invoiceId, Int32 statusId, String internalOrgId);
+        List<TblInvoiceTO> SelectAllTblInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm, Int32 cnfId, Int32 dealerID, List<TblUserRoleTO> tblUserRoleTOList, Int32 brandId, Int32 invoiceId, Int32 statusId, String internalOrgId, Int32 districtId , Int32 stateId);
         TblInvoiceTO SelectTblInvoiceTO(Int32 idInvoice);
         List<TblInvoiceTO> SelectTblInvoiceByStatus(int statusId, int distributorOrgId, int invoiceId,int isConfirm);
         TblInvoiceTO SelectTblInvoiceTOWithDetails(Int32 idInvoice);

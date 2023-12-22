@@ -88,8 +88,8 @@ namespace ODLMWebAPI.Controllers
         /// <returns></returns>
         [Route("GetInvoiceList")]
         [HttpGet]
-        public List<TblInvoiceTO> GetInvoiceList(string fromDate, string toDate, int isConfirm, Int32 cnfId,  Int32 dealerID, String userRoleTOList, Int32 brandId = 0, Int32 invoiceId = 0, Int32 statusId = 0,String internalOrgId="")
-       {
+        public List<TblInvoiceTO> GetInvoiceList(string fromDate, string toDate, int isConfirm, Int32 cnfId,  Int32 dealerID, String userRoleTOList, Int32 brandId = 0, Int32 invoiceId = 0, Int32 statusId = 0,String internalOrgId="", Int32 districtId=0, Int32 stateId=0 )
+        {
             try
             {
 
@@ -115,7 +115,7 @@ namespace ODLMWebAPI.Controllers
                 //return _iTblInvoiceBL.SelectAllTblInvoiceList(frmDt, toDt, isConfirm, cnfId, dealerID, tblUserRoleTOList, brandId, invoiceId,statusId)
                 //.Where(e=>e.InvFromOrgId==internalOrgId).ToList();   
                 //}
-                return _iTblInvoiceBL.SelectAllTblInvoiceList(frmDt, toDt, isConfirm, cnfId, dealerID, tblUserRoleTOList, brandId, invoiceId, statusId, internalOrgId);
+                return _iTblInvoiceBL.SelectAllTblInvoiceList(frmDt, toDt, isConfirm, cnfId, dealerID, tblUserRoleTOList, brandId, invoiceId, statusId, internalOrgId, districtId , stateId);
             }
             catch (Exception ex)
             {

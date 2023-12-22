@@ -180,7 +180,7 @@ namespace ODLMWebAPI.BL
         /// <param name="dealerID"></param>
         /// <param name="userRoleTO"></param>
         /// <returns></returns>
-        public List<TblInvoiceTO> SelectAllTblInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm, Int32 cnfId, Int32 dealerID, List<TblUserRoleTO> tblUserRoleTOList, Int32 brandId, Int32 invoiceId, Int32 statusId, String internalOrgId)
+        public List<TblInvoiceTO> SelectAllTblInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm, Int32 cnfId, Int32 dealerID, List<TblUserRoleTO> tblUserRoleTOList, Int32 brandId, Int32 invoiceId, Int32 statusId, String internalOrgId, Int32 districtId , Int32 stateId)
         {
             TblUserRoleTO tblUserRoleTO = new TblUserRoleTO();
             int configId = _iTblConfigParamsDAO.IoTSetting();
@@ -188,7 +188,7 @@ namespace ODLMWebAPI.BL
             {
                 tblUserRoleTO = _iTblUserRoleBL.SelectUserRoleTOAccToPriority(tblUserRoleTOList);
             }
-            List<TblInvoiceTO> list = _iTblInvoiceDAO.SelectAllTblInvoice(frmDt, toDt, isConfirm, cnfId, dealerID, tblUserRoleTO, brandId, invoiceId, statusId, internalOrgId);
+            List<TblInvoiceTO> list = _iTblInvoiceDAO.SelectAllTblInvoice(frmDt, toDt, isConfirm, cnfId, dealerID, tblUserRoleTO, brandId, invoiceId, statusId, internalOrgId, districtId , stateId);
             if (isConfirm == 1)
             {
                 var nonAuthList = list.Where(n => n.InvoiceStatusE != InvoiceStatusE.AUTHORIZED).ToList();
