@@ -10,6 +10,8 @@ using System.Linq;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DashboardModels;
+using SAPbobsCOM;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
 
 namespace ODLMWebAPI.DAL
 {
@@ -425,7 +427,7 @@ namespace ODLMWebAPI.DAL
         }
 
 
-        public List<TblLoadingTO> SelectAllTblLoading(TblUserRoleTO tblUserRoleTO, int cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId,string selectedOrgStr, Int32 isConfirm, Int32 brandId, Int32 loadingNavigateId,Int32 superwisorId)
+        public List<TblLoadingTO> SelectAllTblLoading(TblUserRoleTO tblUserRoleTO, int cnfId, Int32 loadingStatusId, DateTime fromDate, DateTime toDate, Int32 loadingTypeId, Int32 dealerId,string selectedOrgStr, Int32 isConfirm, Int32 brandId, Int32 loadingNavigateId,Int32 superwisorId,Int32 districtId,Int32 stateId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -465,6 +467,9 @@ namespace ODLMWebAPI.DAL
 
                 String whereisConTemp = String.Empty;
                 String whereisConFinal = String.Empty;
+
+                String wherestateTemp = String.Empty;
+                String whereDistrictTemp = String.Empty;
 
                 if (cnfId > 0)
                 {
@@ -518,6 +523,16 @@ namespace ODLMWebAPI.DAL
                     whereisConTemp += " AND loading.idLoading IN ( select loadingId from tempLoadingSlip where ISNULL(isConfirmed,0) = " + isConfirm + " AND CONVERT (DATE,tempLoadingSlip.createdOn,103) BETWEEN @fromDate AND @toDate)";
                     whereisConFinal += " AND loading.idLoading IN ( select loadingId from finalLoadingSlip where ISNULL(isConfirmed,0) = " + isConfirm + " AND CONVERT (DATE,finalLoadingSlip.createdOn,103) BETWEEN @fromDate AND @toDate)";
                 }
+
+                if (stateId > 0)
+                {
+                    wherestateTemp += " AND districtId = " + stateId ;
+                }
+                if (districtId > 0)
+                {
+                    whereDistrictTemp += " AND stateId = " + districtId ;
+                }
+
                 //cmdSelect.CommandText = SqlSelectQuery() + areConfJoin + whereCond;
 
                 // Vaibhav [09-Jan-2018] Commented and added to select from finalLoading
@@ -538,6 +553,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblSupervisor superwisor ON superwisor.idSupervisor=loading.superwisorId " +
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
+                                  " LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = transOrg.addrId " +
                                   " LEFT JOIN tblGate tblGate ON tblGate.idGate = loading.gateId " +
                                   //Added by minal 12 May 2021 For show dealer to approval screen
                                   //" LEFT JOIN tempLoadingSlip loadingSlip ON loadingSlip.loadingId = loading.idLoading " +
@@ -552,7 +568,7 @@ namespace ODLMWebAPI.DAL
                                   " GROUP BY loading1.idLoading) AS tblMultipleDealer ON tblMultipleDealer.idLoading = loading.idLoading " +
 
                                   //Added by minal 12 May 2021 For show dealer to approval screen
-                                  " LEFT JOIN tblUser ON idUser=loading.createdBy " + areConfJoin + whereCond + wherecnfIdTemp + whereisConTemp + whereSupCond+
+                                  " LEFT JOIN tblUser ON idUser=loading.createdBy " + areConfJoin + whereCond + wherestateTemp + whereDistrictTemp  + wherecnfIdTemp + whereisConTemp + whereSupCond+
                                   
                                   " UNION ALL " +
 
@@ -573,6 +589,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblSupervisor superwisor ON superwisor.idSupervisor=loading.superwisorId " +
                                   " LEFT JOIN tblPerson person ON superwisor.personId = person.idPerson" +
                                   " LEFT JOIN tblOrganization transOrg ON transOrg.idOrganization = loading.transporterOrgId " +
+                                  " LEFT JOIN vAddressDetails vAddr ON vAddr.idAddr = transOrg.addrId " +
                                   " LEFT JOIN tblGate tblGate ON tblGate.idGate = loading.gateId " +
                                   //Added by minal 12 May 2021 For show dealer to approval screen
                                   //" LEFT JOIN finalLoadingSlip loadingSlip ON loadingSlip.loadingId = loading.idLoading " +
@@ -587,7 +604,7 @@ namespace ODLMWebAPI.DAL
                                   " FROM finalLoading loading1 " +
                                   " GROUP BY loading1.idLoading) AS tblMultipleDealer ON tblMultipleDealer.idLoading = loading.idLoading " +
 
-                                  " LEFT JOIN tblUser ON idUser=loading.createdBy " + areConfJoin + whereCond + wherecnfIdFinal + whereisConFinal  +whereSupCond;
+                                  " LEFT JOIN tblUser ON idUser=loading.createdBy " + areConfJoin + whereCond + wherestateTemp + whereDistrictTemp + wherecnfIdFinal + whereisConFinal  +whereSupCond;
 
 
                 cmdSelect.CommandText = sqlQuery;

@@ -211,8 +211,8 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetAllBookingList")]
         [HttpGet]
-        public List<TblBookingsTO> GetAllBookingList(Int32 cnfId, Int32 dealerId,Int32 statusId,string fromDate,string toDate, String userRoleTOList, Int32 isConfirm = -1, Int32 isPendingQty = 0,Int32 bookingId = 0, Int32 isViewAllPendingEnq=0, Int32 RMId = 0,int orderTypeId=0,Boolean isFromEnquiryReport=false)
-        {
+        public List<TblBookingsTO> GetAllBookingList(Int32 cnfId, Int32 dealerId,Int32 statusId,string fromDate,string toDate, String userRoleTOList, Int32 isConfirm = -1, Int32 isPendingQty = 0,Int32 bookingId = 0, Int32 isViewAllPendingEnq=0, Int32 RMId = 0,int orderTypeId=0,Boolean isFromEnquiryReport=false,Int32 districtId = 0, Int32 stateId = 0)
+                {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
             if (Constants.IsDateTime(fromDate))
@@ -233,7 +233,7 @@ namespace ODLMWebAPI.Controllers
             List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleTOList);
 
       
-            List<TblBookingsTO> tblBookingsTOList = _iTblBookingsBL.SelectBookingList(cnfId, dealerId, statusId, frmDt, toDt, tblUserRoleTOList, isConfirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId, orderTypeId, isFromEnquiryReport);
+            List<TblBookingsTO> tblBookingsTOList = _iTblBookingsBL.SelectBookingList(cnfId, dealerId, statusId, frmDt, toDt, tblUserRoleTOList, isConfirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId, orderTypeId, isFromEnquiryReport, districtId, stateId);
 
             _iTblBookingsBL.AssignOverDueAmount(tblBookingsTOList);
 

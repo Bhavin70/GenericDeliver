@@ -901,7 +901,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-        public List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId, Int32 orderTypeId)
+        public List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId, Int32 orderTypeId, Int32 districtId, Int32 stateId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -970,6 +970,7 @@ namespace ODLMWebAPI.DAL
 
                 Boolean isWhereAddded = true;
                 String whereCondtionStr = string.Empty;
+            
                 whereCondtionStr = "WHERE CAST(bookings.createdOn AS DATE) BETWEEN @fromDate AND @toDate";
 
                 if (bookingId > 0)
@@ -1003,6 +1004,15 @@ namespace ODLMWebAPI.DAL
                 if (statusId > 0)
                     sqlQuery += " AND bookings.statusId IN(" + statusId + ")";
 
+                if (stateId > 0)
+                {
+                    sqlQuery += " AND address.districtId = " + stateId ;
+                }
+
+                if (districtId > 0)
+                {
+                    sqlQuery += " AND address.stateId = " + districtId;
+                }
 
                 if (String.IsNullOrEmpty(whereCondtionStr))
                 {
@@ -1090,7 +1100,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblBookingsTO> SelectBookingListV2(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId, Int32 orderTypeId)
+        public List<TblBookingsTO> SelectBookingListV2(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId, Int32 orderTypeId, Int32 districtId, Int32 stateId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -1221,6 +1231,15 @@ namespace ODLMWebAPI.DAL
                 if (statusId > 0)
                     sqlQuery += " AND bookings.statusId IN(" + statusId + ")";
 
+                if (stateId > 0)
+                {
+                    sqlQuery += " AND address.districtId = " + stateId;
+                }
+
+                if (districtId > 0)
+                {
+                    sqlQuery += " AND address.stateId = " + districtId;
+                }
 
                 if (String.IsNullOrEmpty(whereCondtionStr))
                 {

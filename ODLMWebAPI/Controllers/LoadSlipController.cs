@@ -306,7 +306,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetAllPendingLoadingList")]
         [HttpGet]
-        public List<TblLoadingTO> GetAllPendingLoadingList(string userRoleTOList, Int32 cnfId, Int32 loadingStatusId, string fromDate, String toDate,Int32 loadingTypeId,Int32 dealerId,string selectedOrgStr, Int32 isConfirm = -1, Int32 brandId = 0, Int32 loadingNavigateId = 0,Int32 superwisorId=0)
+        public List<TblLoadingTO> GetAllPendingLoadingList(string userRoleTOList, Int32 cnfId, Int32 loadingStatusId, string fromDate, String toDate,Int32 loadingTypeId,Int32 dealerId,string selectedOrgStr, Int32 isConfirm = -1, Int32 brandId = 0, Int32 loadingNavigateId = 0,Int32 superwisorId=0, Int32 districtId = 0, Int32 stateId = 0)
         {
             try
            {
@@ -332,7 +332,7 @@ namespace ODLMWebAPI.Controllers
                 }
                 List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleTOList);
 
-                return _iTblLoadingBL.SelectAllTblLoadingList(tblUserRoleTOList, cnfId, loadingStatusId, frmDate, tDate, loadingTypeId, dealerId,selectedOrgStr, isConfirm, brandId, loadingNavigateId,superwisorId);
+                return _iTblLoadingBL.SelectAllTblLoadingList(tblUserRoleTOList, cnfId, loadingStatusId, frmDate, tDate, loadingTypeId, dealerId,selectedOrgStr, isConfirm, brandId, loadingNavigateId,superwisorId,districtId, stateId);
             }
             catch (Exception ex)
             {

@@ -937,7 +937,7 @@ namespace ODLMWebAPI.BL
             return _iTblBookingsDAO.GetOrderwiseDealerList();
 
         }
-        public List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, List<TblUserRoleTO> tblUserRoleTOList, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId,Int32 orderTypeId=0,Boolean isFromEnquiryReport=false)
+        public List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, List<TblUserRoleTO> tblUserRoleTOList, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId,Int32 orderTypeId=0,Boolean isFromEnquiryReport=false, Int32 districtId= 0, Int32 stateId=0)
         {
             TblUserRoleTO tblUserRoleTO = new TblUserRoleTO();
 
@@ -947,9 +947,9 @@ namespace ODLMWebAPI.BL
             }
             List<TblBookingsTO> bookingList = new List<TblBookingsTO>();
             if(!isFromEnquiryReport)
-                bookingList =  _iTblBookingsDAO.SelectBookingList(cnfId, dealerId, statusId, fromDate, toDate, tblUserRoleTO, confirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId,orderTypeId);
+                bookingList =  _iTblBookingsDAO.SelectBookingList(cnfId, dealerId, statusId, fromDate, toDate, tblUserRoleTO, confirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId,orderTypeId, districtId, stateId); 
             else
-                bookingList =  _iTblBookingsDAO.SelectBookingListV2(cnfId, dealerId, statusId, fromDate, toDate, tblUserRoleTO, confirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId,orderTypeId);
+                bookingList =  _iTblBookingsDAO.SelectBookingListV2(cnfId, dealerId, statusId, fromDate, toDate, tblUserRoleTO, confirm, isPendingQty, bookingId, isViewAllPendingEnq, RMId,orderTypeId, districtId, stateId);
 
             if (bookingList != null && bookingList.Count > 0)
             {
