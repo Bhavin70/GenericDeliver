@@ -1006,12 +1006,12 @@ namespace ODLMWebAPI.DAL
 
                 if (stateId > 0)
                 {
-                    sqlQuery += " AND address.districtId = " + stateId ;
+                    sqlQuery += " AND address.stateId = " + stateId ;
                 }
 
                 if (districtId > 0)
                 {
-                    sqlQuery += " AND address.stateId = " + districtId;
+                    sqlQuery += " AND address.districtId = " + districtId ;
                 }
 
                 if (String.IsNullOrEmpty(whereCondtionStr))
@@ -1233,12 +1233,12 @@ namespace ODLMWebAPI.DAL
 
                 if (stateId > 0)
                 {
-                    sqlQuery += " AND address.districtId = " + stateId;
+                    sqlQuery += " AND address.stateId = " + stateId;
                 }
 
                 if (districtId > 0)
                 {
-                    sqlQuery += " AND address.stateId = " + districtId;
+                    sqlQuery += " AND address.districtId  = " + districtId;
                 }
 
                 if (String.IsNullOrEmpty(whereCondtionStr))

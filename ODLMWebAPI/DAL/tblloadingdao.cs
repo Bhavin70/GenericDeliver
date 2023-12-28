@@ -526,11 +526,11 @@ namespace ODLMWebAPI.DAL
 
                 if (stateId > 0)
                 {
-                    wherestateTemp += " AND districtId = " + stateId ;
+                    whereDistrictTemp += " AND stateId = " + stateId;
                 }
                 if (districtId > 0)
                 {
-                    whereDistrictTemp += " AND stateId = " + districtId ;
+                    wherestateTemp += " AND districtId = " + districtId;
                 }
 
                 //cmdSelect.CommandText = SqlSelectQuery() + areConfJoin + whereCond;
