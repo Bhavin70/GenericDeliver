@@ -637,9 +637,9 @@ namespace ODLMWebAPI.DAL
 
                 conn.Open();
                 if (stateId > 0)
-                    sqlQuery = "SELECT * FROM dimDistrict WHERE stateId=" + stateId;
+                    sqlQuery = "SELECT * FROM dimDistrict WHERE isActive = 1 and stateId=" + stateId;
                 else
-                    sqlQuery = "SELECT * FROM dimDistrict ";
+                    sqlQuery = "SELECT * FROM dimDistrict WHERE isActive = 1 ";
 
 
                 cmdSelect = new SqlCommand(sqlQuery, conn);
