@@ -63,7 +63,8 @@ namespace ODLMWebAPI
 
         public static string SERVER_DATETIME_QUERY_STRING { get; private set; }
         public static Boolean IsLocalAPI { get; private set; }
-
+        public static string AzureSourceContainerName { get; set; }
+        public static string AzureTargetContainerName { get; set; }
 
         public Startup(IConfiguration configuration)
         {
@@ -555,6 +556,9 @@ namespace ODLMWebAPI
             AzureConnectionStr = Configuration.GetSection("Data:AzureConnectionStr").Value.ToString();
 
             ConnectionJsonFile = JObject.Parse(System.IO.File.ReadAllText(@".\connection.json"));
+            
+            AzureSourceContainerName = Configuration.GetSection("Data:AzureSourceContainerName").Value.ToString();
+            AzureTargetContainerName = Configuration.GetSection("Data:AzureTargetContainerName").Value.ToString();
 
             GetDateTimeQueryString();
             IsLocalApi();

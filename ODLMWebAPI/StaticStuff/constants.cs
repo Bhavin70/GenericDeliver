@@ -530,11 +530,13 @@ namespace ODLMWebAPI.StaticStuff
         // public static string AzureSourceContainerName = "simplideliver";//For testing
         //public static string AzureSourceContainerName = "metarolldataextract";//For Metaroll
         //public static string AzureSourceContainerName = "kalikadataextractdeliver";//"kalikadataextract";//For Kalika
-        public static string AzureSourceContainerName = "vasudhadataextractdeliver";//For Vasudha
+        //public static string AzureSourceContainerName = "vasudhadataextractdeliver";//For Vasudha
+        public static string AzureSourceContainerName = Startup.AzureSourceContainerName;
 
 
         //public static string AzureSourceContainerName = "srjdocuments";
-        public static string AzureTargetContainerName = "srjnewdocuments";
+        //public static string AzureTargetContainerName = "srjnewdocuments";
+        public static string AzureTargetContainerName = Startup.AzureTargetContainerName;
         public static string ExcelSheetName = "TranData";
         public static string ExcelFileName = "Tran";
         public static int LoadingCountForDataExtraction = 50;
