@@ -1095,9 +1095,11 @@ namespace ODLMWebAPI.BL
                 List<ODLMWebAPI.DashboardModels.BookingInfo> tblBookingsTOList = _iTblBookingsDAO.SelectBookingDashboardInfo(tblUserRoleTO, orgId, dealerId, date, ids, isHideCorNC, false);
 
                 Double grandTotal = 0;
+                Double grandGrandTotal = 0;
                 Double grandTotalQty = 0;
                 Double otherGrandTotal = 0;
                 Double otherGrandTotalQty = 0;
+                Double otherGrandGrandTotal = 0;
                 Int32 count = 0, otherCount = 0;
                 for (int i = 0; i < tblBookingsTOList.Count; i++)
                 {
@@ -1108,13 +1110,14 @@ namespace ODLMWebAPI.BL
                         count += 1;
                         grandTotal += bookingInfo.AvgPrice;
                         grandTotalQty += bookingInfo.BookingQty;
+                        grandGrandTotal += bookingInfo.TotalCost;
                     }
                     else
                     {
                         otherCount += 1;
                         otherGrandTotal += bookingInfo.AvgPrice;
                         otherGrandTotalQty += bookingInfo.BookingQty;
-
+                        otherGrandGrandTotal += bookingInfo.TotalCost;
                     }
 
                 }
@@ -1148,7 +1151,7 @@ namespace ODLMWebAPI.BL
                     tempBookingInfo.ShortNm = "Total";
                     tempBookingInfo.BrandName = "Grand Total";
                     tempBookingInfo.BookingQty = Math.Round(grandTotalQty);
-                    tempBookingInfo.AvgPrice = Math.Round(grandTotal / count);
+                    tempBookingInfo.AvgPrice = Math.Round(grandGrandTotal / grandTotalQty);//Math.Round(grandTotal / count);Reshma[24-01-2024] changes as per Amol sir requirements in SRJ
                     tempBookingInfo.IsConfirmed = 2;
                     tempBookingInfo.BookingType = (int)Constants.BookingType.IsRegular;
                     tblBookingsTOList.Add(tempBookingInfo);
@@ -1162,7 +1165,7 @@ namespace ODLMWebAPI.BL
                     otherBookingInfo.ShortNm = "Other";
                     otherBookingInfo.BrandName = "Other";
                     otherBookingInfo.BookingQty = Math.Round(otherGrandTotalQty);
-                    otherBookingInfo.AvgPrice = Math.Round(otherGrandTotal / otherCount);
+                    otherBookingInfo.AvgPrice = Math.Round(otherGrandGrandTotal / grandTotalQty); // Math.Round(otherGrandTotal / otherCount);
                     otherBookingInfo.IsConfirmed = 2;
                     otherBookingInfo.BookingType = (int)Constants.BookingType.IsOther;
                     tblBookingsTOList.Add(otherBookingInfo);
