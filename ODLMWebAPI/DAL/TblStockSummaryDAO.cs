@@ -400,7 +400,8 @@ namespace ODLMWebAPI.DAL
                                         " ) As bookStock " +
                                         " ON CAST(stockInfo.createdOn as date) = CAST(bookStock.createdOn as date) " +
                                         " left join (select sum(balanceStock ) as PendingStock,stockSummaryId from tblStockDetails group by stockSummaryId  ) as PendingStock " +
-                                        "   on PendingStock.stockSummaryId=stockInfo.idStockSummary  ";
+                                        "   on PendingStock.stockSummaryId=stockInfo.idStockSummary " +
+                                        " order by stockInfo.createdOn desc ";
 
 
                 cmdSelect.Connection = conn;
@@ -479,8 +480,9 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = "select stock.updatedOn, stock.updatedBy, u.userDisplayName from tblStockSummary stock "+
-                                        " LEFT JOIN tblUser u on u.idUser = stock.updatedBy ";
+                cmdSelect.CommandText = "select  top 1 stock.updatedOn, stock.updatedBy, u.userDisplayName from tblStockSummary stock " +
+                                        " LEFT JOIN tblUser u on u.idUser = stock.updatedBy " +
+                                        "  where updatedOn is not null order by updatedOn desc";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
