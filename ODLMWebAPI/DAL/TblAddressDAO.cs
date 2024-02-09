@@ -321,6 +321,7 @@ namespace ODLMWebAPI.DAL
                                 " ,[areaName]" +
                                 " ,[villageName]" +
                                 " ,[comments]" +
+                                " ,isAddrVisible  " +
                                 " )" +
                     " VALUES (" +
                                 "  @TalukaId " +
@@ -334,7 +335,8 @@ namespace ODLMWebAPI.DAL
                                 " ,@StreetName " +
                                 " ,@AreaName " +
                                 " ,@VillageName " +
-                                " ,@Comments " + 
+                                " ,@Comments" +
+                                " ,@isAddrVisible  " + 
                                 " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -353,6 +355,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@AreaName", System.Data.SqlDbType.NVarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblAddressTO.AreaName);
             cmdInsert.Parameters.Add("@VillageName", System.Data.SqlDbType.NVarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblAddressTO.VillageName);
             cmdInsert.Parameters.Add("@Comments", System.Data.SqlDbType.NVarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue( tblAddressTO.Comments);
+            cmdInsert.Parameters.Add("@isAddrVisible", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblAddressTO.IsAddrVisible);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {

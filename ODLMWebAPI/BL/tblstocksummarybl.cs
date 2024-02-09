@@ -222,58 +222,58 @@ namespace ODLMWebAPI.BL
 
                 #region consuption details
 
-                // String sqlCmd = "DELETE FROM tblStockConsumption";
+                 String sqlCmd = "DELETE FROM tblStockConsumption";
                 // Add By Samadhan 20 Jan2023 Delete Todays Stock 
-                String sqlCmd = "DELETE FROM tblStockConsumption where cast(createdOn as date) =cast (GETDATE() as date)";
+                //String sqlCmd = "DELETE FROM tblStockConsumption where cast(createdOn as date) =cast (GETDATE() as date)";
                 result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
                 if (result == -2)
                 {
                     throw new Exception("Error while deleteing the stock consumption records");
                 }
 
-                //sqlCmd = "DBCC CHECKIDENT ('[tblStockConsumption]', RESEED, 0);";
-                //result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
-                //if (result == -2)
-                //{
-                //    throw new Exception("Error while deleteing the stock consumption records");
-                //}
+                sqlCmd = "DBCC CHECKIDENT ('[tblStockConsumption]', RESEED, 0);";
+                result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
+                if (result == -2)
+                {
+                    throw new Exception("Error while deleteing the stock consumption records");
+                }
 
                 #endregion
 
                 #region  Stock Details
                 // Add By Samadhan 20 Jan2023 Delete Todays Stock 
-                //sqlCmd = "DELETE FROM tblStockDetails";
-                sqlCmd = "DELETE FROM tblStockDetails where cast(createdOn as date) =cast (GETDATE() as date)";
+                sqlCmd = "DELETE FROM tblStockDetails";
+                //sqlCmd = "DELETE FROM tblStockDetails where cast(createdOn as date) =cast (GETDATE() as date)";
                 result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
                 if (result == -2)
                 {
                     throw new Exception("Error while deleteing the stock detials records");
                 }
-                //sqlCmd = "DBCC CHECKIDENT ('[tblStockDetails]', RESEED, 0);";
-                //result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
-                //if (result == -2)
-                //{
-                //    throw new Exception("Error while deleteing the stock detials records");
-                //}
+                sqlCmd = "DBCC CHECKIDENT ('[tblStockDetails]', RESEED, 0);";
+                result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
+                if (result == -2)
+                {
+                    throw new Exception("Error while deleteing the stock detials records");
+                }
 
                 #endregion
 
                 #region Stock Summary
                 // Add By Samadhan 20 Jan2023 Delete Todays Stock 
-                // sqlCmd = "DELETE FROM tblStockSummary";
-                sqlCmd = "DELETE FROM tblStockSummary where cast(createdOn as date) =cast (GETDATE() as date)";
+                 sqlCmd = "DELETE FROM tblStockSummary";
+                //sqlCmd = "DELETE FROM tblStockSummary where cast(createdOn as date) =cast (GETDATE() as date)";
                 result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
                 if (result == -2)
                 {
                     throw new Exception("Error while deleteing the stock summary records");
                 }
 
-                //sqlCmd = "DBCC CHECKIDENT ('[tblStockSummary]', RESEED, 0);";
-                //result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
-                //if (result == -2)
-                //{
-                //    throw new Exception("Error while deleteing the stock summary records");
-                //}
+                sqlCmd = "DBCC CHECKIDENT ('[tblStockSummary]', RESEED, 0);";
+                result = _iDimensionBL.ExecuteGivenCommand(sqlCmd, conn, tran);
+                if (result == -2)
+                {
+                    throw new Exception("Error while deleteing the stock summary records");
+                }
 
                 TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_TODAYS_BOOKING_OPENING_BALANCE);
                 tblConfigParamsTO.ConfigParamVal = "0";

@@ -633,6 +633,7 @@ namespace ODLMWebAPI.BL
                         TblAddressTO addressTO = tblOrganizationTO.AddressList[i];
                         addressTO.CreatedBy = tblOrganizationTO.CreatedBy;
                         addressTO.CreatedOn = tblOrganizationTO.CreatedOn;
+                        addressTO.IsAddrVisible = 1;
                         if (addressTO.CountryId == 0)
                             addressTO.CountryId = Constants.DefaultCountryID;
 

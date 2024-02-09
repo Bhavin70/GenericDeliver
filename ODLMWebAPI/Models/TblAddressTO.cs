@@ -79,6 +79,10 @@ namespace ODLMWebAPI.Models
             get { return createdOn; }
             set { createdOn = value; }
         }
+        public int IsAddrVisible
+        {
+            get;set;
+        }
         public String PlotNo
         {
             get { return plotNo; }
