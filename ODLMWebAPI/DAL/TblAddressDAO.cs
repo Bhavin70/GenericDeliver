@@ -342,8 +342,8 @@ namespace ODLMWebAPI.DAL
 
             //cmdInsert.Parameters.Add("@IdAddr", System.Data.SqlDbType.Int).Value = tblAddressTO.IdAddr;
             cmdInsert.Parameters.Add("@TalukaId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblAddressTO.TalukaId);
-            cmdInsert.Parameters.Add("@DistrictId", System.Data.SqlDbType.Int).Value = tblAddressTO.DistrictId;
-            cmdInsert.Parameters.Add("@StateId", System.Data.SqlDbType.Int).Value = tblAddressTO.StateId;
+            cmdInsert.Parameters.Add("@DistrictId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblAddressTO.DistrictId);
+            cmdInsert.Parameters.Add("@StateId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblAddressTO.StateId);
             cmdInsert.Parameters.Add("@CountryId", System.Data.SqlDbType.Int).Value = tblAddressTO.CountryId;
             cmdInsert.Parameters.Add("@Pincode", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblAddressTO.Pincode);
             cmdInsert.Parameters.Add("@CreatedBy", System.Data.SqlDbType.Int).Value = tblAddressTO.CreatedBy;
