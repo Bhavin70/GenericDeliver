@@ -1859,7 +1859,32 @@ namespace ODLMWebAPI.Controllers
             }
         }
 
+        [Route("GetDistictWiseDispatchData")]
+        [HttpGet]
+        public List<TblInvoiceRptTO> GetDistictWiseDispatchData(string fromDate, string toDate)
+        {
+            DateTime frmDt = DateTime.MinValue;
+            DateTime toDt = DateTime.MinValue;
+            if (Constants.IsDateTime(fromDate))
+            {
+                frmDt = Convert.ToDateTime(fromDate);
+            }
+            if (Constants.IsDateTime(toDate))
+            {
+                toDt = Convert.ToDateTime(toDate);
+            }
+            return _iTblInvoiceBL.GetDistictWiseDispatchDataC(frmDt, toDt,1);
+        }
 
-
+        [Route("GetAllDistictWiseDispatchData")]
+        [HttpGet]
+        public ResultMessage GetAllDistictWiseDispatchData()
+        {
+            var today = DateTime.Today;
+            DateTime frmDt = new DateTime(today.Year, today.Month, 1);
+            DateTime toDt = frmDt.AddMonths(1).AddDays(-1);
+           
+            return _iTblInvoiceBL.GetDistictWiseDispatchData(frmDt, toDt,2);
+        }
     }
 }

@@ -26,7 +26,9 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblInvoiceTO> SelectInvoiceListFromLoadingSlipIds(String loadingSlipIds, SqlConnection conn, SqlTransaction tran);
         ResultMessage  SelectAllRptInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
         ResultMessage GetRptInvoiceNCListForVasudha(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
-        ResultMessage SelectAllRptNCList(DateTime frmDt, DateTime toDt);        
+        ResultMessage SelectAllRptNCList(DateTime frmDt, DateTime toDt);
+        ResultMessage GetDistictWiseDispatchData(DateTime frmDt, DateTime toDt,int reportDataType);
+        List<TblInvoiceRptTO> GetDistictWiseDispatchDataC(DateTime frmDt, DateTime toDt, int reportDataType);
         List<TblInvoiceRptTO> SelectInvoiceExportList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
         List<TblInvoiceRptTO> SelectHsnExportList(DateTime frmDt, DateTime toDt, int isConfirm,int fromOrgId);
         List<TblInvoiceRptTO> SelectSalesInvoiceListForReport(DateTime frmDt, DateTime toDt, int isConfirm,int fromOrgId);

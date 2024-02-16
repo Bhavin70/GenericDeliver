@@ -1882,6 +1882,113 @@ namespace ODLMWebAPI.BL
             return resultMessage;
         }
 
+        public ResultMessage GetDistictWiseDispatchData(DateTime frmDt, DateTime toDt,int reportDataType)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            int Lresult = 0;
+            try
+            {
+                List<TblInvoiceRptTO> TblInvoiceRptTOList = new List<TblInvoiceRptTO>();
+                TblInvoiceRptTOList = _iTblInvoiceDAO.GetDistictWiseDispatchData(frmDt, toDt,reportDataType);
+                if (TblInvoiceRptTOList != null && TblInvoiceRptTOList.Count > 0)
+                {
+                    // Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", "TblInvoiceRptTOList not null and Count > 0 ");
+                    ExcelPackage excelPackage = new ExcelPackage();
+                    int cellRow = 2;
+                    excelPackage = new ExcelPackage();
+                    string minDate = TblInvoiceRptTOList.Min(ele => ele.InvDate).ToString("ddMMyy");
+                    string maxDate = TblInvoiceRptTOList.Max(ele => ele.InvDate).ToString("ddMMyy");
+
+
+
+                    #region Excel Column Prepareration
+                    ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add(Constants.ExcelSheetName);
+
+                    excelWorksheet.Cells[1, 1].Value = "SrNo";
+                    excelWorksheet.Cells[1, 2].Value = "State";
+                    excelWorksheet.Cells[1, 3].Value = "District";
+                    excelWorksheet.Cells[1, 4].Value = "Invoice Qty";
+                    excelWorksheet.Cells[1, 5].Value = "Confirm ";
+                    excelWorksheet.Cells[1, 6].Value = "Not Confirm";;
+
+                    excelWorksheet.Cells[1, 1, 1, 6].Style.Font.Bold = true;
+                    #endregion
+                    for (int i = 0; i < TblInvoiceRptTOList.Count; i++)
+                    {
+                        excelWorksheet.Cells[cellRow, 1].Value = TblInvoiceRptTOList[i].SrNo;
+                        excelWorksheet.Cells[cellRow, 2].Value = TblInvoiceRptTOList[i].BuyerState ;
+                        excelWorksheet.Cells[cellRow, 3].Value = TblInvoiceRptTOList[i].BuyerDistrict;
+                        excelWorksheet.Cells[cellRow, 4].Value = TblInvoiceRptTOList[i].VehicleNo;
+                        excelWorksheet.Cells[cellRow, 5].Value = TblInvoiceRptTOList[i].Size;
+                        excelWorksheet.Cells[cellRow, 6].Value = Math.Round(TblInvoiceRptTOList[i].NetWt, 2);
+                        cellRow++;
+
+
+                        using (ExcelRange range = excelWorksheet.Cells[1, 1, cellRow, 21])
+                        {
+                            range.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                            range.Style.Font.Name = "Times New Roman";
+                            range.Style.Font.Size = 10;
+                        }
+                    }
+
+                    excelWorksheet.Protection.IsProtected = true;
+                    excelPackage.Workbook.Protection.LockStructure = true;
+                    #region Upload File to Azure
+
+                    // Create azure storage  account connection.
+                    CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_iConnectionString.GetConnectionString(Constants.AZURE_CONNECTION_STRING));
+
+                    // Create the blob client.
+                    CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+
+                    // Retrieve reference to a target container.
+                    CloudBlobContainer container = blobClient.GetContainerReference(Constants.AzureSourceContainerName);
+
+                    String fileName = Constants.ExcelFileNameForNCRpt + _iCommon.ServerDateTime.ToString("ddMMyyyyHHmmss") + "-" + minDate + "-" + maxDate + "-R" + ".xlsx";
+                    CloudBlockBlob blockBlob = container.GetBlockBlobReference(fileName);
+
+                    var fileStream = excelPackage.GetAsByteArray();
+
+                    Task t1 = blockBlob.UploadFromByteArrayAsync(fileStream, 0, fileStream.Length);
+
+                    excelPackage.Dispose();
+                    #endregion
+                    resultMessage.DefaultSuccessBehaviour();
+                    return resultMessage;
+
+                }
+                resultMessage.DefaultBehaviour();
+
+            }
+            catch (Exception ex)
+            {
+                Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", ex.ToString());
+                resultMessage.DefaultExceptionBehaviour(ex, "CreateTempInvoiceExcel");
+            }
+            return resultMessage;
+        }
+        public List<TblInvoiceRptTO> GetDistictWiseDispatchDataC(DateTime frmDt, DateTime toDt, int reportDataType)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            int Lresult = 0;
+            try
+            {
+                List<TblInvoiceRptTO> TblInvoiceRptTOList = new List<TblInvoiceRptTO>();
+                TblInvoiceRptTOList = _iTblInvoiceDAO.GetDistictWiseDispatchData(frmDt, toDt, reportDataType);
+                return TblInvoiceRptTOList;
+            }
+            catch (Exception ex)
+            {
+                Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", ex.ToString());
+                resultMessage.DefaultExceptionBehaviour(ex, "CreateTempInvoiceExcel");
+            }
+            return resultMessage;
+        }
         /// <summary>
         /// Vijaymala[06-10-2017] Added To Get Invoice List To Generate Invoice Excel
         /// </summary>

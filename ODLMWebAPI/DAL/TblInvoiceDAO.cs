@@ -1136,6 +1136,67 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public List<TblInvoiceRptTO> GetDistictWiseDispatchData(DateTime frmDt, DateTime toDt, int reportDataType)
+        {
+            int Lresult = 0;
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            string selectQuery = String.Empty;
+            DateTime sysDate = _iCommon.ServerDateTime;
+            string SWhere = "";
+            try
+            {
+                conn.Open();
+                SWhere = "";
+                if (reportDataType == 1)
+                {
+                    SWhere = " and isConfirmed =1 ";
+                }
+                selectQuery = " select tempInvoiceAddress.district,tempInvoiceAddress.state," +
+                    " SUM (tempInvoiceItemDetails.invoiceQty) as QTY , isConfirmed  " +
+                    " From tempInvoice invoice  " +
+                   " LEFT join tempInvoiceAddress on tempInvoiceAddress.invoiceId =invoice.idInvoice " +
+                   " LEFT join dimstate on dimstate.idState =tempInvoiceAddress.stateId " +
+                   " LEFT JOIN dimDistrict on dimDistrict.idDistrict =tempInvoiceAddress.districtId " +
+                   " LEFT JOIN tempInvoiceItemDetails ON tempInvoiceItemDetails.invoiceId =invoice.idInvoice " +
+                   " Where   CAST(invoice.statusDate AS DATETIME) BETWEEN @fromDate AND @toDate "
+                   + "statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED + " " + SWhere + ""+
+                   " GROUP BY tempInvoiceAddress.district,tempInvoiceAddress.state,isConfirmed  " +
+                " UNION ALL " +
+                   " select tempInvoiceAddress.district,tempInvoiceAddress.state," +
+                    " SUM (finalInvoiceItemDetails.invoiceQty) as QTY , isConfirmed  " +
+                    " From finalInvoice invoice  " +
+                   " LEFT join finalInvoiceAddress on finalInvoiceAddress.invoiceId =invoice.idInvoice " +
+                   " LEFT join dimstate on dimstate.idState =finalInvoiceAddress.stateId " +
+                   " LEFT JOIN dimDistrict on dimDistrict.idDistrict =finalInvoiceAddress.districtId " +
+                   " LEFT JOIN finalInvoiceItemDetails ON finalInvoiceItemDetails.invoiceId =invoice.idInvoice " +
+                   " Where   CAST(invoice.statusDate AS DATETIME) BETWEEN @fromDate AND @toDate "
+                   + "statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED + " " + SWhere + "" +
+                   " GROUP BY finalInvoiceAddress.district,finalInvoiceAddress.state,isConfirmed  ";
+                
+                cmdSelect.CommandText = selectQuery;
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+                cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.DateTime).Value = frmDt;
+                cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.DateTime).Value = toDt;
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblInvoiceRptTO> list = ConvertDTToListForRPTDistrict(reader);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                Lresult = InsertNCReportLog("SelectAllRptNCList", ex.ToString());
+                return null;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
         public List<TblInvoiceRptTO> ConvertDTToListForRPTNC(SqlDataReader tblInvoiceRptTODT)
         {
             List<TblInvoiceRptTO> tblInvoiceRPtTOList = new List<TblInvoiceRptTO>();
@@ -1243,7 +1304,55 @@ namespace ODLMWebAPI.DAL
                 return null;
             }
         }
+        public List<TblInvoiceRptTO> ConvertDTToListForRPTDistrict(SqlDataReader tblInvoiceRptTODT)
+        {
+            List<TblInvoiceRptTO> tblInvoiceRPtTOList = new List<TblInvoiceRptTO>();
+            int Lresult = 0;
+            try
+            {
+                if (tblInvoiceRptTODT != null)
+                {
 
+                    while (tblInvoiceRptTODT.Read())
+                    {
+                        TblInvoiceRptTO tblInvoiceRptTONew = new TblInvoiceRptTO();
+                        for (int i = 0; i < tblInvoiceRptTODT.FieldCount; i++)
+                        {
+                            if (tblInvoiceRptTODT.GetName(i).Equals("state"))
+                            {
+                                if (tblInvoiceRptTODT["state"] != DBNull.Value)
+                                    tblInvoiceRptTONew.BuyerState = Convert.ToString(tblInvoiceRptTODT["state"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("district"))
+                            {
+                                if (tblInvoiceRptTODT["district"] != DBNull.Value)
+                                    tblInvoiceRptTONew.BuyerDistrict  = Convert.ToString(tblInvoiceRptTODT["district"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("QTY"))
+                            {
+                                if (tblInvoiceRptTODT["QTY"] != DBNull.Value)
+                                    tblInvoiceRptTONew.InvoiceQty  = Convert.ToInt32(Convert.ToString(tblInvoiceRptTODT["QTY"]));
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("isConfirmed"))
+                            {
+                                if (tblInvoiceRptTODT["isConfirmed"] != DBNull.Value)
+                                    tblInvoiceRptTONew.IsConfirmed = Convert.ToInt32(tblInvoiceRptTODT["isConfirmed"]);
+                            }
+
+                        }
+                        tblInvoiceRPtTOList.Add(tblInvoiceRptTONew);
+
+                    }
+                }
+
+                return tblInvoiceRPtTOList;
+            }
+            catch (Exception ex)
+            {
+                Lresult = InsertNCReportLog("ConvertDTToListForRPTNC", ex.ToString());
+                return null;
+            }
+        }
         public  int InsertNCReportLog(string FunName, String ErrName)
         {
              String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
