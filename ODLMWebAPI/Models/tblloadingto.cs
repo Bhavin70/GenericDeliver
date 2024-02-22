@@ -400,7 +400,7 @@ namespace ODLMWebAPI.Models
         public string MergeMessage { get => mergeMessage; set => mergeMessage = value; }
         public int IgnoreGrossWt { get => ignoreGrossWt; set => ignoreGrossWt = value; }
 
-
+        public string LrNo { get; set; }
 
 
         #endregion

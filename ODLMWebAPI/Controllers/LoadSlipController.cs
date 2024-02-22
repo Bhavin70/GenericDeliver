@@ -186,10 +186,11 @@ namespace ODLMWebAPI.Controllers
                 ResultMessage resultMessage = new StaticStuff.ResultMessage();
                 var idLoading = data["idLoading"].ToString();
                 var isPrinted = Convert.ToBoolean(data["isPrinted"]);
+                var isShowDealerDtl = Convert.ToBoolean(data["isShowDealerDtl"]);
                 if (idLoading != null)
                 {
                     DateTime serverDate = _iCommon.ServerDateTime;
-                    return _iTblLoadingBL.PrintReport(Convert.ToInt32(idLoading), isPrinted);
+                    return _iTblLoadingBL.PrintReport(Convert.ToInt32(idLoading), isPrinted, isShowDealerDtl);
                 }
                 else
                 {

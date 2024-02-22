@@ -4697,6 +4697,7 @@ namespace ODLMWebAPI.BL {
                 TblLoadingSlipTO tblLoadingSlipTO = tblLoadingTO.LoadingSlipList[i];
                 tblLoadingSlipTO.FromOrgId = tblLoadingTO.FromOrgId;
                 tblLoadingSlipTO.LoadingId = tblLoadingTO.IdLoading;
+                tblLoadingSlipTO.LrNo = tblLoadingTO.LrNo;
                 //Aniket [30-7-2019] added for IOT
                 if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
                 {
@@ -11792,7 +11793,7 @@ namespace ODLMWebAPI.BL {
             return _iTblLoadingDAO.SelectLoadingTOWithDetailsByLoadingNoForSupport(loadingSlipNo);
         }
 
-        public ResultMessage PrintReport(int idLoading, bool isPrinted)
+        public ResultMessage PrintReport(int idLoading, bool isPrinted,bool isShowDealerDtl)
         {
             ResultMessage resultMessage = new ResultMessage();
 
@@ -12175,6 +12176,8 @@ namespace ODLMWebAPI.BL {
 
                     //creating template'''''''''''''''''
                     string templateName = "LoadingSlip";
+                    if (isShowDealerDtl)
+                        templateName = "LoadingSlipDealerDtl";
                     String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
                     String fileName = "Bill-" + DateTime.Now.Ticks;
 

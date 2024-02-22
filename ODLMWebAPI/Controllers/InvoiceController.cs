@@ -381,7 +381,7 @@ namespace ODLMWebAPI.Controllers
         {
             int isConfirm = 0;
             int fromOrgId = 19;
-            return _iTblInvoiceBL.GetRptInvoiceNCListForVasudha(_iCommon.ServerDateTime.Date, _iCommon.ServerDateTime.Date , isConfirm, fromOrgId);
+            return _iTblInvoiceBL.GetRptInvoiceNCListForVasudha(_iCommon.ServerDateTime.Date.AddDays(-1), _iCommon.ServerDateTime.Date.AddDays(-1), isConfirm, fromOrgId);
         }
         [Route("GetRptNCList")]
         [HttpGet]
@@ -1861,19 +1861,17 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetDistictWiseDispatchData")]
         [HttpGet]
-        public List<TblInvoiceRptTO> GetDistictWiseDispatchData(string fromDate, string toDate)
+        public ResultMessage  GetDistictWiseDispatchData(string fromDate, string toDate)
         {
+            ResultMessage resultMessage = new ResultMessage();
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
             if (Constants.IsDateTime(fromDate))
-            {
                 frmDt = Convert.ToDateTime(fromDate);
-            }
             if (Constants.IsDateTime(toDate))
-            {
                 toDt = Convert.ToDateTime(toDate);
-            }
-            return _iTblInvoiceBL.GetDistictWiseDispatchDataC(frmDt, toDt,1);
+            resultMessage= _iTblInvoiceBL.GetDistictWiseDispatchDataC(frmDt, toDt,1);
+            return resultMessage;
         }
 
         [Route("GetAllDistictWiseDispatchData")]

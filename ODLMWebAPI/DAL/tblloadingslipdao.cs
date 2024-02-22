@@ -641,8 +641,12 @@ namespace ODLMWebAPI.DAL
                     //Priyanka [10-03-2018]
                     if (tblLoadingSlipTODT["orcMeasure"] != DBNull.Value)
                         tblLoadingSlipTONew.OrcMeasure = Convert.ToString(tblLoadingSlipTODT["orcMeasure"].ToString());
-
-
+                    try
+                    {
+                        if (tblLoadingSlipTODT["lrNo"] != DBNull.Value)
+                            tblLoadingSlipTONew.LrNo = Convert.ToString(tblLoadingSlipTODT["lrNo"].ToString());
+                    }
+                    catch (Exception ex) { }
                     if (tblLoadingSlipTODT["cnfOrgId"] != DBNull.Value)
                         tblLoadingSlipTONew.CnfOrgId = Convert.ToInt32(tblLoadingSlipTODT["cnfOrgId"].ToString());
 
@@ -1353,6 +1357,7 @@ namespace ODLMWebAPI.DAL
                             " ,[addDiscAmt]" +          //Priyanka [05-07-2018]
                             " ,[isMerge]" +
                             " ,[fromOrgId]" +
+                             " ,[lrNo]" +
                             " )" +
                 " VALUES (" +
                             "  @DealerOrgId " +
@@ -1387,6 +1392,7 @@ namespace ODLMWebAPI.DAL
                             " ,@addDiscAmt" +           //Priyanka [05-07-2018]
                             " ,@IsMerge " +
                               " ,@fromOrgId " +
+                              " ,@lrNo "+
                             " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -1426,6 +1432,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@addDiscAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.AddDiscAmt); //Priyanka [05-07-2018] 
             cmdInsert.Parameters.Add("@IsMerge", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.IsMerge);
             cmdInsert.Parameters.Add("@fromOrgId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.FromOrgId);
+            cmdInsert.Parameters.Add("@lrNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.LrNo);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
@@ -1546,7 +1553,9 @@ namespace ODLMWebAPI.DAL
                             " ,[forAmount] = @forAmount " +
                             " ,[isForAmountIncluded] = @isForAmountIncluded" +
                             " ,[addDiscAmt] = @addDiscAmt" +                //Priyanka [05-07-2018]
-                            " ,[isMerge] = @IsMerge " + 
+                            " ,[isMerge] = @IsMerge " +
+                            " ,[lrNo] = @LrNo " +
+
                             " WHERE [idLoadingSlip] = @IdLoadingSlip ";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -1581,6 +1590,7 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@isForAmountIncluded", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.IsForAmountIncluded);
             cmdUpdate.Parameters.Add("@addDiscAmt", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.AddDiscAmt); //Priyanka [05-07-2018] 
             cmdUpdate.Parameters.Add("@IsMerge", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.IsMerge);
+            cmdUpdate.Parameters.Add("@LrNo", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipTO.LrNo);
 
             return cmdUpdate.ExecuteNonQuery();
         }

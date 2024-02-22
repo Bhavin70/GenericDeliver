@@ -1892,35 +1892,46 @@ namespace ODLMWebAPI.BL
                 TblInvoiceRptTOList = _iTblInvoiceDAO.GetDistictWiseDispatchData(frmDt, toDt,reportDataType);
                 if (TblInvoiceRptTOList != null && TblInvoiceRptTOList.Count > 0)
                 {
+                    List<TblInvoiceRptTO> TblInvoiceRptTOListTemp = new List<TblInvoiceRptTO>();
+                    TblInvoiceRptTOListTemp = TblInvoiceRptTOList.GroupBy(w =>  w.CnfName).FirstOrDefault ().ToList ();
+                    if (TblInvoiceRptTOListTemp != null && TblInvoiceRptTOListTemp.Count > 0)
+                    {
+
+                    }
                     // Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", "TblInvoiceRptTOList not null and Count > 0 ");
                     ExcelPackage excelPackage = new ExcelPackage();
                     int cellRow = 2;
                     excelPackage = new ExcelPackage();
                     string minDate = TblInvoiceRptTOList.Min(ele => ele.InvDate).ToString("ddMMyy");
                     string maxDate = TblInvoiceRptTOList.Max(ele => ele.InvDate).ToString("ddMMyy");
-
-
-
+                    
                     #region Excel Column Prepareration
                     ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add(Constants.ExcelSheetName);
 
                     excelWorksheet.Cells[1, 1].Value = "SrNo";
-                    excelWorksheet.Cells[1, 2].Value = "State";
-                    excelWorksheet.Cells[1, 3].Value = "District";
-                    excelWorksheet.Cells[1, 4].Value = "Invoice Qty";
-                    excelWorksheet.Cells[1, 5].Value = "Confirm ";
-                    excelWorksheet.Cells[1, 6].Value = "Not Confirm";;
+                    excelWorksheet.Cells[1, 2].Value = "Distributor Name";
+                    excelWorksheet.Cells[1, 3].Value = "Dealer Name";
+                    excelWorksheet.Cells[1, 4].Value = "State";
+                    excelWorksheet.Cells[1, 5].Value = "District ";
+                    excelWorksheet.Cells[1, 6].Value = "Taluka";
+                    excelWorksheet.Cells[1, 7].Value = "C Total Qty";
+                    excelWorksheet.Cells[1, 8].Value = "NC Total Qty";
+                    excelWorksheet.Cells[1, 9].Value = "Total Qty";
 
                     excelWorksheet.Cells[1, 1, 1, 6].Style.Font.Bold = true;
                     #endregion
                     for (int i = 0; i < TblInvoiceRptTOList.Count; i++)
                     {
                         excelWorksheet.Cells[cellRow, 1].Value = TblInvoiceRptTOList[i].SrNo;
-                        excelWorksheet.Cells[cellRow, 2].Value = TblInvoiceRptTOList[i].BuyerState ;
-                        excelWorksheet.Cells[cellRow, 3].Value = TblInvoiceRptTOList[i].BuyerDistrict;
-                        excelWorksheet.Cells[cellRow, 4].Value = TblInvoiceRptTOList[i].VehicleNo;
-                        excelWorksheet.Cells[cellRow, 5].Value = TblInvoiceRptTOList[i].Size;
-                        excelWorksheet.Cells[cellRow, 6].Value = Math.Round(TblInvoiceRptTOList[i].NetWt, 2);
+                        excelWorksheet.Cells[cellRow, 2].Value = TblInvoiceRptTOList[i].CnfName ;
+                        excelWorksheet.Cells[cellRow, 3].Value = TblInvoiceRptTOList[i].DealerName;
+                        excelWorksheet.Cells[cellRow, 4].Value = TblInvoiceRptTOList[i].BuyerState;
+                        excelWorksheet.Cells[cellRow, 5].Value = TblInvoiceRptTOList[i].BuyerDistrict;
+                        excelWorksheet.Cells[cellRow, 6].Value = TblInvoiceRptTOList[i].BuyerTaluka;
+                        excelWorksheet.Cells[cellRow, 7].Value = TblInvoiceRptTOList[i].CTotal;
+                        excelWorksheet.Cells[cellRow, 8].Value = TblInvoiceRptTOList[i].NCTotal;
+                        excelWorksheet.Cells[cellRow, 8].Value = TblInvoiceRptTOList[i].NCTotal+ TblInvoiceRptTOList[i].CTotal;
+                        
                         cellRow++;
 
 
@@ -1972,15 +1983,70 @@ namespace ODLMWebAPI.BL
             }
             return resultMessage;
         }
-        public List<TblInvoiceRptTO> GetDistictWiseDispatchDataC(DateTime frmDt, DateTime toDt, int reportDataType)
+        public ResultMessage GetDistictWiseDispatchDataC(DateTime frmDt, DateTime toDt, int reportDataType)
         {
             ResultMessage resultMessage = new ResultMessage();
             int Lresult = 0;
+            List<TblInvoiceRptTO> TblInvoiceRptTOList = new List<TblInvoiceRptTO>();
             try
             {
-                List<TblInvoiceRptTO> TblInvoiceRptTOList = new List<TblInvoiceRptTO>();
                 TblInvoiceRptTOList = _iTblInvoiceDAO.GetDistictWiseDispatchData(frmDt, toDt, reportDataType);
-                return TblInvoiceRptTOList;
+                if(TblInvoiceRptTOList !=null && TblInvoiceRptTOList.Count >0)
+                { 
+                    DataSet printDataSet = new DataSet();
+                    string templateName = "DistrictWiseDispatchReport";
+                    DataTable stockViewDt = Common.ToDataTable(TblInvoiceRptTOList);
+                    if (stockViewDt != null && stockViewDt.Rows.Count > 0)
+                    {
+                        String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
+                         templateFilePath = @"C:\Templates\DistrictWiseDispatchReport.Template.xls";
+                        String fileName = "Bill-" + DateTime.Now.Ticks;
+                        stockViewDt.TableName = "stockViewDt";
+                        printDataSet.Tables.Add(stockViewDt);
+                        //download location for rewrite  template file
+                        String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";
+                        // RunReport runReport = new RunReport();
+                        Boolean IsProduction = true;
+
+                        TblConfigParamsTO tblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName("IS_PRODUCTION_ENVIRONMENT_ACTIVE");
+                        if (tblConfigParamsTO != null)
+                        {
+                            if (Convert.ToInt32(tblConfigParamsTO.ConfigParamVal) == 0)
+                            {
+                                IsProduction = false;
+                            }
+                        }
+                        resultMessage = _iRunReport.GenrateMktgInvoiceReport(printDataSet, templateFilePath, saveLocation, Constants.ReportE.EXCEL_DONT_OPEN, IsProduction);
+                        if (resultMessage.MessageType == ResultMessageE.Information)
+                        {
+                            String filePath = String.Empty;
+
+                            if (resultMessage.Tag != null && resultMessage.Tag.GetType() == typeof(String))
+                            {
+                                filePath = resultMessage.Tag.ToString();
+                                Byte[] bytes = DeleteFile(saveLocation, filePath);
+
+                                if (bytes != null && bytes.Length > 0)
+                                {
+                                    resultMessage.Tag = Convert.ToBase64String(bytes);
+                                }
+                            }
+                            if (resultMessage.MessageType == ResultMessageE.Information)
+                            {
+                                resultMessage.DefaultSuccessBehaviour();
+                            }
+
+                        }
+                        else
+                        {
+                            resultMessage.Text = "Something wents wrong please try again";
+                            resultMessage.DisplayMessage = "Something wents wrong please try again";
+                            resultMessage.Result = 0;
+                        }
+                    }
+                }
+                return resultMessage;
+                    
             }
             catch (Exception ex)
             {
@@ -3552,7 +3618,6 @@ namespace ODLMWebAPI.BL
                 resultMsg.DefaultBehaviour("Sales Engineer name in narration setting not found");
                 ////return resultMsg;
             }
-
             cnfNameInNarration = Convert.ToInt32(temp.ConfigParamVal);
 
             if (cnfNameInNarration == 1)
@@ -3566,7 +3631,7 @@ namespace ODLMWebAPI.BL
                     tblInvoiceTO.Narration = tblLoadingSlipTO.Comment;
                 }
             }
-
+            tblInvoiceTO.LrNumber = loadingSlipTo.LrNo;//Reshma Added For transfer LR no from Loading slip to invoice
 
             //tblInvoiceTO.InvFromOrgId = internalOrgId; //No need to aasign from loading Only use for BMM
             tblInvoiceTO.InvFromOrgId = loadingTO.FromOrgId;  //For 
@@ -3591,8 +3656,6 @@ namespace ODLMWebAPI.BL
                 tblInvoiceTO.BrokerName = tblBookingsTO.BrokerName;
                 tblInvoiceTO.BookingCommentCategoryId  = tblBookingsTO.BookingCommentCategoryId;
                 tblInvoiceTO.BookingTaxCategoryId  = tblBookingsTO.BookingTaxCategoryId;
-
-
             }
             else
             {
@@ -8323,9 +8386,12 @@ namespace ODLMWebAPI.BL
                         headerDT.Columns.Add("DateTime");
                         headerDT.Columns.Add("Date");
                         headerDT.Columns.Add("TotalBundles");
+                        headerDT.Columns.Add("TotalNetWtInKg", typeof(double));
                         headerDT.Columns.Add("TotalNetWt", typeof(double));
                         headerDT.Columns.Add("TotalTareWt", typeof(double));
                         headerDT.Columns.Add("TotalGrossWt", typeof(double));
+                        headerDT.Columns.Add("TotalTareWtInKg", typeof(double));
+                        headerDT.Columns.Add("TotalGrossWtInKg", typeof(double));
                         headerDT.Columns.Add("invoiceNo");
                         //Prajakta[2020-07-14] Added
                         headerDT.Columns.Add("orgFirmName");
@@ -8395,6 +8461,7 @@ namespace ODLMWebAPI.BL
                             headerDT.Rows.Add();
                             double totalBundle = 0;
                             double totalNetWt = 0;
+                            double totalNetWtInKg = 0;
                             //double 
                             headerDT.Rows[0]["InvoiceId"] = invoiceId;
                             //prajkta[25-06-2020]added
@@ -8508,6 +8575,7 @@ namespace ODLMWebAPI.BL
                                     loadingItemDT.Rows[loadItemDTCount]["GrossWt"] = (tblLoadingSlipExtTO.CalcTareWeight + tblLoadingSlipExtTO.LoadedWeight) / 1000;
                                     loadingItemDT.Rows[loadItemDTCount]["NetWt"] = tblLoadingSlipExtTO.LoadedWeight / 1000;
                                     totalNetWt += (tblLoadingSlipExtTO.LoadedWeight / 1000);
+                                    totalNetWtInKg += tblLoadingSlipExtTO.LoadedWeight;
                                     loadingItemDT.Rows[loadItemDTCount]["LoadedWeight"] = tblLoadingSlipExtTO.LoadedWeight;
                                     loadingItemDT.Rows[loadItemDTCount]["MstLoadedBundles"] = tblLoadingSlipExtTO.MstLoadedBundles;
                                     loadingItemDT.Rows[loadItemDTCount]["LoadedBundles"] = tblLoadingSlipExtTO.LoadedBundles;
@@ -8517,9 +8585,14 @@ namespace ODLMWebAPI.BL
                             }
                             headerDT.Rows[0]["TotalBundles"] = totalBundle;
                             headerDT.Rows[0]["TotalNetWt"] = totalNetWt;
+                            headerDT.Rows[0]["TotalNetWtInKg"] = totalNetWtInKg;
                             headerDT.Rows[0]["TotalTareWt"] = (tblInvoiceTO.TareWeight / 1000);
                             headerDT.Rows[0]["TotalGrossWt"] = (tblInvoiceTO.GrossWeight / 1000);
                             headerDT.Rows[0]["TotalNetWt"] = (tblInvoiceTO.NetWeight / 1000);
+
+                            headerDT.Rows[0]["TotalTareWtInKg"] = tblInvoiceTO.TareWeight;
+                            headerDT.Rows[0]["TotalGrossWtInKg"] = tblInvoiceTO.GrossWeight;
+
 
                             if (tblLoadingStatusHistoryTOList != null && tblLoadingStatusHistoryTOList.Count > 0)
                             {

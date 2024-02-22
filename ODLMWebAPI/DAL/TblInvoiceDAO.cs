@@ -1154,27 +1154,31 @@ namespace ODLMWebAPI.DAL
                 {
                     SWhere = " and isConfirmed =1 ";
                 }
-                selectQuery = " select tempInvoiceAddress.district,tempInvoiceAddress.state," +
-                    " SUM (tempInvoiceItemDetails.invoiceQty) as QTY , isConfirmed  " +
+                selectQuery = " select ROW_NUMBER() Over (Order by cnf.firmName) As [SrNo], cnf.firmName  distributorName,invoiceAddr.billingName , invoiceAddr.district,invoiceAddr.state," +
+                    " SUM (tempInvoiceItemDetails.invoiceQty) as QTY , isConfirmed ,taluka,case when invoice.isConfirmed =1 then sum(tempInvoiceItemDetails.invoiceQty ) End as 'CTotal'" +
+                    "  ,case when invoice.isConfirmed =0 then sum(tempInvoiceItemDetails.invoiceQty ) End as 'NCTotal' " +
                     " From tempInvoice invoice  " +
-                   " LEFT join tempInvoiceAddress on tempInvoiceAddress.invoiceId =invoice.idInvoice " +
-                   " LEFT join dimstate on dimstate.idState =tempInvoiceAddress.stateId " +
-                   " LEFT JOIN dimDistrict on dimDistrict.idDistrict =tempInvoiceAddress.districtId " +
-                   " LEFT JOIN tempInvoiceItemDetails ON tempInvoiceItemDetails.invoiceId =invoice.idInvoice " +
+                   " LEFT join tempInvoiceAddress invoiceAddr on invoiceAddr.invoiceId =invoice.idInvoice " +
+                   " LEFT join dimstate on dimstate.idState =invoiceAddr.stateId " +
+                   " LEFT JOIN dimDistrict on dimDistrict.idDistrict =invoiceAddr.districtId " +
+                   " left JOIN tempInvoiceItemDetails ON tempInvoiceItemDetails.invoiceId =invoice.idInvoice" +
+                   "  inner join tblOrganization cnf on invoice .distributorOrgId =cnf.idOrganization  " +
                    " Where   CAST(invoice.statusDate AS DATETIME) BETWEEN @fromDate AND @toDate "
-                   + "statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED + " " + SWhere + ""+
-                   " GROUP BY tempInvoiceAddress.district,tempInvoiceAddress.state,isConfirmed  " +
+                   + " And statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED + " " + SWhere + ""+
+                   " Group by invoiceAddr.district,invoiceAddr.state,isConfirmed ,cnf.firmName ,invoiceAddr.billingName,taluka   " +
                 " UNION ALL " +
-                   " select tempInvoiceAddress.district,tempInvoiceAddress.state," +
-                    " SUM (finalInvoiceItemDetails.invoiceQty) as QTY , isConfirmed  " +
+                    " select ROW_NUMBER() Over (Order by cnf.firmName) As [SrNo], cnf.firmName  distributorName,invoiceAddr.billingName , invoiceAddr.district,invoiceAddr.state," +
+                    " SUM (finalInvoiceItemDetails.invoiceQty) as QTY , isConfirmed ,taluka,case when invoice.isConfirmed =1 then sum(finalInvoiceItemDetails.invoiceQty ) End as 'CTotal'" +
+                    "  ,case when invoice.isConfirmed =0 then sum(finalInvoiceItemDetails.invoiceQty ) End as 'NCTotal' " +
                     " From finalInvoice invoice  " +
-                   " LEFT join finalInvoiceAddress on finalInvoiceAddress.invoiceId =invoice.idInvoice " +
-                   " LEFT join dimstate on dimstate.idState =finalInvoiceAddress.stateId " +
-                   " LEFT JOIN dimDistrict on dimDistrict.idDistrict =finalInvoiceAddress.districtId " +
-                   " LEFT JOIN finalInvoiceItemDetails ON finalInvoiceItemDetails.invoiceId =invoice.idInvoice " +
+                   " LEFT join finalInvoiceAddress invoiceAddr on invoiceAddr.invoiceId =invoice.idInvoice " +
+                   " LEFT join dimstate on dimstate.idState =invoiceAddr.stateId " +
+                   " LEFT JOIN dimDistrict on dimDistrict.idDistrict =invoiceAddr.districtId " +
+                   " LEFT JOIN finalInvoiceItemDetails ON finalInvoiceItemDetails.invoiceId =invoice.idInvoice" +
+                   "   inner join tblOrganization cnf on invoice .distributorOrgId =cnf.idOrganization  " +
                    " Where   CAST(invoice.statusDate AS DATETIME) BETWEEN @fromDate AND @toDate "
-                   + "statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED + " " + SWhere + "" +
-                   " GROUP BY finalInvoiceAddress.district,finalInvoiceAddress.state,isConfirmed  ";
+                   + " And statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED + " " + SWhere + "" +
+                   "  GROUP BY invoiceAddr.district,invoiceAddr.state,isConfirmed ,cnf.firmName ,invoiceAddr.billingName,taluka   ";
                 
                 cmdSelect.CommandText = selectQuery;
                 cmdSelect.Connection = conn;
@@ -1331,17 +1335,60 @@ namespace ODLMWebAPI.DAL
                             if (tblInvoiceRptTODT.GetName(i).Equals("QTY"))
                             {
                                 if (tblInvoiceRptTODT["QTY"] != DBNull.Value)
-                                    tblInvoiceRptTONew.InvoiceQty  = Convert.ToInt32(Convert.ToString(tblInvoiceRptTODT["QTY"]));
+                                    tblInvoiceRptTONew.InvoiceQty  = Convert.ToDecimal(Convert.ToString(tblInvoiceRptTODT["QTY"]));
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("SrNo"))
+                            {
+                                if (tblInvoiceRptTODT["SrNo"] != DBNull.Value)
+                                    tblInvoiceRptTONew.SrNo = Convert.ToString(Convert.ToString(tblInvoiceRptTODT["SrNo"]));
                             }
                             if (tblInvoiceRptTODT.GetName(i).Equals("isConfirmed"))
                             {
                                 if (tblInvoiceRptTODT["isConfirmed"] != DBNull.Value)
                                     tblInvoiceRptTONew.IsConfirmed = Convert.ToInt32(tblInvoiceRptTODT["isConfirmed"]);
                             }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("distributorName"))
+                            {
+                                if (tblInvoiceRptTODT["distributorName"] != DBNull.Value)
+                                    tblInvoiceRptTONew.CnfName = Convert.ToString(tblInvoiceRptTODT["distributorName"]);
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("distributorName"))
+                            {
+                                if (tblInvoiceRptTODT["distributorName"] != DBNull.Value)
+                                    tblInvoiceRptTONew.CnfName = Convert.ToString(tblInvoiceRptTODT["distributorName"]);
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("billingName"))
+                            {
+                                if (tblInvoiceRptTODT["billingName"] != DBNull.Value)
+                                    tblInvoiceRptTONew.DealerName = Convert.ToString(tblInvoiceRptTODT["billingName"]);
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("taluka"))
+                            {
+                                if (tblInvoiceRptTODT["taluka"] != DBNull.Value)
+                                    tblInvoiceRptTONew.BuyerTaluka = Convert.ToString(tblInvoiceRptTODT["taluka"]);
+                            }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("CTotal"))
+                                {
+                                    if (tblInvoiceRptTODT["CTotal"] != DBNull.Value)
+                                        tblInvoiceRptTONew.CTotal = Convert.ToDouble (tblInvoiceRptTODT["CTotal"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("NCTotal"))
+                                {
+                                    if (tblInvoiceRptTODT["NCTotal"] != DBNull.Value)
+                                        tblInvoiceRptTONew.NCTotal = Convert.ToDouble(tblInvoiceRptTODT["NCTotal"]);
+                                }
+                            }
+                            catch (Exception ex) { }
 
+                            
                         }
                         tblInvoiceRPtTOList.Add(tblInvoiceRptTONew);
-
                     }
                 }
 

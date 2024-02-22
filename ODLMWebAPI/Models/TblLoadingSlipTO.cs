@@ -316,7 +316,7 @@ namespace ODLMWebAPI.Models
         public string DriverName { get => driverName; set => driverName = value; }
         public string Comment { get => comment; set => comment = value; }
         public int CdStructureId { get => cdStructureId; set => cdStructureId = value; }
-
+        public string LrNo { get; set; }
         //Sudhir[27-02-2018] Added for the StatusHistoryList
         public List<TblLoadingStatusHistoryTO> LoadingStatusHistoryTOList
         {

@@ -507,7 +507,7 @@ namespace ODLMWebAPI.Models
         }
         public String TermsofDelivery { get => termsofDelivery; set => termsofDelivery = value; }
         public String DeliveryNoteAndNo { get => deliveryNoteAndNo; set => deliveryNoteAndNo = value; }
-
+       // public Int16 SrNo { get; set; }
         public String DispatchDocNo
         {
             get { return dispatchDocNo; }
@@ -612,6 +612,8 @@ namespace ODLMWebAPI.Models
         public decimal TaxableRateMT { get; set; }
         public string prodClassDesc { get; set; }
         public Double ItemTaxablAmt { get; set; }
+        public Double CTotal { get; set; }
+        public Double NCTotal { get; set; }
         #endregion
     }
 }
