@@ -579,6 +579,7 @@ namespace ODLMWebAPI.Models
         public string CDType { get; set; }
         public string AckNo { get; set; }
         public string AckDate { get; set; }
+        public string BrandName { get; set; }
         public string EwbNo { get; set; }
         public string EwbDate { get; set; }
         public string ProDesc { get; set; }
@@ -612,8 +613,33 @@ namespace ODLMWebAPI.Models
         public decimal TaxableRateMT { get; set; }
         public string prodClassDesc { get; set; }
         public Double ItemTaxablAmt { get; set; }
-        public Double CTotal { get; set; }
-        public Double NCTotal { get; set; }
+        public Double AprilCTotal { get; set; }
+        public Double AprilNCTotal { get; set; }
+        public Double MayCTotal { get; set; }
+        public Double MayNCTotal { get; set; }
+        public Double JuneCTotal { get; set; }
+        public Double JuneNCTotal { get; set; }
+        public Double JulyCTotal { get; set; }
+
+        public Double JulyNCTotal { get; set; }
+
+        public Double AugCTotal { get; set; }
+
+        public Double AugNCTotal { get; set; }
+        public Double SeptCTotal { get; set; }
+        public Double SeptNCTotal { get; set; }
+        public Double OctCTotal { get; set; }
+        public Double OctNCTotal { get; set; }
+        public Double NovCTotal { get; set; }
+        public Double NovNCTotal { get; set; }
+        public Double DecCTotal { get; set; }
+        public Double DecNCTotal { get; set; }
+        public Double JanCTotal { get; set; }
+        public Double JanNCTotal { get; set; }
+        public Double FebCTotal { get; set; }
+        public Double FebNCTotal { get; set; }
+        public Double MarchCTotal { get; set; }
+        public Double MarchNCTotal { get; set; }
         #endregion
     }
 }

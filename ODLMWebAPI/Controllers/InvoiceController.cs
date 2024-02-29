@@ -381,7 +381,7 @@ namespace ODLMWebAPI.Controllers
         {
             int isConfirm = 0;
             int fromOrgId = 19;
-            return _iTblInvoiceBL.GetRptInvoiceNCListForVasudha(_iCommon.ServerDateTime.Date.AddDays(-1), _iCommon.ServerDateTime.Date.AddDays(-1), isConfirm, fromOrgId);
+            return _iTblInvoiceBL.GetRptInvoiceNCListForVasudha(_iCommon.ServerDateTime.Date.AddDays (-1), _iCommon.ServerDateTime.Date.AddDays (-1), isConfirm, fromOrgId);
         }
         [Route("GetRptNCList")]
         [HttpGet]

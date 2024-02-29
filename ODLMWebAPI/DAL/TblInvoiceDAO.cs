@@ -1136,6 +1136,71 @@ namespace ODLMWebAPI.DAL
             }
         }
 
+        public List<TblInvoiceRptTO> GetDistictWiseDispatchData(DateTime frmDt, DateTime toDt)
+        {
+            int Lresult = 0;
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                conn.Open();
+               
+                cmdSelect.CommandText = "DistrictWiseSaleReport";
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandTimeout = 120;
+                cmdSelect.CommandType = System.Data.CommandType.StoredProcedure;
+                cmdSelect.Parameters.Add("@FromDate", System.Data.SqlDbType.DateTime).Value = frmDt;
+                cmdSelect.Parameters.Add("@ToDate", System.Data.SqlDbType.DateTime).Value = toDt;
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblInvoiceRptTO> list = ConvertDTToListForRPTDistrict(reader);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                Lresult = InsertNCReportLog("SelectAllRptNCList", ex.ToString());
+                return null;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+        public List<TblInvoiceRptTO> GetDistictWiseDispatchDataAll(DateTime frmDt, DateTime toDt)
+        {
+            int Lresult = 0;
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = "DistrictWiseSaleReportAll";
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.StoredProcedure;
+                cmdSelect.Parameters.Add("@FromDate", System.Data.SqlDbType.DateTime).Value = frmDt;
+                cmdSelect.Parameters.Add("@ToDate", System.Data.SqlDbType.DateTime).Value = toDt;
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblInvoiceRptTO> list = ConvertDTToListForRPTDistrict(reader);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                Lresult = InsertNCReportLog("SelectAllRptNCList", ex.ToString());
+                return null;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
         public List<TblInvoiceRptTO> GetDistictWiseDispatchData(DateTime frmDt, DateTime toDt, int reportDataType)
         {
             int Lresult = 0;
@@ -1332,26 +1397,6 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["district"] != DBNull.Value)
                                     tblInvoiceRptTONew.BuyerDistrict  = Convert.ToString(tblInvoiceRptTODT["district"].ToString());
                             }
-                            if (tblInvoiceRptTODT.GetName(i).Equals("QTY"))
-                            {
-                                if (tblInvoiceRptTODT["QTY"] != DBNull.Value)
-                                    tblInvoiceRptTONew.InvoiceQty  = Convert.ToDecimal(Convert.ToString(tblInvoiceRptTODT["QTY"]));
-                            }
-                            if (tblInvoiceRptTODT.GetName(i).Equals("SrNo"))
-                            {
-                                if (tblInvoiceRptTODT["SrNo"] != DBNull.Value)
-                                    tblInvoiceRptTONew.SrNo = Convert.ToString(Convert.ToString(tblInvoiceRptTODT["SrNo"]));
-                            }
-                            if (tblInvoiceRptTODT.GetName(i).Equals("isConfirmed"))
-                            {
-                                if (tblInvoiceRptTODT["isConfirmed"] != DBNull.Value)
-                                    tblInvoiceRptTONew.IsConfirmed = Convert.ToInt32(tblInvoiceRptTODT["isConfirmed"]);
-                            }
-                            if (tblInvoiceRptTODT.GetName(i).Equals("distributorName"))
-                            {
-                                if (tblInvoiceRptTODT["distributorName"] != DBNull.Value)
-                                    tblInvoiceRptTONew.CnfName = Convert.ToString(tblInvoiceRptTODT["distributorName"]);
-                            }
                             if (tblInvoiceRptTODT.GetName(i).Equals("distributorName"))
                             {
                                 if (tblInvoiceRptTODT["distributorName"] != DBNull.Value)
@@ -1369,24 +1414,369 @@ namespace ODLMWebAPI.DAL
                             }
                             try
                             {
-                                if (tblInvoiceRptTODT.GetName(i).Equals("CTotal"))
+                                if (tblInvoiceRptTODT.GetName(i).Equals("April C Qty"))
                                 {
-                                    if (tblInvoiceRptTODT["CTotal"] != DBNull.Value)
-                                        tblInvoiceRptTONew.CTotal = Convert.ToDouble (tblInvoiceRptTODT["CTotal"]);
+                                    if (tblInvoiceRptTODT["April C Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.AprilCTotal = Convert.ToDouble (tblInvoiceRptTODT["April C Qty"]);
                                 }
                             }
                             catch (Exception ex) { }
                             try
                             {
-                                if (tblInvoiceRptTODT.GetName(i).Equals("NCTotal"))
+                                if (tblInvoiceRptTODT.GetName(i).Equals("April NC Qty"))
                                 {
-                                    if (tblInvoiceRptTODT["NCTotal"] != DBNull.Value)
-                                        tblInvoiceRptTONew.NCTotal = Convert.ToDouble(tblInvoiceRptTODT["NCTotal"]);
+                                    if (tblInvoiceRptTODT["April NC Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.AprilNCTotal = Convert.ToDouble(tblInvoiceRptTODT["April NC Qty"]);
                                 }
                             }
                             catch (Exception ex) { }
 
-                            
+
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("May C Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["May C Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.MayCTotal = Convert.ToDouble(tblInvoiceRptTODT["May C Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("May NC Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["May NC Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.MayNCTotal = Convert.ToDouble(tblInvoiceRptTODT["May NC Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("June C Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["June C Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.JuneCTotal = Convert.ToDouble(tblInvoiceRptTODT["June C Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("June NC Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["June NC Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.MayNCTotal = Convert.ToDouble(tblInvoiceRptTODT["June NC Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("May C Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["May C Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.MayCTotal = Convert.ToDouble(tblInvoiceRptTODT["May C Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("May NC Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["May NC Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.MayNCTotal = Convert.ToDouble(tblInvoiceRptTODT["May NC Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("June C Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["June C Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.JuneCTotal = Convert.ToDouble(tblInvoiceRptTODT["June C Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("June NC Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["June NC Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.JuneNCTotal = Convert.ToDouble(tblInvoiceRptTODT["June NC Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("July C Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["July C Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.JulyCTotal = Convert.ToDouble(tblInvoiceRptTODT["July C Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("July NC Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["July NC Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.JulyNCTotal = Convert.ToDouble(tblInvoiceRptTODT["July NC Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Aug C Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Aug C Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.JulyCTotal = Convert.ToDouble(tblInvoiceRptTODT["Aug C Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Aug NC Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Aug NC Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.JulyNCTotal = Convert.ToDouble(tblInvoiceRptTODT["Aug NC Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Sept C Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Sept C Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.SeptCTotal = Convert.ToDouble(tblInvoiceRptTODT["Sept C Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Sept NC Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Sept NC Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.SeptNCTotal = Convert.ToDouble(tblInvoiceRptTODT["Sept NC Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Oct C Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Oct C Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.OctCTotal = Convert.ToDouble(tblInvoiceRptTODT["Oct C Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Oct NC Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Oct NC Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.OctNCTotal = Convert.ToDouble(tblInvoiceRptTODT["Oct NC Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Nov C Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Nov C Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.NovCTotal = Convert.ToDouble(tblInvoiceRptTODT["Nov C Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Nov NC Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Nov NC Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.NovNCTotal = Convert.ToDouble(tblInvoiceRptTODT["Nov NC Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Dec C Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Dec C Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.DecCTotal = Convert.ToDouble(tblInvoiceRptTODT["Dec C Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Dec NC Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Dec NC Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.DecNCTotal = Convert.ToDouble(tblInvoiceRptTODT["Dec NC Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Jan C Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Jan C Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.JanCTotal = Convert.ToDouble(tblInvoiceRptTODT["Jan C Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Jan NC Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Jan NC Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.JanNCTotal = Convert.ToDouble(tblInvoiceRptTODT["Jan NC Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Feb C Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Feb C Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.FebCTotal = Convert.ToDouble(tblInvoiceRptTODT["Feb C Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Feb NC Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Feb NC Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.FebNCTotal = Convert.ToDouble(tblInvoiceRptTODT["Feb NC Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("March C Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["March C Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.MarchCTotal = Convert.ToDouble(tblInvoiceRptTODT["March C Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("March Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["March Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.MarchCTotal = Convert.ToDouble(tblInvoiceRptTODT["March Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("April Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["April Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.AprilCTotal = Convert.ToDouble(tblInvoiceRptTODT["April Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("May Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["May Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.MayCTotal = Convert.ToDouble(tblInvoiceRptTODT["May Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("June Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["June Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.JuneCTotal = Convert.ToDouble(tblInvoiceRptTODT["June Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("July Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["July Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.JulyCTotal = Convert.ToDouble(tblInvoiceRptTODT["July Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("August Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["August Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.AugCTotal = Convert.ToDouble(tblInvoiceRptTODT["August Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Sept Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Sept Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.SeptCTotal = Convert.ToDouble(tblInvoiceRptTODT["Sept Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Oct Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Oct Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.OctCTotal = Convert.ToDouble(tblInvoiceRptTODT["Oct Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Nov Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Nov Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.NovCTotal = Convert.ToDouble(tblInvoiceRptTODT["Nov Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Dec Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Dec Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.DecCTotal = Convert.ToDouble(tblInvoiceRptTODT["Dec Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Jan Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Jan Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.JanCTotal = Convert.ToDouble(tblInvoiceRptTODT["Jan Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("Feb Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["Feb Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.FebCTotal = Convert.ToDouble(tblInvoiceRptTODT["Feb Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
                         }
                         tblInvoiceRPtTOList.Add(tblInvoiceRptTONew);
                     }
@@ -2198,6 +2588,16 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["prodClassDesc"] != DBNull.Value)
                                     tblInvoiceRptTONew.prodClassDesc = Convert.ToString(tblInvoiceRptTODT["prodClassDesc"].ToString());
                             }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("brandName"))
+                                {
+                                    if (tblInvoiceRptTODT["brandName"] != DBNull.Value)
+                                        tblInvoiceRptTONew.BrandName = Convert.ToString(tblInvoiceRptTODT["brandName"].ToString());
+                                }
+                            }
+                            catch (Exception ex) { };
+
                             //itemTaxablAmt
                             if (tblInvoiceRptTODT.GetName(i).Equals("itemTaxablAmt"))
                             {
@@ -2326,7 +2726,7 @@ namespace ODLMWebAPI.DAL
                  " invAddrCons.gstinNo as consigneeGstNo,invoiceItem.gstinCodeNo,invoiceItem.prodItemDesc,invoiceItem.invoiceQty,invoiceItem.rate,invoiceItem.basicTotal as basicAmt," +
                  " invoiceItem.taxableAmt,invoiceItem.idInvoiceItem as invoiceItemId,invoiceTax.taxTypeId,invoiceTax.taxAmt,invoiceItem.grandTotal,invoice.createdOn,invoice.vehicleNo," +
                  " freightItem.freightAmt,invoice.statusId,dimState.stateOrUTCode,invoiceItem.otherTaxId,invoice.narration,invoice.isConfirmed,invAddrCons.overdue_ref_id " +
-                 " , invAddrBill.overdue_ref_id as buyer_overdue_ref_id,invoiceItem.overdueTallyRefId ,booking.bookingRate from " +
+                 " , invAddrBill.overdue_ref_id as buyer_overdue_ref_id,invoiceItem.overdueTallyRefId ,booking.bookingRate,brandName from " +
 
                  " (select  invoiceDate, idInvoice, invoiceNo,vehicleNo , invoice.statusDate  , createdOn,isConfirmed,statusId,narration,invFromOrgId from tempInvoice invoice " +
                  " INNER JOIN tempInvoiceAddress invoiceAdd On invoice.idInvoice = invoiceAdd.invoiceId)invoice " +
@@ -2360,6 +2760,7 @@ namespace ODLMWebAPI.DAL
 
                 " LEFT JOIN tempLoadingSlipExt lExt ON lExt.idLoadingSlipExt = invoiceItem.loadingSlipExtId " +
                 " LEFT JOIN tblBookings booking ON lExt.bookingId = booking.idBooking " +
+                "   LEFT JOIN dimBrand on booking.brandId =dimBrand .idBrand  " +
 
                 //" where DAY(invoice.invoiceDate) = " + sysDate.Day + " AND MONTH(invoice.invoiceDate) = " + sysDate.Month + " AND YEAR(invoice.invoiceDate) = " + sysDate.Year;
 
@@ -2372,7 +2773,7 @@ namespace ODLMWebAPI.DAL
                  " invAddrCons.gstinNo as consigneeGstNo,invoiceItem.gstinCodeNo,invoiceItem.prodItemDesc,invoiceItem.invoiceQty,invoiceItem.rate,invoiceItem.basicTotal as basicAmt," +
                  " invoiceItem.taxableAmt,invoiceItem.idInvoiceItem as invoiceItemId,invoiceTax.taxTypeId,invoiceTax.taxAmt,invoiceItem.grandTotal,invoice.createdOn,invoice.vehicleNo," +
                  " freightItem.freightAmt,invoice.statusId,dimState.stateOrUTCode,invoiceItem.otherTaxId,invoice.narration,invoice.isConfirmed ,invAddrCons.overdue_ref_id " +
-                 " , invAddrBill.overdue_ref_id as buyer_overdue_ref_id,invoiceItem.overdueTallyRefId ,booking.bookingRate from " +
+                 " , invAddrBill.overdue_ref_id as buyer_overdue_ref_id,invoiceItem.overdueTallyRefId ,booking.bookingRate,brandName from " +
 
                  " (select  invoiceDate, idInvoice, invoiceNo,vehicleNo , invoice.statusDate  , createdOn,isConfirmed,statusId,narration,invFromOrgId from finalInvoice invoice " +
                  " INNER JOIN finalInvoiceAddress invoiceAdd On invoice.idInvoice = invoiceAdd.invoiceId)invoice " +
@@ -2406,7 +2807,8 @@ namespace ODLMWebAPI.DAL
 
 
                  " LEFT JOIN tempLoadingSlipExt lExt ON lExt.idLoadingSlipExt = invoiceItem.loadingSlipExtId " +
-                 " LEFT JOIN tblBookings booking ON lExt.bookingId = booking.idBooking ";
+                 " LEFT JOIN tblBookings booking ON lExt.bookingId = booking.idBooking " +
+                 "  LEFT JOIN dimBrand on booking.brandId =dimBrand .idBrand  ";
                 //chetan[13-feb-2020] added for find data from org id
                 String formOrgIdCondtion = String.Empty;
                 if (fromOrgId > 0)
@@ -2519,7 +2921,7 @@ namespace ODLMWebAPI.DAL
                    "else itemDetails.prodItemDesc end) + '(' + 'Intra-State' + ')' else  (case when isnull(lExt.prodCatId,0)= 1 then 'TMT BAR' " +
                    "when isnull(lExt.prodCatId,0)= 2 then 'Threaded Bars' else itemDetails.prodItemDesc end ) +'(' + 'Inter-State' + ')'   end ) end ) as salesLedgerName " +
                      " ,'TAXABLE FREIGHT OUTWARD' as Freight_GL,'Insurance on Sale (HSN 997136)' as Insurance_GL,'TCS 206C(1H)' as TCS_GL  ,concat   (  'M.S.' , dimProdCat.prodCateDesc   ) As ProdSpec " +
-                     ",lExt .taxableRateMT,p.prodClassDesc,itemDetails.taxableAmt  itemTaxablAmt  " +
+                     ",lExt .taxableRateMT,p.prodClassDesc,itemDetails.taxableAmt  itemTaxablAmt ,brandName " +
                      " FROM tempInvoice invoice " +
                     " LEFT JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.txnAddrTypeId, " +
                     " invAddrB.gstinNo, invAddrB.state as stateName ,orgB.overdue_ref_id,invAddrB.address as BuyerAddress  ,invAddrB.taluka as BuyerTaluka,invAddrB.district as BuyerDistict,Cntry.countryName as  BuyercountryName,invAddrB.pinCode as BuyerPincode  from tempInvoiceAddress invAddrB " +
@@ -2541,6 +2943,7 @@ namespace ODLMWebAPI.DAL
                     " LEFT JOIN tempLoadingSlipExt lExt ON lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId " +
                      " LEFT JOIN tempLoadingSlipDtl LoadingSlipDtl on LoadingSlipDtl.loadingSlipId=invoice.loadingSlipId "+
                     " LEFT JOIN tblBookings booking ON LoadingSlipDtl.bookingId = booking.idBooking " +
+                    " LEFT JOIN dimBrand on booking.brandId =dimBrand .idBrand " +
                     " LEFT JOIN  tblProdGstCodeDtls prodGstCodeDtl on prodGstCodeDtl.idProdGstCode = itemDetails.prodGstCodeId " +
                     " LEFT JOIN tblItemTallyRefDtls ON ISNULL(prodGstCodeDtl.prodCatId,0) =  ISNULL(tblItemTallyRefDtls.prodCatId,0) AND" +
                     " ISNULL(prodGstCodeDtl.prodSpecId,0) = ISNULL(tblItemTallyRefDtls.prodSpecId,0) AND " +
@@ -2601,7 +3004,7 @@ namespace ODLMWebAPI.DAL
                   "when isnull(lExt.prodCatId,0)= 2 then 'Threaded Bars' else itemDetails.prodItemDesc end ) +'(' + 'Inter-State' + ')'   end ) end ) as salesLedgerName " +
 
                     " ,'TAXABLE FREIGHT OUTWARD' as Freight_GL,'Insurance on Sale (HSN 997136)' as Insurance_GL,'TCS 206C(1H)' as TCS_GL ,concat   (  'M.S.' , dimProdCat.prodCateDesc   ) As ProdSpec" +
-                    "  ,lExt .taxableRateMT,p.prodClassDesc  ,itemDetails.taxableAmt  itemTaxablAmt   " +
+                    "  ,lExt .taxableRateMT,p.prodClassDesc  ,itemDetails.taxableAmt  itemTaxablAmt ,brandName  " +
                     " FROM finalInvoice invoice " +
 
                     " LEFT JOIN(select invAddrB.invoiceId, invAddrB.billingName, invAddrB.txnAddrTypeId, " +
@@ -2624,7 +3027,8 @@ namespace ODLMWebAPI.DAL
                     " AND itemDetails.otherTaxId is  NULL" +
                     " LEFT JOIN finalLoadingSlipExt lExt ON lExt.idLoadingSlipExt = itemDetails.loadingSlipExtId " +
                     "  LEFT JOIN finalLoadingSlipDtl LoadingSlipDtl on LoadingSlipDtl.loadingSlipId = invoice.loadingSlipId" +
-                    " LEFT JOIN tblBookings booking ON lExt.bookingId = booking.idBooking " +
+                    " LEFT JOIN tblBookings booking ON lExt.bookingId = booking.idBooking  " +
+                    "  LEFT JOIN dimBrand on booking.brandId =dimBrand .idBrand  " +
                     " LEFT JOIN tblProdGstCodeDtls prodGstCodeDtl on prodGstCodeDtl.idProdGstCode = itemDetails.prodGstCodeId " +
                     " LEFT JOIN tblItemTallyRefDtls ON ISNULL(prodGstCodeDtl.prodCatId,0) =  ISNULL(tblItemTallyRefDtls.prodCatId,0) AND" +
                     " ISNULL(prodGstCodeDtl.prodSpecId,0) = ISNULL(tblItemTallyRefDtls.prodSpecId,0) AND " +

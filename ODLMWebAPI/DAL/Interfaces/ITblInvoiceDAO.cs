@@ -22,6 +22,9 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblInvoiceRptTO> SelectAllRptInvoiceList(DateTime frmDt, DateTime toDt, int isConfirm,int fromOrgId);
         List<TblInvoiceRptTO> SelectAllRptNCList(DateTime frmDt, DateTime toDt);
         List<TblInvoiceRptTO>  GetDistictWiseDispatchData(DateTime frmDt, DateTime toDt,int reportDataType);
+
+        List<TblInvoiceRptTO>  GetDistictWiseDispatchDataAll(DateTime frmDt, DateTime toDt);
+        List<TblInvoiceRptTO> GetDistictWiseDispatchData(DateTime frmDt, DateTime toDt);
         List<TblInvoiceRptTO> ConvertDTToListForRPTInvoice(SqlDataReader tblInvoiceRptTODT);
         List<TblInvoiceRptTO> SelectInvoiceExportList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
         List<TblInvoiceRptTO> SelectHsnExportList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
