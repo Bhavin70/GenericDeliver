@@ -2072,7 +2072,7 @@ namespace ODLMWebAPI.BL
                     if (stockViewDt != null && stockViewDt.Rows.Count > 0)
                     {
                         String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
-                         templateFilePath = @"C:\Templates\DistrictWiseDispatchReport.Template.xls";
+                        // templateFilePath = @"C:\Templates\DistrictWiseDispatchReport.Template.xls";
                         String fileName = "Bill-" + DateTime.Now.Ticks;
                         stockViewDt.TableName = "stockViewDt";
                         printDataSet.Tables.Add(stockViewDt);
