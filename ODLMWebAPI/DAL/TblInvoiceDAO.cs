@@ -1169,7 +1169,70 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
+        public List<TblInvoiceRptTO> GetDistictWiseDispatchDataV2(DateTime frmDt, DateTime toDt)
+        {
+            int Lresult = 0;
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                conn.Open();
 
+                cmdSelect.CommandText = "DistrictWiseSaleReportV2";
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandTimeout = 120;
+                cmdSelect.CommandType = System.Data.CommandType.StoredProcedure;
+                cmdSelect.Parameters.Add("@FromDate", System.Data.SqlDbType.DateTime).Value = frmDt;
+                cmdSelect.Parameters.Add("@ToDate", System.Data.SqlDbType.DateTime).Value = toDt;
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblInvoiceRptTO> list = ConvertDTToListForRPTDistrict(reader);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                Lresult = InsertNCReportLog("SelectAllRptNCList", ex.ToString());
+                return null;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+        public List<TblInvoiceRptTO> GetDistictWiseDispatchDataAllV2(DateTime frmDt, DateTime toDt)
+        {
+            int Lresult = 0;
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader reader = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = "DistrictWiseSaleReportAll_V2";
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.StoredProcedure;
+                cmdSelect.Parameters.Add("@FromDate", System.Data.SqlDbType.DateTime).Value = frmDt;
+                cmdSelect.Parameters.Add("@ToDate", System.Data.SqlDbType.DateTime).Value = toDt;
+                reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblInvoiceRptTO> list = ConvertDTToListForRPTDistrict(reader);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                Lresult = InsertNCReportLog("SelectAllRptNCList", ex.ToString());
+                return null;
+            }
+            finally
+            {
+                if (reader != null) reader.Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
         public List<TblInvoiceRptTO> GetDistictWiseDispatchDataAll(DateTime frmDt, DateTime toDt)
         {
             int Lresult = 0;
@@ -1397,16 +1460,24 @@ namespace ODLMWebAPI.DAL
                                 if (tblInvoiceRptTODT["district"] != DBNull.Value)
                                     tblInvoiceRptTONew.BuyerDistrict  = Convert.ToString(tblInvoiceRptTODT["district"].ToString());
                             }
-                            if (tblInvoiceRptTODT.GetName(i).Equals("distributorName"))
+                            try
                             {
-                                if (tblInvoiceRptTODT["distributorName"] != DBNull.Value)
-                                    tblInvoiceRptTONew.CnfName = Convert.ToString(tblInvoiceRptTODT["distributorName"]);
+                                if (tblInvoiceRptTODT.GetName(i).Equals("distributorName"))
+                                {
+                                    if (tblInvoiceRptTODT["distributorName"] != DBNull.Value)
+                                        tblInvoiceRptTONew.CnfName = Convert.ToString(tblInvoiceRptTODT["distributorName"]);
+                                }
                             }
-                            if (tblInvoiceRptTODT.GetName(i).Equals("billingName"))
+                            catch (Exception ex) { }
+                            try
                             {
-                                if (tblInvoiceRptTODT["billingName"] != DBNull.Value)
-                                    tblInvoiceRptTONew.DealerName = Convert.ToString(tblInvoiceRptTODT["billingName"]);
+                                if (tblInvoiceRptTODT.GetName(i).Equals("billingName"))
+                                {
+                                    if (tblInvoiceRptTODT["billingName"] != DBNull.Value)
+                                        tblInvoiceRptTONew.DealerName = Convert.ToString(tblInvoiceRptTODT["billingName"]);
+                                }
                             }
+                            catch (Exception ex) { }
                             if (tblInvoiceRptTODT.GetName(i).Equals("taluka"))
                             {
                                 if (tblInvoiceRptTODT["taluka"] != DBNull.Value)

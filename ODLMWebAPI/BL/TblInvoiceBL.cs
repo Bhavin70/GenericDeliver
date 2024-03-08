@@ -1882,6 +1882,180 @@ namespace ODLMWebAPI.BL
             return resultMessage;
         }
 
+        public ResultMessage GetDistictWiseDispatchDataV2(DateTime frmDt, DateTime toDt, int reportDataType)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            int Lresult = 0;
+            try
+            {
+                List<TblInvoiceRptTO> TblInvoiceRptTOList = new List<TblInvoiceRptTO>();
+                TblInvoiceRptTOList = _iTblInvoiceDAO.GetDistictWiseDispatchDataAllV2(frmDt, toDt);
+                if (TblInvoiceRptTOList != null && TblInvoiceRptTOList.Count > 0)
+                {
+                    List<TblInvoiceRptTO> TblInvoiceRptTOListTemp = new List<TblInvoiceRptTO>();
+
+                    // Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", "TblInvoiceRptTOList not null and Count > 0 ");
+                    ExcelPackage excelPackage = new ExcelPackage();
+                    int cellRow = 2;
+                    excelPackage = new ExcelPackage();
+                    string minDate = TblInvoiceRptTOList.Min(ele => ele.InvDate).ToString("ddMMyy");
+                    string maxDate = TblInvoiceRptTOList.Max(ele => ele.InvDate).ToString("ddMMyy");
+
+                    #region Excel Column Prepareration
+                    ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add(Constants.ExcelSheetName);
+
+                    excelWorksheet.Cells[1, 1].Value = "SrNo";
+                    //excelWorksheet.Cells[1, 2].Value = "Distributor Name";
+                    //excelWorksheet.Cells[1, 3].Value = "Dealer Name";
+                    excelWorksheet.Cells[1, 2].Value = "State";
+                    excelWorksheet.Cells[1, 3].Value = "District ";
+                    excelWorksheet.Cells[1, 4].Value = "Taluka";
+                    excelWorksheet.Cells[1, 5].Value = "Jan C Total Qty";
+                    excelWorksheet.Cells[1, 6].Value = "Jan NC Total Qty";
+                    excelWorksheet.Cells[1, 7].Value = "Feb C Total Qty";
+                    excelWorksheet.Cells[1, 8].Value = "Feb NC Total Qty";
+                    excelWorksheet.Cells[1, 9].Value = "March C Total Qty";
+                    excelWorksheet.Cells[1, 10].Value = "March NC Total Qty";
+
+                    excelWorksheet.Cells[1, 11].Value = "April C Total Qty";
+                    excelWorksheet.Cells[1, 12].Value = "April NC Total Qty";
+
+                    excelWorksheet.Cells[1, 13].Value = "May C Total Qty";
+                    excelWorksheet.Cells[1, 14].Value = "May NC Total Qty";
+
+                    excelWorksheet.Cells[1, 15].Value = "June C Total Qty";
+                    excelWorksheet.Cells[1, 16].Value = "June NC Total Qty";
+
+                    excelWorksheet.Cells[1, 17].Value = "July C Total Qty";
+                    excelWorksheet.Cells[1, 18].Value = "July NC Total Qty";
+
+                    excelWorksheet.Cells[1, 19].Value = "August C Total Qty";
+                    excelWorksheet.Cells[1, 20].Value = "August NC Total Qty";
+
+                    excelWorksheet.Cells[1, 21].Value = "Sept C Total Qty";
+                    excelWorksheet.Cells[1, 22].Value = "Sept NC Total Qty";
+
+                    excelWorksheet.Cells[1, 23].Value = "Oct C Total Qty";
+                    excelWorksheet.Cells[1, 24].Value = "Oct NC Total Qty";
+
+                    excelWorksheet.Cells[1, 25].Value = "Nov C Total Qty";
+                    excelWorksheet.Cells[1, 26].Value = "Nov NC Total Qty";
+
+                    excelWorksheet.Cells[1, 27].Value = "Dec C Total Qty";
+                    excelWorksheet.Cells[1, 28].Value = "Dec NC Total Qty";
+                    excelWorksheet.Cells[1,29].Value = "Total Qty";
+
+                    excelWorksheet.Cells[1, 1, 1, 29].Style.Font.Bold = true;
+                    #endregion
+
+                    double total = 0;
+                    for (int i = 0; i < TblInvoiceRptTOList.Count; i++)
+                    {
+                        excelWorksheet.Cells[cellRow, 1].Value = TblInvoiceRptTOList.Count+1;
+                        //excelWorksheet.Cells[cellRow, 2].Value = TblInvoiceRptTOList[i].CnfName;
+                        //excelWorksheet.Cells[cellRow, 3].Value = TblInvoiceRptTOList[i].DealerName;
+                        excelWorksheet.Cells[cellRow, 2].Value = TblInvoiceRptTOList[i].BuyerState;
+                        excelWorksheet.Cells[cellRow, 3].Value = TblInvoiceRptTOList[i].BuyerDistrict;
+                        excelWorksheet.Cells[cellRow, 4].Value = TblInvoiceRptTOList[i].BuyerTaluka;
+                        excelWorksheet.Cells[cellRow, 5].Value = TblInvoiceRptTOList[i].JanCTotal;
+                        excelWorksheet.Cells[cellRow, 6].Value = TblInvoiceRptTOList[i].JanNCTotal;
+                        excelWorksheet.Cells[cellRow, 7].Value = TblInvoiceRptTOList[i].FebCTotal;
+                        excelWorksheet.Cells[cellRow, 8].Value = TblInvoiceRptTOList[i].FebNCTotal;
+                        excelWorksheet.Cells[cellRow, 9].Value = TblInvoiceRptTOList[i].MarchCTotal;
+                        excelWorksheet.Cells[cellRow, 10].Value = TblInvoiceRptTOList[i].MarchNCTotal;
+
+                        excelWorksheet.Cells[cellRow, 11].Value = TblInvoiceRptTOList[i].AprilCTotal;
+                        excelWorksheet.Cells[cellRow, 12].Value = TblInvoiceRptTOList[i].AprilNCTotal;
+
+                        excelWorksheet.Cells[cellRow, 13].Value = TblInvoiceRptTOList[i].MayCTotal;
+                        excelWorksheet.Cells[cellRow, 14].Value = TblInvoiceRptTOList[i].MayNCTotal;
+
+                        excelWorksheet.Cells[cellRow, 15].Value = TblInvoiceRptTOList[i].JuneCTotal;
+                        excelWorksheet.Cells[cellRow, 16].Value = TblInvoiceRptTOList[i].JuneNCTotal;
+
+                        excelWorksheet.Cells[cellRow, 17].Value = TblInvoiceRptTOList[i].JulyCTotal;
+                        excelWorksheet.Cells[cellRow, 18].Value = TblInvoiceRptTOList[i].JulyNCTotal;
+
+                        excelWorksheet.Cells[cellRow, 19].Value = TblInvoiceRptTOList[i].AugCTotal;
+                        excelWorksheet.Cells[cellRow, 20].Value = TblInvoiceRptTOList[i].AugNCTotal;
+
+                        excelWorksheet.Cells[cellRow, 21].Value = TblInvoiceRptTOList[i].SeptCTotal;
+                        excelWorksheet.Cells[cellRow, 22].Value = TblInvoiceRptTOList[i].SeptNCTotal;
+
+                        excelWorksheet.Cells[cellRow, 23].Value = TblInvoiceRptTOList[i].OctCTotal;
+                        excelWorksheet.Cells[cellRow, 24].Value = TblInvoiceRptTOList[i].OctNCTotal;
+
+                        excelWorksheet.Cells[cellRow, 25].Value = TblInvoiceRptTOList[i].NovCTotal;
+                        excelWorksheet.Cells[cellRow, 26].Value = TblInvoiceRptTOList[i].NovNCTotal;
+
+                        excelWorksheet.Cells[cellRow, 27].Value = TblInvoiceRptTOList[i].DecCTotal;
+                        excelWorksheet.Cells[cellRow, 28].Value = TblInvoiceRptTOList[i].DecNCTotal;
+                        total = TblInvoiceRptTOList[i].JanCTotal + TblInvoiceRptTOList[i].JanNCTotal +
+                            TblInvoiceRptTOList[i].FebCTotal + TblInvoiceRptTOList[i].FebNCTotal +
+                            TblInvoiceRptTOList[i].MarchCTotal + TblInvoiceRptTOList[i].MarchNCTotal +
+                            TblInvoiceRptTOList[i].AprilCTotal + TblInvoiceRptTOList[i].AprilNCTotal +
+                            TblInvoiceRptTOList[i].MayCTotal + TblInvoiceRptTOList[i].MayNCTotal +
+                            TblInvoiceRptTOList[i].JuneCTotal + TblInvoiceRptTOList[i].JuneNCTotal +
+                            TblInvoiceRptTOList[i].JulyCTotal + TblInvoiceRptTOList[i].JulyNCTotal +
+                            TblInvoiceRptTOList[i].AugCTotal + TblInvoiceRptTOList[i].AugNCTotal +
+                            TblInvoiceRptTOList[i].SeptCTotal + TblInvoiceRptTOList[i].SeptNCTotal +
+                            TblInvoiceRptTOList[i].OctCTotal + TblInvoiceRptTOList[i].OctNCTotal +
+                            TblInvoiceRptTOList[i].NovCTotal + TblInvoiceRptTOList[i].NovNCTotal +
+                            TblInvoiceRptTOList[i].DecCTotal + TblInvoiceRptTOList[i].DecNCTotal;
+
+
+                        excelWorksheet.Cells[cellRow, 29].Value = Math.Round(total, 3);
+
+                        cellRow++;
+
+                        using (ExcelRange range = excelWorksheet.Cells[1, 1, cellRow, 29])
+                        {
+                            range.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            range.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                            range.Style.Font.Name = "Times New Roman";
+                            range.Style.Font.Size = 10;
+                        }
+                    }
+
+                    excelWorksheet.Protection.IsProtected = true;
+                    excelPackage.Workbook.Protection.LockStructure = true;
+                    #region Upload File to Azure
+
+                    // Create azure storage  account connection.
+                    CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_iConnectionString.GetConnectionString(Constants.AZURE_CONNECTION_STRING));
+
+                    // Create the blob client.
+                    CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+
+                    // Retrieve reference to a target container.
+                    CloudBlobContainer container = blobClient.GetContainerReference(Constants.AzureSourceContainerName);
+
+                    String fileName = "DistrictwiseSaleReport_" + _iCommon.ServerDateTime.ToString("ddMMyyyyHHmmss") + "-" + minDate + "-" + maxDate + "-R" + ".xlsx";
+                    CloudBlockBlob blockBlob = container.GetBlockBlobReference(fileName);
+
+                    var fileStream = excelPackage.GetAsByteArray();
+
+                    Task t1 = blockBlob.UploadFromByteArrayAsync(fileStream, 0, fileStream.Length);
+
+                    excelPackage.Dispose();
+                    #endregion
+                    resultMessage.DefaultSuccessBehaviour();
+                    return resultMessage;
+
+                }
+                resultMessage.DefaultBehaviour();
+
+            }
+            catch (Exception ex)
+            {
+                Lresult = _iTblInvoiceDAO.InsertNCReportLog("SelectAllRptNCList", ex.ToString());
+                resultMessage.DefaultExceptionBehaviour(ex, "CreateTempInvoiceExcel");
+            }
+            return resultMessage;
+        }
         public ResultMessage GetDistictWiseDispatchData(DateTime frmDt, DateTime toDt,int reportDataType)
         {
             ResultMessage resultMessage = new ResultMessage();
@@ -2033,7 +2207,7 @@ namespace ODLMWebAPI.BL
                     // Retrieve reference to a target container.
                     CloudBlobContainer container = blobClient.GetContainerReference(Constants.AzureSourceContainerName);
 
-                    String fileName = "DistrictwiseSaleReport_" + _iCommon.ServerDateTime.ToString("ddMMyyyyHHmmss") + "-" + minDate + "-" + maxDate + "-R" + ".xlsx";
+                    String fileName = "DistrictwiseSaleReportAllDetails_" + _iCommon.ServerDateTime.ToString("ddMMyyyyHHmmss") + "-" + minDate + "-" + maxDate + "-R" + ".xlsx";
                     CloudBlockBlob blockBlob = container.GetBlockBlobReference(fileName);
 
                     var fileStream = excelPackage.GetAsByteArray();
@@ -2065,7 +2239,13 @@ namespace ODLMWebAPI.BL
             {
                 TblInvoiceRptTOList = _iTblInvoiceDAO.GetDistictWiseDispatchData(frmDt, toDt);
                 if(TblInvoiceRptTOList !=null && TblInvoiceRptTOList.Count >0)
-                { 
+                {
+                    DataTable stockViewDtV2 =new DataTable();
+                    List<TblInvoiceRptTO> TblInvoiceRptTOListV2 = _iTblInvoiceDAO.GetDistictWiseDispatchDataV2(frmDt, toDt);
+                    if (TblInvoiceRptTOListV2 != null && TblInvoiceRptTOListV2.Count > 0)
+                    {
+                       stockViewDtV2 = Common.ToDataTable(TblInvoiceRptTOList);
+                    }
                     DataSet printDataSet = new DataSet();
                     string templateName = "DistrictWiseDispatchReport";
                     DataTable stockViewDt = Common.ToDataTable(TblInvoiceRptTOList);
@@ -2075,6 +2255,8 @@ namespace ODLMWebAPI.BL
                         // templateFilePath = @"C:\Templates\DistrictWiseDispatchReport.Template.xls";
                         String fileName = "Bill-" + DateTime.Now.Ticks;
                         stockViewDt.TableName = "stockViewDt";
+                        stockViewDtV2.TableName = "stockViewDtV2";
+                        printDataSet.Tables.Add(stockViewDtV2);
                         printDataSet.Tables.Add(stockViewDt);
                         //download location for rewrite  template file
                         String saveLocation = AppDomain.CurrentDomain.BaseDirectory + fileName + ".xls";

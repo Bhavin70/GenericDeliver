@@ -1884,5 +1884,16 @@ namespace ODLMWebAPI.Controllers
            
             return _iTblInvoiceBL.GetDistictWiseDispatchData(frmDt, toDt,2);
         }
+
+        [Route("GetAllDistictWiseDispatchDataV2")]
+        [HttpGet]
+        public ResultMessage GetAllDistictWiseDispatchDataV2()
+        {
+            var today = DateTime.Today;
+            DateTime frmDt = new DateTime(today.Year, today.Month, 1);
+            DateTime toDt = frmDt.AddMonths(1).AddDays(-1);
+
+            return _iTblInvoiceBL.GetDistictWiseDispatchDataV2(frmDt, toDt, 2);
+        }
     }
 }
