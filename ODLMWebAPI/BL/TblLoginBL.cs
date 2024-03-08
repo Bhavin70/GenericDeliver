@@ -99,6 +99,7 @@ namespace ODLMWebAPI.BL
                             List<TblSysEleUserEntitlementsTO> userEntitlementList = _iTblSysEleUserEntitlementsBL.SelectAllTblSysEleUserEntitlementsList(userExistUserTO.IdUser, userExistUserTO.ModuleTOList[k].IdModule);
                             if (userEntitlementList != null && userEntitlementList.Count > 0)
                             {
+                                userEntitlementList = userEntitlementList.Where(x => x.Permission == "RW").ToList();
                                 if (userEntitlementList.Count > 0)
                                 {
                                     var userdashboardpermissionlist = userEntitlementList.Where(w => w.SysEleId == userExistUserTO.ModuleTOList[k].IdSysElement).ToList();
