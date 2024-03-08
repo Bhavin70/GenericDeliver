@@ -3151,7 +3151,14 @@ namespace ODLMWebAPI.BL {
 
             }
             //
-                try
+            // Add By Binal 4 March 2024
+            string isFreightAmtNC = "";
+            TblConfigParamsTO FreightAmtNCTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.Is_Allow_freightAmt_NC_LogingSlip);
+            if (FreightAmtNCTO != null && !String.IsNullOrEmpty(FreightAmtNCTO.ConfigParamVal))
+            {
+                isFreightAmtNC = FreightAmtNCTO.ConfigParamVal;
+            }
+            try
             {
                 conn.Open();
                 tran = conn.BeginTransaction();
@@ -3237,7 +3244,7 @@ namespace ODLMWebAPI.BL {
                                                                    //    return resultMessage;
                                                                    //}
                     }
-
+                   
                     //Vijaymala added[21-06-2018]for new For amount calculation
                     if (tblLoadingSlipTO.IsForAmountIncluded == 1)
                     {
@@ -3604,8 +3611,17 @@ namespace ODLMWebAPI.BL {
                                     if (isTaxInclusive == 0)
                                     {
                                         if (tblLoadingSlipTO.IsConfirmed == 1)
+                                        {
                                             //gstApplicableAmt = rateAfterCD + freightPerMT + parityTO.ExpenseAmt + parityTO.OtherAmt;
-                                            gstApplicableAmt = rateAfterCD + freightPerMT;
+                                            if (isFreightAmtNC == "0")
+                                            {
+                                                gstApplicableAmt = rateAfterCD ;
+                                            }
+                                            else
+                                            {
+                                                gstApplicableAmt = rateAfterCD + freightPerMT;
+                                            }
+                                        }
                                         else
                                             gstApplicableAmt = rateAfterCD;
                                         if (tblBookingsTO.BookingTaxCategoryId == (int)Constants.BookingTaxCategory.Excluding)
@@ -3669,7 +3685,7 @@ namespace ODLMWebAPI.BL {
                                                 gstCodeDtlsTO.TaxPct = 0;
                                             }
                                             Double taxToDivide = 100 + gstCodeDtlsTO.TaxPct;
-
+                                            
                                             double reverseGstBasicAmt = (bookingPrice - cdAmt - orcAmtPerTon + parityAmt + priceSetOff + bvcAmt) + freightPerMT;
                                             gstAmt = reverseGstBasicAmt - ((reverseGstBasicAmt / taxToDivide) * 100);
                                             gstAmt = Math.Round(gstAmt, 2);
@@ -3694,7 +3710,7 @@ namespace ODLMWebAPI.BL {
                                     tblLoadingSlipExtTO.CdApplicableAmt = cdApplicableAmt;
                                     //tblLoadingSlipExtTO.FreExpOtherAmt = freightPerMT + parityTO.ExpenseAmt + parityTO.OtherAmt; Sudhir[23-MARCH-2018] Commented
                                     tblLoadingSlipExtTO.FreExpOtherAmt = freightPerMT + parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
-
+                                    
                                     TblConfigParamsTO tblConfigParamsTempTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_HIDE_NOT_CONFIRM_OPTION);
 
                                     Int32 isHideCorNC = 0;
