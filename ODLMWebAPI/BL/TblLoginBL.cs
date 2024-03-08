@@ -315,6 +315,46 @@ namespace ODLMWebAPI.BL
                     userExistUserTO.FirmNameE = Convert.ToInt16(configParamsTO.ConfigParamVal);
                 }
 
+                #region Dashboard Module icon show on permission basis.
+
+                List<tblModuleHideTo> tblModuleHideTolist = new List<tblModuleHideTo>();
+                if (userExistUserTO.ModuleTOList.Count > 0 && userExistUserTO.ModuleTOList != null)
+                {
+                    for (int k = 0; k < userExistUserTO.ModuleTOList.Count; k++)
+                    {
+                        if (userExistUserTO.ModuleTOList[k].IdSysElement > 0)
+                        {
+                            List<TblSysEleUserEntitlementsTO> userEntitlementList = _iTblSysEleUserEntitlementsBL.SelectAllTblSysEleUserEntitlementsList(userExistUserTO.IdUser, userExistUserTO.ModuleTOList[k].IdModule);
+                            if (userEntitlementList != null && userEntitlementList.Count > 0)
+                            {
+                                userEntitlementList = userEntitlementList.Where(x => x.Permission == "RW").ToList();
+                                if (userEntitlementList.Count > 0)
+                                {
+                                    var userdashboardpermissionlist = userEntitlementList.Where(w => w.SysEleId == userExistUserTO.ModuleTOList[k].IdSysElement).ToList();
+                                    if (userdashboardpermissionlist.Count > 0)
+                                    {
+                                        tblModuleHideTo tblModuleHideToNew = new tblModuleHideTo();
+
+                                        tblModuleHideToNew.ModulehideId = userExistUserTO.ModuleTOList[k].IdModule;
+                                        tblModuleHideToNew.ModulehideName = userExistUserTO.ModuleTOList[k].ModuleName;
+                                        tblModuleHideTolist.Add(tblModuleHideToNew);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (tblModuleHideTolist.Count > 0)
+                {
+                    for (int j = 0; j < tblModuleHideTolist.Count; j++)
+                    {
+                        userExistUserTO.ModuleTOList = userExistUserTO.ModuleTOList.Where(x => x.IdModule != tblModuleHideTolist[j].ModulehideId).ToList();
+                    }
+                    userExistUserTO.ModuleTOList = userExistUserTO.ModuleTOList;
+                }
+                #endregion
+
                 tblUserTO = userExistUserTO;
 
                 resultMessage.MessageType = ResultMessageE.Information;
