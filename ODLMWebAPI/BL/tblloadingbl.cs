@@ -3844,28 +3844,13 @@ namespace ODLMWebAPI.BL
                                         {
                                             if (tblLoadingSlipTO.IsConfirmed == 1)
                                             {
-                                                if (isFreightAmtNC == "1")
-                                                {
-                                                    finalRate = gstApplicableAmt + gstAmt + freightPerMT;
-                                                }
-                                                else
-                                                {
-                                                    finalRate = gstApplicableAmt + gstAmt;
-                                                }
+                                                finalRate = gstApplicableAmt + gstAmt;
                                             }
-                                                
                                             //else
                                             //finalRate = gstApplicableAmt + gstAmt + freightPerMT + parityTO.ExpenskeAmt + parityTO.OtherAmt; Sudhir[23-MARCH-2018] Commented
                                             else
                                             {
-                                                if (isFreightAmtNC == "0" && tblLoadingSlipTO.IsConfirmed == 0)
-                                                {
-                                                    finalRate = gstApplicableAmt + gstAmt + parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
-                                                }
-                                                else
-                                                {
-                                                    finalRate = gstApplicableAmt + gstAmt + freightPerMT + parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
-                                                }
+                                               finalRate = gstApplicableAmt + gstAmt + freightPerMT + parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
                                             }
                                         }
                                         else
