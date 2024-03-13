@@ -3810,14 +3810,7 @@ namespace ODLMWebAPI.BL
                                         if (tblLoadingSlipTO.IsConfirmed == 1)
                                         {
                                             //gstApplicableAmt = rateAfterCD + freightPerMT + parityTO.ExpenseAmt + parityTO.OtherAmt;
-                                            if (isFreightAmtNC == "1")
-                                            {
-                                                gstApplicableAmt = rateAfterCD + freightPerMT;
-                                            }
-                                            else
-                                            {
-                                                gstApplicableAmt = rateAfterCD;
-                                            }
+                                            gstApplicableAmt = rateAfterCD + freightPerMT;
                                         }
                                         else
                                         {
