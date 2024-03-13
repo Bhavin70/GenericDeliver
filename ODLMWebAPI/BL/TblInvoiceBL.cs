@@ -4429,7 +4429,7 @@ namespace ODLMWebAPI.BL
             }
 
             #region loading qty from extra loaded then extra qty minues from booking qty 
-            if (qtyDiffrance != 0)
+            if (qtyDiffrance > 0)
             {
                 tblBookingsTO.BookingQty = tblBookingsTO.BookingQty - qtyDiffrance;
                 result = _iTblBookingsDAO.UpdateBookingPendingQty(tblBookingsTO, conn, tran);
