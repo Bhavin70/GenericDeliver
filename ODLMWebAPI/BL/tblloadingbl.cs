@@ -3843,14 +3843,7 @@ namespace ODLMWebAPI.BL
                                             //finalRate = gstApplicableAmt + gstAmt + freightPerMT + parityTO.ExpenskeAmt + parityTO.OtherAmt; Sudhir[23-MARCH-2018] Commented
                                             else
                                             {
-                                                if (isFreightAmtNC == "0" && tblLoadingSlipTO.IsConfirmed == 0)
-                                                {
-                                                    finalRate = gstApplicableAmt + gstAmt + parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
-                                                }
-                                                else
-                                                {
-                                                    finalRate = gstApplicableAmt + gstAmt + freightPerMT + parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
-                                                }
+                                               finalRate = gstApplicableAmt + gstAmt + freightPerMT + parityDtlTO.ExpenseAmt + parityDtlTO.OtherAmt;
                                             }
                                         }
                                         else
@@ -3942,14 +3935,7 @@ namespace ODLMWebAPI.BL
                                         //freightPerMT = 0;
                                         //gstAmt = 0;
                                     }
-                                    if (isFreightAmtNC == "0" && tblLoadingSlipTO.IsConfirmed == 0)
-                                    {
-                                        rateCalcDesc += " ORC :" + orcAmtPerTon + "|" + " Parity :" + parityAmt + "|" + isNCAmt + " Freight : 0 |" + " GST :" + gstAmt + "|";
-                                    }
-                                    else
-                                    {
-                                        rateCalcDesc += " ORC :" + orcAmtPerTon + "|" + " Parity :" + parityAmt + "|" + isNCAmt + " Freight :" + freightPerMT + "|" + " GST :" + gstAmt + "|";
-                                    }
+                                    rateCalcDesc += " ORC :" + orcAmtPerTon + "|" + " Parity :" + parityAmt + "|" + isNCAmt + " Freight :" + freightPerMT + "|" + " GST :" + gstAmt + "|";
                                     tblLoadingSlipExtTO.RateCalcDesc = rateCalcDesc;
                                     #endregion
 

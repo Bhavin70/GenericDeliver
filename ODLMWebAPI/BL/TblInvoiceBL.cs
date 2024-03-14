@@ -4186,7 +4186,7 @@ namespace ODLMWebAPI.BL
                     }
 
                     tblInvoiceItemDetailsTO.BrandId = loadingSlipExtTo.BrandId;
-                   
+
                     if (loadingSlipTo.IsConfirmed == 0)
                     {
                         TblParitySummaryTO parityTO = _iTblParitySummaryDAO.SelectParitySummaryFromParityDtlId(loadingSlipExtTo.ParityDtlId, conn, tran);
@@ -4597,27 +4597,10 @@ namespace ODLMWebAPI.BL
                 tblInvoiceTO.ExpenseAmt = totalNCExpAmt;
                 tblInvoiceTO.OtherAmt = totalNCOtherAmt;
 
-                string isFreightAmtNC = "";
-                TblConfigParamsTO FreightAmtNCTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName(Constants.Is_Allow_freightAmt_NC_LogingSlip);
-                if (FreightAmtNCTO != null && !String.IsNullOrEmpty(FreightAmtNCTO.ConfigParamVal))
-                {
-                    isFreightAmtNC = FreightAmtNCTO.ConfigParamVal;
-                }
-
-                if (loadingSlipTo.IsFreightIncluded == 1) //if (loadingTO.IsFreightIncluded == 1)
-                {
-                    if (loadingSlipTo.IsConfirmed == 0 && isFreightAmtNC == "0")
-                    {
-                        tblInvoiceTO.FreightAmt = 0; //loadingTO.FreightAmt;
-                    }
-                    else
-                    {
-                        tblInvoiceTO.FreightAmt = totalInvQty * loadingSlipTo.FreightAmt; //loadingTO.FreightAmt;
-                    }
-                }
-
-                //Priyanka [20-07-2018] : Added for SHIVANGI.
-                //Sanjay [218-07-04] Tax Calculations Inclusive Of Taxes Or Exclusive Of Taxes. Reported From Customer Shivangi Rolling Mills.By default it will be 0 i.e. Tax Exclusive
+                if (loadingSlipTo.IsFreightIncluded == 1)//if (loadingTO.IsFreightIncluded == 1)
+                    tblInvoiceTO.FreightAmt = totalInvQty * loadingSlipTo.FreightAmt;//loadingTO.FreightAmt;
+                                                                                     //Priyanka [20-07-2018] : Added for SHIVANGI.
+                                                                                     //Sanjay [218-07-04] Tax Calculations Inclusive Of Taxes Or Exclusive Of Taxes. Reported From Customer Shivangi Rolling Mills.By default it will be 0 i.e. Tax Exclusive
                 Int32 isToIncludeFreight = 0;
                 TblConfigParamsTO freightCalcConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_DISPLAY_FREIGHT_ON_INVOICE, conn, tran);
                 if (freightCalcConfigParamsTO != null)
