@@ -3422,7 +3422,8 @@ namespace ODLMWebAPI.BL
                 {
                     tblLoadingTO.LoadingSlipList[i].VehicleNo = tblLoadingTO.VehicleNo;
                     tblLoadingTO.LoadingSlipList[i].IsFreightIncluded = tblLoadingTO.IsFreightIncluded;
-                    tblLoadingTO.LoadingSlipList[i].FreightAmt = tblLoadingTO.FreightAmt;
+                    tblLoadingTO.LoadingSlipList[i].FreightAmt = tblLoadingTO.LoadingSlipList[i].FreightAmt;
+                    tblLoadingTO.LoadingSlipList[i].IsFreightIncluded = tblLoadingTO.LoadingSlipList[i].IsFreightIncluded;
                     TblLoadingSlipTO tblLoadingSlipTO = tblLoadingTO.LoadingSlipList[i];
 
                     //Vijaymala added[26-04-2018]:to done calculation using  freight from loading slip 
@@ -4955,7 +4956,8 @@ namespace ODLMWebAPI.BL
                 TblLoadingSlipTO tblLoadingSlipTO = tblLoadingTO.LoadingSlipList[i];
                 tblLoadingSlipTO.FromOrgId = tblLoadingTO.FromOrgId;
                 tblLoadingSlipTO.LoadingId = tblLoadingTO.IdLoading;
-                tblLoadingSlipTO.LrNo = tblLoadingTO.LrNo;
+                tblLoadingSlipTO.LrNo = tblLoadingTO.LoadingSlipList[i].LrNo;
+                tblLoadingSlipTO.FreightAmt = tblLoadingTO.LoadingSlipList[i].FreightAmt;
                 //Aniket [30-7-2019] added for IOT
                 if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
                 {
