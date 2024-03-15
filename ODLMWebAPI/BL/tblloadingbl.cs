@@ -3421,9 +3421,16 @@ namespace ODLMWebAPI.BL
                 for (int i = 0; i < tblLoadingTO.LoadingSlipList.Count; i++)
                 {
                     tblLoadingTO.LoadingSlipList[i].VehicleNo = tblLoadingTO.VehicleNo;
-                    tblLoadingTO.LoadingSlipList[i].IsFreightIncluded = tblLoadingTO.IsFreightIncluded;
-                    tblLoadingTO.LoadingSlipList[i].FreightAmt = tblLoadingTO.LoadingSlipList[i].FreightAmt;
-                    tblLoadingTO.LoadingSlipList[i].IsFreightIncluded = tblLoadingTO.LoadingSlipList[i].IsFreightIncluded;
+                    if (tblLoadingTO.FreightAmt == 0)
+                    {
+                        tblLoadingTO.LoadingSlipList[i].FreightAmt = tblLoadingTO.LoadingSlipList[i].FreightAmt;
+                        tblLoadingTO.LoadingSlipList[i].IsFreightIncluded = tblLoadingTO.LoadingSlipList[i].IsFreightIncluded;
+                    }
+                    else
+                    {
+                       tblLoadingTO.LoadingSlipList[i].FreightAmt = tblLoadingTO.FreightAmt;
+                       tblLoadingTO.LoadingSlipList[i].IsFreightIncluded = tblLoadingTO.IsFreightIncluded;
+                    }
                     TblLoadingSlipTO tblLoadingSlipTO = tblLoadingTO.LoadingSlipList[i];
 
                     //Vijaymala added[26-04-2018]:to done calculation using  freight from loading slip 
@@ -3936,7 +3943,14 @@ namespace ODLMWebAPI.BL
                                         //freightPerMT = 0;
                                         //gstAmt = 0;
                                     }
-                                    rateCalcDesc += " ORC :" + orcAmtPerTon + "|" + " Parity :" + parityAmt + "|" + isNCAmt + " Freight :" + freightPerMT + "|" + " GST :" + gstAmt + "|";
+                                    if (tblLoadingTO.FreightAmt == 0)
+                                    {
+                                        rateCalcDesc += " ORC :" + orcAmtPerTon + "|" + " Parity :" + parityAmt + "|" + isNCAmt + " Freight :" + tblLoadingTO.LoadingSlipList[i].FreightAmt + "|" + " GST :" + gstAmt + "|";
+                                    }
+                                    else
+                                    {
+                                        rateCalcDesc += " ORC :" + orcAmtPerTon + "|" + " Parity :" + parityAmt + "|" + isNCAmt + " Freight :" + freightPerMT + "|" + " GST :" + gstAmt + "|";
+                                    }
                                     tblLoadingSlipExtTO.RateCalcDesc = rateCalcDesc;
                                     #endregion
 
@@ -4957,7 +4971,14 @@ namespace ODLMWebAPI.BL
                 tblLoadingSlipTO.FromOrgId = tblLoadingTO.FromOrgId;
                 tblLoadingSlipTO.LoadingId = tblLoadingTO.IdLoading;
                 tblLoadingSlipTO.LrNo = tblLoadingTO.LoadingSlipList[i].LrNo;
-                tblLoadingSlipTO.FreightAmt = tblLoadingTO.LoadingSlipList[i].FreightAmt;
+                if (tblLoadingTO.FreightAmt == 0)
+                {
+                    tblLoadingSlipTO.FreightAmt = tblLoadingTO.LoadingSlipList[i].FreightAmt;
+                }
+                else
+                {
+                    tblLoadingSlipTO.FreightAmt = tblLoadingTO.FreightAmt;
+                }
                 //Aniket [30-7-2019] added for IOT
                 if (weightSourceConfigId == (int)Constants.WeighingDataSourceE.IoT)
                 {
