@@ -2244,7 +2244,7 @@ namespace ODLMWebAPI.BL
                     List<TblInvoiceRptTO> TblInvoiceRptTOListV2 = _iTblInvoiceDAO.GetDistictWiseDispatchDataV2(frmDt, toDt);
                     if (TblInvoiceRptTOListV2 != null && TblInvoiceRptTOListV2.Count > 0)
                     {
-                       stockViewDtV2 = Common.ToDataTable(TblInvoiceRptTOList);
+                       stockViewDtV2 = Common.ToDataTable(TblInvoiceRptTOListV2);
                     }
                     DataSet printDataSet = new DataSet();
                     string templateName = "DistrictWiseDispatchReport";
@@ -8957,6 +8957,12 @@ namespace ODLMWebAPI.BL
                             //templateName = "WeighingSlip";
                             //[2021-10-20] Dhananjay Commented templateName = "WeighmentSlip";
                             templateName = "WeighingSlipNonConfirm"; //[2021-10-20] Dhananjay Added
+                            TblConfigParamsTO tblConfigParamsTOForGajkesari = _iTblConfigParamsDAO.SelectTblConfigParamsValByName("CP_SHOW_GAJKESARI_INVOICE_PRINT_CHANGES");
+                            if (tblConfigParamsTOForGajkesari != null && tblConfigParamsTOForGajkesari.ConfigParamVal =="1")
+                            {
+                                if(TblLoadingSlipTO.IsConfirmed ==0)
+                                    templateName = "WeighingSlipNonConfirmV2"; //[2021-10-20] Dhananjay Added
+                            }
                         }
                         else if (reportType == Constants.GatePassSlip)
                         {
