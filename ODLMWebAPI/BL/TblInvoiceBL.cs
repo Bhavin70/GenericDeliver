@@ -8697,7 +8697,9 @@ namespace ODLMWebAPI.BL
                         loadingItemDTForGatePass.Columns.Add("MstLoadedBundles");
                         loadingItemDTForGatePass.Columns.Add("LoadedBundles");
                         loadingItemDTForGatePass.Columns.Add("GrossWt", typeof(double));
+                        loadingItemDTForGatePass.Columns.Add("GrossWtInKg", typeof(double));
                         loadingItemDTForGatePass.Columns.Add("TareWt", typeof(double));
+                        loadingItemDTForGatePass.Columns.Add("TareWtInKg", typeof(double));
                         loadingItemDTForGatePass.Columns.Add("NetWt", typeof(double));
                         loadingItemDTForGatePass.Columns.Add("NetWtInKg", typeof(double));
                         loadingItemDTForGatePass.Columns.Add("BrandDesc");
@@ -8719,7 +8721,9 @@ namespace ODLMWebAPI.BL
                         loadingItemDT.Columns.Add("MstLoadedBundles");
                         loadingItemDT.Columns.Add("LoadedBundles");
                         loadingItemDT.Columns.Add("GrossWt", typeof(double));
+                        loadingItemDT.Columns.Add("GrossWtInKg", typeof(double));
                         loadingItemDT.Columns.Add("TareWt", typeof(double));
+                        loadingItemDT.Columns.Add("TareWtInKg", typeof(double));
                         loadingItemDT.Columns.Add("NetWt", typeof(double));
                         loadingItemDT.Columns.Add("NetWtInKg", typeof(double));
                         loadingItemDT.Columns.Add("BrandDesc");
@@ -8850,7 +8854,9 @@ namespace ODLMWebAPI.BL
                                     loadingItemDT.Rows[loadItemDTCount]["Bundles"] = tblLoadingSlipExtTO.Bundles;
                                     totalBundle += tblLoadingSlipExtTO.LoadedBundles;
                                     loadingItemDT.Rows[loadItemDTCount]["TareWt"] = (tblLoadingSlipExtTO.CalcTareWeight / 1000);
+                                    loadingItemDT.Rows[loadItemDTCount]["TareWtInKg"] = tblLoadingSlipExtTO.CalcTareWeight;
                                     loadingItemDT.Rows[loadItemDTCount]["GrossWt"] = (tblLoadingSlipExtTO.CalcTareWeight + tblLoadingSlipExtTO.LoadedWeight) / 1000;
+                                    loadingItemDT.Rows[loadItemDTCount]["GrossWtInKg"] = (tblLoadingSlipExtTO.CalcTareWeight + tblLoadingSlipExtTO.LoadedWeight);
                                     loadingItemDT.Rows[loadItemDTCount]["NetWt"] = tblLoadingSlipExtTO.LoadedWeight / 1000;
                                     loadingItemDT.Rows[loadItemDTCount]["NetWtInKg"] = tblLoadingSlipExtTO.LoadedWeight;
                                     totalNetWt += (tblLoadingSlipExtTO.LoadedWeight / 1000);
