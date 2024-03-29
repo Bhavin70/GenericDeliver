@@ -49,6 +49,7 @@ namespace ODLMWebAPI.BL
         private readonly ITblLoadingSlipExtDAO _iTblLoadingSlipExtDAO;
         private readonly ITblStockConfigDAO _iTblStockConfigDAO;
         private readonly ITblBookingsBL _iTblBookingsBL;
+        private readonly ITblBookingsDAO _iTblBookingsDAO;
         private readonly ITblLoadingSlipDtlDAO _iTblLoadingSlipDtlDAO;
         private readonly ITblWeighingMeasuresDAO _iTblWeighingMeasuresDAO;
         private readonly ITblParitySummaryDAO _iTblParitySummaryDAO;
@@ -96,7 +97,7 @@ namespace ODLMWebAPI.BL
         private readonly ITblProdGstCodeDtlsBL _iTblProdGstCodeDtlsBL;
         private readonly ITempLoadingSlipInvoiceDAO _iTempLoadingSlipInvoiceDAO;
 
-        public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, IIotCommunication iIotCommunication, ITblInvoiceChangeOrgHistoryDAO iTblInvoiceChangeOrgHistoryDAO, IGateCommunication iGateCommunication, ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL, IDimensionDAO iDimensionDAO, ITblEInvoiceApiDAO iTblEInvoiceApiDAO, ITblEInvoiceApiResponseDAO iTblEInvoiceApiResponseDAO, ITblEInvoiceSessionApiResponseDAO iTblEInvoiceSessionApiResponseDAO, ITblOrgLicenseDtlBL iTblOrgLicenseDtlBL, ITblProductItemBL iTblProductItemBL, ITblProdGstCodeDtlsBL iTblProdGstCodeDtlsBL, ITblMaterialDAO iTblMaterialDAO
+        public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, IIotCommunication iIotCommunication, ITblInvoiceChangeOrgHistoryDAO iTblInvoiceChangeOrgHistoryDAO, IGateCommunication iGateCommunication, ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL,ITblBookingsDAO iTblBookingsDAO, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL, IDimensionDAO iDimensionDAO, ITblEInvoiceApiDAO iTblEInvoiceApiDAO, ITblEInvoiceApiResponseDAO iTblEInvoiceApiResponseDAO, ITblEInvoiceSessionApiResponseDAO iTblEInvoiceSessionApiResponseDAO, ITblOrgLicenseDtlBL iTblOrgLicenseDtlBL, ITblProductItemBL iTblProductItemBL, ITblProdGstCodeDtlsBL iTblProdGstCodeDtlsBL, ITblMaterialDAO iTblMaterialDAO
             , ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblAddonsFunDtlsDAO iTblAddonsFunDtlsDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO)
         // public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblInvoiceChangeOrgHistoryDAO iTblInvoiceChangeOrgHistoryDAO, ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL)
         {
@@ -115,6 +116,7 @@ namespace ODLMWebAPI.BL
             _iTblLoadingSlipExtDAO = iTblLoadingSlipExtDAO;
             _iTblStockConfigDAO = iTblStockConfigDAO;
             _iTblBookingsBL = iTblBookingsBL;
+            _iTblBookingsDAO = iTblBookingsDAO;
             _iTblLoadingSlipDtlDAO = iTblLoadingSlipDtlDAO;
             _iTblWeighingMeasuresDAO = iTblWeighingMeasuresDAO;
             _iTblParitySummaryDAO = iTblParitySummaryDAO;
@@ -3920,7 +3922,7 @@ namespace ODLMWebAPI.BL
 
             #region Priyanka [22-01-2019] : Added to save the commercial details against loadingslip
 
-            // List<TblPaymentTermsForBookingTO> tblPaymentTermForBookingTOList = BL.TblPaymentTermsForBookingBL.SelectAllTblPaymentTermsForBookingFromBookingId(tblBookingsTO.IdBooking, 0);
+            //List<TblPaymentTermsForBookingTO> tblPaymentTermForBookingTOList = BL.TblPaymentTermsForBookingBL.SelectAllTblPaymentTermsForBookingFromBookingId(tblBookingsTO.IdBooking, 0);
 
             if (loadingSlipTo.IdLoadingSlip > 0)
             {
@@ -4106,6 +4108,8 @@ namespace ODLMWebAPI.BL
             }
             #endregion
             #region Regular Invoice Items i.e from Loading
+
+            double qtyDiffrance = 0;
             foreach (var loadingSlipExtTo in loadingSlipTo.LoadingSlipExtTOList)
             {
                 TblInvoiceItemDetailsTO tblInvoiceItemDetailsTO = new TblInvoiceItemDetailsTO();
@@ -4216,6 +4220,13 @@ namespace ODLMWebAPI.BL
                 tblInvoiceTO.GrossWeight += loadingSlipExtTo.LoadedWeight;
                 tblInvoiceItemDetailsTO.InvoiceQty = Math.Round(loadingSlipExtTo.LoadedWeight * conversionFactor, 3);
                 totalInvQty += tblInvoiceItemDetailsTO.InvoiceQty;
+
+                #region loading qty from extra loaded then extra qty minues from booking qty 
+               
+                qtyDiffrance += tblInvoiceItemDetailsTO.InvoiceQty - loadingSlipExtTo.LoadingQty;
+
+                #endregion
+
                 //tblInvoiceItemDetailsTO.CdStructureId = loadingSlipTo.CdStructureId; //Saket [2018-02-06] Commented and assgin above
 
                 //Priyanka [29-05-2018] : for adding master bundles while weighing.
@@ -4416,6 +4427,16 @@ namespace ODLMWebAPI.BL
                 tblInvoiceItemDetailsTO.InvoiceItemTaxDtlsTOList = tblInvoiceItemTaxDtlsTOList;
                 tblInvoiceItemDetailsTOList.Add(tblInvoiceItemDetailsTO);
             }
+
+            #region loading qty from extra loaded then extra qty minues from booking qty 
+            if (qtyDiffrance > 0)
+            {
+                tblBookingsTO.BookingQty = tblBookingsTO.BookingQty - qtyDiffrance;
+                result = _iTblBookingsDAO.UpdateBookingPendingQty(tblBookingsTO, conn, tran);
+            }
+            #endregion
+
+
             if (tblInvoiceItemDetailsTOList != null && tblInvoiceItemDetailsTOList.Count > 0)
             {
                 List<TblInvoiceItemDetailsTO> tblInvoiceItemDetailsTOListTemp  = tblInvoiceItemDetailsTOList.Where(w => w.SizeTestingDtlId > 0).ToList();
@@ -8676,8 +8697,11 @@ namespace ODLMWebAPI.BL
                         loadingItemDTForGatePass.Columns.Add("MstLoadedBundles");
                         loadingItemDTForGatePass.Columns.Add("LoadedBundles");
                         loadingItemDTForGatePass.Columns.Add("GrossWt", typeof(double));
+                        loadingItemDTForGatePass.Columns.Add("GrossWtInKg", typeof(double));
                         loadingItemDTForGatePass.Columns.Add("TareWt", typeof(double));
+                        loadingItemDTForGatePass.Columns.Add("TareWtInKg", typeof(double));
                         loadingItemDTForGatePass.Columns.Add("NetWt", typeof(double));
+                        loadingItemDTForGatePass.Columns.Add("NetWtInKg", typeof(double));
                         loadingItemDTForGatePass.Columns.Add("BrandDesc");
                         loadingItemDTForGatePass.Columns.Add("ProdSpecDesc");
                         loadingItemDTForGatePass.Columns.Add("ProdcatDesc");
@@ -8697,8 +8721,11 @@ namespace ODLMWebAPI.BL
                         loadingItemDT.Columns.Add("MstLoadedBundles");
                         loadingItemDT.Columns.Add("LoadedBundles");
                         loadingItemDT.Columns.Add("GrossWt", typeof(double));
+                        loadingItemDT.Columns.Add("GrossWtInKg", typeof(double));
                         loadingItemDT.Columns.Add("TareWt", typeof(double));
+                        loadingItemDT.Columns.Add("TareWtInKg", typeof(double));
                         loadingItemDT.Columns.Add("NetWt", typeof(double));
+                        loadingItemDT.Columns.Add("NetWtInKg", typeof(double));
                         loadingItemDT.Columns.Add("BrandDesc");
                         loadingItemDT.Columns.Add("ProdSpecDesc");
                         loadingItemDT.Columns.Add("ProdcatDesc");
@@ -8827,8 +8854,11 @@ namespace ODLMWebAPI.BL
                                     loadingItemDT.Rows[loadItemDTCount]["Bundles"] = tblLoadingSlipExtTO.Bundles;
                                     totalBundle += tblLoadingSlipExtTO.LoadedBundles;
                                     loadingItemDT.Rows[loadItemDTCount]["TareWt"] = (tblLoadingSlipExtTO.CalcTareWeight / 1000);
+                                    loadingItemDT.Rows[loadItemDTCount]["TareWtInKg"] = tblLoadingSlipExtTO.CalcTareWeight;
                                     loadingItemDT.Rows[loadItemDTCount]["GrossWt"] = (tblLoadingSlipExtTO.CalcTareWeight + tblLoadingSlipExtTO.LoadedWeight) / 1000;
+                                    loadingItemDT.Rows[loadItemDTCount]["GrossWtInKg"] = (tblLoadingSlipExtTO.CalcTareWeight + tblLoadingSlipExtTO.LoadedWeight);
                                     loadingItemDT.Rows[loadItemDTCount]["NetWt"] = tblLoadingSlipExtTO.LoadedWeight / 1000;
+                                    loadingItemDT.Rows[loadItemDTCount]["NetWtInKg"] = tblLoadingSlipExtTO.LoadedWeight;
                                     totalNetWt += (tblLoadingSlipExtTO.LoadedWeight / 1000);
                                     totalNetWtInKg += tblLoadingSlipExtTO.LoadedWeight;
                                     loadingItemDT.Rows[loadItemDTCount]["LoadedWeight"] = tblLoadingSlipExtTO.LoadedWeight;

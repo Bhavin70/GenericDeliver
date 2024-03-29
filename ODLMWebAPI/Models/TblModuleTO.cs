@@ -21,6 +21,7 @@ Int32 impPersonCount;
         int isActive;
         string logoUrl;
         Int32 sysElementId;
+        Int32 idSysElement;
         string androidUrl;
         int isSubscribe;
         string containerName;
@@ -82,6 +83,7 @@ Int32 impPersonCount;
         }
 
         public int SysElementId { get => sysElementId; set => sysElementId = value; }
+        public int IdSysElement { get => idSysElement; set => idSysElement = value; }
         public string AndroidUrl { get => androidUrl; set => androidUrl = value; }
         public int IsSubscribe { get => isSubscribe; set => isSubscribe = value; }
         public string ContainerName { get => containerName; set => containerName = value; } //Sudhir[11-OCT-2018] Added for Azure Container Name.
@@ -108,5 +110,12 @@ Int32 impPersonCount;
 
         public int IotconfigSetting { get => iotconfigSetting; set => iotconfigSetting = value; }
         #endregion
+    }
+    public class tblModuleHideTo
+    {
+        int modulehideId;
+        string modulehideName;
+        public int ModulehideId { get => modulehideId; set => modulehideId = value; }
+        public string ModulehideName { get => modulehideName; set => modulehideName = value; }
     }
 }

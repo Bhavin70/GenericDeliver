@@ -24,7 +24,10 @@ namespace ODLMWebAPI.BL
         private readonly ITblModuleBL _iTblModuleBL; 
         private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
         private readonly ICommon _iCommon;
-        public TblLoginBL(ITblModuleBL _iTblModuleBL,ITblModuleDAO iTblModuleDAO, ITblSysElementsBL iTblSysElementsBL, ITblConfigParamsDAO iTblConfigParamsDAO, ICommon iCommon, ITblLoginDAO iTblLoginDAO, ITblUserDAO iTblUserDAO, ITblUserRoleDAO iTblUserRoleDAO, ITblMenuStructureDAO iTblMenuStructureDAO)
+        private readonly ITblSysEleUserEntitlementsBL _iTblSysEleUserEntitlementsBL;
+        private readonly ITblSysEleUserEntitlementsDAO _iTblSysEleUserEntitlementsDAO;
+
+        public TblLoginBL(ITblModuleBL _iTblModuleBL,ITblModuleDAO iTblModuleDAO, ITblSysElementsBL iTblSysElementsBL, ITblConfigParamsDAO iTblConfigParamsDAO, ICommon iCommon, ITblLoginDAO iTblLoginDAO, ITblUserDAO iTblUserDAO, ITblUserRoleDAO iTblUserRoleDAO, ITblMenuStructureDAO iTblMenuStructureDAO,ITblSysEleUserEntitlementsDAO iTblSysEleUserEntitlementsDAO, ITblSysEleUserEntitlementsBL iTblSysEleUserEntitlementsBL)
         {
             _iTblLoginDAO = iTblLoginDAO;
             _iTblUserDAO = iTblUserDAO;
@@ -35,6 +38,8 @@ namespace ODLMWebAPI.BL
             _iTblConfigParamsDAO = iTblConfigParamsDAO;
             _iCommon = iCommon;
             this._iTblModuleBL=_iTblModuleBL;
+            _iTblSysEleUserEntitlementsBL = iTblSysEleUserEntitlementsBL;
+            _iTblSysEleUserEntitlementsDAO = iTblSysEleUserEntitlementsDAO;
         }
         #region Selection
 
@@ -56,14 +61,14 @@ namespace ODLMWebAPI.BL
             try
             {
                 userExistUserTO.UserRoleList = _iTblUserRoleDAO.SelectAllActiveUserRole(userExistUserTO.IdUser);
+                userExistUserTO.ModuleTOList = new List<TblModuleTO>();
+
                 if (userExistUserTO.UserRoleList != null || userExistUserTO.UserRoleList.Count > 0)
                 {
                     int[] list = userExistUserTO.UserRoleList.Where(a => a.IsActive == 1).Select(s => s.RoleId).ToArray();
                     String roleId = string.Join(",", list.ToArray());
                     userExistUserTO.SysEleAccessDCT = _iTblSysElementsBL.SelectSysElementUserMultiRoleEntitlementDCT(userExistUserTO.IdUser, roleId, moduleId);
                     List<TblModuleTO> allModuleList = _iTblModuleDAO.SelectTblModuleList().ToList();
-                    userExistUserTO.ModuleTOList = new List<TblModuleTO>();
-
                     for (int m = 0; m < allModuleList.Count; m++)
                     {
                         if (allModuleList[m].IsSubscribe == 1) //Sudhir[30-08-2018] Added for checking IsSubscribe or Not. 
@@ -81,6 +86,47 @@ namespace ODLMWebAPI.BL
                         userExistUserTO.ModuleTOList.Add(allModuleList[m]);
                     }
                 }
+
+                #region Dashboard Module icon show on permission basis.
+
+                List<tblModuleHideTo> tblModuleHideTolist = new List<tblModuleHideTo>();
+                if (userExistUserTO.ModuleTOList.Count > 0 && userExistUserTO.ModuleTOList != null)
+                {
+                    for (int k = 0; k < userExistUserTO.ModuleTOList.Count; k++)
+                    {
+                        if (userExistUserTO.ModuleTOList[k].IdSysElement > 0)
+                        {
+                            List<TblSysEleUserEntitlementsTO> userEntitlementList = _iTblSysEleUserEntitlementsBL.SelectAllTblSysEleUserEntitlementsList(userExistUserTO.IdUser, userExistUserTO.ModuleTOList[k].IdModule);
+                            if (userEntitlementList != null && userEntitlementList.Count > 0)
+                            {
+                                userEntitlementList = userEntitlementList.Where(x => x.Permission == "RW").ToList();
+                                if (userEntitlementList.Count > 0)
+                                {
+                                    var userdashboardpermissionlist = userEntitlementList.Where(w => w.SysEleId == userExistUserTO.ModuleTOList[k].IdSysElement).ToList();
+                                    if (userdashboardpermissionlist.Count > 0)
+                                    {
+                                        tblModuleHideTo tblModuleHideToNew = new tblModuleHideTo();
+
+                                        tblModuleHideToNew.ModulehideId = userExistUserTO.ModuleTOList[k].IdModule;
+                                        tblModuleHideToNew.ModulehideName = userExistUserTO.ModuleTOList[k].ModuleName;
+                                        tblModuleHideTolist.Add(tblModuleHideToNew);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (tblModuleHideTolist.Count > 0)
+                {
+                    for (int j = 0; j < tblModuleHideTolist.Count; j++)
+                    {
+                        userExistUserTO.ModuleTOList = userExistUserTO.ModuleTOList.Where(x => x.IdModule != tblModuleHideTolist[j].ModulehideId).ToList();
+                    }
+                    userExistUserTO.ModuleTOList =  userExistUserTO.ModuleTOList;
+                }
+                #endregion
+
                 return userExistUserTO;
             }
             catch (Exception ex)
@@ -268,6 +314,46 @@ namespace ODLMWebAPI.BL
                 {
                     userExistUserTO.FirmNameE = Convert.ToInt16(configParamsTO.ConfigParamVal);
                 }
+
+                #region Dashboard Module icon show on permission basis.
+
+                List<tblModuleHideTo> tblModuleHideTolist = new List<tblModuleHideTo>();
+                if (userExistUserTO.ModuleTOList.Count > 0 && userExistUserTO.ModuleTOList != null)
+                {
+                    for (int k = 0; k < userExistUserTO.ModuleTOList.Count; k++)
+                    {
+                        if (userExistUserTO.ModuleTOList[k].IdSysElement > 0)
+                        {
+                            List<TblSysEleUserEntitlementsTO> userEntitlementList = _iTblSysEleUserEntitlementsBL.SelectAllTblSysEleUserEntitlementsList(userExistUserTO.IdUser, userExistUserTO.ModuleTOList[k].IdModule);
+                            if (userEntitlementList != null && userEntitlementList.Count > 0)
+                            {
+                                userEntitlementList = userEntitlementList.Where(x => x.Permission == "RW").ToList();
+                                if (userEntitlementList.Count > 0)
+                                {
+                                    var userdashboardpermissionlist = userEntitlementList.Where(w => w.SysEleId == userExistUserTO.ModuleTOList[k].IdSysElement).ToList();
+                                    if (userdashboardpermissionlist.Count > 0)
+                                    {
+                                        tblModuleHideTo tblModuleHideToNew = new tblModuleHideTo();
+
+                                        tblModuleHideToNew.ModulehideId = userExistUserTO.ModuleTOList[k].IdModule;
+                                        tblModuleHideToNew.ModulehideName = userExistUserTO.ModuleTOList[k].ModuleName;
+                                        tblModuleHideTolist.Add(tblModuleHideToNew);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (tblModuleHideTolist.Count > 0)
+                {
+                    for (int j = 0; j < tblModuleHideTolist.Count; j++)
+                    {
+                        userExistUserTO.ModuleTOList = userExistUserTO.ModuleTOList.Where(x => x.IdModule != tblModuleHideTolist[j].ModulehideId).ToList();
+                    }
+                    userExistUserTO.ModuleTOList = userExistUserTO.ModuleTOList;
+                }
+                #endregion
 
                 tblUserTO = userExistUserTO;
 
