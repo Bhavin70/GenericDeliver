@@ -8473,6 +8473,8 @@ namespace ODLMWebAPI.BL
             int result = 0;
             try
             {
+                conn.Open();
+                tran = conn.BeginTransaction();
                 #region When genrated invoice revers Update Nc Invoice EntityPrevValue value in Database
                 if (tblInvoiceTO.IsConfirmed == 0)
                 {
@@ -8508,6 +8510,7 @@ namespace ODLMWebAPI.BL
                         tran.Rollback();
                         resultMessage.DefaultBehaviour("Error While UpdateTblEntityRange"); return resultMessage;
                     }
+                    tran.Commit();
                 }
                 #endregion
                 tblInvoiceTO.UpdatedOn = _iCommon.ServerDateTime;
