@@ -715,7 +715,7 @@ public  string SelectApKLoginArray(int userId)
         // Samadhan Added 31 Agust 2023
         public int UploadFileToAWS(string AWSAccessKey, string AWSAccessSecret, string BucketName, string fileName, byte[] fileStream, string ContentType)
         {
-            var client = new AmazonS3Client(AWSAccessKey, AWSAccessSecret, Amazon.RegionEndpoint.APSouth1);
+            var client = new AmazonS3Client(AWSAccessKey, AWSAccessSecret, Amazon.RegionEndpoint.USEast1);
 
             // testing  vivek
             //byte[] bytes = File.ReadAllBytes("D:\\New folder\\Policy.png");

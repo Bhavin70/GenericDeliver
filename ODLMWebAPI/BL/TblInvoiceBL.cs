@@ -2931,26 +2931,27 @@ namespace ODLMWebAPI.BL
                 excelWorksheet.Cells[1, 4].Value = "Vehicle No";
                 excelWorksheet.Cells[1, 5].Value = "Item Description";
                 excelWorksheet.Cells[1, 6].Value = "Bill No";
-                excelWorksheet.Cells[1, 7].Value = "8 MM";
-                excelWorksheet.Cells[1, 8].Value = "10 MM";
-                excelWorksheet.Cells[1, 9].Value = "12 MM";
-                excelWorksheet.Cells[1, 10].Value = "16 MM";
-                excelWorksheet.Cells[1, 11].Value = "20 MM";
-                excelWorksheet.Cells[1, 12].Value = "25 MM";
-                excelWorksheet.Cells[1, 13].Value = "32 MM";
-                excelWorksheet.Cells[1, 14].Value = "Binding Wires";
-                excelWorksheet.Cells[1, 15].Value = "Grand Total";
-                excelWorksheet.Cells[1, 16].Value = "Rate";
-                excelWorksheet.Cells[1, 17].Value = "Parity Amount";
-                excelWorksheet.Cells[1, 18].Value = "NC Parity Amount";
-                excelWorksheet.Cells[1, 19].Value = "Loading ChargesM";
-                excelWorksheet.Cells[1, 20].Value = "Other Amount";
-                excelWorksheet.Cells[1, 21].Value = "Freight Amount";
-                excelWorksheet.Cells[1, 22].Value = "CD%";
-                excelWorksheet.Cells[1, 23].Value = "TCS";
-                excelWorksheet.Cells[1, 24].Value = "Amount";
+                excelWorksheet.Cells[1, 7].Value = "Bill Date";
+                excelWorksheet.Cells[1, 8].Value = "8 MM";
+                excelWorksheet.Cells[1, 9].Value = "10 MM";
+                excelWorksheet.Cells[1, 10].Value = "12 MM";
+                excelWorksheet.Cells[1, 11].Value = "16 MM";
+                excelWorksheet.Cells[1, 12].Value = "20 MM";
+                excelWorksheet.Cells[1, 13].Value = "25 MM";
+                excelWorksheet.Cells[1, 14].Value = "32 MM";
+                excelWorksheet.Cells[1, 15].Value = "Binding Wires";
+                excelWorksheet.Cells[1, 16].Value = "Grand Total";
+                excelWorksheet.Cells[1, 17].Value = "Rate";
+                excelWorksheet.Cells[1, 18].Value = "Parity Amount";
+                excelWorksheet.Cells[1, 19].Value = "NC Parity Amount";
+                excelWorksheet.Cells[1, 20].Value = "Loading ChargesM";
+                excelWorksheet.Cells[1, 21].Value = "Other Amount";
+                excelWorksheet.Cells[1, 22].Value = "Freight Amount";
+                excelWorksheet.Cells[1, 23].Value = "CD%";
+                excelWorksheet.Cells[1, 24].Value = "TCS";
+                excelWorksheet.Cells[1, 25].Value = "Amount";
 
-                excelWorksheet.Cells[1, 1, 1, 24].Style.Font.Bold = true;
+                excelWorksheet.Cells[1, 1, 1, 25].Style.Font.Bold = true;
                 int cellRow = 2;
 
                 foreach (var item in Invoices)
@@ -2961,55 +2962,58 @@ namespace ODLMWebAPI.BL
                     excelWorksheet.Cells[cellRow, 4].Value = item.VehicleNo;
                     excelWorksheet.Cells[cellRow, 5].Value = item.ItemDecscription;
                     excelWorksheet.Cells[cellRow, 6].Value = item.InvoiceNo;
-                    excelWorksheet.Cells[cellRow, 7].Value = "--";
+                    excelWorksheet.Cells[cellRow, 7].Value = item.InvoiceDate;
+
                     excelWorksheet.Cells[cellRow, 8].Value = "--";
                     excelWorksheet.Cells[cellRow, 9].Value = "--";
                     excelWorksheet.Cells[cellRow, 10].Value = "--";
                     excelWorksheet.Cells[cellRow, 11].Value = "--";
                     excelWorksheet.Cells[cellRow, 12].Value = "--";
                     excelWorksheet.Cells[cellRow, 13].Value = "--";
+                    excelWorksheet.Cells[cellRow, 14].Value = "--";
                     foreach (var item1 in item.ProdMaterialQtyDCT)
                     {
                         if(item1.Key.ToUpper().Trim() == "8 MM")
-                            excelWorksheet.Cells[cellRow, 7].Value = item1.Value;
-                        else if(item1.Key.ToUpper().Trim() == "10 MM")
                             excelWorksheet.Cells[cellRow, 8].Value = item1.Value;
-                        else if (item1.Key.ToUpper().Trim() == "12 MM")
+                        else if(item1.Key.ToUpper().Trim() == "10 MM")
                             excelWorksheet.Cells[cellRow, 9].Value = item1.Value;
-                        else if (item1.Key.ToUpper().Trim() == "16 MM")
+                        else if (item1.Key.ToUpper().Trim() == "12 MM")
                             excelWorksheet.Cells[cellRow, 10].Value = item1.Value;
-                        else if (item1.Key.ToUpper().Trim() == "20 MM")
+                        else if (item1.Key.ToUpper().Trim() == "16 MM")
                             excelWorksheet.Cells[cellRow, 11].Value = item1.Value;
-                        else if (item1.Key.ToUpper().Trim() == "25 MM")
+                        else if (item1.Key.ToUpper().Trim() == "20 MM")
                             excelWorksheet.Cells[cellRow, 12].Value = item1.Value;
-                        else if (item1.Key.ToUpper().Trim() == "32 MM")
+                        else if (item1.Key.ToUpper().Trim() == "25 MM")
                             excelWorksheet.Cells[cellRow, 13].Value = item1.Value;
+                        else if (item1.Key.ToUpper().Trim() == "32 MM")
+                            excelWorksheet.Cells[cellRow, 14].Value = item1.Value;
                     }
 
-                    excelWorksheet.Cells[cellRow, 14].Value = "--";
-                    excelWorksheet.Cells[cellRow, 15].Style.Numberformat.Format = "#,##0.000";
-                    excelWorksheet.Cells[cellRow, 15].Value = item.TotalQty;
+
+                    excelWorksheet.Cells[cellRow, 15].Value = "--";
                     excelWorksheet.Cells[cellRow, 16].Style.Numberformat.Format = "#,##0.000";
-                    excelWorksheet.Cells[cellRow, 16].Value = item.Rate;
+                    excelWorksheet.Cells[cellRow, 16].Value = item.TotalQty;
                     excelWorksheet.Cells[cellRow, 17].Style.Numberformat.Format = "#,##0.000";
-                    excelWorksheet.Cells[cellRow, 17].Value = item.ParityAmt;
+                    excelWorksheet.Cells[cellRow, 17].Value = item.Rate;
                     excelWorksheet.Cells[cellRow, 18].Style.Numberformat.Format = "#,##0.000";
-                    excelWorksheet.Cells[cellRow, 18].Value = item.NonconfParityAmt;
+                    excelWorksheet.Cells[cellRow, 18].Value = item.ParityAmt;
                     excelWorksheet.Cells[cellRow, 19].Style.Numberformat.Format = "#,##0.000";
-                    excelWorksheet.Cells[cellRow, 19].Value = item.BVCAmt;
+                    excelWorksheet.Cells[cellRow, 19].Value = item.NonconfParityAmt;
                     excelWorksheet.Cells[cellRow, 20].Style.Numberformat.Format = "#,##0.000";
-                    excelWorksheet.Cells[cellRow, 20].Value = item.OtherAmt;
+                    excelWorksheet.Cells[cellRow, 20].Value = item.BVCAmt;
                     excelWorksheet.Cells[cellRow, 21].Style.Numberformat.Format = "#,##0.000";
-                    excelWorksheet.Cells[cellRow, 21].Value = item.Freight;
+                    excelWorksheet.Cells[cellRow, 21].Value = item.OtherAmt;
                     excelWorksheet.Cells[cellRow, 22].Style.Numberformat.Format = "#,##0.000";
-                    excelWorksheet.Cells[cellRow, 22].Value = item.CDPct;
+                    excelWorksheet.Cells[cellRow, 22].Value = item.Freight;
                     excelWorksheet.Cells[cellRow, 23].Style.Numberformat.Format = "#,##0.000";
-                    excelWorksheet.Cells[cellRow, 23].Value = item.TCS;
+                    excelWorksheet.Cells[cellRow, 23].Value = item.CDPct;
                     excelWorksheet.Cells[cellRow, 24].Style.Numberformat.Format = "#,##0.000";
-                    excelWorksheet.Cells[cellRow, 24].Value = item.TotalAmt;
+                    excelWorksheet.Cells[cellRow, 24].Value = item.TCS;
+                    excelWorksheet.Cells[cellRow, 25].Style.Numberformat.Format = "#,##0.000";
+                    excelWorksheet.Cells[cellRow, 25].Value = item.TotalAmt;
                     cellRow++;
 
-                    using (ExcelRange range = excelWorksheet.Cells[1, 1, cellRow, 24])
+                    using (ExcelRange range = excelWorksheet.Cells[1, 1, cellRow, 25])
                     {
                         range.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
                         range.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
