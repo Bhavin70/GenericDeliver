@@ -45,6 +45,7 @@ namespace ODLMWebAPI.BL
         private readonly ITblLoadingStatusHistoryDAO _iTblLoadingStatusHistoryDAO;
         private readonly ITempLoadingSlipInvoiceBL _iTempLoadingSlipInvoiceBL;
         private readonly ITblLoadingDAO _iTblLoadingDAO;
+        private readonly ITblLoadingBL _iTblLoadingBL;
         private readonly IDimensionBL _iDimensionBL;
         private readonly ITblLoadingSlipExtDAO _iTblLoadingSlipExtDAO;
         private readonly ITblStockConfigDAO _iTblStockConfigDAO;
@@ -98,7 +99,7 @@ namespace ODLMWebAPI.BL
         private readonly ITempLoadingSlipInvoiceDAO _iTempLoadingSlipInvoiceDAO;
 
         public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO, ITblLoadingSlipDAO iTblLoadingSlipDAO, IIotCommunication iIotCommunication, ITblInvoiceChangeOrgHistoryDAO iTblInvoiceChangeOrgHistoryDAO, IGateCommunication iGateCommunication, ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL,ITblBookingsDAO iTblBookingsDAO, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL, IDimensionDAO iDimensionDAO, ITblEInvoiceApiDAO iTblEInvoiceApiDAO, ITblEInvoiceApiResponseDAO iTblEInvoiceApiResponseDAO, ITblEInvoiceSessionApiResponseDAO iTblEInvoiceSessionApiResponseDAO, ITblOrgLicenseDtlBL iTblOrgLicenseDtlBL, ITblProductItemBL iTblProductItemBL, ITblProdGstCodeDtlsBL iTblProdGstCodeDtlsBL, ITblMaterialDAO iTblMaterialDAO
-            , ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblAddonsFunDtlsDAO iTblAddonsFunDtlsDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO)
+            , ITempLoadingSlipInvoiceDAO iTempLoadingSlipInvoiceDAO, ITblAddonsFunDtlsDAO iTblAddonsFunDtlsDAO, ITblLoadingStatusHistoryDAO iTblLoadingStatusHistoryDAO, ITblLoadingBL iTblLoadingBL)
         // public TblInvoiceBL(ITblAlertDefinitionDAO iTblAlertDefinitionDAO,ITblInvoiceChangeOrgHistoryDAO iTblInvoiceChangeOrgHistoryDAO, ITblConfigParamsDAO iTblConfigParamsDAO, ITblPaymentTermOptionRelationBL iTblPaymentTermOptionRelationBL, ITblPaymentTermsForBookingBL iTblPaymentTermsForBookingBL, ITblPaymentTermOptionRelationDAO iTblPaymentTermOptionRelationDAO, IDimBrandDAO iDimBrandDAO, ITblDocumentDetailsBL iTblDocumentDetailsBL, ITblBookingsBL iTblBookingsBL, ITblOrganizationBL iTblOrganizationBL, ITblInvoiceHistoryBL iTblInvoiceHistoryBL, IDimReportTemplateBL iDimReportTemplateBL, ITblAlertInstanceBL iTblAlertInstanceBL, ISendMailBL iSendMailBL, ICircularDependencyBL iCircularDependencyBL, ICommon iCommon, IConnectionString iConnectionString, ITblEmailHistoryDAO iTblEmailHistoryDAO, IRunReport iRunReport, ITblPersonDAO iTblPersonDAO, ITblBookingParitiesDAO iTblBookingParitiesDAO, ITblEntityRangeDAO iTblEntityRangeDAO, ITblUserDAO iTblUserDAO, ITblInvoiceAddressDAO iTblInvoiceAddressDAO, ITblInvoiceOtherDetailsDAO iTblInvoiceOtherDetailsDAO, ITblInvoiceBankDetailsDAO iTblInvoiceBankDetailsDAO, ITblOtherTaxesDAO iTblOtherTaxesDAO, ITempInvoiceDocumentDetailsDAO iTempInvoiceDocumentDetailsDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblTaxRatesDAO iTblTaxRatesDAO, ITblGstCodeDtlsDAO iTblGstCodeDtlsDAO, ITblProdGstCodeDtlsDAO iTblProdGstCodeDtlsDAO, ITblProductItemDAO iTblProductItemDAO, ITblParitySummaryDAO iTblParitySummaryDAO, ITblWeighingMeasuresDAO iTblWeighingMeasuresDAO, ITblLoadingSlipDtlDAO iTblLoadingSlipDtlDAO, ITblStockConfigDAO iTblStockConfigDAO, ITblLoadingSlipExtDAO iTblLoadingSlipExtDAO, IDimensionBL iDimensionBL, ITblLoadingDAO iTblLoadingDAO, ITempLoadingSlipInvoiceBL iTempLoadingSlipInvoiceBL, ITblLoadingSlipBL iTblLoadingSlipBL, ITblAddressBL iTblAddressBL, ITblInvoiceAddressBL iTblInvoiceAddressBL, ITblConfigParamsBL iTblConfigParamsBL, ITblInvoiceDAO iTblInvoiceDAO, ITblUserRoleBL iTblUserRoleBL, ITblInvoiceItemDetailsBL iTblInvoiceItemDetailsBL, ITblInvoiceItemTaxDtlsBL iTblInvoiceItemTaxDtlsBL)
         {
             _iTblInvoiceChangeOrgHistoryDAO = iTblInvoiceChangeOrgHistoryDAO;
@@ -112,6 +113,7 @@ namespace ODLMWebAPI.BL
             _iTblLoadingSlipBL = iTblLoadingSlipBL;
             _iTempLoadingSlipInvoiceBL = iTempLoadingSlipInvoiceBL;
             _iTblLoadingDAO = iTblLoadingDAO;
+            _iTblLoadingBL = iTblLoadingBL;
             _iDimensionBL = iDimensionBL;
             _iTblLoadingSlipExtDAO = iTblLoadingSlipExtDAO;
             _iTblStockConfigDAO = iTblStockConfigDAO;
@@ -8461,10 +8463,49 @@ namespace ODLMWebAPI.BL
         }
         public ResultMessage PostUpdateInvoiceStatus(TblInvoiceTO tblInvoiceTO)
         {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
             ResultMessage resultMessage = new ResultMessage();
             int result = 0;
             try
             {
+                #region When genrated invoice revers Update Nc Invoice EntityPrevValue value in Database
+                if (tblInvoiceTO.IsConfirmed == 0)
+                {
+                    TblEntityRangeTO entityRangeTO = null;
+                    String entityName = _iDimensionDAO.SelectInvoiceEntityNameByInvoiceTypeId(tblInvoiceTO.InvoiceTypeId);
+                     entityName += "_NC";
+
+                    Int32 generateNCInvoiceDaily = 0;
+                    TblConfigParamsTO generateNCInvoiceDailyTblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_GENERATE_INVOICE_NO_FOR_NC_DAILY, conn, tran);
+                    if (generateNCInvoiceDailyTblConfigParamsTO != null)
+                    {
+                        generateNCInvoiceDaily = Convert.ToInt32(generateNCInvoiceDailyTblConfigParamsTO.ConfigParamVal);
+                    }
+                    if (generateNCInvoiceDaily == 1)
+                    {
+                        entityRangeTO = SelectEntityRangeForLoadingCount(entityName, conn, tran, tblInvoiceTO.FinYearId, 0);
+                    }
+                    if (entityRangeTO == null)
+                    {
+                        tran.Rollback();
+                        resultMessage.MessageType = ResultMessageE.Error;
+                        resultMessage.Text = "Error : entityRangeTO is null";
+                        resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                        return resultMessage;
+                    }
+                    if (entityRangeTO.EntityPrevValue > 0)
+                    {
+                        entityRangeTO.EntityPrevValue = entityRangeTO.EntityPrevValue - 1;
+                    }
+                    result = _iTblEntityRangeDAO.UpdateTblEntityRange(entityRangeTO, conn, tran);
+                    if (result != 1)
+                    {
+                        tran.Rollback();
+                        resultMessage.DefaultBehaviour("Error While UpdateTblEntityRange"); return resultMessage;
+                    }
+                }
+                #endregion
                 tblInvoiceTO.UpdatedOn = _iCommon.ServerDateTime;
                 result = _iTblInvoiceDAO.PostUpdateInvoiceStatus(tblInvoiceTO);
                 if (result != 1)
@@ -8484,6 +8525,45 @@ namespace ODLMWebAPI.BL
 
             }
         }
+
+        // Vaibhav [30-Jan-2018] Added to update entity range for loading and loadingslip count.
+        private TblEntityRangeTO SelectEntityRangeForLoadingCount(string entityName, SqlConnection conn, SqlTransaction tran, Int32 finYearId = 0, Int32 newSeq = 1)
+        {
+            try
+            {
+
+                if (finYearId == 0)
+                {
+                    finYearId = Constants.FinYear;
+                }
+
+                TblEntityRangeTO entityRangeTO = _iTblEntityRangeDAO.SelectTblEntityRangeByEntityName(entityName, finYearId, conn, tran);
+                if (entityRangeTO == null)
+                {
+                    return null;
+                }
+
+                if (_iCommon.ServerDateTime.Date != entityRangeTO.CreatedOn.Date)
+                {
+                    entityRangeTO.CreatedOn = _iCommon.ServerDateTime;
+                    entityRangeTO.EntityPrevValue = newSeq;
+
+                    int result = _iTblEntityRangeDAO.UpdateTblEntityRange(entityRangeTO, conn, tran);
+                    if (result != 1)
+                    {
+                        return null;
+                    }
+                }
+
+                return entityRangeTO;
+            }
+            catch (Exception ex)
+            {
+                ex.Message.ToString();
+                return null;
+            }
+        }
+
         public Byte[] DeleteFile(string saveLocation, string filePath)
         {
             String fileName1 = Path.GetFileName(saveLocation);

@@ -2251,14 +2251,14 @@ namespace ODLMWebAPI.BL
                                 if (String.IsNullOrEmpty(entityRangeTO.Suffix))
                                 {
                                     invoiceTO.InvoiceNo = taxInvoiceNumber;
+                                    invoiceTO.InvoiceNo = taxInvoiceNumber;
+                               
                                 }
                                 else
                                 {
                                     invoiceTO.InvoiceNo = taxInvoiceNumber + entityRangeTO.Suffix;
                                 }
-
-
-                                newTaxNumber = manualinvoiceno;
+                                    newTaxNumber = manualinvoiceno;
                                 //  }
                             }
 
@@ -2286,12 +2286,63 @@ namespace ODLMWebAPI.BL
 
                         else
                         {
-                            result = _iTblInvoiceBL.UpdateTblInvoice(invoiceTO, conn, tran);
-                            if (result != 1)
+                            if (invoiceTO.IsConfirmed == 0)
                             {
-                                tran.Rollback();
-                                resultMessage.DefaultBehaviour("Error While Updating Invoice Number After Entity Range"); return resultMessage;
+                                Int32 entityPrevVal = 0;
+                                bool isInvoicePresent = false;
+                                int newTaxNumber = 0;
+                                TblEntityRangeTO entityRangeTO = null;
+
+                                String entityName = _iDimensionDAO.SelectInvoiceEntityNameByInvoiceTypeId(invoiceTO.InvoiceTypeId);
+                                entityName += "_NC";
+
+                                Int32 generateNCInvoiceDaily = 0;
+                                TblConfigParamsTO generateNCInvoiceDailyTblConfigParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsTO(Constants.CP_GENERATE_INVOICE_NO_FOR_NC_DAILY, conn, tran);
+                                if (generateNCInvoiceDailyTblConfigParamsTO != null)
+                                {
+                                    generateNCInvoiceDaily = Convert.ToInt32(generateNCInvoiceDailyTblConfigParamsTO.ConfigParamVal);
+                                }
+                                if (generateNCInvoiceDaily == 1)
+                                {
+                                    entityRangeTO = SelectEntityRangeForLoadingCount(entityName, conn, tran, invoiceTO.FinYearId, 0);
+                                }
+
+                                if (entityRangeTO == null)
+                                {
+                                    tran.Rollback();
+                                    resultMessage.MessageType = ResultMessageE.Error;
+                                    resultMessage.Text = "Error : entityRangeTO is null";
+                                    resultMessage.DisplayMessage = Constants.DefaultErrorMsg;
+                                    return resultMessage;
+                                }
+
+                                String sMonth = serverDate.ToString("MM");
+                                String sDay = serverDate.ToString("dd");
+                                if (sDay.Length == 1)
+                                    sDay = sDay.Insert(0, "0");
+
+                                if (sMonth.Length == 1)
+                                    sMonth = sMonth.Insert(0, "0");
+                                
+                                entityRangeTO.EntityPrevValue = entityRangeTO.EntityPrevValue + 1;
+
+                                String NCInvoiceNo = "NC/" + sMonth+"/" + sDay+"/0"+ entityRangeTO.EntityPrevValue;
+                                invoiceTO.InvoiceNo = NCInvoiceNo;
+
+                                result = _iTblInvoiceBL.UpdateTblInvoice(invoiceTO, conn, tran);
+                                if (result != 1)
+                                {
+                                    tran.Rollback();
+                                    resultMessage.DefaultBehaviour("Error While Updating Invoice Number After Entity Range"); return resultMessage;
+                                }
+                                result = _iTblEntityRangeDAO.UpdateTblEntityRange(entityRangeTO, conn, tran);
+                                if (result != 1)
+                                {
+                                    tran.Rollback();
+                                    resultMessage.DefaultBehaviour("Error While UpdateTblEntityRange"); return resultMessage;
+                                }
                             }
+                            
                         }
 
 
