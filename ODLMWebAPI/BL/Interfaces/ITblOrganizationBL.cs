@@ -29,7 +29,7 @@ namespace ODLMWebAPI.BL.Interfaces
         List<OrgExportRptTO> SelectAllOrgListToExport(Int32 orgTypeId, Int32 parentId);
         List<TblOrganizationTO> SelectOrganizationListByRegion(Int32 orgTypeId, Int32 districtId);
         TblOrganizationTO SelectTblOrganizationTOByEnqRefId(String enq_ref_id);
-        ResultMessage CheckOrgNameOrPhoneNoIsExist(String OrgName, String PhoneNo);
+        ResultMessage CheckOrgNameOrPhoneNoIsExist(String OrgName, String PhoneNo, int orgTypId);
         List<DropDownTO> SelectDealerListForDropDownForCRM(Int32 cnfId, TblUserRoleTO tblUserRoleTO);
         int InsertTblOrganization(TblOrganizationTO tblOrganizationTO);
         int InsertTblOrganization(TblOrganizationTO tblOrganizationTO, SqlConnection conn, SqlTransaction tran);

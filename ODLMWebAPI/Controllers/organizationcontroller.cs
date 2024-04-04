@@ -473,9 +473,9 @@ namespace ODLMWebAPI.Controllers
         /// <returns></returns>
         [Route("CheckOrgNameOrPhoneNoAlready")]
         [HttpGet]
-        public ResultMessage CheckOrgNameOrPhoneNoAlready(String OrgName, String PhoneNo)
+        public ResultMessage CheckOrgNameOrPhoneNoAlready(String OrgName, String PhoneNo,int orgTypId=0)
         {
-            return _iTblOrganizationBL.CheckOrgNameOrPhoneNoIsExist(OrgName, PhoneNo);
+            return _iTblOrganizationBL.CheckOrgNameOrPhoneNoIsExist(OrgName, PhoneNo,orgTypId);
         }
 
 

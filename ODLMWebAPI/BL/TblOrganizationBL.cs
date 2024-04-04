@@ -37,8 +37,11 @@ namespace ODLMWebAPI.BL
         private readonly ITblOrgOverdueHistoryDAO _iTblOrgOverdueHistoryDAO;
         private readonly IConnectionString _iConnectionString;
         private readonly ICommon _iCommon;
+        private readonly ITblUserAreaAllocationBL _iTblUserAreaAllocationBL;
+        private readonly ITblConfigParamsDAO _iTblConfigParamsDAO;
         
-        public TblOrganizationBL(ITblUserBL iTblUserBL, ITblCnfDealersBL iTblCnfDealersBL, ITblKYCDetailsBL iTblKYCDetailsBL, ITblConfigParamsBL iTblConfigParamsBL, ITblUserRoleBL iTblUserRoleBL, ITblOrgOverdueHistoryDAO iTblOrgOverdueHistoryDAO, ITblUserExtDAO iTblUserExtDAO, IDimOrgTypeDAO iDimOrgTypeDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConfigDAO iTblLoadingQuotaConfigDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblOrgAddressDAO iTblOrgAddressDAO, ITblAddressDAO iTblAddressDAO, ITblPersonDAO iTblPersonDAO, ITblPurchaseCompetitorExtDAO iTblPurchaseCompetitorExtDAO, ITblCompetitorExtDAO iTblCompetitorExtDAO, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, ICommon iCommon, IConnectionString iConnectionString, ITblOrganizationDAO iTblOrganizationDAO, IDimensionDAO iDimensionDAO, ITblGlobalRateDAO iTblGlobalRateDAO)
+        public TblOrganizationBL(ITblUserBL iTblUserBL, ITblCnfDealersBL iTblCnfDealersBL, ITblKYCDetailsBL iTblKYCDetailsBL, ITblConfigParamsBL iTblConfigParamsBL, ITblUserRoleBL iTblUserRoleBL, ITblOrgOverdueHistoryDAO iTblOrgOverdueHistoryDAO, ITblUserExtDAO iTblUserExtDAO, IDimOrgTypeDAO iDimOrgTypeDAO, ITblLoadingQuotaDeclarationDAO iTblLoadingQuotaDeclarationDAO, ITblLoadingQuotaConfigDAO iTblLoadingQuotaConfigDAO, ITblOrgLicenseDtlDAO iTblOrgLicenseDtlDAO, ITblOrgAddressDAO iTblOrgAddressDAO, ITblAddressDAO iTblAddressDAO, ITblPersonDAO iTblPersonDAO, ITblPurchaseCompetitorExtDAO iTblPurchaseCompetitorExtDAO, ITblCompetitorExtDAO iTblCompetitorExtDAO, ITblQuotaDeclarationDAO iTblQuotaDeclarationDAO, ICommon iCommon, IConnectionString iConnectionString, ITblOrganizationDAO iTblOrganizationDAO, IDimensionDAO iDimensionDAO, ITblGlobalRateDAO iTblGlobalRateDAO, ITblConfigParamsDAO iTblConfigParamsDAO
+            , ITblUserAreaAllocationBL _ITblUserAreaAllocationBL)
         {
             _iTblOrganizationDAO = iTblOrganizationDAO;
             _iDimensionDAO = iDimensionDAO; 
@@ -62,6 +65,8 @@ namespace ODLMWebAPI.BL
             _iTblOrgOverdueHistoryDAO = iTblOrgOverdueHistoryDAO; 
             _iConnectionString = iConnectionString;
             _iCommon = iCommon;
+            _iTblConfigParamsDAO = iTblConfigParamsDAO;
+            _iTblUserAreaAllocationBL = _ITblUserAreaAllocationBL;
         }
         #region Selection
         //Aniket [30-7-2019] added for IOT
@@ -378,7 +383,7 @@ namespace ODLMWebAPI.BL
         }
 
         //Sudhir[23-APR-2018] Added for Check OrgName And Phone no is Already Exist or Not.
-        public ResultMessage CheckOrgNameOrPhoneNoIsExist(String OrgName, String PhoneNo)
+        public ResultMessage CheckOrgNameOrPhoneNoIsExist(String OrgName, String PhoneNo, int orgTypId=0)
         {
             ResultMessage resultMessage = new ResultMessage();
             resultMessage.Result = 1;
@@ -395,29 +400,52 @@ namespace ODLMWebAPI.BL
                     {
                         if (OrgName != String.Empty && OrgName != null)
                         {
-                            isExistOrNot = allOrganizationList.Any(str => str.FirmName.Trim() == OrgName.Trim());
-                            if (isExistOrNot)
+                            //Reshma Added For validation of existing data name and phone no.
+                            List<TblOrganizationTO> allOrganizationListV2= allOrganizationList.Where(str => str.FirmName.Trim() == OrgName.Trim()).ToList();
+                            if (allOrganizationListV2 != null && allOrganizationListV2.Count > 0)
                             {
-                                resultMessage.Text = "Organization Name is Already Exist";
-                                resultMessage.MessageType = ResultMessageE.Error;
-                                resultMessage.Result = -1;
-                                resultMessage.DisplayMessage = "Organization Name is Already Exist";
-                                return resultMessage;
+                                for (int k = 0; k < allOrganizationListV2.Count; k++)
+                                {
+                                    if (allOrganizationListV2[k].OrgTypeId == orgTypId)
+                                    {
+                                        if (PhoneNo != String.Empty && PhoneNo != null)
+                                        {
+                                            if (allOrganizationListV2[k].PhoneNo == PhoneNo)
+                                            {
+                                                resultMessage.Text = "Organization is already exist same name and mobile no.";
+                                                resultMessage.MessageType = ResultMessageE.Error;
+                                                resultMessage.Result = -1;
+                                                resultMessage.DisplayMessage = "Organization is already exist same name and mobile no.";
+                                                return resultMessage;
+                                            }
+                                        }
+                                    }
+                                }
                             }
+
+                            ////isExistOrNot = allOrganizationList.Any(str => str.FirmName.Trim() == OrgName.Trim());
+                            ////if (isExistOrNot)
+                            //{
+                            //    resultMessage.Text = "Organization Name is Already Exist";
+                            //    resultMessage.MessageType = ResultMessageE.Error;
+                            //    resultMessage.Result = -1;
+                            //    resultMessage.DisplayMessage = "Organization Name is Already Exist";
+                            //    return resultMessage;
+                            //}
                         }
 
-                        if (PhoneNo != String.Empty && PhoneNo != null)
-                        {
-                            isExistOrNot = allOrganizationList.Any(str => str.PhoneNo == PhoneNo.Trim());
-                            if (isExistOrNot)
-                            {
-                                resultMessage.Text = "Phone Number is Already Exist";
-                                resultMessage.MessageType = ResultMessageE.Error;
-                                resultMessage.Result = -1;
-                                resultMessage.DisplayMessage = "Phone Number is Already Exist";
-                                return resultMessage;
-                            }
-                        }
+                        //if (PhoneNo != String.Empty && PhoneNo != null)
+                        //{
+                        //    isExistOrNot = allOrganizationList.Any(str => str.PhoneNo == PhoneNo.Trim());
+                        //    if (isExistOrNot)
+                        //    {
+                        //        resultMessage.Text = "Phone Number is Already Exist";
+                        //        resultMessage.MessageType = ResultMessageE.Error;
+                        //        resultMessage.Result = -1;
+                        //        resultMessage.DisplayMessage = "Phone Number is Already Exist";
+                        //        return resultMessage;
+                        //    }
+                        //}
 
                         return resultMessage;
                     }
@@ -697,6 +725,29 @@ namespace ODLMWebAPI.BL
                         {
                             updateOrgYn = true;
                             tblOrganizationTO.AddrId = addressTO.IdAddr;
+                        }
+                        if (addressTO.DistrictId > 0)
+                        {
+                            TblConfigParamsTO ConfigParamTO = _iTblConfigParamsDAO.SelectTblConfigParamsValByName("Default_CNF_FOR_KALIKA_CRM");
+                            if (ConfigParamTO != null)
+                            {
+                                TblUserAreaAllocationTO TblUserAreaAllocationTO = new TblUserAreaAllocationTO();
+                                TblUserAreaAllocationTO.CnfOrgId = Convert.ToInt32(ConfigParamTO.ConfigParamVal);
+                                TblUserAreaAllocationTO.UserId = tblOrganizationTO.CreatedBy;
+                                TblUserAreaAllocationTO.CreatedBy = tblOrganizationTO.CreatedBy;
+
+                                TblUserAreaAllocationTO.DistrictId = addressTO.DistrictId;
+                                TblUserAreaAllocationTO.CreatedOn = tblOrganizationTO.CreatedOn;
+                                TblUserAreaAllocationTO.IsActive = 1;
+                                result = _iTblUserAreaAllocationBL.InsertTblUserAreaAllocation(TblUserAreaAllocationTO, conn, tran);
+                                if (result != 1)
+                                {
+                                    tran.Rollback();
+                                    rMessage.MessageType = ResultMessageE.Error;
+                                    rMessage.Text = "Error While USerAreallocation in Method SaveNewOrganization";
+                                    return rMessage;
+                                }
+                            }
                         }
                     }
                 }
