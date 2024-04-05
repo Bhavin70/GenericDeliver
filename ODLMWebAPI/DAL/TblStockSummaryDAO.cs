@@ -370,7 +370,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public ODLMWebAPI.DashboardModels.StockUpdateInfo SelectDashboardStockUpdateInfo(DateTime sysDate)
+        public ODLMWebAPI.DashboardModels.StockUpdateInfo SelectDashboardStockUpdateInfo(DateTime sysDate, Int32 pgDashBoardType)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -401,6 +401,7 @@ namespace ODLMWebAPI.DAL
                                         " ON CAST(stockInfo.createdOn as date) = CAST(bookStock.createdOn as date) " +
                                         " left join (select sum(balanceStock ) as PendingStock,stockSummaryId from tblStockDetails group by stockSummaryId  ) as PendingStock " +
                                         "   on PendingStock.stockSummaryId=stockInfo.idStockSummary " +
+                                        " WHERE stockInfo.pgDashBoardType =" + pgDashBoardType +
                                         " order by stockInfo.createdOn desc ";
 
 
@@ -465,6 +466,9 @@ namespace ODLMWebAPI.DAL
                         tblStockSummaryTONew.NoOfBundles = Convert.ToDouble(tblStockSummaryTODT["noOfBundles"].ToString());
                     if (tblStockSummaryTODT["totalStock"] != DBNull.Value)
                         tblStockSummaryTONew.TotalStock = Convert.ToDouble(tblStockSummaryTODT["totalStock"].ToString());
+                    if (tblStockSummaryTODT["pgDashBoardType"] != DBNull.Value)
+                        tblStockSummaryTONew.PgDashBoardType = Convert.ToInt32(tblStockSummaryTODT["pgDashBoardType"].ToString());
+
                     tblStockSummaryTOList.Add(tblStockSummaryTONew);
                 }
             }
@@ -638,6 +642,7 @@ namespace ODLMWebAPI.DAL
                                 " ,[noOfBundles]" +
                                 " ,[totalStock]" +
                                 " ,[transactionType]" +
+                                " ,[pgDashBoardType]" +
                                 " )" +
                     " VALUES (" +
                               
@@ -651,6 +656,7 @@ namespace ODLMWebAPI.DAL
                                 " ,@NoOfBundles " +
                                 " ,@TotalStock " +
                                 " ,@TransactionType " +
+                                " ,@PgDashBoardType " +
                                 " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -667,6 +673,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@NoOfBundles", System.Data.SqlDbType.NVarChar).Value = tblStockSummaryTO.NoOfBundles;
             cmdInsert.Parameters.Add("@TotalStock", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockSummaryTO.TotalStock);
             cmdInsert.Parameters.Add("@TransactionType", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockSummaryTO.TransactionType);
+            cmdInsert.Parameters.Add("@PgDashBoardType", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockSummaryTO.TransactionType);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {

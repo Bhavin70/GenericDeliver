@@ -121,7 +121,7 @@ namespace ODLMWebAPI.BL
         public StockUpdateInfo SelectDashboardStockUpdateInfo(DateTime sysDate,Int32 pgDashBoardType)
         {
            
-            DashboardModels.StockUpdateInfo stockUpdateInfo = _iTblStockSummaryDAO.SelectDashboardStockUpdateInfo(sysDate);
+            DashboardModels.StockUpdateInfo stockUpdateInfo = _iTblStockSummaryDAO.SelectDashboardStockUpdateInfo(sysDate,pgDashBoardType);
             if (stockUpdateInfo == null)
             {
                 stockUpdateInfo = new DashboardModels.StockUpdateInfo();
