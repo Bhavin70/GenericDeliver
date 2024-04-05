@@ -243,13 +243,12 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetDashboardStockUpdateInfo")]
         [HttpGet]
-        public ODLMWebAPI.DashboardModels.StockUpdateInfo GetDashboardStockUpdateInfo(DateTime sysDate)
-
+        public ODLMWebAPI.DashboardModels.StockUpdateInfo GetDashboardStockUpdateInfo(DateTime sysDate,Int32 pgDashBoardType)
         {
             if (sysDate == DateTime.MinValue)
                 sysDate = _iCommon.ServerDateTime.Date;
 
-            return _iTblStockSummaryBL.SelectDashboardStockUpdateInfo(sysDate);
+            return _iTblStockSummaryBL.SelectDashboardStockUpdateInfo(sysDate, pgDashBoardType);
         }
 
         //Aniket [20-02-2019] added to display last updated stock datetime with user name

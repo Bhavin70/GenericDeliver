@@ -19,7 +19,7 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblQuotaDeclarationTO> SelectLatestQuotaDeclaration(Int32 cnfId, DateTime date, Boolean isQuotaDeclaration);
         List<TblQuotaDeclarationTO> SelectLatestQuotaDeclarationTOList(Int32 cnfId, DateTime date);
         ODLMWebAPI.DashboardModels.QuotaAndRateInfo SelectQuotaAndRateDashboardInfo(Int32 roletypeId, Int32 orgId, DateTime sysDate);
-        List<ODLMWebAPI.DashboardModels.QuotaAndRateInfo> SelectQuotaAndRateDashboardInfoList(Int32 roletypeId, Int32 orgId, DateTime sysDate);
+        List<ODLMWebAPI.DashboardModels.QuotaAndRateInfo> SelectQuotaAndRateDashboardInfoList(Int32 roletypeId, Int32 orgId, DateTime sysDate,Int32 pgDashBoardType);
         Boolean CheckForValidityAndReset(TblQuotaDeclarationTO tblQuotaDeclarationTO);
         int InsertTblQuotaDeclaration(TblQuotaDeclarationTO tblQuotaDeclarationTO);
         int InsertTblQuotaDeclaration(TblQuotaDeclarationTO tblQuotaDeclarationTO, SqlConnection conn, SqlTransaction tran);

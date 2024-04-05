@@ -29,7 +29,7 @@ namespace ODLMWebAPI.BL.Interfaces
         TblLoadingTO SelectTblLoadingByLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran);
         List<VehicleNumber> SelectAllVehicles();
         List<DropDownTO> SelectAllVehiclesByStatus(int statusId);
-        LoadingInfo SelectDashboardLoadingInfo(List<TblUserRoleTO> tblUserRoleTOList, Int32 orgId, DateTime sysDate, Int32 loadingType);
+        LoadingInfo SelectDashboardLoadingInfo(List<TblUserRoleTO> tblUserRoleTOList, Int32 orgId, DateTime sysDate,Int32 pgDashBoardType, Int32 loadingType);
         List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, DateTime loadingDate);
 
         List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo);

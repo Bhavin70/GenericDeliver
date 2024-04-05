@@ -1377,7 +1377,7 @@ namespace ODLMWebAPI.BL {
         //        conn.Close();
         //    }
         //}
-        public LoadingInfo SelectDashboardLoadingInfo (List<TblUserRoleTO> tblUserRoleTOList, Int32 orgId, DateTime sysDate, Int32 loadingType) {
+        public LoadingInfo SelectDashboardLoadingInfo (List<TblUserRoleTO> tblUserRoleTOList, Int32 orgId, DateTime sysDate,Int32 pgDashBoardType, Int32 loadingType) {
             try {
                 TblUserRoleTO tblUserRoleTO = new TblUserRoleTO ();
                 //Boolean isPriorityOther = true;
@@ -1386,7 +1386,7 @@ namespace ODLMWebAPI.BL {
                     tblUserRoleTO = _iTblUserRoleBL.SelectUserRoleTOAccToPriority(tblUserRoleTOList);
                     // isPriorityOther = BL.TblUserRoleBL.selectRolePriorityForOther(tblUserRoleTOList);
                 }
-                return _iTblLoadingDAO.SelectDashboardLoadingInfo (tblUserRoleTO, orgId, sysDate, loadingType);
+                return _iTblLoadingDAO.SelectDashboardLoadingInfo (tblUserRoleTO, orgId, sysDate, pgDashBoardType, loadingType);
             } catch (Exception ex) {
                 return null;
             }

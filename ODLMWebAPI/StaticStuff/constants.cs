@@ -494,6 +494,15 @@ namespace ODLMWebAPI.StaticStuff
             Active = 2,
             NonActive = 3
         }
+
+        //SRJ
+        public enum pgDashBoardType
+        {
+            TMT = 1,
+            STRIP = 2,
+            PIPES = 3
+        }
+
         #endregion
 
         #region Constants Or Static Strings

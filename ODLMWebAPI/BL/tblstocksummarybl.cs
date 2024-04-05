@@ -118,7 +118,7 @@ namespace ODLMWebAPI.BL
             //}
         }
 
-        public StockUpdateInfo SelectDashboardStockUpdateInfo(DateTime sysDate)
+        public StockUpdateInfo SelectDashboardStockUpdateInfo(DateTime sysDate,Int32 pgDashBoardType)
         {
            
             DashboardModels.StockUpdateInfo stockUpdateInfo = _iTblStockSummaryDAO.SelectDashboardStockUpdateInfo(sysDate);

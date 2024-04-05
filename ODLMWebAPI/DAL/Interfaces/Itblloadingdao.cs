@@ -21,7 +21,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         TblLoadingTO SelectTblLoading(Int32 idLoading, SqlConnection conn, SqlTransaction tran);
         TblLoadingTO SelectTblLoadingByLoadingSlipId(Int32 loadingSlipId, SqlConnection conn, SqlTransaction tran);
         Int64 SelectCountOfLoadingSlips(DateTime date, SqlConnection conn, SqlTransaction tran);
-        ODLMWebAPI.DashboardModels.LoadingInfo SelectDashboardLoadingInfo(TblUserRoleTO tblUserRoleTO, Int32 orgId, DateTime sysDate, Int32 loadingType);
+        ODLMWebAPI.DashboardModels.LoadingInfo SelectDashboardLoadingInfo(TblUserRoleTO tblUserRoleTO, Int32 orgId, DateTime sysDate,Int32 pgDashBoardType, Int32 loadingType);
         List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo, DateTime loadingDate);
         List<TblLoadingTO> SelectAllLoadingListByVehicleNo(string vehicleNo);
         List<TblLoadingTO> SelectLoadingTOWithDetailsByLoadingNoForSupport(string loadingSlipNo);

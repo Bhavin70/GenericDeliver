@@ -136,11 +136,11 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        public List<ODLMWebAPI.DashboardModels.QuotaAndRateInfo> SelectQuotaAndRateDashboardInfoList(Int32 roletypeId, Int32 orgId, DateTime sysDate)
+        public List<ODLMWebAPI.DashboardModels.QuotaAndRateInfo> SelectQuotaAndRateDashboardInfoList(Int32 roletypeId, Int32 orgId, DateTime sysDate,Int32 pgDashBoardType)
         {
             try
             {
-                return _iTblQuotaDeclarationDAO.SelectDashboardQuotaAndRateInfoList(roletypeId, orgId, sysDate);
+                return _iTblQuotaDeclarationDAO.SelectDashboardQuotaAndRateInfoList(roletypeId, orgId, sysDate, pgDashBoardType);
             }
             catch (Exception ex)
             {

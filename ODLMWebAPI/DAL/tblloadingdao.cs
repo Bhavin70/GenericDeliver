@@ -886,7 +886,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public LoadingInfo SelectDashboardLoadingInfo(TblUserRoleTO tblUserRoleTO, Int32 orgId, DateTime sysDate , Int32 loadingType)
+        public LoadingInfo SelectDashboardLoadingInfo(TblUserRoleTO tblUserRoleTO, Int32 orgId, DateTime sysDate , Int32 pgDashBoardType, Int32 loadingType)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);

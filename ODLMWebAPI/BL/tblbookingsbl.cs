@@ -12,6 +12,7 @@ using System.Linq;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.BL;
+using static ODLMWebAPI.StaticStuff.Constants;
 
 namespace ODLMWebAPI.BL
 {
@@ -1050,7 +1051,7 @@ namespace ODLMWebAPI.BL
 
         //}
 
-        public List<ODLMWebAPI.DashboardModels.BookingInfo> SelectBookingDashboardInfo(List<TblUserRoleTO> tblUserRoleTOList, Int32 orgId, Int32 dealerId, DateTime date)
+        public List<ODLMWebAPI.DashboardModels.BookingInfo> SelectBookingDashboardInfo(List<TblUserRoleTO> tblUserRoleTOList, Int32 orgId, Int32 dealerId, DateTime date,Int32 pgDashBoardType)
         {
             try
             {

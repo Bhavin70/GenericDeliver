@@ -3,6 +3,7 @@ using ODLMWebAPI.StaticStuff;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using static ODLMWebAPI.StaticStuff.Constants;
 
 namespace ODLMWebAPI.BL.Interfaces
 {  
@@ -25,7 +26,7 @@ namespace ODLMWebAPI.BL.Interfaces
         TblBookingsTO SelectTblBookingsTO(Int32 idBooking);
         List<TblBookingsTO> SelectUserwiseBookingList(DateTime fromDate, DateTime toDate, Int32 statusId, Int32 activeUserId);
         //TblBookingsTO SelectBookingsTOWithDetails(Int32 idBooking);
-        List<ODLMWebAPI.DashboardModels.BookingInfo> SelectBookingDashboardInfo(List<TblUserRoleTO> tblUserRoleTOList, Int32 orgId, Int32 dealerId, DateTime date);
+        List<ODLMWebAPI.DashboardModels.BookingInfo> SelectBookingDashboardInfo(List<TblUserRoleTO> tblUserRoleTOList, Int32 orgId, Int32 dealerId, DateTime date,Int32 pgDashBoardType);
         TblBookingsTO SelectTblBookingsTO(Int32 idBooking, SqlConnection conn, SqlTransaction tran);
         List<PendingBookingRptTO> SelectAllPendingBookingsForReport(Int32 cnfId, Int32 dealerOrgId, List<TblUserRoleTO> tblUserRoleTOList, int isTransporterScopeYn, int isConfirmed, DateTime fromDate, DateTime toDate, Boolean isDateFilter, Int32 brandId);
         List<BookingGraphRptTO> SelectBookingListForGraph(Int32 OrganizationId, List<TblUserRoleTO> userRoleTOList, Int32 dealerId);

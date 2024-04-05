@@ -479,7 +479,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<ODLMWebAPI.DashboardModels.QuotaAndRateInfo> SelectDashboardQuotaAndRateInfoList(Int32 roleId, Int32 orgId, DateTime sysDate)
+        public List<ODLMWebAPI.DashboardModels.QuotaAndRateInfo> SelectDashboardQuotaAndRateInfoList(Int32 roleId, Int32 orgId, DateTime sysDate,Int32 pgDashBoardType)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
