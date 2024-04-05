@@ -1093,7 +1093,7 @@ namespace ODLMWebAPI.BL
                     //isPriorityOther = BL.TblUserRoleBL.selectRolePriorityForOther(tblUserRoleTOList);
                 }
 
-                List<ODLMWebAPI.DashboardModels.BookingInfo> tblBookingsTOList = _iTblBookingsDAO.SelectBookingDashboardInfo(tblUserRoleTO, orgId, dealerId, date, ids, isHideCorNC, false);
+                List<ODLMWebAPI.DashboardModels.BookingInfo> tblBookingsTOList = _iTblBookingsDAO.SelectBookingDashboardInfo(tblUserRoleTO, orgId, dealerId, date, ids, isHideCorNC, false, pgDashBoardType);
 
                 Double grandTotal = 0;
                 Double grandGrandTotal = 0;
@@ -1132,7 +1132,7 @@ namespace ODLMWebAPI.BL
                         if (sysEleAccessDCT.ContainsKey(Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)] != null
                             && !string.IsNullOrEmpty(sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)].ToString()) && sysEleAccessDCT[Convert.ToInt32(Constants.pageElements.CONSUMER_TYPEWISE_ENQUIRY)] == "RW")
                         {
-                            List<ODLMWebAPI.DashboardModels.BookingInfo> tblBookingsTOList1 = _iTblBookingsDAO.SelectBookingDashboardInfo(tblUserRoleTO, orgId, dealerId, date, ids, isHideCorNC, true);
+                            List<ODLMWebAPI.DashboardModels.BookingInfo> tblBookingsTOList1 = _iTblBookingsDAO.SelectBookingDashboardInfo(tblUserRoleTO, orgId, dealerId, date, ids, isHideCorNC, true, pgDashBoardType);
 
                             if (tblBookingsTOList != null && tblBookingsTOList1 != null)
                             {

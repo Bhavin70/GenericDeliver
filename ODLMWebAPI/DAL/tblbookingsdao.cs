@@ -1647,7 +1647,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<BookingInfo> SelectBookingDashboardInfo(TblUserRoleTO tblUserRoleTO, int orgId, Int32 dealerId, DateTime date, string ids, Int32 isHideCorNC, Boolean bWithConsumerType)
+        public List<BookingInfo> SelectBookingDashboardInfo(TblUserRoleTO tblUserRoleTO, int orgId, Int32 dealerId, DateTime date, string ids, Int32 isHideCorNC, Boolean bWithConsumerType, Int32 pgDashBoardType)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -1699,6 +1699,7 @@ namespace ODLMWebAPI.DAL
                 {
                     whereCond += " AND dealerOrgId=" + dealerId;
                 }
+                whereCond += " AND pgDashBoardType=" + pgDashBoardType;
                 // }
 
                 //if (tblUserRoleTO.RoleId == (int)Constants.SystemRolesE.C_AND_F_AGENT)
@@ -1746,11 +1747,11 @@ namespace ODLMWebAPI.DAL
                     sConsumerType = ", consumerType ";
                     sConsumerTypeJoin = " LEFT JOIN dimConsumerType On tblBookings.consumerTypeId = dimConsumerType.idConsumer  ";
                 }
-                cmdSelect.CommandText = " SELECT bookingType,bookingQty, COST as totalCost ,COST / bookingQty avgPrice, isConfirmed,brandName,shortNm " + sConsumerType +
+                cmdSelect.CommandText = " SELECT bookingType,bookingQty,pgDashBoardType, COST as totalCost ,COST / bookingQty avgPrice, isConfirmed,brandName,shortNm " + sConsumerType +
                                         " FROM " +
                                         " ( " +
                                         " SELECT sum(bookingQty) AS bookingQty, dimBrand.brandName, isConfirmed, sum((bookingQty * bookingRate))" +
-                                        " AS cost,bookingType,dimBrand.shortNm " + sConsumerType + " FROM tblBookings " + areConfJoin +
+                                        " AS cost,bookingType,pgDashBoardType,dimBrand.shortNm " + sConsumerType + " FROM tblBookings " + areConfJoin +
                                         " LEFT JOIN dimBrand On tblBookings.brandId = dimBrand.idBrand " +
                                         sConsumerTypeJoin +
                                         " WHERE DAY(bookingDatetime) = " + date.Day + " AND MONTH(bookingDatetime) = " + date.Month +
@@ -1781,7 +1782,7 @@ namespace ODLMWebAPI.DAL
                             tblBookingsTONew.BrandName = Convert.ToString(tblBookingsTODT["brandName"].ToString());
                         if (tblBookingsTODT["bookingType"] != DBNull.Value)
                             tblBookingsTONew.BookingType = Convert.ToInt32(tblBookingsTODT["bookingType"].ToString());
-                        if (tblBookingsTODT["shortNm"] != DBNull.Value)
+                          if (tblBookingsTODT["shortNm"] != DBNull.Value)
                             tblBookingsTONew.ShortNm = Convert.ToString(tblBookingsTODT["shortNm"].ToString());
 
                         if (hasColumn(tblBookingsTODT, "consumerType") == true)
@@ -1797,6 +1798,9 @@ namespace ODLMWebAPI.DAL
                         {
                             tblBookingsTONew.ShortNm = "Others";
                         }
+                        if (tblBookingsTODT["pgDashBoardType"] != DBNull.Value)
+                            tblBookingsTONew.PgDashBoardType = Convert.ToInt32(tblBookingsTODT["pgDashBoardType"].ToString());
+
                         tblBookingsTOList.Add(tblBookingsTONew);
 
                     }
@@ -2009,6 +2013,9 @@ namespace ODLMWebAPI.DAL
 
                     if (tblBookingsTODT["bookingDisplayNo"] != DBNull.Value)
                         tblBookingsTONew.BookingDisplayNo = Convert.ToString(tblBookingsTODT["bookingDisplayNo"]);
+                    
+                    if (tblBookingsTODT["pgDashBoardType"] != DBNull.Value)
+                        tblBookingsTONew.PgDashBoardType = Convert.ToInt32(tblBookingsTODT["pgDashBoardType"]);
 
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }
@@ -2220,6 +2227,9 @@ namespace ODLMWebAPI.DAL
 
                     if (tblBookingsTODT["isBothTaxType"] != DBNull.Value)
                         tblBookingsTONew.IsBothTaxType = Convert.ToInt32(tblBookingsTODT["isBothTaxType"]);
+                    if (tblBookingsTODT["pgDashBoardType"] != DBNull.Value)
+                        tblBookingsTONew.PgDashBoardType = Convert.ToInt32(tblBookingsTODT["pgDashBoardType"]);
+
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }
             }
@@ -2441,6 +2451,9 @@ namespace ODLMWebAPI.DAL
 
                     if (tblBookingsTODT["bookingCommentCategoryId"] != DBNull.Value)
                         tblBookingsTONew.BookingCommentCategoryId = Convert.ToInt32(tblBookingsTODT["bookingCommentCategoryId"]);
+                    
+                    if (tblBookingsTODT["pgDashBoardType"] != DBNull.Value)
+                        tblBookingsTONew.PgDashBoardType = Convert.ToInt32(tblBookingsTODT["pgDashBoardType"]);
 
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }
@@ -2904,8 +2917,9 @@ namespace ODLMWebAPI.DAL
                             ", [consumerTypeId]" + //Gokul [11-02-2021]
                             ", [cnfChkSelected]" +
                             ", [brokerName]" +
-                                ", [bookingTaxCategoryId]" +
-                                    ", [bookingCommentCategoryId]" +
+                            ", [bookingTaxCategoryId]" +
+                            ", [bookingCommentCategoryId]" +
+                            ", [pgDashBoardType]" +
                             " )" +
                 " VALUES (" +
                             "  @CnFOrgId " +
@@ -2961,9 +2975,10 @@ namespace ODLMWebAPI.DAL
                             " ,@enquiryId" +
                             " ,@consumertypeid" +
                             " ,@CnfChkSelected" +
-                             ",@brokerName" +
-                                ", @bookingTaxCategoryId" +
-                                    ", @bookingCommentCategoryId" +
+                            ",@brokerName" +
+                            ", @bookingTaxCategoryId" +
+                            ", @bookingCommentCategoryId" +
+                            ", @pgDashBoardType" +
                              " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -3028,6 +3043,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@brokerName", System.Data.SqlDbType.NVarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BrokerName);
             cmdInsert.Parameters.Add("@bookingTaxCategoryId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingTaxCategoryId);
             cmdInsert.Parameters.Add("@bookingCommentCategoryId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingCommentCategoryId);
+            cmdInsert.Parameters.Add("@pgDashBoardType", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.PgDashBoardType);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
