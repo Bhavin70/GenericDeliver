@@ -4147,7 +4147,7 @@ namespace ODLMWebAPI.BL
                     tblInvoiceItemDetailsTO.CdStructureId = loadingSlipTo.CdStructureId; //Saket [2018-02-06] 
                     tblInvoiceItemDetailsTO.Rate = loadingSlipExtTo.CdApplicableAmt;
                     if (tblBookingsTO.BookingTaxCategoryId == (int)Constants.BookingTaxCategory.Excluding)
-                        tblInvoiceItemDetailsTO.Rate = loadingSlipExtTo.TaxableRateMT;
+                        tblInvoiceItemDetailsTO.Rate = Math.Round(loadingSlipExtTo.TaxableRateMT);//Reshma changes for itemwise sales report basic total issue;
                       //[05-03-2018]Vijaymala:Changes the code to change prodItemDesc as per Kalika and SRJ requirement 
                       //cnetan[20-feb-2020] added for display brand name in report on setting base.
                     Int32 isCPDisplayBrandOnInvoice = 0;
