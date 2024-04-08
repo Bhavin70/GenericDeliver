@@ -1660,7 +1660,7 @@ namespace ODLMWebAPI.DAL
             string statusIds = string.Empty;
             string isConfirm = string.Empty;
 
-            ResultMessage resultMessage = new ResultMessage(); ;
+            ResultMessage resultMessage = new ResultMessage(); 
 
 
             if (!String.IsNullOrEmpty(ids))
@@ -1756,7 +1756,7 @@ namespace ODLMWebAPI.DAL
                                         sConsumerTypeJoin +
                                         " WHERE DAY(bookingDatetime) = " + date.Day + " AND MONTH(bookingDatetime) = " + date.Month +
                                         " AND YEAR(bookingDatetime) = " + date.Year + statusIds + whereCond + isConfirm +
-                                        " GROUP BY isConfirmed, brandName,bookingType,dimBrand.shortNm" + sConsumerType +
+                                        " GROUP BY isConfirmed, brandName,bookingType,dimBrand.shortNm,pgDashBoardType" + sConsumerType +
                                         ")AS qryRes  order by bookingType,brandName asc  ";
 
 

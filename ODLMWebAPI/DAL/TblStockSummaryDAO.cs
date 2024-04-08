@@ -394,7 +394,7 @@ namespace ODLMWebAPI.DAL
                 //                        " ON CAST(stockInfo.createdOn as date) = CAST(bookStock.createdOn as date)";
 
 
-                cmdSelect.CommandText = " SELECT * FROM(SELECT totalStock, createdOn ,idStockSummary FROM tblStockSummary " +
+                cmdSelect.CommandText = " SELECT * FROM(SELECT totalStock, createdOn ,idStockSummary,pgDashBoardType FROM tblStockSummary " +
                                         " ) AS stockInfo " +
                                         " LEFT JOIN(SELECT stockInMT, stockFactor , createdOn FROM tblStockAsPerBooks " +
                                         " ) As bookStock " +
