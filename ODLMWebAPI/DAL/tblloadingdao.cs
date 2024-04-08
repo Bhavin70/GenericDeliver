@@ -10,6 +10,7 @@ using System.Linq;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DashboardModels;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
 
 namespace ODLMWebAPI.DAL
 {
@@ -914,6 +915,7 @@ namespace ODLMWebAPI.DAL
                     {
                         whereCond = " AND slip.cnfOrgId=" + orgId;
                     }
+                
                 //}
 
                 //if (loadingType > 0)
@@ -963,7 +965,7 @@ namespace ODLMWebAPI.DAL
 
                     if (loadingType == 1)
                     {
-                        
+
                         cmdSelect.CommandText = " SELECT  totalLoadingQty=0 , " +
                                                 " SUM(CASE WHEN tempLoading.statusId IN(7, 14, 15, 16, 17, 20) THEN temploadingslipExt.loadingQty ELSE 0 END) AS confimedLoadingQty " +
                                                 " , SUM(CASE WHEN tempLoading.statusId IN(4, 5, 6) THEN temploadingslipExt.loadingQty ELSE 0 END) AS notconfimedLoadingQty " +
@@ -972,8 +974,8 @@ namespace ODLMWebAPI.DAL
                                                 " INNER JOIN temploadingslip ON temploadingslip.idLoadingSlip = temploadingslipExt.loadingSlipId " +
                                                 " And  ISNULL(temploadingslipExt.prodItemId,0) = 0" +
                                                 " INNER JOIN tempLoading ON tempLoading.idLoading = temploadingslip.loadingId " +
-                                                //" INNER JOIN tempLoadingSlipDtl ON temploadingslip.idLoadingSlip = tempLoadingSlipDtl.loadingSlipId " +
-                                                  areaConfStr +
+                        //" INNER JOIN tempLoadingSlipDtl ON temploadingslip.idLoadingSlip = tempLoadingSlipDtl.loadingSlipId " +
+                                                  areaConfStr + " AND temploadingslipExt.pgDashBoardType = " + pgDashBoardType+
 
                                                 // Vaibhav [10-Jan-2018] Added to select from finalLoading
                                                 " UNION ALL " +
@@ -986,8 +988,8 @@ namespace ODLMWebAPI.DAL
                                                  " INNER JOIN finalloadingslip ON finalloadingslip.idLoadingSlip = finalloadingslipExt.loadingSlipId " +
                                                 " and ISNULL(finalloadingslipExt.prodItemId,0)= 0 " +
                                                 " INNER JOIN finalLoading ON finalLoading.idLoading = finalloadingslip.loadingId " +
-                                                //" INNER JOIN finalLoadingSlipDtl ON finalloadingslip.idLoadingSlip = finalLoadingSlipDtl.loadingSlipId " +
-                                                  finalAreaConf;
+                                                  //" INNER JOIN finalLoadingSlipDtl ON finalloadingslip.idLoadingSlip = finalLoadingSlipDtl.loadingSlipId " +
+                                                  finalAreaConf + " AND finalloadingslipExt.pgDashBoardType = " + pgDashBoardType;
                     }
                     else if (loadingType == 2)
                     {
@@ -999,7 +1001,7 @@ namespace ODLMWebAPI.DAL
                                                " INNER JOIN temploadingslip ON temploadingslip.idLoadingSlip = slipExt.loadingSlipId " +
                                                " and ISNULL(slipExt.prodItemId,0)!=0 " +
                                                " INNER JOIN tempLoading ON tempLoading.idLoading = temploadingslip.loadingId " +
-                                                 areaConfStr +
+                                                 areaConfStr + "AND slipExt.pgDashBoardType = " + pgDashBoardType +
 
                                                // Vaibhav [10-Jan-2018] Added to select from finalLoading
                                                " UNION ALL " +
@@ -1013,7 +1015,7 @@ namespace ODLMWebAPI.DAL
                                                " and ISNULL(slipExt.prodItemId,0) != 0 " +
                                                " INNER JOIN  finalLoading  ON finalLoading.idLoading = finalloadingslip.loadingId " +
                                                //" INNER JOIN finalLoadingSlipDtl ON finalloadingslip.idLoadingSlip = finalLoadingSlipDtl.loadingSlipId " +
-                                                 finalAreaConf;
+                                                 finalAreaConf + "AND slipExt.pgDashBoardType = " + pgDashBoardType ;
 
 
                     }
@@ -1039,7 +1041,7 @@ namespace ODLMWebAPI.DAL
                                         " and ISNULL(slipExt.prodItemId,0)= 0 " +
                                         " INNER JOIN tempLoading loading ON loading.idLoading = slip.loadingId " +
                                         //" INNER JOIN tempLoadingSlipDtl slipDtl  On slip.idLoadingSlip = slipDtl.loadingSlipId " +
-                                        " WHERE DAY(loading.createdOn)= " + sysDate.Day + " AND MONTH(loading.createdOn)= " + sysDate.Month + " AND YEAR(loading.createdOn)= " + sysDate.Year + whereCond +
+                                        " WHERE DAY(loading.createdOn)= " + sysDate.Day + " AND MONTH(loading.createdOn)= " + sysDate.Month + " AND YEAR(loading.createdOn)= " + sysDate.Year + whereCond + "AND slipExt.pgDashBoardType = " + pgDashBoardType +
                                         " ) as tempRes " +
 
                                         " UNION ALL " +
@@ -1057,7 +1059,7 @@ namespace ODLMWebAPI.DAL
                                         " and ISNULL(slipExt.prodItemId,0)=0" +
                                         " INNER JOIN finalLoading loading ON loading.idLoading = slip.loadingId " +
                                        // " INNER JOIN finalLoadingSlipDtl slipDtl  On slip.idLoadingSlip = slipDtl.loadingSlipId  " +
-                                        " WHERE DAY(loading.createdOn)= " + sysDate.Day + " AND MONTH(loading.createdOn)= " + sysDate.Month + " AND YEAR(loading.createdOn)= " + sysDate.Year + whereCond +
+                                        " WHERE DAY(loading.createdOn)= " + sysDate.Day + " AND MONTH(loading.createdOn)= " + sysDate.Month + " AND YEAR(loading.createdOn)= " + sysDate.Year + whereCond + "AND slipExt.pgDashBoardType = " + pgDashBoardType +
                                         " ) AS finRes " +
                                         " ) AS completeRes";
 
@@ -1121,7 +1123,7 @@ namespace ODLMWebAPI.DAL
                                       " INNER JOIN tempLoadingslip slip ON slip.idLoadingSlip = slipExt.loadingSlipId " +
                                       " and ISNULL(slipExt.prodItemId,0) != 0 " +
                                       " INNER JOIN tempLoading  loading   ON loading.idLoading = slip.loadingId " +
-                                      " WHERE DAY(loading.createdOn)= " + sysDate.Day + " AND MONTH(loading.createdOn)= " + sysDate.Month + " AND YEAR(loading.createdOn)= " + sysDate.Year + whereCond +
+                                      " WHERE DAY(loading.createdOn)= " + sysDate.Day + " AND MONTH(loading.createdOn)= " + sysDate.Month + " AND YEAR(loading.createdOn)= " + sysDate.Year + whereCond + "AND slipExt.pgDashBoardType = " + pgDashBoardType +
                                       " ) as tempRes " +
 
                                       " UNION ALL " +
@@ -1138,7 +1140,7 @@ namespace ODLMWebAPI.DAL
                                       " INNER JOIN finalLoadingSlip slip ON slip.idLoadingSlip = slipExt.loadingSlipId " +
                                       " and ISNULL(slipExt.prodItemId,0)!=0 " +
                                       " INNER JOIN finalLoading loading ON loading.idLoading = slip.loadingId " +
-                                      " WHERE DAY(loading.createdOn)= " + sysDate.Day + " AND MONTH(loading.createdOn)= " + sysDate.Month + " AND YEAR(loading.createdOn)= " + sysDate.Year + whereCond +
+                                      " WHERE DAY(loading.createdOn)= " + sysDate.Day + " AND MONTH(loading.createdOn)= " + sysDate.Month + " AND YEAR(loading.createdOn)= " + sysDate.Year + whereCond + "AND slipExt.pgDashBoardType = " + pgDashBoardType +
                                       " ) AS finRes " +
                                       " ) AS completeRes";
 

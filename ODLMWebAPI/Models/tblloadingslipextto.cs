@@ -53,7 +53,7 @@ namespace ODLMWebAPI.Models
         String scheduleDateStr ;
         Double balanceQty;
         Int32 isStockRequire;
-
+        
         int compartmentId;
         string compartmentName;
 
@@ -76,6 +76,7 @@ namespace ODLMWebAPI.Models
         String displayLoadingQty;
         String displayLoadedQty;
         String displayAverageRate;
+        Int32 pgDashBoardType;
         #endregion
 
         #region Constructor
@@ -402,7 +403,7 @@ namespace ODLMWebAPI.Models
         public double BalanceQty { get => balanceQty; set => balanceQty = value; }
         public int IsStockRequire { get => isStockRequire; set => isStockRequire = value; }
         public bool IsAllowPrevTareWt { get => isAllowPrevTareWt; set => isAllowPrevTareWt = value; }
-
+        public int PgDashBoardType { get => pgDashBoardType; set => pgDashBoardType = value; }
         public int CompartmentId
         {
             get { return compartmentId; }
@@ -435,7 +436,7 @@ namespace ODLMWebAPI.Models
         public Double AverageRate { get => averageRate; set => averageRate = value; }
         public String DisplayLoadingQty { get => displayLoadingQty; set => displayLoadingQty = value; }
         public String DisplayLoadedQty { get => displayLoadedQty; set => displayLoadedQty = value; }
-        public String DisplayAverageRate { get => displayAverageRate; set => displayAverageRate = value; }
+        public String DisplayAverageRate { get => displayAverageRate; set => displayAverageRate = value; }      
         //    public String DisplayLoadedBundles
         //   {
         //       get { return displayLoadedBundles; }

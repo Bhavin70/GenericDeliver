@@ -362,6 +362,9 @@ namespace ODLMWebAPI.DAL
                     {
                         tblGlobalRateTONew.BrandName = Convert.ToString(tblGlobalRateTODT["groupName"]);
                     }
+                    if (tblGlobalRateTODT["pgDashBoardType"] != DBNull.Value)
+                        tblGlobalRateTONew.PgDashBoardType = Convert.ToInt32(tblGlobalRateTODT["pgDashBoardType"]);
+                   
                     if (tblGlobalRateTODT["isBothTaxType"] != DBNull.Value)
                         tblGlobalRateTONew.IsBothTaxType = Convert.ToInt16(tblGlobalRateTODT["isBothTaxType"]);
                     tblGlobalRateTOList.Add(tblGlobalRateTONew);
@@ -424,6 +427,7 @@ namespace ODLMWebAPI.DAL
                             " ,[brandId]" +
 
                              " ,[groupId]" +
+                             " ,[pgDashBoardType]" +
                             " )" +
                 " VALUES (" +
                             "  @CreatedBy " +
@@ -434,6 +438,7 @@ namespace ODLMWebAPI.DAL
                             " ,@brandId " +
 
                             " ,@groupId "+
+                            " ,@pgDashBoardType " +
                             " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -448,6 +453,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@brandId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGlobalRateTO.BrandId);
 
             cmdInsert.Parameters.Add("@groupId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGlobalRateTO.GroupId);
+            cmdInsert.Parameters.Add("@pgDashBoardType", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGlobalRateTO.PgDashBoardType);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {

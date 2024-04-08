@@ -123,7 +123,7 @@ namespace ODLMWebAPI.DAL
                         tblLoadingSlipExtTONew.LoadingQty = Convert.ToDouble(tblLoadingSlipExtTODT["loadingQty"].ToString());
                     if (tblLoadingSlipExtTODT["bundles"] != DBNull.Value)
                         tblLoadingSlipExtTONew.Bundles = Convert.ToDouble(tblLoadingSlipExtTODT["bundles"].ToString());
-       
+                   
                     tblLoadingSlipExtTOList.Add(tblLoadingSlipExtTONew);
                 }
             }
@@ -679,6 +679,9 @@ namespace ODLMWebAPI.DAL
                     if (tblLoadingSlipExtTODT["modbusRefId"] != DBNull.Value)
                         tblLoadingSlipExtTONew.ModbusRefId = Convert.ToInt32(tblLoadingSlipExtTODT["modbusRefId"]);
 
+                    if (tblLoadingSlipExtTODT["pgDashBoardType"] != DBNull.Value)
+                        tblLoadingSlipExtTONew.ModbusRefId = Convert.ToInt32(tblLoadingSlipExtTODT["pgDashBoardType"]);
+
                     if (tblLoadingSlipExtTONew.ProdItemId > 0)
                     {
                         tblLoadingSlipExtTONew.DisplayName = tblLoadingSlipExtTONew.DisplayName + "-" + tblLoadingSlipExtTONew.ItemName;
@@ -1046,6 +1049,7 @@ namespace ODLMWebAPI.DAL
                             " ,[mstLoadedBundles]" +                   //Priyanka [28-05-2018]
                             " ,[compartmentId]" +
                              ",[modbusRefId]" +
+                             ",[pgDashBoardType]" +
                             " )" +
                 " VALUES (" +
                             "  @BookingId " +
@@ -1081,6 +1085,7 @@ namespace ODLMWebAPI.DAL
                             " ,@mstLoadedBundles" +
                             " ,@CompartmentId " +
                              " ,@modbusRefId" +
+                             " ,@pgDashBoardType" +
                             " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -1121,6 +1126,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@CompartmentId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipExtTO.CompartmentId);
             cmdInsert.Parameters.Add("@mstLoadedBundles", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipExtTO.MstLoadedBundles);         //Priyanka [28-05-2018]
             cmdInsert.Parameters.Add("@modbusRefId", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipExtTO.ModbusRefId);
+            cmdInsert.Parameters.Add("@pgDashBoardType", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipExtTO.PgDashBoardType);
 
 
             if (cmdInsert.ExecuteNonQuery() == 1)

@@ -1701,7 +1701,7 @@ namespace ODLMWebAPI.BL
                                 " ,[loadingType]" +
                                 " ,[currencyId]" +
                                 " ,[currencyRate]" +
-                                " ,[maxWeighingOty]" +
+                                " ,[maxWeighingOty]" +                                
                                 " )" +
                     " VALUES (" +
                                 "  @IsJointDelivery " +
@@ -1732,7 +1732,7 @@ namespace ODLMWebAPI.BL
                                 " ,@loadingType " +
                                 " ,@currencyId " +
                                 " ,@currencyRate " +
-                                " ,@maxWeighingOty " +
+                                " ,@maxWeighingOty " +                      
                                 " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -1768,7 +1768,7 @@ namespace ODLMWebAPI.BL
             cmdInsert.Parameters.Add("@currencyId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.CurrencyId);
             cmdInsert.Parameters.Add("@currencyRate", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.CurrencyRate);
             cmdInsert.Parameters.Add("@maxWeighingOty", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingTO.MaxWeighingOty);
-
+        
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = Constants.IdentityColumnQuery;
@@ -2105,6 +2105,7 @@ namespace ODLMWebAPI.BL
                             " ,[brandId]" +
                             " ,[mstLoadedBundles]" +                   //Priyanka [31-05-2018]
                             " ,[compartmentId]" +
+                            " ,[pgDashBoardType]" +
                             " )" +
                 " VALUES (" +
                             "  @BookingId " +
@@ -2138,7 +2139,7 @@ namespace ODLMWebAPI.BL
                             " ,@cdApplicableAmt " +
                             " ,@brandId " +
                             " ,@mstLoadedBundles" +
-                            " ,@CompartmentId " +
+                            " ,@pgDashBoardType " +
                             " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -2178,6 +2179,7 @@ namespace ODLMWebAPI.BL
 
             cmdInsert.Parameters.Add("@CompartmentId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipExtTO.CompartmentId);
             cmdInsert.Parameters.Add("@mstLoadedBundles", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipExtTO.MstLoadedBundles);         //Priyanka [31-05-2018]
+            cmdInsert.Parameters.Add("@pgDashBoardType", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipExtTO.PgDashBoardType);       
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {

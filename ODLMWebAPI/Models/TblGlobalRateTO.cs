@@ -20,6 +20,7 @@ namespace ODLMWebAPI.Models
         int brandId;
         string brandName;
         int groupId;
+        int pgDashBoardType;
         List<TblQuotaDeclarationTO> quotaDeclarationTOList;
         List<TblQuotaDeclarationTO> previousQuotaDeclarationTOList=new List<TblQuotaDeclarationTO>();
         #endregion
@@ -104,6 +105,7 @@ namespace ODLMWebAPI.Models
         public List<TblQuotaDeclarationTO> QuotaDeclarationTOList { get => quotaDeclarationTOList; set => quotaDeclarationTOList = value; }
         public List<TblQuotaDeclarationTO> PreviousQuotaDeclarationTOList { get => previousQuotaDeclarationTOList; set => previousQuotaDeclarationTOList = value; }
         public int GroupId { get => groupId; set => groupId = value; }
+        public int PgDashBoardType { get => pgDashBoardType; set => pgDashBoardType = value; }
         public int IsBothTaxType { get ; set ; }
         #endregion
     }
