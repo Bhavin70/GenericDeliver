@@ -370,7 +370,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public ODLMWebAPI.DashboardModels.StockUpdateInfo SelectDashboardStockUpdateInfo(DateTime sysDate, Int32 pgDashBoardType)
+        public ODLMWebAPI.DashboardModels.StockUpdateInfo SelectDashboardStockUpdateInfo(DateTime sysDate, Int32 categoryType)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -394,14 +394,14 @@ namespace ODLMWebAPI.DAL
                 //                        " ON CAST(stockInfo.createdOn as date) = CAST(bookStock.createdOn as date)";
 
 
-                cmdSelect.CommandText = " SELECT * FROM(SELECT totalStock, createdOn ,idStockSummary,pgDashBoardType FROM tblStockSummary " +
+                cmdSelect.CommandText = " SELECT * FROM(SELECT totalStock, createdOn ,idStockSummary,categoryType FROM tblStockSummary " +
                                         " ) AS stockInfo " +
                                         " LEFT JOIN(SELECT stockInMT, stockFactor , createdOn FROM tblStockAsPerBooks " +
                                         " ) As bookStock " +
                                         " ON CAST(stockInfo.createdOn as date) = CAST(bookStock.createdOn as date) " +
                                         " left join (select sum(balanceStock ) as PendingStock,stockSummaryId from tblStockDetails group by stockSummaryId  ) as PendingStock " +
                                         "   on PendingStock.stockSummaryId=stockInfo.idStockSummary " +
-                                        " WHERE stockInfo.pgDashBoardType =" + pgDashBoardType +
+                                        " WHERE stockInfo.categoryType =" + categoryType +
                                         " order by stockInfo.createdOn desc ";
 
 
@@ -466,8 +466,8 @@ namespace ODLMWebAPI.DAL
                         tblStockSummaryTONew.NoOfBundles = Convert.ToDouble(tblStockSummaryTODT["noOfBundles"].ToString());
                     if (tblStockSummaryTODT["totalStock"] != DBNull.Value)
                         tblStockSummaryTONew.TotalStock = Convert.ToDouble(tblStockSummaryTODT["totalStock"].ToString());
-                    if (tblStockSummaryTODT["pgDashBoardType"] != DBNull.Value)
-                        tblStockSummaryTONew.PgDashBoardType = Convert.ToInt32(tblStockSummaryTODT["pgDashBoardType"].ToString());
+                    if (tblStockSummaryTODT["categoryType"] != DBNull.Value)
+                        tblStockSummaryTONew.CategoryType = Convert.ToInt32(tblStockSummaryTODT["categoryType"].ToString());
 
                     tblStockSummaryTOList.Add(tblStockSummaryTONew);
                 }
@@ -642,7 +642,7 @@ namespace ODLMWebAPI.DAL
                                 " ,[noOfBundles]" +
                                 " ,[totalStock]" +
                                 " ,[transactionType]" +
-                                " ,[pgDashBoardType]" +
+                                " ,[categoryType]" +
                                 " )" +
                     " VALUES (" +
                               
@@ -656,7 +656,7 @@ namespace ODLMWebAPI.DAL
                                 " ,@NoOfBundles " +
                                 " ,@TotalStock " +
                                 " ,@TransactionType " +
-                                " ,@PgDashBoardType " +
+                                " ,@categoryType " +
                                 " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -673,7 +673,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@NoOfBundles", System.Data.SqlDbType.NVarChar).Value = tblStockSummaryTO.NoOfBundles;
             cmdInsert.Parameters.Add("@TotalStock", System.Data.SqlDbType.NVarChar).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockSummaryTO.TotalStock);
             cmdInsert.Parameters.Add("@TransactionType", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockSummaryTO.TransactionType);
-            cmdInsert.Parameters.Add("@PgDashBoardType", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockSummaryTO.TransactionType);
+            cmdInsert.Parameters.Add("@categoryType", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockSummaryTO.CategoryType);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {

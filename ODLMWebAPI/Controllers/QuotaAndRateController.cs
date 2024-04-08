@@ -180,12 +180,12 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetQuotaAndRateDashboardInfoList")]
         [HttpGet]
-        public List<QuotaAndRateInfo> GetQuotaAndRateDashboardInfoList(int roleTypeId, Int32 orgId, DateTime sysDate,Int32 pgDashBoardType)
+        public List<QuotaAndRateInfo> GetQuotaAndRateDashboardInfoList(int roleTypeId, Int32 orgId, DateTime sysDate,Int32 categoryType)
         {
             if (sysDate == DateTime.MinValue)
                 sysDate = _iCommon.ServerDateTime;
 
-            return _iTblQuotaDeclarationBL.SelectQuotaAndRateDashboardInfoList(roleTypeId, orgId, sysDate, pgDashBoardType);
+            return _iTblQuotaDeclarationBL.SelectQuotaAndRateDashboardInfoList(roleTypeId, orgId, sysDate, categoryType);
         }
 
         //Prajakta[2020-02-05] Added to get always latest rate

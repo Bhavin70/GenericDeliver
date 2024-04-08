@@ -524,13 +524,13 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetBookingDashboardInfo")]
         [HttpGet]
-        public List<BookingInfo> GetBookingDashboardInfo(String userRoleList, Int32 orgId,Int32 dealerId, DateTime sysDate,Int32 pgDashBoardType)
+        public List<BookingInfo> GetBookingDashboardInfo(String userRoleList, Int32 orgId,Int32 dealerId, DateTime sysDate,Int32 categoryType)
         {
             if (sysDate == DateTime.MinValue)
                 sysDate = _iCommon.ServerDateTime;
             
             List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleList);
-            return _iTblBookingsBL.SelectBookingDashboardInfo(tblUserRoleTOList, orgId,dealerId, sysDate, pgDashBoardType);
+            return _iTblBookingsBL.SelectBookingDashboardInfo(tblUserRoleTOList, orgId,dealerId, sysDate, categoryType);
         }
 
         [Route("GetMinAndMaxValueConfigForBookingRate")]

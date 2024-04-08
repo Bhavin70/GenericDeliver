@@ -18,7 +18,7 @@ namespace ODLMWebAPI.DashboardModels
         Int32 isConfirmed;
         string brandName;
         Int32 bookingType;
-        Int32 pgDashBoardType;
+        Int32 categoryType;
         string shortNm;
         string consumerType;
         #endregion
@@ -30,7 +30,7 @@ namespace ODLMWebAPI.DashboardModels
         public int IsConfirmed { get => isConfirmed; set => isConfirmed = value; }
         public string BrandName { get => brandName; set => brandName = value; }
         public int BookingType { get => bookingType; set => bookingType = value; }
-        public int PgDashBoardType { get => pgDashBoardType; set => pgDashBoardType = value; }
+        public int CategoryType { get => categoryType; set => categoryType = value; }
         public string ShortNm { get => shortNm; set => shortNm = value; }
 
         public string ConsumerType { get => consumerType; set => consumerType = value; }

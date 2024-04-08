@@ -479,7 +479,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<ODLMWebAPI.DashboardModels.QuotaAndRateInfo> SelectDashboardQuotaAndRateInfoList(Int32 roleId, Int32 orgId, DateTime sysDate,Int32 pgDashBoardType)
+        public List<ODLMWebAPI.DashboardModels.QuotaAndRateInfo> SelectDashboardQuotaAndRateInfoList(Int32 roleId, Int32 orgId, DateTime sysDate,Int32 categoryType)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -505,7 +505,7 @@ namespace ODLMWebAPI.DAL
                                         " LEFT JOIN dimBrand ON dimBrand.idBrand = tblGlobalRate.brandId " +
                                         " LEFT JOIN tblGroup ON tblGroup.idGroup = tblGlobalRate.groupId " +
                                         " where tblGlobalRate.createdOn = (select top 1 createdOn from tblGlobalRate order by createdOn desc)  " +
-                                        " AND tblGlobalRate.pgDashBoardType = " + pgDashBoardType ;
+                                        " AND tblGlobalRate.categoryType = " + categoryType;
 
 
                 cmdSelect.Connection = conn;

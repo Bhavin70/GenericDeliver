@@ -1647,7 +1647,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<BookingInfo> SelectBookingDashboardInfo(TblUserRoleTO tblUserRoleTO, int orgId, Int32 dealerId, DateTime date, string ids, Int32 isHideCorNC, Boolean bWithConsumerType, Int32 pgDashBoardType)
+        public List<BookingInfo> SelectBookingDashboardInfo(TblUserRoleTO tblUserRoleTO, int orgId, Int32 dealerId, DateTime date, string ids, Int32 isHideCorNC, Boolean bWithConsumerType, Int32 categoryType)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -1699,7 +1699,7 @@ namespace ODLMWebAPI.DAL
                 {
                     whereCond += " AND dealerOrgId=" + dealerId;
                 }
-                whereCond += " AND pgDashBoardType=" + pgDashBoardType;
+                whereCond += " AND categoryType=" + categoryType;
                 // }
 
                 //if (tblUserRoleTO.RoleId == (int)Constants.SystemRolesE.C_AND_F_AGENT)
@@ -1747,16 +1747,16 @@ namespace ODLMWebAPI.DAL
                     sConsumerType = ", consumerType ";
                     sConsumerTypeJoin = " LEFT JOIN dimConsumerType On tblBookings.consumerTypeId = dimConsumerType.idConsumer  ";
                 }
-                cmdSelect.CommandText = " SELECT bookingType,bookingQty,pgDashBoardType, COST as totalCost ,COST / bookingQty avgPrice, isConfirmed,brandName,shortNm " + sConsumerType +
+                cmdSelect.CommandText = " SELECT bookingType,bookingQty,categoryType, COST as totalCost ,COST / bookingQty avgPrice, isConfirmed,brandName,shortNm " + sConsumerType +
                                         " FROM " +
                                         " ( " +
                                         " SELECT sum(bookingQty) AS bookingQty, dimBrand.brandName, isConfirmed, sum((bookingQty * bookingRate))" +
-                                        " AS cost,bookingType,pgDashBoardType,dimBrand.shortNm " + sConsumerType + " FROM tblBookings " + areConfJoin +
+                                        " AS cost,bookingType,categoryType,dimBrand.shortNm " + sConsumerType + " FROM tblBookings " + areConfJoin +
                                         " LEFT JOIN dimBrand On tblBookings.brandId = dimBrand.idBrand " +
                                         sConsumerTypeJoin +
                                         " WHERE DAY(bookingDatetime) = " + date.Day + " AND MONTH(bookingDatetime) = " + date.Month +
                                         " AND YEAR(bookingDatetime) = " + date.Year + statusIds + whereCond + isConfirm +
-                                        " GROUP BY isConfirmed, brandName,bookingType,dimBrand.shortNm,pgDashBoardType" + sConsumerType +
+                                        " GROUP BY isConfirmed, brandName,bookingType,dimBrand.shortNm,categoryType" + sConsumerType +
                                         ")AS qryRes  order by bookingType,brandName asc  ";
 
 
@@ -1798,8 +1798,8 @@ namespace ODLMWebAPI.DAL
                         {
                             tblBookingsTONew.ShortNm = "Others";
                         }
-                        if (tblBookingsTODT["pgDashBoardType"] != DBNull.Value)
-                            tblBookingsTONew.PgDashBoardType = Convert.ToInt32(tblBookingsTODT["pgDashBoardType"].ToString());
+                        if (tblBookingsTODT["categoryType"] != DBNull.Value)
+                            tblBookingsTONew.CategoryType = Convert.ToInt32(tblBookingsTODT["categoryType"].ToString());
 
                         tblBookingsTOList.Add(tblBookingsTONew);
 
@@ -2014,8 +2014,8 @@ namespace ODLMWebAPI.DAL
                     if (tblBookingsTODT["bookingDisplayNo"] != DBNull.Value)
                         tblBookingsTONew.BookingDisplayNo = Convert.ToString(tblBookingsTODT["bookingDisplayNo"]);
                     
-                    if (tblBookingsTODT["pgDashBoardType"] != DBNull.Value)
-                        tblBookingsTONew.PgDashBoardType = Convert.ToInt32(tblBookingsTODT["pgDashBoardType"]);
+                    if (tblBookingsTODT["categoryType"] != DBNull.Value)
+                        tblBookingsTONew.CategoryType = Convert.ToInt32(tblBookingsTODT["categoryType"]);
 
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }
@@ -2227,8 +2227,8 @@ namespace ODLMWebAPI.DAL
 
                     if (tblBookingsTODT["isBothTaxType"] != DBNull.Value)
                         tblBookingsTONew.IsBothTaxType = Convert.ToInt32(tblBookingsTODT["isBothTaxType"]);
-                    if (tblBookingsTODT["pgDashBoardType"] != DBNull.Value)
-                        tblBookingsTONew.PgDashBoardType = Convert.ToInt32(tblBookingsTODT["pgDashBoardType"]);
+                    if (tblBookingsTODT["categoryType"] != DBNull.Value)
+                        tblBookingsTONew.CategoryType = Convert.ToInt32(tblBookingsTODT["categoryType"]);
 
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }
@@ -2452,8 +2452,8 @@ namespace ODLMWebAPI.DAL
                     if (tblBookingsTODT["bookingCommentCategoryId"] != DBNull.Value)
                         tblBookingsTONew.BookingCommentCategoryId = Convert.ToInt32(tblBookingsTODT["bookingCommentCategoryId"]);
                     
-                    if (tblBookingsTODT["pgDashBoardType"] != DBNull.Value)
-                        tblBookingsTONew.PgDashBoardType = Convert.ToInt32(tblBookingsTODT["pgDashBoardType"]);
+                    if (tblBookingsTODT["categoryType"] != DBNull.Value)
+                        tblBookingsTONew.CategoryType = Convert.ToInt32(tblBookingsTODT["categoryType"]);
 
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }
@@ -2919,7 +2919,7 @@ namespace ODLMWebAPI.DAL
                             ", [brokerName]" +
                             ", [bookingTaxCategoryId]" +
                             ", [bookingCommentCategoryId]" +
-                            ", [pgDashBoardType]" +
+                            ", [categoryType]" +
                             " )" +
                 " VALUES (" +
                             "  @CnFOrgId " +
@@ -2978,7 +2978,7 @@ namespace ODLMWebAPI.DAL
                             ",@brokerName" +
                             ", @bookingTaxCategoryId" +
                             ", @bookingCommentCategoryId" +
-                            ", @pgDashBoardType" +
+                            ", @categoryType" +
                              " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -3043,7 +3043,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@brokerName", System.Data.SqlDbType.NVarChar).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BrokerName);
             cmdInsert.Parameters.Add("@bookingTaxCategoryId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingTaxCategoryId);
             cmdInsert.Parameters.Add("@bookingCommentCategoryId", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.BookingCommentCategoryId);
-            cmdInsert.Parameters.Add("@pgDashBoardType", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.PgDashBoardType);
+            cmdInsert.Parameters.Add("@categoryType", System.Data.SqlDbType.Int).Value = StaticStuff.Constants.GetSqlDataValueNullForBaseValue(tblBookingsTO.CategoryType);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {

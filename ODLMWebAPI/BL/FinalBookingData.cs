@@ -2105,7 +2105,7 @@ namespace ODLMWebAPI.BL
                             " ,[brandId]" +
                             " ,[mstLoadedBundles]" +                   //Priyanka [31-05-2018]
                             " ,[compartmentId]" +
-                            " ,[pgDashBoardType]" +
+                            " ,[categoryType]" +
                             " )" +
                 " VALUES (" +
                             "  @BookingId " +
@@ -2139,7 +2139,7 @@ namespace ODLMWebAPI.BL
                             " ,@cdApplicableAmt " +
                             " ,@brandId " +
                             " ,@mstLoadedBundles" +
-                            " ,@pgDashBoardType " +
+                            " ,@categoryType " +
                             " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -2179,7 +2179,7 @@ namespace ODLMWebAPI.BL
 
             cmdInsert.Parameters.Add("@CompartmentId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipExtTO.CompartmentId);
             cmdInsert.Parameters.Add("@mstLoadedBundles", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipExtTO.MstLoadedBundles);         //Priyanka [31-05-2018]
-            cmdInsert.Parameters.Add("@pgDashBoardType", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipExtTO.PgDashBoardType);       
+            cmdInsert.Parameters.Add("@categoryType", System.Data.SqlDbType.Decimal).Value = Constants.GetSqlDataValueNullForBaseValue(tblLoadingSlipExtTO.CategoryType);       
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {

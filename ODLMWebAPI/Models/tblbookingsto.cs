@@ -573,7 +573,7 @@ namespace ODLMWebAPI.Models
         public string BrokerName { get; set; }
         public int BookingTaxCategoryId { get; set; }
         public int BookingCommentCategoryId { get; set; }
-        public int PgDashBoardType { get; set; }
+        public int CategoryType { get; set; }
         public int IsBothTaxType { get; set; }
 
         public DateTime SizeUpdationDate { get; set; }

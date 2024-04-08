@@ -19,7 +19,7 @@ namespace ODLMWebAPI.Models
         Double noOfBundles;
         Double totalStock;
         Int32 transactionType;
-        Int32 pgDashBoardType;
+        Int32 categoryType;
         Boolean isTodaysProduction;
         List<TblStockDetailsTO> stockDetailsTOList;
         #endregion
@@ -88,10 +88,10 @@ namespace ODLMWebAPI.Models
             get { return transactionType; }
             set { transactionType = value; }
         }
-        public Int32 PgDashBoardType
+        public Int32 CategoryType
         {
-            get { return pgDashBoardType; }
-            set { pgDashBoardType = value; }
+            get { return categoryType; }
+            set { categoryType = value; }
         }
         
         public Boolean IsTodaysProduction

@@ -76,7 +76,7 @@ namespace ODLMWebAPI.Models
         String displayLoadingQty;
         String displayLoadedQty;
         String displayAverageRate;
-        Int32 pgDashBoardType;
+        Int32 categoryType;
         #endregion
 
         #region Constructor
@@ -403,7 +403,7 @@ namespace ODLMWebAPI.Models
         public double BalanceQty { get => balanceQty; set => balanceQty = value; }
         public int IsStockRequire { get => isStockRequire; set => isStockRequire = value; }
         public bool IsAllowPrevTareWt { get => isAllowPrevTareWt; set => isAllowPrevTareWt = value; }
-        public int PgDashBoardType { get => pgDashBoardType; set => pgDashBoardType = value; }
+        public int CategoryType { get => categoryType; set => categoryType = value; }
         public int CompartmentId
         {
             get { return compartmentId; }

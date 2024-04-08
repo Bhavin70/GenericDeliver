@@ -630,13 +630,13 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetLoadingDashboardInfo")]
         [HttpGet]
-        public LoadingInfo GetLoadingDashboardInfo(String userRoleList, Int32 orgId, DateTime sysDate,Int32 pgDashBoardType,Int32 loadingType = 1)
+        public LoadingInfo GetLoadingDashboardInfo(String userRoleList, Int32 orgId, DateTime sysDate,Int32 categoryType, Int32 loadingType = 1)
         {
             if (sysDate == DateTime.MinValue)
                 sysDate = _iCommon.ServerDateTime;
 
             List<TblUserRoleTO> tblUserRoleTOList = JsonConvert.DeserializeObject<List<TblUserRoleTO>>(userRoleList);
-            return _iTblLoadingBL.SelectDashboardLoadingInfo(tblUserRoleTOList, orgId, sysDate, pgDashBoardType,loadingType);
+            return _iTblLoadingBL.SelectDashboardLoadingInfo(tblUserRoleTOList, orgId, sysDate, categoryType, loadingType);
         }
 
         [Route("IsLoadingAllowed")]

@@ -362,8 +362,8 @@ namespace ODLMWebAPI.DAL
                     {
                         tblGlobalRateTONew.BrandName = Convert.ToString(tblGlobalRateTODT["groupName"]);
                     }
-                    if (tblGlobalRateTODT["pgDashBoardType"] != DBNull.Value)
-                        tblGlobalRateTONew.PgDashBoardType = Convert.ToInt32(tblGlobalRateTODT["pgDashBoardType"]);
+                    if (tblGlobalRateTODT["categoryType"] != DBNull.Value)
+                        tblGlobalRateTONew.CategoryType = Convert.ToInt32(tblGlobalRateTODT["categoryType"]);
                    
                     if (tblGlobalRateTODT["isBothTaxType"] != DBNull.Value)
                         tblGlobalRateTONew.IsBothTaxType = Convert.ToInt16(tblGlobalRateTODT["isBothTaxType"]);
@@ -427,7 +427,7 @@ namespace ODLMWebAPI.DAL
                             " ,[brandId]" +
 
                              " ,[groupId]" +
-                             " ,[pgDashBoardType]" +
+                             " ,[categoryType]" +
                             " )" +
                 " VALUES (" +
                             "  @CreatedBy " +
@@ -438,7 +438,7 @@ namespace ODLMWebAPI.DAL
                             " ,@brandId " +
 
                             " ,@groupId "+
-                            " ,@pgDashBoardType " +
+                            " ,@categoryType " +
                             " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -453,7 +453,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@brandId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGlobalRateTO.BrandId);
 
             cmdInsert.Parameters.Add("@groupId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGlobalRateTO.GroupId);
-            cmdInsert.Parameters.Add("@pgDashBoardType", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGlobalRateTO.PgDashBoardType);
+            cmdInsert.Parameters.Add("@categoryType", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblGlobalRateTO.CategoryType);
 
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
