@@ -3013,6 +3013,13 @@ namespace ODLMWebAPI.BL
                     excelWorksheet.Cells[cellRow, 24].Value = item.TCS;
                     excelWorksheet.Cells[cellRow, 25].Style.Numberformat.Format = "#,##0.000";
                     excelWorksheet.Cells[cellRow, 25].Value = item.TotalAmt;
+                    if (item.TotalAmt >0)
+                    {
+                        item.TotalAmt = item.TotalAmt / 100;
+                        //Added by minal for display Total after two decimal point for report                       
+                        //item.TotalAmt = String.Format("{0:0.00}", tallyReportTONew.Total);
+                        excelWorksheet.Cells[cellRow, 25].Value = item.TotalAmt;
+                    }
                     cellRow++;
 
                     using (ExcelRange range = excelWorksheet.Cells[1, 1, cellRow, 25])
