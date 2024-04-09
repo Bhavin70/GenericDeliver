@@ -260,6 +260,7 @@ namespace ODLMWebAPI.Controllers
                 var loginUserId = data["loginUserId"].ToString();
                 var comments = data["comments"].ToString();
                 var rateReasonId = data["rateReasonId"].ToString();
+                var categoryType = data["categoryType"].ToString();
                 var rateReasonDesc = data["rateReasonDesc"].ToString();
 
                 if (Convert.ToInt32(loginUserId) <= 0)
@@ -321,6 +322,7 @@ namespace ODLMWebAPI.Controllers
                             tblQuotaDeclarationTO.CreatedOn = serverDate;
                             tblQuotaDeclarationTO.CreatedBy = Convert.ToInt32(loginUserId);
                             tblQuotaDeclarationTO.IsActive = 1;
+                            //tblQuotaDeclarationTO.CategoryType = Convert.ToInt32(categoryType);
 
                             tblQuotaDeclarationTO.Tag = orgTO;
 
@@ -335,7 +337,9 @@ namespace ODLMWebAPI.Controllers
                                temp.UpdatedOn = serverDate;
                                temp.UpdatedBy = Convert.ToInt32(loginUserId);
                                temp.IsActive = 1;
-                               tblGlobalRateTO.PreviousQuotaDeclarationTOList.Add(temp);
+                               //temp.CategoryType = Convert.ToInt32(categoryType);
+
+                                tblGlobalRateTO.PreviousQuotaDeclarationTOList.Add(temp);
                             }
                                 
 
@@ -360,7 +364,7 @@ namespace ODLMWebAPI.Controllers
                         tblGlobalRateTO.Comments = Convert.ToString(comments);
                         tblGlobalRateTO.RateReasonId = Convert.ToInt32(rateReasonId);
                         tblGlobalRateTO.RateReasonDesc = Convert.ToString(rateReasonDesc);
-
+                        tblGlobalRateTO.CategoryType = Convert.ToInt32(categoryType);
                         tblGlobalRateTOList.Add(tblGlobalRateTO);
 
                     }
