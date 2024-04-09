@@ -9,6 +9,8 @@ using ODLMWebAPI.StaticStuff;
 using System.Linq;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.BL.Interfaces;
+using Microsoft.Office.Interop.Excel;
+using Constants = ODLMWebAPI.StaticStuff.Constants;
 
 namespace ODLMWebAPI.DAL
 {
@@ -174,6 +176,8 @@ namespace ODLMWebAPI.DAL
                         tblQuotaDeclarationTONew.BrandName = Convert.ToString(tblQuotaDeclarationTODT["brandName"].ToString());
                     if (tblQuotaDeclarationTODT["brandId"] != DBNull.Value)
                         tblQuotaDeclarationTONew.BrandId = Convert.ToInt32(tblQuotaDeclarationTODT["brandId"].ToString());
+                    if (tblQuotaDeclarationTODT["categoryType"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.CategoryType = Convert.ToInt32(tblQuotaDeclarationTODT["categoryType"].ToString());
                     tblQuotaDeclarationTOList.Add(tblQuotaDeclarationTONew);
                 }
             }
@@ -227,6 +231,8 @@ namespace ODLMWebAPI.DAL
                         tblQuotaDeclarationTONew.IsAutoSelect = Convert.ToInt32(tblQuotaDeclarationTODT["isAutoSelect"].ToString());
                     if (tblQuotaDeclarationTODT["isBothTaxType"] != DBNull.Value)
                         tblQuotaDeclarationTONew.IsBothTaxType = Convert.ToInt32(tblQuotaDeclarationTODT["isBothTaxType"].ToString());
+                    if (tblQuotaDeclarationTODT["categoryType"] != DBNull.Value)
+                        tblQuotaDeclarationTONew.CategoryType = Convert.ToInt32(tblQuotaDeclarationTODT["categoryType"].ToString());
                     tblQuotaDeclarationTOList.Add(tblQuotaDeclarationTONew);
                 }
             }
@@ -612,6 +618,7 @@ namespace ODLMWebAPI.DAL
                             " ,[updatedBy]" +
                             " ,[updatedOn]" +
                             " ,[validUpto]"+
+                            " ,[categoryType]" +
                             " )" +
                 " VALUES (" +
                             "  @OrgId " +
@@ -627,6 +634,7 @@ namespace ODLMWebAPI.DAL
                             " ,@updatedBy " +
                             " ,@updatedOn " +
                             " ,@ValidUpto " +
+                            " ,@categoryType " +
                             " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -645,6 +653,7 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@updatedBy", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblQuotaDeclarationTO.UpdatedBy);
             cmdInsert.Parameters.Add("@updatedOn", System.Data.SqlDbType.DateTime).Value = Constants.GetSqlDataValueNullForBaseValue(tblQuotaDeclarationTO.UpdatedOn);
             cmdInsert.Parameters.Add("@ValidUpto", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblQuotaDeclarationTO.ValidUpto);
+            cmdInsert.Parameters.Add("@categoryType", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblQuotaDeclarationTO.CategoryType);
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 cmdInsert.CommandText = Constants.IdentityColumnQuery;
@@ -750,6 +759,7 @@ namespace ODLMWebAPI.DAL
                                   " ,[isActive] = @isActive " +
                                   " ,[updatedBy] = @updatedBy " +
                                   " ,[updatedOn] = @updatedOn " +
+                                  " ,[categoryType] = @categoryType " +
                              " WHERE  [idQuotaDeclaration] = @IdQuotaDeclaration AND [orgId]=@OrgId ";
 
                 cmdUpdate.CommandText = sqlQuery;
@@ -761,6 +771,7 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Parameters.Add("@isActive", System.Data.SqlDbType.Int).Value = tblQuotaDeclarationTO.IsActive;
                 cmdUpdate.Parameters.Add("@updatedBy", System.Data.SqlDbType.Int).Value = tblQuotaDeclarationTO.UpdatedBy;
                 cmdUpdate.Parameters.Add("@updatedOn", System.Data.SqlDbType.DateTime).Value = tblQuotaDeclarationTO.UpdatedOn;
+                cmdUpdate.Parameters.Add("@categoryType", System.Data.SqlDbType.DateTime).Value = tblQuotaDeclarationTO.CategoryType;
 
                 return cmdUpdate.ExecuteNonQuery();
             }
@@ -788,6 +799,7 @@ namespace ODLMWebAPI.DAL
                             ", [isActive] = @isActive" +
                             ", [updatedBy] = @updatedBy" +
                             ", [updatedOn] = @updatedOn" +
+                            ", [categoryType] = @categoryType" +
                             " WHERE[idQuotaDeclaration] = @IdQuotaDeclaration";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -805,6 +817,7 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@isActive", System.Data.SqlDbType.Int).Value = tblQuotaDeclarationTO.IsActive;
             cmdUpdate.Parameters.Add("@updatedBy", System.Data.SqlDbType.Int).Value = tblQuotaDeclarationTO.UpdatedBy;
             cmdUpdate.Parameters.Add("@updatedOn", System.Data.SqlDbType.DateTime).Value = tblQuotaDeclarationTO.UpdatedOn;
+            cmdUpdate.Parameters.Add("@categoryType", System.Data.SqlDbType.DateTime).Value = tblQuotaDeclarationTO.CategoryType;
 
             return cmdUpdate.ExecuteNonQuery();
         }

@@ -74,7 +74,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetRateDeclarationHistory")]
         [HttpGet]
-        public List<TblGlobalRateTO> GetRateDeclarationHistory(String fromDate, String toDate)
+        public List<TblGlobalRateTO> GetRateDeclarationHistory(String fromDate, String toDate, Int32 categoryType)
         {
             DateTime frmDate = Convert.ToDateTime(fromDate);
             DateTime tDate = Convert.ToDateTime(toDate);
@@ -83,7 +83,7 @@ namespace ODLMWebAPI.Controllers
             if (tDate == DateTime.MinValue)
                 tDate = _iCommon.ServerDateTime;
 
-            return _iTblGlobalRateBL.SelectTblGlobalRateTOList(frmDate, tDate);
+            return _iTblGlobalRateBL.SelectTblGlobalRateTOList(frmDate, tDate , categoryType); 
         }
 
         /// <summary>
@@ -261,6 +261,7 @@ namespace ODLMWebAPI.Controllers
                 var comments = data["comments"].ToString();
                 var rateReasonId = data["rateReasonId"].ToString();
                 var rateReasonDesc = data["rateReasonDesc"].ToString();
+                var categoryType = data["categoryType"].ToString();
 
                 if (Convert.ToInt32(loginUserId) <= 0)
                 {
@@ -321,6 +322,7 @@ namespace ODLMWebAPI.Controllers
                             tblQuotaDeclarationTO.CreatedOn = serverDate;
                             tblQuotaDeclarationTO.CreatedBy = Convert.ToInt32(loginUserId);
                             tblQuotaDeclarationTO.IsActive = 1;
+                            tblQuotaDeclarationTO.CategoryType = Convert.ToInt32(categoryType);
 
                             tblQuotaDeclarationTO.Tag = orgTO;
 
@@ -335,7 +337,8 @@ namespace ODLMWebAPI.Controllers
                                temp.UpdatedOn = serverDate;
                                temp.UpdatedBy = Convert.ToInt32(loginUserId);
                                temp.IsActive = 1;
-                               tblGlobalRateTO.PreviousQuotaDeclarationTOList.Add(temp);
+                                temp.CategoryType = Convert.ToInt32(categoryType);
+                                tblGlobalRateTO.PreviousQuotaDeclarationTOList.Add(temp);
                             }
                                 
 
@@ -359,6 +362,8 @@ namespace ODLMWebAPI.Controllers
                         tblGlobalRateTO.BrandName = tblGroupTOList[j].GroupName;
                         tblGlobalRateTO.Comments = Convert.ToString(comments);
                         tblGlobalRateTO.RateReasonId = Convert.ToInt32(rateReasonId);
+                        tblGlobalRateTO.CategoryType = Convert.ToInt32(categoryType);
+
                         tblGlobalRateTO.RateReasonDesc = Convert.ToString(rateReasonDesc);
 
                         tblGlobalRateTOList.Add(tblGlobalRateTO);

@@ -62,9 +62,9 @@ namespace ODLMWebAPI.BL
             return _iTblGlobalRateDAO.SelectLatestTblGlobalRateTO(conn,tran);
         }
 
-        public List<TblGlobalRateTO> SelectTblGlobalRateTOList(DateTime fromDate,DateTime toDate)
+        public List<TblGlobalRateTO> SelectTblGlobalRateTOList(DateTime fromDate,DateTime toDate,Int32 categoryType)
         {
-            return _iTblGlobalRateDAO.SelectLatestTblGlobalRateTOList(fromDate,toDate);
+            return _iTblGlobalRateDAO.SelectLatestTblGlobalRateTOList(fromDate,toDate, categoryType);
 
         }
 

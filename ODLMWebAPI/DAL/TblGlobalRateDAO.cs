@@ -8,6 +8,8 @@ using ODLMWebAPI.Models;
 using ODLMWebAPI.StaticStuff;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.BL.Interfaces;
+using Microsoft.Office.Interop.Excel;
+using Constants = ODLMWebAPI.StaticStuff.Constants;
 
 namespace ODLMWebAPI.DAL
 {
@@ -32,7 +34,7 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblRateDeclareReasons reasonDtl" +
                                   " ON rate.rateReasonId=reasonDtl.idRateReason" +
                                   " LEFT JOIN dimBrand brand ON brand.idBrand=rate.brandId " +
-                                  "LEFT JOIN tblGroup groups on  groups.idGroup = rate.groupId";
+                                  " LEFT JOIN tblGroup groups on  groups.idGroup = rate.groupId" ;
 
             return sqlSelectQry;
         }
@@ -132,7 +134,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblGlobalRateTO> SelectLatestTblGlobalRateTOList(DateTime fromDate, DateTime toDate)
+        public List<TblGlobalRateTO> SelectLatestTblGlobalRateTOList(DateTime fromDate, DateTime toDate,Int32 categoryType)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -141,7 +143,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE CONVERT (DATE,rate.createdOn,103)   BETWEEN @fromDate AND @toDate ORDER BY rate.createdOn DESC";
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE CONVERT (DATE,rate.createdOn,103)   BETWEEN @fromDate AND @toDate ORDER BY rate.createdOn DESC  AND rate.categoryType =  " + categoryType;
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -155,6 +157,7 @@ namespace ODLMWebAPI.DAL
             }
             catch (Exception ex)
             {
+
                 return null;
             }
             finally

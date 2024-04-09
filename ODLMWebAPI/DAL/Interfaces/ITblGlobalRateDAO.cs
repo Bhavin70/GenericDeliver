@@ -13,7 +13,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         TblGlobalRateTO SelectTblGlobalRate(Int32 idGlobalRate);
         TblGlobalRateTO SelectTblGlobalRate(Int32 idGlobalRate, SqlConnection conn, SqlTransaction tran);
         TblGlobalRateTO SelectLatestTblGlobalRateTO(SqlConnection conn, SqlTransaction tran);
-        List<TblGlobalRateTO> SelectLatestTblGlobalRateTOList(DateTime fromDate, DateTime toDate);
+        List<TblGlobalRateTO> SelectLatestTblGlobalRateTOList(DateTime fromDate, DateTime toDate,Int32 categoryType);
         Dictionary<Int32, Int32> SelectLatestGroupAndRateDCT(String rateDeclarationRate);
         Dictionary<Int32, Int32> SelectLatestBrandAndRateDCT();
         Boolean IsRateAlreadyDeclaredForTheDate(DateTime date, SqlConnection conn, SqlTransaction tran);

@@ -29,6 +29,7 @@ namespace ODLMWebAPI.Models
         Object tag;
         string brandName;
         Int32 brandId;
+        Int32 categoryType;
         #endregion
 
         #region Constructor
@@ -145,7 +146,11 @@ namespace ODLMWebAPI.Models
             get { return brandId; }
             set { brandId = value; }
         }
-
+        public Int32 CategoryType
+        {
+            get { return categoryType; }
+            set { categoryType = value; }
+        }
         public object Tag { get => tag; set => tag = value; }
         #endregion
     }

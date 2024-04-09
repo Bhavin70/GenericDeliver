@@ -201,7 +201,8 @@ namespace ODLMWebAPI.DAL
                                    " ) addrDtl " +
                                    " ON idOrganization = organizationId " +
                                    " LEFT JOIN dimCdStructure cdStructure ON cdStructure.idCdStructure=tblOrganization.cdStructureId" +
-                                   " LEFT JOIN dimDelPeriod dimDelPeriod ON dimDelPeriod.idDelPeriod=tblOrganization.delPeriodId" + " WHERE tblOrganization.isActive=1 and orgTypeId=" + (int)Constants.OrgTypeE.C_AND_F_AGENT + " ORDER BY tblOrganization.firmName";
+                                   " LEFT JOIN dimDelPeriod dimDelPeriod ON dimDelPeriod.idDelPeriod=tblOrganization.delPeriodId" + 
+                                   " WHERE tblOrganization.isActive=1 and orgTypeId=" + (int)Constants.OrgTypeE.C_AND_F_AGENT + " ORDER BY tblOrganization.firmName";
                
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
