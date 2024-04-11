@@ -3822,7 +3822,7 @@ namespace ODLMWebAPI.DAL
                     "  left join tblParityDetails on tblParityDetails .idParityDtl =tempLoadingSlipExt.parityDtlId " +
                     "  left join [tempInvoiceItemDetails] TCS on tempInvoice.idInvoice =TCS.invoiceId and TCS.otherTaxId = "+ (Int32)Constants.OtherTaxTypeE.AFTERCESS +
                     "  left join [tempInvoiceItemDetails] Freight on tempInvoice.idInvoice =Freight.invoiceId and Freight.otherTaxId =" + (Int32)Constants.OtherTaxTypeE.FREIGHT +
-                    " Where  CAST(tempInvoice.invoiceDate AS Date) BETWEEN @fromDate AND @toDate  Order by tempInvoice.invoiceDate";
+                    " Where  CAST(tempInvoice.invoiceDate AS DATETIME) BETWEEN @fromDate AND @toDate  Order by tempInvoice.invoiceDate";
                 conn.Open();
                 cmdSelect.CommandText = query;
                 cmdSelect.Connection = conn;
