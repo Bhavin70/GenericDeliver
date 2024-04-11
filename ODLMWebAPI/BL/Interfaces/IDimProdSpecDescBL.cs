@@ -14,11 +14,17 @@ namespace ODLMWebAPI.BL.Interfaces
         int SelectAllDimProdSpecDescriptionList();
         List<TblPipesTO> SelectAllTblPipesList(); 
         List<TblStripsTO> SelectAllTblStripsList(); 
+        List<DropDownTO> SelectAllPipesInchForDropDown();
         int InsertDimProdSpecDesc(DimProdSpecDescTO ProSpecDesc);
         int InsertDimProdSpecDesc(DimProdSpecDescTO dimProSpecDescTO, SqlConnection conn, SqlTransaction tran);
         int UpdateDimProSpecDesc(DimProdSpecDescTO dimProdSpecDescTO);
         int UpdateDimProSpecDesc(DimProdSpecDescTO dimProdSpecDescTO, SqlConnection conn, SqlTransaction tran);
         int DeleteDimProSpecDesc(DimProdSpecDescTO DimProdSpecDescTO);
         int DeleteDimProSpecDesc(DimProdSpecDescTO DimProdSpecDescTO, SqlConnection conn, SqlTransaction tran);
+        List<TblPipesDropDownTo> GetAllPipesInchForDropDown();
+        List<TblPipesStripCommonSizeTO> GetAlltblPipesStripCommonSizeForDropDown();
+        List<TblPipesStripCommonThicknessTO> GetAlltblPipesStripCommonThicknessForDropDown();
+        List<TblStripsGradeDropDownTo> GetAlltblStripsGradeForDropDown();
+        List<TblPipesStripCommonQuantityTO> GetAlltblPipesStripCommonQuantityForDropDown();
     }
 }

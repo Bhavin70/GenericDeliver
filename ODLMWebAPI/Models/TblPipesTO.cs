@@ -68,4 +68,29 @@ namespace ODLMWebAPI.Models
         }
         #endregion
     }
+    public class TblPipesDropDownTo
+    {
+
+        #region
+
+        Int32 idPipes;
+        Int32 inch;
+
+        #endregion
+
+        #region Get Set
+
+        public Int32 IdPipes
+        {
+            get { return idPipes; }
+            set { idPipes = value; }
+        }
+        public Int32 Inch
+        {
+            get { return inch; }
+            set { inch = value; }
+        }
+
+        #endregion
+    }
 }

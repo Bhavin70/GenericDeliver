@@ -49,6 +49,27 @@ namespace ODLMWebAPI.BL
         {
             return _iDimProdSpecDescDAO.SelectAllTblStrips();
         }
+
+        public List<TblPipesDropDownTo> GetAllPipesInchForDropDown()
+        {
+            return _iDimProdSpecDescDAO.SelectAllPipesInchForDropDown();
+        }
+        public List<TblPipesStripCommonSizeTO> GetAlltblPipesStripCommonSizeForDropDown()
+        {
+            return _iDimProdSpecDescDAO.SelectAlltblPipesStripCommonSizeForDropDown();
+        }
+        public List<TblPipesStripCommonThicknessTO> GetAlltblPipesStripCommonThicknessForDropDown()
+        {
+            return _iDimProdSpecDescDAO.SelectAlltblPipesStripCommonThicknessForDropDown();
+        }
+        public List<TblStripsGradeDropDownTo> GetAlltblStripsGradeForDropDown()
+        {
+            return _iDimProdSpecDescDAO.SelectAlltblStripsGradeForDropDown();
+        }
+        public List<TblPipesStripCommonQuantityTO> GetAlltblPipesStripCommonQuantityForDropDown()
+        {
+            return _iDimProdSpecDescDAO.SelectAlltblPipesStripCommonQuantityForDropDown();
+        }
         #endregion
 
         #region Insertion
@@ -87,7 +108,12 @@ namespace ODLMWebAPI.BL
             return _iDimProdSpecDescDAO.UpdateDimProdSpecDescription(DimProdSpecDescTO, conn, tran);
             }
 
-            #endregion
+        public List<DropDownTO> SelectAllPipesInchForDropDown()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
 
     }
 }

@@ -254,6 +254,211 @@ namespace ODLMWebAPI.DAL
             return dimProdSpecTOList;
         }
 
+        public List<TblPipesDropDownTo> SelectAllPipesInchForDropDown()
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            String sqlQuery = string.Empty;
+            try
+            {
+                //DataTableExample();
+
+                conn.Open();
+                sqlQuery = "SELECT * FROM tblPipes WHERE isActive=1";
+
+                cmdSelect = new SqlCommand(sqlQuery, conn);
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblPipesDropDownTo> dropDownTOList = new List<Models.TblPipesDropDownTo>();
+                while (dateReader.Read())
+                {
+                    TblPipesDropDownTo dropDownTONew = new TblPipesDropDownTo();
+                    if (dateReader["idPipes"] != DBNull.Value)
+                        dropDownTONew.IdPipes = Convert.ToInt32(dateReader["idPipes"].ToString());
+                    if (dateReader["inch"] != DBNull.Value)
+                        dropDownTONew.Inch = Convert.ToInt32(dateReader["inch"].ToString());
+                    dropDownTOList.Add(dropDownTONew);
+                }
+
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return dropDownTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+        public List<TblPipesStripCommonSizeTO> SelectAlltblPipesStripCommonSizeForDropDown()
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            String sqlQuery = string.Empty;
+            try
+            {
+                //DataTableExample();
+
+                conn.Open();
+                sqlQuery = "SELECT * FROM tblPipesStripCommon WHERE isActive=1";
+
+                cmdSelect = new SqlCommand(sqlQuery, conn);
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblPipesStripCommonSizeTO> dropDownTOList = new List<Models.TblPipesStripCommonSizeTO>();
+                while (dateReader.Read())
+                {
+                    TblPipesStripCommonSizeTO dropDownTONew = new TblPipesStripCommonSizeTO();
+                    if (dateReader["idPipesStripCommon"] != DBNull.Value)
+                        dropDownTONew.IdPipesStripCommon = Convert.ToInt32(dateReader["idPipesStripCommon"].ToString());
+                    if (dateReader["size"] != DBNull.Value)
+                        dropDownTONew.Size = Convert.ToInt32(dateReader["size"].ToString());
+                    dropDownTOList.Add(dropDownTONew);
+                }
+
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return dropDownTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+        public List<TblPipesStripCommonThicknessTO> SelectAlltblPipesStripCommonThicknessForDropDown()
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            String sqlQuery = string.Empty;
+            try
+            {
+                //DataTableExample();
+
+                conn.Open();
+                sqlQuery = "SELECT * FROM tblPipesStripCommon WHERE isActive=1";
+
+                cmdSelect = new SqlCommand(sqlQuery, conn);
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblPipesStripCommonThicknessTO> dropDownTOList = new List<Models.TblPipesStripCommonThicknessTO>();
+                while (dateReader.Read())
+                {
+                    TblPipesStripCommonThicknessTO dropDownTONew = new TblPipesStripCommonThicknessTO();
+                    if (dateReader["idPipesStripCommon"] != DBNull.Value)
+                        dropDownTONew.IdPipesStripCommon = Convert.ToInt32(dateReader["idPipesStripCommon"].ToString());
+                    if (dateReader["thickness"] != DBNull.Value)
+                        dropDownTONew.Thickness = Convert.ToInt32(dateReader["thickness"].ToString());
+                    dropDownTOList.Add(dropDownTONew);
+                }
+
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return dropDownTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+        public List<TblStripsGradeDropDownTo> SelectAlltblStripsGradeForDropDown()
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            String sqlQuery = string.Empty;
+            try
+            {
+                //DataTableExample();
+
+                conn.Open();
+                sqlQuery = "SELECT * FROM tblStrips WHERE isActive=1";
+
+                cmdSelect = new SqlCommand(sqlQuery, conn);
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblStripsGradeDropDownTo> dropDownTOList = new List<Models.TblStripsGradeDropDownTo>();
+                while (dateReader.Read())
+                {
+                    TblStripsGradeDropDownTo dropDownTONew = new TblStripsGradeDropDownTo();
+                    if (dateReader["idStrip"] != DBNull.Value)
+                        dropDownTONew.IdStrip = Convert.ToInt32(dateReader["idStrip"].ToString());
+                    if (dateReader["grade"] != DBNull.Value)
+                        dropDownTONew.Grade = Convert.ToInt32(dateReader["grade"].ToString());
+                    dropDownTOList.Add(dropDownTONew);
+                }
+
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return dropDownTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+        public List<TblPipesStripCommonQuantityTO> SelectAlltblPipesStripCommonQuantityForDropDown()
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            String sqlQuery = string.Empty;
+            try
+            {
+                //DataTableExample();
+
+                conn.Open();
+                sqlQuery = "SELECT * FROM tblPipesStripCommon WHERE isActive=1";
+
+                cmdSelect = new SqlCommand(sqlQuery, conn);
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblPipesStripCommonQuantityTO> dropDownTOList = new List<Models.TblPipesStripCommonQuantityTO>();
+                while (dateReader.Read())
+                {
+                    TblPipesStripCommonQuantityTO dropDownTONew = new TblPipesStripCommonQuantityTO();
+                    if (dateReader["idPipesStripCommon"] != DBNull.Value)
+                        dropDownTONew.IdPipesStripCommon = Convert.ToInt32(dateReader["idPipesStripCommon"].ToString());
+                    if (dateReader["quantity"] != DBNull.Value)
+                        dropDownTONew.Quantity = Convert.ToInt32(dateReader["quantity"].ToString());
+                    dropDownTOList.Add(dropDownTONew);
+                }
+
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return dropDownTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
         #endregion
 
         #region Insertion

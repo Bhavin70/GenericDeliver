@@ -1535,6 +1535,42 @@ namespace ODLMWebAPI.Controllers
             return _iDimProdSpecDescBL.SelectAllTblStripsList();
         }
 
+        [Route("GetAllPipesInchForDropDown")]
+        [HttpGet]
+        public List<TblPipesDropDownTo> GetAllPipesInchForDropDown()
+        {
+            List<TblPipesDropDownTo> PipesInchList = _iDimProdSpecDescBL.GetAllPipesInchForDropDown();
+            return PipesInchList;
+        }
+        [Route("GetAlltblPipesStripCommonSizeForDropDown")]
+        [HttpGet]
+        public List<TblPipesStripCommonSizeTO> GetAlltblPipesStripCommonSizeForDropDown()
+        {
+            List<TblPipesStripCommonSizeTO> PipesStripCommonSize = _iDimProdSpecDescBL.GetAlltblPipesStripCommonSizeForDropDown();
+            return PipesStripCommonSize;
+        }
+        [Route("GetAlltblPipesStripCommonThicknessForDropDown")]
+        [HttpGet]
+        public List<TblPipesStripCommonThicknessTO> GetAlltblPipesStripCommonThicknessForDropDown()
+        {
+            List<TblPipesStripCommonThicknessTO> PipesStripCommonThickness = _iDimProdSpecDescBL.GetAlltblPipesStripCommonThicknessForDropDown();
+            return PipesStripCommonThickness;
+        }
+        [Route("GetAlltblStripsGradeForDropDown")]
+        [HttpGet]
+        public List<TblStripsGradeDropDownTo> GetAlltblStripsGradeForDropDown()
+        {
+            List<TblStripsGradeDropDownTo> StripGradeList = _iDimProdSpecDescBL.GetAlltblStripsGradeForDropDown();
+            return StripGradeList;
+        }
+        [Route("GetAlltblPipesStripCommonQuantityForDropDown")]
+        [HttpGet]
+        public List<TblPipesStripCommonQuantityTO> GetAlltblPipesStripCommonQuantityForDropDown()
+        {
+            List<TblPipesStripCommonQuantityTO> PipesStripCommonQuantity = _iDimProdSpecDescBL.GetAlltblPipesStripCommonQuantityForDropDown();
+            return PipesStripCommonQuantity;
+        }
+
         #endregion
 
 

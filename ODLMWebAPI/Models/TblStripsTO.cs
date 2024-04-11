@@ -74,4 +74,20 @@ namespace ODLMWebAPI.Models
         }
         #endregion
     }
+    public class TblStripsGradeDropDownTo
+    {
+        Int32 idStrip;
+        Int32 grade;
+        public Int32 IdStrip
+        {
+            get { return idStrip; }
+            set { idStrip = value; }
+        }
+        public Int32 Grade
+        {
+            get { return grade; }
+            set { grade = value; }
+        }
+    }
+
 }
