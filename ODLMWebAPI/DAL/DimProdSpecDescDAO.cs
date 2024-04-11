@@ -9,6 +9,9 @@ using ODLMWebAPI.Models;
 using ODLMWebAPI.StaticStuff;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.BL.Interfaces;
+using ODLMWebAPI.BL;
+using SkiaSharp;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 
 namespace ODLMWebAPI.DAL
 {
@@ -128,6 +131,127 @@ namespace ODLMWebAPI.DAL
                 conn.Close();
                 cmdInsert.Dispose();
             }
+        }
+
+        public List<TblStripsTO> SelectAllTblStrips()
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = " SELECT ROW_NUMBER() OVER (ORDER BY tblStrips.idStrip ASC) AS RowNumber,tblStrips.*,PSC.size,PSC.thickness FROM tblStrips " +
+                                        " LEFT JOIN tblPipesStripCommon AS PSC ON PSC.idPipesStripCommon = tblStrips.idPipesStripCommon";             
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                SqlDataReader rdr = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblStripsTO> list = ConvertDTToListStrips(rdr);
+                rdr.Dispose();
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+        public List<TblStripsTO> ConvertDTToListStrips(SqlDataReader dimDimProdSpecTODT)
+        {
+            List<TblStripsTO> dimProdSpecTOList = new List<TblStripsTO>();
+            if (dimDimProdSpecTODT != null)
+            {
+                while (dimDimProdSpecTODT.Read())
+                {
+                    TblStripsTO DimProdSpecTONew = new TblStripsTO();
+                    if (dimDimProdSpecTODT["IdStrip"] != DBNull.Value)
+                        DimProdSpecTONew.IdStrip = Convert.ToInt32(dimDimProdSpecTODT["IdStrip"].ToString());
+                    if (dimDimProdSpecTODT["grade"] != DBNull.Value)
+                        DimProdSpecTONew.Grade = Convert.ToInt32(dimDimProdSpecTODT["grade"].ToString());
+                    if (dimDimProdSpecTODT["width"] != DBNull.Value)
+                        DimProdSpecTONew.Width = Convert.ToInt32(dimDimProdSpecTODT["width"].ToString());
+                    if (dimDimProdSpecTODT["isActive"] != DBNull.Value)
+                        DimProdSpecTONew.IsActive = Convert.ToInt32(dimDimProdSpecTODT["isActive"].ToString());
+                    if (dimDimProdSpecTODT["createdOn"] != DBNull.Value)
+                        DimProdSpecTONew.CreatedOn = Convert.ToDateTime(dimDimProdSpecTODT["createdOn"].ToString());
+                    if (dimDimProdSpecTODT["idPipesStripCommon"] != DBNull.Value)
+                        DimProdSpecTONew.IdPipesStripCommon = Convert.ToInt32(dimDimProdSpecTODT["idPipesStripCommon"].ToString());
+                    if (dimDimProdSpecTODT["categoryType"] != DBNull.Value)
+                        DimProdSpecTONew.CategoryType = Convert.ToInt32(dimDimProdSpecTODT["categoryType"].ToString());
+                    if (dimDimProdSpecTODT["size"] != DBNull.Value)
+                        DimProdSpecTONew.Size = Convert.ToInt32(dimDimProdSpecTODT["size"].ToString());
+                    if (dimDimProdSpecTODT["thickness"] != DBNull.Value)
+                        DimProdSpecTONew.Thickness = Convert.ToInt32(dimDimProdSpecTODT["thickness"].ToString());
+                    dimProdSpecTOList.Add(DimProdSpecTONew);
+                }
+            }
+            return dimProdSpecTOList;
+        }
+
+        public List<TblPipesTO> SelectAllTblPipes()
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = " SELECT ROW_NUMBER() OVER (ORDER BY tblPipes.idPipes ASC) AS RowNumber,tblPipes.*,PSC.size,PSC.thickness FROM tblPipes " +
+                                        " LEFT JOIN tblPipesStripCommon AS PSC ON tblPipes.idPipesStripCommon = PSC.idPipesStripCommon";
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                SqlDataReader rdr = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblPipesTO> list = ConvertDTToListPipes(rdr);
+                rdr.Dispose();
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+        public List<TblPipesTO> ConvertDTToListPipes(SqlDataReader dimDimProdSpecTODT)
+        {
+            List<TblPipesTO> dimProdSpecTOList = new List<TblPipesTO>();
+            if (dimDimProdSpecTODT != null)
+            {
+                while (dimDimProdSpecTODT.Read())
+                {
+                    TblPipesTO DimProdSpecTONew = new TblPipesTO();
+                    if (dimDimProdSpecTODT["idPipes"] != DBNull.Value)
+                        DimProdSpecTONew.IdPipes = Convert.ToInt32(dimDimProdSpecTODT["idPipes"].ToString());
+                    if (dimDimProdSpecTODT["inch"] != DBNull.Value)
+                        DimProdSpecTONew.Inch = Convert.ToInt32(dimDimProdSpecTODT["inch"].ToString());
+                    if (dimDimProdSpecTODT["isActive"] != DBNull.Value)
+                        DimProdSpecTONew.IsActive = Convert.ToInt32(dimDimProdSpecTODT["isActive"].ToString());
+                    if (dimDimProdSpecTODT["createdOn"] != DBNull.Value)
+                        DimProdSpecTONew.CreatedOn = Convert.ToDateTime(dimDimProdSpecTODT["createdOn"].ToString());
+                    if (dimDimProdSpecTODT["idPipesStripCommon"] != DBNull.Value)
+                        DimProdSpecTONew.IdPipesStripCommon = Convert.ToInt32(dimDimProdSpecTODT["idPipesStripCommon"].ToString());
+                    if (dimDimProdSpecTODT["categoryType"] != DBNull.Value)
+                        DimProdSpecTONew.CategoryType = Convert.ToInt32(dimDimProdSpecTODT["categoryType"].ToString());
+                    if (dimDimProdSpecTODT["size"] != DBNull.Value)
+                        DimProdSpecTONew.Size = Convert.ToInt32(dimDimProdSpecTODT["size"].ToString());
+                    if (dimDimProdSpecTODT["thickness"] != DBNull.Value)
+                        DimProdSpecTONew.Thickness = Convert.ToInt32(dimDimProdSpecTODT["thickness"].ToString());
+
+                    dimProdSpecTOList.Add(DimProdSpecTONew);
+                }
+            }
+            return dimProdSpecTOList;
         }
 
         #endregion

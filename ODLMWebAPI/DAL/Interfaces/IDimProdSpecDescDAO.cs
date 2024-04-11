@@ -14,6 +14,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         DimProdSpecDescTO SelectDimProdSpecDesc(Int32 idProdSpec);
         List<DimProdSpecDescTO> ConvertDTToList(SqlDataReader dimDimProdSpecTODT);
         int SelectDimProdSpecDescription();
+        List<TblPipesTO> SelectAllTblPipes();
+        List<TblStripsTO> SelectAllTblStrips();
         int InsertDimProdSpecDesc(DimProdSpecDescTO dimProdSpecDescTO);
         int InsertDimProdSpecDesc(DimProdSpecDescTO dimProdSpecDescTO, SqlConnection conn, SqlTransaction tran);
         int ExecuteInsertionCommand(DimProdSpecDescTO dimProdSpecDescTO, SqlCommand cmdInsert);

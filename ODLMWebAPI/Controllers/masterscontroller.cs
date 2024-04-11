@@ -837,8 +837,6 @@ namespace ODLMWebAPI.Controllers
             return unloadingStandDescList;
         }
 
-
-
         /// <summary>
         /// Vaibhav [25-Sep-2017] get all sub departments for drop down by department
         /// </summary>
@@ -1520,6 +1518,26 @@ namespace ODLMWebAPI.Controllers
             List<DimConfigurePageTO> dimConfigurePageTOList = _iDimConfigurePageBL.GetConfigurationByPageId(pageId);
             return dimConfigurePageTOList;
         }
+
+        #region Sizes Avilable Pipes and Strips 
+     
+        [Route("getTblPipesList")]
+        [HttpGet]
+        public List<TblPipesTO> getTblPipesList()
+        {
+            return _iDimProdSpecDescBL.SelectAllTblPipesList();
+        }
+
+        [Route("getTblStripsList")]
+        [HttpGet]
+        public List<TblStripsTO> getTblStripsList()
+        {
+            return _iDimProdSpecDescBL.SelectAllTblStripsList();
+        }
+
+        #endregion
+
+
         #endregion
 
         #region POST

@@ -41,7 +41,14 @@ namespace ODLMWebAPI.BL
         {           
             return _iDimProdSpecDescDAO.SelectDimProdSpecDescription();           
         }
-
+        public List<TblPipesTO> SelectAllTblPipesList() 
+        {
+            return _iDimProdSpecDescDAO.SelectAllTblPipes();
+        }
+        public List<TblStripsTO> SelectAllTblStripsList()
+        {
+            return _iDimProdSpecDescDAO.SelectAllTblStrips();
+        }
         #endregion
 
         #region Insertion
