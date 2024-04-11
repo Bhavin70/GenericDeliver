@@ -3139,7 +3139,7 @@ namespace ODLMWebAPI.DAL
                      //" AND CAST(sq1.deliveredOn AS DATE) BETWEEN @fromDate AND @toDate" +
                      " AND CAST(sq1.statusDate AS DATE) BETWEEN @fromDate AND @toDate" + formOrgIdCondtion +
                      " AND sq1.statusId = " + (int)Constants.InvoiceStatusE.AUTHORIZED +
-                     " order by sq1.invoiceNo asc"; ;
+                     " order by sq1.invoiceDate,sq1.invoiceNo asc"; ;
 
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
