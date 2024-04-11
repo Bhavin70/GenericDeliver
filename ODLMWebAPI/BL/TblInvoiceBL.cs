@@ -6762,13 +6762,14 @@ namespace ODLMWebAPI.BL
         /// </summary>
         /// <param name="invoiceId"></param>
         /// <returns></returns>
-        public ResultMessage PrintReport(Int32 invoiceId, Boolean isPrinted = false, Boolean isSendEmailForInvoice = false, Boolean isFileDelete = true)
+        public ResultMessage PrintReport(Int32 invoiceId, Boolean isPrinted = false, Boolean isSendEmailForInvoice = false, Boolean isFileDelete = true,Boolean isPrintedEwayBill= false)
         {
             ResultMessage resultMessage = new ResultMessage();
             String response = String.Empty;
             String signedQRCode = String.Empty;
             Int32 apiId = (int)EInvoiceAPIE.GENERATE_EINVOICE;
             byte[] PhotoCodeInBytes = null;
+            byte[] PhotoCodeInBytesv2 = null;
             try
             {
                // resultMessage = PrintReportV2(invoiceId, true, false, false);
@@ -6786,6 +6787,7 @@ namespace ODLMWebAPI.BL
                 DataTable commercialDT = new DataTable();
                 DataTable hsnItemTaxDT = new DataTable();
                 DataTable qrCodeDT = new DataTable();
+                DataTable qrCodeDTv2 = new DataTable();
                 // DataTable shippingAddressDT = new DataTable();
                 //Aniket [1-02-2019] added to create multiple copy of tax invoice
                 DataTable multipleInvoiceCopyDT = new DataTable();
@@ -6798,6 +6800,8 @@ namespace ODLMWebAPI.BL
                 // shippingAddressDT.TableName = "shippingAddressDT";
                 multipleInvoiceCopyDT.TableName = "multipleInvoiceCopyDT";
                 qrCodeDT.TableName = "QRCodeDT";
+                qrCodeDTv2.TableName = "QRCodeDTv2";
+
                 //HeaderDT 
                 multipleInvoiceCopyDT.Columns.Add("idInvoiceCopy");
                 multipleInvoiceCopyDT.Columns.Add("invoiceCopyName");
@@ -6879,6 +6883,8 @@ namespace ODLMWebAPI.BL
                 if (PhotoCodeInBytes != null)
                     qrCodeDT.Rows[0]["QRCode"] = PhotoCodeInBytes;
 
+                
+                
                 //Reshma Added For QR Code Image
                 String QrCodeImageFilePath = "";
                 TblConfigParamsTO tblconfigParamForQRCodeImage = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.Invoice_payment_QR_CODE_Image_file_Path);
@@ -6901,7 +6907,7 @@ namespace ODLMWebAPI.BL
                             imageByteArray[i] = reader.ReadByte();
                     }
                     if(imageByteArray !=null)
-                        qrCodeDT.Rows[0]["QRCodeForPrint"] = imageByteArray;
+                        qrCodeDTv2.Rows[0]["QRCodeForPrint"] = imageByteArray;
                 }
              
                 //HeaderDT 
@@ -6914,6 +6920,7 @@ namespace ODLMWebAPI.BL
                 invoiceDT.Columns.Add("orgAddr");
                 invoiceDT.Columns.Add("orgCinNo");
                 invoiceDT.Columns.Add("orgGstinNo");
+                headerDT.Columns.Add("orgGstinNo");
                 invoiceDT.Columns.Add("orgPanNo");   //Twicie
                 invoiceDT.Columns.Add("orgState");
                 invoiceDT.Columns.Add("orgStateCode");
@@ -6948,8 +6955,16 @@ namespace ODLMWebAPI.BL
                 headerDT.Columns.Add("BrokerName");
                 invoiceDT.Columns.Add("BrokerName");
 
+                headerDT.Columns.Add("EwbDt");
+                invoiceDT.Columns.Add("EwbDt");
+                headerDT.Columns.Add("EwbValidTill");
+                invoiceDT.Columns.Add("EwbValidTill");
+
                 headerDT.Columns.Add("loadingCharges");
                 invoiceDT.Columns.Add("loadingCharges");
+                headerDT.Columns.Add("Distance");
+                invoiceDT.Columns.Add("Distance");
+
                 TblAddressTO tblAddressTO = _iTblAddressBL.SelectOrgAddressWrtAddrType(organizationTO.IdOrganization, Constants.AddressTypeE.OFFICE_ADDRESS);
                 List<DropDownTO> stateList = _iDimensionBL.SelectStatesForDropDown(0);
                 if (organizationTO != null)
@@ -6964,8 +6979,37 @@ namespace ODLMWebAPI.BL
                     invoiceDT.Rows[0]["orgWebsite"] = organizationTO.Website;
                     invoiceDT.Rows[0]["orgEmailAddr"] = organizationTO.EmailAddr;
                 }
+                string AckNoForEW = "";
+                Int32 apiIdEW = (int)EInvoiceAPIE.GENERATE_EWAYBILL;
+                String responsev2 = String.Empty;
+                String ewayBillDate = String.Empty;
+
+                responsev2 = _iTblInvoiceDAO.SelectresponseForPhotoInReport(invoiceId, apiIdEW);
+                if (!String.IsNullOrEmpty(response))
+                {
+                    JObject json = JObject.Parse(response);
+
+                    if (json.ContainsKey("data"))
+                    {
+                        JObject jsonData = JObject.Parse(json["data"].ToString());
+
+                        if (jsonData.ContainsKey("EwbDt"))
+                        {
+                            headerDT.Rows[0]["EwbDt"] = (string)jsonData["EwbDt"];
+                            invoiceDT.Rows[0]["EwbDt"] = (string)jsonData["EwbDt"];
+
+                        }
+                        if (jsonData.ContainsKey("EwbValidTill"))
+                        {
+                            // AckNoForEW = (string)jsonData["EwbValidTill"];
+                            headerDT.Rows[0]["EwbValidTill"] = (string)jsonData["EwbValidTill"];
+                            invoiceDT.Rows[0]["EwbValidTill"] = (string)jsonData["EwbValidTill"];
+                        }
+
+                    }
+                }
                 //if (string.IsNullOrEmpty(AckNo))//Reshma[24-06-2022] Added Acknowledgement Number DT creation to print on simpli invoice
-                    headerDT.Rows[0]["AckNo"] = AckNo;
+                headerDT.Rows[0]["AckNo"] = AckNo;
                     invoiceDT.Rows[0]["AckNo"] = AckNo;
 
                 //chetan[14-feb-2020]
@@ -7081,6 +7125,8 @@ namespace ODLMWebAPI.BL
                     if (gstinNo != null)
                     {
                         invoiceDT.Rows[invoiceDT.Rows.Count - 1]["orgGstinNo"] = gstinNo.LicenseValue;
+                        headerDT.Rows[headerDT.Rows.Count - 1]["orgGstinNo"] = gstinNo.LicenseValue;
+
                     }
                     //PAN Number
                     var panNo = orgLicenseList.Where(a => a.LicenseId == (int)Constants.CommercialLicenseE.PAN_NO).FirstOrDefault();
@@ -7198,6 +7244,10 @@ namespace ODLMWebAPI.BL
 
                     invoiceDT.Rows[0]["DeliveryNoteNo"] = tblInvoiceTO.DeliveryNoteNo;
                     invoiceDT.Rows[0]["DispatchDocNo"] = tblInvoiceTO.DispatchDocNo;
+
+                    invoiceDT.Rows[0]["Distance"] = tblInvoiceTO.DistanceInKM;
+                    invoiceDT.Rows[0]["Distance"] = tblInvoiceTO.DistanceInKM;
+
                     //if (isMathRoundoff == 1)
                     if (isMathRoundoff == 1)  //Not applicable as each value will round off upto 2
                     {
@@ -7432,10 +7482,13 @@ namespace ODLMWebAPI.BL
                                     {
                                         invoiceItemDT.Rows[invoiceItemDTCount]["IGSTPct"] = tblInvoiceItemTaxDtlsTO.TaxRatePct;
                                         invoiceItemDT.Rows[invoiceItemDTCount]["IGSTAmt"] = tblInvoiceItemTaxDtlsTO.TaxAmt;
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["SGSTPct"] = 0;
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["CGSTPct"] = 0;
 
                                     }
                                     else if (tblInvoiceItemTaxDtlsTO.TaxTypeId == (int)Constants.TaxTypeE.CGST)
                                     {
+                                        invoiceItemDT.Rows[invoiceItemDTCount]["IGSTPct"] = 0;
                                         invoiceItemDT.Rows[invoiceItemDTCount]["CGSTAmt"] = tblInvoiceItemTaxDtlsTO.TaxAmt;
                                         invoiceItemDT.Rows[invoiceItemDTCount]["CGSTPct"] = tblInvoiceItemTaxDtlsTO.TaxRatePct;
 
@@ -8132,6 +8185,8 @@ namespace ODLMWebAPI.BL
                         templateName += IsConfirmedC_NC;
                     }
                 }
+                if (isPrintedEwayBill)
+                    templateName = "PrintEWB";
                 String templateFilePath = _iDimReportTemplateBL.SelectReportFullName(templateName);
                 // templateFilePath = @"C:\Deliver Templates\SER INVOICE Template.xls";
                 String fileName = "Bill-" + DateTime.Now.Ticks;
