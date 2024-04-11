@@ -1404,12 +1404,14 @@ namespace ODLMWebAPI.Controllers
                 ResultMessage resultMessage = new StaticStuff.ResultMessage();
                 var invoiceId = data["invoiceId"].ToString();
                 var isPrinted =Convert.ToBoolean(data["isPrinted"]);
+                var isPrintedEwaybill = Convert.ToBoolean(data["isPrintedEwaybill"]);
+
                 // var firmNameId = data["firmId"].ToString();
-                
+
                 if (invoiceId != null)
                 {
                     DateTime serverDate = _iCommon.ServerDateTime;
-                    return _iTblInvoiceBL.PrintReport(Convert.ToInt32(invoiceId), isPrinted);
+                    return _iTblInvoiceBL.PrintReport(Convert.ToInt32(invoiceId), isPrinted,false,true,isPrintedEwaybill);
 
                         //, Convert.ToInt32(firmNameId));
                 }

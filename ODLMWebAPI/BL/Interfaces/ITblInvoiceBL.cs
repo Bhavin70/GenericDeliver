@@ -53,7 +53,7 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage DecomposeInvoice(List<Int32> invoiceIdsList, Int32 loginUserId);
         ResultMessage SaveInvoiceDocumentDetails(TblInvoiceTO invoiceTO, List<TblDocumentDetailsTO> tblDocumentDetailsTOList, Int32 loginUserId);
         ResultMessage InsertInvoiceDocumentDetails(TblInvoiceTO tblInvoiceTO, List<TblDocumentDetailsTO> tblDocumentDetailsTOList, Int32 loginUserId, SqlConnection conn, SqlTransaction tran);
-        ResultMessage PrintReport(Int32 invoiceId,Boolean isPrinted=false,Boolean isSendEmailForInvoice = false,Boolean isFileDelete = true);
+        ResultMessage PrintReport(Int32 invoiceId,Boolean isPrinted=false,Boolean isSendEmailForInvoice = false,Boolean isFileDelete = true,Boolean isPrintedEwayBill=false);
         ResultMessage PrintWeighingReport(Int32 invoiceId,Boolean isSendEmailForWeighment = false,String reportType=null, Boolean isFileDelete = true);
         ResultMessage SendInvoiceEmail(SendMail mailInformationTo);
         
