@@ -276,7 +276,7 @@ namespace ODLMWebAPI.DAL
                     if (dateReader["idPipes"] != DBNull.Value)
                         dropDownTONew.IdPipes = Convert.ToInt32(dateReader["idPipes"].ToString());
                     if (dateReader["inch"] != DBNull.Value)
-                        dropDownTONew.Inch = Convert.ToInt32(dateReader["inch"].ToString());
+                        dropDownTONew.Inch = Convert.ToDecimal(dateReader["inch"].ToString());    
                     dropDownTOList.Add(dropDownTONew);
                 }
 
@@ -317,7 +317,7 @@ namespace ODLMWebAPI.DAL
                     if (dateReader["idPipesStripCommon"] != DBNull.Value)
                         dropDownTONew.IdPipesStripCommon = Convert.ToInt32(dateReader["idPipesStripCommon"].ToString());
                     if (dateReader["size"] != DBNull.Value)
-                        dropDownTONew.Size = Convert.ToInt32(dateReader["size"].ToString());
+                        dropDownTONew.Size = Convert.ToDecimal(dateReader["size"].ToString());
                     dropDownTOList.Add(dropDownTONew);
                 }
 
@@ -358,7 +358,7 @@ namespace ODLMWebAPI.DAL
                     if (dateReader["idPipesStripCommon"] != DBNull.Value)
                         dropDownTONew.IdPipesStripCommon = Convert.ToInt32(dateReader["idPipesStripCommon"].ToString());
                     if (dateReader["thickness"] != DBNull.Value)
-                        dropDownTONew.Thickness = Convert.ToInt32(dateReader["thickness"].ToString());
+                        dropDownTONew.Thickness = Convert.ToDecimal(dateReader["thickness"].ToString());
                     dropDownTOList.Add(dropDownTONew);
                 }
 

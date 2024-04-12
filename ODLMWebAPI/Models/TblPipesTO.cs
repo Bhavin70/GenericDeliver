@@ -7,13 +7,13 @@ namespace ODLMWebAPI.Models
     {
         #region Declarations
         Int32 idPipes;
-        Int32 inch;
+        decimal inch;
         Int32 isActive;
         DateTime createdOn;
         Int32 idPipesStripCommon;
         Int32 categoryType;
-        Int32 size;
-        Int32 thickness;
+        decimal size;
+        decimal thickness;
 
         #endregion
 
@@ -30,7 +30,7 @@ namespace ODLMWebAPI.Models
             get { return idPipes; }
             set { idPipes = value; }
         }
-        public Int32 Inch
+        public decimal Inch
         {
             get { return inch; }
             set { inch = value; }
@@ -55,13 +55,13 @@ namespace ODLMWebAPI.Models
             get { return categoryType; }
             set { categoryType = value; }
         }
-        public Int32 Size
+        public decimal Size
         {
             get { return size; }
             set { size = value; }
         }
 
-        public Int32 Thickness
+        public decimal Thickness
         {
             get { return thickness; }
             set { thickness = value; }
@@ -74,7 +74,7 @@ namespace ODLMWebAPI.Models
         #region
 
         Int32 idPipes;
-        Int32 inch;
+        decimal inch;
 
         #endregion
 
@@ -85,7 +85,7 @@ namespace ODLMWebAPI.Models
             get { return idPipes; }
             set { idPipes = value; }
         }
-        public Int32 Inch
+        public decimal Inch
         {
             get { return inch; }
             set { inch = value; }

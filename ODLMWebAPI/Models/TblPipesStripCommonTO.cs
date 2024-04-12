@@ -8,8 +8,8 @@ namespace ODLMWebAPI.Models
         #region Declarations
 
         Int32 idPipesStripCommon;
-        Int32 size;
-        Int32 thickness;
+        decimal size;
+        decimal thickness;
         Int32 isActive;
         DateTime createdOn;
         Int32 categoryType;
@@ -30,13 +30,13 @@ namespace ODLMWebAPI.Models
             get { return idPipesStripCommon; }
             set { idPipesStripCommon = value; }
         }
-        public Int32 Size
+        public decimal Size
         {
             get { return size; }
             set { size = value; }
         }
 
-        public Int32 Thickness
+        public decimal Thickness
         {
             get { return thickness; }
             set { thickness = value; }
@@ -70,7 +70,7 @@ namespace ODLMWebAPI.Models
         #region
 
         Int32 idPipesStripCommon;
-        Int32 size;
+        decimal size;
 
         #endregion
 
@@ -81,7 +81,7 @@ namespace ODLMWebAPI.Models
             get { return idPipesStripCommon; }
             set { idPipesStripCommon = value; }
         }
-        public Int32 Size
+        public decimal Size
         {
             get { return size; }
             set { size = value; }
@@ -95,7 +95,7 @@ namespace ODLMWebAPI.Models
         #region
 
         Int32 idPipesStripCommon;
-        Int32 thickness;
+        decimal thickness;
 
         #endregion
 
@@ -106,7 +106,7 @@ namespace ODLMWebAPI.Models
             get { return idPipesStripCommon; }
             set { idPipesStripCommon = value; }
         }
-        public Int32 Thickness
+        public decimal Thickness
         {
             get { return thickness; }
             set { thickness = value; }

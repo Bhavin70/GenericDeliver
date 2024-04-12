@@ -13,8 +13,8 @@ namespace ODLMWebAPI.Models
         DateTime createdOn;
         Int32 idPipesStripCommon;
         Int32 categoryType;
-        Int32 size;
-        Int32 thickness;
+        decimal size;
+        decimal thickness;
 
         #endregion
 
@@ -61,13 +61,13 @@ namespace ODLMWebAPI.Models
             get { return categoryType; }
             set { categoryType = value; }
         }
-        public Int32 Size
+        public decimal Size
         {
             get { return size; }
             set { size = value; }
         }
 
-        public Int32 Thickness
+        public decimal Thickness
         {
             get { return thickness; }
             set { thickness = value; }
