@@ -117,7 +117,7 @@ namespace ODLMWebAPI.Models
         string orderTypeName;
 
         Int32 cnfChkSelected;
-
+        Int32 categaryType;
         #endregion
 
         #region Constructor
@@ -607,6 +607,11 @@ namespace ODLMWebAPI.Models
         public String VehicleOutDateStr
         {
             get { return VehicleOutDate.ToString(Constants.DefaultDateFormat); }
+        }
+        public Int32 CategaryType
+        {
+            get { return categaryType; }
+            set { categaryType = value; }
         }
         #endregion
 

@@ -11,6 +11,8 @@ using System.Linq;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DashboardModels;
+using Microsoft.Office.Interop.Excel;
+using Constants = ODLMWebAPI.StaticStuff.Constants;
 
 namespace ODLMWebAPI.DAL
 {
@@ -901,7 +903,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-        public List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId, Int32 orderTypeId)
+        public List<TblBookingsTO> SelectBookingList(Int32 cnfId, Int32 dealerId, Int32 statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, Int32 confirm, Int32 isPendingQty, Int32 bookingId, Int32 isViewAllPendingEnq, Int32 RMId, Int32 orderTypeId,Int32 categoryType)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -1068,13 +1070,17 @@ namespace ODLMWebAPI.DAL
                 {
                     sqlQuery += " AND bookings.consumerTypeId= " + orderTypeId;
                 }
-
+                if (categoryType > 0)
+                {
+                    sqlQuery += " AND bookings.categoryType = " + categoryType;
+                }
                 cmdSelect.CommandText = sqlQuery;
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
                 cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.Date).Value = fromDate;//.ToString(Constants.AzureDateFormat);
                 cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.Date).Value = toDate;//.ToString(Constants.AzureDateFormat);
+                cmdSelect.Parameters.Add("@categoryType", System.Data.SqlDbType.Int).Value = categoryType;
                 SqlDataReader sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
                 List<TblBookingsTO> list = ConvertDTToList(sqlReader);
                 return list;
@@ -1266,12 +1272,14 @@ namespace ODLMWebAPI.DAL
                     sqlQuery += " AND bookings.consumerTypeId= " + orderTypeId;
                 }
 
+
                 cmdSelect.CommandText = sqlQuery;
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
                 cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.Date).Value = fromDate;//.ToString(Constants.AzureDateFormat);
                 cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.Date).Value = toDate;//.ToString(Constants.AzureDateFormat);
+
                 SqlDataReader sqlReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
                 List<TblBookingsTO> list = ConvertDTToListV2(sqlReader);
                 return list;
@@ -3377,6 +3385,11 @@ namespace ODLMWebAPI.DAL
 
             //cmdDelete.Parameters.Add("@idBooking", System.Data.SqlDbType.Int).Value = tblBookingsTO.IdBooking;
             return cmdDelete.ExecuteNonQuery();
+        }
+
+        public List<TblBookingsTO> SelectBookingListV2(int cnfId, int dealerId, int statusId, DateTime fromDate, DateTime toDate, TblUserRoleTO tblUserRoleTO, int confirm, int isPendingQty, int bookingId, int isViewAllPendingEnq, int RMId, int orderTypeId = 0,Int32 categoryType=1)
+        {
+            throw new NotImplementedException();
         }
         #endregion
 
