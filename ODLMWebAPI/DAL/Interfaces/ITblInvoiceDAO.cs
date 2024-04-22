@@ -24,6 +24,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblInvoiceRptTO>  GetDistictWiseDispatchData(DateTime frmDt, DateTime toDt,int reportDataType);
 
         List<TblInvoiceRptTO>  GetDistictWiseDispatchDataAll(DateTime frmDt, DateTime toDt);
+        List<TblInvoiceRptTO> GetDispatchReportAll(DateTime frmDt, DateTime toDt, Int32 cnfId, Int32 dealerId,
+            Int32 stateId, Int32 districtId, Int32 talukaId);
         List<TblInvoiceRptTO> GetDistictWiseDispatchDataAllV2(DateTime frmDt, DateTime toDt);
         List<TblInvoiceRptTO> GetDistictWiseDispatchData(DateTime frmDt, DateTime toDt);
         List<TblInvoiceRptTO> GetDistictWiseDispatchDataV2(DateTime frmDt, DateTime toDt);

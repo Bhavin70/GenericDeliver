@@ -1887,6 +1887,29 @@ namespace ODLMWebAPI.Controllers
             return _iTblInvoiceBL.GetDistictWiseDispatchData(frmDt, toDt,2);
         }
 
+        [Route("GetDispatchReportAll")]
+        [HttpGet]
+        public List<TblInvoiceRptTO> GetDispatchReportAll(string fromDate, string toDate, Int32 cnfId, Int32 dealerId,
+             Int32 stateId, Int32 districtId, Int32 talukaId)
+        {
+            DateTime frmDt = DateTime.MinValue;
+            DateTime toDt = DateTime.MinValue;
+            if (Constants.IsDateTime(fromDate))
+            {
+                frmDt = Convert.ToDateTime(fromDate);
+
+            }
+            if (Constants.IsDateTime(toDate))
+            {
+                toDt = Convert.ToDateTime(toDate);
+            }
+
+            if (Convert.ToDateTime(frmDt) == DateTime.MinValue)
+                frmDt = _iCommon.ServerDateTime.Date;
+            if (Convert.ToDateTime(toDt) == DateTime.MinValue)
+                toDt = _iCommon.ServerDateTime.Date;
+            return _iTblInvoiceBL.GetDispatchReportAll(frmDt, toDt, cnfId, dealerId, stateId, districtId, talukaId);
+        }
         [Route("GetAllDistictWiseDispatchDataV2")]
         [HttpGet]
         public ResultMessage GetAllDistictWiseDispatchDataV2()

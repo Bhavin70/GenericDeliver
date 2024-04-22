@@ -1861,6 +1861,113 @@ namespace ODLMWebAPI.DAL
                 return null;
             }
         }
+
+        public List<TblInvoiceRptTO> GetDispatchReportAll(DateTime frmDt, DateTime toDt,Int32 cnfId,Int32 dealerId,
+            Int32 stateId,Int32 districtId,Int32 talukaId)
+        {
+            int Lresult = 0;
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader tblInvoiceRptTODT = null;
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = "DispatcheReportAll";
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.StoredProcedure;
+                cmdSelect.Parameters.Add("@FromDate", System.Data.SqlDbType.DateTime).Value = frmDt;
+                cmdSelect.Parameters.Add("@ToDate", System.Data.SqlDbType.DateTime).Value = toDt;
+                cmdSelect.Parameters.Add("@stateId", System.Data.SqlDbType.Int ).Value = stateId;
+                cmdSelect.Parameters.Add("@district", System.Data.SqlDbType.Int).Value = districtId;
+                cmdSelect.Parameters.Add("@taluka", System.Data.SqlDbType.Int).Value = talukaId;
+                cmdSelect.Parameters.Add("@cnfId", System.Data.SqlDbType.Int).Value = cnfId;
+                cmdSelect.Parameters.Add("@dealerId", System.Data.SqlDbType.Int).Value = dealerId;
+
+                tblInvoiceRptTODT = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblInvoiceRptTO> list = new List<TblInvoiceRptTO> ();
+                if (tblInvoiceRptTODT != null)
+                {
+
+                    while (tblInvoiceRptTODT.Read())
+                    {
+                        TblInvoiceRptTO tblInvoiceRptTONew = new TblInvoiceRptTO();
+                        for (int i = 0; i < tblInvoiceRptTODT.FieldCount; i++)
+                        {
+                            if (tblInvoiceRptTODT.GetName(i).Equals("state"))
+                            {
+                                if (tblInvoiceRptTODT["state"] != DBNull.Value)
+                                    tblInvoiceRptTONew.BuyerState = Convert.ToString(tblInvoiceRptTODT["state"].ToString());
+                            }
+                            if (tblInvoiceRptTODT.GetName(i).Equals("district"))
+                            {
+                                if (tblInvoiceRptTODT["district"] != DBNull.Value)
+                                    tblInvoiceRptTONew.BuyerDistrict = Convert.ToString(tblInvoiceRptTODT["district"].ToString());
+                            }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("distributorName"))
+                                {
+                                    if (tblInvoiceRptTODT["distributorName"] != DBNull.Value)
+                                        tblInvoiceRptTONew.CnfName = Convert.ToString(tblInvoiceRptTODT["distributorName"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("billingName"))
+                                {
+                                    if (tblInvoiceRptTODT["billingName"] != DBNull.Value)
+                                        tblInvoiceRptTONew.DealerName = Convert.ToString(tblInvoiceRptTODT["billingName"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("taluka"))
+                                {
+                                    if (tblInvoiceRptTODT["taluka"] != DBNull.Value)
+                                        tblInvoiceRptTONew.BuyerTaluka = Convert.ToString(tblInvoiceRptTODT["taluka"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("C Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["C Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.AprilCTotal = Convert.ToDouble(tblInvoiceRptTODT["C Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                            try
+                            {
+                                if (tblInvoiceRptTODT.GetName(i).Equals("NC Qty"))
+                                {
+                                    if (tblInvoiceRptTODT["NC Qty"] != DBNull.Value)
+                                        tblInvoiceRptTONew.AprilNCTotal = Convert.ToDouble(tblInvoiceRptTODT["NC Qty"]);
+                                }
+                            }
+                            catch (Exception ex) { }
+                        }
+                        list.Add(tblInvoiceRptTONew);
+                    }
+                }
+                   return list;
+            }
+            catch (Exception ex)
+            {
+                Lresult = InsertNCReportLog("SelectAllRptNCList", ex.ToString());
+                return null;
+            }
+            finally
+            {
+                if (tblInvoiceRptTODT != null) tblInvoiceRptTODT                                                                                                               .Dispose();
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
         public  int InsertNCReportLog(string FunName, String ErrName)
         {
              String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);

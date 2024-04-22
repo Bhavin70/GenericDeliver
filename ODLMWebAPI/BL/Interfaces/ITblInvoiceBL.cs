@@ -30,6 +30,8 @@ namespace ODLMWebAPI.BL.Interfaces
         ResultMessage GetDistictWiseDispatchData(DateTime frmDt, DateTime toDt,int reportDataType);
         ResultMessage GetDistictWiseDispatchDataV2(DateTime frmDt, DateTime toDt, int reportDataType);
         ResultMessage  GetDistictWiseDispatchDataC(DateTime frmDt, DateTime toDt, int reportDataType);
+        List<TblInvoiceRptTO> GetDispatchReportAll(DateTime frmDt, DateTime toDt, Int32 cnfId, Int32 dealerId,
+             Int32 stateId, Int32 districtId, Int32 talukaId);
         List<TblInvoiceRptTO> SelectInvoiceExportList(DateTime frmDt, DateTime toDt, int isConfirm, int fromOrgId);
         List<TblInvoiceRptTO> SelectHsnExportList(DateTime frmDt, DateTime toDt, int isConfirm,int fromOrgId);
         List<TblInvoiceRptTO> SelectSalesInvoiceListForReport(DateTime frmDt, DateTime toDt, int isConfirm,int fromOrgId);

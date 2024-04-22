@@ -2314,6 +2314,21 @@ namespace ODLMWebAPI.BL
             }
             return resultMessage;
         }
+
+        public List<TblInvoiceRptTO> GetDispatchReportAll(DateTime frmDt, DateTime toDt, Int32 cnfId, Int32 dealerId,
+             Int32 stateId, Int32 districtId, Int32 talukaId)
+        {
+            ResultMessage resultMessage = new ResultMessage();
+            int Lresult = 0;
+            List<TblInvoiceRptTO> TblInvoiceRptTOList = new List<TblInvoiceRptTO>();
+            try
+            {
+                TblInvoiceRptTOList = _iTblInvoiceDAO.GetDispatchReportAll(frmDt, toDt,cnfId,dealerId,stateId,districtId,talukaId);
+            }
+            catch (Exception ex) { };
+            return TblInvoiceRptTOList;
+        }
+
         /// <summary>
         /// Vijaymala[06-10-2017] Added To Get Invoice List To Generate Invoice Excel
         /// </summary>
