@@ -511,7 +511,7 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 cmdSelect.CommandText = "SELECT ROW_NUMBER() OVER(ORDER BY tblSize.idSize ASC) AS RowNumber, tblSize.* FROM tblSize " +
-                                        "LEFT JOIN tblInch AS inch ON tblSize.idSize = inch.idInch inch.isActive = 1";
+                                        "LEFT JOIN tblInch AS inch ON tblSize.idSize = inch.idInch";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
