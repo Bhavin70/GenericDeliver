@@ -26,5 +26,8 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblPipesStripCommonThicknessTO> GetAlltblPipesStripCommonThicknessForDropDown();
         List<TblStripsGradeDropDownTo> GetAlltblStripsGradeForDropDown();
         List<TblPipesStripCommonQuantityTO> GetAlltblPipesStripCommonQuantityForDropDown();
+        List<TblInchDropDownTO> GetTblInchForDropDown();
+        List<TblSizeTO> GetTblSizeForDropDown();
+        List<TblThicknessDropDownTO> GetTblThicknessForDropDown();
     }
 }

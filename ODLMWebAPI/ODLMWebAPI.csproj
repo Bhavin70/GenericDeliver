@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netcoreapp2.0\ODLMWebAPI.xml</DocumentationFile>
+    <DocumentationFile></DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -66,12 +66,12 @@
 
   <ItemGroup>
     <Reference Include="Interop.SAPbobsCOM">
-      <HintPath>C:\Users\VITPL-IT-65\Downloads\Interop.SAPbobsCOM.dll</HintPath>
+      <HintPath>..\..\..\..\SetUp for API\Interop.SAPbobsCOM.dll</HintPath>
       <Private>true</Private>
       <EmbedInteropTypes>true</EmbedInteropTypes>
     </Reference>
     <Reference Include="itextsharp">
-      <HintPath>bin\Debug\netcoreapp2.0\itextsharp.dll</HintPath>
+      <HintPath>..\..\..\..\SetUp for API\itextsharp.dll</HintPath>
     </Reference>
   </ItemGroup>
 

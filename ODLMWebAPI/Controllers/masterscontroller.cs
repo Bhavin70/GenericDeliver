@@ -1571,6 +1571,30 @@ namespace ODLMWebAPI.Controllers
             return PipesStripCommonQuantity;
         }
 
+        [Route("GetTblInchForDropDown")]
+        [HttpGet]
+        public List<TblInchDropDownTO> GetTblInchForDropDown()
+        {
+            List<TblInchDropDownTO> InchList = _iDimProdSpecDescBL.GetTblInchForDropDown();
+            return InchList;
+        }
+
+
+        [Route("GetTblSizeForDropDown")]
+        [HttpGet]
+        public List<TblSizeTO> GetTblSizeForDropDown()
+        {
+            List<TblSizeTO> SizeList = _iDimProdSpecDescBL.GetTblSizeForDropDown();
+            return SizeList;
+        }
+
+        [Route("GetTblThicknessForDropDown")]
+        [HttpGet]
+        public List<TblThicknessDropDownTO> GetTblThicknessForDropDown()
+        {
+            List<TblThicknessDropDownTO> ThicknessList = _iDimProdSpecDescBL.GetTblThicknessForDropDown();
+            return ThicknessList;
+        }
         #endregion
 
 

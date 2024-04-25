@@ -21,6 +21,9 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblPipesStripCommonThicknessTO> SelectAlltblPipesStripCommonThicknessForDropDown();
         List<TblStripsGradeDropDownTo> SelectAlltblStripsGradeForDropDown();
         List<TblPipesStripCommonQuantityTO> SelectAlltblPipesStripCommonQuantityForDropDown();
+        List<TblInchDropDownTO> SelectAllTblInchForDropDown();
+        List<TblSizeTO> SelectAllTblSizeForDropDown();
+        List<TblThicknessDropDownTO> SelectAllTblThicknessForDropDown();
 
         int InsertDimProdSpecDesc(DimProdSpecDescTO dimProdSpecDescTO);
         int InsertDimProdSpecDesc(DimProdSpecDescTO dimProdSpecDescTO, SqlConnection conn, SqlTransaction tran);

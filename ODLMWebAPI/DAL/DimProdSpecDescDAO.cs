@@ -12,6 +12,7 @@ using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.BL;
 using SkiaSharp;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
+using StackExchange.Redis;
 
 namespace ODLMWebAPI.DAL
 {
@@ -441,6 +442,141 @@ namespace ODLMWebAPI.DAL
                         dropDownTONew.IdPipesStripCommon = Convert.ToInt32(dateReader["idPipesStripCommon"].ToString());
                     if (dateReader["quantity"] != DBNull.Value)
                         dropDownTONew.Quantity = Convert.ToInt32(dateReader["quantity"].ToString());
+                    dropDownTOList.Add(dropDownTONew);
+                }
+
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return dropDownTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+        public List<TblInchDropDownTO> SelectAllTblInchForDropDown()
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            String sqlQuery = string.Empty;
+            try
+            {
+                //DataTableExample();
+
+                conn.Open();
+                sqlQuery = "SELECT * FROM tblInch WHERE isActive=1";
+
+                cmdSelect = new SqlCommand(sqlQuery, conn);
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblInchDropDownTO> dropDownTOList = new List<Models.TblInchDropDownTO>();
+                while (dateReader.Read())
+                {
+                    TblInchDropDownTO dropDownTONew = new TblInchDropDownTO();
+                    if (dateReader["idInch"] != DBNull.Value)
+                        dropDownTONew.IdInch = Convert.ToInt32(dateReader["idInch"].ToString());
+                    if (dateReader["inch"] != DBNull.Value)
+                        dropDownTONew.Inch = Convert.ToDecimal(dateReader["inch"].ToString());
+                    dropDownTOList.Add(dropDownTONew);
+                }
+
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return dropDownTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+        public List<TblSizeTO> SelectAllTblSizeForDropDown()
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                conn.Open();
+                cmdSelect.CommandText = "SELECT ROW_NUMBER() OVER(ORDER BY tblSize.idSize ASC) AS RowNumber, tblSize.* FROM tblSize " +
+                                        "LEFT JOIN tblInch AS inch ON tblSize.idSize = inch.idInch inch.isActive = 1";
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                SqlDataReader rdr = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblSizeTO> list = ConvertDTToListSize(rdr);
+                rdr.Dispose();
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+        public List<TblSizeTO> ConvertDTToListSize(SqlDataReader dimDimProdSpecTODT)
+        {
+            List<TblSizeTO> dimProdSpecTOList = new List<TblSizeTO>();
+            if (dimDimProdSpecTODT != null)
+            {
+                while (dimDimProdSpecTODT.Read())
+                {
+                    TblSizeTO DimProdSpecTONew = new TblSizeTO();
+                    if (dimDimProdSpecTODT["idSize"] != DBNull.Value)
+                        DimProdSpecTONew.IdSize = Convert.ToInt32(dimDimProdSpecTODT["idSize"].ToString());
+                    if (dimDimProdSpecTODT["size"] != DBNull.Value)
+                        DimProdSpecTONew.Size = Convert.ToString(dimDimProdSpecTODT["size"].ToString());
+                    if (dimDimProdSpecTODT["isActive"] != DBNull.Value)
+                        DimProdSpecTONew.IsActive = Convert.ToInt32(dimDimProdSpecTODT["isActive"].ToString());
+                    if (dimDimProdSpecTODT["createdOn"] != DBNull.Value)
+                        DimProdSpecTONew.CreatedOn = Convert.ToDateTime(dimDimProdSpecTODT["createdOn"].ToString());
+                    if (dimDimProdSpecTODT["idInch"] != DBNull.Value)
+                        DimProdSpecTONew.IdInch = Convert.ToInt32(dimDimProdSpecTODT["idInch"].ToString());         
+                    dimProdSpecTOList.Add(DimProdSpecTONew);
+                }
+            }
+            return dimProdSpecTOList;
+        }
+        public List<TblThicknessDropDownTO> SelectAllTblThicknessForDropDown()
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            String sqlQuery = string.Empty;
+            try
+            {
+                //DataTableExample();
+
+                conn.Open();
+                sqlQuery = "SELECT * FROM tblThickness WHERE isActive=1";
+
+                cmdSelect = new SqlCommand(sqlQuery, conn);
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblThicknessDropDownTO> dropDownTOList = new List<Models.TblThicknessDropDownTO>();
+                while (dateReader.Read())
+                {
+                    TblThicknessDropDownTO dropDownTONew = new TblThicknessDropDownTO();
+                    if (dateReader["idThickness"] != DBNull.Value)
+                        dropDownTONew.IdThickness = Convert.ToInt32(dateReader["idThickness"].ToString());
+                    if (dateReader["thickness"] != DBNull.Value)
+                        dropDownTONew.Thickness = Convert.ToDecimal(dateReader["thickness"].ToString());
                     dropDownTOList.Add(dropDownTONew);
                 }
 

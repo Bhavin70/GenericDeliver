@@ -70,6 +70,18 @@ namespace ODLMWebAPI.BL
         {
             return _iDimProdSpecDescDAO.SelectAlltblPipesStripCommonQuantityForDropDown();
         }
+        public List<TblInchDropDownTO> GetTblInchForDropDown()
+        {
+            return _iDimProdSpecDescDAO.SelectAllTblInchForDropDown();
+        }
+        public List<TblSizeTO> GetTblSizeForDropDown()
+        {
+            return _iDimProdSpecDescDAO.SelectAllTblSizeForDropDown();
+        }
+        public List<TblThicknessDropDownTO> GetTblThicknessForDropDown()
+        {
+            return _iDimProdSpecDescDAO.SelectAllTblThicknessForDropDown();
+        }
         #endregion
 
         #region Insertion
