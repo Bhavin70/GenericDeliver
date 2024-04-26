@@ -6803,6 +6803,7 @@ namespace ODLMWebAPI.BL
                 DataTable hsnItemTaxDT = new DataTable();
                 DataTable qrCodeDT = new DataTable();
                 DataTable qrCodeDTv2 = new DataTable();
+                DataTable taxDT = new DataTable();
                 // DataTable shippingAddressDT = new DataTable();
                 //Aniket [1-02-2019] added to create multiple copy of tax invoice
                 DataTable multipleInvoiceCopyDT = new DataTable();
@@ -6816,7 +6817,7 @@ namespace ODLMWebAPI.BL
                 multipleInvoiceCopyDT.TableName = "multipleInvoiceCopyDT";
                 qrCodeDT.TableName = "QRCodeDT";
                 qrCodeDTv2.TableName = "QRCodeDTv2";
-
+                taxDT.TableName = "TaxDT";
                 //HeaderDT 
                 multipleInvoiceCopyDT.Columns.Add("idInvoiceCopy");
                 multipleInvoiceCopyDT.Columns.Add("invoiceCopyName");
@@ -6824,6 +6825,8 @@ namespace ODLMWebAPI.BL
                 //Aniket [13-02-2019] to display payment term option on print invoice
                 string paymentTermAllCommaSeparated = "";
                 List<DropDownTO> multipleInvoiceCopyList = _iDimensionBL.SelectInvoiceCopyList();
+                taxDT.Columns.Add("name");
+                taxDT.Columns.Add("value");
 
                 if (multipleInvoiceCopyList != null)
                 {
@@ -6986,6 +6989,7 @@ namespace ODLMWebAPI.BL
                 {
                     headerDT.Rows.Add();
                     invoiceDT.Rows.Add();
+                    //taxDT.Rows.Add();
                     //headerDT.Rows[0]["orgFirmName"] = organizationTO.FirmName;
                     invoiceDT.Rows[0]["orgFirmName"] = organizationTO.FirmName;
 
@@ -7002,7 +7006,7 @@ namespace ODLMWebAPI.BL
                 responsev2 = _iTblInvoiceDAO.SelectresponseForPhotoInReport(invoiceId, apiIdEW);
                 if (!String.IsNullOrEmpty(response))
                 {
-                    JObject json = JObject.Parse(response);
+                    JObject json = JObject.Parse(responsev2);
 
                     if (json.ContainsKey("data"))
                     {
@@ -7268,7 +7272,14 @@ namespace ODLMWebAPI.BL
                     {
                         invoiceDT.Rows[0]["discountAmt"] = tblInvoiceTO.DiscountAmt;
                         invoiceDT.Rows[0]["discountAmtStr"] = currencyTowords(tblInvoiceTO.DiscountAmt, tblInvoiceTO.CurrencyId);
+                        if(tblInvoiceTO.DiscountAmt >0)
+                        {
+                            taxDT.Rows.Add();
+                            taxDT.Rows[taxDT.Rows.Count -1]["name"] = "Discount 1.5%";
+                            taxDT.Rows[taxDT.Rows.Count - 1]["value"] = tblInvoiceTO.DiscountAmt;
 
+                        }
+                       
                         invoiceDT.Rows[0]["taxableAmt"] = tblInvoiceTO.TaxableAmt;
                         invoiceDT.Rows[0]["taxableAmtStr"] = currencyTowords(tblInvoiceTO.TaxableAmt, tblInvoiceTO.CurrencyId);
 
@@ -7282,6 +7293,30 @@ namespace ODLMWebAPI.BL
 
                         invoiceDT.Rows[0]["igstTotalStr"] = currencyTowords(tblInvoiceTO.IgstAmt, tblInvoiceTO.CurrencyId);
 
+                        if (tblInvoiceTO.CgstAmt > 0)
+                        {
+                            taxDT.Rows.Add();
+                            taxDT.Rows[taxDT.Rows.Count - 1]["name"] = "Output CGST 9%";
+                            taxDT.Rows[taxDT.Rows.Count - 1]["value"] = tblInvoiceTO.CgstAmt;
+                        }
+                        if (tblInvoiceTO.SgstAmt > 0)
+                        {
+                            taxDT.Rows.Add();
+                            taxDT.Rows[taxDT.Rows.Count - 1]["name"] = "Output SGST 9%";
+                            taxDT.Rows[taxDT.Rows.Count - 1]["value"] = tblInvoiceTO.SgstAmt;
+                        }
+                        if (tblInvoiceTO.IgstAmt > 0)
+                        {
+                            taxDT.Rows.Add();
+                            taxDT.Rows[taxDT.Rows.Count - 1]["name"] = "Output IGST 9%";
+                            taxDT.Rows[taxDT.Rows.Count - 1]["value"] = tblInvoiceTO.IgstAmt;
+                        }
+                        if (tblInvoiceTO.RoundOffAmt  > 0)
+                        {
+                            taxDT.Rows.Add();
+                            taxDT.Rows[taxDT.Rows.Count - 1]["name"] = "Round Off ";
+                            taxDT.Rows[taxDT.Rows.Count - 1]["value"] = tblInvoiceTO.RoundOffAmt;
+                        }
                         invoiceDT.Rows[0]["grandTotal"] = tblInvoiceTO.GrandTotal;
                         invoiceDT.Rows[0]["grandTotalStr"] = currencyTowords(tblInvoiceTO.GrandTotal, tblInvoiceTO.CurrencyId);
 
@@ -7321,8 +7356,38 @@ namespace ODLMWebAPI.BL
 
                         invoiceDT.Rows[0]["grandTotal"] = Math.Round(tblInvoiceTO.GrandTotal, 2);
                         invoiceDT.Rows[0]["grandTotalStr"] = currencyTowords(tblInvoiceTO.GrandTotal, tblInvoiceTO.CurrencyId);
+                        if (tblInvoiceTO.DiscountAmt > 0)
+                        {
+                            taxDT.Rows.Add();
+                            taxDT.Rows[taxDT.Rows.Count - 1]["name"] = "Discount 1.5%";
+                            taxDT.Rows[taxDT.Rows.Count - 1]["value"] = tblInvoiceTO.DiscountAmt;
 
+                        }
 
+                        if (tblInvoiceTO.CgstAmt > 0)
+                        {
+                            taxDT.Rows.Add();
+                            taxDT.Rows[taxDT.Rows.Count - 1]["name"] = "Output CGST 9%";
+                            taxDT.Rows[taxDT.Rows.Count - 1]["value"] = tblInvoiceTO.CgstAmt;
+                        }
+                        if (tblInvoiceTO.SgstAmt > 0)
+                        {
+                            taxDT.Rows.Add();
+                            taxDT.Rows[taxDT.Rows.Count - 1]["name"] = "Output SGST 9%";
+                            taxDT.Rows[taxDT.Rows.Count - 1]["value"] = tblInvoiceTO.SgstAmt;
+                        }
+                        if (tblInvoiceTO.IgstAmt > 0)
+                        {
+                            taxDT.Rows.Add();
+                            taxDT.Rows[taxDT.Rows.Count - 1]["name"] = "Output IGST 9%";
+                            taxDT.Rows[taxDT.Rows.Count - 1]["value"] = tblInvoiceTO.IgstAmt;
+                        }
+                        if (tblInvoiceTO.RoundOffAmt > 0)
+                        {
+                            taxDT.Rows.Add();
+                            taxDT.Rows[taxDT.Rows.Count - 1]["name"] = "Round Off ";
+                            taxDT.Rows[taxDT.Rows.Count - 1]["value"] = tblInvoiceTO.RoundOffAmt;
+                        }
                         //invoiceDT.Rows[0]["grossWeight"] = Math.Round(tblInvoiceTO.GrossWeight / 1000, 3);
                         //invoiceDT.Rows[0]["tareWeight"] = Math.Round(tblInvoiceTO.TareWeight / 1000, 3);
                         //invoiceDT.Rows[0]["netWeight"] = Math.Round(tblInvoiceTO.NetWeight / 1000, 3);
@@ -7594,6 +7659,12 @@ namespace ODLMWebAPI.BL
                             else
                             {
                                 invoiceDT.Rows[0]["insuranceAmt"] = Math.Round(insuranceTo.TaxableAmt, 2);
+                            }
+                            if (insuranceTo.TaxableAmt > 0)
+                            {
+                                taxDT.Rows.Add();
+                                taxDT.Rows[taxDT.Rows.Count - 1]["name"] = "Insurance A/C";
+                                taxDT.Rows[taxDT.Rows.Count - 1]["value"] = insuranceTo.TaxableAmt;
                             }
 
                         }
@@ -8119,6 +8190,8 @@ namespace ODLMWebAPI.BL
                 printDataSet.Tables.Add(commercialDT);
                 printDataSet.Tables.Add(hsnItemTaxDT);
                 printDataSet.Tables.Add(multipleInvoiceCopyDT);
+                printDataSet.Tables.Add(taxDT);
+
                 // printDataSet.Tables.Add(shippingAddressDT);
                 //creating template'''''''''''''''''
 
