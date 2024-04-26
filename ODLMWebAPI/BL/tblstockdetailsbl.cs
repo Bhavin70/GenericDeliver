@@ -160,20 +160,21 @@ namespace ODLMWebAPI.BL
             return _iTblStockDetailsDAO.SelectEmptyStockDetailsTemplateForAutoInsert(isConsolidateStk);
         }
 
-        public List<TblStockDetailsTO> SelectAllTblStockDetailsList(int locationId, int prodCatId, DateTime stockDate, int brandId)
+        public List<TblStockDetailsTO> SelectAllTblStockDetailsList(int locationId, int prodCatId, DateTime stockDate, int brandId,int inchId,int stripId)
         {
 
             Int32 isConsolidateStk = _iTblConfigParamsBL.GetStockConfigIsConsolidate();
 
             List<TblStockDetailsTO> emptyStkTemplateList = SelectAllEmptyStockTemplateList(prodCatId, locationId, brandId, isConsolidateStk);
-            List<TblStockDetailsTO> existingList = _iTblStockDetailsDAO.SelectAllTblStockDetails(locationId, prodCatId, stockDate, brandId);
+            List<TblStockDetailsTO> existingList = _iTblStockDetailsDAO.SelectAllTblStockDetails(locationId, prodCatId, stockDate, brandId,inchId,stripId);
             if (emptyStkTemplateList != null && emptyStkTemplateList.Count > 0)
             {
                 if (existingList != null && existingList.Count > 0)
                 {
                     for (int i = 0; i < emptyStkTemplateList.Count; i++)
                     {
-                        TblStockDetailsTO existingStockDetailsTO = existingList.Where(a => a.ProdCatId == emptyStkTemplateList[i].ProdCatId && a.ProdSpecId == emptyStkTemplateList[i].ProdSpecId && a.MaterialId == emptyStkTemplateList[i].MaterialId 
+                        TblStockDetailsTO existingStockDetailsTO = existingList.Where(a => a.ProdCatId == emptyStkTemplateList[i].ProdCatId && 
+                        a.ProdSpecId == emptyStkTemplateList[i].ProdSpecId && a.MaterialId == emptyStkTemplateList[i].MaterialId 
                         && a.LocationId == locationId && a.BrandId == brandId && a.IsConsolidatedStock == 0).FirstOrDefault();
                         if (existingStockDetailsTO != null)
                         {

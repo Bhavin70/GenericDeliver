@@ -150,14 +150,14 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetMateAndSpecsList")]
         [HttpGet]
-        public List<TblStockDetailsTO> GetMateAndSpecsList(Int32 locationId,Int32 prodCatId,DateTime stockDate,Int32 brandId)
+        public List<TblStockDetailsTO> GetMateAndSpecsList(Int32 locationId,Int32 prodCatId,DateTime stockDate,Int32 brandId,Int32 inchId,Int32 stripId)
         {
             if (stockDate == DateTime.MinValue)
                 stockDate = _iCommon.ServerDateTime.Date;           
-            return _iTblStockDetailsBL.SelectAllTblStockDetailsList(locationId, prodCatId, stockDate, brandId);
+            return _iTblStockDetailsBL.SelectAllTblStockDetailsList(locationId, prodCatId, stockDate, brandId,inchId,stripId);
             
         }        
-       
+        
 
         [Route("GetStockDtlsByCategAndSpecs")]
         [HttpGet]

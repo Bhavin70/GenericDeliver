@@ -21,7 +21,7 @@ namespace ODLMWebAPI.DAL
         #region Methods
         public String SqlSelectQuery()
         {
-            String sqlSelectQry = " SELECT stockDtl.* ,prodSpec.prodSpecDesc ,prodCateDesc,locationDesc,material.materialSubType " +
+            String sqlSelectQry = " SELECT stockDtl.* ,prodSpec.prodSpecDesc ,prodCateDesc,locationDesc,material.materialSubType,inch.inch,strips.grade,size.size,thickness.thickness" +
                                   " FROM tblstockDetails stockDtl " +
                                   " LEFT JOIN dimProdSpec prodSpec " +
                                   " ON stockDtl.prodSpecId = prodSpec.idProdSpec " +
@@ -33,7 +33,11 @@ namespace ODLMWebAPI.DAL
                                   " ON stockDtl.materialId = material.idMaterial " +
                                   " LEFT JOIN tblStockSummary stkSummary " +
                                   " ON stockDtl.stockSummaryId = stkSummary.idStockSummary " +
-                                  " LEFT JOIN tblProductItem prodItem ON stockDtl.prodItemId=prodItem.idProdItem ";//Vijaymala[23-08-2018] Added for ProductItemId.
+                                  " LEFT JOIN tblProductItem prodItem ON stockDtl.prodItemId=prodItem.idProdItem " +
+                                  " LEFT JOIN tblInch inch ON stockDtl.inchId=inch.idInch" +
+                                  " LEFT JOIN tblStrips strips ON stockDtl.stripId=strips.idStrip" +
+                                  " LEFT JOIN tblSize size ON stockDtl.sizeId=size.idSize" +
+                                  " LEFT JOIN tblThickness thickness ON stockDtl.thicknessId=thickness.idThickness";//Vijaymala[23-08-2018] Added for ProductItemId.
 
             return sqlSelectQry;
         }
@@ -312,7 +316,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblStockDetailsTO> SelectAllTblStockDetails(int locationId, int prodCatId,DateTime stockDate, int brandId)
+        public List<TblStockDetailsTO> SelectAllTblStockDetails(int locationId, int prodCatId,DateTime stockDate, int brandId,int inchId,int stripId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -326,7 +330,7 @@ namespace ODLMWebAPI.DAL
 
                 cmdSelect.CommandText = SqlSelectQuery() + " WHERE stockDtl.locationId=" + locationId + // "AND stockDtl.prodCatId=" + prodCatId +
                                     //" AND stkSummary.stockDate=@stockDt AND stockDtl.brandId = " + brandId;
-                                    " AND stockDtl.brandId = " + brandId + "  " +
+                                    " AND stockDtl.brandId = " + brandId + "AND stockDtl.inchId= " + inchId + "AND stockDtl.stripId= "+ stripId +" "+
                     " order by stockDtl.idStockDtl desc";
 
                 
@@ -687,6 +691,24 @@ namespace ODLMWebAPI.DAL
                         tblStockDetailsTONew.ProdNoOfBundles = Convert.ToDouble(tblStockDetailsTODT["prodNoOfBundles"].ToString());
                     if (tblStockDetailsTODT["prodtotalStock"] != DBNull.Value)
                         tblStockDetailsTONew.ProdtotalStock = Convert.ToDouble(tblStockDetailsTODT["prodtotalStock"].ToString());
+
+                    if (tblStockDetailsTODT["inchId"] != DBNull.Value)
+                        tblStockDetailsTONew.InchId = Convert.ToInt32(tblStockDetailsTODT["inchId"].ToString());
+                    if (tblStockDetailsTODT["stripId"] != DBNull.Value)
+                        tblStockDetailsTONew.StripId = Convert.ToInt32(tblStockDetailsTODT["stripId"].ToString());
+                    if (tblStockDetailsTODT["sizeId"] != DBNull.Value)
+                        tblStockDetailsTONew.SizeId = Convert.ToInt32(tblStockDetailsTODT["sizeId"].ToString());
+                    if (tblStockDetailsTODT["thicknessId"] != DBNull.Value)
+                        tblStockDetailsTONew.ThicknessId = Convert.ToInt32(tblStockDetailsTODT["thicknessId"].ToString());
+
+                    if (tblStockDetailsTODT["inch"] != DBNull.Value)
+                        tblStockDetailsTONew.Inch = Convert.ToString(tblStockDetailsTODT["inch"].ToString());
+                    if (tblStockDetailsTODT["grade"] != DBNull.Value)
+                        tblStockDetailsTONew.Grade = Convert.ToString(tblStockDetailsTODT["grade"].ToString());
+                    if (tblStockDetailsTODT["size"] != DBNull.Value)
+                        tblStockDetailsTONew.Size = Convert.ToString(tblStockDetailsTODT["size"].ToString());
+                    if (tblStockDetailsTODT["thickness"] != DBNull.Value)
+                        tblStockDetailsTONew.Thickness = Convert.ToString(tblStockDetailsTODT["thickness"].ToString());
                     tblStockDetailsTOList.Add(tblStockDetailsTONew);
                 }
             }
