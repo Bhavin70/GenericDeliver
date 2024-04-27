@@ -1210,6 +1210,11 @@ namespace ODLMWebAPI.DAL
                             " ,[prodItemId] = @ProdItemId " +
                             " ,[prodNoOfBundles]= @ProdNoOfBundles" +
                             " ,[prodtotalStock]= @ProdtotalStock" +
+                            " ,[inchId]= @InchId" +
+                            " ,[stripId]= @StripId" +
+                            " ,[sizeId]= @SizeId" +
+                            " ,[thicknessId]= @ThicknessId" +
+                            " ,[categoryType]= @CategoryType" +
                             " WHERE  [idStockDtl] = @IdStockDtl";
 
             cmdUpdate.CommandText = sqlQuery;
@@ -1236,6 +1241,12 @@ namespace ODLMWebAPI.DAL
             cmdUpdate.Parameters.Add("@ProdItemId", System.Data.SqlDbType.Int).Value = tblStockDetailsTO.ProdItemId;
             cmdUpdate.Parameters.Add("@ProdNoOfBundles", System.Data.SqlDbType.NVarChar).Value = tblStockDetailsTO.ProdNoOfBundles;
             cmdUpdate.Parameters.Add("@ProdtotalStock", System.Data.SqlDbType.NVarChar).Value = tblStockDetailsTO.ProdtotalStock;
+            cmdUpdate.Parameters.Add("@inchId", System.Data.SqlDbType.Int).Value = tblStockDetailsTO.InchId;
+            cmdUpdate.Parameters.Add("@stripId", System.Data.SqlDbType.Int).Value = tblStockDetailsTO.StripId;
+            cmdUpdate.Parameters.Add("@sizeId", System.Data.SqlDbType.Int).Value = tblStockDetailsTO.SizeId;
+            cmdUpdate.Parameters.Add("@thicknessId", System.Data.SqlDbType.Int).Value = tblStockDetailsTO.ThicknessId;
+            cmdUpdate.Parameters.Add("@categoryType", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockDetailsTO.CategoryType);
+            
             return cmdUpdate.ExecuteNonQuery();
         }
 

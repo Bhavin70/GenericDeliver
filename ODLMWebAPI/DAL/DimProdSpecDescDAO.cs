@@ -171,24 +171,22 @@ namespace ODLMWebAPI.DAL
                 while (dimDimProdSpecTODT.Read())
                 {
                     TblStripsTO DimProdSpecTONew = new TblStripsTO();
-                    if (dimDimProdSpecTODT["IdStrip"] != DBNull.Value)
-                        DimProdSpecTONew.IdStrip = Convert.ToInt32(dimDimProdSpecTODT["IdStrip"].ToString());
+                    if (dimDimProdSpecTODT["idStrips"] != DBNull.Value)
+                        DimProdSpecTONew.IdStrips = Convert.ToInt32(dimDimProdSpecTODT["idStrips"].ToString());
                     if (dimDimProdSpecTODT["grade"] != DBNull.Value)
                         DimProdSpecTONew.Grade = Convert.ToInt32(dimDimProdSpecTODT["grade"].ToString());
-                    if (dimDimProdSpecTODT["width"] != DBNull.Value)
-                        DimProdSpecTONew.Width = Convert.ToInt32(dimDimProdSpecTODT["width"].ToString());
+                    if (dimDimProdSpecTODT["idSize"] != DBNull.Value)
+                        DimProdSpecTONew.IdSize = Convert.ToInt32(dimDimProdSpecTODT["idSize"].ToString());
+                    if (dimDimProdSpecTODT["size"] != DBNull.Value)
+                        DimProdSpecTONew.Size = Convert.ToString(dimDimProdSpecTODT["size"].ToString());
+                    if (dimDimProdSpecTODT["idThickness"] != DBNull.Value)
+                        DimProdSpecTONew.IdThickness = Convert.ToInt32(dimDimProdSpecTODT["idThickness"].ToString());
+                    if (dimDimProdSpecTODT["thickness"] != DBNull.Value)
+                        DimProdSpecTONew.Thickness = Convert.ToDecimal(dimDimProdSpecTODT["thickness"].ToString());
                     if (dimDimProdSpecTODT["isActive"] != DBNull.Value)
                         DimProdSpecTONew.IsActive = Convert.ToInt32(dimDimProdSpecTODT["isActive"].ToString());
                     if (dimDimProdSpecTODT["createdOn"] != DBNull.Value)
                         DimProdSpecTONew.CreatedOn = Convert.ToDateTime(dimDimProdSpecTODT["createdOn"].ToString());
-                    if (dimDimProdSpecTODT["idPipesStripCommon"] != DBNull.Value)
-                        DimProdSpecTONew.IdPipesStripCommon = Convert.ToInt32(dimDimProdSpecTODT["idPipesStripCommon"].ToString());
-                    if (dimDimProdSpecTODT["categoryType"] != DBNull.Value)
-                        DimProdSpecTONew.CategoryType = Convert.ToInt32(dimDimProdSpecTODT["categoryType"].ToString());
-                    if (dimDimProdSpecTODT["size"] != DBNull.Value)
-                        DimProdSpecTONew.Size = Convert.ToInt32(dimDimProdSpecTODT["size"].ToString());
-                    if (dimDimProdSpecTODT["thickness"] != DBNull.Value)
-                        DimProdSpecTONew.Thickness = Convert.ToInt32(dimDimProdSpecTODT["thickness"].ToString());
                     dimProdSpecTOList.Add(DimProdSpecTONew);
                 }
             }
@@ -232,22 +230,22 @@ namespace ODLMWebAPI.DAL
                 while (dimDimProdSpecTODT.Read())
                 {
                     TblPipesTO DimProdSpecTONew = new TblPipesTO();
-                    if (dimDimProdSpecTODT["idPipes"] != DBNull.Value)
-                        DimProdSpecTONew.IdPipes = Convert.ToInt32(dimDimProdSpecTODT["idPipes"].ToString());
+                    if (dimDimProdSpecTODT["idInch"] != DBNull.Value)
+                        DimProdSpecTONew.IdInch = Convert.ToInt32(dimDimProdSpecTODT["idInch"].ToString());
                     if (dimDimProdSpecTODT["inch"] != DBNull.Value)
-                        DimProdSpecTONew.Inch = Convert.ToInt32(dimDimProdSpecTODT["inch"].ToString());
+                        DimProdSpecTONew.Inch = Convert.ToDecimal(dimDimProdSpecTODT["inch"].ToString());
+                    if (dimDimProdSpecTODT["idSize"] != DBNull.Value)
+                        DimProdSpecTONew.IdSize = Convert.ToInt32(dimDimProdSpecTODT["idSize"].ToString());
+                    if (dimDimProdSpecTODT["size"] != DBNull.Value)
+                        DimProdSpecTONew.Size = Convert.ToString(dimDimProdSpecTODT["size"].ToString());
+                    if (dimDimProdSpecTODT["idThickness"] != DBNull.Value)
+                        DimProdSpecTONew.IdThickness = Convert.ToInt32(dimDimProdSpecTODT["idThickness"].ToString());
+                    if (dimDimProdSpecTODT["thickness"] != DBNull.Value)
+                        DimProdSpecTONew.Thickness = Convert.ToDecimal(dimDimProdSpecTODT["thickness"].ToString());
                     if (dimDimProdSpecTODT["isActive"] != DBNull.Value)
                         DimProdSpecTONew.IsActive = Convert.ToInt32(dimDimProdSpecTODT["isActive"].ToString());
                     if (dimDimProdSpecTODT["createdOn"] != DBNull.Value)
                         DimProdSpecTONew.CreatedOn = Convert.ToDateTime(dimDimProdSpecTODT["createdOn"].ToString());
-                    if (dimDimProdSpecTODT["idPipesStripCommon"] != DBNull.Value)
-                        DimProdSpecTONew.IdPipesStripCommon = Convert.ToInt32(dimDimProdSpecTODT["idPipesStripCommon"].ToString());
-                    if (dimDimProdSpecTODT["categoryType"] != DBNull.Value)
-                        DimProdSpecTONew.CategoryType = Convert.ToInt32(dimDimProdSpecTODT["categoryType"].ToString());
-                    if (dimDimProdSpecTODT["size"] != DBNull.Value)
-                        DimProdSpecTONew.Size = Convert.ToInt32(dimDimProdSpecTODT["size"].ToString());
-                    if (dimDimProdSpecTODT["thickness"] != DBNull.Value)
-                        DimProdSpecTONew.Thickness = Convert.ToInt32(dimDimProdSpecTODT["thickness"].ToString());
 
                     dimProdSpecTOList.Add(DimProdSpecTONew);
                 }
@@ -255,47 +253,47 @@ namespace ODLMWebAPI.DAL
             return dimProdSpecTOList;
         }
 
-        public List<TblPipesDropDownTo> SelectAllPipesInchForDropDown()
-        {
-            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
-            SqlConnection conn = new SqlConnection(sqlConnStr);
-            SqlCommand cmdSelect = null;
-            String sqlQuery = string.Empty;
-            try
-            {
-                //DataTableExample();
+        //public List<TblPipesDropDownTo> SelectAllPipesInchForDropDown()
+        //{
+        //    String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+        //    SqlConnection conn = new SqlConnection(sqlConnStr);
+        //    SqlCommand cmdSelect = null;
+        //    String sqlQuery = string.Empty;
+        //    try
+        //    {
+        //        //DataTableExample();
 
-                conn.Open();
-                sqlQuery = "SELECT * FROM tblPipes WHERE isActive=1";
+        //        conn.Open();
+        //        sqlQuery = "SELECT * FROM tblPipes WHERE isActive=1";
 
-                cmdSelect = new SqlCommand(sqlQuery, conn);
-                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
-                List<TblPipesDropDownTo> dropDownTOList = new List<Models.TblPipesDropDownTo>();
-                while (dateReader.Read())
-                {
-                    TblPipesDropDownTo dropDownTONew = new TblPipesDropDownTo();
-                    if (dateReader["idPipes"] != DBNull.Value)
-                        dropDownTONew.IdPipes = Convert.ToInt32(dateReader["idPipes"].ToString());
-                    if (dateReader["inch"] != DBNull.Value)
-                        dropDownTONew.Inch = Convert.ToDecimal(dateReader["inch"].ToString());    
-                    dropDownTOList.Add(dropDownTONew);
-                }
+        //        cmdSelect = new SqlCommand(sqlQuery, conn);
+        //        SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+        //        List<TblPipesDropDownTo> dropDownTOList = new List<Models.TblPipesDropDownTo>();
+        //        while (dateReader.Read())
+        //        {
+        //            TblPipesDropDownTo dropDownTONew = new TblPipesDropDownTo();
+        //            if (dateReader["idPipes"] != DBNull.Value)
+        //                dropDownTONew.IdPipes = Convert.ToInt32(dateReader["idPipes"].ToString());
+        //            if (dateReader["inch"] != DBNull.Value)
+        //                dropDownTONew.Inch = Convert.ToDecimal(dateReader["inch"].ToString());    
+        //            dropDownTOList.Add(dropDownTONew);
+        //        }
 
-                if (dateReader != null)
-                    dateReader.Dispose();
+        //        if (dateReader != null)
+        //            dateReader.Dispose();
 
-                return dropDownTOList;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-            finally
-            {
-                conn.Close();
-                cmdSelect.Dispose();
-            }
-        }
+        //        return dropDownTOList;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return null;
+        //    }
+        //    finally
+        //    {
+        //        conn.Close();
+        //        cmdSelect.Dispose();
+        //    }
+        //}
         public List<TblPipesStripCommonSizeTO> SelectAlltblPipesStripCommonSizeForDropDown()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -577,6 +575,48 @@ namespace ODLMWebAPI.DAL
                         dropDownTONew.IdThickness = Convert.ToInt32(dateReader["idThickness"].ToString());
                     if (dateReader["thickness"] != DBNull.Value)
                         dropDownTONew.Thickness = Convert.ToDecimal(dateReader["thickness"].ToString());
+                    dropDownTOList.Add(dropDownTONew);
+                }
+
+                if (dateReader != null)
+                    dateReader.Dispose();
+
+                return dropDownTOList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+        public List<TblWidthDropDownTO> SelectAllTblWidthForDropDown()
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = null;
+            String sqlQuery = string.Empty;
+            try
+            {
+                //DataTableExample();
+
+                conn.Open();
+                sqlQuery = "SELECT * FROM tblWidth WHERE isActive=1";
+
+                cmdSelect = new SqlCommand(sqlQuery, conn);
+                SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblWidthDropDownTO> dropDownTOList = new List<Models.TblWidthDropDownTO>();
+                while (dateReader.Read())
+                {
+                    TblWidthDropDownTO dropDownTONew = new TblWidthDropDownTO();
+                    if (dateReader["idWidth"] != DBNull.Value)
+                        dropDownTONew.IdWidth = Convert.ToInt32(dateReader["idWidth"].ToString());
+                    if (dateReader["width"] != DBNull.Value)
+                        dropDownTONew.Width = Convert.ToInt32(dateReader["width"].ToString());
                     dropDownTOList.Add(dropDownTONew);
                 }
 

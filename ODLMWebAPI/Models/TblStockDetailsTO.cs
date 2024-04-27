@@ -45,7 +45,7 @@ namespace ODLMWebAPI.Models
         string grade;
         string size;
         string thickness;
-
+        Int32 categoryType;
 
         #endregion
 
@@ -232,7 +232,11 @@ namespace ODLMWebAPI.Models
             get { return thickness; }
             set { thickness = value; }
         }
-
+        public Int32 CategoryType
+        {
+            get { return categoryType; }
+            set { categoryType = value; }
+        }
         #endregion
     }
 

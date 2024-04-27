@@ -6,15 +6,14 @@ namespace ODLMWebAPI.Models
     public class TblStripsTO
     {
         #region Declarations
-        Int32 idStrip;
+        Int32 idStrips;
         Int32 grade;
-        Int32 width;
+        Int32 idSize;
+        string size;
+        Int32 idThickness;
+        decimal thickness;
         Int32 isActive;
         DateTime createdOn;
-        Int32 idPipesStripCommon;
-        Int32 categoryType;
-        decimal size;
-        decimal thickness;
 
         #endregion
 
@@ -26,20 +25,35 @@ namespace ODLMWebAPI.Models
         #endregion
 
         #region GetSet
-        public Int32 IdStrip
+        public Int32 IdStrips
         {
-            get { return idStrip; }
-            set { idStrip = value; }
+            get { return idStrips; }
+            set { idStrips = value; }
         }
         public Int32 Grade
         {
             get { return grade; }
             set { grade = value; }
         }
-        public Int32 Width
+        public Int32 IdSize
         {
-            get { return width; }
-            set { width = value; }
+            get { return idSize; }
+            set { idSize = value; }
+        }
+        public string Size
+        {
+            get { return size; }
+            set { size = value; }
+        }
+        public Int32 IdThickness
+        {
+            get { return idThickness; }
+            set { idThickness = value; }
+        }
+        public decimal Thickness
+        {
+            get { return thickness; }
+            set { thickness = value; }
         }
         public Int32 IsActive
         {
@@ -50,27 +64,6 @@ namespace ODLMWebAPI.Models
         {
             get { return createdOn; }
             set { createdOn = value; }
-        }
-        public Int32 IdPipesStripCommon
-        {
-            get { return idPipesStripCommon; }
-            set { idPipesStripCommon = value; }
-        }
-        public Int32 CategoryType
-        {
-            get { return categoryType; }
-            set { categoryType = value; }
-        }
-        public decimal Size
-        {
-            get { return size; }
-            set { size = value; }
-        }
-
-        public decimal Thickness
-        {
-            get { return thickness; }
-            set { thickness = value; }
         }
         #endregion
     }

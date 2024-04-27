@@ -21,7 +21,7 @@ namespace ODLMWebAPI.BL.Interfaces
         int UpdateDimProSpecDesc(DimProdSpecDescTO dimProdSpecDescTO, SqlConnection conn, SqlTransaction tran);
         int DeleteDimProSpecDesc(DimProdSpecDescTO DimProdSpecDescTO);
         int DeleteDimProSpecDesc(DimProdSpecDescTO DimProdSpecDescTO, SqlConnection conn, SqlTransaction tran);
-        List<TblPipesDropDownTo> GetAllPipesInchForDropDown();
+        //List<TblPipesDropDownTo> GetAllPipesInchForDropDown();
         List<TblPipesStripCommonSizeTO> GetAlltblPipesStripCommonSizeForDropDown();
         List<TblPipesStripCommonThicknessTO> GetAlltblPipesStripCommonThicknessForDropDown();
         List<TblStripsGradeDropDownTo> GetAlltblStripsGradeForDropDown();
@@ -29,5 +29,6 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblInchDropDownTO> GetTblInchForDropDown();
         List<TblSizeTO> GetTblSizeForDropDown();
         List<TblThicknessDropDownTO> GetTblThicknessForDropDown();
+        List<TblWidthDropDownTO> GetTblWidthForDropDown();
     }
 }

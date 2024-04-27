@@ -1535,13 +1535,13 @@ namespace ODLMWebAPI.Controllers
             return _iDimProdSpecDescBL.SelectAllTblStripsList();
         }
 
-        [Route("GetAllPipesInchForDropDown")]
-        [HttpGet]
-        public List<TblPipesDropDownTo> GetAllPipesInchForDropDown()
-        {
-            List<TblPipesDropDownTo> PipesInchList = _iDimProdSpecDescBL.GetAllPipesInchForDropDown();
-            return PipesInchList;
-        }
+        //[Route("GetAllPipesInchForDropDown")]
+        //[HttpGet]
+        //public List<TblPipesDropDownTo> GetAllPipesInchForDropDown()
+        //{
+        //    List<TblPipesDropDownTo> PipesInchList = _iDimProdSpecDescBL.GetAllPipesInchForDropDown();
+        //    return PipesInchList;
+        //}
         [Route("GetAlltblPipesStripCommonSizeForDropDown")]
         [HttpGet]
         public List<TblPipesStripCommonSizeTO> GetAlltblPipesStripCommonSizeForDropDown()
@@ -1594,6 +1594,14 @@ namespace ODLMWebAPI.Controllers
         {
             List<TblThicknessDropDownTO> ThicknessList = _iDimProdSpecDescBL.GetTblThicknessForDropDown();
             return ThicknessList;
+        }
+
+        [Route("GetTblWidthForDropDown")]
+        [HttpGet]
+        public List<TblWidthDropDownTO> GetTblWidthForDropDown()
+        {
+            List<TblWidthDropDownTO> WidthList = _iDimProdSpecDescBL.GetTblWidthForDropDown();
+            return WidthList;
         }
         #endregion
 

@@ -50,10 +50,10 @@ namespace ODLMWebAPI.BL
             return _iDimProdSpecDescDAO.SelectAllTblStrips();
         }
 
-        public List<TblPipesDropDownTo> GetAllPipesInchForDropDown()
-        {
-            return _iDimProdSpecDescDAO.SelectAllPipesInchForDropDown();
-        }
+        //public List<TblPipesDropDownTo> GetAllPipesInchForDropDown()
+        //{
+        //    return _iDimProdSpecDescDAO.SelectAllPipesInchForDropDown();
+        //}
         public List<TblPipesStripCommonSizeTO> GetAlltblPipesStripCommonSizeForDropDown()
         {
             return _iDimProdSpecDescDAO.SelectAlltblPipesStripCommonSizeForDropDown();
@@ -81,6 +81,11 @@ namespace ODLMWebAPI.BL
         public List<TblThicknessDropDownTO> GetTblThicknessForDropDown()
         {
             return _iDimProdSpecDescDAO.SelectAllTblThicknessForDropDown();
+        }
+
+        public List<TblWidthDropDownTO> GetTblWidthForDropDown()
+        {
+            return _iDimProdSpecDescDAO.SelectAllTblWidthForDropDown();
         }
         #endregion
 
