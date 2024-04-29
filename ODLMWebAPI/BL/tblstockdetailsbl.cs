@@ -151,9 +151,9 @@ namespace ODLMWebAPI.BL
             return _iTblStockDetailsDAO.SelectTblStockDetails(runningSizeTO, conn, tran);
         }
 
-        public List<TblStockDetailsTO> SelectAllEmptyStockTemplateList( int prodCatId,int locationId, int brandId,Int32 isConsolidateStk)
+        public List<TblStockDetailsTO> SelectAllEmptyStockTemplateList( int prodCatId,int locationId, int brandId,Int32 isConsolidateStk, int inchId, int stripId)
         {
-            return _iTblStockDetailsDAO.SelectEmptyStockDetailsTemplate(prodCatId, locationId, brandId, isConsolidateStk);
+            return _iTblStockDetailsDAO.SelectEmptyStockDetailsTemplate(prodCatId, locationId, brandId, isConsolidateStk,inchId,stripId);
         }
         public List<TblStockDetailsTO> SelectAllEmptyStockTemplateListForAutoInsert( Int32 isConsolidateStk)
         {
@@ -165,17 +165,36 @@ namespace ODLMWebAPI.BL
 
             Int32 isConsolidateStk = _iTblConfigParamsBL.GetStockConfigIsConsolidate();
 
-            List<TblStockDetailsTO> emptyStkTemplateList = SelectAllEmptyStockTemplateList(prodCatId, locationId, brandId, isConsolidateStk);
-            List<TblStockDetailsTO> existingList = _iTblStockDetailsDAO.SelectAllTblStockDetails(locationId, prodCatId, stockDate, brandId,inchId,stripId);
+            List<TblStockDetailsTO> emptyStkTemplateList = SelectAllEmptyStockTemplateList(prodCatId, locationId, brandId, isConsolidateStk,inchId,stripId);
+            List<TblStockDetailsTO> existingList = _iTblStockDetailsDAO.SelectAllTblStockDetails(locationId, prodCatId, stockDate, brandId, inchId, stripId);
             if (emptyStkTemplateList != null && emptyStkTemplateList.Count > 0)
             {
                 if (existingList != null && existingList.Count > 0)
                 {
                     for (int i = 0; i < emptyStkTemplateList.Count; i++)
                     {
-                        TblStockDetailsTO existingStockDetailsTO = existingList.Where(a => a.ProdCatId == emptyStkTemplateList[i].ProdCatId && 
-                        a.ProdSpecId == emptyStkTemplateList[i].ProdSpecId && a.MaterialId == emptyStkTemplateList[i].MaterialId 
-                        && a.LocationId == locationId && a.BrandId == brandId && a.IsConsolidatedStock == 0).FirstOrDefault();
+                        TblStockDetailsTO existingStockDetailsTO = new TblStockDetailsTO();
+
+                        if (prodCatId == 1 || prodCatId == 2)
+                        {
+                            existingStockDetailsTO = existingList.Where(a => a.ProdCatId == emptyStkTemplateList[i].ProdCatId &&
+                            a.ProdSpecId == emptyStkTemplateList[i].ProdSpecId && a.MaterialId == emptyStkTemplateList[i].MaterialId
+                            && a.LocationId == locationId && a.BrandId == brandId && a.IsConsolidatedStock == 0).FirstOrDefault();
+                        }
+                        else if (prodCatId == 3)
+                        {
+                            existingStockDetailsTO = existingList.Where(a => a.ProdCatId == emptyStkTemplateList[i].ProdCatId &&
+                            a.InchId == emptyStkTemplateList[i].InchId && a.SizeId == emptyStkTemplateList[i].SizeId
+                            && a.LocationId == locationId && a.ThicknessId == emptyStkTemplateList[i].ThicknessId && a.IsConsolidatedStock == 0).FirstOrDefault();
+                        }
+                        else if (prodCatId == 4)
+                        {
+                            existingStockDetailsTO = existingList.Where(a => a.ProdCatId == emptyStkTemplateList[i].ProdCatId &&
+                            a.StripId == emptyStkTemplateList[i].StripId && a.SizeId == emptyStkTemplateList[i].SizeId
+                            && a.LocationId == locationId && a.ThicknessId == emptyStkTemplateList[i].ThicknessId && a.IsConsolidatedStock == 0).FirstOrDefault();
+                        }
+
+
                         if (existingStockDetailsTO != null)
                         {
                             emptyStkTemplateList[i].LocationId = locationId;
@@ -192,10 +211,15 @@ namespace ODLMWebAPI.BL
                             emptyStkTemplateList[i].ProductId = existingStockDetailsTO.ProductId;
                             emptyStkTemplateList[i].BrandId = existingStockDetailsTO.BrandId;
                             emptyStkTemplateList[i].IsInMT = existingStockDetailsTO.IsInMT;
+                            emptyStkTemplateList[i].InchId = existingStockDetailsTO.InchId;
+                            emptyStkTemplateList[i].StripId = existingStockDetailsTO.StripId;
+                            emptyStkTemplateList[i].SizeId = existingStockDetailsTO.SizeId;
+                            emptyStkTemplateList[i].ThicknessId = existingStockDetailsTO.ThicknessId;
 
                         }
                     }
                 }
+
 
             }
 
@@ -436,7 +460,12 @@ namespace ODLMWebAPI.BL
             return _iTblStockDetailsDAO.DeleteTblStockDetails(idStockDtl, conn, tran);
         }
 
+        public List<TblStockDetailsTO> SelectAllEmptyStockTemplateList(int prodCatId, int locationId, int brandId, int isConsolidateStk)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
-        
+
     }
 }

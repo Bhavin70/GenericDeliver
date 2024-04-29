@@ -21,7 +21,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblStockDetailsTO> SelectAllTblStockDetails(int locationId, int prodCatId, DateTime stockDate, int brandId, int inchId,int stripId);
         List<TblStockDetailsTO> SelectAllTblStockDetailsForAutoInsert();
         
-        List<TblStockDetailsTO> SelectEmptyStockDetailsTemplate(int prodCatId, int locationId, int brandId, Int32 isConsolidate);
+        List<TblStockDetailsTO> SelectEmptyStockDetailsTemplate(int prodCatId, int locationId, int brandId, Int32 isConsolidate, int inchId, int stripId);
         List<TblStockDetailsTO> SelectEmptyStockDetailsTemplateForAutoInsert( Int32 isConsolidate);
         
         TblStockDetailsTO SelectTblStockDetails(Int64 idStockDtl, SqlConnection conn, SqlTransaction tran);

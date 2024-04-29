@@ -328,12 +328,21 @@ namespace ODLMWebAPI.DAL
                 //                    //" AND stkSummary.stockDate=@stockDt AND stockDtl.brandId = " + brandId;
                 //                    " AND stockDtl.brandId = " + brandId;
 
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE stockDtl.locationId=" + locationId + // "AND stockDtl.prodCatId=" + prodCatId +
-                                    //" AND stkSummary.stockDate=@stockDt AND stockDtl.brandId = " + brandId;
-                                    " AND stockDtl.brandId = " + brandId + "AND stockDtl.inchId= " + inchId + "AND stockDtl.stripId= "+ stripId +" "+
-                    " order by stockDtl.idStockDtl desc";
+                //cmdSelect.CommandText = SqlSelectQuery() + " WHERE stockDtl.locationId=" + locationId + // "AND stockDtl.prodCatId=" + prodCatId +
+                //                    //" AND stkSummary.stockDate=@stockDt AND stockDtl.brandId = " + brandId;
+                //                    " AND stockDtl.brandId = " + brandId + "AND stockDtl.inchId= " + inchId + "AND stockDtl.stripId= "+ stripId +" "+
+                //    " order by stockDtl.idStockDtl desc";
+                string select = SqlSelectQuery() + " WHERE stockDtl.locationId=" + locationId + // "AND stockDtl.prodCatId=" + prodCatId +
+                                                                                                //" AND stkSummary.stockDate=@stockDt AND stockDtl.brandId = " + brandId;
+                                  " AND stockDtl.brandId = " + brandId;
+                if (inchId > 0)
+                    select = select + "AND stockDtl.inchId= " + inchId;
+                if (stripId > 0)
+                    select = select + "AND stockDtl.stripId= " + stripId;
 
-                
+                cmdSelect.CommandText = select + " order by stockDtl.idStockDtl desc";
+
+
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -445,7 +454,7 @@ namespace ODLMWebAPI.DAL
             }
             return tblLocationTOList;
         }
-        public List<TblStockDetailsTO> SelectEmptyStockDetailsTemplate(int prodCatId,int locationId, int brandId, Int32 isConsolidate)
+        public List<TblStockDetailsTO> SelectEmptyStockDetailsTemplate(int prodCatId,int locationId, int brandId, Int32 isConsolidate, int inchId, int stripId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -1334,6 +1343,8 @@ namespace ODLMWebAPI.DAL
             //cmdDelete.Parameters.Add("@idStockDtl", System.Data.SqlDbType.Int).Value = tblStockDetailsTO.IdStockDtl;
             return cmdDelete.ExecuteNonQuery();
         }
+
+       
 
         #endregion
 
