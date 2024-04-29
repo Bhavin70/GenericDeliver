@@ -478,6 +478,22 @@ namespace ODLMWebAPI.DAL
                                             " AND idBrand =" + brandId + " AND tblStockConfig.isItemizedStock = 1 AND prodSpec.isActive = 1  " + //Saket [2018-01-30] Added
                                             " ORDER BY prodSpec.displaySequence";
                 }
+                else if (inchId > 0 || stripId > 0)
+                {
+                    string Query = "SELECT idProdCat AS prodCatId, prodCateDesc, tblInch. idinch,  inch,idSize ,size ,idThickness ,thickness,idStrip  ,grade " +
+                        "    FROM  dimProdCat prodCat " +
+                        "  left join tblInch on tblInch.prodCatId=  idProdCat  " +
+                        "  left join tblSize  on tblSize.prodCatId=  idProdCat  and tblInch.idInch =tblSize.idInch " +
+                        "  left join tblThickness  on tblThickness.prodCatId=  idProdCat " +
+                        " left join tblStrips  on tblStrips.prodCatId=  idProdCat " +
+                        " WHERE  idProdCat <> 0  AND idProdCat= "+prodCatId +"";
+                    if (inchId > 0)
+                        Query = Query + "   and tblInch.idInch =" + inchId + "";
+                    if (stripId  > 0)
+                        Query = Query + "   and  tblStrips .idStrip  " + stripId + "";
+                    cmdSelect.CommandText = Query;
+
+                }
                 else
                 {
                     cmdSelect.CommandText = " SELECT idProdCat AS prodCatId, prodCateDesc, prodSpec.idProdSpec AS prodSpecId,prodSpecDesc, idMaterial AS materialId,materialSubType  " +
@@ -734,22 +750,76 @@ namespace ODLMWebAPI.DAL
                     TblStockDetailsTO tblStockDetailsTONew = new TblStockDetailsTO();
 
                     tblStockDetailsTONew.LocationId = locationId;
+                    try
+                    { 
                     if (tblStockDetailsTODT["prodCatId"] != DBNull.Value)
                         tblStockDetailsTONew.ProdCatId = Convert.ToInt32(tblStockDetailsTODT["prodCatId"].ToString());
-                    if (tblStockDetailsTODT["materialId"] != DBNull.Value)
+                    }
+                    catch (Exception ex) { };
+                    try
+                    {
+                        if (tblStockDetailsTODT["materialId"] != DBNull.Value)
                         tblStockDetailsTONew.MaterialId = Convert.ToInt32(tblStockDetailsTODT["materialId"].ToString());
-                    if (tblStockDetailsTODT["prodSpecId"] != DBNull.Value)
+                    }
+                    catch (Exception ex) { };
+                    try
+                    {
+                        if (tblStockDetailsTODT["prodSpecId"] != DBNull.Value)
                         tblStockDetailsTONew.ProdSpecId = Convert.ToInt32(tblStockDetailsTODT["prodSpecId"].ToString());
-                    if (tblStockDetailsTODT["prodSpecDesc"] != DBNull.Value)
+                    }
+                    catch (Exception ex) { };
+                    try
+                    {
+                        if (tblStockDetailsTODT["prodSpecDesc"] != DBNull.Value)
                         tblStockDetailsTONew.ProdSpecDesc = Convert.ToString(tblStockDetailsTODT["prodSpecDesc"].ToString());
-                    if (tblStockDetailsTODT["prodCateDesc"] != DBNull.Value)
+                    }
+                    catch (Exception ex) { };
+                    try
+                    {
+                        if (tblStockDetailsTODT["prodCateDesc"] != DBNull.Value)
                         tblStockDetailsTONew.ProdCatDesc = Convert.ToString(tblStockDetailsTODT["prodCateDesc"].ToString());
-                    if (tblStockDetailsTODT["materialSubType"] != DBNull.Value)
+                    }
+                    catch (Exception ex) { };
+                    try
+                    {
+                        if (tblStockDetailsTODT["materialSubType"] != DBNull.Value)
                         tblStockDetailsTONew.MaterialDesc = Convert.ToString(tblStockDetailsTODT["materialSubType"].ToString());
+                    }
+                    catch (Exception ex) { };
+                    try
+                    {
+                        if (tblStockDetailsTODT["brandId"] != DBNull.Value)
+                            tblStockDetailsTONew.BrandId = Convert.ToInt32(tblStockDetailsTODT["brandId"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblStockDetailsTODT["idinch"] != DBNull.Value)
+                            tblStockDetailsTONew.InchId = Convert.ToInt32(tblStockDetailsTODT["idinch"].ToString());
 
-                    if (tblStockDetailsTODT["brandId"] != DBNull.Value)
-                        tblStockDetailsTONew.BrandId = Convert.ToInt32(tblStockDetailsTODT["brandId"].ToString());
+                    }
+                    catch (Exception ex) { };
+                    try
+                    {
+                        if (tblStockDetailsTODT["idSize"] != DBNull.Value)
+                            tblStockDetailsTONew.SizeId = Convert.ToInt32(tblStockDetailsTODT["idSize"].ToString());
 
+                    }
+                    catch (Exception ex) { };
+                    try
+                    {
+                        if (tblStockDetailsTODT["idThickness"] != DBNull.Value)
+                            tblStockDetailsTONew.ThicknessId = Convert.ToInt32(tblStockDetailsTODT["idThickness"].ToString());
+
+                    }
+                    catch (Exception ex) { };
+                    try
+                    {
+                        if (tblStockDetailsTODT["idStrip"] != DBNull.Value)
+                            tblStockDetailsTONew.StripId = Convert.ToInt32(tblStockDetailsTODT["idStrip"].ToString());
+
+                    }
+                    catch (Exception ex) { };
                     tblStockDetailsTOList.Add(tblStockDetailsTONew);
                 }
             }
