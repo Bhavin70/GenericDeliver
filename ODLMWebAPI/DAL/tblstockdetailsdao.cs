@@ -478,18 +478,34 @@ namespace ODLMWebAPI.DAL
                                             " AND idBrand =" + brandId + " AND tblStockConfig.isItemizedStock = 1 AND prodSpec.isActive = 1  " + //Saket [2018-01-30] Added
                                             " ORDER BY prodSpec.displaySequence";
                 }
-                else if (inchId > 0 || stripId > 0)
+                else if (inchId > 0)
                 {
-                    string Query = "SELECT idProdCat AS prodCatId, prodCateDesc, tblInch. idinch,  inch,idSize ,size ,idThickness ,thickness,idStrip  ,grade " +
+                    string Query = "SELECT idProdCat AS prodCatId, prodCateDesc, tblInch. idinch,  inch,idSize ,size ,idThickness ,thickness " +
                         "    FROM  dimProdCat prodCat " +
                         "  left join tblInch on tblInch.prodCatId=  idProdCat  " +
                         "  left join tblSize  on tblSize.prodCatId=  idProdCat  and tblInch.idInch =tblSize.idInch " +
                         "  left join tblThickness  on tblThickness.prodCatId=  idProdCat " +
-                        " left join tblStrips  on tblStrips.prodCatId=  idProdCat " +
+                        //" left join tblStrips  on tblStrips.prodCatId=  idProdCat " +
                         " WHERE  idProdCat <> 0  AND idProdCat= "+prodCatId +"";
                     if (inchId > 0)
                         Query = Query + "   and tblInch.idInch =" + inchId + "";
-                    if (stripId  > 0)
+                    //if (stripId  > 0)
+                    //    Query = Query + "   and  tblStrips .idStrip  " + stripId + "";
+                    cmdSelect.CommandText = Query;
+
+                }
+                else if ( stripId > 0)
+                {
+                    string Query = "SELECT idProdCat AS prodCatId, prodCateDesc,idSize ,size ,idThickness ,thickness,idStrip  ,grade " +
+                        "    FROM  dimProdCat prodCat " +
+                        //"  left join tblInch on tblInch.prodCatId=  idProdCat  " +
+                        "  left join tblSize  on tblSize.prodCatId=  idProdCat " +
+                        "  left join tblThickness  on tblThickness.prodCatId=  idProdCat " +
+                        " left join tblStrips  on tblStrips.prodCatId=  idProdCat " +
+                        " WHERE  idProdCat <> 0  AND idProdCat= " + prodCatId + "";
+                    //if (inchId > 0)
+                    //    Query = Query + "   and tblInch.idInch =" + inchId + "";
+                    if (stripId > 0)
                         Query = Query + "   and  tblStrips .idStrip  " + stripId + "";
                     cmdSelect.CommandText = Query;
 
