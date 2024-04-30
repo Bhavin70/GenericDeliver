@@ -66,12 +66,15 @@
 
   <ItemGroup>
     <Reference Include="Interop.SAPbobsCOM">
-      <HintPath>..\..\..\..\SetUp for API\Interop.SAPbobsCOM.dll</HintPath>
+      <HintPath>C:\Users\VITPL-IT-65\Downloads\Interop.SAPbobsCOM.dll</HintPath>
       <Private>true</Private>
       <EmbedInteropTypes>true</EmbedInteropTypes>
     </Reference>
-    <Reference Include="itextsharp">
-      <HintPath>..\..\..\..\SetUp for API\itextsharp.dll</HintPath>
+    <Reference Include="itextsharp, Version=4.1.6.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca">
+      <HintPath>bin\Debug\netcoreapp2.0\itextsharp.dll</HintPath>
+      <Private>true</Private>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+      <SpecificVersion>true</SpecificVersion>
     </Reference>
   </ItemGroup>
 
