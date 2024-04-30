@@ -836,6 +836,35 @@ namespace ODLMWebAPI.DAL
 
                     }
                     catch (Exception ex) { };
+                    try
+                    {
+                        if (tblStockDetailsTODT["inch"] != DBNull.Value)
+                            tblStockDetailsTONew.Inch = Convert.ToString(tblStockDetailsTODT["inch"].ToString());
+
+                    }
+                    catch (Exception ex) { };
+                    try
+                    {
+                        if (tblStockDetailsTODT["size"] != DBNull.Value)
+                            tblStockDetailsTONew.Size = Convert.ToString(tblStockDetailsTODT["size"].ToString());
+
+                    }
+                    catch (Exception ex) { };
+                    try
+                    {
+                        if (tblStockDetailsTODT["thickness"] != DBNull.Value)
+                            tblStockDetailsTONew.Thickness = Convert.ToString(tblStockDetailsTODT["thickness"].ToString());
+
+                    }
+                    catch (Exception ex) { };
+                    try
+                    {
+                        if (tblStockDetailsTODT["grade"] != DBNull.Value)
+                            tblStockDetailsTONew.Grade = Convert.ToString(tblStockDetailsTODT["grade"].ToString());
+
+                    }
+                    catch (Exception ex) { };
+
                     tblStockDetailsTOList.Add(tblStockDetailsTONew);
                 }
             }
