@@ -184,7 +184,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblOrganizationTO> SelectSaleAgentOrganizationList()
+        public List<TblOrganizationTO> SelectSaleAgentOrganizationList(int categoryType)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);

@@ -40,7 +40,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<DimFinYearTO> SelectAllMstFinYearList(SqlConnection conn, SqlTransaction tran);
         List<DropDownTO> SelectReportingType();
         List<DimVisitIssueReasonsTO> SelectVisitIssueReasonsList();
-        List<DropDownTO> SelectBrandList();
+        List<DropDownTO> SelectBrandList(int categoryType = 1);
         List<DimBrandTO> SelectBrandListV2();
         List<DropDownTO> SelectLoadingLayerList();
         List<DropDownTO> GetBookingTaxCategoryList();

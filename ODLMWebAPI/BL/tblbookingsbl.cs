@@ -1531,14 +1531,14 @@ namespace ODLMWebAPI.BL
         {
             return _iTblBookingsDAO.InsertTblBookings(tblBookingsTO, conn, tran);
         }
-        public List<TblOrganizationTO> SelectSalesAgentListWithBrandAndRate()
+        public List<TblOrganizationTO> SelectSalesAgentListWithBrandAndRate(int categoryType = 1)
         {
             try
             {
-                List<TblOrganizationTO> orgList = _iTblOrganizationDAO.SelectSaleAgentOrganizationList();
+                List<TblOrganizationTO> orgList = _iTblOrganizationDAO.SelectSaleAgentOrganizationList(categoryType);
                 if (orgList != null)
                 {
-                    List<DropDownTO> brandList = _iDimensionDAO.SelectBrandList();
+                    List<DropDownTO> brandList = _iDimensionDAO.SelectBrandList(categoryType);
                     Dictionary<Int32, Int32> brandRateDCT = _iTblGlobalRateDAO.SelectLatestBrandAndRateDCT();
                     Dictionary<Int32, List<TblQuotaDeclarationTO>> rateAndBandDCT = new Dictionary<int, List<TblQuotaDeclarationTO>>();
                     List<TblGlobalRateTO> tblGlobalRateTOList = new List<TblGlobalRateTO>();
