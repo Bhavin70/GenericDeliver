@@ -92,9 +92,9 @@ namespace ODLMWebAPI.Controllers
         /// <returns></returns>
         [Route("GetSalesAgentListWithBrandAndRate")]
         [HttpGet]
-        public List<TblOrganizationTO> GetSalesAgentListWithBrandAndRate()
+        public List<TblOrganizationTO> GetSalesAgentListWithBrandAndRate(int categoryType = 1)
         {
-            List<TblOrganizationTO> list = _iTblBookingsBL.SelectSalesAgentListWithBrandAndRate();
+            List<TblOrganizationTO> list = _iTblBookingsBL.SelectSalesAgentListWithBrandAndRate(categoryType);
             return list;
         }
 

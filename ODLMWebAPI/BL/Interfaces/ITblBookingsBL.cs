@@ -44,7 +44,7 @@ namespace ODLMWebAPI.BL.Interfaces
         int DeleteTblBookings(Int32 idBooking);
         int DeleteTblBookings(Int32 idBooking, SqlConnection conn, SqlTransaction tran);
         List<CnFWiseReportTO> SelectCnfCNCBookingReport(DateTime fromDate, DateTime toDate);
-        List<TblOrganizationTO> SelectSalesAgentListWithBrandAndRate();
+        List<TblOrganizationTO> SelectSalesAgentListWithBrandAndRate(int categoryType = 1);
         List<TblBookingPendingRptTO> SelectBookingPendingQryRpt(DateTime fromDate, DateTime toDate,int reportType);
         List<TblBookingPendingRptTO> SelectBookingPendingOrderQtyRpt(DateTime fromDate, DateTime toDate, int reportType);
 

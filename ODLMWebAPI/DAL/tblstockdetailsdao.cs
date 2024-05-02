@@ -506,7 +506,7 @@ namespace ODLMWebAPI.DAL
                     //if (inchId > 0)
                     //    Query = Query + "   and tblInch.idInch =" + inchId + "";
                     if (stripId > 0)
-                        Query = Query + "   and  tblStrips .idStrip  " + stripId + "";
+                        Query = Query + "   and  tblStrips .idStrip  =" + stripId + "";
                     cmdSelect.CommandText = Query;
 
                 }

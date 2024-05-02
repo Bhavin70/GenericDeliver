@@ -13,7 +13,7 @@ namespace ODLMWebAPI.DAL.Interfaces
           List<TblOrganizationTO> SelectAllTblOrganization();
           List<TblOrganizationTO> SelectAllTblOrganization(Int32 orgTypeId, Int32 parentId);
           List<TblOrganizationTO> SelectExistingAllTblOrganizationByRefIds(Int32 orgId, String overdueRefId,String enqRefId);
-          List<TblOrganizationTO> SelectSaleAgentOrganizationList();
+          List<TblOrganizationTO> SelectSaleAgentOrganizationList(int categoryType = 1);
           List<TblOrganizationTO> SelectAllTblOrganization(StaticStuff.Constants.OrgTypeE orgTypeE);
           List<TblOrganizationTO> SelectAllTblOrganization(StaticStuff.Constants.OrgTypeE orgTypeE, SqlConnection conn, SqlTransaction tran);
           List<DropDownTO> SelectAllOrganizationListForDropDown(StaticStuff.Constants.OrgTypeE orgTypeE, TblUserRoleTO userRoleTO);

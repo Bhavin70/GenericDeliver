@@ -1482,7 +1482,7 @@ namespace ODLMWebAPI.DAL
         /// [2017-11-20]Vijaymala:Added to get brand list to changes in parity details
         /// </summary>
         /// <returns></returns>
-        public List<DropDownTO> SelectBrandList()
+        public List<DropDownTO> SelectBrandList(int categoryType = 1)
         {
 
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -1491,7 +1491,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                String aqlQuery = "SELECT * FROM dimBrand WHERE isActive=1 ";
+                String aqlQuery = "SELECT * FROM dimBrand WHERE isActive=1 AND prodCatIdStr = "+ categoryType;
 
                 cmdSelect = new SqlCommand(aqlQuery, conn);
                 SqlDataReader dateReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
