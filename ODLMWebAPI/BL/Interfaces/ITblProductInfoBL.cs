@@ -1,3 +1,4 @@
+using Microsoft.Office.Interop.Excel;
 using ODLMWebAPI.Models;
 using ODLMWebAPI.StaticStuff;
 using System;
@@ -11,7 +12,7 @@ namespace ODLMWebAPI.BL.Interfaces
     public interface ITblProductInfoBL
     { 
         List<TblProductInfoTO> SelectAllTblProductInfoList();
-        List<TblProductInfoTO> SelectAllTblProductInfoList(SqlConnection conn, SqlTransaction tran);
+        List<TblProductInfoTO> SelectAllTblProductInfoList(SqlConnection conn, SqlTransaction tran, int CategoryType=1);
         List<TblProductInfoTO> SelectAllTblProductInfoListLatest();
         TblProductInfoTO SelectTblProductInfoTO(Int32 idProduct);
         List<TblProductInfoTO> SelectAllEmptyProductInfoList(int prodCatId);

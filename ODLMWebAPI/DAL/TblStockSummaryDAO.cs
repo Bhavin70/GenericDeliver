@@ -338,7 +338,7 @@ namespace ODLMWebAPI.DAL
                     conn.Open();
                 }
 
-                cmdSelect.CommandText = "select top 1 * from tblStockSummary where  transactionType=1 and stockDate= @stockDate";
+                cmdSelect.CommandText = "select top 1 * from tblStockSummary where  transactionType=1 and stockDate= @stockDate and ";
 
 
                 //cmdSelect.Connection = conn;
@@ -420,6 +420,8 @@ namespace ODLMWebAPI.DAL
                         stockUpdateInfoNew.TotalBooksStock = Convert.ToDouble(tblLoadingTODT["stockInMT"].ToString());
                     if (tblLoadingTODT["PendingStock"] != DBNull.Value)
                         stockUpdateInfoNew.TodaysPendingStock = Convert.ToDouble(tblLoadingTODT["PendingStock"].ToString());
+                    //if (tblLoadingTODT["categoryType"] != DBNull.Value)
+                    //    stockUpdateInfoNew.CategoryType = Convert.ToDouble(tblLoadingTODT["categoryType"].ToString());
                     return stockUpdateInfoNew;
                 }
 

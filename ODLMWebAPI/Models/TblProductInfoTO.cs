@@ -24,6 +24,15 @@ namespace ODLMWebAPI.Models
         String prodSpecDesc;
         String materialDesc;
         Int32 brandId;  //Saket [2017-11-23] Added.
+        Int32 inchId;
+        Int32 stripId;
+        Int32 sizeId;
+        Int32 thicknessId;
+        string inch;
+        string grade;
+        string size;
+        string thickness;
+        Int32 categoryType;
 
         #endregion
 
@@ -122,7 +131,51 @@ namespace ODLMWebAPI.Models
             get { return brandId; }
             set { brandId = value; }
         }
-
+        public Int32 InchId
+        {
+            get { return inchId; }
+            set { inchId = value; }
+        }
+        public Int32 StripId
+        {
+            get { return stripId; }
+            set { stripId = value; }
+        }
+        public Int32 SizeId
+        {
+            get { return sizeId; }
+            set { sizeId = value; }
+        }
+        public Int32 ThicknessId
+        {
+            get { return thicknessId; }
+            set { thicknessId = value; }
+        }
+        public string Inch
+        {
+            get { return inch; }
+            set { inch = value; }
+        }
+        public string Grade
+        {
+            get { return grade; }
+            set { grade = value; }
+        }
+        public string Size
+        {
+            get { return size; }
+            set { size = value; }
+        }
+        public string Thickness
+        {
+            get { return thickness; }
+            set { thickness = value; }
+        }
+        public Int32 CategoryType
+        {
+            get { return categoryType; }
+            set { categoryType = value; }
+        }
         #endregion
     }
 }

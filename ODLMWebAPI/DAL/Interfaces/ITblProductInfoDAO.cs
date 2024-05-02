@@ -12,7 +12,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         String SqlSelectQuery();
         List<TblProductInfoTO> SelectAllTblProductInfo();
         List<TblProductInfoTO> SelectAllTblProductInfo(SqlConnection conn, SqlTransaction tran);
-        List<TblProductInfoTO> SelectAllLatestProductInfo(SqlConnection conn, SqlTransaction tran);
+        List<TblProductInfoTO> SelectAllLatestProductInfo(SqlConnection conn, SqlTransaction tran,int CategoryType=1);
         List<TblProductInfoTO> SelectTblProductInfoLatest();
         TblProductInfoTO SelectTblProductInfo(Int32 idProduct);
         List<TblProductInfoTO> SelectEmptyProductDetailsTemplate(int prodCatId);

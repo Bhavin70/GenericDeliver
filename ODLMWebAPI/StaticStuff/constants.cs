@@ -499,8 +499,8 @@ namespace ODLMWebAPI.StaticStuff
         public enum pgDashBoardType
         {
             TMT = 1,
-            STRIP = 2,
-            PIPES = 3
+            PIPES = 3,
+            STRIP = 4,
         }
 
         #endregion

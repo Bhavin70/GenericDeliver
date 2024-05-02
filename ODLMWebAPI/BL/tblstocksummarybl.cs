@@ -12,6 +12,9 @@ using Newtonsoft.Json;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.DashboardModels;
+using Org.BouncyCastle.Utilities.Collections;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.CodeAnalysis;
 
 namespace ODLMWebAPI.BL
 {   
@@ -422,7 +425,7 @@ namespace ODLMWebAPI.BL
                 List<TblStockDetailsTO> existingStockList = _iTblStockDetailsBL.SelectAllTblStockDetailsList(tblStockSummaryTO.IdStockSummary, conn, tran);
 
                 // For weight and Stock in MT calculations
-                List<TblProductInfoTO> productList = _iTblProductInfoBL.SelectAllTblProductInfoList(conn, tran);
+                List<TblProductInfoTO> productList = _iTblProductInfoBL.SelectAllTblProductInfoList(conn, tran, tblStockSummaryTO.StockDetailsTOList[0].ProdCatId);
 
                 // Insert All New Records
                 if (tblStockSummaryTO.StockDetailsTOList != null && tblStockSummaryTO.StockDetailsTOList.Count > 0)
@@ -457,12 +460,11 @@ namespace ODLMWebAPI.BL
                             if (tblStockSummaryTO.IsTodaysProduction == true)
                             {
                               existingStocDtlTO = existingStockList.Where(w => w.CreatedOn.Date == tblStockSummaryTO.StockDetailsTOList[i].CreatedOn.Date
-                              && w.ProdCatId==tblStockSummaryTO.StockDetailsTOList[i].ProdCatId 
-                              && w.ProdSpecId == tblStockSummaryTO.StockDetailsTOList[i].ProdSpecId 
-                              && w.MaterialId == tblStockSummaryTO.StockDetailsTOList[i].MaterialId
+                                                                            && w.ProdCatId==tblStockSummaryTO.StockDetailsTOList[i].ProdCatId 
+                                                                            && w.ProdSpecId == tblStockSummaryTO.StockDetailsTOList[i].ProdSpecId 
+                                                                            && w.MaterialId == tblStockSummaryTO.StockDetailsTOList[i].MaterialId).FirstOrDefault();
 
-                              ).FirstOrDefault();
-                            }
+                            }   
                             else
                             {
                                  existingStocDtlTO = existingStockList.Where(w => w.IdStockDtl == tblStockSummaryTO.StockDetailsTOList[i].IdStockDtl).FirstOrDefault();
@@ -509,12 +511,12 @@ namespace ODLMWebAPI.BL
                                 && tblStockSummaryTO.StockDetailsTOList[i].ProdCatId > 0 && tblStockSummaryTO.StockDetailsTOList[i].ProdSpecId > 0)
                             {
 
-
                                 var productInfo = productList.Where(p => p.MaterialId == tblStockSummaryTO.StockDetailsTOList[i].MaterialId
                                                                     && p.ProdCatId == tblStockSummaryTO.StockDetailsTOList[i].ProdCatId
                                                                     && p.ProdSpecId == tblStockSummaryTO.StockDetailsTOList[i].ProdSpecId
                                                                     && p.BrandId == tblStockSummaryTO.StockDetailsTOList[i].BrandId).OrderByDescending(d => d.CreatedOn).FirstOrDefault();
-                                if (productInfo != null)
+
+                                if (productInfo != null )
                                 {
                                    
 
@@ -535,7 +537,7 @@ namespace ODLMWebAPI.BL
                                         if (productInfo.AvgBundleWt != 0)
                                             ProdnoOfBundles = (ProdtotalStkInMT) / productInfo.AvgBundleWt;
                                         //Double noOfBundles = Math.Round(totalStkInMT / productInfo.NoOfPcs / productInfo.AvgSecWt / productInfo.StdLength, 2);
-                                         tblStockSummaryTO.StockDetailsTOList[i].BalanceStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock + existingBalanceStock;
+                                        tblStockSummaryTO.StockDetailsTOList[i].BalanceStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock + existingBalanceStock;
                                         tblStockSummaryTO.StockDetailsTOList[i].TodaysStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock + existingToadayStock;
                                         tblStockSummaryTO.StockDetailsTOList[i].ProductId = productInfo.IdProduct;
                                         tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles = noOfBundles + existingNoOfBundles;
@@ -584,15 +586,31 @@ namespace ODLMWebAPI.BL
                         {
                             if (productList != null)
                             {
-                                var productInfo = productList.Where(p => p.MaterialId == tblStockSummaryTO.StockDetailsTOList[i].MaterialId
+                                List<TblProductInfoTO>  productInfoList =new List<TblProductInfoTO> ();
+                                TblProductInfoTO productInfo = new TblProductInfoTO();
+                                if (tblStockSummaryTO.StockDetailsTOList[i].ProdCatId == 1 || tblStockSummaryTO.StockDetailsTOList[i].ProdCatId == 2)
+                                    productInfoList = productList.Where(p => p.MaterialId == tblStockSummaryTO.StockDetailsTOList[i].MaterialId
                                                                     && p.ProdCatId == tblStockSummaryTO.StockDetailsTOList[i].ProdCatId
                                                                     && p.ProdSpecId == tblStockSummaryTO.StockDetailsTOList[i].ProdSpecId
-                                                                    && p.BrandId == tblStockSummaryTO.StockDetailsTOList[i].BrandId).OrderByDescending(d => d.CreatedOn).FirstOrDefault();
-
-                                if (productInfo != null)
+                                                                    && p.BrandId == tblStockSummaryTO.StockDetailsTOList[i].BrandId).
+                                                                        OrderByDescending(d => d.CreatedOn).ToList();
+                                else if  (tblStockSummaryTO.StockDetailsTOList[i].ProdCatId == 3)
+                                    productInfoList = productList.Where(p => p.InchId == tblStockSummaryTO.StockDetailsTOList[i].InchId
+                                                                   && p.SizeId == tblStockSummaryTO.StockDetailsTOList[i].SizeId
+                                                                   && p.ThicknessId == tblStockSummaryTO.StockDetailsTOList[i].ThicknessId).
+                                                                        OrderByDescending(d => d.CreatedOn).ToList();
+                                else if (tblStockSummaryTO.StockDetailsTOList[i].ProdCatId == 4)
+                                    productInfoList = productList.Where(p => p.StripId == tblStockSummaryTO.StockDetailsTOList[i].StripId
+                                                                       && p.SizeId == tblStockSummaryTO.StockDetailsTOList[i].SizeId
+                                                                       && p.ThicknessId == tblStockSummaryTO.StockDetailsTOList[i].ThicknessId).
+                                                                        OrderByDescending(d => d.CreatedOn).ToList();
+                                if(productInfoList !=null && productInfoList.Count >0)
+                                        productInfo = productInfoList[0];
+                                if (productInfo != null )    
                                 {
                                     Double totalStkInMT = 0;
-                                    Double ProdtotalStkInMT = 0; 
+                                    Double ProdtotalStkInMT = 0;
+                                    
                                     
                                     totalStkInMT = tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles * productInfo.NoOfPcs * productInfo.AvgSecWt * productInfo.StdLength;
                                     tblStockSummaryTO.StockDetailsTOList[i].TotalStock = totalStkInMT / 1000;
@@ -611,13 +629,8 @@ namespace ODLMWebAPI.BL
                                         tblStockSummaryTO.StockDetailsTOList[i].TodaysStock = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
                                         tblStockSummaryTO.StockDetailsTOList[i].ProdNoOfBundles = tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles + existingProdNoOfBundles;
                                         tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles = tblStockSummaryTO.StockDetailsTOList[i].NoOfBundles + existingNoOfBundles;
-                                       
-
+                                      
                                     }
-
-                                   
-
-                                  
                                 }
                                 else
                                 {

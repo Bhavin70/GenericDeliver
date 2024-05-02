@@ -96,13 +96,15 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblProductInfoTO> SelectAllLatestProductInfo(SqlConnection conn, SqlTransaction tran)
+        public List<TblProductInfoTO> SelectAllLatestProductInfo(SqlConnection conn, SqlTransaction tran,int CategoryType=1)
         {
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader sqlReader = null;
             try
             {
-                cmdSelect.CommandText = SqlSelectQuery() +
+                if (CategoryType == 1 )
+                {
+                    cmdSelect.CommandText = SqlSelectQuery() +
                                        "  INNER JOIN " +
                                        "  ( " +
                                        "  SELECT materialId, prodCatId, prodSpecId, brandId, MAX(createdOn) createdOn " +
@@ -114,7 +116,51 @@ namespace ODLMWebAPI.DAL
                                        "  AND latest_info.prodSpecId = product.prodSpecId " +
                                        "  AND latest_info.createdOn = product.createdOn" +
                                        " AND latest_info.brandId = product.brandId ";
+                }
+                else if (CategoryType == 3)
+                {
+                    string Query = " SELECT product.*, prodCat.prodCateDesc, inch.inch,size.size,thickness.thickness  " +
+                                    " FROM tblProductInfo product   " +
+                                    " LEFT JOIN dimProdCat prodCat ON prodCat.idProdCat = product.prodCatId " +
+                                    " LEFT JOIN tblinch inch ON inch.idInch = product.inchId " +
+                                    " LEFT JOIN tblSize size ON size.idSize = product.sizeId " +
+                                    " LEFT JOIN tblThickness thickness   ON thickness.idThickness = product.thicknessId  " +
+                                    " INNER JOIN   " +
+                                    " (SELECT  prodCatId,inchId,sizeId,thicknessId, brandId, MAX(createdOn) createdOn " +
+                                    " FROM tblProductInfo   " +
+                                    " GROUP BY prodCatId,inchId,sizeId,thicknessId, brandId) " +
+                                    " latest_info   " +
+                                    " ON latest_info.prodCatId = product.prodCatId  " +
+                                    " AND latest_info.inchId = product.inchId  " +
+                                    " AND latest_info.sizeId = product.sizeId  " +
+                                    " AND latest_info.thicknessId = product.thicknessId " +
+                                    " AND latest_info.createdOn = product.createdOn " +
+                                    " AND latest_info.brandId = product.brandId ";
+                    cmdSelect.CommandText = Query;
 
+                }
+                else if (CategoryType == 4)
+                {
+                    string Query = " SELECT product.*, prodCat.prodCateDesc, strips.grade,size.size,thickness.thickness  " +
+                                    " FROM tblProductInfo product    " +
+                                    " LEFT JOIN dimProdCat prodCat ON prodCat.idProdCat = product.prodCatId " +
+                                    " LEFT JOIN tblStrips strips ON strips.idStrip = product.stripId " +
+                                    " LEFT JOIN tblSize size ON size.idSize = product.sizeId " +
+                                    " LEFT JOIN tblThickness thickness   ON thickness.idThickness = product.thicknessId  " +
+                                    " INNER JOIN   " +
+                                    " (SELECT  prodCatId,stripId,sizeId,thicknessId, brandId, MAX(createdOn) createdOn " +
+                                    " FROM tblProductInfo   " +
+                                    " GROUP BY prodCatId,stripId,sizeId,thicknessId, brandId) " +
+                                    " latest_info   " +
+                                    " ON latest_info.prodCatId = product.prodCatId  " +
+                                    " AND latest_info.stripId = product.stripId  " +
+                                    " AND latest_info.sizeId = product.sizeId " +
+                                    " AND latest_info.thicknessId = product.thicknessId " +
+                                    " AND latest_info.createdOn = product.createdOn " +
+                                    " AND latest_info.brandId = product.brandId ";
+                    cmdSelect.CommandText = Query;
+
+                }
                 cmdSelect.Connection = conn;
                 cmdSelect.Transaction = tran;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
@@ -338,9 +384,10 @@ namespace ODLMWebAPI.DAL
         public List<TblProductInfoTO> ConvertDTToList(SqlDataReader tblProductInfoTODT)
         {
             List<TblProductInfoTO> tblProductInfoTOList = new List<TblProductInfoTO>();
+            
             if (tblProductInfoTODT != null)
             {
-                while(tblProductInfoTODT.Read())
+                while (tblProductInfoTODT.Read())
                 {
                     TblProductInfoTO tblProductInfoTONew = new TblProductInfoTO();
                     if (tblProductInfoTODT["idProduct"] != DBNull.Value)
@@ -359,26 +406,86 @@ namespace ODLMWebAPI.DAL
                         tblProductInfoTONew.CreatedOn = Convert.ToDateTime(tblProductInfoTODT["createdOn"].ToString());
                     if (tblProductInfoTODT["updatedOn"] != DBNull.Value)
                         tblProductInfoTONew.UpdatedOn = Convert.ToDateTime(tblProductInfoTODT["updatedOn"].ToString());
-                    if (tblProductInfoTODT["secWt"] != DBNull.Value)
-                        tblProductInfoTONew.SecWt = Convert.ToDouble(tblProductInfoTODT["secWt"].ToString());
-                    if (tblProductInfoTODT["avgSecWt"] != DBNull.Value)
-                        tblProductInfoTONew.AvgSecWt = Convert.ToDouble(tblProductInfoTODT["avgSecWt"].ToString());
-                    if (tblProductInfoTODT["stdLength"] != DBNull.Value)
-                        tblProductInfoTONew.StdLength = Convert.ToDouble(tblProductInfoTODT["stdLength"].ToString());
-                    if (tblProductInfoTODT["noOfPcs"] != DBNull.Value)
-                        tblProductInfoTONew.NoOfPcs = Convert.ToDouble(tblProductInfoTODT["noOfPcs"].ToString());
-                    if (tblProductInfoTODT["avgBundleWt"] != DBNull.Value)
-                        tblProductInfoTONew.AvgBundleWt = Convert.ToDouble(tblProductInfoTODT["avgBundleWt"].ToString());
-                    if (tblProductInfoTODT["prodSpecDesc"] != DBNull.Value)
-                        tblProductInfoTONew.ProdSpecDesc = Convert.ToString(tblProductInfoTODT["prodSpecDesc"].ToString());
-                    if (tblProductInfoTODT["prodCateDesc"] != DBNull.Value)
-                        tblProductInfoTONew.ProdCatDesc = Convert.ToString(tblProductInfoTODT["prodCateDesc"].ToString());
-                    if (tblProductInfoTODT["materialSubType"] != DBNull.Value)
-                        tblProductInfoTONew.MaterialDesc = Convert.ToString(tblProductInfoTODT["materialSubType"].ToString());
+                    try
+                    {
+                        if (tblProductInfoTODT["secWt"] != DBNull.Value)
+                            tblProductInfoTONew.SecWt = Convert.ToDouble(tblProductInfoTODT["secWt"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblProductInfoTODT["avgSecWt"] != DBNull.Value)
+                            tblProductInfoTONew.AvgSecWt = Convert.ToDouble(tblProductInfoTODT["avgSecWt"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblProductInfoTODT["stdLength"] != DBNull.Value)
+                            tblProductInfoTONew.StdLength = Convert.ToDouble(tblProductInfoTODT["stdLength"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblProductInfoTODT["noOfPcs"] != DBNull.Value)
+                            tblProductInfoTONew.NoOfPcs = Convert.ToDouble(tblProductInfoTODT["noOfPcs"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblProductInfoTODT["avgBundleWt"] != DBNull.Value)
+                            tblProductInfoTONew.AvgBundleWt = Convert.ToDouble(tblProductInfoTODT["avgBundleWt"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblProductInfoTODT["prodSpecDesc"] != DBNull.Value)
+                            tblProductInfoTONew.ProdSpecDesc = Convert.ToString(tblProductInfoTODT["prodSpecDesc"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblProductInfoTODT["prodCateDesc"] != DBNull.Value)
+                            tblProductInfoTONew.ProdCatDesc = Convert.ToString(tblProductInfoTODT["prodCateDesc"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblProductInfoTODT["materialSubType"] != DBNull.Value)
+                            tblProductInfoTONew.MaterialDesc = Convert.ToString(tblProductInfoTODT["materialSubType"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblProductInfoTODT["inchId"] != DBNull.Value)
+                            tblProductInfoTONew.InchId = Convert.ToInt32(tblProductInfoTODT["inchId"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblProductInfoTODT["stripId"] != DBNull.Value)
+                            tblProductInfoTONew.StripId = Convert.ToInt32(tblProductInfoTODT["stripId"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblProductInfoTODT["sizeId"] != DBNull.Value)
+                            tblProductInfoTONew.SizeId = Convert.ToInt32(tblProductInfoTODT["sizeId"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblProductInfoTODT["thicknessId"] != DBNull.Value)
+                            tblProductInfoTONew.ThicknessId = Convert.ToInt32(tblProductInfoTODT["thicknessId"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        //Saket [2017-11-23] Added
+                        if (tblProductInfoTODT["brandId"] != DBNull.Value)
+                            tblProductInfoTONew.BrandId = Convert.ToInt32(tblProductInfoTODT["brandId"].ToString());
+                    }
+                    catch (Exception ex) { }
 
-                    //Saket [2017-11-23] Added
-                    if (tblProductInfoTODT["brandId"] != DBNull.Value)
-                        tblProductInfoTONew.BrandId = Convert.ToInt32(tblProductInfoTODT["brandId"].ToString());
 
                     tblProductInfoTOList.Add(tblProductInfoTONew);
                 }

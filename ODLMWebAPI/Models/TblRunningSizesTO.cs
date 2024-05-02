@@ -7,6 +7,7 @@ namespace ODLMWebAPI.Models
 {
     public class TblRunningSizesTO
     {
+        
         #region Declarations
         Int32 idRunningSize;
         Int32 locationId;
@@ -22,7 +23,14 @@ namespace ODLMWebAPI.Models
         Double totalStock;
         String locationName;
         String materialDesc;
-
+        Int32 inchId;
+        Int32 stripId;
+        Int32 sizeId;
+        Int32 thicknessId;
+        string inch;
+        string grade;
+        string size;
+        string thickness;
         #endregion
 
         #region Constructor
@@ -123,6 +131,46 @@ namespace ODLMWebAPI.Models
         public String CreatedOnStr
         {
             get { return createdOn.ToString(Constants.DefaultDateFormat); }
+        }
+        public Int32 InchId
+        {
+            get { return inchId; }
+            set { inchId = value; }
+        }
+        public Int32 StripId
+        {
+            get { return stripId; }
+            set { stripId = value; }
+        }
+        public Int32 SizeId
+        {
+            get { return sizeId; }
+            set { sizeId = value; }
+        }
+        public Int32 ThicknessId
+        {
+            get { return thicknessId; }
+            set { thicknessId = value; }
+        }
+        public string Inch
+        {
+            get { return inch; }
+            set { inch = value; }
+        }
+        public string Grade
+        {
+            get { return grade; }
+            set { grade = value; }
+        }
+        public string Size
+        {
+            get { return size; }
+            set { size = value; }
+        }
+        public string Thickness
+        {
+            get { return thickness; }
+            set { thickness = value; }
         }
         #endregion
     }

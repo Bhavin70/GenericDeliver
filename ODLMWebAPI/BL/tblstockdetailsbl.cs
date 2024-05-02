@@ -249,8 +249,7 @@ namespace ODLMWebAPI.BL
                         emptyItemStockTO.IsInMT = 1;
                         emptyItemStockTO.OtherItem = 1;
                         
-                        // Saket - To disable tmt other items.
-                        //emptyItemStockTO.ProdCatId = prodCatId;
+
                         emptyItemStockTO.BrandId = brandId;
                         emptyStkTemplateList.Add(emptyItemStockTO);
                     }

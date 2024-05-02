@@ -215,6 +215,8 @@ namespace ODLMWebAPI.Controllers
         {
             DateTime frmDt = DateTime.MinValue;
             DateTime toDt = DateTime.MinValue;
+            
+
             if (Constants.IsDateTime(fromDate))
             {
                 frmDt = Convert.ToDateTime(fromDate);

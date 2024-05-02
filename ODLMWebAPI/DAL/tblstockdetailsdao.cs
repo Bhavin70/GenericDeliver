@@ -506,7 +506,7 @@ namespace ODLMWebAPI.DAL
                     //if (inchId > 0)
                     //    Query = Query + "   and tblInch.idInch =" + inchId + "";
                     if (stripId > 0)
-                        Query = Query + "   and  tblStrips .idStrip  " + stripId + "";
+                        Query = Query + "   and  tblStrips .idStrip =  " + stripId + "";
                     cmdSelect.CommandText = Query;
 
                 }
@@ -1205,6 +1205,16 @@ namespace ODLMWebAPI.DAL
                                 " ,[prodItemId]"+
                                 " ,[prodNoOfBundles]" +
                                 " ,[prodtotalStock]" +
+                                " ,[inchId]" +
+                                " ,[stripId]" +
+                                " ,[sizeId]" +
+                                " ,[thicknessId]" +
+                                //" ,[inch]" +
+                                //" ,[grade]" +
+                                //" ,[size]" +
+                                //" ,[thickness]" +
+                                " ,[categoryType]" +
+
 
                                 " )" +
                     " VALUES (" +
@@ -1230,6 +1240,16 @@ namespace ODLMWebAPI.DAL
                                 " ,@ProdItemId" +
                                 " ,@ProdNoOfBundles " +
                                 " ,@ProdtotalStock " +
+                                " ,@inchId " +
+                                " ,@stripId " +
+                                " ,@sizeId " +
+                                " ,@thicknessId " +
+                               // " ,@inch " +
+                                //" ,@grade " +
+                                //" ,@size " +
+                                //" ,@thickness " +
+                                " ,@categoryType " +
+
                                 " )";
 
             cmdInsert.CommandText = sqlQuery;
@@ -1257,6 +1277,16 @@ namespace ODLMWebAPI.DAL
             cmdInsert.Parameters.Add("@ProdItemId", System.Data.SqlDbType.Int).Value = tblStockDetailsTO.ProdItemId;
             cmdInsert.Parameters.Add("@ProdNoOfBundles", System.Data.SqlDbType.NVarChar).Value = tblStockDetailsTO.ProdNoOfBundles;
             cmdInsert.Parameters.Add("@ProdtotalStock", System.Data.SqlDbType.NVarChar).Value = tblStockDetailsTO.ProdtotalStock;
+            cmdInsert.Parameters.Add("@inchId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockDetailsTO.InchId); 
+            cmdInsert.Parameters.Add("@stripId", System.Data.SqlDbType.Int).Value = Constants.GetSqlDataValueNullForBaseValue(tblStockDetailsTO.StripId); 
+            cmdInsert.Parameters.Add("@sizeId", System.Data.SqlDbType.Int).Value = tblStockDetailsTO.SizeId;
+            cmdInsert.Parameters.Add("@thicknessId", System.Data.SqlDbType.Int).Value = tblStockDetailsTO.ThicknessId;
+            //cmdInsert.Parameters.Add("@inch", System.Data.SqlDbType.NVarChar).Value = tblStockDetailsTO.Inch; 
+            //cmdInsert.Parameters.Add("@grade", System.Data.SqlDbType.NVarChar).Value = tblStockDetailsTO.Grade; 
+            //cmdInsert.Parameters.Add("@size", System.Data.SqlDbType.NVarChar).Value = tblStockDetailsTO.Size;
+            //cmdInsert.Parameters.Add("@thickness", System.Data.SqlDbType.NVarChar).Value = tblStockDetailsTO.Thickness;
+            cmdInsert.Parameters.Add("@categoryType", System.Data.SqlDbType.NVarChar).Value = tblStockDetailsTO.CategoryType;
+
             if (cmdInsert.ExecuteNonQuery() == 1)
             {
                 //cmdInsert.CommandText = Constants.IdentityColumnQuery;

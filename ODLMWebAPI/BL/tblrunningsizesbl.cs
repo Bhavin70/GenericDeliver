@@ -144,6 +144,8 @@ namespace ODLMWebAPI.BL
                     double addedRunSizeQty = tblRunningSizesTONew.TotalStock;
                     tblRunningSizesTONew.ProdCatId = (int)Constants.ProductCategoryE.TMT;
                     tblRunningSizesTONew.ProdSpecId = (int)Constants.ProductSpecE.BEND;
+                    tblRunningSizesTONew.InchId = (int)Constants.pgDashBoardType.PIPES;
+                    tblRunningSizesTONew.StripId = (int)Constants.pgDashBoardType.STRIP;
 
                     TblProductInfoTO productInfoTO = null;
                     if (productList != null)

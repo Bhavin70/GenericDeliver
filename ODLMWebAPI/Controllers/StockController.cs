@@ -649,6 +649,7 @@ namespace ODLMWebAPI.Controllers
                     return returnMsg;
                 }
 
+
                 ResultMessage resMsg = _iTblRunningSizesBL.RemoveRunningSizeDtls(runningSizesTO, tblStockSummaryTO, Convert.ToInt32(loginUserId));
                 return resMsg;
             }

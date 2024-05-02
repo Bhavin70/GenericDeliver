@@ -28,9 +28,9 @@ namespace ODLMWebAPI.BL
             return  _iTblProductInfoDAO.SelectAllTblProductInfo();
         }
 
-        public List<TblProductInfoTO> SelectAllTblProductInfoList(SqlConnection conn,SqlTransaction tran)
+        public List<TblProductInfoTO> SelectAllTblProductInfoList(SqlConnection conn,SqlTransaction tran,int CategoryType=1)
         {
-            return _iTblProductInfoDAO.SelectAllLatestProductInfo(conn, tran);
+            return _iTblProductInfoDAO.SelectAllLatestProductInfo(conn, tran, CategoryType);
         }
 
         /// <summary>
