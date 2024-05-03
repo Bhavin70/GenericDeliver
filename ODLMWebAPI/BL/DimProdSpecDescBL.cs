@@ -74,9 +74,9 @@ namespace ODLMWebAPI.BL
         {
             return _iDimProdSpecDescDAO.SelectAllTblInchForDropDown();
         }
-        public List<TblSizeTO> GetTblSizeForDropDown()
+        public List<TblSizeTO> GetTblSizeForDropDown(Int32 idInch = 0)
         {
-            return _iDimProdSpecDescDAO.SelectAllTblSizeForDropDown();
+            return _iDimProdSpecDescDAO.SelectAllTblSizeForDropDown(idInch);
         }
         public List<TblThicknessDropDownTO> GetTblThicknessForDropDown()
         {

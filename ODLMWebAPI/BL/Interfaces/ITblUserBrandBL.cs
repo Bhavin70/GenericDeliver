@@ -12,7 +12,7 @@ namespace ODLMWebAPI.BL.Interfaces
     {
         List<TblUserBrandTO> SelectAllTblUserBrand();
         List<TblUserBrandTO> SelectAllTblUserBrand(int isActive);
-        List<TblUserBrandTO> SelectAllTblUserBrandByCnfId(Int32 cnfId);
+        List<TblUserBrandTO> SelectAllTblUserBrandByCnfId(Int32 cnfId,Int32 categoryType = 0);
         TblUserBrandTO SelectTblUserBrandTO(Int32 idUserBrand);
         ResultMessage SaveUserWithBrand(TblUserBrandTO tblUserBrandTO, Int32 userId);
         int InsertTblUserBrand(TblUserBrandTO tblUserBrandTO);

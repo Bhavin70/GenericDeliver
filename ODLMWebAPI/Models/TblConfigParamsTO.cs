@@ -20,10 +20,11 @@ namespace ODLMWebAPI.Models
 		String configParamDisplayVal;
 		String booleanFlag;
 		Boolean slider;
-		#endregion
+        Int32 categoryType;
+        #endregion
 
-		#region Constructor
-		public TblConfigParamsTO()
+        #region Constructor
+        public TblConfigParamsTO()
         {
         }
 
@@ -80,6 +81,11 @@ namespace ODLMWebAPI.Models
 
         public int ModuleId { get => moduleId; set => moduleId = value; }
 
+        public Int32 CategoryType
+        {
+            get { return categoryType; }
+            set { categoryType = value; }
+        }
         #endregion
     }
 

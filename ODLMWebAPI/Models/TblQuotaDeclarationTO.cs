@@ -25,6 +25,7 @@ namespace ODLMWebAPI.Models
         DateTime updatedOn;
         Double declaredRate;
 
+
         String quotaAllocDateStr;
         Object tag;
         string brandName;

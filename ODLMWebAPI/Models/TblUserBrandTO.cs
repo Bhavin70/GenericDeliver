@@ -16,6 +16,7 @@ namespace ODLMWebAPI.Models
         DateTime createdOn;
         DateTime updatedOn;
         Int32 cnfOrgId;
+        Int32 categoryType;
         #endregion
 
         #region Constructor
@@ -68,6 +69,11 @@ namespace ODLMWebAPI.Models
         }
 
         public int CnfOrgId { get => cnfOrgId; set => cnfOrgId = value; }
+        public Int32 CategoryType
+        {
+            get { return categoryType; }
+            set { categoryType = value; }
+        }
         #endregion
     }
 }

@@ -82,13 +82,13 @@ namespace ODLMWebAPI.BL
             return _iTblQuotaDeclarationDAO.SelectLatestQuotaDeclarationTO(conn, tran);
         }
 
-        public List<TblQuotaDeclarationTO> SelectLatestQuotaDeclaration(Int32 cnfId, DateTime date, Boolean isQuotaDeclaration)
+        public List<TblQuotaDeclarationTO> SelectLatestQuotaDeclaration(Int32 cnfId, DateTime date, Boolean isQuotaDeclaration,Int32 categoryType)
         {
-            return _iTblQuotaDeclarationDAO.SelectLatestQuotaDeclaration(cnfId, date, isQuotaDeclaration);
+            return _iTblQuotaDeclarationDAO.SelectLatestQuotaDeclaration(cnfId, date, isQuotaDeclaration, categoryType);
         }
 
 
-        public List<TblQuotaDeclarationTO> SelectLatestQuotaDeclarationTOList(Int32 cnfId,DateTime date)
+        public List<TblQuotaDeclarationTO> SelectLatestQuotaDeclarationTOList(Int32 cnfId,DateTime date,Int32 categoryType = 1)
         {
             Boolean isQuotaDeclaration = false;
             TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_RATE_DECLARATION_FOR_ENQUIRY);
@@ -102,9 +102,9 @@ namespace ODLMWebAPI.BL
 
             //return _iTblQuotaDeclarationDAO.SelectLatestQuotaDeclaration(cnfId,date, isQuotaDeclaration);
 
-            List<TblQuotaDeclarationTO> list = SelectLatestQuotaDeclaration(cnfId, date, isQuotaDeclaration);
+            List<TblQuotaDeclarationTO> list = SelectLatestQuotaDeclaration(cnfId, date, isQuotaDeclaration,categoryType);
 
-            List<TblUserBrandTO> tblUserBrandTOList = _iTblUserBrandBL.SelectAllTblUserBrandByCnfId(cnfId);
+            List<TblUserBrandTO> tblUserBrandTOList = _iTblUserBrandBL.SelectAllTblUserBrandByCnfId(cnfId, categoryType);
 
             if (list != null && list.Count > 0)
             {
@@ -176,11 +176,11 @@ namespace ODLMWebAPI.BL
             return _iTblQuotaDeclarationDAO.GetBookingQuotaAgainstCNF(cnfOrgId, brandId);
         }
 
-        public List<TblQuotaDeclarationTO> GetLatestRateInfo(Int32 cnfId, DateTime date, Boolean isQuotaDeclaration)
+        public List<TblQuotaDeclarationTO> GetLatestRateInfo(Int32 cnfId, DateTime date, Boolean isQuotaDeclaration,Int32 categoryType)
         {
-            List<TblQuotaDeclarationTO> list = SelectLatestQuotaDeclaration(cnfId, date, isQuotaDeclaration);
+            List<TblQuotaDeclarationTO> list = SelectLatestQuotaDeclaration(cnfId, date, isQuotaDeclaration, categoryType);
 
-            List<TblUserBrandTO> tblUserBrandTOList = _iTblUserBrandBL.SelectAllTblUserBrandByCnfId(cnfId);
+            List<TblUserBrandTO> tblUserBrandTOList = _iTblUserBrandBL.SelectAllTblUserBrandByCnfId(cnfId,categoryType);
 
             if (list != null && list.Count > 0)
             {

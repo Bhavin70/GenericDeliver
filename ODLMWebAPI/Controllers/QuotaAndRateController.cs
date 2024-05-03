@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using ODLMWebAPI.Models;
-using Newtonsoft.Json.Linq;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using ODLMWebAPI.StaticStuff;
-using ODLMWebAPI.DashboardModels;
+using Newtonsoft.Json.Linq;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
+using ODLMWebAPI.DashboardModels;
+using ODLMWebAPI.Models;
+using ODLMWebAPI.StaticStuff;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ODLMWebAPI.Controllers
 {
-    
+
     [Route("api/[controller]")]
     public class QuotaAndRateController : Controller
     {
@@ -143,12 +142,12 @@ namespace ODLMWebAPI.Controllers
         /// <returns></returns>
         [Route("GetLatestQuotaAndRateInfo")]
         [HttpGet]
-        public List<TblQuotaDeclarationTO> GetLatestQuotaAndRateInfo(Int32 cnfId, DateTime sysDate)
+        public List<TblQuotaDeclarationTO> GetLatestQuotaAndRateInfo(Int32 cnfId, DateTime sysDate,Int32 categoryType)
         {
             if (sysDate == DateTime.MinValue)
                 sysDate = _iCommon.ServerDateTime;
 
-            List<TblQuotaDeclarationTO> list = _iTblQuotaDeclarationBL.SelectLatestQuotaDeclarationTOList(cnfId, sysDate);
+            List<TblQuotaDeclarationTO> list = _iTblQuotaDeclarationBL.SelectLatestQuotaDeclarationTOList(cnfId, sysDate,categoryType);
             if (list != null)
             {
                 for (int i = 0; i < list.Count; i++)
@@ -191,12 +190,12 @@ namespace ODLMWebAPI.Controllers
         //Prajakta[2020-02-05] Added to get always latest rate
         [Route("GetLatestRateInfo")]
         [HttpGet]
-        public List<TblQuotaDeclarationTO> GetLatestRateInfo(Int32 cnfId, DateTime sysDate, Boolean isQuotaDeclaration)
+        public List<TblQuotaDeclarationTO> GetLatestRateInfo(Int32 cnfId, DateTime sysDate, Boolean isQuotaDeclaration,Int32 categoryType)
         {
             if (sysDate == DateTime.MinValue)
                 sysDate = _iCommon.ServerDateTime;
 
-            List<TblQuotaDeclarationTO> list = _iTblQuotaDeclarationBL.GetLatestRateInfo(cnfId, sysDate, isQuotaDeclaration);
+            List<TblQuotaDeclarationTO> list = _iTblQuotaDeclarationBL.GetLatestRateInfo(cnfId, sysDate, isQuotaDeclaration, categoryType);
             if (list != null)
             {
                 for (int i = 0; i < list.Count; i++)

@@ -93,7 +93,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblUserBrandTO> SelectAllTblUserBrandByCnfId(Int32 cnfId)
+        public List<TblUserBrandTO> SelectAllTblUserBrandByCnfId(Int32 cnfId,int categoryType = 0)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -103,6 +103,10 @@ namespace ODLMWebAPI.DAL
             {
                 conn.Open();
                 cmdSelect.CommandText = SqlSelectQuery() + " WHERE tblUserBrand.isActive = 1 AND tblUserBrand.cnfOrgId = " + cnfId;
+                if(categoryType > 0) 
+                {
+                    cmdSelect.CommandText = SqlSelectQuery() + " WHERE categoryType = " + categoryType;
+                }
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 

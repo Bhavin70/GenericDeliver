@@ -356,7 +356,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblQuotaDeclarationTO> SelectLatestQuotaDeclaration(Int32 orgId,DateTime date,Boolean isQuotaDeclaration)
+        public List<TblQuotaDeclarationTO> SelectLatestQuotaDeclaration(Int32 orgId,DateTime date,Boolean isQuotaDeclaration,int categoryType = 1)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -389,6 +389,10 @@ namespace ODLMWebAPI.DAL
                 if (isQuotaDeclaration)
                 {
                     cmdSelect.CommandText += " AND DAY(quota.createdOn)=" + date.Day + " AND MONTH(quota.createdOn)=" + date.Month + " AND YEAR(quota.createdOn)= " + date.Year;
+                }
+                if (categoryType > 0)
+                {
+                    cmdSelect.CommandText += " AND categoryType = " + categoryType;
                 }
                 cmdSelect.CommandText += " AND b.isActive = 1 and quota.isActive = 1 ORDER BY quotaAllocDate DESC";
 

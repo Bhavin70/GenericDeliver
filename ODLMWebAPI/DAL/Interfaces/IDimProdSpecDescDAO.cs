@@ -22,7 +22,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblStripsGradeDropDownTo> SelectAlltblStripsGradeForDropDown();
         List<TblPipesStripCommonQuantityTO> SelectAlltblPipesStripCommonQuantityForDropDown();
         List<TblInchDropDownTO> SelectAllTblInchForDropDown();
-        List<TblSizeTO> SelectAllTblSizeForDropDown();
+        List<TblSizeTO> SelectAllTblSizeForDropDown(Int32 idInch = 0);
         List<TblThicknessDropDownTO> SelectAllTblThicknessForDropDown();
         List<TblWidthDropDownTO> SelectAllTblWidthForDropDown();
 

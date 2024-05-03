@@ -332,13 +332,15 @@ namespace ODLMWebAPI.DAL
                 //                    //" AND stkSummary.stockDate=@stockDt AND stockDtl.brandId = " + brandId;
                 //                    " AND stockDtl.brandId = " + brandId + "AND stockDtl.inchId= " + inchId + "AND stockDtl.stripId= "+ stripId +" "+
                 //    " order by stockDtl.idStockDtl desc";
-                string select = SqlSelectQuery() + " WHERE stockDtl.locationId=" + locationId + // "AND stockDtl.prodCatId=" + prodCatId +
-                                                                                                //" AND stkSummary.stockDate=@stockDt AND stockDtl.brandId = " + brandId;
-                                  " AND stockDtl.brandId = " + brandId;
+                string select = SqlSelectQuery() + " WHERE stockDtl.locationId=" + locationId;// "AND stockDtl.prodCatId=" + prodCatId +
+                           
+                    //" AND stkSummary.stockDate=@stockDt AND stockDtl.brandId = " + brandId;
+                    if(inchId == 0 && stripId == 0)
+                            select = select + " AND stockDtl.brandId = " + brandId;
                 if (inchId > 0)
-                    select = select + "AND stockDtl.inchId= " + inchId;
+                    select = select + " AND stockDtl.inchId= " + inchId;
                 if (stripId > 0)
-                    select = select + "AND stockDtl.stripId= " + stripId;
+                    select = select + " AND stockDtl.stripId= " + stripId;
 
                 cmdSelect.CommandText = select + " order by stockDtl.idStockDtl desc";
 

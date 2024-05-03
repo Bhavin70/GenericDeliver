@@ -17,7 +17,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         TblQuotaDeclarationTO SelectPreviousTblQuotaDeclarationTO(Int32 idQuotaDeclaration, Int32 cnfOrgId);
         TblQuotaDeclarationTO SelectTblQuotaDeclaration(Int32 idQuotaDeclaration, SqlConnection conn, SqlTransaction tran);
         TblQuotaDeclarationTO SelectLatestQuotaDeclarationTO(SqlConnection conn, SqlTransaction tran);
-        List<TblQuotaDeclarationTO> SelectLatestQuotaDeclaration(Int32 orgId, DateTime date, Boolean isQuotaDeclaration);
+        List<TblQuotaDeclarationTO> SelectLatestQuotaDeclaration(Int32 orgId, DateTime date, Boolean isQuotaDeclaration,Int32 categoryType = 1);
         ODLMWebAPI.DashboardModels.QuotaAndRateInfo SelectDashboardQuotaAndRateInfo(Int32 roletypeId, Int32 orgId, DateTime sysDate);
         List<ODLMWebAPI.DashboardModels.QuotaAndRateInfo> SelectDashboardQuotaAndRateInfoList(Int32 roleId, Int32 orgId, DateTime sysDate, Int32 categoryType);
         int InsertTblQuotaDeclaration(TblQuotaDeclarationTO tblQuotaDeclarationTO);

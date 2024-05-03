@@ -34,9 +34,9 @@ namespace ODLMWebAPI.BL
             return _iTblUserBrandDAO.SelectAllTblUserBrand(isActive);
         }
 
-        public List<TblUserBrandTO> SelectAllTblUserBrandByCnfId(Int32 cnfId)
+        public List<TblUserBrandTO> SelectAllTblUserBrandByCnfId(Int32 cnfId,Int32 categoryType)
         {
-            return _iTblUserBrandDAO.SelectAllTblUserBrandByCnfId(cnfId);
+            return _iTblUserBrandDAO.SelectAllTblUserBrandByCnfId(cnfId, categoryType);
         }
 
         public TblUserBrandTO SelectTblUserBrandTO(Int32 idUserBrand)

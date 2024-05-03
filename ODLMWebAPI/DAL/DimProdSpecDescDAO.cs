@@ -500,7 +500,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-        public List<TblSizeTO> SelectAllTblSizeForDropDown()
+        public List<TblSizeTO> SelectAllTblSizeForDropDown(Int32 idInch = 0)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -508,8 +508,14 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = "SELECT ROW_NUMBER() OVER(ORDER BY tblSize.idSize ASC) AS RowNumber, tblSize.* FROM tblSize " +
-                                        "LEFT JOIN tblInch AS inch ON tblSize.idSize = inch.idInch";
+                cmdSelect.CommandText = "SELECT ROW_NUMBER() OVER (ORDER BY tblSize.idSize ASC) AS RowNumber, tblSize.*, inch.idInch FROM tblSize " +
+                        "LEFT JOIN tblInch AS inch ON tblSize.idSize = inch.idInch";
+
+                if (idInch > 0)
+                {
+                    cmdSelect.CommandText += " WHERE tblSize.idInch = @idInch";
+                    cmdSelect.Parameters.AddWithValue("@idInch", idInch);
+                }
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 

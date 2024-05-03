@@ -1582,9 +1582,9 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetTblSizeForDropDown")]
         [HttpGet]
-        public List<TblSizeTO> GetTblSizeForDropDown()
+        public List<TblSizeTO> GetTblSizeForDropDown(Int32 idInch = 0)
         {
-            List<TblSizeTO> SizeList = _iDimProdSpecDescBL.GetTblSizeForDropDown();
+            List<TblSizeTO> SizeList = _iDimProdSpecDescBL.GetTblSizeForDropDown(idInch);
             return SizeList;
         }
 

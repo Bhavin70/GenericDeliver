@@ -657,7 +657,7 @@ namespace ODLMWebAPI.BL
                         {
                             //Update Existing Records 
                             tblStockSummaryTO.StockDetailsTOList[i].UpdatedOn = _iCommon.ServerDateTime;
-                            result = _iTblStockDetailsBL.UpdateTblStockDetails(tblStockSummaryTO.StockDetailsTOList[i], conn, tran);
+                             result = _iTblStockDetailsBL.UpdateTblStockDetails(tblStockSummaryTO.StockDetailsTOList[i], conn, tran);
                             if (result != 1)
                             {
                                 tran.Rollback();

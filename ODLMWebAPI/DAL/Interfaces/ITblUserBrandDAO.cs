@@ -12,7 +12,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         String SqlSelectQuery();
         List<TblUserBrandTO> SelectAllTblUserBrand();
         List<TblUserBrandTO> SelectAllTblUserBrand(int isActive);
-        List<TblUserBrandTO> SelectAllTblUserBrandByCnfId(Int32 cnfId);
+        List<TblUserBrandTO> SelectAllTblUserBrandByCnfId(Int32 cnfId, Int32 categoryType);
         TblUserBrandTO SelectTblUserBrand(Int32 idUserBrand);
         List<TblUserBrandTO> SelectAllTblUserBrand(SqlConnection conn, SqlTransaction tran);
         List<TblUserBrandTO> ConvertDTToList(SqlDataReader tblUserBrandTODT);
