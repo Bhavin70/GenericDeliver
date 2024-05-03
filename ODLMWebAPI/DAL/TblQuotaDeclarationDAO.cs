@@ -392,7 +392,7 @@ namespace ODLMWebAPI.DAL
                 }
                 if (categoryType > 0)
                 {
-                    cmdSelect.CommandText += " AND categoryType = " + categoryType;
+                    cmdSelect.CommandText += " AND quota.categoryType = " + categoryType;
                 }
                 cmdSelect.CommandText += " AND b.isActive = 1 and quota.isActive = 1 ORDER BY quotaAllocDate DESC";
 
