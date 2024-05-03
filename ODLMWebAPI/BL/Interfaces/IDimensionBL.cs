@@ -43,7 +43,7 @@ namespace ODLMWebAPI.BL.Interfaces
         DimFinYearTO GetCurrentFinancialYear(DateTime curDate, SqlConnection conn, SqlTransaction tran);
         List<DropDownTO> GetReportingType();
         List<DimVisitIssueReasonsTO> GetVisitIssueReasonsList();
-        List<DropDownTO> SelectBrandList();
+        List<DropDownTO> SelectBrandList(int categoryType);
         List<DimBrandTO> SelectBrandListV2();
         List<DropDownTO> SelectLoadingLayerList();
         List<DropDownTO> GetBookingTaxCategoryList();

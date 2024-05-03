@@ -85,6 +85,8 @@ namespace ODLMWebAPI.Models
         public string specificationIdStr { get; set; }
         public Int32 isAutoSelect { get; set; }
         public Int32 isBothTaxType { get; set; }
+        public Int32 categoryType { get; set; }
+
 
 
 

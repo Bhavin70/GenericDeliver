@@ -903,9 +903,9 @@ namespace ODLMWebAPI.Controllers
         /// <returns></returns>
         [Route("GetBrandList")]
         [HttpGet]
-        public List<DropDownTO> GetBrandList()
+        public List<DropDownTO> GetBrandList(int categoryType)
         {
-            List<DropDownTO> brandList = _iDimensionBL.SelectBrandList();
+            List<DropDownTO> brandList = _iDimensionBL.SelectBrandList(categoryType);
             return brandList;
         }
 

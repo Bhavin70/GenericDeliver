@@ -364,9 +364,9 @@ namespace ODLMWebAPI.BL
         /// [2017-11-20]Vijaymala:Added to get brand list to changes in parity details 
         /// </summary>
         /// <returns></returns>
-        public List<DropDownTO> SelectBrandList()
+        public List<DropDownTO> SelectBrandList(int categoryType)
         {
-            return _iDimensionDAO.SelectBrandList();
+            return _iDimensionDAO.SelectBrandList(categoryType);
         }
         public List<DimBrandTO> SelectBrandListV2()
         {
