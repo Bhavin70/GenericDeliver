@@ -88,7 +88,7 @@ namespace ODLMWebAPI.BL
         }
 
 
-        public List<TblQuotaDeclarationTO> SelectLatestQuotaDeclarationTOList(Int32 cnfId,DateTime date,Int32 categoryType = 1)
+        public List<TblQuotaDeclarationTO> SelectLatestQuotaDeclarationTOList(Int32 cnfId,DateTime date,Int32 categoryType=1)
         {
             Boolean isQuotaDeclaration = false;
             TblConfigParamsTO configParamsTO = _iTblConfigParamsBL.SelectTblConfigParamsValByName(Constants.CP_RATE_DECLARATION_FOR_ENQUIRY);

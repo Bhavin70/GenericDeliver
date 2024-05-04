@@ -1108,7 +1108,7 @@ namespace ODLMWebAPI.BL
 
                     if (bookingInfo.BookingType == (int)Constants.BookingType.IsRegular)
                     {
-                        count += 1;
+                        count += 1; 
                         grandTotal += bookingInfo.AvgPrice;
                         grandTotalQty += bookingInfo.BookingQty;
                         grandGrandTotal += bookingInfo.TotalCost;
@@ -1882,7 +1882,7 @@ namespace ODLMWebAPI.BL
                     {
                         int isAllowBooking = 0;
                         DateTime sysDate1 = _iCommon.ServerDateTime;
-                        List<TblQuotaDeclarationTO> tblQuotaDeclarationTOList = _iTblQuotaDeclarationBL.SelectLatestQuotaDeclarationTOList(tblBookingsTO.CnFOrgId, sysDate1);
+                        List<TblQuotaDeclarationTO> tblQuotaDeclarationTOList = _iTblQuotaDeclarationBL.SelectLatestQuotaDeclarationTOList(tblBookingsTO.CnFOrgId, sysDate1,tblBookingsTO.CategoryType);
                         for (int i = 0; i < tblQuotaDeclarationTOList.Count; i++)
                         {
                             if (tblQuotaDeclarationTOList[i].IdQuotaDeclaration == tblBookingsTO.QuotaDeclarationId)
