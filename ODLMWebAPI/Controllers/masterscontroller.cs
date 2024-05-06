@@ -1525,14 +1525,16 @@ namespace ODLMWebAPI.Controllers
         [HttpGet]
         public List<TblPipesTO> getTblPipesList()
         {
-            return _iDimProdSpecDescBL.SelectAllTblPipesList();
+            DateTime createdOn = _iCommon.ServerDateTime;
+            return _iDimProdSpecDescBL.SelectAllTblPipesList(createdOn);
         }
 
         [Route("getTblStripsList")]
         [HttpGet]
         public List<TblStripsTO> getTblStripsList()
         {
-            return _iDimProdSpecDescBL.SelectAllTblStripsList();
+            DateTime createdOn = _iCommon.ServerDateTime;
+            return _iDimProdSpecDescBL.SelectAllTblStripsList(createdOn);
         }
 
         //[Route("GetAllPipesInchForDropDown")]

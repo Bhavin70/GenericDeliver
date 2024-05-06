@@ -12,8 +12,8 @@ namespace ODLMWebAPI.BL.Interfaces
         List<DimProdSpecDescTO> SelectAllDimProdSpecDescList();
         DimProdSpecDescTO SelectDimPRodSpecDescTO(Int32 idCodeType);
         int SelectAllDimProdSpecDescriptionList();
-        List<TblPipesTO> SelectAllTblPipesList(); 
-        List<TblStripsTO> SelectAllTblStripsList(); 
+        List<TblPipesTO> SelectAllTblPipesList(DateTime createdOn); 
+        List<TblStripsTO> SelectAllTblStripsList(DateTime createdOn); 
         List<DropDownTO> SelectAllPipesInchForDropDown();
         int InsertDimProdSpecDesc(DimProdSpecDescTO ProSpecDesc);
         int InsertDimProdSpecDesc(DimProdSpecDescTO dimProSpecDescTO, SqlConnection conn, SqlTransaction tran);
