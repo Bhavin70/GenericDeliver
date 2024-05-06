@@ -134,7 +134,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblStripsTO> SelectAllTblStrips()
+        public List<TblStripsTO> SelectAllTblStrips(DateTime createdOn)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -142,8 +142,13 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = " SELECT ROW_NUMBER() OVER (ORDER BY tblStrips.idStrip ASC) AS RowNumber,tblStrips.*,PSC.size,PSC.thickness FROM tblStrips " +
-                                        " LEFT JOIN tblPipesStripCommon AS PSC ON PSC.idPipesStripCommon = tblStrips.idPipesStripCommon";             
+                cmdSelect.CommandText = "SELECT  tblStrips.grade, tblSize.size, tblThickness.thickness FROM tblStockDetails " +
+                    " LEFT JOIN  tblStrips ON tblStockDetails.stripId = tblStrips.idStrip AND tblStrips.isActive = 1" +
+                    " LEFT JOIN tblSize ON tblStockDetails.sizeId = tblSize.idSize AND tblSize.isActive = 1" +
+                    " LEFT JOIN  tblThickness ON tblStockDetails.thicknessId = tblThickness.idThickness AND tblThickness.isActive = 1" +
+                    " WHERE tblStockDetails.balanceStock > 0 AND tblStockDetails.prodCatId = 4 " +
+                    " AND Convert(DATE ,tblStockDetails.createdOn)  = Convert(DATE ,'" +createdOn+ "') " +
+                    " AND tblStockDetails.stockSummaryId = 1 "; 
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -171,29 +176,21 @@ namespace ODLMWebAPI.DAL
                 while (dimDimProdSpecTODT.Read())
                 {
                     TblStripsTO DimProdSpecTONew = new TblStripsTO();
-                    if (dimDimProdSpecTODT["idStrips"] != DBNull.Value)
-                        DimProdSpecTONew.IdStrips = Convert.ToInt32(dimDimProdSpecTODT["idStrips"].ToString());
+                   // if (dimDimProdSpecTODT["idStrips"] != DBNull.Value)
+                   //     DimProdSpecTONew.IdStrips = Convert.ToInt32(dimDimProdSpecTODT["idStrips"].ToString());
                     if (dimDimProdSpecTODT["grade"] != DBNull.Value)
                         DimProdSpecTONew.Grade = Convert.ToInt32(dimDimProdSpecTODT["grade"].ToString());
-                    if (dimDimProdSpecTODT["idSize"] != DBNull.Value)
-                        DimProdSpecTONew.IdSize = Convert.ToInt32(dimDimProdSpecTODT["idSize"].ToString());
                     if (dimDimProdSpecTODT["size"] != DBNull.Value)
                         DimProdSpecTONew.Size = Convert.ToString(dimDimProdSpecTODT["size"].ToString());
-                    if (dimDimProdSpecTODT["idThickness"] != DBNull.Value)
-                        DimProdSpecTONew.IdThickness = Convert.ToInt32(dimDimProdSpecTODT["idThickness"].ToString());
                     if (dimDimProdSpecTODT["thickness"] != DBNull.Value)
                         DimProdSpecTONew.Thickness = Convert.ToDecimal(dimDimProdSpecTODT["thickness"].ToString());
-                    if (dimDimProdSpecTODT["isActive"] != DBNull.Value)
-                        DimProdSpecTONew.IsActive = Convert.ToInt32(dimDimProdSpecTODT["isActive"].ToString());
-                    if (dimDimProdSpecTODT["createdOn"] != DBNull.Value)
-                        DimProdSpecTONew.CreatedOn = Convert.ToDateTime(dimDimProdSpecTODT["createdOn"].ToString());
                     dimProdSpecTOList.Add(DimProdSpecTONew);
                 }
             }
             return dimProdSpecTOList;
         }
 
-        public List<TblPipesTO> SelectAllTblPipes()
+        public List<TblPipesTO> SelectAllTblPipes(DateTime createdOn)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -201,8 +198,14 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = " SELECT ROW_NUMBER() OVER (ORDER BY tblPipes.idPipes ASC) AS RowNumber,tblPipes.*,PSC.size,PSC.thickness FROM tblPipes " +
-                                        " LEFT JOIN tblPipesStripCommon AS PSC ON tblPipes.idPipesStripCommon = PSC.idPipesStripCommon";
+
+                cmdSelect.CommandText = " SELECT  tblInch.idInch,tblInch.inch, tblSize.size, tblThickness.thickness FROM tblStockDetails " +
+                                        " LEFT JOIN tblInch ON tblStockDetails.inchId = tblInch.idInch AND tblInch.isActive = 1" +
+                                        " LEFT JOIN tblSize ON tblStockDetails.sizeId = tblSize.idSize AND tblSize.isActive = 1" +
+                                        " LEFT JOIN tblThickness ON tblStockDetails.thicknessId = tblThickness.idThickness AND tblThickness.isActive = 1 " +
+                                        " WHERE tblStockDetails.balanceStock > 0 AND tblStockDetails.prodCatId = 3 " +
+                                        " AND Convert(DATE ,tblStockDetails.createdOn)  =  Convert(DATE ,'" + createdOn + "') " +
+                                        " AND tblStockDetails.stockSummaryId = 1 ";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -234,19 +237,10 @@ namespace ODLMWebAPI.DAL
                         DimProdSpecTONew.IdInch = Convert.ToInt32(dimDimProdSpecTODT["idInch"].ToString());
                     if (dimDimProdSpecTODT["inch"] != DBNull.Value)
                         DimProdSpecTONew.Inch = Convert.ToDecimal(dimDimProdSpecTODT["inch"].ToString());
-                    if (dimDimProdSpecTODT["idSize"] != DBNull.Value)
-                        DimProdSpecTONew.IdSize = Convert.ToInt32(dimDimProdSpecTODT["idSize"].ToString());
                     if (dimDimProdSpecTODT["size"] != DBNull.Value)
                         DimProdSpecTONew.Size = Convert.ToString(dimDimProdSpecTODT["size"].ToString());
-                    if (dimDimProdSpecTODT["idThickness"] != DBNull.Value)
-                        DimProdSpecTONew.IdThickness = Convert.ToInt32(dimDimProdSpecTODT["idThickness"].ToString());
                     if (dimDimProdSpecTODT["thickness"] != DBNull.Value)
                         DimProdSpecTONew.Thickness = Convert.ToDecimal(dimDimProdSpecTODT["thickness"].ToString());
-                    if (dimDimProdSpecTODT["isActive"] != DBNull.Value)
-                        DimProdSpecTONew.IsActive = Convert.ToInt32(dimDimProdSpecTODT["isActive"].ToString());
-                    if (dimDimProdSpecTODT["createdOn"] != DBNull.Value)
-                        DimProdSpecTONew.CreatedOn = Convert.ToDateTime(dimDimProdSpecTODT["createdOn"].ToString());
-
                     dimProdSpecTOList.Add(DimProdSpecTONew);
                 }
             }

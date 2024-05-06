@@ -41,13 +41,13 @@ namespace ODLMWebAPI.BL
         {           
             return _iDimProdSpecDescDAO.SelectDimProdSpecDescription();           
         }
-        public List<TblPipesTO> SelectAllTblPipesList() 
+        public List<TblPipesTO> SelectAllTblPipesList(DateTime createdOn) 
         {
-            return _iDimProdSpecDescDAO.SelectAllTblPipes();
+            return _iDimProdSpecDescDAO.SelectAllTblPipes(createdOn);
         }
-        public List<TblStripsTO> SelectAllTblStripsList()
+        public List<TblStripsTO> SelectAllTblStripsList(DateTime createdOn)
         {
-            return _iDimProdSpecDescDAO.SelectAllTblStrips();
+            return _iDimProdSpecDescDAO.SelectAllTblStrips(createdOn);
         }
 
         //public List<TblPipesDropDownTo> GetAllPipesInchForDropDown()

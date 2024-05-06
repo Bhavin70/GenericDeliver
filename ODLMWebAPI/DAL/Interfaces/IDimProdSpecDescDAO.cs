@@ -14,8 +14,8 @@ namespace ODLMWebAPI.DAL.Interfaces
         DimProdSpecDescTO SelectDimProdSpecDesc(Int32 idProdSpec);
         List<DimProdSpecDescTO> ConvertDTToList(SqlDataReader dimDimProdSpecTODT);
         int SelectDimProdSpecDescription();
-        List<TblPipesTO> SelectAllTblPipes();
-        List<TblStripsTO> SelectAllTblStrips();
+        List<TblPipesTO> SelectAllTblPipes(DateTime createdOn);
+        List<TblStripsTO> SelectAllTblStrips(DateTime createdOn);
         //List<TblPipesDropDownTo> SelectAllPipesInchForDropDown();
         List<TblPipesStripCommonSizeTO> SelectAlltblPipesStripCommonSizeForDropDown();
         List<TblPipesStripCommonThicknessTO> SelectAlltblPipesStripCommonThicknessForDropDown();
