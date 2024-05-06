@@ -302,6 +302,7 @@ namespace ODLMWebAPI.Controllers
                         tblGlobalRateTO.Comments = Convert.ToString(comments);
                         tblGlobalRateTO.RateReasonId = Convert.ToInt32(rateReasonId);
                         tblGlobalRateTO.RateReasonDesc = Convert.ToString(rateReasonDesc);
+                        tblGlobalRateTO.CategoryType = Convert.ToInt32(categoryType);
                         tblGlobalRateTO.QuotaDeclarationTOList = new List<TblQuotaDeclarationTO>();
 
                         for (int q = 0; q < tblOrganizationTOList.Count; q++)
