@@ -143,7 +143,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE CONVERT (DATE,rate.createdOn,103)   BETWEEN @fromDate AND @toDate ORDER BY rate.createdOn DESC  AND rate.categoryType =  " + categoryType;
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE CONVERT(DATE,rate.createdOn) BETWEEN CONVERT(DATE,@fromDate) AND CONVERT(DATE,@toDate) AND rate.categoryType = " + categoryType + " ORDER BY rate.createdOn DESC ";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
