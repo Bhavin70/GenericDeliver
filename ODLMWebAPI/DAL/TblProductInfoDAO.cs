@@ -13,6 +13,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using SkiaSharp;
 using StackExchange.Redis;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using iTextSharp.text;
 
 namespace ODLMWebAPI.DAL
 {
@@ -489,7 +490,7 @@ namespace ODLMWebAPI.DAL
             }
             return tblProductInfoTOList;
         }
-        public TblProductInfoTO GetNoOfPcesAndQtyAginsCatagory(SqlConnection conn, SqlTransaction tran, int CategoryType = 1)
+        public List<TblProductInfoTO> GetNoOfPcesAndQtyAginsCatagory(SqlConnection conn, SqlTransaction tran, int CategoryType = 1)
         {
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader sqlReader = null;
@@ -578,8 +579,8 @@ namespace ODLMWebAPI.DAL
                 if (reader != null)
                     reader.Dispose();
 
-                if (list != null && list.Count == 1)
-                    return list[0];
+                if (list != null && list.Count > 0)
+                    return list;
                 else return null;
             }
             catch (Exception ex)

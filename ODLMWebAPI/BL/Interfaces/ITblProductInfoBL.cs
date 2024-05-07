@@ -17,7 +17,7 @@ namespace ODLMWebAPI.BL.Interfaces
         TblProductInfoTO SelectTblProductInfoTO(Int32 idProduct);
         List<TblProductInfoTO> SelectAllEmptyProductInfoList(int prodCatId);
         List<TblProductInfoTO> SelectProductInfoListByLoadingSlipExtIds(string strLoadingSlipExtIds);
-        TblProductInfoTO GetNoOfPcesAndQtyAginsCatagory(int CategoryType = 1);
+        List<TblProductInfoTO> GetNoOfPcesAndQtyAginsCatagory(int CategoryType = 1);
         int InsertTblProductInfo(TblProductInfoTO tblProductInfoTO);
         int InsertTblProductInfo(TblProductInfoTO tblProductInfoTO, SqlConnection conn, SqlTransaction tran);
         int UpdateTblProductInfo(TblProductInfoTO tblProductInfoTO);

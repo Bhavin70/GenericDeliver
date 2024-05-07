@@ -394,7 +394,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetNoOfPcesAndQtyAginsCatagory")]
         [HttpGet]
-        public TblProductInfoTO GetNoOfPcesAndQtyAginsCatagory(int CategoryType = 1)
+        public List<TblProductInfoTO> GetNoOfPcesAndQtyAginsCatagory(int CategoryType = 1)
         {
             return _iTblProductInfoBL.GetNoOfPcesAndQtyAginsCatagory(CategoryType);
         }

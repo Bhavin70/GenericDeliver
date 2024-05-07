@@ -54,7 +54,7 @@ namespace ODLMWebAPI.BL
         {
             return _iTblProductInfoDAO.SelectProductInfoListByLoadingSlipExtIds(strLoadingSlipExtIds);
         }
-        public TblProductInfoTO GetNoOfPcesAndQtyAginsCatagory(int CategoryType=1)
+        public List<TblProductInfoTO> GetNoOfPcesAndQtyAginsCatagory(int CategoryType=1)
         {
             SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
             SqlTransaction tran = null;
@@ -65,7 +65,7 @@ namespace ODLMWebAPI.BL
             {
                 conn.Open();
                 tran = conn.BeginTransaction();
-                TblProductInfoTO productList = _iTblProductInfoDAO.GetNoOfPcesAndQtyAginsCatagory(conn, tran, CategoryType); 
+                List<TblProductInfoTO> productList = _iTblProductInfoDAO.GetNoOfPcesAndQtyAginsCatagory(conn, tran, CategoryType); 
                 return productList;
             }
             catch (Exception ex)
