@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Collections;
-using System.Text;
-using System.Data;
-using ODLMWebAPI.DAL;
 using ODLMWebAPI.Models;
 using ODLMWebAPI.StaticStuff;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
+using Constants = ODLMWebAPI.StaticStuff.Constants;
 
 namespace ODLMWebAPI.BL
 { 
@@ -57,7 +54,34 @@ namespace ODLMWebAPI.BL
         {
             return _iTblProductInfoDAO.SelectProductInfoListByLoadingSlipExtIds(strLoadingSlipExtIds);
         }
-
+        public TblProductInfoTO GetNoOfPcesAndQtyAginsCatagory(int CategoryType=1)
+        {
+            SqlConnection conn = new SqlConnection(_iConnectionString.GetConnectionString(Constants.CONNECTION_STRING));
+            SqlTransaction tran = null;
+            int result = 0;
+            ResultMessage resultMessage = new StaticStuff.ResultMessage();
+            resultMessage.MessageType = ResultMessageE.None;
+            try
+            {
+                conn.Open();
+                tran = conn.BeginTransaction();
+                TblProductInfoTO productList = _iTblProductInfoDAO.GetNoOfPcesAndQtyAginsCatagory(conn, tran, CategoryType); 
+                return productList;
+            }
+            catch (Exception ex)
+            {
+                resultMessage.Text = "Exception Error While Select : GetNoOfPcesAndQtyAginsCatagory";
+                resultMessage.DisplayMessage = "Error.. Record could not be found";
+                resultMessage.MessageType = ResultMessageE.Error;
+                resultMessage.Exception = ex;
+                resultMessage.Result = -1;
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
 
         #endregion
 

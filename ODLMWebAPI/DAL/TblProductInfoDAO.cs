@@ -8,6 +8,11 @@ using ODLMWebAPI.Models;
 using ODLMWebAPI.StaticStuff;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.BL.Interfaces;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
+using SkiaSharp;
+using StackExchange.Redis;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ODLMWebAPI.DAL
 {
@@ -66,7 +71,6 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-
         public List<TblProductInfoTO> SelectAllTblProductInfo(SqlConnection conn,SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();
@@ -95,7 +99,6 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-
         public List<TblProductInfoTO> SelectAllLatestProductInfo(SqlConnection conn, SqlTransaction tran,int CategoryType=1)
         {
             SqlCommand cmdSelect = new SqlCommand();
@@ -182,8 +185,6 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-
-
         public List<TblProductInfoTO> SelectTblProductInfoLatest()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -223,7 +224,6 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-
         public TblProductInfoTO SelectTblProductInfo(Int32 idProduct)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -255,7 +255,6 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-
         public List<TblProductInfoTO> SelectEmptyProductDetailsTemplate(int prodCatId)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -317,7 +316,6 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-
         public List<TblProductInfoTO> SelectProductInfoListByLoadingSlipExtIds(string strLoadingSlipExtIds)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -353,7 +351,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.Dispose();
             }
         }
-            public List<TblProductInfoTO> ConvertReaderToList(SqlDataReader tblStockDetailsTODT)
+        public List<TblProductInfoTO> ConvertReaderToList(SqlDataReader tblStockDetailsTODT)
         {
             List<TblProductInfoTO> tblProductInfoTOTOList = new List<TblProductInfoTO>();
             if (tblStockDetailsTODT != null)
@@ -380,7 +378,6 @@ namespace ODLMWebAPI.DAL
             }
             return tblProductInfoTOTOList;
         }
-
         public List<TblProductInfoTO> ConvertDTToList(SqlDataReader tblProductInfoTODT)
         {
             List<TblProductInfoTO> tblProductInfoTOList = new List<TblProductInfoTO>();
@@ -492,6 +489,163 @@ namespace ODLMWebAPI.DAL
             }
             return tblProductInfoTOList;
         }
+        public TblProductInfoTO GetNoOfPcesAndQtyAginsCatagory(SqlConnection conn, SqlTransaction tran, int CategoryType = 1)
+        {
+            SqlCommand cmdSelect = new SqlCommand();
+            SqlDataReader sqlReader = null;
+            try
+            {
+                if (CategoryType == 1)
+                {
+                    cmdSelect.CommandText = " SELECT TOP 1 tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, "+
+                                            " tblProductInfo.sizeId,tblProductInfo.thicknessId "+
+                                            " FROM tblProductInfo "+
+                                            " LEFT JOIN tblStrips ON tblProductInfo.stripId = tblStrips.idStrip AND tblStrips.isActive = 1 "+
+                                            " LEFT JOIN tblSize ON tblProductInfo.sizeId = tblSize.idSize AND tblSize.isActive = 1 "+
+                                            " LEFT JOIN tblThickness ON tblProductInfo.thicknessId = tblThickness.idThickness AND tblThickness.isActive = 1 "+
+                                            " LEFT JOIN ( "+
+                                            " SELECT mainProd.*FROM tblProductInfo mainProd "+
+                                            " INNER JOIN "+
+                                            " ( "+
+                                                 "SELECT prodCatId, materialId, prodSpecId, brandId, MAX(createdOn) createdOn "+
+                                                 "FROM tblProductInfo loadingQuota  "+ 
+                                                 "GROUP BY prodCatId, materialId, prodSpecId, brandId  "+
+                                            " ) AS latestProd  "+
+                                            " ON mainProd.prodCatId = latestProd.prodCatId AND mainProd.materialId = latestProd.materialId  "+
+                                            " AND mainProd.prodSpecId = latestProd.prodSpecId  "+
+                                            " AND mainProd.brandId = latestProd.brandId  "+
+                                            " AND mainProd.createdOn = latestProd.createdOn  "+
+                                            " ) AS latestProdDetails  "+
+                                            " ON latestProdDetails.prodCatId = 1  "+
+                                            " WHERE tblProductInfo.prodCatId = 1 " ;
+
+                }
+                else if (CategoryType == 3)
+                {
+                    cmdSelect.CommandText = " SELECT TOP 1 tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, " +
+                                             " tblProductInfo.sizeId,tblProductInfo.thicknessId " +
+                                             " FROM tblProductInfo " +
+                                             " LEFT JOIN tblStrips ON tblProductInfo.stripId = tblStrips.idStrip AND tblStrips.isActive = 1 " +
+                                             " LEFT JOIN tblSize ON tblProductInfo.sizeId = tblSize.idSize AND tblSize.isActive = 1 " +
+                                             " LEFT JOIN tblThickness ON tblProductInfo.thicknessId = tblThickness.idThickness AND tblThickness.isActive = 1 " +
+                                             " LEFT JOIN ( " +
+                                             " SELECT mainProd.*FROM tblProductInfo mainProd " +
+                                             " INNER JOIN " +
+                                             " ( " +
+                                                  "SELECT prodCatId, materialId, prodSpecId, brandId, MAX(createdOn) createdOn " +
+                                                  "FROM tblProductInfo loadingQuota  " +
+                                                  "GROUP BY prodCatId, materialId, prodSpecId, brandId  " +
+                                             " ) AS latestProd  " +
+                                             " ON mainProd.prodCatId = latestProd.prodCatId AND mainProd.materialId = latestProd.materialId  " +
+                                             " AND mainProd.prodSpecId = latestProd.prodSpecId  " +
+                                             " AND mainProd.brandId = latestProd.brandId  " +
+                                             " AND mainProd.createdOn = latestProd.createdOn  " +
+                                             " ) AS latestProdDetails  " +
+                                             " ON latestProdDetails.prodCatId = 3  " +
+                                             " WHERE tblProductInfo.prodCatId = 3 ";
+
+                }
+                else if (CategoryType == 4)
+                {
+                    cmdSelect.CommandText = " SELECT TOP 1 tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, " +
+                                            " tblProductInfo.sizeId,tblProductInfo.thicknessId " +
+                                            " FROM tblProductInfo " +
+                                            " LEFT JOIN tblStrips ON tblProductInfo.stripId = tblStrips.idStrip AND tblStrips.isActive = 1 " +
+                                            " LEFT JOIN tblSize ON tblProductInfo.sizeId = tblSize.idSize AND tblSize.isActive = 1 " +
+                                            " LEFT JOIN tblThickness ON tblProductInfo.thicknessId = tblThickness.idThickness AND tblThickness.isActive = 1 " +
+                                            " LEFT JOIN ( " +
+                                            " SELECT mainProd.*FROM tblProductInfo mainProd " +
+                                            " INNER JOIN " +
+                                            " ( " +
+                                                 "SELECT prodCatId, materialId, prodSpecId, brandId, MAX(createdOn) createdOn " +
+                                                 "FROM tblProductInfo loadingQuota  " +
+                                                 "GROUP BY prodCatId, materialId, prodSpecId, brandId  " +
+                                            " ) AS latestProd  " +
+                                            " ON mainProd.prodCatId = latestProd.prodCatId AND mainProd.materialId = latestProd.materialId  " +
+                                            " AND mainProd.prodSpecId = latestProd.prodSpecId  " +
+                                            " AND mainProd.brandId = latestProd.brandId  " +
+                                            " AND mainProd.createdOn = latestProd.createdOn  " +
+                                            " ) AS latestProdDetails  " +
+                                            " ON latestProdDetails.prodCatId = 4 " +
+                                            " WHERE tblProductInfo.prodCatId = 4 ";
+                }
+                cmdSelect.Connection = conn;
+                cmdSelect.Transaction = tran;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                SqlDataReader reader = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblProductInfoTO> list = ConvertDTToCategoryList(reader);
+                if (reader != null)
+                    reader.Dispose();
+
+                if (list != null && list.Count == 1)
+                    return list[0];
+                else return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                if (sqlReader != null)
+                    sqlReader.Dispose();
+                cmdSelect.Dispose();
+            }
+        }
+        public List<TblProductInfoTO> ConvertDTToCategoryList(SqlDataReader tblProductInfoTODT)
+        {
+            List<TblProductInfoTO> tblProductInfoTOList = new List<TblProductInfoTO>();
+
+            if (tblProductInfoTODT != null)
+            {
+                while (tblProductInfoTODT.Read())
+                {
+                    TblProductInfoTO tblProductInfoTONew = new TblProductInfoTO();
+                    try
+                    {
+                        if (tblProductInfoTODT["noOfPcs"] != DBNull.Value)
+                            tblProductInfoTONew.NoOfPcs = Convert.ToDouble(tblProductInfoTODT["noOfPcs"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblProductInfoTODT["secWt"] != DBNull.Value)
+                            tblProductInfoTONew.SecWt = Convert.ToDouble(tblProductInfoTODT["secWt"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblProductInfoTODT["stripId"] != DBNull.Value)
+                            tblProductInfoTONew.StripId = Convert.ToInt32(tblProductInfoTODT["stripId"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblProductInfoTODT["inchId"] != DBNull.Value)
+                            tblProductInfoTONew.InchId = Convert.ToInt32(tblProductInfoTODT["inchId"].ToString());
+                    }
+                    catch (Exception ex) { }
+                   
+                    try
+                    {
+                        if (tblProductInfoTODT["sizeId"] != DBNull.Value)
+                            tblProductInfoTONew.SizeId = Convert.ToInt32(tblProductInfoTODT["sizeId"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (tblProductInfoTODT["thicknessId"] != DBNull.Value)
+                            tblProductInfoTONew.ThicknessId = Convert.ToInt32(tblProductInfoTODT["thicknessId"].ToString());
+                    }
+                    catch (Exception ex) { }
+
+                   tblProductInfoTOList.Add(tblProductInfoTONew);
+                }
+            }
+            return tblProductInfoTOList;
+        }
+
 
         #endregion
 
