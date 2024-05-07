@@ -496,32 +496,7 @@ namespace ODLMWebAPI.DAL
             SqlDataReader sqlReader = null;
             try
             {
-                if (CategoryType == 1)
-                {
-                    cmdSelect.CommandText = " SELECT tblProductInfo.avgBundleWt,,tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, " +
-                                            " tblProductInfo.sizeId,tblProductInfo.thicknessId "+
-                                            " FROM tblProductInfo "+
-                                            " LEFT JOIN tblStrips ON tblProductInfo.stripId = tblStrips.idStrip AND tblStrips.isActive = 1 "+
-                                            " LEFT JOIN tblSize ON tblProductInfo.sizeId = tblSize.idSize AND tblSize.isActive = 1 "+
-                                            " LEFT JOIN tblThickness ON tblProductInfo.thicknessId = tblThickness.idThickness AND tblThickness.isActive = 1 "+
-                                            " LEFT JOIN ( "+
-                                            " SELECT mainProd.*FROM tblProductInfo mainProd "+
-                                            " INNER JOIN "+
-                                            " ( "+
-                                                 "SELECT prodCatId, materialId, prodSpecId, brandId, MAX(createdOn) createdOn "+
-                                                 "FROM tblProductInfo loadingQuota  "+ 
-                                                 "GROUP BY prodCatId, materialId, prodSpecId, brandId  "+
-                                            " ) AS latestProd  "+
-                                            " ON mainProd.prodCatId = latestProd.prodCatId AND mainProd.materialId = latestProd.materialId  "+
-                                            " AND mainProd.prodSpecId = latestProd.prodSpecId  "+
-                                            " AND mainProd.brandId = latestProd.brandId  "+
-                                            " AND mainProd.createdOn = latestProd.createdOn  "+
-                                            " ) AS latestProdDetails  "+
-                                            " ON latestProdDetails.prodCatId = 1  "+
-                                            " WHERE tblProductInfo.prodCatId = 1 " ;
-
-                }
-                else if (CategoryType == 3)
+                if (CategoryType == 3)
                 {
                     cmdSelect.CommandText = " SELECT tblProductInfo.avgBundleWt,tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, " +
                                              " tblProductInfo.sizeId,tblProductInfo.thicknessId " +
@@ -533,17 +508,17 @@ namespace ODLMWebAPI.DAL
                                              " SELECT mainProd.*FROM tblProductInfo mainProd " +
                                              " INNER JOIN " +
                                              " ( " +
-                                                  "SELECT prodCatId, materialId, prodSpecId, brandId, MAX(createdOn) createdOn " +
-                                                  "FROM tblProductInfo loadingQuota  " +
-                                                  "GROUP BY prodCatId, materialId, prodSpecId, brandId  " +
+                                                  "SELECT  stripId, sizeId,thicknessId, MAX(createdOn) createdOn " +
+                                                  "FROM tblProductInfo loadingQuota  WHERE stripId > 0 " +
+                                                  "GROUP BY stripId, sizeId,thicknessId   " +
                                              " ) AS latestProd  " +
-                                             " ON mainProd.prodCatId = latestProd.prodCatId AND mainProd.materialId = latestProd.materialId  " +
-                                             " AND mainProd.prodSpecId = latestProd.prodSpecId  " +
-                                             " AND mainProd.brandId = latestProd.brandId  " +
+                                             " ON mainProd.stripId = latestProd.stripId    " +
+                                             " AND mainProd.sizeId = latestProd.sizeId  " +
+                                             " AND mainProd.thicknessId = latestProd.thicknessId " +
                                              " AND mainProd.createdOn = latestProd.createdOn  " +
                                              " ) AS latestProdDetails  " +
-                                             " ON latestProdDetails.prodCatId = 3  " +
-                                             " WHERE tblProductInfo.prodCatId = 3 ";
+                                             " ON latestProdDetails.prodCatId =" + CategoryType +
+                                             " WHERE tblProductInfo.prodCatId =" + CategoryType;
 
                 }
                 else if (CategoryType == 4)
@@ -558,17 +533,17 @@ namespace ODLMWebAPI.DAL
                                             " SELECT mainProd.*FROM tblProductInfo mainProd " +
                                             " INNER JOIN " +
                                             " ( " +
-                                                 "SELECT prodCatId, materialId, prodSpecId, brandId, MAX(createdOn) createdOn " +
-                                                 "FROM tblProductInfo loadingQuota  " +
-                                                 "GROUP BY prodCatId, materialId, prodSpecId, brandId  " +
+                                                 "SELECT inchId, sizeId,thicknessId, MAX(createdOn) createdOn " +
+                                                 "FROM tblProductInfo loadingQuota WHERE inchId > 0" +
+                                                 "GROUP BY inchId, sizeId,thicknessId " +
                                             " ) AS latestProd  " +
-                                            " ON mainProd.prodCatId = latestProd.prodCatId AND mainProd.materialId = latestProd.materialId  " +
-                                            " AND mainProd.prodSpecId = latestProd.prodSpecId  " +
-                                            " AND mainProd.brandId = latestProd.brandId  " +
+                                            " ON mainProd.inchId = latestProd.inchId " +
+                                            " AND mainProd.sizeId = latestProd.sizeId " +
+                                            " AND mainProd.thicknessId = latestProd.thicknessId " +
                                             " AND mainProd.createdOn = latestProd.createdOn  " +
                                             " ) AS latestProdDetails  " +
-                                            " ON latestProdDetails.prodCatId = 4 " +
-                                            " WHERE tblProductInfo.prodCatId = 4 ";
+                                            " ON latestProdDetails.prodCatId = " + CategoryType +
+                                            " WHERE tblProductInfo.prodCatId = " + CategoryType ;
                 }
                 cmdSelect.Connection = conn;
                 cmdSelect.Transaction = tran;
