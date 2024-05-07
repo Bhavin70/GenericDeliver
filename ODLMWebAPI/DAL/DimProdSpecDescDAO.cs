@@ -269,11 +269,11 @@ namespace ODLMWebAPI.DAL
                 }
                 else if (stripId > 0) 
                 {
-                    cmdSelect.CommandText = " SELECT TOP 1 blStrips.grade, tblSize.size, tblThickness.thickness FROM tblStockDetails " +
-                                     " LEFT JOIN tblInch ON tblStockDetails.inchId = tblInch.idInch AND tblInch.isActive = 1 " +
+                    cmdSelect.CommandText = " SELECT TOP 1 tblStrips.grade,tblSize.size, tblThickness.thickness FROM tblStockDetails " +
+                                     " LEFT JOIN tblStrips ON tblStockDetails.stripId = tblStrips.idStrip AND tblStrips.isActive = 1 " +
                                      " LEFT JOIN tblSize ON tblStockDetails.sizeId = tblSize.idSize AND tblSize.isActive = 1 " +
                                      " LEFT JOIN tblThickness ON tblStockDetails.thicknessId = tblThickness.idThickness AND tblThickness.isActive = 1 " +
-                                     " WHERE tblStockDetails.balanceStock > 0 " + //AND  tblStockDetails.stripId =" + stripId + " AND tblStockDetails.sizeId = " + sizeId +
+                                     " WHERE tblStockDetails.balanceStock > 0 AND tblStockDetails.stripId =" + stripId + " AND tblStockDetails.sizeId = " + sizeId +
                                      " AND tblStockDetails.thicknessId = " + thicknessId + " AND Convert(DATE , tblStockDetails.createdOn)  = Convert(DATE ,'" + createdOn + "') " +
                                      " ORDER BY tblStrips.grade DESC";
                 }
@@ -305,10 +305,6 @@ namespace ODLMWebAPI.DAL
                 while (dimDimProdSpecTODT.Read())
                 {
                     TblStripsTO DimProdSpecTONew = new TblStripsTO();
-                    // if (dimDimProdSpecTODT["idStrips"] != DBNull.Value)
-                    //     DimProdSpecTONew.IdStrips = Convert.ToInt32(dimDimProdSpecTODT["idStrips"].ToString());
-                    //if (dimDimProdSpecTODT["grade"] != DBNull.Value)
-                    //    DimProdSpecTONew.Grade = Convert.ToInt32(dimDimProdSpecTODT["grade"].ToString());
                     try
                     {
                         if (dimDimProdSpecTODT["grade"] != DBNull.Value)
@@ -318,7 +314,7 @@ namespace ODLMWebAPI.DAL
                     try
                     {
                         if (dimDimProdSpecTODT["inch"] != DBNull.Value)
-                            DimProdSpecTONew.Inch = Convert.ToInt32(dimDimProdSpecTODT["inch"].ToString());
+                            DimProdSpecTONew.Inch = Convert.ToDecimal(dimDimProdSpecTODT["inch"].ToString());
                     }
                     catch (Exception ex) { }
                     if (dimDimProdSpecTODT["size"] != DBNull.Value)
