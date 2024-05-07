@@ -498,7 +498,7 @@ namespace ODLMWebAPI.DAL
             {
                 if (CategoryType == 1)
                 {
-                    cmdSelect.CommandText = " SELECT TOP 1 tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, "+
+                    cmdSelect.CommandText = " SELECT tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, "+
                                             " tblProductInfo.sizeId,tblProductInfo.thicknessId "+
                                             " FROM tblProductInfo "+
                                             " LEFT JOIN tblStrips ON tblProductInfo.stripId = tblStrips.idStrip AND tblStrips.isActive = 1 "+
@@ -523,7 +523,7 @@ namespace ODLMWebAPI.DAL
                 }
                 else if (CategoryType == 3)
                 {
-                    cmdSelect.CommandText = " SELECT TOP 1 tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, " +
+                    cmdSelect.CommandText = " SELECT tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, " +
                                              " tblProductInfo.sizeId,tblProductInfo.thicknessId " +
                                              " FROM tblProductInfo " +
                                              " LEFT JOIN tblStrips ON tblProductInfo.stripId = tblStrips.idStrip AND tblStrips.isActive = 1 " +
@@ -548,7 +548,7 @@ namespace ODLMWebAPI.DAL
                 }
                 else if (CategoryType == 4)
                 {
-                    cmdSelect.CommandText = " SELECT TOP 1 tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, " +
+                    cmdSelect.CommandText = " SELECT tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, " +
                                             " tblProductInfo.sizeId,tblProductInfo.thicknessId " +
                                             " FROM tblProductInfo " +
                                             " LEFT JOIN tblStrips ON tblProductInfo.stripId = tblStrips.idStrip AND tblStrips.isActive = 1 " +
