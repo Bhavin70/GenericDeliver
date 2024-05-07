@@ -1537,6 +1537,15 @@ namespace ODLMWebAPI.Controllers
             return _iDimProdSpecDescBL.SelectAllTblStripsList(createdOn);
         }
 
+        [Route("CheckStockIsAvilableOrNot")]
+        [HttpGet]
+        public List<TblStripsTO> CheckStockIsAvilableOrNot(Int32 inchId,Int32 sizeId,Int32 thicknessId,Int32 stripId)
+        {
+            DateTime createdOn = _iCommon.ServerDateTime;
+            return _iDimProdSpecDescBL.CheckStockIsAvilableOrNot(inchId, sizeId, thicknessId, stripId,createdOn);
+        }
+
+
         //[Route("GetAllPipesInchForDropDown")]
         //[HttpGet]
         //public List<TblPipesDropDownTo> GetAllPipesInchForDropDown()

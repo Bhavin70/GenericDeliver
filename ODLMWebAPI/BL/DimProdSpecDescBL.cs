@@ -50,6 +50,11 @@ namespace ODLMWebAPI.BL
             return _iDimProdSpecDescDAO.SelectAllTblStrips(createdOn);
         }
 
+        public List<TblStripsTO> CheckStockIsAvilableOrNot(Int32 inchId, Int32 sizeId, Int32 thicknessId, Int32 stripId, DateTime createdOn)
+        {
+            return _iDimProdSpecDescDAO.CheckStockIsAvilableOrNot(inchId, sizeId, thicknessId, stripId, createdOn);
+        }
+
         //public List<TblPipesDropDownTo> GetAllPipesInchForDropDown()
         //{
         //    return _iDimProdSpecDescDAO.SelectAllPipesInchForDropDown();

@@ -9,6 +9,7 @@ namespace ODLMWebAPI.Models
         Int32 idStrips;
         Int32 grade;
         Int32 idSize;
+        Int32 inch;
         string size;
         Int32 idThickness;
         decimal thickness;
@@ -44,6 +45,11 @@ namespace ODLMWebAPI.Models
         {
             get { return size; }
             set { size = value; }
+        }
+        public Int32 Inch
+        {
+            get { return inch; }
+            set { inch = value; }
         }
         public Int32 IdThickness
         {

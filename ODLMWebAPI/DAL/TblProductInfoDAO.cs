@@ -498,7 +498,7 @@ namespace ODLMWebAPI.DAL
             {
                 if (CategoryType == 1)
                 {
-                    cmdSelect.CommandText = " SELECT tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, "+
+                    cmdSelect.CommandText = " SELECT tblProductInfo.avgBundleWt,,tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, " +
                                             " tblProductInfo.sizeId,tblProductInfo.thicknessId "+
                                             " FROM tblProductInfo "+
                                             " LEFT JOIN tblStrips ON tblProductInfo.stripId = tblStrips.idStrip AND tblStrips.isActive = 1 "+
@@ -523,7 +523,7 @@ namespace ODLMWebAPI.DAL
                 }
                 else if (CategoryType == 3)
                 {
-                    cmdSelect.CommandText = " SELECT tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, " +
+                    cmdSelect.CommandText = " SELECT tblProductInfo.avgBundleWt,tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, " +
                                              " tblProductInfo.sizeId,tblProductInfo.thicknessId " +
                                              " FROM tblProductInfo " +
                                              " LEFT JOIN tblStrips ON tblProductInfo.stripId = tblStrips.idStrip AND tblStrips.isActive = 1 " +
@@ -548,7 +548,7 @@ namespace ODLMWebAPI.DAL
                 }
                 else if (CategoryType == 4)
                 {
-                    cmdSelect.CommandText = " SELECT tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, " +
+                    cmdSelect.CommandText = " SELECT tblProductInfo.avgBundleWt,tblProductInfo.noOfPcs,tblProductInfo.stripId,tblProductInfo.secWt,tblProductInfo.inchId, " +
                                             " tblProductInfo.sizeId,tblProductInfo.thicknessId " +
                                             " FROM tblProductInfo " +
                                             " LEFT JOIN tblStrips ON tblProductInfo.stripId = tblStrips.idStrip AND tblStrips.isActive = 1 " +
@@ -603,6 +603,12 @@ namespace ODLMWebAPI.DAL
                 while (tblProductInfoTODT.Read())
                 {
                     TblProductInfoTO tblProductInfoTONew = new TblProductInfoTO();
+                    try
+                    {
+                        if (tblProductInfoTODT["avgBundleWt"] != DBNull.Value)
+                            tblProductInfoTONew.AvgBundleWt = Convert.ToDouble(tblProductInfoTODT["avgBundleWt"].ToString());
+                    }
+                    catch (Exception ex) { }
                     try
                     {
                         if (tblProductInfoTODT["noOfPcs"] != DBNull.Value)
