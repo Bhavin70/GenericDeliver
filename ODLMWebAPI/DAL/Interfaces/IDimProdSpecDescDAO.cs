@@ -16,6 +16,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int SelectDimProdSpecDescription();
         List<TblPipesTO> SelectAllTblPipes(DateTime createdOn);
         List<TblStripsTO> SelectAllTblStrips(DateTime createdOn);
+        List<TblStripsTO> CheckStockIsAvilableOrNot(Int32 inchId, Int32 sizeId, Int32 thicknessId, Int32 stripId, DateTime createdOn);
         //List<TblPipesDropDownTo> SelectAllPipesInchForDropDown();
         List<TblPipesStripCommonSizeTO> SelectAlltblPipesStripCommonSizeForDropDown();
         List<TblPipesStripCommonThicknessTO> SelectAlltblPipesStripCommonThicknessForDropDown();

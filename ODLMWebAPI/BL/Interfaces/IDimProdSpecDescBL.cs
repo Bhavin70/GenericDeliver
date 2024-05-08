@@ -14,6 +14,7 @@ namespace ODLMWebAPI.BL.Interfaces
         int SelectAllDimProdSpecDescriptionList();
         List<TblPipesTO> SelectAllTblPipesList(DateTime createdOn); 
         List<TblStripsTO> SelectAllTblStripsList(DateTime createdOn); 
+        List<TblStripsTO> CheckStockIsAvilableOrNot(Int32 inchId, Int32 sizeId, Int32 thicknessId, Int32 stripId, DateTime createdOn); 
         List<DropDownTO> SelectAllPipesInchForDropDown();
         int InsertDimProdSpecDesc(DimProdSpecDescTO ProSpecDesc);
         int InsertDimProdSpecDesc(DimProdSpecDescTO dimProSpecDescTO, SqlConnection conn, SqlTransaction tran);

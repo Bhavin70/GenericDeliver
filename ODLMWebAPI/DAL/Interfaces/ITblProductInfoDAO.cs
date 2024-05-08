@@ -19,6 +19,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblProductInfoTO> SelectProductInfoListByLoadingSlipExtIds(string strLoadingSlipExtIds);
         List<TblProductInfoTO> ConvertReaderToList(SqlDataReader tblStockDetailsTODT);
         List<TblProductInfoTO> ConvertDTToList(SqlDataReader tblProductInfoTODT);
+        List<TblProductInfoTO> GetNoOfPcesAndQtyAginsCatagory(SqlConnection conn, SqlTransaction tran, int CategoryType = 1);
         int InsertTblProductInfo(TblProductInfoTO tblProductInfoTO);
         int InsertTblProductInfo(TblProductInfoTO tblProductInfoTO, SqlConnection conn, SqlTransaction tran);
         int ExecuteInsertionCommand(TblProductInfoTO tblProductInfoTO, SqlCommand cmdInsert);

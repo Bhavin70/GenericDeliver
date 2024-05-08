@@ -13,6 +13,8 @@ using ODLMWebAPI.BL;
 using SkiaSharp;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using StackExchange.Redis;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
 
 namespace ODLMWebAPI.DAL
 {
@@ -237,6 +239,84 @@ namespace ODLMWebAPI.DAL
                         DimProdSpecTONew.IdInch = Convert.ToInt32(dimDimProdSpecTODT["idInch"].ToString());
                     if (dimDimProdSpecTODT["inch"] != DBNull.Value)
                         DimProdSpecTONew.Inch = Convert.ToDecimal(dimDimProdSpecTODT["inch"].ToString());
+                    if (dimDimProdSpecTODT["size"] != DBNull.Value)
+                        DimProdSpecTONew.Size = Convert.ToString(dimDimProdSpecTODT["size"].ToString());
+                    if (dimDimProdSpecTODT["thickness"] != DBNull.Value)
+                        DimProdSpecTONew.Thickness = Convert.ToDecimal(dimDimProdSpecTODT["thickness"].ToString());
+                    dimProdSpecTOList.Add(DimProdSpecTONew);
+                }
+            }
+            return dimProdSpecTOList;
+        }
+
+        public List<TblStripsTO> CheckStockIsAvilableOrNot(Int32 inchId, Int32 sizeId, Int32 thicknessId, Int32 stripId, DateTime createdOn)
+        {
+            String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
+            SqlConnection conn = new SqlConnection(sqlConnStr);
+            SqlCommand cmdSelect = new SqlCommand();
+            try
+            {
+                conn.Open();
+                if (inchId > 0)
+                {
+                    cmdSelect.CommandText = " SELECT TOP 1 tblInch.inch, tblSize.size, tblThickness.thickness FROM tblStockDetails " +
+                                       " LEFT JOIN tblInch ON tblStockDetails.inchId = tblInch.idInch AND tblInch.isActive = 1 " +
+                                       " LEFT JOIN tblSize ON tblStockDetails.sizeId = tblSize.idSize AND tblSize.isActive = 1 " +
+                                       " LEFT JOIN tblThickness ON tblStockDetails.thicknessId = tblThickness.idThickness AND tblThickness.isActive = 1 " +
+                                       " WHERE tblStockDetails.balanceStock > 0 AND tblStockDetails.inchId =" + inchId + " AND tblStockDetails.sizeId = " + sizeId +
+                                       " AND tblStockDetails.thicknessId = " + thicknessId + " AND Convert(DATE , tblStockDetails.createdOn)  = Convert(DATE ,'" + createdOn + "') " +
+                                       " ORDER BY tblInch.inch DESC";
+                }
+                else if (stripId > 0) 
+                {
+                    cmdSelect.CommandText = " SELECT TOP 1 tblStrips.grade,tblSize.size, tblThickness.thickness FROM tblStockDetails " +
+                                     " LEFT JOIN tblStrips ON tblStockDetails.stripId = tblStrips.idStrip AND tblStrips.isActive = 1 " +
+                                     " LEFT JOIN tblSize ON tblStockDetails.sizeId = tblSize.idSize AND tblSize.isActive = 1 " +
+                                     " LEFT JOIN tblThickness ON tblStockDetails.thicknessId = tblThickness.idThickness AND tblThickness.isActive = 1 " +
+                                     " WHERE tblStockDetails.balanceStock > 0 AND tblStockDetails.stripId =" + stripId + " AND tblStockDetails.sizeId = " + sizeId +
+                                     " AND tblStockDetails.thicknessId = " + thicknessId + " AND Convert(DATE , tblStockDetails.createdOn)  = Convert(DATE ,'" + createdOn + "') " +
+                                     " ORDER BY tblStrips.grade DESC";
+                }
+
+                cmdSelect.Connection = conn;
+                cmdSelect.CommandType = System.Data.CommandType.Text;
+
+                SqlDataReader rdr = cmdSelect.ExecuteReader(CommandBehavior.Default);
+                List<TblStripsTO> list = ConvertDTToStockListPipeStrips(rdr);
+                rdr.Dispose();
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+                cmdSelect.Dispose();
+            }
+        }
+
+        public List<TblStripsTO> ConvertDTToStockListPipeStrips(SqlDataReader dimDimProdSpecTODT)
+        {
+            List<TblStripsTO> dimProdSpecTOList = new List<TblStripsTO>();
+            if (dimDimProdSpecTODT != null)
+            {
+                while (dimDimProdSpecTODT.Read())
+                {
+                    TblStripsTO DimProdSpecTONew = new TblStripsTO();
+                    try
+                    {
+                        if (dimDimProdSpecTODT["grade"] != DBNull.Value)
+                            DimProdSpecTONew.Grade = Convert.ToInt32(dimDimProdSpecTODT["grade"].ToString());
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        if (dimDimProdSpecTODT["inch"] != DBNull.Value)
+                            DimProdSpecTONew.Inch = Convert.ToDecimal(dimDimProdSpecTODT["inch"].ToString());
+                    }
+                    catch (Exception ex) { }
                     if (dimDimProdSpecTODT["size"] != DBNull.Value)
                         DimProdSpecTONew.Size = Convert.ToString(dimDimProdSpecTODT["size"].ToString());
                     if (dimDimProdSpecTODT["thickness"] != DBNull.Value)

@@ -391,8 +391,13 @@ namespace ODLMWebAPI.Controllers
         {
             return _iTblProdClassificationBL.SelectProductClassificationListByProductItemId(productItemId);
         }
-      
-      
+
+        [Route("GetNoOfPcesAndQtyAginsCatagory")]
+        [HttpGet]
+        public List<TblProductInfoTO> GetNoOfPcesAndQtyAginsCatagory(int CategoryType = 1)
+        {
+            return _iTblProductInfoBL.GetNoOfPcesAndQtyAginsCatagory(CategoryType);
+        }
         #endregion
 
         #region Post
