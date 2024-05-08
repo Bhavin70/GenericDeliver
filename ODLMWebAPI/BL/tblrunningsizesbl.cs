@@ -10,6 +10,8 @@ using ODLMWebAPI.StaticStuff;
 using System.Linq;
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
+using Microsoft.Office.Interop.Excel;
+using Constants = ODLMWebAPI.StaticStuff.Constants;
 
 namespace ODLMWebAPI.BL
 { 
@@ -99,7 +101,7 @@ namespace ODLMWebAPI.BL
                 List<TblRunningSizesTO> existingList = SelectAllTblRunningSizesList(stockDate, conn, tran);
                 updateOrCreatedUser = runningSizesTOList[0].CreatedBy;
 
-                TblStockSummaryTO tblStockSummaryTO = _iTblStockSummaryDAO.SelectTblStockSummary(stockDate, conn, tran);
+                TblStockSummaryTO tblStockSummaryTO = _iTblStockSummaryDAO.SelectTblStockSummary(stockDate,0, conn, tran);
 
                 if (tblStockSummaryTO == null)
                 {
@@ -132,7 +134,7 @@ namespace ODLMWebAPI.BL
 
                 }
 
-                List<TblStockDetailsTO> existingStockList = _iTblStockDetailsBL.SelectAllTblStockDetailsList(tblStockSummaryTO.IdStockSummary, conn, tran);
+                List<TblStockDetailsTO> existingStockList = _iTblStockDetailsBL.SelectAllTblStockDetailsList(tblStockSummaryTO.IdStockSummary, tblStockSummaryTO.CategoryType, conn, tran);
 
                 // For weight and Stock in MT calculations
                 List<TblProductInfoTO> productList = _iTblProductInfoBL.SelectAllTblProductInfoList(conn, tran);
@@ -317,7 +319,7 @@ namespace ODLMWebAPI.BL
                 #region Update Total No Of Bundels and Stock Qty in MT
 
                 // Consolidate All No Of Bundles and Total Stock Qty
-                List<TblStockDetailsTO> totalStockList = _iTblStockDetailsBL.SelectAllTblStockDetailsList(tblStockSummaryTO.IdStockSummary, conn, tran);
+                List<TblStockDetailsTO> totalStockList = _iTblStockDetailsBL.SelectAllTblStockDetailsList(tblStockSummaryTO.IdStockSummary, tblStockSummaryTO.CategoryType, conn, tran);
                 Double totalNoOfBundles = 0;
                 Double totalStockMT = 0;
 
@@ -456,7 +458,7 @@ namespace ODLMWebAPI.BL
                 #region Update Total No Of Bundels and Stock Qty in MT
 
                 // Consolidate All No Of Bundles and Total Stock Qty
-                List<TblStockDetailsTO> totalStockList = _iTblStockDetailsBL.SelectAllTblStockDetailsList(tblStockSummaryTO.IdStockSummary, conn, tran);
+                List<TblStockDetailsTO> totalStockList = _iTblStockDetailsBL.SelectAllTblStockDetailsList(tblStockSummaryTO.IdStockSummary,tblStockSummaryTO.CategoryType, conn, tran);
                 Double totalNoOfBundles = 0;
                 Double totalStockMT = 0;
 

@@ -13,7 +13,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblStockDetailsTO> SelectAllTblStockDetails();
         List<TblStockDetailsTO> SelectAllTblStockDetailsConsolidated(Int32 isConsolidated, Int32 brandId);
         List<TblStockDetailsTO> SelectAllTblStockDetailsConsolidated(Int32 isConsolidated, Int32 brandId, SqlConnection conn, SqlTransaction tran);
-        List<TblStockDetailsTO> SelectAllTblStockDetails(Int64 stockSummaryId, SqlConnection conn, SqlTransaction tran);
+        List<TblStockDetailsTO> SelectAllTblStockDetails(Int64 stockSummaryId,Int64 categoryType, SqlConnection conn, SqlTransaction tran);
         List<TblStockDetailsTO> SelectAllTblStockDetails(Int32 prodCatId, Int32 prodSpecId, DateTime stockDate, Int32 brandId, int compartmentId, SqlConnection conn, SqlTransaction tran);
         List<TblStockDetailsTO> SelectAllTblStockDetailsOther(Int32 prodCatId, Int32 prodSpecId, Int32 prodItemId, Int32 brandId, int compartmentId, DateTime stockDate, SqlConnection conn, SqlTransaction tran);
         List<TblStockDetailsTO> SelectAllTblStockDetails(Int32 prodCatId, Int32 prodSpecId, DateTime stockDate, SqlConnection conn, SqlTransaction tran);

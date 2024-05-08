@@ -1,3 +1,4 @@
+using ODLMWebAPI.DAL;
 using ODLMWebAPI.Models;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace ODLMWebAPI.BL.Interfaces
         List<TblStockDetailsTO> SelectStockDetailsListByProdCatgSpecAndMaterial(Int32 prodCatId, Int32 prodSpecId, Int32 materialId, DateTime stockDate);
         List<TblStockDetailsTO> SelectStockDetailsListByProdCatgSpecAndMaterial(Int32 prodCatId, Int32 prodSpecId, Int32 materialId, DateTime stockDate, SqlConnection conn, SqlTransaction tran);
         List<TblStockDetailsTO> SelectAllTblStockDetailsList(Int64 stockSummaryId);
-        List<TblStockDetailsTO> SelectAllTblStockDetailsList(Int64 stockSummaryId, SqlConnection conn, SqlTransaction tran);
+        List<TblStockDetailsTO> SelectAllTblStockDetailsList(Int64 categoryType, Int64 stockSummaryId, SqlConnection conn, SqlTransaction tran);
         TblStockDetailsTO SelectTblStockDetailsTO(Int32 idStockDtl);
         TblStockDetailsTO SelectTblStockDetailsTO(Int32 idStockDtl, SqlConnection conn, SqlTransaction tran);
         TblStockDetailsTO SelectTblStockDetailsTO(TblRunningSizesTO runningSizeTO, SqlConnection conn, SqlTransaction tran);

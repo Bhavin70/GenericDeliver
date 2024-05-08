@@ -104,7 +104,7 @@ namespace ODLMWebAPI.BL
             {
                 conn.Open();
                 tran = conn.BeginTransaction();
-                return SelectAllTblStockDetailsList(stockSummaryId, conn, tran);
+                return SelectAllTblStockDetailsList(stockSummaryId,0, conn, tran);
             }
             catch (Exception ex)
             {
@@ -116,9 +116,9 @@ namespace ODLMWebAPI.BL
             }
         }
 
-        public List<TblStockDetailsTO> SelectAllTblStockDetailsList(Int64 stockSummaryId,SqlConnection conn,SqlTransaction tran)
+        public List<TblStockDetailsTO> SelectAllTblStockDetailsList(Int64 stockSummaryId,Int64 categoryType, SqlConnection conn,SqlTransaction tran)
         {
-            return _iTblStockDetailsDAO.SelectAllTblStockDetails(stockSummaryId,conn,tran);
+            return _iTblStockDetailsDAO.SelectAllTblStockDetails(stockSummaryId,categoryType,conn,tran);
         }
 
         public TblStockDetailsTO SelectTblStockDetailsTO(Int32 idStockDtl)

@@ -15,6 +15,8 @@ using ODLMWebAPI.DashboardModels;
 using Org.BouncyCastle.Utilities.Collections;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.CodeAnalysis;
+using Microsoft.Office.Interop.Excel;
+using Constants = ODLMWebAPI.StaticStuff.Constants;
 
 namespace ODLMWebAPI.BL
 {   
@@ -96,7 +98,7 @@ namespace ODLMWebAPI.BL
         {
             try
             {
-                return _iTblStockSummaryDAO.SelectTblStockSummary(stocDate);
+                return _iTblStockSummaryDAO.SelectTblStockSummary(stocDate, 0);
             }
             catch (Exception ex)
             {
@@ -341,9 +343,9 @@ namespace ODLMWebAPI.BL
                 // If Inserted then its update request else insert request
                 var isTodaysProduction = tblStockSummaryTO.IsTodaysProduction;
                 DateTime stockDate = _iCommon.ServerDateTime.Date;
-
+                tblStockSummaryTO.CategoryType = tblStockSummaryTO.StockDetailsTOList[0].ProdCatId;
                 //TblStockSummaryTO todaysStockSummaryTO = _iTblStockSummaryDAO.SelectTblStockSummary(new DateTime(), conn, tran);
-                TblStockSummaryTO todaysStockSummaryTO = _iTblStockSummaryDAO.SelectTblStockSummary(stockDate, conn, tran);
+                TblStockSummaryTO todaysStockSummaryTO = _iTblStockSummaryDAO.SelectTblStockSummary(stockDate, tblStockSummaryTO.CategoryType,conn, tran);
                 if (todaysStockSummaryTO == null)
                 {
                     tblStockSummaryTO.StockDate = stockDate;
@@ -356,8 +358,8 @@ namespace ODLMWebAPI.BL
                         {
                             tblStockSummaryTO.TransactionType = (Int32)StaticStuff.Constants.StockTransactionType.ProductionData;
 
-                           
-                            result = InsertTblStockSummary(tblStockSummaryTO, conn, tran);
+                             tblStockSummaryTO.CategoryType = todaysStockSummaryTO.StockDetailsTOList[0].ProdCatId;
+                             result = InsertTblStockSummary(tblStockSummaryTO, conn, tran);
                         }
                     }
 
@@ -366,7 +368,7 @@ namespace ODLMWebAPI.BL
                     if (todaysStockSummaryTO1 == null)
                     {
                         tblStockSummaryTO.TransactionType = (Int32)StaticStuff.Constants.StockTransactionType.StockData;
-                       
+
                         result = InsertTblStockSummary(tblStockSummaryTO, conn, tran);
                     }
                     else
@@ -409,7 +411,8 @@ namespace ODLMWebAPI.BL
                         {
                             tblStockSummaryTO.StockDate = stockDate;
                             tblStockSummaryTO.TransactionType = (Int32)StaticStuff.Constants.StockTransactionType.ProductionData;
-                           
+                            tblStockSummaryTO.CategoryType = ProdtodaysStockSummaryTO.StockDetailsTOList[0].ProdCatId;
+
                             result = InsertTblStockSummary(tblStockSummaryTO, conn, tran);
                         }
                     }
@@ -422,7 +425,7 @@ namespace ODLMWebAPI.BL
 
                 #region Based On Step 1 Calculate and Update Otherwise Insert New Records
                 // To Compare Against Existing and Update
-                List<TblStockDetailsTO> existingStockList = _iTblStockDetailsBL.SelectAllTblStockDetailsList(tblStockSummaryTO.IdStockSummary, conn, tran);
+                List<TblStockDetailsTO> existingStockList = _iTblStockDetailsBL.SelectAllTblStockDetailsList(tblStockSummaryTO.IdStockSummary, tblStockSummaryTO.CategoryType, conn, tran);
 
                 // For weight and Stock in MT calculations
                 List<TblProductInfoTO> productList = _iTblProductInfoBL.SelectAllTblProductInfoList(conn, tran, tblStockSummaryTO.StockDetailsTOList[0].ProdCatId);
@@ -649,9 +652,9 @@ namespace ODLMWebAPI.BL
 
 
                         tblStockSummaryTO.StockDetailsTOList[i].IsInMT = isInMTExisting;
-
-
                         newQtyInMt = tblStockSummaryTO.StockDetailsTOList[i].TotalStock;
+                        
+                        tblStockSummaryTO.StockDetailsTOList[i].CategoryType = tblStockSummaryTO.StockDetailsTOList[i].ProdCatId;
 
                         if (isExist)
                         {
@@ -747,7 +750,7 @@ namespace ODLMWebAPI.BL
                 #region Update Total No Of Bundels and Stock Qty in MT
 
                 // Consolidate All No Of Bundles and Total Stock Qty
-                List<TblStockDetailsTO> totalStockList = _iTblStockDetailsBL.SelectAllTblStockDetailsList(tblStockSummaryTO.IdStockSummary, conn, tran);
+                List<TblStockDetailsTO> totalStockList = _iTblStockDetailsBL.SelectAllTblStockDetailsList(tblStockSummaryTO.IdStockSummary, tblStockSummaryTO.CategoryType, conn, tran);
                 Double totalNoOfBundles = 0;
                 Double totalStockMT = 0;
                 Double ProdtotalNoOfBundles = 0;
@@ -793,7 +796,7 @@ namespace ODLMWebAPI.BL
                     tblStockSummaryTO.TotalStock = totalStockMT;
                     tblStockSummaryTO.UpdatedBy = updateOrCreatedUser;
                     tblStockSummaryTO.UpdatedOn = _iCommon.ServerDateTime;
-                   
+
                     result = UpdateTblStockSummary(tblStockSummaryTO, conn, tran);
                         if (result != 1)
                         {
@@ -816,6 +819,8 @@ namespace ODLMWebAPI.BL
                                 tblStockSummaryTO.UpdatedBy = updateOrCreatedUser;
                                 tblStockSummaryTO.UpdatedOn = _iCommon.ServerDateTime;
                                 tblStockSummaryTO.IdStockSummary = ProdtodaysStockSummaryTO.IdStockSummary;
+                                tblStockSummaryTO.CategoryType = todaysStockSummaryTO.StockDetailsTOList[0].ProdCatId; 
+
                                 result = UpdateTblStockSummary(tblStockSummaryTO, conn, tran);
                                 if (result != 1)
                                 {
@@ -921,7 +926,7 @@ namespace ODLMWebAPI.BL
                 }
 
                 #region 0.1 Check For Yesterddays Pending Loading Slip and Reduce Stock Qty
-                List<TblStockDetailsTO> stockList = _iTblStockDetailsBL.SelectAllTblStockDetailsList(sizeSpecWiseStockTOList[0].StockSummaryId, conn, tran);
+                List<TblStockDetailsTO> stockList = _iTblStockDetailsBL.SelectAllTblStockDetailsList(sizeSpecWiseStockTOList[0].StockSummaryId,0,conn, tran);
                 Boolean canStockDeclare = true;
                 String notDeclaReasons = string.Empty;
                 updateOrCreatedUser = sizeSpecWiseStockTOList[0].ConfirmedBy;

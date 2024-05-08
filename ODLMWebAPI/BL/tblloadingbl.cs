@@ -6312,7 +6312,7 @@ namespace ODLMWebAPI.BL {
                             tblStockDetailsTONew.LocationId = tempLocatId;
                         }
 
-                        TblStockSummaryTO tblStockSummaryTO = _iTblStockSummaryDAO.SelectTblStockSummary (new DateTime ());
+                        TblStockSummaryTO tblStockSummaryTO = _iTblStockSummaryDAO.SelectTblStockSummary (new DateTime (),0);
                         if (tblStockSummaryTO == null) {
                             tblStockSummaryTO = new TblStockSummaryTO ();
                             tblStockSummaryTO.StockDate = _iCommon.ServerDateTime;
@@ -6512,7 +6512,7 @@ namespace ODLMWebAPI.BL {
                             tblStockDetailsTONew.LocationId = tempLocatId;
                         }
 
-                        TblStockSummaryTO tblStockSummaryTO = _iTblStockSummaryDAO.SelectTblStockSummary (new DateTime ());
+                        TblStockSummaryTO tblStockSummaryTO = _iTblStockSummaryDAO.SelectTblStockSummary (new DateTime (),0);
                         if (tblStockSummaryTO == null) {
                             tblStockSummaryTO = new TblStockSummaryTO ();
                             tblStockSummaryTO.StockDate = _iCommon.ServerDateTime;

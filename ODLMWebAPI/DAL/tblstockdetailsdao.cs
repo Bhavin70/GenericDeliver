@@ -8,6 +8,8 @@ using ODLMWebAPI.Models;
 using ODLMWebAPI.StaticStuff;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.BL.Interfaces;
+using Microsoft.Office.Interop.Excel;
+using Constants = ODLMWebAPI.StaticStuff.Constants;
 
 namespace ODLMWebAPI.DAL
 {
@@ -136,13 +138,21 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblStockDetailsTO> SelectAllTblStockDetails(Int64 stockSummaryId,SqlConnection conn,SqlTransaction tran)
+        public List<TblStockDetailsTO> SelectAllTblStockDetails(Int64 stockSummaryId,Int64 categoryType, SqlConnection conn,SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader sqlReader = null;
             try
             {
-                cmdSelect.CommandText = SqlSelectQuery() + " WHERE stockDtl.stockSummaryId=" + stockSummaryId;
+                if (categoryType > 0)
+                {
+                    cmdSelect.CommandText = SqlSelectQuery() + " WHERE stockDtl.stockSummaryId=" + stockSummaryId + "AND stockDtl.categoryType = " + categoryType;
+                }
+                else 
+                { 
+                    cmdSelect.CommandText = SqlSelectQuery() + " WHERE stockDtl.stockSummaryId=" + stockSummaryId;
+                }
+
                 cmdSelect.Connection = conn;
                 cmdSelect.Transaction= tran;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
@@ -1171,6 +1181,7 @@ namespace ODLMWebAPI.DAL
             {
                 cmdInsert.Connection = conn;
                 cmdInsert.Transaction = tran;
+                tblStockDetailsTO.CategoryType = tblStockDetailsTO.ProdCatId;
                 return ExecuteInsertionCommand(tblStockDetailsTO, cmdInsert);
             }
             catch (Exception ex)

@@ -8,6 +8,7 @@ using ODLMWebAPI.Models;
 using ODLMWebAPI.StaticStuff;
 using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.BL.Interfaces;
+using ODLMWebAPI.BL;
 
 namespace ODLMWebAPI.DAL
 { 
@@ -131,7 +132,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public TblStockSummaryTO SelectTblStockSummary(DateTime stocDate, SqlConnection conn = null, SqlTransaction tran = null)
+        public TblStockSummaryTO SelectTblStockSummary(DateTime stocDate,Int64 categoryType, SqlConnection conn = null, SqlTransaction tran = null)
         {
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader reader = null;
@@ -152,8 +153,8 @@ namespace ODLMWebAPI.DAL
                     conn.Open();
                 }
 
-                if (stocDate != new DateTime())
-                    cmdSelect.CommandText = SqlSelectQuery() + " WHERE stockDate= @stockDate and transactionType=1";
+                if (stocDate != new DateTime() && categoryType > 0)
+                    cmdSelect.CommandText = SqlSelectQuery() + " WHERE stockDate= @stockDate and transactionType=1 and categoryType =" + categoryType;
                 else
                     cmdSelect.CommandText = SqlSelectQuery();
 

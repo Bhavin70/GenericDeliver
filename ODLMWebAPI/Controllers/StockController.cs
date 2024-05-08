@@ -347,7 +347,8 @@ namespace ODLMWebAPI.Controllers
                     stockSummaryTO.StockDetailsTOList[i].CreatedBy = Convert.ToInt32(loginUserId);
                     stockSummaryTO.StockDetailsTOList[i].UpdatedBy = Convert.ToInt32(loginUserId);
                     stockSummaryTO.StockDetailsTOList[i].CreatedOn = stockSummaryTO.CreatedOn;
-                    stockSummaryTO.StockDetailsTOList[i].UpdatedOn = stockSummaryTO.CreatedOn; 
+                    stockSummaryTO.StockDetailsTOList[i].UpdatedOn = stockSummaryTO.CreatedOn;
+                    stockSummaryTO.CategoryType = stockSummaryTO.StockDetailsTOList[i].ProdCatId;  
                 }
 
                 ResultMessage resMsg = _iTblStockSummaryBL.UpdateDailyStock(stockSummaryTO);

@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.Data.SqlClient;
 using ODLMWebAPI.Models;
 using System.Data;
+using ODLMWebAPI.BL;
+
 namespace ODLMWebAPI.DAL.Interfaces
 { 
     public interface ITblStockSummaryDAO
@@ -13,7 +15,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         List<TblStockSummaryTO> SelectAllTblStockSummary();
         String SelectLastStockUpdatedDateTime(Int32 compartmentId, Int32 prodCatId);
         TblStockSummaryTO SelectTblStockSummary(Int32 idStockSummary, SqlConnection conn, SqlTransaction tran);
-        TblStockSummaryTO SelectTblStockSummary(DateTime stocDate, SqlConnection conn = null, SqlTransaction tran = null);
+        TblStockSummaryTO SelectTblStockSummary(DateTime stocDate,Int64 categoryType, SqlConnection conn = null, SqlTransaction tran = null);
         TblStockSummaryTO SelectTblProdStockSummary(DateTime stocDate, SqlConnection conn = null, SqlTransaction tran = null);
         TblStockSummaryTO SelectTblProdStockSummaryExist(DateTime stocDate, SqlConnection conn = null, SqlTransaction tran = null);
         TblStockSummaryTO SelectTblStockSummaryExist(DateTime stocDate, SqlConnection conn = null, SqlTransaction tran = null);
