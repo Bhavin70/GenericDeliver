@@ -73,7 +73,7 @@ namespace ODLMWebAPI.Controllers
 
         [Route("GetRateDeclarationHistory")]
         [HttpGet]
-        public List<TblGlobalRateTO> GetRateDeclarationHistory(String fromDate, String toDate, Int32 categoryType)
+        public List<TblGlobalRateTO> GetRateDeclarationHistory(String fromDate, String toDate, Int32 categoryType = 1)
         {
             DateTime frmDate = Convert.ToDateTime(fromDate);
             DateTime tDate = Convert.ToDateTime(toDate);
