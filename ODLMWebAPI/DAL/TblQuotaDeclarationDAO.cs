@@ -514,7 +514,7 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.CommandText = " SELECT tblGlobalRate.*,dimBrand.brandName,tblGroup.groupName FROM tblGlobalRate tblGlobalRate " +
                                         " LEFT JOIN dimBrand ON dimBrand.idBrand = tblGlobalRate.brandId " +
                                         " LEFT JOIN tblGroup ON tblGroup.idGroup = tblGlobalRate.groupId " +
-                                        " where tblGlobalRate.createdOn = (select top 1 createdOn from tblGlobalRate order by createdOn desc)  " +
+                                        " where tblGlobalRate.createdOn = (select top 1 createdOn from tblGlobalRate where tblGlobalRate.categoryType = " + categoryType + " order by createdOn desc)  " +
                                         " AND tblGlobalRate.categoryType = " + categoryType;
 
 
