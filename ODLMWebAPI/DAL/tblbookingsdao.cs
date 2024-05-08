@@ -1707,7 +1707,7 @@ namespace ODLMWebAPI.DAL
                 {
                     whereCond += " AND dealerOrgId=" + dealerId;
                 }
-                whereCond += " AND categoryType=" + categoryType;
+                whereCond += " AND tblBookings.categoryType=" + categoryType;
                 // }
 
                 //if (tblUserRoleTO.RoleId == (int)Constants.SystemRolesE.C_AND_F_AGENT)
@@ -1759,12 +1759,12 @@ namespace ODLMWebAPI.DAL
                                         " FROM " +
                                         " ( " +
                                         " SELECT sum(bookingQty) AS bookingQty, dimBrand.brandName, isConfirmed, sum((bookingQty * bookingRate))" +
-                                        " AS cost,bookingType,categoryType,dimBrand.shortNm " + sConsumerType + " FROM tblBookings " + areConfJoin +
+                                        " AS cost,bookingType,tblBookings.categoryType,dimBrand.shortNm " + sConsumerType + " FROM tblBookings " + areConfJoin +
                                         " LEFT JOIN dimBrand On tblBookings.brandId = dimBrand.idBrand " +
                                         sConsumerTypeJoin +
                                         " WHERE DAY(bookingDatetime) = " + date.Day + " AND MONTH(bookingDatetime) = " + date.Month +
                                         " AND YEAR(bookingDatetime) = " + date.Year + statusIds + whereCond + isConfirm +
-                                        " GROUP BY isConfirmed, brandName,bookingType,dimBrand.shortNm,categoryType" + sConsumerType +
+                                        " GROUP BY isConfirmed, brandName,bookingType,dimBrand.shortNm,tblBookings.categoryType" + sConsumerType +
                                         ")AS qryRes  order by bookingType,brandName asc  ";
 
 
