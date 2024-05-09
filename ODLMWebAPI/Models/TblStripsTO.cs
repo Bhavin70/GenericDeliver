@@ -15,6 +15,8 @@ namespace ODLMWebAPI.Models
         decimal thickness;
         Int32 isActive;
         DateTime createdOn;
+        Int32 idWidth;
+        Int32 width;
 
         #endregion
 
@@ -70,6 +72,16 @@ namespace ODLMWebAPI.Models
         {
             get { return createdOn; }
             set { createdOn = value; }
+        }
+        public Int32 IdWidth
+        {
+            get { return idWidth; }
+            set { idWidth = value; }
+        }
+        public Int32 Width
+        {
+            get { return width; }
+            set { width = value; }
         }
         #endregion
     }

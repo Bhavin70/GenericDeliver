@@ -144,10 +144,10 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = "SELECT  tblStrips.grade, tblSize.size, tblThickness.thickness FROM tblStockDetails " +
-                    " LEFT JOIN  tblStrips ON tblStockDetails.stripId = tblStrips.idStrip AND tblStrips.isActive = 1" +
-                    " LEFT JOIN tblSize ON tblStockDetails.sizeId = tblSize.idSize AND tblSize.isActive = 1" +
-                    " LEFT JOIN  tblThickness ON tblStockDetails.thicknessId = tblThickness.idThickness AND tblThickness.isActive = 1" +
+                cmdSelect.CommandText = "SELECT  tblStrips.grade, tblWidth.width, tblThickness.thickness FROM tblStockDetails " +
+                    " LEFT JOIN  tblStrips ON tblStockDetails.stripId = tblStrips.idStrip AND tblStrips.isActive = 1 " +
+                    " LEFT JOIN tblWidth ON tblStockDetails.widthId = tblWidth.idWidth AND tblWidth.isActive = 1 " +
+                    " LEFT JOIN  tblThickness ON tblStockDetails.thicknessId = tblThickness.idThickness AND tblThickness.isActive = 1 " +
                     " WHERE tblStockDetails.balanceStock > 0 AND tblStockDetails.prodCatId = 4 " +
                     " AND Convert(DATE ,tblStockDetails.createdOn)  = Convert(DATE ,'" +createdOn+ "') " +
                     " AND tblStockDetails.stockSummaryId = 1 "; 
@@ -182,8 +182,10 @@ namespace ODLMWebAPI.DAL
                    //     DimProdSpecTONew.IdStrips = Convert.ToInt32(dimDimProdSpecTODT["idStrips"].ToString());
                     if (dimDimProdSpecTODT["grade"] != DBNull.Value)
                         DimProdSpecTONew.Grade = Convert.ToInt32(dimDimProdSpecTODT["grade"].ToString());
-                    if (dimDimProdSpecTODT["size"] != DBNull.Value)
-                        DimProdSpecTONew.Size = Convert.ToString(dimDimProdSpecTODT["size"].ToString());
+                    //if (dimDimProdSpecTODT["size"] != DBNull.Value)
+                    //    DimProdSpecTONew.Size = Convert.ToString(dimDimProdSpecTODT["size"].ToString());
+                    if (dimDimProdSpecTODT["width"] != DBNull.Value)
+                        DimProdSpecTONew.Width = Convert.ToInt32(dimDimProdSpecTODT["width"].ToString());
                     if (dimDimProdSpecTODT["thickness"] != DBNull.Value)
                         DimProdSpecTONew.Thickness = Convert.ToDecimal(dimDimProdSpecTODT["thickness"].ToString());
                     dimProdSpecTOList.Add(DimProdSpecTONew);
