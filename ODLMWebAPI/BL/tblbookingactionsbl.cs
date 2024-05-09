@@ -107,7 +107,7 @@ namespace ODLMWebAPI.BL
 
                 if (tblBookingActionsTO.BookingStatus == "CLOSE")
                 {
-                    result = _iTblQuotaDeclarationDAO.DeactivateAllDeclaredQuota(tblBookingActionsTO.StatusBy, conn, tran);
+                    result = _iTblQuotaDeclarationDAO.DeactivateAllDeclaredQuota(tblBookingActionsTO.StatusBy, 0, conn, tran);
                     if (result == -1)
                     {
                         tran.Rollback();

@@ -118,6 +118,7 @@ namespace ODLMWebAPI.Models
 
         Int32 cnfChkSelected;
         Int32 categaryType;
+        string categoryTypeName;
         #endregion
 
         #region Constructor
@@ -612,6 +613,11 @@ namespace ODLMWebAPI.Models
         {
             get { return categaryType; }
             set { categaryType = value; }
+        }
+        public String CategoryTypeName
+        {
+            get { return categoryTypeName; }
+            set { categoryTypeName = value; }
         }
         #endregion
 

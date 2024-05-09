@@ -79,9 +79,9 @@ namespace ODLMWebAPI.BL
             return _iTblGlobalRateDAO.SelectLatestGroupAndRateDCT(rateDeclarationRate);
         }
 
-        public Boolean IsRateAlreadyDeclaredForTheDate(DateTime date, SqlConnection conn, SqlTransaction tran)
+        public Boolean IsRateAlreadyDeclaredForTheDate(DateTime date, Int32 categoryType, SqlConnection conn, SqlTransaction tran)
         {
-            return _iTblGlobalRateDAO.IsRateAlreadyDeclaredForTheDate(date, conn,tran);
+            return _iTblGlobalRateDAO.IsRateAlreadyDeclaredForTheDate(date,categoryType, conn,tran);
 
         }
 

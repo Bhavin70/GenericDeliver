@@ -10,6 +10,7 @@ using ODLMWebAPI.DAL.Interfaces;
 using ODLMWebAPI.BL.Interfaces;
 using Microsoft.Office.Interop.Excel;
 using Constants = ODLMWebAPI.StaticStuff.Constants;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
 
 namespace ODLMWebAPI.DAL
 {
@@ -34,14 +35,14 @@ namespace ODLMWebAPI.DAL
                                   " LEFT JOIN tblRateDeclareReasons reasonDtl" +
                                   " ON rate.rateReasonId=reasonDtl.idRateReason" +
                                   " LEFT JOIN dimBrand brand ON brand.idBrand=rate.brandId " +
-                                  " LEFT JOIN tblGroup groups on  groups.idGroup = rate.groupId" ;
+                                  " LEFT JOIN tblGroup groups on  groups.idGroup = rate.groupId";
 
             return sqlSelectQry;
         }
         #endregion
 
         #region Selection
-       
+
         public TblGlobalRateTO SelectTblGlobalRate(Int32 idGlobalRate)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
@@ -50,7 +51,7 @@ namespace ODLMWebAPI.DAL
             try
             {
                 conn.Open();
-                cmdSelect.CommandText = SqlSelectQuery()+ " WHERE idGlobalRate = " + idGlobalRate +" ";
+                cmdSelect.CommandText = SqlSelectQuery() + " WHERE idGlobalRate = " + idGlobalRate + " ";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
@@ -63,7 +64,7 @@ namespace ODLMWebAPI.DAL
                     return list[0];
                 else return null;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }
@@ -134,7 +135,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblGlobalRateTO> SelectLatestTblGlobalRateTOList(DateTime fromDate, DateTime toDate,Int32 categoryType)
+        public List<TblGlobalRateTO> SelectLatestTblGlobalRateTOList(DateTime fromDate, DateTime toDate, Int32 categoryType)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -148,10 +149,10 @@ namespace ODLMWebAPI.DAL
                 cmdSelect.CommandType = System.Data.CommandType.Text;
 
                 cmdSelect.Parameters.Add("@fromDate", System.Data.SqlDbType.Date).Value = fromDate.Date.ToString(Constants.AzureDateFormat);
-                cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.Date).Value = toDate.Date.ToString(Constants.AzureDateFormat); 
+                cmdSelect.Parameters.Add("@toDate", System.Data.SqlDbType.Date).Value = toDate.Date.ToString(Constants.AzureDateFormat);
 
                 SqlDataReader sqlDataReader = cmdSelect.ExecuteReader(CommandBehavior.Default);
-                List<TblGlobalRateTO> list= ConvertDTToList(sqlDataReader);
+                List<TblGlobalRateTO> list = ConvertDTToList(sqlDataReader);
                 sqlDataReader.Dispose();
                 return list;
             }
@@ -167,7 +168,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public Dictionary<Int32, Int32> SelectLatestGroupAndRateDCT(String rateDeclarationDate="")
+        public Dictionary<Int32, Int32> SelectLatestGroupAndRateDCT(String rateDeclarationDate = "")
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -177,11 +178,11 @@ namespace ODLMWebAPI.DAL
             {
                 string whereCondition = String.Empty;
                 conn.Open();
-                if(!string.IsNullOrEmpty(rateDeclarationDate))
+                if (!string.IsNullOrEmpty(rateDeclarationDate))
                 {
-                    whereCondition = " WHERE cast (createdOn  as date )<='"+rateDeclarationDate+"'";
+                    whereCondition = " WHERE cast (createdOn  as date )<='" + rateDeclarationDate + "'";
                 }
-                cmdSelect.CommandText = " SELECT groupId,MAX(idGlobalRate) idGlobalRate  FROM tblGlobalRate"+whereCondition +
+                cmdSelect.CommandText = " SELECT groupId,MAX(idGlobalRate) idGlobalRate  FROM tblGlobalRate" + whereCondition +
                                         " GROUP BY groupId";
                 cmdSelect.Connection = conn;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
@@ -214,7 +215,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public Dictionary<Int32,Int32> SelectLatestBrandAndRateDCT()
+        public Dictionary<Int32, Int32> SelectLatestBrandAndRateDCT()
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -256,13 +257,20 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public Boolean IsRateAlreadyDeclaredForTheDate(DateTime date, SqlConnection conn, SqlTransaction tran)
+        public Boolean IsRateAlreadyDeclaredForTheDate(DateTime date, Int32 categoryType, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdSelect = new SqlCommand();
             SqlDataReader tblGlobalRateTODT = null;
             try
             {
-                cmdSelect.CommandText = "SELECT COUNT(*) AS todayCount FROM tblGlobalRate " + " WHERE DAY(createdOn)=" + date.Day + " AND MONTH(createdOn)=" + date.Month + " AND YEAR(createdOn)=" + date.Year;
+                if (categoryType > 0)
+                {
+                    cmdSelect.CommandText = "SELECT COUNT(*) AS todayCount FROM tblGlobalRate " + " WHERE DAY(createdOn)=" + date.Day + " AND MONTH(createdOn)=" + date.Month + " AND YEAR(createdOn)=" + date.Year + " AND categoryType =  " + categoryType;
+                }
+                else
+                {
+                    cmdSelect.CommandText = "SELECT COUNT(*) AS todayCount FROM tblGlobalRate " + " WHERE DAY(createdOn)=" + date.Day + " AND MONTH(createdOn)=" + date.Month + " AND YEAR(createdOn)=" + date.Year;
+                }
                 cmdSelect.Connection = conn;
                 cmdSelect.Transaction = tran;
                 cmdSelect.CommandType = System.Data.CommandType.Text;
@@ -314,7 +322,7 @@ namespace ODLMWebAPI.DAL
                 return rdr;
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }
@@ -354,7 +362,7 @@ namespace ODLMWebAPI.DAL
                         tblGlobalRateTONew.RateReasonDesc = Convert.ToString(tblGlobalRateTODT["reasonDesc"]);
                     if (tblGlobalRateTODT["brandId"] != DBNull.Value)
                         tblGlobalRateTONew.BrandId = Convert.ToInt32(tblGlobalRateTODT["brandId"]);
-                   
+
                     if (tblGlobalRateTODT["groupId"] != DBNull.Value)
                         tblGlobalRateTONew.GroupId = Convert.ToInt32(tblGlobalRateTODT["groupId"]);
 
@@ -367,7 +375,7 @@ namespace ODLMWebAPI.DAL
                     }
                     if (tblGlobalRateTODT["categoryType"] != DBNull.Value)
                         tblGlobalRateTONew.CategoryType = Convert.ToInt32(tblGlobalRateTODT["categoryType"]);
-                   
+
                     if (tblGlobalRateTODT["isBothTaxType"] != DBNull.Value)
                         tblGlobalRateTONew.IsBothTaxType = Convert.ToInt16(tblGlobalRateTODT["isBothTaxType"]);
                     tblGlobalRateTOList.Add(tblGlobalRateTONew);
@@ -389,7 +397,7 @@ namespace ODLMWebAPI.DAL
                 cmdInsert.Connection = conn;
                 return ExecuteInsertionCommand(tblGlobalRateTO, cmdInsert);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return -1;
             }
@@ -409,7 +417,7 @@ namespace ODLMWebAPI.DAL
                 cmdInsert.Transaction = tran;
                 return ExecuteInsertionCommand(tblGlobalRateTO, cmdInsert);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return -1;
             }
@@ -440,7 +448,7 @@ namespace ODLMWebAPI.DAL
                             " ,@rateReasonId " +
                             " ,@brandId " +
 
-                            " ,@groupId "+
+                            " ,@groupId " +
                             " ,@categoryType " +
                             " )";
 
@@ -467,7 +475,7 @@ namespace ODLMWebAPI.DAL
             else return 0;
         }
         #endregion
-        
+
         #region Updation
         public int UpdateTblGlobalRate(TblGlobalRateTO tblGlobalRateTO)
         {
@@ -480,7 +488,7 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Connection = conn;
                 return ExecuteUpdationCommand(tblGlobalRateTO, cmdUpdate);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return 0;
             }
@@ -500,7 +508,7 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Transaction = tran;
                 return ExecuteUpdationCommand(tblGlobalRateTO, cmdUpdate);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return -1;
             }
@@ -512,12 +520,12 @@ namespace ODLMWebAPI.DAL
 
         public int ExecuteUpdationCommand(TblGlobalRateTO tblGlobalRateTO, SqlCommand cmdUpdate)
         {
-            String sqlQuery = @" UPDATE [tblGlobalRate] SET " + 
+            String sqlQuery = @" UPDATE [tblGlobalRate] SET " +
                                 "  [idGlobalRate] = @IdGlobalRate" +
                                 " ,[createdBy]= @CreatedBy" +
                                 " ,[createdOn]= @CreatedOn" +
                                 " ,[rate] = @Rate" +
-                                " WHERE 1 = 2 "; 
+                                " WHERE 1 = 2 ";
 
             cmdUpdate.CommandText = sqlQuery;
             cmdUpdate.CommandType = System.Data.CommandType.Text;
@@ -529,7 +537,7 @@ namespace ODLMWebAPI.DAL
             return cmdUpdate.ExecuteNonQuery();
         }
         #endregion
-        
+
         #region Deletion
         public int DeleteTblGlobalRate(Int32 idGlobalRate)
         {
@@ -542,10 +550,10 @@ namespace ODLMWebAPI.DAL
                 cmdDelete.Connection = conn;
                 return ExecuteDeletionCommand(idGlobalRate, cmdDelete);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                 
-                 
+
+
                 return 0;
             }
             finally
@@ -564,10 +572,10 @@ namespace ODLMWebAPI.DAL
                 cmdDelete.Transaction = tran;
                 return ExecuteDeletionCommand(idGlobalRate, cmdDelete);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                 
-                 
+
+
                 return 0;
             }
             finally
@@ -579,13 +587,13 @@ namespace ODLMWebAPI.DAL
         public int ExecuteDeletionCommand(Int32 idGlobalRate, SqlCommand cmdDelete)
         {
             cmdDelete.CommandText = "DELETE FROM [tblGlobalRate] " +
-            " WHERE idGlobalRate = " + idGlobalRate +"";
+            " WHERE idGlobalRate = " + idGlobalRate + "";
             cmdDelete.CommandType = System.Data.CommandType.Text;
 
             //cmdDelete.Parameters.Add("@idGlobalRate", System.Data.SqlDbType.Int).Value = tblGlobalRateTO.IdGlobalRate;
             return cmdDelete.ExecuteNonQuery();
         }
         #endregion
-        
+
     }
 }

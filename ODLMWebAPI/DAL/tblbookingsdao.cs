@@ -37,10 +37,11 @@ namespace ODLMWebAPI.DAL
                                  " orgDealer.firmName + ',' + " +
                                  " CASE WHEN orgDealer.addrId IS NULL THEN '' Else case WHEN address.villageName IS NOT NULL THEN address.villageName " +
                                  " ELSE CASE WHEN address.talukaName IS NOT NULL THEN address.talukaName ELSE CASE WHEN address.districtName IS NOT NULL THEN address.districtName ELSE address.stateName END END END END AS dealerName," +
-                                 " CONCAT (dimStatus.statusName,'-', ISNULL(userStatusBy.userDisplayName,'') ) AS statusName , brandDtl.brandName, address.stateId, address.districtId, address.talukaId,orderType.consumerType as consumerTypeName" + //02-12-2020 Dhananjay added address.districtId, address.talukaId
-                                 " ,AA.statusRemark  as 'DirectorComment',brandDtl.isBothTaxType " +//Reshma Added For Comment
-                                 " FROM tblbookings bookings LEFT JOIN tblOrganization orgCnf  ON bookings.cnfOrgId = orgCnf.idOrganization" +
-
+                                 " CONCAT (dimStatus.statusName,'-', ISNULL(userStatusBy.userDisplayName,'') ) AS statusName , brandDtl.brandName, address.stateId, address.districtId, address.talukaId,orderType.consumerType as consumerTypeName," + //02-12-2020 Dhananjay added address.districtId, address.talukaId
+                                 " AA.statusRemark  as 'DirectorComment',brandDtl.isBothTaxType ," +//Reshma Added For Comment
+                                 " prodcat.prodCateDesc " +
+                                 " FROM tblbookings bookings " +
+                                 " LEFT JOIN tblOrganization orgCnf  ON bookings.cnfOrgId = orgCnf.idOrganization" +
                                  " LEFT JOIN tblTranActions tblTranAction ON tblTranAction.transId = bookings.idBooking AND tblTranAction.userId = " + loginUserId +
                                  " AND tblTranAction.tranActionTypeId = " + (Int32)Constants.TranActionTypeE.READ +
                                  " AND tblTranAction.transTypeId = " + (Int32)Constants.TransactionTypeE.BOOKING +
@@ -56,8 +57,8 @@ namespace ODLMWebAPI.DAL
                                  " LEFT JOIN vAddressDetails address ON address.idAddr = orgDealer.addrId " +
                                  " LEFT JOIN tblCRMEnquiry tblCRMEnquiry ON tblCRMEnquiry.idEnquiry = bookings.enquiryId " +
                                  "LEFT JOIN dimConsumerType orderType ON orderType.idConsumer = bookings.consumerTypeId " +
-                                 " left outer join  (select top 1 A.idBooking,  B.statusRemark  from tblBookings A inner join tblBookingBeyondQuota B on A.idBooking=B.bookingId and B.statusId   =" + (Int32)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR + " )AA on AA.idBooking=bookings.idBooking  ";
-
+                                 " left outer join  (select top 1 A.idBooking,  B.statusRemark  from tblBookings A inner join tblBookingBeyondQuota B on A.idBooking=B.bookingId and B.statusId   =" + (Int32)Constants.TranStatusE.BOOKING_ACCEPTED_BY_ADMIN_OR_DIRECTOR + " )AA on AA.idBooking=bookings.idBooking  " +
+                                 " Left join dimProdCat prodcat on prodcat.idProdCat = bookings.categoryType ";
             //String sqlSelectQry = " SELECT bookings.*, orgCnf.firmName as cnfName,orgDealer.firmName as dealerName, dimStatus.statusName" +
             //                        " ,brandDtl.brandName" +
             //                        " FROM tblbookings bookings " +
@@ -2237,6 +2238,8 @@ namespace ODLMWebAPI.DAL
                         tblBookingsTONew.IsBothTaxType = Convert.ToInt32(tblBookingsTODT["isBothTaxType"]);
                     if (tblBookingsTODT["categoryType"] != DBNull.Value)
                         tblBookingsTONew.CategoryType = Convert.ToInt32(tblBookingsTODT["categoryType"]);
+                    if (tblBookingsTODT["prodCateDesc"] != DBNull.Value)
+                        tblBookingsTONew.CategoryTypeName = Convert.ToString(tblBookingsTODT["prodCateDesc"]);
 
                     tblBookingsTOList.Add(tblBookingsTONew);
                 }

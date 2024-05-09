@@ -7,7 +7,7 @@ using System.Data;
 using ODLMWebAPI.DAL;
 using ODLMWebAPI.Models;
 using ODLMWebAPI.StaticStuff;
-using System.Linq;
+using System.Linq;  
 using ODLMWebAPI.BL.Interfaces;
 using ODLMWebAPI.DAL.Interfaces;
 
@@ -231,7 +231,7 @@ namespace ODLMWebAPI.BL
 
                 #region 1. Save the Declared Rate
 
-                Boolean isRateAlreadyDeclare = _iTblGlobalRateBL.IsRateAlreadyDeclaredForTheDate(tblGlobalRateTO.CreatedOn, conn, tran);
+                Boolean isRateAlreadyDeclare = _iTblGlobalRateBL.IsRateAlreadyDeclaredForTheDate(tblGlobalRateTO.CreatedOn, tblGlobalRateTO.CategoryType, conn, tran);
 
                 //This condition means if new declared quota is not found then new rate can not be declared
                 if (quotaList != null && quotaList.Count > 0)
@@ -251,7 +251,7 @@ namespace ODLMWebAPI.BL
 
                 #region 2. Deactivate All Previous Declared Quota
 
-                result = _iTblQuotaDeclarationDAO.DeactivateAllDeclaredQuota(tblGlobalRateTO.CreatedBy, conn, tran);
+                result = _iTblQuotaDeclarationDAO.DeactivateAllDeclaredQuota(tblGlobalRateTO.CreatedBy, tblGlobalRateTO.CategoryType, conn, tran);
                 if (result == -1)
                 {
                     tran.Rollback();
@@ -541,14 +541,14 @@ namespace ODLMWebAPI.BL
 
                 List<TblUserBrandTO> tblUserBrandList = _iTblUserBrandDAO.SelectAllTblUserBrand(1);
               
-                Boolean isRateAlreadyDeclare = _iTblGlobalRateBL.IsRateAlreadyDeclaredForTheDate(tblGlobalRateTOList[0].CreatedOn, conn, tran);
+                Boolean isRateAlreadyDeclare = _iTblGlobalRateBL.IsRateAlreadyDeclaredForTheDate(tblGlobalRateTOList[0].CreatedOn, tblGlobalRateTOList[0].CategoryType, conn, tran);
                 String rateString = string.Empty;
                 //This condition means if new declared quota is not found then new rate can not be declared
                 if (tblGlobalRateTOList != null && tblGlobalRateTOList.Count > 0)
                 {
                     #region 1.1 Deactivate All Previous Declared Quota
 
-                    result = _iTblQuotaDeclarationDAO.DeactivateAllDeclaredQuota(tblGlobalRateTOList[0].CreatedBy, conn, tran);
+                    result = _iTblQuotaDeclarationDAO.DeactivateAllDeclaredQuota(tblGlobalRateTOList[0].CreatedBy, tblGlobalRateTOList[0].CategoryType, conn, tran);
                     if (result == -1)
                     {
                         tran.Rollback();

@@ -25,7 +25,7 @@ namespace ODLMWebAPI.DAL.Interfaces
         int ExecuteInsertionCommand(TblQuotaDeclarationTO tblQuotaDeclarationTO, SqlCommand cmdInsert);
         int UpdateTblQuotaDeclaration(TblQuotaDeclarationTO tblQuotaDeclarationTO);
         int UpdateTblQuotaDeclaration(TblQuotaDeclarationTO tblQuotaDeclarationTO, SqlConnection conn, SqlTransaction tran);
-        int DeactivateAllDeclaredQuota(Int32 updatedBy, SqlConnection conn, SqlTransaction tran);
+        int DeactivateAllDeclaredQuota(Int32 updatedBy, Int32 categoryType, SqlConnection conn, SqlTransaction tran);
         int UpdateQuotaDeclarationValidity(TblQuotaDeclarationTO tblQuotaDeclarationTO, SqlConnection conn, SqlTransaction tran);
         int ExecuteUpdationCommand(TblQuotaDeclarationTO tblQuotaDeclarationTO, SqlCommand cmdUpdate);
         int DeleteTblQuotaDeclaration(Int32 idQuotaDeclaration);

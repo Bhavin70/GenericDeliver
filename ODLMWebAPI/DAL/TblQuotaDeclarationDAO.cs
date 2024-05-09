@@ -98,7 +98,7 @@ namespace ODLMWebAPI.DAL
             {
                 while (tblQuotaDeclarationTODT.Read())
                 {
-                    
+
                     if (tblQuotaDeclarationTODT["idQuotaDeclaration"] != DBNull.Value)
                         tblQuotaDeclarationTONew.IdQuotaDeclaration = Convert.ToInt32(tblQuotaDeclarationTODT["idQuotaDeclaration"].ToString());
                     if (tblQuotaDeclarationTODT["orgId"] != DBNull.Value)
@@ -127,9 +127,9 @@ namespace ODLMWebAPI.DAL
                         tblQuotaDeclarationTONew.UpdatedBy = Convert.ToInt32(tblQuotaDeclarationTODT["updatedBy"].ToString());
                     if (tblQuotaDeclarationTODT["updatedOn"] != DBNull.Value)
                         tblQuotaDeclarationTONew.UpdatedOn = Convert.ToDateTime(tblQuotaDeclarationTODT["updatedOn"].ToString());
-       
-                  
-                   
+
+
+
                 }
             }
             return tblQuotaDeclarationTONew;
@@ -356,7 +356,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<TblQuotaDeclarationTO> SelectLatestQuotaDeclaration(Int32 orgId,DateTime date,Boolean isQuotaDeclaration,int categoryType = 1)
+        public List<TblQuotaDeclarationTO> SelectLatestQuotaDeclaration(Int32 orgId, DateTime date, Boolean isQuotaDeclaration, int categoryType = 1)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -380,11 +380,11 @@ namespace ODLMWebAPI.DAL
                 //                        " LEFT JOIN dimBrand brand on brand.idBrand=latestRate.brandId) AS latestRateInfo ON latestRateInfo.idGlobalRate = quota.globalRateId WHERE";
                 // Above query commented by Aniket [4-7-2019] as discussed with saket, and written below new query
                 // new query has been written due to validUp mins issues while rate declaration
-                cmdSelect.CommandText= " SELECT quota.*,g.rate as declaredRate,b.brandName,b.idBrand as brandId,b.isAutoSelect as isAutoSelect,b.isBothTaxType " + 
-                                        " FROM tblQuotaDeclaration quota "+
-                                        " LEFT JOIN tblGlobalRate g ON quota.globalRateId = g.idGlobalRate "+
+                cmdSelect.CommandText = " SELECT quota.*,g.rate as declaredRate,b.brandName,b.idBrand as brandId,b.isAutoSelect as isAutoSelect,b.isBothTaxType " +
+                                        " FROM tblQuotaDeclaration quota " +
+                                        " LEFT JOIN tblGlobalRate g ON quota.globalRateId = g.idGlobalRate " +
                                         " left join dimBrand b ON b.idBrand = g.brandId WHERE";
-                cmdSelect.CommandText += "  orgId=" + orgId  ;
+                cmdSelect.CommandText += "  orgId=" + orgId;
 
                 if (isQuotaDeclaration)
                 {
@@ -395,8 +395,6 @@ namespace ODLMWebAPI.DAL
                     cmdSelect.CommandText += " AND quota.categoryType = " + categoryType;
                 }
                 cmdSelect.CommandText += " AND b.isActive = 1 and quota.isActive = 1 ORDER BY quotaAllocDate DESC";
-
-
 
 
                 cmdSelect.Connection = conn;
@@ -440,7 +438,7 @@ namespace ODLMWebAPI.DAL
                 if (roletypeId == (int)Constants.SystemRoleTypeE.C_AND_F_AGENT)
                 {
                     whereCond = " AND orgId=" + orgId;
-                    }
+                }
                 //}
 
                 //if (roleId == (int)Constants.SystemRolesE.C_AND_F_AGENT)
@@ -489,7 +487,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public List<ODLMWebAPI.DashboardModels.QuotaAndRateInfo> SelectDashboardQuotaAndRateInfoList(Int32 roleId, Int32 orgId, DateTime sysDate,Int32 categoryType)
+        public List<ODLMWebAPI.DashboardModels.QuotaAndRateInfo> SelectDashboardQuotaAndRateInfoList(Int32 roleId, Int32 orgId, DateTime sysDate, Int32 categoryType)
         {
             String sqlConnStr = _iConnectionString.GetConnectionString(Constants.CONNECTION_STRING);
             SqlConnection conn = new SqlConnection(sqlConnStr);
@@ -574,7 +572,7 @@ namespace ODLMWebAPI.DAL
                 cmdInsert.Connection = conn;
                 return ExecuteInsertionCommand(tblQuotaDeclarationTO, cmdInsert);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return 0;
             }
@@ -594,10 +592,10 @@ namespace ODLMWebAPI.DAL
                 cmdInsert.Transaction = tran;
                 return ExecuteInsertionCommand(tblQuotaDeclarationTO, cmdInsert);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                
-                
+
+
                 return 0;
             }
             finally
@@ -621,7 +619,7 @@ namespace ODLMWebAPI.DAL
                             " ,[isActive]" +
                             " ,[updatedBy]" +
                             " ,[updatedOn]" +
-                            " ,[validUpto]"+
+                            " ,[validUpto]" +
                             " ,[categoryType]" +
                             " )" +
                 " VALUES (" +
@@ -667,7 +665,7 @@ namespace ODLMWebAPI.DAL
             else return 0;
         }
         #endregion
-        
+
         #region Updation
         public int UpdateTblQuotaDeclaration(TblQuotaDeclarationTO tblQuotaDeclarationTO)
         {
@@ -677,7 +675,7 @@ namespace ODLMWebAPI.DAL
             SqlCommand cmdUpdate = new SqlCommand();
             try
             {
-                if(tblQuotaDeclarationTO.UpdatedOn==DateTime.MinValue)
+                if (tblQuotaDeclarationTO.UpdatedOn == DateTime.MinValue)
                 {
                     tblQuotaDeclarationTO.UpdatedOn = serverDateTime;
                 }
@@ -685,7 +683,7 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Connection = conn;
                 return ExecuteUpdationCommand(tblQuotaDeclarationTO, cmdUpdate);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return -1;
             }
@@ -705,7 +703,7 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Transaction = tran;
                 return ExecuteUpdationCommand(tblQuotaDeclarationTO, cmdUpdate);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return -1;
             }
@@ -715,7 +713,7 @@ namespace ODLMWebAPI.DAL
             }
         }
 
-        public int DeactivateAllDeclaredQuota(Int32 updatedBy, SqlConnection conn, SqlTransaction tran)
+        public int DeactivateAllDeclaredQuota(Int32 updatedBy, Int32 categoryType, SqlConnection conn, SqlTransaction tran)
         {
             SqlCommand cmdUpdate = new SqlCommand();
             try
@@ -723,12 +721,27 @@ namespace ODLMWebAPI.DAL
                 cmdUpdate.Connection = conn;
                 cmdUpdate.Transaction = tran;
                 cmdUpdate.CommandTimeout = 60;
-                String sqlQuery = @" UPDATE [tblQuotaDeclaration] SET " +
-                                  "  [isActive] = @isActive " +
-                                  " ,[updatedBy] = @updatedBy " +
-                                  " ,[validUpto] = @validUpto " +
-                                  " ,[updatedOn] = @updatedOn " +
-                                  "  WHERE isActive = 1 ";
+                string sqlQuery = string.Empty;
+                if (categoryType > 0)
+                {
+                    sqlQuery = @" UPDATE [tblQuotaDeclaration] SET " +
+                                     "  [isActive] = @isActive " +
+                                     " ,[updatedBy] = @updatedBy " +
+                                     " ,[validUpto] = @validUpto " +
+                                     " ,[updatedOn] = @updatedOn " +
+                                     "  WHERE isActive = 1 AND categoryType = " + categoryType;
+
+                }
+                else
+                {
+                    sqlQuery = @" UPDATE [tblQuotaDeclaration] SET " +
+                                 "  [isActive] = @isActive " +
+                                 " ,[updatedBy] = @updatedBy " +
+                                 " ,[validUpto] = @validUpto " +
+                                 " ,[updatedOn] = @updatedOn " +
+                                 "  WHERE isActive = 1 ";
+                }
+
 
                 cmdUpdate.CommandText = sqlQuery;
                 cmdUpdate.CommandType = System.Data.CommandType.Text;
@@ -839,24 +852,24 @@ namespace ODLMWebAPI.DAL
                 conn.Open();
                 updateCommand.CommandText = "select * from tblQuotaDeclaration  where orgId= @cnfOrgId " +
                     "and globalRateId IN ( select idGlobalRate from tblGlobalRate where cast(createdOn as date) = cast( @currentDate as date) and brandId = @brandId)";
-               
+
                 updateCommand.Parameters.AddWithValue("@currentDate", DbType.DateTime).Value = serverDate;
                 updateCommand.Parameters.AddWithValue("@brandId", DbType.Int32).Value = brandId;
                 updateCommand.Parameters.AddWithValue("@cnfOrgId", DbType.Int32).Value = cnfOrgId;
                 SqlDataReader dataReader = updateCommand.ExecuteReader();
                 tblQuotaDeclarationTO = ConvertDT(dataReader);
-               if(tblQuotaDeclarationTO!=null)
+                if (tblQuotaDeclarationTO != null)
                 {
                     return tblQuotaDeclarationTO;
                 }
-               else
+                else
                 {
                     return null;
                 }
             }
             catch (Exception ex)
             {
-                return null;  
+                return null;
             }
             finally
             {
@@ -878,10 +891,10 @@ namespace ODLMWebAPI.DAL
                 cmdDelete.Connection = conn;
                 return ExecuteDeletionCommand(idQuotaDeclaration, cmdDelete);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                
-                
+
+
                 return 0;
             }
             finally
@@ -900,10 +913,10 @@ namespace ODLMWebAPI.DAL
                 cmdDelete.Transaction = tran;
                 return ExecuteDeletionCommand(idQuotaDeclaration, cmdDelete);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                
-                
+
+
                 return 0;
             }
             finally
@@ -915,13 +928,13 @@ namespace ODLMWebAPI.DAL
         public int ExecuteDeletionCommand(Int32 idQuotaDeclaration, SqlCommand cmdDelete)
         {
             cmdDelete.CommandText = "DELETE FROM [tblQuotaDeclaration] " +
-            " WHERE idQuotaDeclaration = " + idQuotaDeclaration +"";
+            " WHERE idQuotaDeclaration = " + idQuotaDeclaration + "";
             cmdDelete.CommandType = System.Data.CommandType.Text;
 
             //cmdDelete.Parameters.Add("@idQuotaDeclaration", System.Data.SqlDbType.Int).Value = tblQuotaDeclarationTO.IdQuotaDeclaration;
             return cmdDelete.ExecuteNonQuery();
         }
         #endregion
-        
+
     }
 }
